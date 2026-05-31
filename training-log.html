@@ -511,21 +511,9 @@ tr:last-child td { border-bottom: none; }
         <!-- セッション環境 -->
         <div class="sec">
           <div class="sec-title">セッション環境</div>
-          <div class="row2" style="margin-bottom:10px">
-            <div class="fld" id="env-sea-field">
-              <label>海況</label>
-              <select class="fi" id="f-seacond">
-                <option value="">選択...</option>
-                <option value="flat">🪨 凪</option>
-                <option value="wave">🌊 波あり</option>
-                <option value="swell">🌀 うねりあり</option>
-                <option value="wind">💨 強風</option>
-              </select>
-            </div>
-            <div class="fld" id="env-pool-field" style="display:none">
-              <label>水深 (m)</label>
-              <input type="number" class="fi" id="f-pooldepth" placeholder="5" step="0.5" min="0">
-            </div>
+          <div id="env-pool-field" class="fld" style="display:none;margin-bottom:10px">
+            <label>水深 (m)</label>
+            <input type="number" class="fi" id="f-pooldepth" placeholder="5" step="0.5" min="0">
           </div>
           <div id="env-pool-type" style="display:none">
             <label style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em">プール種別</label>
@@ -1004,7 +992,6 @@ function setEnv(v, el) {
   const isDry  = v === 'dry';
 
   // セッション環境フィールド切り替え
-  document.getElementById('env-sea-field').style.display  = isSea  ? '' : 'none';
   document.getElementById('env-pool-field').style.display = isPool ? '' : 'none';
   document.getElementById('env-pool-type').style.display  = isPool ? '' : 'none';
 
@@ -1714,13 +1701,12 @@ function toHalf(el, mode, e) {
 
 function resetForm() {
   document.getElementById('f-date').value = today();
-  ['f-seacond','f-pooldepth',
+  ['f-pooldepth',
    'f-target','f-target-time','f-best-depth','f-best-time','f-rhr','f-note']
     .forEach(id => { const el = document.getElementById(id); if(el){ el.value=''; el.disabled=false; el.style.opacity='1'; } });
   state = { env: 'sea', disc: '', cond: 3, hypoxia: 0, squeeze: 0, dcs: 0, narcosis: 0, poolSize: 25 };
   // Reset env
   document.querySelectorAll('.env-btns')[0]?.querySelectorAll('.env-btn').forEach((b,i)=>b.classList.toggle('sel',i===0));
-  document.getElementById('env-sea-field').style.display  = '';
   document.getElementById('env-pool-field').style.display = 'none';
   document.getElementById('env-pool-type').style.display  = 'none';
   document.getElementById('sec-laps').style.display = 'none';
@@ -1755,7 +1741,7 @@ function saveSession() {
     date: document.getElementById('f-date').value || today(),
     env: state.env,
     discipline: sessionDives[0]?.disc || state.disc || null,
-    seaCond: document.getElementById('f-seacond')?.value || null,
+
     poolDepth: parseFloat(document.getElementById('f-pooldepth')?.value) || null,
     poolSize: isPool ? state.poolSize : null,
     dives: sessionDives.length || (uddfDives.length || null),
@@ -2444,7 +2430,6 @@ function editSession(id) {
   if (s.condition) setCond(s.condition);
 
   // 環境固有
-  if (s.env === 'sea' && s.seaCond) document.getElementById('f-seacond').value = s.seaCond;
   if (s.env === 'pool' && s.poolDepth) document.getElementById('f-pooldepth').value = s.poolDepth;
 
   // ダイブログを復元
