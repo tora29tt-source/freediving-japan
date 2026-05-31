@@ -389,10 +389,10 @@ tr:last-child td { border-bottom: none; }
   <button class="mobile-nav-item active" id="mnav-entry" onclick="goto('entry',this);updateMobileNav('entry')">
     <span class="icon">✏️</span>登録
   </button>
-  <button class="mobile-nav-item" id="mnav-list" onclick="goto('list',this);updateMobileNav('list')">
+  <button class="mobile-nav-item" id="mnav-list" onclick="goto('list',this)">
     <span class="icon">📋</span>一覧
   </button>
-  <button class="mobile-nav-item" id="mnav-dash" onclick="goto('dash',this);updateMobileNav('dash')">
+  <button class="mobile-nav-item" id="mnav-dash" onclick="goto('dash',this)">
     <span class="icon">📊</span>ダッシュ
   </button>
 </nav>
@@ -876,9 +876,14 @@ function updateMobileNav(page) {
   if (btn) btn.classList.add('active');
 }
 
+function hasUnsavedData() {
+  if (sessionDives.length > 0) return true;
+  const fields = ['f-best-depth','f-best-time','f-target','f-target-time'];
+  return fields.some(id => (document.getElementById(id)?.value||'').trim() !== '');
+}
+
 function goto(page, el) {
-  // 入力中のダイブがあれば他タブへの移動をブロック
-  if (page !== 'entry' && sessionDives.length > 0) {
+  if (page !== 'entry' && hasUnsavedData()) {
     showToast('⚠️ 入力中のデータがあります。先に保存してください');
     return;
   }
