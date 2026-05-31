@@ -299,9 +299,103 @@ tr:last-child td { border-bottom: none; }
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: var(--surface); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+/* ===== MOBILE NAV BAR ===== */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 56px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  z-index: 200;
+  flex-direction: row;
+}
+.mobile-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  font-size: 10px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color .15s;
+  border: none;
+  background: none;
+  font-family: inherit;
+  padding: 6px 0;
+}
+.mobile-nav-item.active { color: var(--accent2); }
+.mobile-nav-item .icon { font-size: 20px; line-height: 1; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 639px) {
+  body {
+    padding-left: 0;
+    padding-bottom: 64px;
+  }
+  .sidebar { display: none; }
+  .mobile-nav { display: flex; }
+
+  .page { padding: 14px 14px 20px; }
+  .page-inner { max-width: 100%; }
+
+  /* Entry grid: stack vertically */
+  .entry-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Form grids: collapse */
+  .row2 { grid-template-columns: 1fr 1fr; }
+  .row3 { grid-template-columns: 1fr 1fr; }
+  .row4 { grid-template-columns: 1fr 1fr; }
+
+  /* Env toggle buttons */
+  .env-btns { grid-template-columns: 1fr 1fr; }
+  .env-btns.three { grid-template-columns: 1fr 1fr 1fr; }
+
+  /* Dashboard */
+  .dash-charts { grid-template-columns: 1fr; }
+
+  /* Modal */
+  .modal-meta { grid-template-columns: repeat(3, 1fr); }
+  .modal { padding: 16px; width: 95%; }
+
+  /* Log list table: horizontal scroll */
+  .card > div[style*="overflow-x"] { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* Speed analysis */
+  .speed-wrap { grid-template-columns: 1fr; }
+
+  /* Chips wrap naturally */
+  .chips { gap: 5px; }
+  .chip { font-size: 11px; padding: 5px 10px; }
+
+  /* Table: tighten padding */
+  th, td { padding: 8px 8px; font-size: 12px; }
+
+  /* Cards */
+  .card-body { padding: 14px; }
+  .card-head { padding: 10px 14px; }
+}
 </style>
 </head>
 <body>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="mobile-nav">
+  <button class="mobile-nav-item active" id="mnav-entry" onclick="goto('entry',this);updateMobileNav('entry')">
+    <span class="icon">✏️</span>登録
+  </button>
+  <button class="mobile-nav-item" id="mnav-list" onclick="goto('list',this);updateMobileNav('list')">
+    <span class="icon">📋</span>一覧
+  </button>
+  <button class="mobile-nav-item" id="mnav-dash" onclick="goto('dash',this);updateMobileNav('dash')">
+    <span class="icon">📊</span>ダッシュ
+  </button>
+</nav>
 
 <!-- SIDEBAR -->
 <aside class="sidebar">
@@ -751,11 +845,18 @@ let sessionDives = [];
 let pendingUDDFData = null; // profile/speed from UDDF fill
 
 // ===== NAV =====
+function updateMobileNav(page) {
+  document.querySelectorAll('.mobile-nav-item').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('mnav-' + page);
+  if (btn) btn.classList.add('active');
+}
+
 function goto(page, el) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
-  if (el) el.classList.add('active');
+  if (el && el.classList.contains('nav-item')) el.classList.add('active');
+  updateMobileNav(page);
   if (page === 'list') renderList();
   if (page === 'dash') renderDash();
 }
