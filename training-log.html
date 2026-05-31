@@ -15,10 +15,17 @@
   --border: #1e3652;
   --accent: #0ea5e9;
   --accent2: #38bdf8;
-  --accent-dim: rgba(14,165,233,0.12);
-  --text: #e2e8f0;
-  --muted: #64748b;
-  --sub: #94a3b8;
+  --bg: #04161f;
+  --surface: #0c2738;
+  --surface2: #123146;
+  --surface3: #18415c;
+  --border: rgba(168,236,232,0.14);
+  --accent: #2ec4b6;
+  --accent2: #a8ece8;
+  --accent-dim: rgba(46,196,182,0.12);
+  --text: rgba(255,255,255,0.92);
+  --muted: rgba(255,255,255,0.40);
+  --sub: rgba(255,255,255,0.62);
   --success: #22c55e;
   --warn: #f59e0b;
   --danger: #ef4444;
@@ -28,10 +35,12 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: var(--bg);
+  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  background: linear-gradient(180deg,#0e3d5c 0%,#0b2d45 22%,#06283a 55%,#04161f 100%);
+  background-attachment: fixed;
   color: var(--text);
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
   padding-left: 0;       /* mobile default: no sidebar */
   padding-bottom: 64px;  /* mobile: space for bottom nav */
   line-height: 1.5;
@@ -477,16 +486,9 @@ tr:last-child td { border-bottom: none; }
   <div class="entry-grid">
     <!-- LEFT: FORM -->
     <div class="card">
-      <!-- タブバー -->
-      <div class="entry-tabs">
-        <button class="entry-tab active" id="etab-input" onclick="switchEntryTab('input')">ダイブ入力</button>
-        <button class="entry-tab" id="etab-list" onclick="switchEntryTab('list')">
-          今日のダイブ<span class="entry-tab-badge" id="etab-badge" style="display:none">0</span>
-        </button>
-      </div>
 
       <!-- パネル：入力 -->
-      <div class="entry-tab-panel active" id="epanel-input">
+      <div id="epanel-input">
       <div class="card-body">
 
         <!-- 環境 -->
@@ -508,25 +510,17 @@ tr:last-child td { border-bottom: none; }
           </div>
         </div>
 
-        <!-- セッション環境 -->
-        <div class="sec">
-          <div class="sec-title">セッション環境</div>
-          <div id="env-pool-field" class="fld" style="display:none;margin-bottom:10px">
-            <label>水深 (m)</label>
-            <input type="number" class="fi" id="f-pooldepth" placeholder="5" step="0.5" min="0">
-          </div>
-          <div id="env-pool-type" style="display:none">
-            <label style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em">プール種別</label>
-            <div class="env-btns" style="margin-top:6px">
-              <button class="env-btn sel" id="pool-25" onclick="setPoolSize(25,this)">25m プール</button>
-              <button class="env-btn" id="pool-50" onclick="setPoolSize(50,this)">50m プール</button>
-            </div>
-          </div>
-        </div>
 
         <!-- ダイブ追加 -->
         <div class="sec">
-          <div class="sec-title">ダイブ入力 <span id="dive-num-label" style="color:var(--accent2);font-size:12px;font-weight:600;margin-left:8px">1本目を入力</span></div>
+          <div class="sec-title" style="margin-bottom:8px">ダイブ入力</div>
+          <!-- ダイブタブ -->
+          <div id="dive-tabs" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px;align-items:center">
+            <button id="dive-tab-new" onclick="selectDiveTab('new')"
+              style="padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;border:1px dashed var(--border);color:var(--accent2);background:transparent;cursor:pointer;transition:all .15s">
+              ＋ 新規
+            </button>
+          </div>
 
           <!-- UDDF インライン取り込み -->
           <div id="inline-uddf-zone" style="margin-bottom:14px">
@@ -583,11 +577,14 @@ tr:last-child td { border-bottom: none; }
             </div>
           </div>
 
-          <!-- モード切り替え（種目選択後に表示） -->
+          <!-- モード切り替え -->
           <div id="dive-mode-toggle" style="display:none;margin-bottom:14px">
-            <div class="env-btns">
-              <button class="env-btn sel" id="mode-target" onclick="setDiveMode('target',this)">🎯 ターゲットダイブ</button>
-              <button class="env-btn"    id="mode-interval" onclick="setDiveMode('interval',this)">🔁 インターバル</button>
+            <!-- 海：ラベルのみ -->
+            <div id="mode-target-label" style="display:none;padding:10px;border-radius:var(--rs);background:var(--accent);color:#fff;font-size:13px;font-weight:700;text-align:center;width:50%">1本目のダイブ</div>
+            <!-- プール・ドライ：トグル -->
+            <div class="env-btns" id="mode-toggle-btns" style="display:none">
+              <button class="env-btn sel" id="mode-target-btn" onclick="setDiveMode('target',this)">1本目のダイブ</button>
+              <button class="env-btn" id="mode-interval" onclick="setDiveMode('interval',this)">🔁 インターバル</button>
             </div>
           </div>
 
@@ -596,7 +593,7 @@ tr:last-child td { border-bottom: none; }
           <div class="row4" style="margin-bottom:10px">
             <div class="fld" id="fld-target-dist">
               <label id="lbl-target-dist" style="color:var(--muted)">🎯 目標深度 (m)</label>
-              <input type="text" inputmode="numeric" class="fi" id="f-target" placeholder="80"
+              <input type="text" inputmode="numeric" class="fi" id="f-target" placeholder="80" maxlength="3"
                 oninput="toHalf(this,'num',event)">
             </div>
             <div class="fld">
@@ -606,7 +603,7 @@ tr:last-child td { border-bottom: none; }
             </div>
             <div class="fld" id="fld-result-dist">
               <label id="lbl-result-dist">✅ 深度 (m)</label>
-              <input type="text" inputmode="numeric" class="fi" id="f-best-depth" placeholder="—"
+              <input type="text" inputmode="numeric" class="fi" id="f-best-depth" placeholder="—" maxlength="3"
                 oninput="toHalf(this,'num',event); onResultDistInput()">
             </div>
             <div class="fld">
@@ -622,7 +619,7 @@ tr:last-child td { border-bottom: none; }
             <div class="row3" style="margin-bottom:10px">
               <div class="fld">
                 <label id="lbl-iv-dist">距離 (m)</label>
-                <input type="text" inputmode="numeric" class="fi" id="f-interval-dist" placeholder=""
+                <input type="text" inputmode="numeric" class="fi" id="f-interval-dist" placeholder="" maxlength="3"
                   oninput="toHalf(this,'num',event);calcInterval()">
               </div>
               <div class="fld">
@@ -645,7 +642,9 @@ tr:last-child td { border-bottom: none; }
               </div>
             </div>
             <div id="iv-dyn-extra" style="display:none"></div>
-            <div id="interval-preview" style="font-size:12px;color:var(--sub);padding:8px;background:var(--surface2);border-radius:var(--rs);line-height:1.8"></div>
+            <div id="interval-preview" style="font-size:12px;color:var(--sub);padding:8px;background:var(--surface2);border-radius:var(--rs);line-height:1.8;margin-bottom:10px"></div>
+            <!-- 本数テーブル -->
+            <div id="iv-sets-table" style="display:none"></div>
           </div>
 
           <!-- ラップタイム（プール + DYN/DNF/DYNB のみ） -->
@@ -983,6 +982,10 @@ function goto(page, el) {
 
 // ===== FORM CONTROLS =====
 function setEnv(v, el) {
+  if (sessionDives.length > 0 && v !== state.env) {
+    showToast('❌ ダイブ登録後は環境を変更できません');
+    return;
+  }
   state.env = v;
   document.querySelectorAll('#env-main-btns .env-btn').forEach(b => b.classList.remove('sel'));
   el.classList.add('sel');
@@ -991,9 +994,6 @@ function setEnv(v, el) {
   const isPool = v === 'pool';
   const isDry  = v === 'dry';
 
-  // セッション環境フィールド切り替え
-  document.getElementById('env-pool-field').style.display = isPool ? '' : 'none';
-  document.getElementById('env-pool-type').style.display  = isPool ? '' : 'none';
 
   // 種目チップ切り替え
   const seaDiscs  = ['CWT','CWTB','CNF','FIM'];
@@ -1079,16 +1079,26 @@ function updateIntervalFields(disc) {
 
 // ===== INTERVAL CALC =====
 function showIntervalSection(disc) {
+  const SEA_DISCS = ['CWT','CWTB','CNF','FIM'];
   const IV_DISCS = ['DYN','DNF','DYNB','STA','RVSTA','FRCSTA','WALK'];
-  const showToggle = IV_DISCS.includes(disc);
-  document.getElementById('dive-mode-toggle').style.display = showToggle ? '' : 'none';
+  const isSea = state.env === 'sea';
+  const showSeaLabel  = SEA_DISCS.includes(disc);
+  const showIvToggle  = !isSea && IV_DISCS.includes(disc);
+  const showAny = showSeaLabel || showIvToggle;
+
+  document.getElementById('dive-mode-toggle').style.display = showAny ? '' : 'none';
+  document.getElementById('mode-target-label').style.display = showSeaLabel ? '' : 'none';
+  document.getElementById('mode-toggle-btns').style.display  = showIvToggle ? '' : 'none';
+
   // Reset to target mode on disc change
   diveMode = 'target';
-  document.getElementById('mode-target').classList.add('sel');
-  document.getElementById('mode-interval').classList.remove('sel');
   document.getElementById('sec-target-dive').style.display = '';
   document.getElementById('sec-interval').style.display = 'none';
-  if (showToggle) updateIntervalFields(disc);
+  if (showIvToggle) {
+    document.getElementById('mode-target-btn').classList.add('sel');
+    document.getElementById('mode-interval').classList.remove('sel');
+    updateIntervalFields(disc);
+  }
 }
 
 function calcInterval() {
@@ -1120,6 +1130,68 @@ function calcInterval() {
     if (dist && sets) lines.push(`合計 <strong>${dist*sets}m</strong>`);
   }
   prev.innerHTML = lines.join('　');
+  renderIvTable();
+}
+
+function renderIvTable() {
+  const disc = state.disc;
+  const isSTA = ['STA','RVSTA','FRCSTA'].includes(disc);
+  const sets = parseInt(document.getElementById('f-iv-sets').value) || 0;
+  const container = document.getElementById('iv-sets-table');
+  if (!container) return;
+  if (!sets) { container.style.display = 'none'; container.innerHTML = ''; return; }
+
+  const distLabel = isSTA ? 'ホールド' : '距離(m)';
+  const defaultDist = isSTA ? '' : (document.getElementById('f-interval-dist').value || '');
+  const defaultRest = document.getElementById('f-rest-time').value || '';
+
+  // preserve existing values
+  const prev = {};
+  container.querySelectorAll('tr[data-row]').forEach(tr => {
+    const i = tr.dataset.row;
+    prev[i] = {
+      dist: tr.querySelector('.iv-dist')?.value || '',
+      rest: tr.querySelector('.iv-rest')?.value || '',
+      note: tr.querySelector('.iv-note')?.value || '',
+    };
+  });
+
+  const rows = Array.from({length: sets}, (_, i) => {
+    const p = prev[i] || {};
+    const dist = p.dist ?? defaultDist;
+    const rest = p.rest ?? defaultRest;
+    const note = p.note ?? '';
+    return `<tr data-row="${i}" style="border-bottom:1px solid rgba(30,54,95,.4)">
+      <td style="padding:6px 8px;font-size:11px;font-weight:700;color:var(--accent2);white-space:nowrap">${i+1}本目</td>
+      ${!isSTA ? `<td style="padding:4px 6px"><input type="text" inputmode="numeric" class="fi iv-dist" maxlength="3" value="${dist}" placeholder="${defaultDist||'—'}" oninput="toHalf(this,'num',event)" style="padding:5px 8px;font-size:12px;width:70px"></td>` : ''}
+      <td style="padding:4px 6px"><input type="text" inputmode="numeric" class="fi iv-rest" value="${rest}" placeholder="${defaultRest||'—'}" oninput="toHalf(this,'time',event)" style="padding:5px 8px;font-size:12px;width:70px"></td>
+      <td style="padding:4px 6px"><input type="text" class="fi iv-note" value="${note}" placeholder="メモ" oninput="" style="padding:5px 8px;font-size:12px;width:90px"></td>
+    </tr>`;
+  }).join('');
+
+  container.style.display = '';
+  container.innerHTML = `
+    <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">各本の記録</div>
+    <div style="overflow-x:auto">
+    <table style="min-width:100%;border-collapse:collapse;background:var(--surface2);border-radius:var(--rs);overflow:hidden">
+      <thead><tr style="background:var(--surface3)">
+        <th style="padding:6px 8px;font-size:10px;color:var(--muted);text-align:left;font-weight:700"></th>
+        ${!isSTA ? `<th style="padding:6px 8px;font-size:10px;color:var(--muted);text-align:left;font-weight:700">${distLabel}</th>` : ''}
+        <th style="padding:6px 8px;font-size:10px;color:var(--muted);text-align:left;font-weight:700">休憩</th>
+        <th style="padding:6px 8px;font-size:10px;color:var(--muted);text-align:left;font-weight:700">メモ</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    </div>`;
+}
+
+function getIvTableData() {
+  const rows = document.querySelectorAll('#iv-sets-table tr[data-row]');
+  return Array.from(rows).map(tr => ({
+    dist: tr.querySelector('.iv-dist')?.value || null,
+    rest: tr.querySelector('.iv-rest')?.value || null,
+    note: tr.querySelector('.iv-note')?.value || null,
+  }));
 }
 
 // Legacy stubs for old references
@@ -1157,10 +1229,10 @@ function updateDistLabels() {
     DYN:    { target: '🎯 目標タイム',   result: '✅ 実際のタイム' },
     DNF:    { target: '🎯 目標タイム',   result: '✅ 実際のタイム' },
     DYNB:   { target: '🎯 目標タイム',   result: '✅ 実際のタイム' },
-    CWT:    { target: '🎯 目標タイム',   result: '✅ ダイブタイム' },
-    CWTB:   { target: '🎯 目標タイム',   result: '✅ ダイブタイム' },
-    CNF:    { target: '🎯 目標タイム',   result: '✅ ダイブタイム' },
-    FIM:    { target: '🎯 目標タイム',   result: '✅ ダイブタイム' },
+    CWT:    { target: '🎯 目標タイム',   result: '✅ 実際のタイム' },
+    CWTB:   { target: '🎯 目標タイム',   result: '✅ 実際のタイム' },
+    CNF:    { target: '🎯 目標タイム',   result: '✅ 実際のタイム' },
+    FIM:    { target: '🎯 目標タイム',   result: '✅ 実際のタイム' },
     WALK:   { target: '🎯 目標時間',     result: '✅ 実施時間' },
     STR:    { target: '🎯 目標時間',     result: '✅ 実施時間' },
     GYM:    { target: '🎯 目標時間',     result: '✅ 実施時間' },
@@ -1235,11 +1307,51 @@ let editingDiveId = null; // currently editing
 
 function updateDiveNumLabel() {
   const n = sessionDives.length + (editingDiveId ? 0 : 1);
-  const label = editingDiveId
+  const el = document.getElementById('dive-num-label');
+  if (el) el.textContent = editingDiveId
     ? `✏️ ${sessionDives.findIndex(d=>d.id===editingDiveId)+1}本目を編集中`
     : `${n}本目を入力`;
-  const el = document.getElementById('dive-num-label');
-  if (el) el.textContent = label;
+  const label = `${n}本目のダイブ`;
+  const mtLabel = document.getElementById('mode-target-label');
+  if (mtLabel) mtLabel.textContent = label;
+  const mtBtn = document.getElementById('mode-target-btn');
+  if (mtBtn) mtBtn.textContent = label;
+  renderDiveTabs();
+}
+
+function renderDiveTabs() {
+  const container = document.getElementById('dive-tabs');
+  if (!container) return;
+  // existing dive tabs
+  const tabs = sessionDives.map((d, i) => {
+    const label = d.disc ? `${i+1}. ${d.disc}` : `ダイブ${i+1}`;
+    const isActive = d.id === editingDiveId;
+    return `<button onclick="selectDiveTab(${d.id})"
+      style="padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;
+        border:1px solid ${isActive?'var(--accent)':'var(--border)'};
+        color:${isActive?'#fff':'var(--sub)'};
+        background:${isActive?'var(--accent)':'transparent'};
+        cursor:pointer;transition:all .15s;white-space:nowrap">${label}</button>`;
+  }).join('');
+  // "新規" tab
+  const newActive = !editingDiveId;
+  const newTab = `<button id="dive-tab-new" onclick="selectDiveTab('new')"
+    style="padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;
+      border:1px ${newActive?'solid var(--accent)':'dashed var(--border)'};
+      color:${newActive?'#fff':'var(--accent2)'};
+      background:${newActive?'var(--accent)':'transparent'};
+      cursor:pointer;transition:all .15s">＋ 新規</button>`;
+  container.innerHTML = tabs + newTab;
+}
+
+function selectDiveTab(idOrNew) {
+  if (idOrNew === 'new') {
+    if (!editingDiveId) return; // already on new
+    editingDiveId = null;
+    clearDiveInput();
+  } else {
+    editDive(idOrNew);
+  }
 }
 
 function addDive() {
@@ -1304,7 +1416,6 @@ function addDive() {
   renderDiveLog();
   const valStr = `${dive.disc} ${dive.depth??dive.dist??''}${dive.depth||dive.dist?'m':''} ${dive.time||''}`.trim();
   showToast(repeat > 1 ? `✅ ${valStr} × ${repeat}本 追加` : `✅ ${valStr} 追加`);
-  switchEntryTab('list'); // ダイブ追加後はリストタブに切り替え
 
   // UDDFレビュー中なら次のダイブへ自動進行
   const nextIdx = currentInlineDiveIdx + 1;
@@ -1340,17 +1451,16 @@ function clearDiveInput() {
   diveMode = 'target';
   document.getElementById('sec-target-dive').style.display = '';
   document.getElementById('sec-interval').style.display = 'none';
-  const mt = document.getElementById('mode-target'); if(mt) mt.classList.add('sel');
-  const mi = document.getElementById('mode-interval'); if(mi) mi.classList.remove('sel');
   document.getElementById('sec-laps').style.display = 'none';
-  document.querySelectorAll('#disc-chips .chip').forEach(c => c.classList.remove('sel'));
-  state.disc = '';
+  const mtBtn = document.getElementById('mode-target-btn'); if(mtBtn) mtBtn.classList.add('sel');
+  const mi = document.getElementById('mode-interval'); if(mi) mi.classList.remove('sel');
   pendingUDDFData = null;
   editingDiveId = null;
   if (currentInlineDiveIdx < 0) currentInlineDiveIdx = -1;
   resetDiveScales();
   hideDivePreviewChart();
   updateDiveNumLabel();
+  if (state.disc) showIntervalSection(state.disc);
 }
 
 function editDive(id) {
@@ -1577,7 +1687,7 @@ function showDivePreviewChart(d) {
   if (divePreviewChart) { divePreviewChart.destroy(); divePreviewChart = null; }
 
   divePreviewChart = new Chart(canvas.getContext('2d'),
-    profileWithSpeedCfg(d.profile, d.speed, '#0ea5e9')
+    profileWithSpeedCfg(d.profile, d.speed, '#2ec4b6')
   );
   if (d.speed?.length) {
     divePreviewChart._speedData = { profile: d.profile, speed: d.speed };
@@ -1626,10 +1736,11 @@ function getIntervalData() {
   const rest  = document.getElementById('f-rest-time').value.trim() || null;
   const sets  = parseInt(document.getElementById('f-iv-sets').value) || null;
   if (!distRaw && !rest) return null;
+  const rows = getIvTableData();
   if (isSTA) {
-    return { type:'sta', holdTime: distRaw||null, restTime: rest, sets };
+    return { type:'sta', holdTime: distRaw||null, restTime: rest, sets, rows };
   }
-  return { type:'dyn', dist: parseFloat(distRaw)||null, restTime: rest, sets };
+  return { type:'dyn', dist: parseFloat(distRaw)||null, restTime: rest, sets, rows };
 }
 
 function getLapData() {
@@ -1707,8 +1818,6 @@ function resetForm() {
   state = { env: 'sea', disc: '', cond: 3, hypoxia: 0, squeeze: 0, dcs: 0, narcosis: 0, poolSize: 25 };
   // Reset env
   document.querySelectorAll('.env-btns')[0]?.querySelectorAll('.env-btn').forEach((b,i)=>b.classList.toggle('sel',i===0));
-  document.getElementById('env-pool-field').style.display = 'none';
-  document.getElementById('env-pool-type').style.display  = 'none';
   document.getElementById('sec-laps').style.display = 'none';
   document.getElementById('lap-table').innerHTML = '';
   sessionDives = [];
@@ -1951,7 +2060,7 @@ function renderMiniChart() {
   if (miniChart) miniChart.destroy();
   const ctx = document.getElementById('mini-chart').getContext('2d');
   miniChart = new Chart(ctx, miniProfileView === 'time'
-    ? profileWithSpeedCfg(currentDive.profile, currentDive.speed, '#0ea5e9')
+    ? profileWithSpeedCfg(currentDive.profile, currentDive.speed, '#2ec4b6')
     : speedDepthCfg(currentDive.speed)
   );
   if (miniProfileView === 'time' && currentDive.speed?.length) {
@@ -2142,7 +2251,7 @@ function speedHTML(speed, compact=false) {
 // ===== PROFILE CHARTS =====
 
 // Draw speed values directly onto a rendered chart's canvas
-function drawSpeedOverlay(chart, profile, speed, descColor='#38bdf8', ascColor='#4ade80') {
+function drawSpeedOverlay(chart, profile, speed, descColor='#a8ece8', ascColor='#4ade80') {
   if (!speed?.length || !profile?.length) return;
   const { ctx, scales } = chart;
   const xScale = scales.x, yScale = scales.y;
@@ -2203,7 +2312,7 @@ Chart.register({
   }
 });
 
-function makeSpeedOverlayPlugin(profile, speed, descColor='#38bdf8', ascColor='#4ade80') {
+function makeSpeedOverlayPlugin(profile, speed, descColor='#a8ece8', ascColor='#4ade80') {
   return null; // No longer used — global plugin handles this
 }
 
@@ -2430,7 +2539,6 @@ function editSession(id) {
   if (s.condition) setCond(s.condition);
 
   // 環境固有
-  if (s.env === 'pool' && s.poolDepth) document.getElementById('f-pooldepth').value = s.poolDepth;
 
   // ダイブログを復元
   sessionDives = (s.diveLog || []).map(d => ({ ...d, id: Date.now() + Math.random() }));
@@ -2467,7 +2575,7 @@ function renderModalChart() {
     mc.style.display = 'block';
     const cfg = modalView === 'speed'
       ? speedDepthCfg(best.speed)
-      : profileWithSpeedCfg(best.profile, best.speed, '#0ea5e9');
+      : profileWithSpeedCfg(best.profile, best.speed, '#2ec4b6');
     modalChart = new Chart(mc.getContext('2d'), cfg);
     if (modalView === 'time' && best.speed?.length) {
       modalChart._speedData = { profile: best.profile, speed: best.speed };
@@ -2544,7 +2652,7 @@ function renderDash() {
   const sorted=[...sessions].filter(s=>s.bestDepth).sort((a,b)=>a.date>b.date?1:-1);
   if(chD){chD.destroy();chD=null;}
   if(chT){chT.destroy();chT=null;}
-  chD=new Chart(document.getElementById('ch-depth').getContext('2d'),{type:'line',data:{labels:sorted.map(s=>s.date.slice(5)),datasets:[{data:sorted.map(s=>s.bestDepth),borderColor:'#0ea5e9',backgroundColor:'rgba(14,165,233,.1)',fill:true,tension:.3,pointRadius:4}]},options:lopts('m')});
+  chD=new Chart(document.getElementById('ch-depth').getContext('2d'),{type:'line',data:{labels:sorted.map(s=>s.date.slice(5)),datasets:[{data:sorted.map(s=>s.bestDepth),borderColor:'#2ec4b6',backgroundColor:'rgba(14,165,233,.1)',fill:true,tension:.3,pointRadius:4}]},options:lopts('m')});
   const sortedT=[...sessions].filter(s=>s.bestTime).sort((a,b)=>a.date>b.date?1:-1);
   chT=new Chart(document.getElementById('ch-time').getContext('2d'),{type:'line',data:{labels:sortedT.map(s=>s.date.slice(5)),datasets:[{data:sortedT.map(s=>t2s(s.bestTime)),borderColor:'#22c55e',backgroundColor:'rgba(34,197,94,.1)',fill:true,tension:.3,pointRadius:4}]},options:lopts('秒')});
   const discs=[...new Set(sessions.map(s=>s.discipline).filter(Boolean))];

@@ -8,34 +8,39 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
   --ocean-deep: #0b2d45;
+  --abyss:      #04161f;
   --teal:       #2ec4b6;
   --teal-light: #a8ece8;
   --foam:       #f0f9fb;
-  --text-dark:  #0b2d45;
-  --text-mid:   #3a6b84;
-  --text-soft:  #7aafc5;
+  --text-dark:  rgba(255,255,255,0.92);
+  --text-mid:   rgba(255,255,255,0.62);
+  --text-soft:  rgba(255,255,255,0.40);
   --white:      #ffffff;
+  --surface:    rgba(255,255,255,0.045);
   --sand:       #fdf8f2;
   --sand2:      #f5ede0;
-  --border:     rgba(0,0,0,0.06);
+  --border:     rgba(168,236,232,0.14);
 }
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
-  background: var(--foam);
+  background: linear-gradient(180deg,#0e3d5c 0%,#0b2d45 22%,#06283a 55%,#04161f 100%);
+  background-attachment: fixed;
   color: var(--text-dark);
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* ── header ── */
 .header {
   position: sticky; top: 0; z-index: 100;
-  background: rgba(255,255,255,0.92);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(46,196,182,0.15);
+  background: rgba(6,32,46,0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
   padding: 0 20px; height: 54px;
   display: flex; align-items: center; justify-content: space-between;
 }
-.logo { font-size: 17px; font-weight: 700; color: var(--ocean-deep); letter-spacing: -0.3px; }
+.logo { font-size: 16px; font-weight: 600; color: var(--text-dark); letter-spacing: 0.18em; text-transform: uppercase; }
 .logo span { color: var(--teal); }
 .header-back {
   display: flex; align-items: center; gap: 6px;
@@ -60,7 +65,7 @@ body {
 .avatar-wrap { position: relative; display: inline-block; margin-bottom: 12px; }
 .avatar {
   width: 76px; height: 76px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--teal), #1a9aff);
+  background: linear-gradient(135deg, var(--teal), #1a7a8a);
   display: flex; align-items: center; justify-content: center;
   font-size: 28px; font-weight: 700; color: var(--white);
   border: 3px solid rgba(255,255,255,0.3);
@@ -80,7 +85,7 @@ body {
 
 /* ── PB strip ── */
 .pb-strip {
-  background: var(--white);
+  background: var(--surface);
   border-bottom: 1px solid var(--border);
   display: flex;
 }
@@ -106,12 +111,13 @@ body {
 /* ── cards ── */
 .cards-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .card {
-  background: var(--white); border: 1px solid var(--border);
-  border-radius: 16px; padding: 16px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 16px;
   text-decoration: none; color: inherit; display: block;
-  transition: box-shadow 0.2s, transform 0.15s;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  transition: border-color 0.25s, background 0.25s, transform 0.2s;
 }
-.card:hover { box-shadow: 0 6px 24px rgba(11,45,69,0.09); transform: translateY(-2px); }
+.card:hover { border-color: rgba(46,196,182,0.4); background: rgba(46,196,182,0.06); transform: translateY(-2px); }
 .card.wide { grid-column: 1 / -1; display: flex; align-items: center; gap: 14px; padding: 16px 18px; }
 .card-icon {
   width: 44px; height: 44px; border-radius: 12px;
@@ -119,9 +125,11 @@ body {
   font-size: 22px; flex-shrink: 0; margin-bottom: 10px;
 }
 .card.wide .card-icon { margin-bottom: 0; }
-.ic-teal   { background: #e0f7f5; }
-.ic-blue   { background: #dceeff; }
-.ic-purple { background: #ede8ff; }
+.ic-teal, .ic-blue, .ic-purple {
+  background: rgba(46,196,182,0.10);
+  border: 1px solid rgba(46,196,182,0.18);
+  color: var(--teal-light);
+}
 .card h3 { font-size: 14px; font-weight: 700; color: var(--text-dark); margin-bottom: 3px; }
 .card p  { font-size: 12px; color: var(--text-mid); line-height: 1.5; }
 .card-body { flex: 1; min-width: 0; }
@@ -150,21 +158,22 @@ body {
 .wip-wrap { position: relative; }
 .wip-mask {
   position: absolute; inset: 0;
-  background: rgba(240,249,251,0.6);
-  border-radius: 16px; z-index: 10;
+  background: rgba(4,22,31,0.45);
+  border-radius: 14px; z-index: 10;
   display: flex; align-items: center; justify-content: center;
 }
 .wip-badge {
-  background: rgba(11,45,69,0.75); color: rgba(255,255,255,0.9);
-  font-size: 11px; font-weight: 600;
-  padding: 5px 14px; border-radius: 100px; letter-spacing: 0.04em;
+  background: rgba(4,22,31,0.7); border: 1px solid var(--border); color: var(--text-mid);
+  font-size: 11px; font-weight: 500;
+  padding: 5px 14px; border-radius: 100px; letter-spacing: 0.06em;
 }
-.wip-card { filter: grayscale(1) opacity(0.55); pointer-events: none; }
+.wip-card { filter: grayscale(0.7) opacity(0.5); pointer-events: none; }
 
 /* ── list items ── */
 .list-card {
-  background: var(--white); border: 1px solid var(--border);
-  border-radius: 16px; overflow: hidden;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; overflow: hidden;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
 }
 .list-row {
   display: flex; align-items: center; gap: 14px;
@@ -184,12 +193,13 @@ body {
   font-size: 10px; font-weight: 600; padding: 3px 10px;
   border-radius: 100px;
 }
-.tag-done { background: #e0f7f5; color: #0f6b5e; }
-.tag-upcoming { background: #dceeff; color: #1a5f82; }
+.tag-done { background: rgba(46,196,182,0.15); color: var(--teal-light); }
+.tag-upcoming { background: rgba(26,122,138,0.2); color: #8fd3e0; }
 
 /* ── settings list ── */
 .settings-card {
-  background: var(--white); border: 1px solid var(--border); border-radius: 16px; overflow: hidden;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
 }
 .settings-row {
   display: flex; align-items: center; gap: 12px;
@@ -204,8 +214,8 @@ body {
 /* ── bottom nav ── */
 .bottom-nav {
   position: sticky; bottom: 0;
-  background: rgba(255,255,255,0.95); backdrop-filter: blur(12px);
-  border-top: 1px solid rgba(0,0,0,0.07); display: flex;
+  background: rgba(6,32,46,0.7); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid var(--border); display: flex;
 }
 .bnav-item {
   flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
@@ -300,7 +310,7 @@ body {
         <span class="list-tag tag-done">完了</span>
       </div>
       <div class="list-row">
-        <div class="list-dot" style="background:#1a9aff;"></div>
+        <div class="list-dot" style="background:#1a7a8a;"></div>
         <div class="list-text">
           <div class="t">AIDA 2★ 講習</div>
           <div class="s">2026.06.10 · Deep Blue Okinawa</div>

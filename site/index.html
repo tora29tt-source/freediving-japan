@@ -2,9 +2,9 @@
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AIDA Japan ランキング</title>
 <style>
-:root{--bg:#0a1929;--panel:#0f2438;--accent:#1e9bd7;--accent2:#34d3b0;--pool:#2aa9e0;--sea:#1ec8a6;--text:#e8f1f8;--muted:#8ba6bd;--line:#1d3a52;--gold:#ffd24a;--silver:#cfd8e0;--bronze:#d6a36b;}
+:root{--bg:#04161f;--panel:#0c2738;--accent:#2ec4b6;--accent2:#a8ece8;--pool:#2ec4b6;--sea:#1a7a8a;--text:rgba(255,255,255,0.92);--muted:rgba(255,255,255,0.5);--line:rgba(168,236,232,0.14);--gold:#ffd24a;--silver:#cfd8e0;--bronze:#d6a36b;}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,"Helvetica Neue","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;background:linear-gradient(180deg,#071420,#0a1929);color:var(--text);min-height:100vh}
+body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;background:linear-gradient(180deg,#0e3d5c 0%,#0b2d45 22%,#06283a 55%,#04161f 100%);background-attachment:fixed;color:var(--text);min-height:100vh}
 header{padding:22px 20px 14px;border-bottom:1px solid var(--line)}
 header h1{font-size:21px;letter-spacing:.5px}header h1 span{color:var(--accent2)}
 header p{color:var(--muted);font-size:12.5px;margin-top:4px}
@@ -93,7 +93,7 @@ tbody tr:hover{background:rgba(30,155,215,.07)}
 .rep-tag::before{content:'🇯🇵';font-size:13px}
 footer{color:var(--muted);font-size:11.5px;text-align:center;padding:24px}
 @media(max-width:880px){.hgrid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:560px){.hgrid{grid-template-columns:1fr}.podium{grid-template-columns:1fr}}
+@media(max-width:560px){.hgrid{grid-template-columns:1fr}.podium{grid-template-columns:1fr}.pod.p1{order:1}.pod.p2{order:2}.pod.p3{order:3}.pod.p1{padding-top:16px}}
 </style></head>
 <body>
 <header><div class="wrap"><h1>AIDA <span>Japan</span> ランキング</h1>
