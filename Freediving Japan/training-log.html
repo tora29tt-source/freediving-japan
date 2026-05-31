@@ -32,18 +32,21 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
-  padding-left: 200px; /* sidebar width */
+  padding-left: 0;       /* mobile default: no sidebar */
+  padding-bottom: 64px;  /* mobile: space for bottom nav */
   line-height: 1.5;
 }
 
-/* ===== SIDEBAR ===== */
+/* ===== SIDEBAR ===== (desktop only) */
+
+/* ===== SIDEBAR ===== (hidden on mobile, shown on desktop) */
 .sidebar {
+  display: none; /* hidden by default on mobile */
   position: fixed;
   left: 0; top: 0; bottom: 0;
   width: 200px;
   background: var(--surface);
   border-right: 1px solid var(--border);
-  display: flex;
   flex-direction: column;
   z-index: 100;
 }
@@ -300,6 +303,57 @@ tr:last-child td { border-bottom: none; }
 ::-webkit-scrollbar-track { background: var(--surface); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
+/* ===== ENTRY TABS ===== */
+.entry-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.entry-tab {
+  flex: 1;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid var(--border);
+  font-family: inherit;
+  transition: all .15s;
+  white-space: nowrap;
+  text-align: center;
+}
+.entry-tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.entry-tab:hover:not(.active) { color: var(--text); border-color: var(--accent); }
+.entry-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.3);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 1px 6px;
+  margin-left: 5px;
+}
+.entry-tab:not(.active) .entry-tab-badge {
+  background: var(--accent);
+  color: #fff;
+}
+.entry-tab-panel { display: none; }
+.entry-tab-panel.active { display: block; }
+
 /* ===== MOBILE NAV BAR ===== */
 .mobile-nav {
   display: none;
@@ -331,13 +385,17 @@ tr:last-child td { border-bottom: none; }
 .mobile-nav-item .icon { font-size: 20px; line-height: 1; }
 
 /* ===== RESPONSIVE ===== */
-@media (max-width: 639px) {
+/* ===== DESKTOP: show sidebar ===== */
+@media (min-width: 640px) {
   body {
-    padding-left: 0;
-    padding-bottom: 64px;
+    padding-left: 200px;
+    padding-bottom: 0;
   }
-  .sidebar { display: none; }
-  .mobile-nav { display: flex; }
+  .sidebar { display: flex; }
+  .mobile-nav { display: none; }
+}
+
+@media (max-width: 639px) {
 
   .page { padding: 14px 14px 20px; }
   .page-inner { max-width: 100%; }
@@ -389,10 +447,10 @@ tr:last-child td { border-bottom: none; }
   <button class="mobile-nav-item active" id="mnav-entry" onclick="goto('entry',this);updateMobileNav('entry')">
     <span class="icon">✏️</span>登録
   </button>
-  <button class="mobile-nav-item" id="mnav-list" onclick="goto('list',this)">
+  <button class="mobile-nav-item" id="mnav-list" onclick="goto('list',this);updateMobileNav('list')">
     <span class="icon">📋</span>一覧
   </button>
-  <button class="mobile-nav-item" id="mnav-dash" onclick="goto('dash',this)">
+  <button class="mobile-nav-item" id="mnav-dash" onclick="goto('dash',this);updateMobileNav('dash')">
     <span class="icon">📊</span>ダッシュ
   </button>
 </nav>
@@ -419,6 +477,16 @@ tr:last-child td { border-bottom: none; }
   <div class="entry-grid">
     <!-- LEFT: FORM -->
     <div class="card">
+      <!-- タブバー -->
+      <div class="entry-tabs">
+        <button class="entry-tab active" id="etab-input" onclick="switchEntryTab('input')">ダイブ入力</button>
+        <button class="entry-tab" id="etab-list" onclick="switchEntryTab('list')">
+          今日のダイブ<span class="entry-tab-badge" id="etab-badge" style="display:none">0</span>
+        </button>
+      </div>
+
+      <!-- パネル：入力 -->
+      <div class="entry-tab-panel active" id="epanel-input">
       <div class="card-body">
 
         <!-- 環境 -->
@@ -440,13 +508,31 @@ tr:last-child td { border-bottom: none; }
           </div>
         </div>
 
-        <!-- 非表示: プール種別（ラップ計算用） -->
-        <div id="env-sea-field" style="display:none"></div>
-        <div id="env-pool-field" style="display:none"></div>
-        <div id="env-pool-type" style="display:none">
-          <div class="env-btns" style="margin-top:6px">
-            <button class="env-btn sel" id="pool-25" onclick="setPoolSize(25,this)">25m</button>
-            <button class="env-btn" id="pool-50" onclick="setPoolSize(50,this)">50m</button>
+        <!-- セッション環境 -->
+        <div class="sec">
+          <div class="sec-title">セッション環境</div>
+          <div class="row2" style="margin-bottom:10px">
+            <div class="fld" id="env-sea-field">
+              <label>海況</label>
+              <select class="fi" id="f-seacond">
+                <option value="">選択...</option>
+                <option value="flat">🪨 凪</option>
+                <option value="wave">🌊 波あり</option>
+                <option value="swell">🌀 うねりあり</option>
+                <option value="wind">💨 強風</option>
+              </select>
+            </div>
+            <div class="fld" id="env-pool-field" style="display:none">
+              <label>水深 (m)</label>
+              <input type="number" class="fi" id="f-pooldepth" placeholder="5" step="0.5" min="0">
+            </div>
+          </div>
+          <div id="env-pool-type" style="display:none">
+            <label style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em">プール種別</label>
+            <div class="env-btns" style="margin-top:6px">
+              <button class="env-btn sel" id="pool-25" onclick="setPoolSize(25,this)">25m プール</button>
+              <button class="env-btn" id="pool-50" onclick="setPoolSize(50,this)">50m プール</button>
+            </div>
           </div>
         </div>
 
@@ -562,17 +648,16 @@ tr:last-child td { border-bottom: none; }
                   oninput="calcInterval()">
               </div>
             </div>
-            <!-- STA追加フィールド: 息止めタイム -->
+            <!-- STA追加フィールド: ホールドタイム -->
             <div id="iv-sta-extra" style="display:none;margin-bottom:8px">
               <div class="fld">
-                <label>息止め時間</label>
+                <label>ホールド時間</label>
                 <input type="text" inputmode="numeric" class="fi" id="f-hold-time" placeholder="2:30"
                   oninput="toHalf(this,'time',event);calcInterval()">
               </div>
             </div>
             <div id="iv-dyn-extra" style="display:none"></div>
-            <div id="interval-preview" style="font-size:12px;color:var(--sub);padding:8px;background:var(--surface2);border-radius:var(--rs);line-height:1.8;margin-bottom:8px"></div>
-            <div id="iv-set-table" style="display:none"></div>
+            <div id="interval-preview" style="font-size:12px;color:var(--sub);padding:8px;background:var(--surface2);border-radius:var(--rs);line-height:1.8"></div>
           </div>
 
           <!-- ラップタイム（プール + DYN/DNF/DYNB のみ） -->
@@ -595,62 +680,76 @@ tr:last-child td { border-bottom: none; }
             </div>
           </div>
 
-          <!-- ダイブの感覚 -->
-          <div style="margin-bottom:12px">
-            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border)">このダイブの感覚</div>
-            <div class="scale-group" style="gap:8px">
+          <!-- ダイブメモ -->
+          <!-- 主観スケール（ダイブごと） -->
+          <div id="dive-sea-scales">
+            <div class="sec-title" style="margin-bottom:10px">主観データ（このダイブ）</div>
+            <div class="scale-group">
+
               <div class="scale-item">
                 <div class="scale-label">酸欠感</div>
                 <div class="scale-btns" id="dive-scale-hypoxia">
-                  <button class="scale-btn sel" onclick="setDiveScale('hypoxia',0,this)">0 なし</button>
-                  <button class="scale-btn" onclick="setDiveScale('hypoxia',1,this)">1 あったかも</button>
-                  <button class="scale-btn" onclick="setDiveScale('hypoxia',2,this)" data-warn>2 制御内</button>
-                  <button class="scale-btn" onclick="setDiveScale('hypoxia',3,this)" data-danger>3 レッド相当</button>
+                  <button class="scale-btn sel" onclick="setDiveScale('hypoxia',0,this)">なし</button>
+                  <button class="scale-btn" onclick="setDiveScale('hypoxia',1,this)">わずか</button>
+                  <button class="scale-btn" data-warn onclick="setDiveScale('hypoxia',2,this)">あり</button>
+                  <button class="scale-btn" data-danger onclick="setDiveScale('hypoxia',3,this)">強い</button>
                 </div>
               </div>
-              <div id="dive-sea-scales" style="display:flex;flex-direction:column;gap:8px">
-                <div class="scale-item">
-                  <div class="scale-label">スクイズ感</div>
-                  <div class="scale-btns" id="dive-scale-squeeze">
-                    <button class="scale-btn sel" onclick="setDiveScale('squeeze',0,this)">0 なし</button>
-                    <button class="scale-btn" onclick="setDiveScale('squeeze',1,this)" data-warn>1 違和感</button>
-                    <button class="scale-btn" onclick="setDiveScale('squeeze',2,this)" data-danger>2 明確</button>
-                  </div>
-                </div>
-                <div class="scale-item">
-                  <div class="scale-label">DCS感</div>
-                  <div class="scale-btns" id="dive-scale-dcs">
-                    <button class="scale-btn sel" onclick="setDiveScale('dcs',0,this)">0 なし</button>
-                    <button class="scale-btn" onclick="setDiveScale('dcs',1,this)" data-warn>1 違和感</button>
-                    <button class="scale-btn" onclick="setDiveScale('dcs',2,this)" data-danger>2 明確</button>
-                  </div>
-                </div>
-                <div class="scale-item">
-                  <div class="scale-label">ナーコシス感</div>
-                  <div class="scale-btns" id="dive-scale-narcosis">
-                    <button class="scale-btn sel" onclick="setDiveScale('narcosis',0,this)">0 なし</button>
-                    <button class="scale-btn" onclick="setDiveScale('narcosis',1,this)" data-warn>1 違和感</button>
-                    <button class="scale-btn" onclick="setDiveScale('narcosis',2,this)" data-danger>2 明確</button>
-                  </div>
+
+              <div class="scale-item" id="dive-scale-wrap-squeeze">
+                <div class="scale-label">スクイズ感</div>
+                <div class="scale-btns" id="dive-scale-squeeze">
+                  <button class="scale-btn sel" onclick="setDiveScale('squeeze',0,this)">なし</button>
+                  <button class="scale-btn" onclick="setDiveScale('squeeze',1,this)">わずか</button>
+                  <button class="scale-btn" data-warn onclick="setDiveScale('squeeze',2,this)">あり</button>
+                  <button class="scale-btn" data-danger onclick="setDiveScale('squeeze',3,this)">強い</button>
                 </div>
               </div>
+
+              <div class="scale-item" id="dive-scale-wrap-dcs">
+                <div class="scale-label">DCS感</div>
+                <div class="scale-btns" id="dive-scale-dcs">
+                  <button class="scale-btn sel" onclick="setDiveScale('dcs',0,this)">なし</button>
+                  <button class="scale-btn" data-warn onclick="setDiveScale('dcs',1,this)">気になる</button>
+                  <button class="scale-btn" data-danger onclick="setDiveScale('dcs',2,this)">あり</button>
+                </div>
+              </div>
+
+              <div class="scale-item" id="dive-scale-wrap-narcosis">
+                <div class="scale-label">ナーコシス感</div>
+                <div class="scale-btns" id="dive-scale-narcosis">
+                  <button class="scale-btn sel" onclick="setDiveScale('narcosis',0,this)">なし</button>
+                  <button class="scale-btn" data-warn onclick="setDiveScale('narcosis',1,this)">わずか</button>
+                  <button class="scale-btn" data-danger onclick="setDiveScale('narcosis',2,this)">あり</button>
+                </div>
+              </div>
+
             </div>
           </div>
 
-          <!-- ダイブメモ -->
-          <div class="fld" style="margin-bottom:12px">
+          <div class="fld" style="margin-bottom:12px;margin-top:14px">
             <textarea class="fi" id="f-dive-note" placeholder="このダイブのメモ..." style="min-height:52px;resize:vertical;font-size:13px"></textarea>
           </div>
           <button class="btn btn-primary" style="width:100%" id="add-dive-btn" onclick="addDive()">＋ このダイブを追加</button>
         </div>
+      </div><!-- /epanel-input -->
 
-        <!-- 本日のダイブ一覧 -->
-        <div class="sec" id="sec-dive-list" style="display:none">
-          <div class="sec-title">本日のダイブ <span id="dive-count-badge" style="color:var(--accent2)"></span></div>
-          <div id="dive-log-list"></div>
-          <div id="dive-log-summary" style="margin-top:10px;padding:10px;background:var(--surface2);border-radius:var(--rs);font-size:12px;color:var(--sub)"></div>
+      <!-- パネル：ダイブ一覧 -->
+      <div class="entry-tab-panel" id="epanel-list">
+        <div class="card-body">
+          <div id="sec-dive-list">
+            <div id="etab-empty" style="padding:32px;text-align:center;color:var(--muted);font-size:13px">
+              <div style="font-size:28px;margin-bottom:8px">🤿</div>
+              まだダイブが登録されていません
+            </div>
+            <div id="dive-log-list"></div>
+            <div id="dive-log-summary" style="margin-top:10px;padding:10px;background:var(--surface2);border-radius:var(--rs);font-size:12px;color:var(--sub)"></div>
+          </div>
         </div>
+      </div><!-- /epanel-list -->
 
+      <!-- 常時表示：セッションデータ＋保存 -->
+      <div class="card-body" style="border-top:1px solid var(--border)">
         <!-- 主観データ（セッション全体） -->
         <div class="sec">
           <div class="sec-title">主観データ（セッション）</div>
@@ -682,8 +781,8 @@ tr:last-child td { border-bottom: none; }
           <button class="btn btn-ghost" onclick="resetForm()">リセット</button>
           <button class="btn btn-primary" onclick="saveSession()">💾 保存する</button>
         </div>
+      </div><!-- /常時表示 -->
 
-      </div><!-- card-body -->
     </div><!-- card (left) -->
 
     <!-- RIGHT: UDDF PANEL -->
@@ -691,7 +790,7 @@ tr:last-child td { border-bottom: none; }
 
       <div class="card">
         <div class="card-head">
-          <span class="card-title">📁 UDDF 一括インポート</span>
+          <span class="card-title">📁 UDDF インポート</span>
           <button class="btn btn-ghost btn-sm" onclick="clearUDDF()">クリア</button>
         </div>
         <div class="card-body">
@@ -708,30 +807,12 @@ tr:last-child td { border-bottom: none; }
               <div class="ss"><div class="ss-val" id="p-maxdepth">—</div><div class="ss-lbl">最大深度</div></div>
               <div class="ss"><div class="ss-val" id="p-besttime">—</div><div class="ss-lbl">タイム</div></div>
             </div>
-
-            <!-- 種目選択 -->
-            <div style="margin:10px 0 8px">
-              <div style="font-size:10px;color:var(--muted);margin-bottom:5px">種目を選んで一括追加</div>
-              <select class="fi" id="uddf-disc-select" style="font-size:12px;padding:6px 10px">
-                <option value="CWT">CWT</option>
-                <option value="CWTB">CWTB</option>
-                <option value="CNF">CNF</option>
-                <option value="FIM">FIM</option>
-              </select>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+              <span style="font-size:10px;color:var(--muted)">クリック：表示 / ⌘クリック：比較選択</span>
+              <span id="compare-count" style="font-size:10px;color:var(--accent2);font-weight:700;display:none"></span>
             </div>
-
-            <!-- 選択操作 -->
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-              <button onclick="uddfSelectAll(true)" style="font-size:11px;color:var(--accent2);background:none;border:none;cursor:pointer;padding:0">全選択</button>
-              <button onclick="uddfSelectAll(false)" style="font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;padding:0">全解除</button>
-              <span id="uddf-sel-count" style="font-size:11px;color:var(--sub)">0本選択中</span>
-            </div>
-
-            <div class="dive-list" id="dive-list" style="max-height:260px"></div>
-
-            <button onclick="uddfBatchImport()" style="width:100%;margin-top:10px;padding:9px;background:var(--accent);border:none;border-radius:var(--rs);color:#fff;font-size:13px;font-weight:700;cursor:pointer">
-              ＋ 選択したダイブを追加
-            </button>
+            <div class="dive-list" id="dive-list"></div>
+            <button id="compare-btn" onclick="openCompare()" style="display:none;width:100%;margin-top:8px;padding:7px;background:var(--accent);border:none;border-radius:var(--rs);color:#fff;font-size:12px;font-weight:700;cursor:pointer">📊 選択ダイブを比較</button>
           </div>
         </div>
       </div>
@@ -828,35 +909,6 @@ tr:last-child td { border-bottom: none; }
 </div>
 </div>
 
-<!-- UDDF BATCH REVIEW MODAL -->
-<div class="overlay" id="uddf-review-overlay">
-  <div class="modal" style="max-width:520px">
-    <div class="modal-head">
-      <h2 class="modal-title">📁 インポートするダイブを選択</h2>
-      <button class="close" onclick="document.getElementById('uddf-review-overlay').classList.remove('open')">✕</button>
-    </div>
-    <!-- 種目選択 -->
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-      <span style="font-size:12px;color:var(--muted)">種目</span>
-      <select class="fi" id="uddf-disc-select" style="font-size:12px;padding:6px 10px;width:auto">
-        <option value="CWT">CWT</option>
-        <option value="CWTB">CWTB</option>
-        <option value="CNF">CNF</option>
-        <option value="FIM">FIM</option>
-      </select>
-      <button onclick="uddfSelectAll(true)" style="font-size:11px;color:var(--accent2);background:none;border:none;cursor:pointer">全選択</button>
-      <button onclick="uddfSelectAll(false)" style="font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer">全解除</button>
-      <span id="uddf-sel-count" style="font-size:11px;color:var(--sub);margin-left:auto">0本選択中</span>
-    </div>
-    <!-- ダイブ一覧 -->
-    <div id="uddf-review-list" style="max-height:360px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;margin-bottom:14px"></div>
-    <!-- 確定ボタン -->
-    <button onclick="uddfBatchImport()" style="width:100%;padding:10px;background:var(--accent);border:none;border-radius:var(--rs);color:#fff;font-size:14px;font-weight:700;cursor:pointer">
-      ＋ 選択したダイブを追加
-    </button>
-  </div>
-</div>
-
 <!-- SESSION MODAL -->
 <!-- COMPARE MODAL -->
 <div class="overlay" id="compare-overlay">
@@ -906,7 +958,7 @@ tr:last-child td { border-bottom: none; }
 let sessions = JSON.parse(localStorage.getItem('fj_v2') || '[]');
 let uddfDives = [];
 let miniChart = null, modalChart = null, chD = null, chT = null;
-let sortKey = 'id', sortAsc = false;
+let sortKey = 'date', sortAsc = false;
 const SEA_DISCS  = ['CWT','CWTB','CNF','FIM'];
 const POOL_DISCS = ['STA','DYN','DNF','DYNB'];
 const DRILL_SUBS = ['RV','FRC','ハング'];
@@ -916,6 +968,14 @@ let diveState = { hypoxia: 0, squeeze: 0, dcs: 0, narcosis: 0 };
 let sessionDives = [];
 let pendingUDDFData = null; // profile/speed from UDDF fill
 
+// ===== ENTRY TABS =====
+function switchEntryTab(tab) {
+  document.querySelectorAll('.entry-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.entry-tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('etab-' + tab).classList.add('active');
+  document.getElementById('epanel-' + tab).classList.add('active');
+}
+
 // ===== NAV =====
 function updateMobileNav(page) {
   document.querySelectorAll('.mobile-nav-item').forEach(b => b.classList.remove('active'));
@@ -924,10 +984,6 @@ function updateMobileNav(page) {
 }
 
 function goto(page, el) {
-  if (page !== 'entry' && sessionDives.length > 0) {
-    showToast('⚠️ ダイブが未保存です。先に保存してください');
-    return;
-  }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
@@ -939,10 +995,6 @@ function goto(page, el) {
 
 // ===== FORM CONTROLS =====
 function setEnv(v, el) {
-  if (sessionDives.length > 0) {
-    showToast('⚠️ ダイブ追加後は環境を変更できません');
-    return;
-  }
   state.env = v;
   document.querySelectorAll('#env-main-btns .env-btn').forEach(b => b.classList.remove('sel'));
   el.classList.add('sel');
@@ -1031,33 +1083,25 @@ function updateIntervalFields(disc) {
   const isWalk = disc === 'WALK';
   const isDyn = ['DYN','DNF','DYNB'].includes(disc);
   // ラベル変更
-  document.getElementById('lbl-iv-dist').textContent = isSTA ? '息止め時間' : '距離 (m)';
-  const distEl = document.getElementById('f-interval-dist');
-  distEl.placeholder = isSTA ? '2:30' : '50';
-  // STA時はtimeモード、それ以外はnumモード
-  distEl.oninput = isSTA
-    ? (e) => { toHalf(distEl, 'time', e); calcInterval(); }
-    : (e) => { toHalf(distEl, 'num',  e); calcInterval(); };
-  document.getElementById('iv-sta-extra').style.display = 'none';
+  document.getElementById('lbl-iv-dist').textContent = isSTA ? 'ホールド時間' : isWalk ? '距離 (m)' : '距離 (m)';
+  document.getElementById('f-interval-dist').placeholder = isSTA ? '2:30' : isWalk ? '50' : '50';
+  // STA追加フィールド（cycle = hold+rest表示）
+  document.getElementById('iv-sta-extra').style.display = 'none'; // 統合済みなので非表示
   document.getElementById('iv-dyn-extra').style.display = isDyn ? '' : 'none';
 }
 
 // ===== INTERVAL CALC =====
 function showIntervalSection(disc) {
   const IV_DISCS = ['DYN','DNF','DYNB','STA','RVSTA','FRCSTA','WALK'];
-  const hasInterval = IV_DISCS.includes(disc);
-  // 常にモードトグルを表示（1本目のダイブラベルとして機能）
-  document.getElementById('dive-mode-toggle').style.display = disc ? '' : 'none';
-  // インターバルボタンは対応種目のみ表示
-  const ivBtn = document.getElementById('mode-interval');
-  if (ivBtn) ivBtn.style.display = hasInterval ? '' : 'none';
+  const showToggle = IV_DISCS.includes(disc);
+  document.getElementById('dive-mode-toggle').style.display = showToggle ? '' : 'none';
   // Reset to target mode on disc change
   diveMode = 'target';
   document.getElementById('mode-target').classList.add('sel');
   document.getElementById('mode-interval').classList.remove('sel');
   document.getElementById('sec-target-dive').style.display = '';
   document.getElementById('sec-interval').style.display = 'none';
-  if (hasInterval) updateIntervalFields(disc);
+  if (showToggle) updateIntervalFields(disc);
 }
 
 function calcInterval() {
@@ -1074,11 +1118,11 @@ function calcInterval() {
 
   let lines = [];
   if (isSTA) {
-    if (mm(hold)) lines.push(`息止め <strong>${mm(hold)}</strong>`);
+    if (mm(hold)) lines.push(`ホールド <strong>${mm(hold)}</strong>`);
     if (mm(rest)) lines.push(`休憩 <strong>${mm(rest)}</strong>`);
     if (hold && rest) lines.push(`サイクル <strong>${mm(hold+rest)}</strong>`);
     if (sets) lines.push(`× <strong>${sets}本</strong>`);
-    if (sets && hold) lines.push(`合計息止め <strong>${mm(hold*sets)}</strong>`);
+    if (sets && hold) lines.push(`合計ホールド <strong>${mm(hold*sets)}</strong>`);
   } else {
     if (dist) lines.push(`<strong>${dist}m</strong>`);
     if (mm(swim)) lines.push(`タイム <strong>${mm(swim)}</strong>`);
@@ -1089,68 +1133,6 @@ function calcInterval() {
     if (dist && sets) lines.push(`合計 <strong>${dist*sets}m</strong>`);
   }
   prev.innerHTML = lines.join('　');
-
-  // 息止め・休憩・本数が揃ったらテーブルを生成
-  const holdStr = isSTA ? mm(hold) : (dist ? dist+'m' : null);
-  const restStr = mm(rest);
-  renderIntervalTable(sets, isSTA, holdStr, restStr);
-}
-
-function renderIntervalTable(sets, isSTA, holdStr, restStr) {
-  const container = document.getElementById('iv-set-table');
-  if (!sets || sets < 1) { container.style.display = 'none'; return; }
-
-  // 既存の入力値を保持
-  const existing = [];
-  for (let i = 0; i < 99; i++) {
-    const el = document.getElementById(`iv-set-${i}`);
-    if (el) existing[i] = el.value; else break;
-  }
-
-  const planLabel  = isSTA ? '目標息止め' : '目標';
-  const resultLabel = isSTA ? '実績息止め' : '実績タイム';
-  const thStyle = `padding:6px 8px;font-size:10px;color:var(--muted);text-align:left;background:var(--surface3)`;
-  const tdStyle = `padding:4px 6px;font-size:12px`;
-
-  // 既存の入力値を保持
-  const existingHold = [];
-  const existingRest = [];
-  for (let i = 0; i < 99; i++) {
-    const h = document.getElementById(`iv-hold-${i}`);
-    const r = document.getElementById(`iv-rest-${i}`);
-    if (h) { existingHold[i] = h.value; existingRest[i] = r?.value||''; } else break;
-  }
-  const col1Label = isSTA ? '息止め時間' : '距離 (m)';
-  const col1Mode  = isSTA ? 'time' : 'num';
-
-  const rows = Array.from({length: sets}, (_, i) => `
-    <tr style="border-bottom:1px solid var(--border)">
-      <td style="${tdStyle};color:var(--accent2);font-weight:700;text-align:center;width:32px">${i+1}</td>
-      <td style="padding:3px 6px">
-        <input type="text" inputmode="numeric" class="fi" id="iv-hold-${i}"
-          placeholder="${holdStr||'—'}" value="${existingHold[i]||''}"
-          oninput="toHalf(this,'${col1Mode}',event)"
-          style="padding:5px 8px;font-size:13px">
-      </td>
-      <td style="padding:3px 6px">
-        <input type="text" inputmode="numeric" class="fi" id="iv-rest-${i}"
-          placeholder="${restStr||'—'}" value="${existingRest[i]||''}"
-          oninput="toHalf(this,'time',event)"
-          style="padding:5px 8px;font-size:13px">
-      </td>
-    </tr>`).join('');
-
-  container.style.display = '';
-  container.innerHTML = `
-    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px">セット記録</div>
-    <table style="width:100%;border-collapse:collapse;background:var(--surface2);border-radius:var(--rs);overflow:hidden">
-      <thead><tr>
-        <th style="${thStyle};text-align:center;width:32px">#</th>
-        <th style="${thStyle}">${col1Label}</th>
-        <th style="${thStyle}">休憩時間</th>
-      </tr></thead>
-      <tbody>${rows}</tbody>
-    </table>`;
 }
 
 // Legacy stubs for old references
@@ -1182,9 +1164,9 @@ function updateDistLabels() {
 
   // タイムラベル（種目によって変化）
   const timeLabels = {
-    STA:    { target: '🎯 目標息止め', result: '✅ 実際の息止め' },
-    RVSTA:  { target: '🎯 目標息止め', result: '✅ 実際の息止め' },
-    FRCSTA: { target: '🎯 目標息止め', result: '✅ 実際の息止め' },
+    STA:    { target: '🎯 目標ホールド', result: '✅ 実際のホールド' },
+    RVSTA:  { target: '🎯 目標ホールド', result: '✅ 実際のホールド' },
+    FRCSTA: { target: '🎯 目標ホールド', result: '✅ 実際のホールド' },
     DYN:    { target: '🎯 目標タイム',   result: '✅ 実際のタイム' },
     DNF:    { target: '🎯 目標タイム',   result: '✅ 実際のタイム' },
     DYNB:   { target: '🎯 目標タイム',   result: '✅ 実際のタイム' },
@@ -1271,14 +1253,6 @@ function updateDiveNumLabel() {
     : `${n}本目を入力`;
   const el = document.getElementById('dive-num-label');
   if (el) el.textContent = label;
-  // モードボタンにも本数を反映
-  const modeTargetBtn = document.getElementById('mode-target');
-  if (modeTargetBtn) {
-    const diveLabel = editingDiveId
-      ? `✏️ ${sessionDives.findIndex(d=>d.id===editingDiveId)+1}本目`
-      : `🎯 ${n}本目のダイブ`;
-    modeTargetBtn.textContent = diveLabel;
-  }
 }
 
 function addDive() {
@@ -1343,6 +1317,7 @@ function addDive() {
   renderDiveLog();
   const valStr = `${dive.disc} ${dive.depth??dive.dist??''}${dive.depth||dive.dist?'m':''} ${dive.time||''}`.trim();
   showToast(repeat > 1 ? `✅ ${valStr} × ${repeat}本 追加` : `✅ ${valStr} 追加`);
+  switchEntryTab('list'); // ダイブ追加後はリストタブに切り替え
 
   // UDDFレビュー中なら次のダイブへ自動進行
   const nextIdx = currentInlineDiveIdx + 1;
@@ -1360,22 +1335,29 @@ function addDive() {
 }
 
 function clearDiveInput() {
-  // 結果・目標の入力値だけリセット（種目・モードは維持）
   document.getElementById('f-target').value = '';
   document.getElementById('f-target-time').value = '';
   document.getElementById('f-best-depth').value = '';
   document.getElementById('f-best-time').value = '';
+  document.getElementById('f-best-depth').disabled = false;
+  document.getElementById('f-best-depth').style.opacity = '1';
+  document.getElementById('fld-target-dist').style.display = '';
+  document.getElementById('fld-result-dist').style.display = '';
   document.getElementById('f-dive-note').value = '';
   document.getElementById('lap-table').innerHTML = '';
   ['f-hold-time','f-rest-time','f-iv-sets','f-interval-dist']
     .forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
   const prevEl = document.getElementById('interval-preview');
   if (prevEl) prevEl.innerHTML = '';
-  const ivTable = document.getElementById('iv-set-table');
-  if (ivTable) ivTable.style.display = 'none';
+  // Reset mode to target
+  diveMode = 'target';
+  document.getElementById('sec-target-dive').style.display = '';
+  document.getElementById('sec-interval').style.display = 'none';
+  const mt = document.getElementById('mode-target'); if(mt) mt.classList.add('sel');
+  const mi = document.getElementById('mode-interval'); if(mi) mi.classList.remove('sel');
   document.getElementById('sec-laps').style.display = 'none';
-  // 種目・モードは維持（disabled状態も再適用）
-  updateDistLabels();
+  document.querySelectorAll('#disc-chips .chip').forEach(c => c.classList.remove('sel'));
+  state.disc = '';
   pendingUDDFData = null;
   editingDiveId = null;
   if (currentInlineDiveIdx < 0) currentInlineDiveIdx = -1;
@@ -1457,11 +1439,13 @@ function removeDive(id) {
 }
 
 function renderDiveLog() {
-  const sec = document.getElementById('sec-dive-list');
-  if (!sessionDives.length) { sec.style.display = 'none'; updateDiveNumLabel(); return; }
-  sec.style.display = '';
-  document.getElementById('dive-count-badge').textContent = `(${sessionDives.length}本)`;
+  const n = sessionDives.length;
+  const badge = document.getElementById('etab-badge');
+  const empty = document.getElementById('etab-empty');
+  if (badge) { badge.style.display = n ? '' : 'none'; badge.textContent = n; }
+  if (empty) empty.style.display = n ? 'none' : '';
   updateDiveNumLabel();
+  if (!n) return;
 
   document.getElementById('dive-log-list').innerHTML = sessionDives.map((d, i) => {
     const valStr = d.depth != null ? d.depth + 'm' : d.dist != null ? d.dist + 'm' : '';
@@ -1655,20 +1639,10 @@ function getIntervalData() {
   const rest  = document.getElementById('f-rest-time').value.trim() || null;
   const sets  = parseInt(document.getElementById('f-iv-sets').value) || null;
   if (!distRaw && !rest) return null;
-  // セットごとのデータを収集
-  const setResults = [];
-  for (let i = 0; i < (sets||0); i++) {
-    setResults.push({
-      hold:   document.getElementById(`iv-hold-${i}`)?.value.trim() || null,
-      rest:   document.getElementById(`iv-rest-${i}`)?.value.trim() || null,
-      result: document.getElementById(`iv-set-${i}`)?.value.trim()  || null,
-    });
-  }
-
   if (isSTA) {
-    return { type:'sta', holdTime: distRaw||null, restTime: rest, sets, setResults };
+    return { type:'sta', holdTime: distRaw||null, restTime: rest, sets };
   }
-  return { type:'dyn', dist: parseFloat(distRaw)||null, restTime: rest, sets, setResults };
+  return { type:'dyn', dist: parseFloat(distRaw)||null, restTime: rest, sets };
 }
 
 function getLapData() {
@@ -1725,16 +1699,13 @@ function toHalf(el, mode, e) {
     .replace(/[：]/g, ':');
 
   if (mode === 'time') {
-    const digits = v.replace(/\D/g, '').slice(0, 4); // 最大4桁（10:30など対応）
+    const digits = v.replace(/\D/g, '').slice(0, 3); // 最大3桁
     if (digits.length === 0) { el.value = ''; return; }
     if (digits.length <= 2) {
       el.value = digits; // まだ入力中
-    } else if (digits.length === 3) {
+    } else {
       // 3桁: 1桁目=分, 2〜3桁目=秒
       el.value = digits[0] + ':' + digits.slice(1);
-    } else {
-      // 4桁: 1〜2桁目=分, 3〜4桁目=秒
-      el.value = digits.slice(0, 2) + ':' + digits.slice(2);
     }
   } else if (mode === 'num') {
     el.value = v.replace(/[^\d]/g, '').slice(0, 3);
@@ -1922,80 +1893,19 @@ function parseUDDF(xml) {
   document.getElementById('p-maxdepth').textContent = maxD+'m';
   document.getElementById('p-besttime').textContent = bestT?.time||'—';
 
+  const dl = document.getElementById('dive-list');
   selectedDiveIdxs.clear();
   updateCompareUI();
-
-  // レビューモーダルを表示
-  uddfCheckState = new Array(uddfDives.length).fill(true);
-  const reviewList = document.getElementById('uddf-review-list');
-  reviewList.innerHTML = uddfDives.map((d, idx) => `
-    <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--surface2);border-radius:var(--rs);border:1px solid var(--border)">
-      <input type="checkbox" id="uddf-chk-${idx}" checked
-        onchange="uddfToggleCheck(${idx})"
-        style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent);flex-shrink:0">
-      <span style="font-size:12px;color:var(--muted);width:24px">${idx+1}</span>
-      <span style="font-weight:700;color:var(--accent2);min-width:52px;font-size:14px">${d.depth!=null?d.depth+'m':'—'}</span>
-      <span style="color:var(--sub);font-size:13px">${d.time||'—'}</span>
-      ${d===best?'<span style="font-size:10px;color:var(--warn);font-weight:700;margin-left:auto">★BEST</span>':''}
-    </div>`).join('');
-  updateUDDFSelCount();
-  document.getElementById('uddf-review-overlay').classList.add('open');
-
-  // 右パネルのリストも更新
-  const dl = document.getElementById('dive-list');
   dl.innerHTML = uddfDives.map((d,idx)=>`
-    <div class="dive-row">
+    <div class="dive-row ${d===best?'active':''}" onclick="previewDive(${idx},event)" title="⌘クリックで比較に追加">
       <span class="dive-n">${idx+1}</span>
       <span class="dive-depth">${d.depth!=null?d.depth+'m':'—'}</span>
       <span class="dive-time">${d.time||'—'}</span>
       ${d===best?'<span class="dive-best">★BEST</span>':''}
+      <button onclick="event.stopPropagation();importUDDFDive(${idx})" style="margin-left:auto;background:var(--accent-dim);border:1px solid var(--accent);color:var(--accent2);border-radius:5px;font-size:10px;font-weight:700;padding:2px 7px;cursor:pointer">追加</button>
     </div>`).join('');
-}
 
-let uddfCheckState = [];
-
-function uddfToggleCheck(idx) {
-  uddfCheckState[idx] = document.getElementById(`uddf-chk-${idx}`).checked;
-  updateUDDFSelCount();
-}
-
-function uddfSelectAll(val) {
-  uddfCheckState = uddfCheckState.map(() => val);
-  uddfDives.forEach((_, i) => {
-    const el = document.getElementById(`uddf-chk-${i}`);
-    if (el) el.checked = val;
-  });
-  updateUDDFSelCount();
-}
-
-function updateUDDFSelCount() {
-  const n = uddfCheckState.filter(Boolean).length;
-  const el = document.getElementById('uddf-sel-count');
-  if (el) el.textContent = `${n}本選択中`;
-}
-
-function uddfBatchImport() {
-  const disc = document.getElementById('uddf-disc-select')?.value || 'CWT';
-  const isSea = state.env === 'sea';
-  let count = 0;
-  uddfDives.forEach((d, i) => {
-    if (!uddfCheckState[i]) return;
-    sessionDives.push({
-      id: Date.now() + i,
-      disc,
-      target: null, targetTime: null,
-      depth: isSea ? d.depth : null,
-      dist:  !isSea ? d.depth : null,
-      time: d.time,
-      lapTimes: null,
-      speed: d.speed,
-      profile: d.profile
-    });
-    count++;
-  });
-  renderDiveLog();
-  document.getElementById('uddf-review-overlay').classList.remove('open');
-  showToast(`✅ ${count}本のダイブを追加しました`);
+  previewDive(uddfDives.indexOf(best));
 }
 
 let currentDive = null;
@@ -2450,8 +2360,7 @@ function renderList() {
     if(sortKey==='bestDepth'){av=a.bestDepth||0;bv=b.bestDepth||0;}
     else if(sortKey==='bestTime'){av=t2s(a.bestTime);bv=t2s(b.bestTime);}
     else if(sortKey==='dives'){av=a.dives||0;bv=b.dives||0;}
-    else if(sortKey==='date'){av=a.date||'';bv=b.date||'';}
-    else{av=parseInt(a.id)||0;bv=parseInt(b.id)||0;} // id = 登録時刻
+    else{av=a.date||'';bv=b.date||'';}
     return sortAsc?(av>bv?1:-1):(av<bv?1:-1);
   });
   const body=document.getElementById('list-body');
@@ -2470,7 +2379,7 @@ function renderList() {
     const mN = maxVal('narcosis');
     return `
     <tr class="trow" onclick="openModal('${s.id}')">
-      <td>${s.date}${s.id?'<br><span style="font-size:10px;color:var(--muted)">'+new Date(parseInt(s.id)).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'})+'</span>':''}</td>
+      <td>${s.date}</td>
       <td style="color:var(--sub)">${s.location||'—'}</td>
       <td>${s.discipline?`<span class="badge b-${s.discipline.toLowerCase()}">${s.discipline}</span>`:'—'}</td>
       <td>${s.env==='sea'?`<span class="badge b-sea">🌊 海</span>`:s.env==='pool'?`<span class="badge b-pool">🏊 プール</span>`:`<span class="badge b-dry">🏠 ドライ</span>`}</td>
