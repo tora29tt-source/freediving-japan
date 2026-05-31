@@ -444,16 +444,7 @@ tr:last-child td { border-bottom: none; }
         <div class="sec">
           <div class="sec-title">セッション環境</div>
           <div class="row2" style="margin-bottom:10px">
-            <div class="fld" id="env-sea-field">
-              <label>海況</label>
-              <select class="fi" id="f-seacond">
-                <option value="">選択...</option>
-                <option value="flat">🪨 凪</option>
-                <option value="wave">🌊 波あり</option>
-                <option value="swell">🌀 うねりあり</option>
-                <option value="wind">💨 強風</option>
-              </select>
-            </div>
+            <div class="fld" id="env-sea-field" style="display:none"></div>
             <div class="fld" id="env-pool-field" style="display:none">
               <label>水深 (m)</label>
               <input type="number" class="fi" id="f-pooldepth" placeholder="5" step="0.5" min="0">
