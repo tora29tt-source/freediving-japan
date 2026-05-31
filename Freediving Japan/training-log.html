@@ -1031,11 +1031,13 @@ function calcInterval() {
   }
   prev.innerHTML = lines.join('　');
 
-  // セット数が入ったらテーブルを生成
-  renderIntervalTable(sets, isSTA);
+  // ホールド・休憩・本数が揃ったらテーブルを生成
+  const holdStr = isSTA ? mm(hold) : (dist ? dist+'m' : null);
+  const restStr = mm(rest);
+  renderIntervalTable(sets, isSTA, holdStr, restStr);
 }
 
-function renderIntervalTable(sets, isSTA) {
+function renderIntervalTable(sets, isSTA, holdStr, restStr) {
   const container = document.getElementById('iv-set-table');
   if (!sets || sets < 1) { container.style.display = 'none'; return; }
 
@@ -1046,11 +1048,17 @@ function renderIntervalTable(sets, isSTA) {
     if (el) existing[i] = el.value; else break;
   }
 
-  const colLabel = isSTA ? '実績ホールド' : '実績タイム';
+  const planLabel  = isSTA ? '目標ホールド' : '目標';
+  const resultLabel = isSTA ? '実績ホールド' : '実績タイム';
+  const thStyle = `padding:6px 8px;font-size:10px;color:var(--muted);text-align:left;background:var(--surface3)`;
+  const tdStyle = `padding:4px 6px;font-size:12px`;
+
   const rows = Array.from({length: sets}, (_, i) => `
-    <tr>
-      <td style="padding:6px 8px;font-size:12px;color:var(--muted);text-align:center;width:36px">${i+1}</td>
-      <td style="padding:4px 6px">
+    <tr style="border-bottom:1px solid var(--border)">
+      <td style="${tdStyle};color:var(--accent2);font-weight:700;text-align:center;width:32px">${i+1}</td>
+      <td style="${tdStyle};color:var(--sub)">${holdStr||'—'}</td>
+      <td style="${tdStyle};color:var(--sub)">${restStr||'—'}</td>
+      <td style="padding:3px 6px">
         <input type="text" inputmode="numeric" class="fi" id="iv-set-${i}"
           placeholder="—" value="${existing[i]||''}"
           oninput="toHalf(this,'time',event)"
@@ -1061,13 +1069,17 @@ function renderIntervalTable(sets, isSTA) {
   container.style.display = '';
   container.innerHTML = `
     <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px">セット記録</div>
+    <div style="overflow-x:auto">
     <table style="width:100%;border-collapse:collapse;background:var(--surface2);border-radius:var(--rs);overflow:hidden">
       <thead><tr>
-        <th style="padding:6px 8px;font-size:10px;color:var(--muted);text-align:center;background:var(--surface3)">#</th>
-        <th style="padding:6px 8px;font-size:10px;color:var(--muted);text-align:left;background:var(--surface3)">${colLabel}</th>
+        <th style="${thStyle};text-align:center">#</th>
+        <th style="${thStyle}">${planLabel}</th>
+        <th style="${thStyle}">目標休憩</th>
+        <th style="${thStyle}">${resultLabel}</th>
       </tr></thead>
       <tbody>${rows}</tbody>
-    </table>`;
+    </table>
+    </div>`;
 }
 
 // Legacy stubs for old references
