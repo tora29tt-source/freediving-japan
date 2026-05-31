@@ -1220,6 +1220,14 @@ function updateDiveNumLabel() {
     : `${n}本目を入力`;
   const el = document.getElementById('dive-num-label');
   if (el) el.textContent = label;
+  // モードボタンにも本数を反映
+  const modeTargetBtn = document.getElementById('mode-target');
+  if (modeTargetBtn) {
+    const diveLabel = editingDiveId
+      ? `✏️ ${sessionDives.findIndex(d=>d.id===editingDiveId)+1}本目`
+      : `🎯 ${n}本目のダイブ`;
+    modeTargetBtn.textContent = diveLabel;
+  }
 }
 
 function addDive() {
@@ -1301,29 +1309,22 @@ function addDive() {
 }
 
 function clearDiveInput() {
+  // 結果・目標の入力値だけリセット（種目・モードは維持）
   document.getElementById('f-target').value = '';
   document.getElementById('f-target-time').value = '';
   document.getElementById('f-best-depth').value = '';
   document.getElementById('f-best-time').value = '';
-  document.getElementById('f-best-depth').disabled = false;
-  document.getElementById('f-best-depth').style.opacity = '1';
-  document.getElementById('fld-target-dist').style.display = '';
-  document.getElementById('fld-result-dist').style.display = '';
   document.getElementById('f-dive-note').value = '';
   document.getElementById('lap-table').innerHTML = '';
   ['f-hold-time','f-rest-time','f-iv-sets','f-interval-dist']
     .forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
   const prevEl = document.getElementById('interval-preview');
   if (prevEl) prevEl.innerHTML = '';
-  // Reset mode to target
-  diveMode = 'target';
-  document.getElementById('sec-target-dive').style.display = '';
-  document.getElementById('sec-interval').style.display = 'none';
-  const mt = document.getElementById('mode-target'); if(mt) mt.classList.add('sel');
-  const mi = document.getElementById('mode-interval'); if(mi) mi.classList.remove('sel');
+  const ivTable = document.getElementById('iv-set-table');
+  if (ivTable) ivTable.style.display = 'none';
   document.getElementById('sec-laps').style.display = 'none';
-  document.querySelectorAll('#disc-chips .chip').forEach(c => c.classList.remove('sel'));
-  state.disc = '';
+  // 種目・モードは維持（disabled状態も再適用）
+  updateDistLabels();
   pendingUDDFData = null;
   editingDiveId = null;
   if (currentInlineDiveIdx < 0) currentInlineDiveIdx = -1;
