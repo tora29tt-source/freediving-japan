@@ -440,22 +440,13 @@ tr:last-child td { border-bottom: none; }
           </div>
         </div>
 
-        <!-- セッション環境 -->
-        <div class="sec">
-          <div class="sec-title">セッション環境</div>
-          <div class="row2" style="margin-bottom:10px">
-            <div class="fld" id="env-sea-field" style="display:none"></div>
-            <div class="fld" id="env-pool-field" style="display:none">
-              <label>水深 (m)</label>
-              <input type="number" class="fi" id="f-pooldepth" placeholder="5" step="0.5" min="0">
-            </div>
-          </div>
-          <div id="env-pool-type" style="display:none">
-            <label style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em">プール種別</label>
-            <div class="env-btns" style="margin-top:6px">
-              <button class="env-btn sel" id="pool-25" onclick="setPoolSize(25,this)">25m プール</button>
-              <button class="env-btn" id="pool-50" onclick="setPoolSize(50,this)">50m プール</button>
-            </div>
+        <!-- 非表示: プール種別（ラップ計算用） -->
+        <div id="env-sea-field" style="display:none"></div>
+        <div id="env-pool-field" style="display:none"></div>
+        <div id="env-pool-type" style="display:none">
+          <div class="env-btns" style="margin-top:6px">
+            <button class="env-btn sel" id="pool-25" onclick="setPoolSize(25,this)">25m</button>
+            <button class="env-btn" id="pool-50" onclick="setPoolSize(50,this)">50m</button>
           </div>
         </div>
 
