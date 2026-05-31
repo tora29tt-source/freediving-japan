@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FreeDive Japan</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ocean-deep: #0b2d45;
+  --ocean-mid:  #0e3d5c;
+  --ocean-light:#1a5f82;
+  --sky:        #e8f4f8;
+  --teal:       #2ec4b6;
+  --teal-light: #a8ece8;
+  --foam:       #f0f9fb;
+  --text-dark:  #0b2d45;
+  --text-mid:   #3a6b84;
+  --text-soft:  #7aafc5;
+  --white:      #ffffff;
+  --sand:       #fdf8f2;
+  --sand2:      #f5ede0;
+  --warm:       #f97316;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  background: var(--foam);
+  color: var(--text-dark);
+  min-height: 100vh;
+}
+
+/* ── header ── */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(46,196,182,0.15);
+  padding: 0 20px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.logo {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ocean-deep);
+  letter-spacing: -0.3px;
+}
+.logo span { color: var(--teal); }
+.header-icons { display: flex; align-items: center; gap: 14px; }
+.icon-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--foam);
+  border: 1px solid rgba(46,196,182,0.2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* ── hero ── */
+.hero {
+  background: linear-gradient(175deg, var(--ocean-deep) 0%, var(--ocean-mid) 55%, #1a7a8a 100%);
+  padding: 44px 24px 52px;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url('images/hero_cnf_dive.jpg');
+  background-size: cover;
+  background-position: center 20%;
+  opacity: 0.35;
+  pointer-events: none;
+}
+.hero-tag {
+  display: inline-block;
+  background: rgba(46,196,182,0.2);
+  color: var(--teal-light);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  padding: 4px 14px;
+  border-radius: 100px;
+  border: 1px solid rgba(46,196,182,0.3);
+  margin-bottom: 16px;
+}
+.hero-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.35;
+  margin-bottom: 10px;
+}
+.hero-title em {
+  font-style: normal;
+  color: var(--teal-light);
+}
+.hero-desc {
+  font-size: 14px;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.7;
+  max-width: 320px;
+  margin: 0 auto 24px;
+}
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--teal);
+  color: var(--white);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 100px;
+  text-decoration: none;
+  box-shadow: 0 4px 20px rgba(46,196,182,0.35);
+}
+.hero-cta .arrow { font-size: 18px; }
+
+/* ── wave divider ── */
+.wave {
+  display: block;
+  width: 100%;
+  margin-top: -2px;
+  background: var(--ocean-mid);
+}
+
+/* ── content ── */
+.content {
+  padding: 28px 16px 40px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* ── section ── */
+.sec-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.sec-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+.sec-sub {
+  font-size: 12px;
+  color: var(--text-soft);
+}
+.section { margin-bottom: 32px; }
+
+/* ── beginner banner ── */
+.beginner-banner {
+  border-radius: 18px;
+  overflow: hidden;
+  margin-bottom: 32px;
+  position: relative;
+  min-height: 160px;
+  display: flex;
+  align-items: flex-end;
+}
+.beginner-photo {
+  position: absolute;
+  inset: 0;
+  background-image: url('images/beginner_pair.jpg');
+  background-size: cover;
+  background-position: center 30%;
+}
+.beginner-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(11,45,69,0.88) 40%, rgba(11,45,69,0.2) 100%);
+}
+.beginner-body {
+  position: relative;
+  z-index: 1;
+  padding: 20px;
+}
+.beginner-body h2 { font-size: 16px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+.beginner-body p  { font-size: 13px; color: rgba(255,255,255,0.75); line-height: 1.6; }
+.beginner-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  background: var(--teal);
+  color: var(--white);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 16px;
+  border-radius: 100px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* ── cards row ── */
+.cards-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.card {
+  background: var(--white);
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 16px;
+  padding: 16px;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: box-shadow 0.2s, transform 0.15s;
+}
+.card:hover {
+  box-shadow: 0 6px 24px rgba(11,45,69,0.09);
+  transform: translateY(-2px);
+}
+.card.wide { grid-column: 1 / -1; display: flex; align-items: center; gap: 14px; padding: 16px 18px; }
+.card-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  margin-bottom: 10px;
+}
+.card.wide .card-icon { margin-bottom: 0; }
+.ic-teal   { background: #e0f7f5; }
+.ic-blue   { background: #dceeff; }
+.ic-amber  { background: #fff3e0; }
+.ic-purple { background: #ede8ff; }
+.ic-coral  { background: #ffeaea; }
+.card h3 { font-size: 14px; font-weight: 700; color: var(--text-dark); margin-bottom: 3px; }
+.card p  { font-size: 12px; color: var(--text-mid); line-height: 1.5; }
+.card-body { flex: 1; min-width: 0; }
+.card-arrow { color: var(--text-soft); font-size: 18px; flex-shrink: 0; margin-left: auto; }
+
+/* ── 開発中オーバーレイ ── */
+.wip-wrap { position: relative; display: block; }
+.wip-wrap > a, .wip-wrap a { pointer-events: none; }
+.wip-mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(240,249,251,0.6);
+  border-radius: 16px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.wip-badge {
+  background: rgba(11,45,69,0.75);
+  color: rgba(255,255,255,0.9);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 100px;
+  letter-spacing: 0.04em;
+}
+.card.wip-card, .photo-card.wip-card {
+  filter: grayscale(1) opacity(0.55);
+  pointer-events: none;
+}
+.card.wide.wip-card { filter: grayscale(1) opacity(0.55); pointer-events: none; }
+
+/* ── photo card (tall) ── */
+.photo-card {
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  min-height: 140px;
+  transition: transform 0.15s;
+}
+.photo-card:hover { transform: translateY(-2px); }
+.photo-card-img {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+.photo-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(11,45,69,0.82) 40%, rgba(11,45,69,0.1) 100%);
+}
+.photo-card-body {
+  position: relative;
+  z-index: 1;
+  padding: 14px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.photo-card-body h3 { font-size: 14px; font-weight: 700; color: var(--white); margin-bottom: 2px; }
+.photo-card-body p  { font-size: 11px; color: rgba(255,255,255,0.7); }
+
+/* ── event cards ── */
+.event-card {
+  background: var(--white);
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  margin-bottom: 10px;
+  transition: box-shadow 0.2s, transform 0.15s;
+}
+.event-card:hover {
+  box-shadow: 0 6px 24px rgba(11,45,69,0.09);
+  transform: translateY(-2px);
+}
+.event-card:last-child { margin-bottom: 0; }
+.event-thumb {
+  width: 80px;
+  height: 72px;
+  flex-shrink: 0;
+  background-size: cover;
+  background-position: center;
+}
+.event-card-inner {
+  flex: 1;
+  padding: 12px 14px;
+  min-width: 0;
+}
+.event-card-inner h3 { font-size: 14px; font-weight: 700; color: var(--text-dark); margin-bottom: 2px; }
+.event-card-inner p  { font-size: 12px; color: var(--text-mid); }
+.event-icon {
+  width: 46px; height: 46px;
+  border-radius: 13px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+/* ── tips strip ── */
+.tips-strip {
+  background: var(--sand);
+  border: 1px solid var(--sand2);
+  border-radius: 16px;
+  padding: 18px;
+}
+.tips-title { font-size: 13px; font-weight: 700; color: var(--text-dark); margin-bottom: 12px; }
+.tip-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.tip-item:last-child { margin-bottom: 0; }
+.tip-num {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--ocean-deep);
+  color: var(--white);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.tip-text { font-size: 13px; color: var(--text-mid); line-height: 1.6; }
+.tip-text strong { color: var(--text-dark); font-weight: 600; }
+
+/* ── bottom nav ── */
+.bottom-nav {
+  position: sticky;
+  bottom: 0;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(0,0,0,0.07);
+  display: flex;
+}
+.bnav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 10px 0 14px;
+  text-decoration: none;
+  color: var(--text-soft);
+  font-size: 19px;
+  transition: color 0.15s;
+}
+.bnav-item.active { color: var(--teal); }
+.bnav-label { font-size: 10px; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- header -->
+<header class="header">
+  <div class="logo">FreeDive<span>Japan</span></div>
+  <div class="header-icons">
+    <div class="icon-btn">🔔</div>
+    <div class="icon-btn">👤</div>
+  </div>
+</header>
+
+<!-- hero -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-tag">🌊 フリーダイビング専門プラットフォーム</div>
+  <div class="hero-title">海と、もっと<br><em>深くつながろう。</em></div>
+  <div class="hero-desc">道具も資格も不要。まずは息を整えることから。あなたのペースで、海の世界へ。</div>
+  <a class="hero-cta" href="#">
+    <span>はじめてみる</span>
+    <span class="arrow">→</span>
+  </a>
+</div>
+
+<svg class="wave" viewBox="0 0 1440 40" preserveAspectRatio="none" height="40" xmlns="http://www.w3.org/2000/svg">
+  <path d="M0,20 C360,40 1080,0 1440,20 L1440,0 L0,0 Z" fill="#0e3d5c"/>
+  <path d="M0,28 C400,8 1000,44 1440,20 L1440,40 L0,40 Z" fill="#f0f9fb"/>
+</svg>
+
+<!-- content -->
+<div class="content">
+
+  <!-- 初めての方へ -->
+  <div style="position:relative;margin-bottom:32px;">
+    <div class="beginner-banner" style="filter:grayscale(1) opacity(0.5);pointer-events:none;margin-bottom:0;">
+      <div class="beginner-photo"></div>
+      <div class="beginner-overlay"></div>
+      <div class="beginner-body">
+        <h2>🤿 フリーダイビングって何？</h2>
+        <p>器具なしで海に潜るスポーツ。<br>初心者でも安全に楽しめます。</p>
+        <button class="beginner-btn">初めての方はこちら <span>→</span></button>
+      </div>
+    </div>
+    <div class="wip-mask"><span class="wip-badge">🚧 開発中</span></div>
+  </div>
+
+  <!-- 探す -->
+  <div class="section">
+    <div class="sec-header">
+      <div class="sec-title">🗺️ 探す</div>
+      <div class="sec-sub">ショップ・講習を見つける</div>
+    </div>
+    <div class="cards-row">
+      <div style="position:relative;">
+        <a class="photo-card wip-card" href="#" style="min-height:140px;">
+          <div class="photo-card-img" style="background-image:url('images/surface_boat_view.jpg');background-position:center top;"></div>
+          <div class="photo-card-overlay"></div>
+          <div class="photo-card-body"><h3>📍 マップ</h3><p>近くのショップを探す</p></div>
+        </a>
+        <div class="wip-mask"><span class="wip-badge">🚧 開発中</span></div>
+      </div>
+      <div style="position:relative;">
+        <a class="photo-card wip-card" href="#" style="min-height:140px;">
+          <div class="photo-card-img" style="background-image:url('images/gear_fins_beach.jpg');"></div>
+          <div class="photo-card-overlay"></div>
+          <div class="photo-card-body"><h3>🏪 ショップ一覧</h3><p>全国のスクール一覧</p></div>
+        </a>
+        <div class="wip-mask"><span class="wip-badge">🚧 開発中</span></div>
+      </div>
+      <div style="position:relative;grid-column:1/-1;">
+        <a class="card wide wip-card" href="#">
+          <div class="card-icon ic-teal">📋</div>
+          <div class="card-body"><h3>講習を予約する</h3><p>AIDA / PADI 認定コース・体験ダイビング</p></div>
+          <span class="card-arrow">›</span>
+        </a>
+        <div class="wip-mask"><span class="wip-badge">🚧 開発中</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 学ぶ -->
+  <div class="section">
+    <div class="sec-header">
+      <div class="sec-title">📖 学ぶ</div>
+      <div class="sec-sub">レベル別コンテンツ</div>
+    </div>
+    <div class="cards-row">
+      <div style="position:relative;">
+        <a class="card wip-card" href="#"><div class="card-icon ic-teal">🌱</div><h3>初心者</h3><p>呼吸・イコライズの基本から</p></a>
+        <div class="wip-mask"><span class="wip-badge">🚧 開発中</span></div>
+      </div>
+      <div style="position:relative;">
+        <a class="card wip-card" href="#"><div class="card-icon ic-blue">📈</div><h3>中級</h3><p>FRC・ノーフィン技術</p></a>
+        <div class="wip-mask"><span class="wip-badge">🚧 開発中</span></div>
+      </div>
+      <div style="position:relative;">
+        <a class="card wip-card" href="#"><div class="card-icon ic-amber">🏅</div><h3>競技</h3><p>大会・記録を伸ばす</p></a>
+        <div class="wip-mask"><span class="wip-badge">🚧 開発中</span></div>
+      </div>
+      <div style="position:relative;">
+        <a class="card wip-card" href="#"><div class="card-icon ic-purple">🎓</div><h3>インストラクター</h3><p>資格・指導法を学ぶ</p></a>
+        <div class="wip-mask"><span class="wip-badge">🚧 開発中</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- イベント / 国内ランキング -->
+  <div class="section">
+    <div class="sec-header">
+      <div class="sec-title">🏆 イベント / 国内ランキング</div>
+    </div>
+    <a class="event-card" href="2026_competitions.html">
+      <div class="event-thumb" style="background-image:url('images/dive_deep_rope.jpg');background-position:center 30%;"></div>
+      <div class="event-card-inner">
+        <h3>大会カレンダー</h3>
+        <p>2026年 国内大会スケジュール</p>
+      </div>
+      <span class="card-arrow" style="padding-right:14px;">›</span>
+    </a>
+    <a class="event-card" href="AIDA_ranking_prototype.html">
+      <div class="event-thumb" style="background-image:url('images/pool_portrait.jpg');background-position:center 20%;"></div>
+      <div class="event-card-inner">
+        <h3>国内ランキング</h3>
+        <p>AIDA Japan 全国ランキング</p>
+      </div>
+      <span class="card-arrow" style="padding-right:14px;">›</span>
+    </a>
+  </div>
+
+  <!-- はじめての人向けヒント -->
+  <div class="tips-strip">
+    <div class="tips-title">💡 フリーダイビングを始める前に</div>
+    <div class="tip-item">
+      <div class="tip-num">1</div>
+      <div class="tip-text"><strong>必ず認定インストラクターと一緒に</strong>潜りましょう。一人での練習は危険です。</div>
+    </div>
+    <div class="tip-item">
+      <div class="tip-num">2</div>
+      <div class="tip-text"><strong>体験コースから始める</strong>のがおすすめ。道具も技術も不要で、2〜3時間で体験できます。</div>
+    </div>
+    <div class="tip-item">
+      <div class="tip-num">3</div>
+      <div class="tip-text">深さより<strong>リラックス</strong>が大切。焦らず、自分のペースで楽しみましょう。</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- bottom nav -->
+<nav class="bottom-nav">
+  <a class="bnav-item active" href="#">
+    <span>🏠</span>
+    <span class="bnav-label">ホーム</span>
+  </a>
+  <a class="bnav-item" href="#">
+    <span>🗺️</span>
+    <span class="bnav-label">探す</span>
+  </a>
+  <a class="bnav-item" href="#">
+    <span>🏆</span>
+    <span class="bnav-label">イベント</span>
+  </a>
+
+  <a class="bnav-item" href="mypage.html">
+    <span>👤</span>
+    <span class="bnav-label">マイページ</span>
+  </a>
+</nav>
+
+</body>
+</html>
