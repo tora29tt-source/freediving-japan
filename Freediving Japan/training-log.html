@@ -1571,10 +1571,17 @@ function getIntervalData() {
   const rest  = document.getElementById('f-rest-time').value.trim() || null;
   const sets  = parseInt(document.getElementById('f-iv-sets').value) || null;
   if (!distRaw && !rest) return null;
-  if (isSTA) {
-    return { type:'sta', holdTime: distRaw||null, restTime: rest, sets };
+  // セットごとの実績タイムを収集
+  const setResults = [];
+  for (let i = 0; i < (sets||0); i++) {
+    const el = document.getElementById(`iv-set-${i}`);
+    setResults.push(el?.value.trim() || null);
   }
-  return { type:'dyn', dist: parseFloat(distRaw)||null, restTime: rest, sets };
+
+  if (isSTA) {
+    return { type:'sta', holdTime: distRaw||null, restTime: rest, sets, setResults };
+  }
+  return { type:'dyn', dist: parseFloat(distRaw)||null, restTime: rest, sets, setResults };
 }
 
 function getLapData() {
