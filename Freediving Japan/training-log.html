@@ -1053,11 +1053,31 @@ function renderIntervalTable(sets, isSTA, holdStr, restStr) {
   const thStyle = `padding:6px 8px;font-size:10px;color:var(--muted);text-align:left;background:var(--surface3)`;
   const tdStyle = `padding:4px 6px;font-size:12px`;
 
+  // 既存の目標値も保持
+  const existingHold = [];
+  const existingRest = [];
+  for (let i = 0; i < 99; i++) {
+    const h = document.getElementById(`iv-hold-${i}`);
+    const r = document.getElementById(`iv-rest-${i}`);
+    if (h) { existingHold[i] = h.value; existingRest[i] = r?.value||''; } else break;
+  }
+  const inputMode = isSTA ? 'time' : 'num';
+
   const rows = Array.from({length: sets}, (_, i) => `
     <tr style="border-bottom:1px solid var(--border)">
       <td style="${tdStyle};color:var(--accent2);font-weight:700;text-align:center;width:32px">${i+1}</td>
-      <td style="${tdStyle};color:var(--sub)">${holdStr||'—'}</td>
-      <td style="${tdStyle};color:var(--sub)">${restStr||'—'}</td>
+      <td style="padding:3px 6px">
+        <input type="text" inputmode="numeric" class="fi" id="iv-hold-${i}"
+          placeholder="${holdStr||'—'}" value="${existingHold[i]||''}"
+          oninput="toHalf(this,'${inputMode}',event)"
+          style="padding:5px 8px;font-size:13px">
+      </td>
+      <td style="padding:3px 6px">
+        <input type="text" inputmode="numeric" class="fi" id="iv-rest-${i}"
+          placeholder="${restStr||'—'}" value="${existingRest[i]||''}"
+          oninput="toHalf(this,'time',event)"
+          style="padding:5px 8px;font-size:13px">
+      </td>
       <td style="padding:3px 6px">
         <input type="text" inputmode="numeric" class="fi" id="iv-set-${i}"
           placeholder="—" value="${existing[i]||''}"
@@ -1583,11 +1603,14 @@ function getIntervalData() {
   const rest  = document.getElementById('f-rest-time').value.trim() || null;
   const sets  = parseInt(document.getElementById('f-iv-sets').value) || null;
   if (!distRaw && !rest) return null;
-  // セットごとの実績タイムを収集
+  // セットごとのデータを収集
   const setResults = [];
   for (let i = 0; i < (sets||0); i++) {
-    const el = document.getElementById(`iv-set-${i}`);
-    setResults.push(el?.value.trim() || null);
+    setResults.push({
+      hold:   document.getElementById(`iv-hold-${i}`)?.value.trim() || null,
+      rest:   document.getElementById(`iv-rest-${i}`)?.value.trim() || null,
+      result: document.getElementById(`iv-set-${i}`)?.value.trim()  || null,
+    });
   }
 
   if (isSTA) {
