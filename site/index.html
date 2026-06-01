@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIDA Japan ランキング</title>
+<style>
+:root{--bg:#04161f;--panel:#0c2738;--accent:#2ec4b6;--accent2:#a8ece8;--pool:#2ec4b6;--sea:#1a7a8a;--text:rgba(255,255,255,0.92);--muted:rgba(255,255,255,0.5);--line:rgba(168,236,232,0.14);--gold:#ffd24a;--silver:#cfd8e0;--bronze:#d6a36b;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;background:linear-gradient(180deg,#0e3d5c 0%,#0b2d45 22%,#06283a 55%,#04161f 100%);background-attachment:fixed;color:var(--text);min-height:100vh}
+header{padding:22px 20px 14px;border-bottom:1px solid var(--line)}
+header h1{font-size:21px;letter-spacing:.5px}header h1 span{color:var(--accent2)}
+header p{color:var(--muted);font-size:12.5px;margin-top:4px}
+.wrap{max-width:1000px;margin:0 auto;padding:0 16px 60px}
+.loading{padding:60px;text-align:center;color:var(--muted)}
+.hero{margin:18px 0 24px}
+.hero h2{font-size:16px;letter-spacing:.5px}.hero h2 b{color:var(--accent2)}
+.hero .sub{color:var(--muted);font-size:12px;margin:3px 0 14px}
+.grouphd{display:flex;align-items:center;gap:8px;margin:16px 0 9px;font-size:13px;font-weight:700;letter-spacing:.5px}
+.grouphd .dot{width:10px;height:10px;border-radius:50%}
+.grouphd.pool{color:var(--pool)}.grouphd.pool .dot{background:var(--pool)}
+.grouphd.sea{color:var(--sea)}.grouphd.sea .dot{background:var(--sea)}
+.grouphd small{color:var(--muted);font-weight:500;letter-spacing:0}
+.hgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.hcard{background:linear-gradient(180deg,#11324b,#0c2237);border:1px solid var(--line);border-radius:14px;padding:14px;border-top:3px solid var(--line)}
+.hcard.pool{border-top-color:var(--pool)}.hcard.sea{border-top-color:var(--sea)}
+.hcard .dh{display:flex;align-items:baseline;gap:6px;margin-bottom:10px;border-bottom:1px solid var(--line);padding-bottom:8px}
+.hcard .dh .ja{font-size:13.5px;font-weight:700}.hcard .dh .en{font-size:9.5px;color:var(--muted);letter-spacing:.5px}
+.hrow{display:flex;align-items:center;gap:10px;padding:7px 0;cursor:pointer}
+.hrow:hover .hn{text-decoration:underline}.hrow+.hrow{border-top:1px dashed rgba(255,255,255,.06)}
+.av{width:42px;height:42px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#06231c;background-size:cover;background-position:center;overflow:hidden}
+.av img{width:100%;height:100%;object-fit:cover}
+.gtag{font-size:9px;color:var(--muted);letter-spacing:1px}
+.hn{font-size:12.5px;font-weight:600;line-height:1.2}
+.hr{margin-left:auto;text-align:right}.hr .v{font-size:15px;font-weight:800;color:var(--accent2)}.hr .nr{font-size:8.5px;color:var(--gold);font-weight:700}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:18px 0 4px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px}
+.tab{padding:7px 12px;border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:20px;cursor:pointer;font-size:12.5px;transition:.15s;text-align:center}
+.tab small{display:block;font-size:9px;letter-spacing:.5px;opacity:.7}
+.tab:hover{border-color:var(--accent)}.tab.active{color:#fff;font-weight:600}
+.tab.pool.active{background:var(--pool);border-color:var(--pool)}
+.tab.sea.active{background:var(--sea);border-color:var(--sea);color:#06231c}
+.tab.overall.active{background:var(--accent);border-color:var(--accent)}
+.tab.pool{border-left:3px solid var(--pool)}.tab.sea{border-left:3px solid var(--sea)}
+.spacer{flex:1}
+select{padding:7px 10px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;font-size:13px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{padding:7px 14px;background:var(--panel);color:var(--muted);border:0;cursor:pointer;font-size:13px}
+.seg button.active{background:var(--accent2);color:#06231c;font-weight:700}
+.discHead{margin:10px 0 2px}.discHead .ja{font-size:19px;font-weight:700}
+.discHead .en{font-size:13px;font-weight:600;margin-left:8px;letter-spacing:.5px}
+.discHead.pool .en{color:var(--pool)}.discHead.sea .en{color:var(--sea)}.discHead.overall .en{color:var(--accent)}
+.discHead .badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:8px;vertical-align:middle}
+.badge.pool{background:rgba(42,169,224,.18);color:var(--pool)}.badge.sea{background:rgba(30,200,166,.18);color:var(--sea)}
+.discHead .desc{color:var(--muted);font-size:13px;margin-top:5px;line-height:1.5}
+.ctx{font-size:12.5px;color:var(--muted);margin:10px 0 14px}.ctx b{color:var(--accent2)}
+.podium{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;align-items:stretch;margin:8px 0 22px}
+.pod{background:linear-gradient(180deg,#11324b,#0c2237);border:1px solid var(--line);border-radius:14px;padding:16px 12px;text-align:center;cursor:pointer;transition:.15s}
+.pod:hover{transform:translateY(-3px);border-color:var(--accent)}.pod:hover .name{text-decoration:underline}
+.pav{width:64px;height:64px;border-radius:50%;margin:0 auto 8px;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-weight:700;color:#06231c;font-size:20px;overflow:hidden;border:2px solid var(--line)}
+.pav img{width:100%;height:100%;object-fit:cover}
+.pod.p1{padding-top:22px}.pod.p1 .pav{width:76px;height:76px;border-color:var(--gold)}
+.pod .pr{font-size:12px;font-weight:700;letter-spacing:1px}.pod.p1 .pr{color:var(--gold)}.pod.p2 .pr{color:var(--silver)}.pod.p3 .pr{color:var(--bronze)}
+.pod .name{font-size:14px;font-weight:700;margin:6px 0 4px}.pod.p1 .name{font-size:16px}
+.pod .res{font-size:19px;font-weight:800;color:var(--accent2)}.pod .pts{font-size:11px;color:var(--muted);margin-top:2px}.pod .ev{font-size:10px;color:var(--muted);margin-top:5px;line-height:1.3}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+tbody tr:hover{background:rgba(30,155,215,.07)}
+.rk{width:40px;font-weight:700;color:var(--muted)}
+.nmcell{display:flex;align-items:center;gap:9px}
+.savatar{width:30px;height:30px;border-radius:50%;flex:none;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#06231c;overflow:hidden}
+.savatar img{width:100%;height:100%;object-fit:cover}
+.nm{color:var(--accent);cursor:pointer;font-weight:600}.nm:hover{text-decoration:underline}
+.res2{font-weight:700}.pts2{color:var(--accent2);font-weight:700}.ev2{color:var(--muted);font-size:12px;max-width:260px}.dt{color:var(--muted);font-size:12px;white-space:nowrap}
+.listhd{font-size:12px;color:var(--muted);margin:4px 0 6px;letter-spacing:.5px}
+.overlay{position:fixed;inset:0;background:rgba(3,10,18,.8);display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto;z-index:50}
+.overlay.show{display:flex}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;max-width:780px;width:100%;padding:24px}
+.card .top{display:flex;gap:16px;align-items:center;margin-bottom:18px}
+.bigav{width:84px;height:84px;border-radius:50%;flex:none;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;color:#06231c;overflow:hidden;border:2px solid var(--line)}
+.bigav img{width:100%;height:100%;object-fit:cover}
+.card h2{font-size:22px}.card .meta{color:var(--muted);font-size:13px;margin-top:5px}
+.close{float:right;cursor:pointer;color:var(--muted);font-size:24px;line-height:1}
+.athsec{margin-top:16px}
+.athsec .secthd{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;letter-spacing:.5px;margin-bottom:6px}
+.athsec.pool .secthd{color:var(--pool)}.athsec.sea .secthd{color:var(--sea)}.athsec.best .secthd{color:var(--accent2)}
+.athsec .dot{width:9px;height:9px;border-radius:50%}.athsec.pool .dot{background:var(--pool)}.athsec.sea .dot{background:var(--sea)}.athsec.best .dot{background:var(--accent2)}
+.empty{color:var(--muted);padding:30px;text-align:center}
+.ath-page{display:none;padding:20px 0 60px}.ath-page.show{display:block}
+.ath-back{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:13px;cursor:pointer;padding:8px 0 20px;text-decoration:none}
+.ath-back:hover{color:var(--accent)}
+.ath-link{display:inline-block;margin-top:8px;font-size:12px;color:var(--accent);text-decoration:none;cursor:pointer}
+.ath-link:hover{text-decoration:underline}
+.rep-tag{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,rgba(255,210,74,.18),rgba(255,180,30,.1));border:1px solid rgba(255,210,74,.5);color:var(--gold);font-size:11px;font-weight:700;letter-spacing:.5px;padding:3px 10px;border-radius:20px;margin-top:7px}
+.rep-tag::before{content:'🇯🇵';font-size:13px}
+footer{color:var(--muted);font-size:11.5px;text-align:center;padding:24px}
+@media(max-width:880px){.hgrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.hgrid{grid-template-columns:1fr}.podium{grid-template-columns:1fr}.pod.p1{order:1}.pod.p2{order:2}.pod.p3{order:3}.pod.p1{padding-top:16px}}
+</style></head>
+<body>
+<header><div class="wrap"><h1>AIDA <span>Japan</span> ランキング</h1>
+<p>日本記録データベース</p></div></header>
+<div class="wrap">
+<div id="app"><div class="loading">データを読み込み中…</div></div>
+<div class="ath-page" id="athPage"></div>
+</div>
+<footer>データ出典: AIDA International · 顔写真: AIDA選手プロフィール</footer>
+<div class="overlay" id="overlay"><div class="card" id="card"></div></div>
+<script>
+let DATA={records:[],overall:[]}, JP_RECORDS={}, PHOTOS={}, META={updated:''};
+const WORLD_TEAM_2025=new Set(['Aki Shimoyama','Hanako Hirose','Hideo Ishii','Kyosuke Abe','Misuzu Okamoto','Naomi Iwazawa','Noriyuki Yabe','Ren Nakagomi','Sayaka Oi','Shoko Kobayashi','Takashi Ohashi','Yasuko Ozeki','Yuriko Ichihara']);
+const POOL=['STA','DYN','DYNB','DNF'], SEA=['CWT','CWTB','CNF','FIM'];
+const DISC=[
+['OVERALL','総合','Overall','全8種目のポイントを合算した総合力ランキング。','overall'],
+['STA','スタティック','Static Apnea (STA)','水面でできるだけ長く息を止め、その停止時間を競う種目。','pool'],
+['DYN','ダイナミック','Dynamic Apnea (DYN)','フィンを使ってプールを水平に進み、その距離を競う種目。','pool'],
+['DYNB','ダイナミック・バイフィン','Dynamic Bi-fins (DYNB)','二枚のフィンで水平に泳ぎ、進んだ距離を競う種目。','pool'],
+['DNF','ダイナミック・ノーフィン','Dynamic No Fins (DNF)','フィンを使わず素潜りで水平に泳ぎ、距離を競う種目。','pool'],
+['CWT','コンスタント・ウェイト','Constant Weight (CWT)','フィンを使い、ロープ沿いに潜って到達深度を競う種目。','sea'],
+['CWTB','コンスタント・バイフィン','Constant Weight Bi-fins (CWTB)','二枚フィンでロープ沿いに潜り、深度を競う種目。','sea'],
+['CNF','コンスタント・ノーフィン','Constant No Fins (CNF)','フィンなし・自力のみで潜降浮上し、深度を競う最も過酷な種目。','sea'],
+['FIM','フリー・イマージョン','Free Immersion (FIM)','ロープを手繰って潜り、到達深度を競う種目。','sea']
+];
+const DJA=Object.fromEntries(DISC.map(d=>[d[0],d[1]]));
+const DCAT=Object.fromEntries(DISC.map(d=>[d[0],d[4]]));
+let state={disc:'OVERALL',gender:'Male',year:''};
+
+function esc(s){return (s||'').replace(/'/g,"\\'");}
+function initials(n){const p=(n||'').trim().split(/\s+/);return ((p[0]||'')[0]||'')+((p[1]||'')[0]||'');}
+function hue(n){let h=0;for(const c of (n||''))h=(h*31+c.charCodeAt(0))%360;return h;}
+function av(name,cls){
+  const ph=PHOTOS[name];const h=hue(name);
+  const fb="this.parentNode.style.background='linear-gradient(135deg,hsl("+h+",55%,60%),hsl("+((h+40)%360)+",55%,45%))';this.parentNode.textContent='"+esc(initials(name))+"';";
+  if(ph)return '<div class="'+cls+'"><img src="'+ph+'" loading="lazy" onerror="'+fb+'"></div>';
+  return '<div class="'+cls+'" style="background:linear-gradient(135deg,hsl('+h+',55%,60%),hsl('+((h+40)%360)+',55%,45%))">'+initials(name)+'</div>';
+}
+function cleanRes(r){return (r||'').replace(/\s*\n?\s*(NR|CR)\s*$/,'').trim();}
+function resTag(r){const m=(r||'').match(/(NR|CR)/);return m?m[1]:'';}
+const MEDAL=['🥇','🥈','🥉'];
+
+function buildShell(){
+  document.getElementById('app').innerHTML=
+    '<div class="hero" id="hero"></div>'
+   +'<div class="controls"><div class="tabs" id="tabs"></div><span class="spacer"></span>'
+   +'<div class="seg" id="genderSeg"><button data-g="Male" class="active">男子</button><button data-g="Female">女子</button></div>'
+   +'<select id="yearSel"></select></div>'
+   +'<div class="discHead" id="discHead"></div><div class="ctx" id="ctx"></div>'
+   +'<div id="podiumArea"></div><div id="tableArea"></div>';
+  const tabs=document.getElementById('tabs');
+  DISC.forEach(([k,ja,en,desc,cat])=>{const b=document.createElement('div');b.className='tab '+cat+(k===state.disc?' active':'');b.innerHTML=ja+'<small>'+k+'</small>';b.dataset.k=k;b.onclick=()=>{state.disc=k;render();};tabs.appendChild(b);});
+  const years=[...new Set(DATA.records.map(r=>r.year))].sort().reverse();
+  state.year=years[0]||'';
+  const yearSel=document.getElementById('yearSel');
+  years.forEach(y=>{const o=document.createElement('option');o.value=y;o.textContent=y+'年';yearSel.appendChild(o);});
+  yearSel.value=state.year;yearSel.onchange=()=>{state.year=yearSel.value;render();};
+  document.querySelectorAll('#genderSeg button').forEach(b=>b.onclick=()=>{state.gender=b.dataset.g;document.querySelectorAll('#genderSeg button').forEach(x=>x.classList.toggle('active',x===b));render();});
+}
+
+function renderHero(){
+  function group(cat,label,sub){
+    const cards=DISC.filter(d=>d[4]===cat).map(d=>{
+      const rows=['Male','Female'].map(g=>{
+        const rec=JP_RECORDS[d[0]+'|'+g];
+        if(!rec)return '<div class="hrow"><div class="av" style="background:#15334d"></div><div><div class="gtag">'+(g==='Male'?'男子':'女子')+'</div><div class="hn" style="color:var(--muted)">記録なし</div></div></div>';
+        const t=resTag(rec.result);
+        return '<div class="hrow" onclick="showAthlete(\''+esc(rec.name)+'\')">'+av(rec.name,'av')+'<div><div class="gtag">'+(g==='Male'?'男子':'女子')+'</div><div class="hn">'+rec.name+'</div></div><div class="hr"><div class="v">'+cleanRes(rec.result)+'</div>'+(t?'<div class="nr">'+t+'</div>':'')+'</div></div>';
+      }).join('');
+      return '<div class="hcard '+cat+'"><div class="dh"><span class="ja">'+d[1]+'</span><span class="en">'+d[0]+'</span></div>'+rows+'</div>';
+    }).join('');
+    return '<div class="grouphd '+cat+'"><span class="dot"></span>'+label+' <small>'+sub+'</small></div><div class="hgrid">'+cards+'</div>';
+  }
+  document.getElementById('hero').innerHTML='<h2>現在の<b>日本記録</b></h2>'
+    +'<div class="sub">AIDA公式ランキング（日本・全年）の各種目1位＝現在の日本記録'+(META.updated?' · 更新 '+META.updated:'')+' · 名前クリックで全記録</div>'
+    +group('pool','プール種目','水平距離・時間を競う')+group('sea','海（深度）種目','ロープ沿いに深さを競う');
+}
+
+function render(){
+  document.querySelectorAll('#tabs .tab').forEach(t=>t.classList.toggle('active',t.dataset.k===state.disc));
+  const info=DISC.find(d=>d[0]===state.disc);const cat=info[4];
+  const gj=state.gender==='Male'?'男子':'女子';
+  const badge=cat==='pool'?'<span class="badge pool">プール</span>':cat==='sea'?'<span class="badge sea">海・深度</span>':'';
+  document.getElementById('discHead').className='discHead '+cat;
+  document.getElementById('discHead').innerHTML='<span class="ja">'+info[1]+'</span><span class="en">'+info[2]+'</span>'+badge+'<div class="desc">'+info[3]+'</div>';
+  document.getElementById('ctx').innerHTML='<b>'+state.year+'年</b> · '+gj;
+  const isOv=state.disc==='OVERALL';
+  let rows=isOv?DATA.overall.filter(r=>r.year===state.year&&r.gender===state.gender).sort((a,b)=>a.rank-b.rank)
+               :DATA.records.filter(r=>r.discipline===state.disc&&r.year===state.year&&r.gender===state.gender).sort((a,b)=>a.rank-b.rank);
+  const pod=document.getElementById('podiumArea'),area=document.getElementById('tableArea');
+  if(!rows.length){pod.innerHTML='';area.innerHTML='<div class="empty">この条件のデータはありません</div>';return;}
+  const top=rows.slice(0,3),order=[0,1,2];
+  pod.innerHTML='<div class="podium">'+order.map(i=>{const r=top[i];if(!r)return '<div></div>';
+    const cls=['p1','p2','p3'][r.rank-1]||'';
+    const line=isOv?'<div class="res">'+r.total+'<span style="font-size:12px;color:var(--muted)"> pt</span></div>':'<div class="res">'+r.result+'</div><div class="pts">'+(r.points!=null?r.points:'')+' pt</div>';
+    const ev=isOv?'':'<div class="ev">'+r.event+'</div>';
+    return '<div class="pod '+cls+'" onclick="showAthlete(\''+esc(r.name)+'\')">'+av(r.name,'pav')+'<div class="pr">'+MEDAL[r.rank-1]+' '+r.rank+'位</div><div class="name">'+r.name+'</div>'+line+ev+'</div>';
+  }).join('')+'</div>';
+  const rest=rows.slice(3);
+  if(!rest.length){area.innerHTML='';return;}
+  if(isOv){
+    area.innerHTML='<div class="listhd">4位以降</div><table><thead><tr><th>順位</th><th>選手</th><th>総合ポイント</th></tr></thead><tbody>'+
+      rest.map(r=>'<tr><td class="rk">'+r.rank+'</td><td><div class="nmcell">'+av(r.name,'savatar')+'<span class="nm" onclick="showAthlete(\''+esc(r.name)+'\')">'+r.name+'</span></div></td><td class="pts2">'+r.total+'</td></tr>').join('')+'</tbody></table>';
+  }else{
+    area.innerHTML='<div class="listhd">4位以降</div><table><thead><tr><th>順位</th><th>選手</th><th>記録</th><th>pt</th><th>大会</th><th>日付</th></tr></thead><tbody>'+
+      rest.map(r=>'<tr><td class="rk">'+r.rank+'</td><td><div class="nmcell">'+av(r.name,'savatar')+'<span class="nm" onclick="showAthlete(\''+esc(r.name)+'\')">'+r.name+'</span></div></td><td class="res2">'+r.result+'</td><td class="pts2">'+(r.points!=null?r.points:'')+'</td><td class="ev2">'+r.event+'</td><td class="dt">'+r.date+'</td></tr>').join('')+'</tbody></table>';
+  }
+}
+
+function athHTML(name){
+  var recs=DATA.records.filter(function(r){return r.name===name;});
+  var genders=[];
+  recs.forEach(function(r){if(genders.indexOf(r.gender)<0)genders.push(r.gender);});
+  var gtxt=genders.indexOf('Male')>=0?'男子':genders.indexOf('Female')>=0?'女子':'';
+  // best per discipline
+  var map={};
+  recs.forEach(function(r){
+    var key=r.discipline+'|'+r.gender,cur=map[key];
+    if(!cur||(r.points!=null&&(cur.points==null||r.points>cur.points))||(r.points==null&&cur.points==null&&(r.result||'')>(cur.result||'')))map[key]=r;
+  });
+  var bests=Object.values(map).sort(function(a,b){return (b.points||0)-(a.points||0);});
+  var bestHTML='';
+  if(bests.length){
+    var brows=bests.map(function(r){return '<tr><td style="color:var(--muted);width:150px">'+DJA[r.discipline]+' <small>'+r.discipline+'</small></td><td class="res2">'+cleanRes(r.result)+'</td><td class="pts2">'+(r.points!=null?r.points:'')+'</td><td class="ev2">'+r.event+'</td><td class="dt">'+r.date+'</td></tr>';}).join('');
+    bestHTML='<div class="athsec best"><div class="secthd"><span class="dot"></span>種目別自己ベスト</div><table><tbody>'+brows+'</tbody></table></div>';
+  }
+  function secHTML(cat,label){
+    var list=recs.filter(function(r){return DCAT[r.discipline]===cat;}).slice().sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});
+    if(!list.length)return '';
+    var rows=list.map(function(r){return '<tr><td style="color:var(--muted);width:150px">'+DJA[r.discipline]+' <small>'+r.discipline+'</small></td><td class="res2">'+r.result+'</td><td class="pts2">'+(r.points!=null?r.points:'')+'</td><td class="ev2">'+r.event+'</td><td class="dt">'+r.date+'</td></tr>';}).join('');
+    return '<div class="athsec '+cat+'"><div class="secthd"><span class="dot"></span>'+label+'</div><table><tbody>'+rows+'</tbody></table></div>';
+  }
+  var body=recs.length?(bestHTML+secHTML('pool','プール種目')+secHTML('sea','海（深度）種目')):'<div class="empty">この選手の詳細記録はデータにありません</div>';
+  return {gtxt:gtxt,recs:recs,body:body};
+}
+
+function showAthlete(name){
+  alert('DEBUG: showAthlete called → '+name);
+  try{
+    var d=athHTML(name);
+    var page=document.getElementById('athPage');
+    var repTag=WORLD_TEAM_2025.has(name)?'<div><span class="rep-tag">2025年度日本代表</span></div>':'';
+    page.innerHTML='<a class="ath-back" onclick="hideAthPage()">← ランキングに戻る</a>'
+      +'<div class="top">'+av(name,'bigav')+'<div><h2>'+name+'</h2>'
+      +'<div class="meta">'+d.gtxt+' · 全'+d.recs.length+'記録</div>'
+      +repTag+'</div></div>'+d.body;
+    document.getElementById('app').style.display='none';
+    page.classList.add('show');
+    window.scrollTo(0,0);
+  }catch(err){
+    alert('エラー: '+err.message);
+  }
+}
+
+function hideAthPage(){
+  document.getElementById('athPage').classList.remove('show');
+  document.getElementById('app').style.display='';
+}
+
+async function init(){
+  try{
+    const [rk,jp,ph]=await Promise.all([
+      fetch('data/rankings.json').then(r=>r.json()),
+      fetch('data/jp_official_records.json').then(r=>r.json()),
+      fetch('data/athlete_photos.json').then(r=>r.json()).catch(()=>({}))
+    ]);
+    DATA=rk; PHOTOS=ph;
+    META.updated=(jp&&jp.updated)||'';
+    JP_RECORDS={};(jp.records||[]).forEach(r=>{JP_RECORDS[r.discipline+'|'+r.gender]=r;});
+    buildShell();renderHero();render();
+  }catch(e){
+    document.getElementById('app').innerHTML='<div class="loading">データの読み込みに失敗しました（data/ 配下のJSONを確認してください）<br><small>'+e.message+'</small></div>';
+  }
+}
+init();
+</script></body></html>

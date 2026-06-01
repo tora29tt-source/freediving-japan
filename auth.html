@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ログイン | Freediving Japan</title>
+  <style>
+    :root {
+      --ocean-deep:  #0b2d45;
+      --ocean-mid:   #0e3d5c;
+      --ocean-light: #1a5f82;
+      --teal:        #2ec4b6;
+      --teal-light:  #a8ece8;
+      --foam:        #f0f9fb;
+      --warm:        #f97316;
+      --sand:        #fdf8f2;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+      background: var(--ocean-deep);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 40px 32px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .logo h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--ocean-deep);
+      letter-spacing: -0.5px;
+    }
+
+    .logo p {
+      font-size: 13px;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid #eee;
+      margin-bottom: 28px;
+    }
+
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #aaa;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      color: var(--teal);
+      border-bottom-color: var(--teal);
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid #ddd;
+      border-radius: 10px;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
+    }
+
+    input:focus {
+      border-color: var(--teal);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--teal);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.2s;
+      -webkit-appearance: none;
+    }
+
+    .btn:hover { background: #25a99d; }
+    .btn:disabled { background: #aaa; cursor: not-allowed; }
+
+    .message {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      text-align: center;
+      display: none;
+    }
+
+    .message.error {
+      background: #fff0f0;
+      color: #d00;
+      display: block;
+    }
+
+    .message.success {
+      background: #f0fff8;
+      color: #0a7;
+      display: block;
+    }
+
+    .divider {
+      text-align: center;
+      font-size: 12px;
+      color: #aaa;
+      margin: 20px 0;
+    }
+
+    .role-selector {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .role-btn {
+      flex: 1;
+      padding: 10px 8px;
+      border: 1.5px solid #ddd;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #666;
+      cursor: pointer;
+      background: white;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .role-btn.active {
+      border-color: var(--teal);
+      background: var(--foam);
+      color: var(--ocean-deep);
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">
+    <h1>🤿 Freediving Japan</h1>
+    <p>フリーダイビングのプラットフォーム</p>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('login')">ログイン</div>
+    <div class="tab" onclick="switchTab('signup')">新規登録</div>
+  </div>
+
+  <!-- ログインフォーム -->
+  <div id="loginForm">
+    <div class="form-group">
+      <label>メールアドレス</label>
+      <input type="email" id="loginEmail" placeholder="example@email.com" autocomplete="email">
+    </div>
+    <div class="form-group">
+      <label>パスワード</label>
+      <input type="password" id="loginPassword" placeholder="パスワード" autocomplete="current-password">
+    </div>
+    <button class="btn" onclick="handleLogin()">ログイン</button>
+  </div>
+
+  <!-- サインアップフォーム -->
+  <div id="signupForm" style="display:none;">
+    <div class="form-group">
+      <label>ロールを選択</label>
+      <div class="role-selector">
+        <div class="role-btn active" onclick="selectRole('athlete')" id="role-athlete">🏊 選手・愛好家</div>
+        <div class="role-btn" onclick="selectRole('instructor')" id="role-instructor">🎓 インストラクター</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>お名前</label>
+      <input type="text" id="signupName" placeholder="山田 太郎" autocomplete="name">
+    </div>
+    <div class="form-group">
+      <label>メールアドレス</label>
+      <input type="email" id="signupEmail" placeholder="example@email.com" autocomplete="email">
+    </div>
+    <div class="form-group">
+      <label>パスワード（8文字以上）</label>
+      <input type="password" id="signupPassword" placeholder="パスワード" autocomplete="new-password">
+    </div>
+    <button class="btn" onclick="handleSignup()">アカウント作成</button>
+  </div>
+
+  <div id="message" class="message"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const { createClient } = window.supabase
+  const _sb = createClient(
+    'https://bbhqvbpsuccbdcnhnobm.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJiaHF2YnBzdWNjYmRjbmhub2JtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyODQwMzksImV4cCI6MjA5NTg2MDAzOX0.MexR8_hY56m3XRff0EJOQM3uQShXr2L9kGyYXLSzKbs'
+  )
+  let selectedRole = 'athlete'
+
+  // すでにログイン済みならマイページへ
+  _sb.auth.getSession().then(({ data: { session } }) => {
+    if (session) window.location.href = 'mypage.html'
+  })
+
+  function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach((t, i) => {
+      t.classList.toggle('active', (tab === 'login' && i === 0) || (tab === 'signup' && i === 1))
+    })
+    document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none'
+    document.getElementById('signupForm').style.display = tab === 'signup' ? 'block' : 'none'
+    clearMessage()
+  }
+
+  function selectRole(role) {
+    selectedRole = role
+    document.getElementById('role-athlete').classList.toggle('active', role === 'athlete')
+    document.getElementById('role-instructor').classList.toggle('active', role === 'instructor')
+  }
+
+  function showMessage(text, type) {
+    const el = document.getElementById('message')
+    el.textContent = text
+    el.className = `message ${type}`
+  }
+
+  function clearMessage() {
+    const el = document.getElementById('message')
+    el.className = 'message'
+    el.textContent = ''
+  }
+
+  async function handleLogin() {
+    const email = document.getElementById('loginEmail').value.trim()
+    const password = document.getElementById('loginPassword').value
+    if (!email || !password) return showMessage('メールとパスワードを入力してください', 'error')
+
+    const btn = document.querySelector('#loginForm .btn')
+    btn.disabled = true
+    btn.textContent = 'ログイン中...'
+
+    const { error } = await _sb.auth.signInWithPassword({ email, password })
+    if (error) {
+      showMessage('メールアドレスまたはパスワードが正しくありません', 'error')
+      btn.disabled = false
+      btn.textContent = 'ログイン'
+    } else {
+      window.location.href = 'mypage.html'
+    }
+  }
+
+  async function handleSignup() {
+    const name = document.getElementById('signupName').value.trim()
+    const email = document.getElementById('signupEmail').value.trim()
+    const password = document.getElementById('signupPassword').value
+    if (!name || !email || !password) return showMessage('すべての項目を入力してください', 'error')
+    if (password.length < 8) return showMessage('パスワードは8文字以上にしてください', 'error')
+
+    const btn = document.querySelector('#signupForm .btn')
+    btn.disabled = true
+    btn.textContent = '登録中...'
+
+    const { error } = await _sb.auth.signUp({
+      email,
+      password,
+      options: { data: { name, role: selectedRole } }
+    })
+
+    if (error) {
+      showMessage(error.message, 'error')
+      btn.disabled = false
+      btn.textContent = 'アカウント作成'
+    } else {
+      window.location.href = 'mypage.html'
+      btn.disabled = false
+      btn.textContent = 'アカウント作成'
+    }
+  }
+
+  // Enterキーでサブミット
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const loginVisible = document.getElementById('loginForm').style.display !== 'none'
+      if (loginVisible) handleLogin()
+      else handleSignup()
+    }
+  })
+</script>
+</body>
+</html>

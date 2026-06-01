@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>マイページ | FreeDive Japan</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ocean-deep: #0b2d45;
+  --abyss:      #04161f;
+  --teal:       #2ec4b6;
+  --teal-light: #a8ece8;
+  --foam:       #f0f9fb;
+  --text-dark:  rgba(255,255,255,0.92);
+  --text-mid:   rgba(255,255,255,0.62);
+  --text-soft:  rgba(255,255,255,0.40);
+  --white:      #ffffff;
+  --surface:    rgba(255,255,255,0.045);
+  --sand:       #fdf8f2;
+  --sand2:      #f5ede0;
+  --border:     rgba(168,236,232,0.14);
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  background: linear-gradient(180deg,#0e3d5c 0%,#0b2d45 22%,#06283a 55%,#04161f 100%);
+  background-attachment: fixed;
+  color: var(--text-dark);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── header ── */
+.header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(6,32,46,0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px; height: 54px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo { font-size: 16px; font-weight: 600; color: var(--text-dark); letter-spacing: 0.18em; text-transform: uppercase; }
+.logo span { color: var(--teal); }
+.header-back {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 14px; color: var(--text-mid);
+  text-decoration: none;
+}
+
+/* ── profile hero ── */
+.profile-hero {
+  background: linear-gradient(160deg, var(--ocean-deep) 0%, #1a5f82 100%);
+  padding: 32px 20px 28px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.profile-hero-bg {
+  position: absolute; inset: 0;
+  background-image: url('images/dive_deep_rope.jpg');
+  background-size: cover; background-position: center 40%;
+  opacity: 0.2;
+}
+.avatar-wrap { position: relative; display: inline-block; margin-bottom: 12px; }
+.avatar {
+  width: 76px; height: 76px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), #1a7a8a);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; font-weight: 700; color: var(--white);
+  border: 3px solid rgba(255,255,255,0.3);
+  position: relative; z-index: 1;
+}
+.profile-name { font-size: 20px; font-weight: 700; color: var(--white); margin-bottom: 4px; position: relative; }
+.profile-sub  { font-size: 13px; color: rgba(255,255,255,0.65); position: relative; }
+.level-badge {
+  display: inline-block;
+  background: rgba(46,196,182,0.25);
+  color: var(--teal-light);
+  font-size: 11px; font-weight: 600;
+  padding: 3px 12px; border-radius: 100px;
+  border: 1px solid rgba(46,196,182,0.4);
+  margin-top: 8px; position: relative;
+}
+
+/* ── PB strip ── */
+.pb-strip {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+}
+.pb-item {
+  flex: 1; text-align: center;
+  padding: 16px 8px;
+  border-right: 1px solid var(--border);
+}
+.pb-item:last-child { border-right: none; }
+.pb-val  { font-size: 22px; font-weight: 700; color: var(--teal); }
+.pb-unit { font-size: 10px; color: var(--text-soft); }
+.pb-disc { font-size: 11px; color: var(--text-mid); margin-top: 2px; font-weight: 600; }
+
+/* ── content ── */
+.content { padding: 24px 16px 40px; max-width: 640px; margin: 0 auto; }
+.section { margin-bottom: 28px; }
+.sec-header {
+  display: flex; align-items: baseline; gap: 8px; margin-bottom: 14px;
+}
+.sec-title { font-size: 16px; font-weight: 700; color: var(--text-dark); }
+.sec-sub   { font-size: 12px; color: var(--text-soft); }
+
+/* ── cards ── */
+.cards-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 16px;
+  text-decoration: none; color: inherit; display: block;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  transition: border-color 0.25s, background 0.25s, transform 0.2s;
+}
+.card:hover { border-color: rgba(46,196,182,0.4); background: rgba(46,196,182,0.06); transform: translateY(-2px); }
+.card.wide { grid-column: 1 / -1; display: flex; align-items: center; gap: 14px; padding: 16px 18px; }
+.card-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0; margin-bottom: 10px;
+}
+.card.wide .card-icon { margin-bottom: 0; }
+.ic-teal, .ic-blue, .ic-purple {
+  background: rgba(46,196,182,0.10);
+  border: 1px solid rgba(46,196,182,0.18);
+  color: var(--teal-light);
+}
+.card h3 { font-size: 14px; font-weight: 700; color: var(--text-dark); margin-bottom: 3px; }
+.card p  { font-size: 12px; color: var(--text-mid); line-height: 1.5; }
+.card-body { flex: 1; min-width: 0; }
+.card-arrow { color: var(--text-soft); font-size: 18px; flex-shrink: 0; margin-left: auto; }
+
+/* ── photo card ── */
+.photo-card {
+  border-radius: 16px; overflow: hidden; position: relative;
+  text-decoration: none; color: inherit; display: block;
+  min-height: 130px; transition: transform 0.15s;
+}
+.photo-card:hover { transform: translateY(-2px); }
+.photo-card-img { position: absolute; inset: 0; background-size: cover; background-position: center; }
+.photo-card-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(11,45,69,0.82) 40%, rgba(11,45,69,0.1) 100%);
+}
+.photo-card-body {
+  position: relative; z-index: 1; padding: 14px;
+  height: 100%; display: flex; flex-direction: column; justify-content: flex-end;
+}
+.photo-card-body h3 { font-size: 14px; font-weight: 700; color: var(--white); margin-bottom: 2px; }
+.photo-card-body p  { font-size: 11px; color: rgba(255,255,255,0.7); }
+
+/* ── 開発中 ── */
+.wip-wrap { position: relative; }
+.wip-mask {
+  position: absolute; inset: 0;
+  background: rgba(4,22,31,0.45);
+  border-radius: 14px; z-index: 10;
+  display: flex; align-items: center; justify-content: center;
+}
+.wip-badge {
+  background: rgba(4,22,31,0.7); border: 1px solid var(--border); color: var(--text-mid);
+  font-size: 11px; font-weight: 500;
+  padding: 5px 14px; border-radius: 100px; letter-spacing: 0.06em;
+}
+.wip-card { filter: grayscale(0.7) opacity(0.5); pointer-events: none; }
+
+/* ── list items ── */
+.list-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; overflow: hidden;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+}
+.list-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none; color: inherit;
+}
+.list-row:last-child { border-bottom: none; }
+.list-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--teal); flex-shrink: 0;
+}
+.list-text { flex: 1; }
+.list-text .t { font-size: 13px; font-weight: 600; color: var(--text-dark); }
+.list-text .s { font-size: 12px; color: var(--text-mid); margin-top: 1px; }
+.list-tag {
+  font-size: 10px; font-weight: 600; padding: 3px 10px;
+  border-radius: 100px;
+}
+.tag-done { background: rgba(46,196,182,0.15); color: var(--teal-light); }
+.tag-upcoming { background: rgba(26,122,138,0.2); color: #8fd3e0; }
+
+/* ── settings list ── */
+.settings-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+}
+.settings-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px; border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+.settings-row:last-child { border-bottom: none; }
+.settings-icon { font-size: 18px; width: 28px; text-align: center; flex-shrink: 0; }
+.settings-label { flex: 1; font-size: 14px; color: var(--text-dark); }
+.settings-arrow { color: var(--text-soft); font-size: 16px; }
+
+/* ── bottom nav ── */
+.bottom-nav {
+  position: sticky; bottom: 0;
+  background: rgba(6,32,46,0.7); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid var(--border); display: flex;
+}
+.bnav-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 10px 0 14px; text-decoration: none; color: var(--text-soft); font-size: 19px;
+}
+.bnav-item.active { color: var(--teal); }
+.bnav-label { font-size: 10px; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">FreeDive<span>Japan</span></div>
+  <div style="font-size:13px;color:var(--text-soft);">設定</div>
+</header>
+
+<!-- プロフィールヒーロー -->
+<div class="profile-hero">
+  <div class="profile-hero-bg"></div>
+  <div class="avatar-wrap">
+    <div class="avatar">TT</div>
+  </div>
+  <div class="profile-name">Takuya Terajima</div>
+  <div class="profile-sub">tora29tt@gmail.com</div>
+  <div class="level-badge">AIDA 3★ フリーダイバー</div>
+</div>
+
+<!-- PB -->
+<div class="pb-strip">
+  <div class="pb-item">
+    <div class="pb-val">5:12</div>
+    <div class="pb-unit">分:秒</div>
+    <div class="pb-disc">STA</div>
+  </div>
+  <div class="pb-item">
+    <div class="pb-val">42m</div>
+    <div class="pb-unit">深度</div>
+    <div class="pb-disc">CWT</div>
+  </div>
+  <div class="pb-item">
+    <div class="pb-val">85m</div>
+    <div class="pb-unit">距離</div>
+    <div class="pb-disc">DYNB</div>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- トレーニング -->
+  <div class="section">
+    <div class="sec-header">
+      <div class="sec-title">⏱️ トレーニング</div>
+      <div class="sec-sub">記録・練習をサポート</div>
+    </div>
+    <div class="cards-row">
+      <div class="wip-wrap">
+        <a class="photo-card wip-card" href="#">
+          <div class="photo-card-img" style="background-image:url('images/pool_dynb.jpg');"></div>
+          <div class="photo-card-overlay"></div>
+          <div class="photo-card-body"><h3>⏱️ タイマー</h3><p>O2・CO2テーブル</p></div>
+        </a>
+        <div class="wip-mask"><span class="wip-badge">🚧 開発中</span></div>
+      </div>
+      <a class="photo-card" href="training-log.html">
+        <div class="photo-card-img" style="background-image:url('images/light_rays.jpg');"></div>
+        <div class="photo-card-overlay"></div>
+        <div class="photo-card-body"><h3>📝 ログ</h3><p>ダイブ記録・分析</p></div>
+      </a>
+      <div class="wip-wrap" style="grid-column:1/-1;">
+        <a class="card wide wip-card" href="#">
+          <div class="card-icon ic-purple">💬</div>
+          <div class="card-body"><h3>コーチング</h3><p>認定コーチにオンラインで相談する</p></div>
+          <span class="card-arrow">›</span>
+        </a>
+        <div class="wip-mask"><span class="wip-badge">🚧 開発中</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 予約履歴 -->
+  <div class="section">
+    <div class="sec-header">
+      <div class="sec-title">📋 予約履歴</div>
+    </div>
+    <div class="list-card">
+      <div class="list-row">
+        <div class="list-dot" style="background:#0f6b5e;"></div>
+        <div class="list-text">
+          <div class="t">体験ダイビング</div>
+          <div class="s">2026.05.20 · Blue Ocean Diving</div>
+        </div>
+        <span class="list-tag tag-done">完了</span>
+      </div>
+      <div class="list-row">
+        <div class="list-dot" style="background:#1a7a8a;"></div>
+        <div class="list-text">
+          <div class="t">AIDA 2★ 講習</div>
+          <div class="s">2026.06.10 · Deep Blue Okinawa</div>
+        </div>
+        <span class="list-tag tag-upcoming">予定</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 設定 -->
+  <div class="section">
+    <div class="sec-header">
+      <div class="sec-title">⚙️ 設定</div>
+    </div>
+    <div class="settings-card">
+      <div class="settings-row">
+        <div class="settings-icon">👤</div>
+        <div class="settings-label">プロフィール編集</div>
+        <div class="settings-arrow">›</div>
+      </div>
+      <div class="settings-row">
+        <div class="settings-icon">🔔</div>
+        <div class="settings-label">通知設定</div>
+        <div class="settings-arrow">›</div>
+      </div>
+      <div class="settings-row">
+        <div class="settings-icon">🔒</div>
+        <div class="settings-label">プライバシー・セキュリティ</div>
+        <div class="settings-arrow">›</div>
+      </div>
+      <div class="settings-row">
+        <div class="settings-icon">❓</div>
+        <div class="settings-label">ヘルプ・お問い合わせ</div>
+        <div class="settings-arrow">›</div>
+      </div>
+      <div class="settings-row" style="color:#c0392b;">
+        <div class="settings-icon">🚪</div>
+        <div class="settings-label" style="color:#c0392b;">ログアウト</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<nav class="bottom-nav">
+  <a class="bnav-item" href="index.html">
+    <span>🏠</span><span class="bnav-label">ホーム</span>
+  </a>
+  <a class="bnav-item" href="#">
+    <span>🗺️</span><span class="bnav-label">探す</span>
+  </a>
+  <a class="bnav-item" href="#">
+    <span>🏆</span><span class="bnav-label">イベント</span>
+  </a>
+  <a class="bnav-item" href="#">
+    <span>⏱️</span><span class="bnav-label">トレーニング</span>
+  </a>
+  <a class="bnav-item active" href="mypage.html">
+    <span>👤</span><span class="bnav-label">マイページ</span>
+  </a>
+</nav>
+
+</body>
+</html>

@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FreeDive Japan</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ocean-deep: #0b2d45;
+  --ocean-mid:  #0e3d5c;
+  --ocean-light:#1a5f82;
+  --ocean-teal: #1a7a8a;
+  --abyss:      #04161f;
+  --teal:       #2ec4b6;
+  --teal-light: #a8ece8;
+  --foam:       #f0f9fb;
+  --warm:       #f97316;
+  --on-dark:        rgba(255,255,255,0.92);
+  --on-dark-mid:    rgba(255,255,255,0.62);
+  --on-dark-soft:   rgba(255,255,255,0.40);
+  --hairline:       rgba(168,236,232,0.14);
+  --glass:          rgba(255,255,255,0.045);
+}
+html { background: var(--abyss); }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  /* 潜行：上は水面の青、下に向かうほど深く暗く */
+  background: linear-gradient(180deg,
+    var(--ocean-mid) 0%,
+    var(--ocean-deep) 22%,
+    #06283a 55%,
+    var(--abyss) 100%);
+  background-attachment: fixed;
+  color: var(--on-dark);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+.icon { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; display: block; }
+
+/* ── header ── */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(6,32,46,0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--hairline);
+  padding: 0 20px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.logo {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--on-dark);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.logo span { color: var(--teal); }
+.header-icons { display: flex; align-items: center; gap: 16px; }
+.icon-btn {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid var(--hairline);
+  color: var(--on-dark-mid);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+.icon-btn .icon { width: 18px; height: 18px; }
+
+/* ── hero ── */
+.hero {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  padding: 64px 24px 78px;
+}
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url('images/hero_cnf_dive.jpg');
+  background-size: cover;
+  background-position: center 30%;
+  opacity: 0.3;
+  filter: saturate(0.85);
+}
+/* 水面からの自然光：上から差し込むやわらかいグロー */
+.hero-glow {
+  position: absolute;
+  top: -40%; left: 50%;
+  width: 130%; height: 90%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, rgba(168,236,232,0.22) 0%, rgba(168,236,232,0.06) 35%, transparent 65%);
+  pointer-events: none;
+}
+.hero-inner { position: relative; z-index: 2; }
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--teal-light);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin-bottom: 22px;
+}
+.hero-tag .icon { width: 14px; height: 14px; }
+.hero-title {
+  font-size: 30px;
+  font-weight: 300;
+  color: var(--on-dark);
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+  margin-bottom: 16px;
+}
+.hero-title em { font-style: normal; font-weight: 500; color: var(--teal-light); }
+.hero-desc {
+  font-size: 13px;
+  color: var(--on-dark-mid);
+  line-height: 1.95;
+  letter-spacing: 0.03em;
+  max-width: 300px;
+  margin: 0 auto 30px;
+}
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  color: var(--on-dark);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  padding: 13px 28px;
+  border-radius: 100px;
+  border: 1px solid rgba(168,236,232,0.45);
+  text-decoration: none;
+  transition: background 0.25s, border-color 0.25s;
+}
+.hero-cta:hover { background: rgba(46,196,182,0.12); border-color: var(--teal); }
+.hero-cta .icon { width: 16px; height: 16px; color: var(--teal-light); }
+
+/* ── content ── */
+.content {
+  padding: 8px 18px 48px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* ── section / 深度マーカー ── */
+.section { margin-bottom: 40px; }
+.sec-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.sec-icon { color: var(--teal); flex-shrink: 0; }
+.sec-icon .icon { width: 19px; height: 19px; }
+.sec-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--on-dark);
+  letter-spacing: 0.08em;
+}
+.sec-sub { font-size: 11px; color: var(--on-dark-soft); letter-spacing: 0.04em; }
+.depth {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.depth-line { width: 36px; height: 1px; background: linear-gradient(90deg, transparent, var(--hairline)); }
+.depth-num {
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--teal-light);
+  opacity: 0.7;
+}
+
+/* ── beginner banner ── */
+.beginner-banner {
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  min-height: 168px;
+  display: flex;
+  align-items: flex-end;
+  border: 1px solid var(--hairline);
+}
+.beginner-photo {
+  position: absolute; inset: 0;
+  background-image: url('images/beginner_pair.jpg');
+  background-size: cover; background-position: center 30%;
+}
+.beginner-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(4,22,31,0.94) 35%, rgba(4,22,31,0.15) 100%);
+}
+.beginner-body { position: relative; z-index: 1; padding: 22px; }
+.beginner-body h2 { font-size: 16px; font-weight: 500; color: var(--on-dark); margin-bottom: 6px; letter-spacing: 0.03em; }
+.beginner-body p  { font-size: 12px; color: var(--on-dark-mid); line-height: 1.7; }
+.beginner-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  margin-top: 14px;
+  background: transparent;
+  color: var(--teal-light);
+  font-size: 12px; font-weight: 500; letter-spacing: 0.05em;
+  padding: 8px 18px;
+  border-radius: 100px;
+  border: 1px solid rgba(168,236,232,0.4);
+  text-decoration: none; cursor: pointer;
+}
+.beginner-btn .icon { width: 14px; height: 14px; }
+
+/* ── cards row ── */
+.cards-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.card {
+  background: var(--glass);
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  padding: 18px;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: border-color 0.25s, transform 0.2s, background 0.25s;
+}
+.card:hover {
+  border-color: rgba(46,196,182,0.4);
+  background: rgba(46,196,182,0.06);
+  transform: translateY(-2px);
+}
+.card.wide { grid-column: 1 / -1; display: flex; align-items: center; gap: 16px; padding: 16px 18px; }
+.card-icon {
+  width: 42px; height: 42px;
+  border-radius: 11px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(46,196,182,0.10);
+  border: 1px solid rgba(46,196,182,0.18);
+  color: var(--teal-light);
+  flex-shrink: 0;
+  margin-bottom: 14px;
+}
+.card.wide .card-icon { margin-bottom: 0; }
+.card h3 { font-size: 13px; font-weight: 600; color: var(--on-dark); margin-bottom: 4px; letter-spacing: 0.03em; }
+.card p  { font-size: 11px; color: var(--on-dark-mid); line-height: 1.6; }
+.card-body { flex: 1; min-width: 0; }
+.card-arrow { color: var(--on-dark-soft); flex-shrink: 0; margin-left: auto; }
+.card-arrow .icon { width: 18px; height: 18px; }
+
+/* ── 開発中オーバーレイ ── */
+.wip-wrap { position: relative; display: block; }
+.wip-mask {
+  position: absolute; inset: 0;
+  background: rgba(4,22,31,0.45);
+  border-radius: 14px;
+  z-index: 10;
+  display: flex; align-items: center; justify-content: center;
+}
+.wip-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(4,22,31,0.7);
+  border: 1px solid var(--hairline);
+  color: var(--on-dark-mid);
+  font-size: 10px; font-weight: 500;
+  padding: 5px 13px;
+  border-radius: 100px;
+  letter-spacing: 0.08em;
+}
+.wip-badge .icon { width: 12px; height: 12px; color: var(--teal-light); }
+.card.wip-card, .photo-card.wip-card { filter: grayscale(0.7) opacity(0.5); pointer-events: none; }
+.card.wide.wip-card { filter: grayscale(0.7) opacity(0.5); pointer-events: none; }
+
+/* ── photo card (tall) ── */
+.photo-card {
+  border-radius: 14px;
+  overflow: hidden;
+  position: relative;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  min-height: 148px;
+  border: 1px solid var(--hairline);
+  transition: transform 0.2s;
+}
+.photo-card:hover { transform: translateY(-2px); }
+.photo-card-img { position: absolute; inset: 0; background-size: cover; background-position: center; }
+.photo-card-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(4,22,31,0.9) 35%, rgba(4,22,31,0.05) 100%);
+}
+.photo-card-body {
+  position: relative; z-index: 1;
+  padding: 16px;
+  height: 100%;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  gap: 4px;
+}
+.photo-card-body h3 { font-size: 13px; font-weight: 600; color: var(--on-dark); letter-spacing: 0.03em; display: flex; align-items: center; gap: 7px; }
+.photo-card-body h3 .icon { width: 15px; height: 15px; color: var(--teal-light); }
+.photo-card-body p  { font-size: 11px; color: var(--on-dark-mid); }
+
+/* ── event cards ── */
+.event-card {
+  background: var(--glass);
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  margin-bottom: 12px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: border-color 0.25s, transform 0.2s, background 0.25s;
+}
+.event-card:hover { border-color: rgba(46,196,182,0.4); background: rgba(46,196,182,0.06); transform: translateY(-2px); }
+.event-card:last-child { margin-bottom: 0; }
+.event-thumb { width: 88px; height: 76px; flex-shrink: 0; background-size: cover; background-position: center; }
+.event-card-inner { flex: 1; padding: 14px 16px; min-width: 0; }
+.event-card-inner h3 { font-size: 13px; font-weight: 600; color: var(--on-dark); margin-bottom: 3px; letter-spacing: 0.03em; }
+.event-card-inner p  { font-size: 11px; color: var(--on-dark-mid); }
+.event-arrow { color: var(--on-dark-soft); padding-right: 16px; }
+.event-arrow .icon { width: 18px; height: 18px; }
+
+/* ── tips strip ── */
+.tips-strip {
+  background: var(--glass);
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  padding: 20px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.tips-title {
+  font-size: 12px; font-weight: 600; color: var(--on-dark);
+  margin-bottom: 16px; letter-spacing: 0.06em;
+  display: flex; align-items: center; gap: 8px;
+}
+.tips-title .icon { width: 15px; height: 15px; color: var(--teal-light); }
+.tip-item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 13px; }
+.tip-item:last-child { margin-bottom: 0; }
+.tip-num {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 1px solid rgba(168,236,232,0.4);
+  color: var(--teal-light);
+  font-size: 10px; font-weight: 600;
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+.tip-text { font-size: 12px; color: var(--on-dark-mid); line-height: 1.75; }
+.tip-text strong { color: var(--on-dark); font-weight: 600; }
+
+/* ── bottom nav ── */
+.bottom-nav {
+  position: sticky;
+  bottom: 0;
+  background: rgba(6,32,46,0.7);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid var(--hairline);
+  display: flex;
+}
+.bnav-item {
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  padding: 11px 0 15px;
+  text-decoration: none;
+  color: var(--on-dark-soft);
+  transition: color 0.2s;
+}
+.bnav-item .icon { width: 21px; height: 21px; }
+.bnav-item.active { color: var(--teal); }
+.bnav-label { font-size: 9px; font-weight: 500; letter-spacing: 0.06em; }
+
+/* 両サイドの空の青を引き締めるビネット */
+.hero::after {
+  content: "";
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 60% 100% at center, transparent 55%, rgba(4,22,31,0.55) 100%);
+}
+
+/* ── PC（広い画面）向け調整 ── */
+@media (min-width: 700px) {
+  .hero { padding: 96px 24px 110px; }
+  .hero-bg { background-position: center 32%; opacity: 0.34; }
+  .hero-title { font-size: 40px; }
+  .hero-desc { font-size: 14px; max-width: 360px; }
+  .hero-glow { height: 110%; }
+  /* モバイルアプリのレイアウトを中央のシェルに収め、間延びを防ぐ */
+  .content { padding-top: 16px; }
+  .bottom-nav { max-width: 640px; margin: 0 auto; border-left: 1px solid var(--hairline); border-right: 1px solid var(--hairline); }
+}
+</style>
+</head>
+<body>
+
+<!-- header -->
+<header class="header">
+  <div class="logo">FreeDive<span>Japan</span></div>
+  <div class="header-icons">
+    <div class="icon-btn"><svg class="icon" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
+    <div class="icon-btn"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/></svg></div>
+  </div>
+</header>
+
+<!-- hero -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div class="hero-tag">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M2 12s3-5 10-5 10 5 10 5-3 5-10 5-10-5-10-5z"/></svg>
+      フリーダイビング専門プラットフォーム
+    </div>
+    <div class="hero-title">海と、もっと<br><em>深くつながろう。</em></div>
+    <div class="hero-desc">道具も資格も不要。まずは息を整えることから。あなたのペースで、海の世界へ。</div>
+    <a class="hero-cta" href="#">
+      はじめてみる
+      <svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+    </a>
+  </div>
+</div>
+
+<!-- content -->
+<div class="content">
+
+  <!-- 初めての方へ -->
+  <div class="section" style="position:relative;">
+    <div class="beginner-banner wip-card">
+      <div class="beginner-photo"></div>
+      <div class="beginner-overlay"></div>
+      <div class="beginner-body">
+        <h2>フリーダイビングって何？</h2>
+        <p>器具なしで海に潜るスポーツ。<br>初心者でも安全に楽しめます。</p>
+        <button class="beginner-btn">初めての方はこちら
+          <svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="wip-mask"><span class="wip-badge"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>開発中</span></div>
+  </div>
+
+  <!-- 探す -->
+  <div class="section">
+    <div class="sec-header">
+      <span class="sec-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
+      <span class="sec-title">探す</span>
+      <span class="sec-sub">ショップ・講習を見つける</span>
+      <span class="depth"><span class="depth-line"></span><span class="depth-num">−5m</span></span>
+    </div>
+    <div class="cards-row">
+      <div style="position:relative;">
+        <a class="photo-card wip-card" href="#">
+          <div class="photo-card-img" style="background-image:url('images/surface_boat_view.jpg');background-position:center top;"></div>
+          <div class="photo-card-overlay"></div>
+          <div class="photo-card-body"><h3><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-5.7-7-11a7 7 0 0 1 14 0c0 5.3-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>マップ</h3><p>近くのショップを探す</p></div>
+        </a>
+        <div class="wip-mask"><span class="wip-badge"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>開発中</span></div>
+      </div>
+      <div style="position:relative;">
+        <a class="photo-card wip-card" href="#">
+          <div class="photo-card-img" style="background-image:url('images/gear_fins_beach.jpg');"></div>
+          <div class="photo-card-overlay"></div>
+          <div class="photo-card-body"><h3><svg class="icon" viewBox="0 0 24 24"><path d="M3 9l1.5-4.5h15L21 9"/><path d="M4 9v10h16V9"/><path d="M9 13h6"/></svg>ショップ一覧</h3><p>全国のスクール一覧</p></div>
+        </a>
+        <div class="wip-mask"><span class="wip-badge"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>開発中</span></div>
+      </div>
+      <div style="position:relative;grid-column:1/-1;">
+        <a class="card wide wip-card" href="#">
+          <div class="card-icon"><svg class="icon" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4M16 3v4M4 11h16"/><path d="M9.5 15.5l1.5 1.5 3-3.5"/></svg></div>
+          <div class="card-body"><h3>講習を予約する</h3><p>AIDA / PADI 認定コース・体験ダイビング</p></div>
+          <span class="card-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+        </a>
+        <div class="wip-mask"><span class="wip-badge"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>開発中</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 学ぶ -->
+  <div class="section">
+    <div class="sec-header">
+      <span class="sec-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h7v16H6a2 2 0 0 0-2 2z"/><path d="M20 5a2 2 0 0 0-2-2h-5v16h5a2 2 0 0 1 2 2z"/></svg></span>
+      <span class="sec-title">学ぶ</span>
+      <span class="sec-sub">レベル別コンテンツ</span>
+      <span class="depth"><span class="depth-line"></span><span class="depth-num">−15m</span></span>
+    </div>
+    <div class="cards-row">
+      <div style="position:relative;">
+        <a class="card wip-card" href="#"><div class="card-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M12 21c0-5 0-9 5-12-1 5-3 7-5 8"/><path d="M12 21c0-4-1-7-5-9 1 4 2 6 5 7"/><path d="M12 21V11"/></svg></div><h3>初心者</h3><p>呼吸・イコライズの基本から</p></a>
+        <div class="wip-mask"><span class="wip-badge"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>開発中</span></div>
+      </div>
+      <div style="position:relative;">
+        <a class="card wip-card" href="#"><div class="card-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M21 7v5h-5"/></svg></div><h3>中級</h3><p>FRC・ノーフィン技術</p></a>
+        <div class="wip-mask"><span class="wip-badge"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>開発中</span></div>
+      </div>
+      <div style="position:relative;">
+        <a class="card wip-card" href="#"><div class="card-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M8.5 12.5L7 21l5-3 5 3-1.5-8.5"/></svg></div><h3>競技</h3><p>大会・記録を伸ばす</p></a>
+        <div class="wip-mask"><span class="wip-badge"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>開発中</span></div>
+      </div>
+      <div style="position:relative;">
+        <a class="card wip-card" href="#"><div class="card-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M3 9l9-4 9 4-9 4-9-4z"/><path d="M7 11v5c0 1 2.5 2.5 5 2.5s5-1.5 5-2.5v-5"/></svg></div><h3>インストラクター</h3><p>資格・指導法を学ぶ</p></a>
+        <div class="wip-mask"><span class="wip-badge"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>開発中</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- イベント / 国内ランキング -->
+  <div class="section">
+    <div class="sec-header">
+      <span class="sec-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M8.5 12.5L7 21l5-3 5 3-1.5-8.5"/></svg></span>
+      <span class="sec-title">イベント / 国内ランキング</span>
+      <span class="depth"><span class="depth-line"></span><span class="depth-num">−30m</span></span>
+    </div>
+    <a class="event-card" href="2026_competitions.html">
+      <div class="event-thumb" style="background-image:url('images/dive_deep_rope.jpg');background-position:center 30%;"></div>
+      <div class="event-card-inner">
+        <h3>大会カレンダー</h3>
+        <p>2026年 国内大会スケジュール</p>
+      </div>
+      <span class="event-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+    </a>
+    <a class="event-card" href="AIDA_ranking_prototype.html">
+      <div class="event-thumb" style="background-image:url('images/pool_portrait.jpg');background-position:center 20%;"></div>
+      <div class="event-card-inner">
+        <h3>国内ランキング</h3>
+        <p>AIDA Japan 全国ランキング</p>
+      </div>
+      <span class="event-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+    </a>
+  </div>
+
+  <!-- はじめての人向けヒント -->
+  <div class="tips-strip">
+    <div class="tips-title">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.3 1 2.5h6c0-1.2.2-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
+      フリーダイビングを始める前に
+    </div>
+    <div class="tip-item">
+      <div class="tip-num">1</div>
+      <div class="tip-text"><strong>必ず認定インストラクターと一緒に</strong>潜りましょう。一人での練習は危険です。</div>
+    </div>
+    <div class="tip-item">
+      <div class="tip-num">2</div>
+      <div class="tip-text"><strong>体験コースから始める</strong>のがおすすめ。道具も技術も不要で、2〜3時間で体験できます。</div>
+    </div>
+    <div class="tip-item">
+      <div class="tip-num">3</div>
+      <div class="tip-text">深さより<strong>リラックス</strong>が大切。焦らず、自分のペースで楽しみましょう。</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- bottom nav -->
+<nav class="bottom-nav">
+  <a class="bnav-item active" href="#">
+    <svg class="icon" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7"/><path d="M6 9.5V20h12V9.5"/></svg>
+    <span class="bnav-label">ホーム</span>
+  </a>
+  <a class="bnav-item" href="explore/index.html">
+    <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    <span class="bnav-label">探す</span>
+  </a>
+  <a class="bnav-item" href="#">
+    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M8.5 12.5L7 21l5-3 5 3-1.5-8.5"/></svg>
+    <span class="bnav-label">イベント</span>
+  </a>
+  <a class="bnav-item" href="mypage.html">
+    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/></svg>
+    <span class="bnav-label">マイページ</span>
+  </a>
+</nav>
+
+</body>
+</html>
