@@ -233,12 +233,15 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/supabase-config.js"></script>
 <script>
+  const _sb = window.supabase.createClient(
+    'https://bbhqvbpsuccbdcnhnobm.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJiaHF2YnBzdWNjYmRjbmhub2JtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyODQwMzksImV4cCI6MjA5NTg2MDAzOX0.MexR8_hY56m3XRff0EJOQM3uQShXr2L9kGyYXLSzKbs'
+  )
   let selectedRole = 'athlete'
 
   // すでにログイン済みならマイページへ
-  supabase.auth.getSession().then(({ data: { session } }) => {
+  _sb.auth.getSession().then(({ data: { session } }) => {
     if (session) window.location.href = 'mypage.html'
   })
 
@@ -278,7 +281,7 @@
     btn.disabled = true
     btn.textContent = 'ログイン中...'
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { error } = await _sb.auth.signInWithPassword({ email, password })
     if (error) {
       showMessage('メールアドレスまたはパスワードが正しくありません', 'error')
       btn.disabled = false
@@ -299,7 +302,7 @@
     btn.disabled = true
     btn.textContent = '登録中...'
 
-    const { error } = await supabase.auth.signUp({
+    const { error } = await _sb.auth.signUp({
       email,
       password,
       options: { data: { name, role: selectedRole } }
@@ -310,7 +313,7 @@
       btn.disabled = false
       btn.textContent = 'アカウント作成'
     } else {
-      showMessage('確認メールを送信しました。メールを確認してください。', 'success')
+      window.location.href = 'mypage.html'
       btn.disabled = false
       btn.textContent = 'アカウント作成'
     }
