@@ -2556,7 +2556,7 @@ function editSession(id) {
 
   // セッションを削除リストから外してフォームに読み込む
   sessions = sessions.filter(x => x.id !== id);
-  if (_currentUser) await _sb.from('training_logs').delete().eq('id', id)
+  if (_currentUser) _sb.from('training_logs').delete().eq('id', id).then(() => {})
 
   // ログ登録画面へ移動
   goto('entry', document.querySelectorAll('.nav-item')[0]);
