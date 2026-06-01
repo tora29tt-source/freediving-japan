@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Training Log — Freediving Japan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <style>
@@ -934,8 +935,35 @@ tr:last-child td { border-bottom: none; }
 <div class="toast" id="toast"></div>
 
 <script>
+// ===== SUPABASE =====
+const { createClient } = window.supabase
+const _sb = createClient(
+  'https://bbhqvbpsuccbdcnhnobm.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJiaHF2YnBzdWNjYmRjbmhub2JtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyODQwMzksImV4cCI6MjA5NTg2MDAzOX0.MexR8_hY56m3XRff0EJOQM3uQShXr2L9kGyYXLSzKbs'
+)
+let _currentUser = null
+
+// 認証チェック
+async function initAuth() {
+  const { data: { session } } = await _sb.auth.getSession()
+  if (!session) { window.location.href = 'auth.html'; return false }
+  _currentUser = session.user
+  return true
+}
+
+// Supabaseからログ読み込み
+async function loadSessionsFromDB() {
+  const { data, error } = await _sb
+    .from('training_logs')
+    .select('*')
+    .eq('user_id', _currentUser.id)
+    .order('date', { ascending: false })
+  if (error) { console.error(error); return [] }
+  return data.map(r => ({ ...r.data, id: r.id, share_token: r.share_token, is_public: r.is_public }))
+}
+
 // ===== STATE =====
-let sessions = JSON.parse(localStorage.getItem('fj_v2') || '[]');
+let sessions = [];
 let uddfDives = [];
 let miniChart = null, modalChart = null, chD = null, chT = null;
 let sortKey = 'date', sortAsc = false;
@@ -1832,7 +1860,7 @@ function resetForm() {
 }
 
 // ===== SAVE =====
-function saveSession() {
+async function saveSession() {
   const isPool = state.env === 'pool';
   // Derive best results from sessionDives
   const seaDives  = sessionDives.filter(d=>d.depth!=null);
@@ -1864,7 +1892,24 @@ function saveSession() {
     source: uddfDives.length ? 'uddf' : 'manual'
   };
   sessions.unshift(s);
-  localStorage.setItem('fj_v2', JSON.stringify(sessions));
+  // Supabaseに保存
+  if (_currentUser) {
+    const { data, error } = await _sb.from('training_logs').insert({
+      user_id: _currentUser.id,
+      date: s.date,
+      discipline: s.discipline,
+      performance: s.bestDepth ? `${s.bestDepth}m` : s.bestTime || null,
+      location: s.location || null,
+      notes: s.note || null,
+      is_public: false,
+      data: s
+    }).select().single()
+    if (!error && data) {
+      s.id = data.id
+      s.share_token = data.share_token
+      sessions[0] = s
+    }
+  }
   showToast('✅ セッションを保存しました');
   resetForm();
 }
@@ -2498,10 +2543,10 @@ function scaleBadge(val, labels, colors) {
   const color = colors[val]||'var(--sub)';
   return `<span style="font-size:11px;font-weight:700;color:${color}">${label}</span>`;
 }
-function delSess(id) {
+async function delSess(id) {
   if(!confirm('削除しますか？'))return;
   sessions=sessions.filter(s=>s.id!==id);
-  localStorage.setItem('fj_v2',JSON.stringify(sessions));
+  if (_currentUser) await _sb.from('training_logs').delete().eq('id', id)
   renderList();
 }
 
@@ -2511,7 +2556,7 @@ function editSession(id) {
 
   // セッションを削除リストから外してフォームに読み込む
   sessions = sessions.filter(x => x.id !== id);
-  localStorage.setItem('fj_v2', JSON.stringify(sessions));
+  if (_currentUser) await _sb.from('training_logs').delete().eq('id', id)
 
   // ログ登録画面へ移動
   goto('entry', document.querySelectorAll('.nav-item')[0]);
@@ -2664,11 +2709,25 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
 // ===== INIT =====
 document.getElementById('f-date').value = today();
 updateDiveNumLabel();
-// Show sea disciplines by default, hide pool ones
 document.querySelectorAll('#disc-chips .chip').forEach(c => {
   c.style.display = ['CWT','CWTB','CNF','FIM'].includes(c.textContent) ? '' : 'none';
 });
 updateDistLabels();
+
+// 認証＋データ読み込み
+;(async () => {
+  const ok = await initAuth()
+  if (!ok) return
+  sessions = await loadSessionsFromDB()
+  // localStorageのデータをマイグレーション（初回のみ）
+  const local = JSON.parse(localStorage.getItem('fj_v2') || '[]')
+  if (local.length > 0 && sessions.length === 0) {
+    sessions = local
+    showToast('ローカルデータを引き継ぎました')
+  }
+  renderList()
+  renderDash()
+})();
 </script>
 </body>
 </html>
