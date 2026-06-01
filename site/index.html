@@ -51,7 +51,7 @@ select{padding:7px 10px;background:var(--panel);color:var(--text);border:1px sol
 .badge.pool{background:rgba(42,169,224,.18);color:var(--pool)}.badge.sea{background:rgba(30,200,166,.18);color:var(--sea)}
 .discHead .desc{color:var(--muted);font-size:13px;margin-top:5px;line-height:1.5}
 .ctx{font-size:12.5px;color:var(--muted);margin:10px 0 14px}.ctx b{color:var(--accent2)}
-.podium{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:12px;align-items:end;margin:8px 0 22px}
+.podium{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;align-items:stretch;margin:8px 0 22px}
 .pod{background:linear-gradient(180deg,#11324b,#0c2237);border:1px solid var(--line);border-radius:14px;padding:16px 12px;text-align:center;cursor:pointer;transition:.15s}
 .pod:hover{transform:translateY(-3px);border-color:var(--accent)}.pod:hover .name{text-decoration:underline}
 .pav{width:64px;height:64px;border-radius:50%;margin:0 auto 8px;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-weight:700;color:#06231c;font-size:20px;overflow:hidden;border:2px solid var(--line)}
@@ -185,7 +185,7 @@ function render(){
                :DATA.records.filter(r=>r.discipline===state.disc&&r.year===state.year&&r.gender===state.gender).sort((a,b)=>a.rank-b.rank);
   const pod=document.getElementById('podiumArea'),area=document.getElementById('tableArea');
   if(!rows.length){pod.innerHTML='';area.innerHTML='<div class="empty">この条件のデータはありません</div>';return;}
-  const top=rows.slice(0,3),order=[1,0,2];
+  const top=rows.slice(0,3),order=[0,1,2];
   pod.innerHTML='<div class="podium">'+order.map(i=>{const r=top[i];if(!r)return '<div></div>';
     const cls=['p1','p2','p3'][r.rank-1]||'';
     const line=isOv?'<div class="res">'+r.total+'<span style="font-size:12px;color:var(--muted)"> pt</span></div>':'<div class="res">'+r.result+'</div><div class="pts">'+(r.points!=null?r.points:'')+' pt</div>';
