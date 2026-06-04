@@ -245,6 +245,16 @@ header {
 .spo2-v.warn { color: var(--warm); }
 .spo2-v.crit { color: var(--danger); }
 .spo2-pct { font-size: 11px; color: var(--muted); }
+/* start button inside ring */
+.ring-start-btn {
+  margin-top: 10px;
+  width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--teal);
+  background: var(--teal-dim); color: var(--teal-light);
+  font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  cursor: pointer; transition: all .15s; -webkit-tap-highlight-color: transparent;
+}
+.ring-start-btn:active { background: var(--teal); color: #0b2d45; transform: scale(.95); }
+
 /* countdown overlay inside ring */
 .ring-countdown {
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
@@ -292,18 +302,15 @@ header {
 .btn-sub {
   flex: 1; height: 38px; border-radius: 9px; border: 1px solid var(--border);
   background: var(--surface2); color: var(--muted);
-  font-size: 10px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700;
+  font-size: 10px; letter-spacing: .06em; text-transform: uppercase; font-weight: 700;
   cursor: pointer; transition: all .15s; -webkit-tap-highlight-color: transparent;
+  min-width: 0;
 }
 .btn-sub:active { opacity: .7; transform: scale(.97); }
 .btn-sub.save { color: var(--teal-light); border-color: var(--teal); }
 .btn-sub.lap  { color: var(--teal-light); border-color: var(--teal); }
-.lap-item { display:flex; align-items:center; gap:8px; padding:5px 10px; background:var(--surface); border-radius:7px; border:1px solid var(--border); animation: sIn .2s ease; }
-.lap-n    { font-size:9px; color:var(--muted); width:16px; text-align:center; flex-shrink:0; }
-.lap-split{ font-size:16px; font-variant-numeric:tabular-nums; font-weight:300; color:var(--text); flex:1; }
-.lap-total{ font-size:12px; font-variant-numeric:tabular-nums; color:var(--muted); }
-.lap-best { color:var(--teal); }
-.lap-worst{ color:var(--warm); }
+.lap-best  { color: var(--teal) !important; }
+.lap-worst { color: var(--warm) !important; }
 .btn-sub:disabled { opacity: .3; pointer-events: none; }
 
 /* LOG LIST */
@@ -544,6 +551,7 @@ header {
         <span class="spo2-v ok" id="spo2V">--</span>
         <span class="spo2-pct">%</span>
       </div>
+      <button class="ring-start-btn" id="ringStartBtn" onclick="onMainBtn()" style="display:none">START</button>
     </div>
     <!-- countdown overlay -->
     <div class="ring-countdown" id="ringCountdown">
@@ -560,7 +568,7 @@ header {
   <!-- STATS -->
   <div class="stats-row">
     <div class="stat"><span class="stat-lbl">Best Hold</span><span class="stat-val" id="stBest">—</span></div>
-    <div class="stat"><span class="stat-lbl">Sets</span><span class="stat-val" id="stSets">0/<span id="stTotal">—</span></span></div>
+    <div class="stat"><span class="stat-lbl">Sets</span><span class="stat-val"><span id="stSets">0</span>/<span id="stTotal">—</span></span></div>
     <div class="stat"><span class="stat-lbl">Avg Hold</span><span class="stat-val" id="stAvg">—</span></div>
     <div class="stat"><span class="stat-lbl">Min SpO2</span><span class="stat-val" id="stSpo2">—</span></div>
   </div>
@@ -570,7 +578,7 @@ header {
     <button class="btn-main start" id="btnMain" onclick="onMainBtn()">Start</button>
     <div class="btn-row">
       <button class="btn-sub"      onclick="onReset()">Reset</button>
-      <button class="btn-sub lap"  id="btnLap" disabled onclick="onLap()" style="display:none">Lap</button>
+      <button class="btn-sub lap"  id="btnLap" disabled onclick="onLap()">Lap</button>
       <button class="btn-sub save" id="btnSave" disabled onclick="openSave()">Save Session</button>
       <button class="btn-sub"      onclick="onClear()">Clear All</button>
     </div>
@@ -589,6 +597,7 @@ header {
   </div>
 
 </div><!-- /app -->
+
 
 <!-- SAVE MODAL -->
 <div class="overlay" id="saveOverlay" onclick="if(event.target===this)closeSave()">
@@ -766,6 +775,9 @@ function setMode(m) {
   // Lap/Stopwatchモード切替
   const isSW = m === 'free';
   document.getElementById('btnLap').style.display = isSW ? '' : 'none';
+  document.getElementById('btnLap').disabled = true;
+  document.getElementById('ringStartBtn').style.display = isSW ? 'none' : '';
+  if (!isSW) updateRingStartBtn();
   renderSetDots();
   onReset();
 }
@@ -919,6 +931,7 @@ function startSession() {
   currentSet = 0; holdDives = []; spo2Buf = [];
   renderSetDots(); renderLog();
   document.getElementById('btnSave').disabled = true;
+  document.getElementById('ringStartBtn').style.display = 'none';
   beginCountdownOrHold();
 }
 
@@ -957,7 +970,7 @@ function startHold() {
   setBtnMain('stop', mode==='free' ? 'Stop' : 'Stop Hold');
   if (mode === 'free') {
     document.getElementById('btnLap').disabled = false;
-    laps = []; renderLaps();
+    renderLaps();
   }
   if (mode==='mock' || bleMode==='mock') startMock();
   cancelAnimationFrame(rafId);
@@ -983,7 +996,7 @@ function endHold(auto=false) {
     showPhase('rest', 'Stopwatch — Stopped');
     setBtnMain('start', 'Start');
     document.getElementById('btnSave').disabled = false;
-    document.getElementById('btnLap').disabled  = true;
+    document.getElementById('btnLap').disabled  = laps.length === 0;
     releaseWakeLock();
     return;
   }
@@ -1113,6 +1126,7 @@ function onReset() {
   document.getElementById('spo2Row').classList.add('hidden');
   document.getElementById('spo2ChartArea').classList.remove('visible');
   showPhase('', mode==='o2'?'O2 Table':mode==='co2'?'CO2 Table':'Stopwatch');
+  updateRingStartBtn();
   setBtnMain('start', 'Start');
   document.getElementById('btnSave').disabled = true;
   document.getElementById('btnLap').disabled  = true;
@@ -1183,12 +1197,26 @@ function renderSetList() {
   }
 }
 
+// ── RING START BTN ───────────────────────────────────────
+function updateRingStartBtn() {
+  const btn = document.getElementById('ringStartBtn');
+  if (!btn) return;
+  if (mode === 'free') { btn.style.display='none'; return; }
+  btn.style.display = (phase==='idle') ? '' : 'none';
+}
+
 // ── LAP ──────────────────────────────────────────────────
 function onLap() {
-  if (phase !== 'hold' || mode !== 'free') return;
-  const now = performance.now() - phaseStart;
+  if (mode !== 'free') return;
+  // running中: 現在時刻でラップ打つ
+  // stopped中: 最後の計測値でラップ打つ
+  const now = phase === 'hold'
+    ? performance.now() - phaseStart
+    : phaseMs;
   const prev = laps.length ? laps[laps.length-1].total : 0;
-  laps.push({ n: laps.length+1, split: now - prev, total: now });
+  const split = now - prev;
+  if (split <= 0) return;
+  laps.push({ n: laps.length+1, split, total: now });
   renderLaps();
 }
 
@@ -1206,11 +1234,11 @@ function renderLaps() {
     const isWorst = splits.length > 1 && l.split === worst;
     const cls = isBest ? 'lap-best' : isWorst ? 'lap-worst' : '';
     const el = document.createElement('div');
-    el.className = 'lap-item';
+    el.className = 'log-item';
     el.innerHTML = `
-      <span class="lap-n">${l.n}</span>
-      <span class="lap-split ${cls}">${fmt(l.split)}<span style="font-size:12px;color:var(--muted)">${fmtMs(l.split)}</span></span>
-      <span class="lap-total">${fmt(l.total)}</span>`;
+      <span class="log-n">${l.n}</span>
+      <span class="log-t ${cls}">${fmt(l.split)}<span style="font-size:12px;color:var(--muted)">${fmtMs(l.split)}</span></span>
+      <span style="font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums">${fmt(l.total)}</span>`;
     list.appendChild(el);
   });
 }
@@ -1522,6 +1550,8 @@ initSelects();
 setCfgStop('o2','auto');
 setCfgStop('co2','auto');
 initLiveChart();
+// 初期モード設定（UIを確実に初期化）
+setMode('free');
 </script>
 </body>
 </html>
