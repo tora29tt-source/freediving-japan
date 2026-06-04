@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Volcano Cup 2026 — Athlete Portal</title>
+<style>
+:root {
+  --bg:       #04161f;
+  --surface:  #0c2738;
+  --surface2: #123146;
+  --border:   rgba(168,236,232,0.12);
+  --teal:     #2ec4b6;
+  --teal2:    #a8ece8;
+  --text:     rgba(255,255,255,0.92);
+  --muted:    rgba(255,255,255,0.38);
+  --sub:      rgba(255,255,255,0.60);
+  --warn:     #f59e0b;
+  --danger:   #ef4444;
+  --success:  #22c55e;
+  --r:        14px;
+  --rs:       9px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== HERO ===== */
+.hero {
+  position: relative;
+  padding: 40px 20px 32px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+}
+
+.hero-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 100% 100% at 50% -20%, rgba(26,95,130,0.6) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 40% at 90% 60%, rgba(46,196,182,0.07) 0%, transparent 60%),
+    linear-gradient(180deg, #0e3d5c 0%, #04161f 100%);
+}
+
+.bubbles {
+  position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+}
+.bubble {
+  position: absolute; bottom: -20px; border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(168,236,232,0.15), rgba(46,196,182,0.03));
+  border: 1px solid rgba(168,236,232,0.1);
+  animation: rise linear infinite;
+}
+.bubble:nth-child(1) { width:5px; height:5px; left:10%; animation-duration:8s; animation-delay:0s; }
+.bubble:nth-child(2) { width:8px; height:8px; left:30%; animation-duration:11s; animation-delay:2s; }
+.bubble:nth-child(3) { width:4px; height:4px; left:55%; animation-duration:7s; animation-delay:4s; }
+.bubble:nth-child(4) { width:6px; height:6px; left:75%; animation-duration:10s; animation-delay:1s; }
+.bubble:nth-child(5) { width:9px; height:9px; left:88%; animation-duration:13s; animation-delay:3s; }
+
+@keyframes rise {
+  0%   { transform:translateY(0); opacity:0; }
+  10%  { opacity:0.8; }
+  90%  { opacity:0.4; }
+  100% { transform:translateY(-100vh); opacity:0; }
+}
+
+.hero-inner {
+  position: relative; z-index: 1;
+  max-width: 480px; margin: 0 auto;
+}
+
+.event-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(46,196,182,0.12);
+  border: 1px solid rgba(46,196,182,0.25);
+  border-radius: 100px;
+  padding: 4px 12px;
+  font-size: 11px; font-weight: 700;
+  color: var(--teal2);
+  letter-spacing: 0.06em;
+  margin-bottom: 14px;
+  animation: fadeUp 0.5s ease both;
+}
+
+.event-title {
+  font-size: 28px; font-weight: 800;
+  color: #fff; letter-spacing: -0.5px;
+  line-height: 1.15;
+  animation: fadeUp 0.5s 0.1s ease both; opacity: 0;
+}
+
+.event-meta {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  margin-top: 12px;
+  animation: fadeUp 0.5s 0.2s ease both; opacity: 0;
+}
+
+.meta-chip {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 12px; color: var(--sub);
+}
+
+.deadline-bar {
+  margin-top: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--rs);
+  padding: 10px 14px;
+  display: flex; align-items: center; justify-content: space-between;
+  animation: fadeUp 0.5s 0.3s ease both; opacity: 0;
+}
+.deadline-label { font-size: 11px; color: var(--muted); }
+.deadline-val { font-size: 13px; font-weight: 700; color: var(--warn); }
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ===== TABS ===== */
+.tabs {
+  display: flex;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+}
+
+.tab {
+  flex: 1; padding: 13px 8px;
+  text-align: center; font-size: 12px; font-weight: 700;
+  color: var(--muted); cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  letter-spacing: 0.03em;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab.active { color: var(--teal); border-bottom-color: var(--teal); }
+.tab-icon { font-size: 16px; display: block; margin-bottom: 2px; }
+
+/* ===== PANELS ===== */
+.panel { display: none; }
+.panel.active { display: block; }
+
+.content {
+  max-width: 480px; margin: 0 auto;
+  padding: 20px 16px 40px;
+}
+
+/* ===== SECTION HEADER ===== */
+.sec-title {
+  font-size: 13px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--sub); margin-bottom: 14px;
+}
+
+/* ===== AP FORM ===== */
+.form-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.form-card-title {
+  font-size: 12px; font-weight: 700;
+  color: var(--teal); text-transform: uppercase;
+  letter-spacing: 0.08em; margin-bottom: 14px;
+  display: flex; align-items: center; gap: 6px;
+}
+
+.fld { margin-bottom: 14px; }
+.fld:last-child { margin-bottom: 0; }
+
+.fld-label {
+  font-size: 11px; font-weight: 700;
+  color: var(--muted); letter-spacing: 0.05em;
+  margin-bottom: 5px; display: block;
+  text-transform: uppercase;
+}
+
+.fi {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--rs);
+  color: var(--text);
+  padding: 11px 13px;
+  font-size: 15px; font-family: inherit;
+  -webkit-appearance: none;
+  transition: border-color 0.2s;
+}
+.fi:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px rgba(46,196,182,0.1); }
+.fi::placeholder { color: var(--muted); }
+select.fi { cursor: pointer; }
+select.fi option { background: var(--surface2); }
+
+.disc-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.disc-btn {
+  padding: 10px 4px;
+  border-radius: var(--rs);
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--sub);
+  font-size: 12px; font-weight: 700;
+  font-family: inherit; cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.disc-btn.selected {
+  background: rgba(46,196,182,0.15);
+  border-color: var(--teal);
+  color: var(--teal2);
+}
+
+.ap-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.ap-input-wrap { }
+.ap-input-label {
+  font-size: 10px; color: var(--muted);
+  margin-bottom: 4px; display: block;
+}
+
+.time-row {
+  display: flex; align-items: center; gap: 4px;
+}
+.time-sel {
+  flex: 1;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--rs);
+  color: var(--text);
+  padding: 10px 4px;
+  font-size: 14px; font-family: inherit;
+  text-align: center; cursor: pointer;
+  -webkit-appearance: none;
+}
+.time-sel:focus { outline: none; border-color: var(--teal); }
+.time-sep { font-size: 16px; color: var(--muted); font-weight: 700; }
+
+.note-box {
+  background: rgba(46,196,182,0.06);
+  border: 1px solid rgba(46,196,182,0.15);
+  border-radius: var(--rs);
+  padding: 10px 13px;
+  font-size: 12px; color: var(--sub);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.btn-submit {
+  width: 100%; padding: 14px;
+  background: var(--teal); color: #fff;
+  border: none; border-radius: var(--rs);
+  font-size: 15px; font-weight: 700;
+  font-family: inherit; cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-submit:hover { background: var(--teal2); color: #0b2d45; }
+.btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ===== START LIST ===== */
+.start-list-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 12px;
+}
+.list-status {
+  font-size: 11px; font-weight: 700;
+  padding: 3px 10px; border-radius: 100px;
+}
+.list-status.confirmed {
+  background: rgba(34,197,94,0.12);
+  border: 1px solid rgba(34,197,94,0.25);
+  color: #86efac;
+}
+.list-status.draft {
+  background: rgba(245,158,11,0.12);
+  border: 1px solid rgba(245,158,11,0.25);
+  color: #fcd34d;
+}
+
+.start-list-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+
+.sl-row {
+  display: flex; align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  gap: 10px;
+}
+.sl-row:last-child { border-bottom: none; }
+.sl-row.me { background: rgba(46,196,182,0.08); border-left: 3px solid var(--teal); padding-left: 13px; }
+
+.sl-no { font-size: 12px; color: var(--muted); width: 22px; flex-shrink: 0; }
+.sl-info { flex: 1; }
+.sl-name { font-size: 14px; font-weight: 700; color: var(--text); }
+.sl-name-you { color: var(--teal2); }
+.sl-detail { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.sl-ot { text-align: right; flex-shrink: 0; }
+.sl-ot-time { font-size: 16px; font-weight: 800; color: var(--sub); }
+.sl-ot-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.sl-disc {
+  font-size: 10px; font-weight: 700;
+  background: rgba(46,196,182,0.1);
+  color: var(--teal2);
+  padding: 2px 7px; border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* ===== RESULTS ===== */
+.result-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.result-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.result-no { font-size: 12px; color: var(--muted); }
+.result-name { flex: 1; font-size: 15px; font-weight: 700; }
+.result-card-badge {
+  font-size: 20px;
+}
+
+.result-body { padding: 14px 16px; }
+.result-grid {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px; margin-bottom: 12px;
+}
+.result-item { }
+.result-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.result-val { font-size: 18px; font-weight: 800; color: var(--teal2); margin-top: 2px; }
+.result-val.red { color: #f87171; }
+
+.result-points {
+  background: var(--surface2);
+  border-radius: var(--rs);
+  padding: 10px 14px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.result-points-label { font-size: 12px; color: var(--sub); }
+.result-points-val { font-size: 22px; font-weight: 800; color: #fff; }
+
+.protest-btn {
+  width: 100%; padding: 11px;
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.25);
+  border-radius: var(--rs);
+  color: #f87171;
+  font-size: 13px; font-weight: 700;
+  font-family: inherit; cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.2s;
+}
+.protest-btn:hover { background: rgba(239,68,68,0.2); }
+.protest-timer {
+  text-align: center;
+  font-size: 11px; color: var(--muted);
+  margin-top: 6px;
+}
+
+/* ===== SUCCESS STATE ===== */
+.success-card {
+  background: rgba(34,197,94,0.08);
+  border: 1px solid rgba(34,197,94,0.2);
+  border-radius: var(--r);
+  padding: 24px;
+  text-align: center;
+}
+.success-icon { font-size: 40px; margin-bottom: 10px; }
+.success-title { font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+.success-sub { font-size: 13px; color: var(--sub); }
+
+.your-ap-summary {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 16px;
+  margin-top: 14px;
+  text-align: left;
+}
+.ap-summary-row {
+  display: flex; justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.ap-summary-row:last-child { border-bottom: none; }
+.ap-summary-lbl { color: var(--muted); }
+.ap-summary-val { font-weight: 700; color: var(--text); }
+
+/* ===== LANG TOGGLE ===== */
+.lang-toggle {
+  position: absolute; top: 16px; right: 16px;
+  display: flex; gap: 4px; z-index: 10;
+}
+.lang-btn {
+  padding: 4px 10px; border-radius: 6px;
+  font-size: 11px; font-weight: 700;
+  border: 1px solid var(--border);
+  background: transparent; color: var(--muted);
+  cursor: pointer; font-family: inherit;
+}
+.lang-btn.active { background: var(--surface2); color: var(--text); border-color: var(--teal); }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="bubbles">
+    <div class="bubble"></div><div class="bubble"></div>
+    <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
+  </div>
+
+  <div class="lang-toggle">
+    <button class="lang-btn active" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" onclick="setLang('ja')">JP</button>
+  </div>
+
+  <div class="hero-inner">
+    <div class="event-badge">🤿 AIDA Japan</div>
+    <div class="event-title">Volcano Cup 2026</div>
+    <div class="event-meta">
+      <div class="meta-chip">📅 <span>June 15, 2026</span></div>
+      <div class="meta-chip">📍 <span>Izu Peninsula, Shizuoka</span></div>
+      <div class="meta-chip">🌊 <span>CWT · CWTB · CNF · FIM</span></div>
+    </div>
+    <div class="deadline-bar">
+      <span class="deadline-label" id="deadlineLabel">AP Submission Deadline</span>
+      <span class="deadline-val">June 13, 23:59 JST</span>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('ap')">
+    <span class="tab-icon">📝</span>
+    <span id="tab-ap-label">AP Entry</span>
+  </div>
+  <div class="tab" onclick="switchTab('startlist')">
+    <span class="tab-icon">📋</span>
+    <span id="tab-sl-label">Start List</span>
+  </div>
+  <div class="tab" onclick="switchTab('results')">
+    <span class="tab-icon">🏆</span>
+    <span id="tab-re-label">Results</span>
+  </div>
+</div>
+
+<!-- ===== AP ENTRY PANEL ===== -->
+<div class="panel active" id="panel-ap">
+  <div class="content">
+
+    <div class="note-box" id="apNote">
+      Enter your Announced Performance for Volcano Cup 2026. You may update your AP until the deadline.
+    </div>
+
+    <!-- 登録済み状態（初期は非表示） -->
+    <div id="apSuccess" style="display:none;">
+      <div class="success-card">
+        <div class="success-icon">✅</div>
+        <div class="success-title">AP Submitted!</div>
+        <div class="success-sub">Your AP has been recorded. You can update it until the deadline.</div>
+        <div class="your-ap-summary" id="apSummary"></div>
+      </div>
+      <button class="btn-submit" style="margin-top:14px;background:var(--surface2);border:1px solid var(--border);color:var(--text);" onclick="showAPForm()">✏️ Edit AP</button>
+    </div>
+
+    <div id="apForm">
+      <!-- 基本情報 -->
+      <div class="form-card">
+        <div class="form-card-title">👤 Athlete Info</div>
+        <div class="fld">
+          <label class="fld-label" id="labelName">Full Name</label>
+          <input class="fi" id="inputName" placeholder="Your full name">
+        </div>
+        <div class="fld">
+          <label class="fld-label" id="labelNat">Nationality</label>
+          <input class="fi" id="inputNat" placeholder="JPN" style="text-transform:uppercase;">
+        </div>
+        <div class="fld">
+          <label class="fld-label" id="labelGender">Gender</label>
+          <select class="fi" id="inputGender">
+            <option value="">Select</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 種目・AP -->
+      <div class="form-card">
+        <div class="form-card-title">🎯 Announced Performance</div>
+
+        <div class="fld">
+          <label class="fld-label" id="labelDisc">Discipline</label>
+          <div class="disc-grid" id="discGrid">
+            <button class="disc-btn" onclick="selectDisc('CWT')">CWT</button>
+            <button class="disc-btn" onclick="selectDisc('CWTB')">CWTB</button>
+            <button class="disc-btn" onclick="selectDisc('CNF')">CNF</button>
+            <button class="disc-btn" onclick="selectDisc('FIM')">FIM</button>
+          </div>
+        </div>
+
+        <div class="fld" id="apDepthFld">
+          <label class="fld-label" id="labelDepth">Depth (m)</label>
+          <select class="fi" id="inputDepth">
+            <option value="">Select depth</option>
+          </select>
+        </div>
+
+        <div class="fld">
+          <label class="fld-label" id="labelDT">Dive Time (mm:ss)</label>
+          <div class="time-row">
+            <select class="time-sel" id="inputDTm">
+              <option value="">mm</option>
+            </select>
+            <span class="time-sep">:</span>
+            <select class="time-sel" id="inputDTs">
+              <option value="">ss</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="fld">
+          <label class="fld-label" id="labelRemarks">Remarks (optional)</label>
+          <select class="fi" id="inputRemarks">
+            <option value="">None</option>
+            <option value="National Record Attempt">National Record Attempt</option>
+            <option value="Continental Record Attempt">Continental Record Attempt</option>
+            <option value="World Record Attempt">World Record Attempt</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn-submit" onclick="submitAP()" id="btnSubmitAP">Submit AP</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== START LIST PANEL ===== -->
+<div class="panel" id="panel-startlist">
+  <div class="content">
+    <div class="start-list-header">
+      <div class="sec-title" id="slTitle">Start List</div>
+      <span class="list-status draft" id="slStatus">Draft</span>
+    </div>
+
+    <div class="start-list-card">
+      <div class="sl-row me">
+        <span class="sl-no">1</span>
+        <div class="sl-info">
+          <div class="sl-name sl-name-you">Your Name ← You</div>
+          <div class="sl-detail">CWT · 80m · 02:30</div>
+        </div>
+        <span class="sl-disc">CWT</span>
+        <div class="sl-ot">
+          <div class="sl-ot-time">9:00</div>
+          <div class="sl-ot-label">OT</div>
+        </div>
+      </div>
+      <div class="sl-row">
+        <span class="sl-no">2</span>
+        <div class="sl-info">
+          <div class="sl-name">Tetsuo Hara</div>
+          <div class="sl-detail">CWT · 101m · 02:45</div>
+        </div>
+        <span class="sl-disc">CWT</span>
+        <div class="sl-ot">
+          <div class="sl-ot-time">9:13</div>
+          <div class="sl-ot-label">OT</div>
+        </div>
+      </div>
+      <div class="sl-row">
+        <span class="sl-no">3</span>
+        <div class="sl-info">
+          <div class="sl-name">Shunsaku Kobayashi</div>
+          <div class="sl-detail">CWT · 80m · 02:30</div>
+        </div>
+        <span class="sl-disc">CWT</span>
+        <div class="sl-ot">
+          <div class="sl-ot-time">9:24</div>
+          <div class="sl-ot-label">OT</div>
+        </div>
+      </div>
+      <div class="sl-row">
+        <span class="sl-no">4</span>
+        <div class="sl-info">
+          <div class="sl-name">Kayo Oda</div>
+          <div class="sl-detail">CWT · 73m · 02:18</div>
+        </div>
+        <span class="sl-disc">CWT</span>
+        <div class="sl-ot">
+          <div class="sl-ot-time">9:33</div>
+          <div class="sl-ot-label">OT</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:14px;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);font-size:12px;color:var(--muted);text-align:center;" id="slNote">
+      Start list is pending official confirmation. You will be notified when confirmed.
+    </div>
+  </div>
+</div>
+
+<!-- ===== RESULTS PANEL ===== -->
+<div class="panel" id="panel-results">
+  <div class="content">
+
+    <div id="resultsNotReady" style="text-align:center;padding:40px 20px;">
+      <div style="font-size:48px;margin-bottom:12px;">⏳</div>
+      <div style="font-size:16px;font-weight:700;color:var(--sub);" id="resultsWaitMsg">Results not yet available</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:6px;" id="resultsWaitSub">Results will appear here after the competition.</div>
+    </div>
+
+    <div id="resultsList" style="display:none;">
+      <div class="result-card">
+        <div class="result-header">
+          <span class="result-no">#1</span>
+          <span class="result-name">Your Name</span>
+          <span class="result-card-badge">🟢</span>
+        </div>
+        <div class="result-body">
+          <div class="result-grid">
+            <div class="result-item">
+              <div class="result-lbl">Discipline</div>
+              <div class="result-val">CWT</div>
+            </div>
+            <div class="result-item">
+              <div class="result-lbl">Depth</div>
+              <div class="result-val">78m</div>
+            </div>
+            <div class="result-item">
+              <div class="result-lbl">Dive Time</div>
+              <div class="result-val">2:24</div>
+            </div>
+          </div>
+          <div class="result-points">
+            <span class="result-points-label">AIDA Points</span>
+            <span class="result-points-val">78.0</span>
+          </div>
+          <button class="protest-btn" onclick="showProtest()">⚠️ File Protest</button>
+          <div class="protest-timer" id="protestTimer">Protest window: 14:32 remaining</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+var currentLang = 'en';
+var selectedDisc = '';
+
+var i18n = {
+  en: {
+    deadlineLabel: 'AP Submission Deadline',
+    tabAP: 'AP Entry', tabSL: 'Start List', tabRE: 'Results',
+    apNote: 'Enter your Announced Performance for Volcano Cup 2026. You may update your AP until the deadline.',
+    labelName: 'Full Name', labelNat: 'Nationality', labelGender: 'Gender',
+    labelDisc: 'Discipline', labelDepth: 'Depth (m)', labelDT: 'Dive Time (mm:ss)',
+    labelRemarks: 'Remarks (optional)', btnSubmit: 'Submit AP',
+    slTitle: 'Start List', slNote: 'Start list is pending official confirmation.',
+    resultsWaitMsg: 'Results not yet available',
+    resultsWaitSub: 'Results will appear here after the competition.'
+  },
+  ja: {
+    deadlineLabel: 'AP提出締め切り',
+    tabAP: 'AP登録', tabSL: 'スタートリスト', tabRE: '結果',
+    apNote: 'Volcano Cup 2026のAnnouncedPerformanceを入力してください。締め切りまで変更可能です。',
+    labelName: '氏名', labelNat: '国籍', labelGender: '性別',
+    labelDisc: '種目', labelDepth: '深度 (m)', labelDT: 'ダイブタイム (分:秒)',
+    labelRemarks: '備考（任意）', btnSubmit: 'APを登録する',
+    slTitle: 'スタートリスト', slNote: 'スタートリストは確認中です。確定後に通知されます。',
+    resultsWaitMsg: '結果はまだ公開されていません',
+    resultsWaitSub: '大会終了後にここに結果が表示されます。'
+  }
+};
+
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(function(b, i) {
+    b.classList.toggle('active', (i === 0) === (lang === 'en'));
+  });
+  var t = i18n[lang];
+  document.getElementById('deadlineLabel').textContent = t.deadlineLabel;
+  document.getElementById('tab-ap-label').textContent = t.tabAP;
+  document.getElementById('tab-sl-label').textContent = t.tabSL;
+  document.getElementById('tab-re-label').textContent = t.tabRE;
+  document.getElementById('apNote').textContent = t.apNote;
+  document.getElementById('labelName').textContent = t.labelName;
+  document.getElementById('labelNat').textContent = t.labelNat;
+  document.getElementById('labelGender').textContent = t.labelGender;
+  document.getElementById('labelDisc').textContent = t.labelDisc;
+  document.getElementById('labelDepth').textContent = t.labelDepth;
+  document.getElementById('labelDT').textContent = t.labelDT;
+  document.getElementById('labelRemarks').textContent = t.labelRemarks;
+  document.getElementById('btnSubmitAP').textContent = t.btnSubmit;
+  document.getElementById('slTitle').textContent = t.slTitle;
+  document.getElementById('slNote').textContent = t.slNote;
+  document.getElementById('resultsWaitMsg').textContent = t.resultsWaitMsg;
+  document.getElementById('resultsWaitSub').textContent = t.resultsWaitSub;
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(function(t, i) {
+    t.classList.toggle('active',
+      (tab === 'ap' && i === 0) ||
+      (tab === 'startlist' && i === 1) ||
+      (tab === 'results' && i === 2)
+    );
+  });
+  document.getElementById('panel-ap').classList.toggle('active', tab === 'ap');
+  document.getElementById('panel-startlist').classList.toggle('active', tab === 'startlist');
+  document.getElementById('panel-results').classList.toggle('active', tab === 'results');
+}
+
+function selectDisc(disc) {
+  selectedDisc = disc;
+  document.querySelectorAll('.disc-btn').forEach(function(b) {
+    b.classList.toggle('selected', b.textContent === disc);
+  });
+}
+
+function showAPForm() {
+  document.getElementById('apSuccess').style.display = 'none';
+  document.getElementById('apForm').style.display = 'block';
+}
+
+function submitAP() {
+  var name = document.getElementById('inputName').value.trim();
+  var nat = document.getElementById('inputNat').value.trim();
+  var gender = document.getElementById('inputGender').value;
+  var depth = document.getElementById('inputDepth').value;
+  var dtM = document.getElementById('inputDTm').value;
+  var dtS = document.getElementById('inputDTs').value;
+
+  if (!name) { alert('Please enter your name.'); return; }
+  if (!selectedDisc) { alert('Please select a discipline.'); return; }
+  if (!depth) { alert('Please select your depth.'); return; }
+
+  var dt = (dtM && dtS) ? dtM + ':' + dtS : '';
+
+  document.getElementById('apSummary').innerHTML =
+    '<div class="ap-summary-row"><span class="ap-summary-lbl">Name</span><span class="ap-summary-val">' + name + '</span></div>' +
+    '<div class="ap-summary-row"><span class="ap-summary-lbl">Nationality</span><span class="ap-summary-val">' + (nat||'—') + '</span></div>' +
+    '<div class="ap-summary-row"><span class="ap-summary-lbl">Discipline</span><span class="ap-summary-val">' + selectedDisc + '</span></div>' +
+    '<div class="ap-summary-row"><span class="ap-summary-lbl">AP</span><span class="ap-summary-val">' + depth + 'm' + (dt?' / '+dt:'') + '</span></div>';
+
+  document.getElementById('apForm').style.display = 'none';
+  document.getElementById('apSuccess').style.display = 'block';
+}
+
+function showProtest() {
+  alert('Protest form - to be implemented with Supabase');
+}
+
+// 深度プルダウン初期化
+var depthSel = document.getElementById('inputDepth');
+for (var d = 200; d >= 1; d--) {
+  var opt = document.createElement('option');
+  opt.value = String(d);
+  opt.textContent = d + 'm';
+  depthSel.appendChild(opt);
+}
+
+// DTプルダウン初期化
+var dtMSel = document.getElementById('inputDTm');
+var dtSSel = document.getElementById('inputDTs');
+for (var m = 0; m <= 29; m++) {
+  var opt2 = document.createElement('option');
+  opt2.value = String(m).padStart(2,'0');
+  opt2.textContent = String(m).padStart(2,'0');
+  dtMSel.appendChild(opt2);
+}
+for (var s = 0; s <= 59; s++) {
+  var opt3 = document.createElement('option');
+  opt3.value = String(s).padStart(2,'0');
+  opt3.textContent = String(s).padStart(2,'0');
+  dtSSel.appendChild(opt3);
+}
+</script>
+</body>
+</html>

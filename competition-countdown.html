@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Competition Countdown — Freediving Japan</title>
+<style>
+:root {
+  --bg:       #04161f;
+  --surface:  #0c2738;
+  --surface2: #123146;
+  --border:   rgba(168,236,232,0.14);
+  --teal:     #2ec4b6;
+  --teal2:    #a8ece8;
+  --text:     rgba(255,255,255,0.92);
+  --muted:    rgba(255,255,255,0.40);
+  --sub:      rgba(255,255,255,0.62);
+  --warn:     #f59e0b;
+  --danger:   #ef4444;
+  --success:  #22c55e;
+  --r: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif;
+  background: var(--bg); color: var(--text);
+  min-height: 100vh; -webkit-font-smoothing: antialiased;
+}
+
+/* HEADER */
+.header {
+  background: rgba(6,32,46,0.9); border-bottom: 1px solid var(--border);
+  padding: 0 20px; height: 52px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo { font-size: 14px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+.logo span { color: var(--teal); }
+.header-right { display: flex; align-items: center; gap: 14px; }
+.status-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--muted); display: inline-block; margin-right: 6px;
+}
+.status-dot.live { background: var(--success); box-shadow: 0 0 6px var(--success); animation: pulse 1.5s infinite; }
+.status-text { font-size: 12px; color: var(--sub); }
+
+/* DELAY BUTTON */
+.delay-btn {
+  padding: 6px 14px; border-radius: 6px;
+  background: rgba(245,158,11,0.15); color: var(--warn);
+  border: 1px solid rgba(245,158,11,0.3);
+  font-size: 12px; font-weight: 700; cursor: pointer;
+  font-family: inherit; transition: all 0.2s;
+}
+.delay-btn:hover { background: rgba(245,158,11,0.25); }
+
+/* DELAY BANNER */
+.delay-banner {
+  display: none;
+  background: rgba(245,158,11,0.12);
+  border-bottom: 1px solid rgba(245,158,11,0.3);
+  padding: 8px 20px;
+  font-size: 13px; color: var(--warn);
+  text-align: center; font-weight: 600;
+}
+.delay-banner.show { display: block; }
+
+/* VENUE SELECTOR */
+.venue-selector {
+  display: flex; align-items: center; gap: 0;
+  background: var(--surface2); border-radius: 8px; padding: 3px;
+}
+.venue-btn {
+  padding: 5px 14px; border-radius: 6px;
+  border: none; font-size: 12px; font-weight: 700;
+  font-family: inherit; cursor: pointer;
+  color: var(--muted); background: transparent;
+  transition: all 0.2s;
+}
+.venue-btn.active { background: var(--teal); color: #fff; }
+
+/* MODAL */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7); z-index: 500;
+  align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 24px; width: 90%; max-width: 480px;
+  max-height: 90vh; overflow-y: auto;
+}
+.modal-title { font-size: 16px; font-weight: 800; margin-bottom: 16px; }
+.modal-close {
+  float: right; background: none; border: none;
+  color: var(--muted); font-size: 20px; cursor: pointer;
+}
+.modal-foot { display: flex; gap: 8px; margin-top: 20px; }
+.btn-modal-primary { flex:1; padding:10px; background:var(--teal); color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
+.btn-modal-cancel  { padding:10px 16px; background:var(--surface2); color:var(--sub); border:1px solid var(--border); border-radius:8px; font-size:14px; cursor:pointer; font-family:inherit; }
+
+/* INTERVAL RULES */
+.rule-row { display:grid; grid-template-columns:1fr 1fr 30px; gap:8px; margin-bottom:8px; align-items:center; }
+.rule-label { font-size:11px; color:var(--muted); margin-bottom:4px; }
+.fi {
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:6px; color:var(--text); padding:7px 10px;
+  font-size:13px; font-family:inherit; width:100%;
+}
+.fi:focus { outline:none; border-color:var(--teal); }
+select.fi { cursor:pointer; }
+select.fi option { background:var(--surface2); color:var(--text); }
+.time-select-wrap { display:flex; gap:3px; align-items:center; }
+.time-sep { font-size:14px; color:var(--muted); font-weight:700; }
+.time-select { background:var(--surface2); border:1px solid var(--border); border-radius:6px; color:var(--text); padding:7px 4px; font-size:13px; font-family:inherit; text-align:center; cursor:pointer; flex:1; }
+.time-select:focus { outline:none; border-color:var(--teal); }
+.fi::placeholder { color:var(--muted); }
+.del-rule-btn { background:none; border:none; color:var(--muted); cursor:pointer; font-size:18px; padding:0; }
+.del-rule-btn:hover { color:var(--danger); }
+.add-rule-btn {
+  width:100%; padding:7px; background:none;
+  border:1px dashed var(--border); border-radius:6px;
+  color:var(--muted); font-size:12px; cursor:pointer;
+  font-family:inherit; margin-top:4px;
+}
+.add-rule-btn:hover { border-color:var(--teal); color:var(--teal2); }
+
+/* DELAY INPUT */
+.delay-input-wrap { display:flex; align-items:center; gap:10px; margin-top:12px; }
+.delay-number { font-size:32px; font-weight:800; color:var(--warn); text-align:center; min-width:60px; }
+.delay-stepper { display:flex; flex-direction:column; gap:4px; }
+.step-btn {
+  width:32px; height:28px; border-radius:6px;
+  background:var(--surface2); border:1px solid var(--border);
+  color:var(--text); font-size:16px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+}
+.step-btn:hover { border-color:var(--warn); color:var(--warn); }
+
+/* MAIN */
+.main { display:grid; grid-template-columns:1fr 340px; min-height:calc(100vh - 52px); }
+
+/* STAGE */
+.stage { padding:28px 24px; display:flex; flex-direction:column; gap:18px; border-right:1px solid var(--border); }
+.clock-wrap { text-align:center; padding:20px 0; }
+.realtime-clock {
+  font-size:48px; font-weight:800; letter-spacing:-1px;
+  font-variant-numeric:tabular-nums; color:var(--sub);
+  line-height:1; margin-bottom:12px;
+}
+.realtime-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.12em; color:var(--muted); margin-bottom:4px; }
+.clock-divider { width:40px; height:1px; background:var(--border); margin:10px auto 10px; }
+.clock-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.12em; color:var(--muted); margin-bottom:8px; }
+.clock {
+  font-size:88px; font-weight:800; letter-spacing:-4px;
+  font-variant-numeric:tabular-nums; color:var(--teal2);
+  text-shadow:0 0 40px rgba(46,196,182,0.4); line-height:1; transition:color 0.3s;
+}
+.clock.warn   { color:var(--warn);    text-shadow:0 0 40px rgba(245,158,11,0.4); }
+.clock.danger { color:var(--danger);  text-shadow:0 0 40px rgba(239,68,68,0.5); animation:shake 0.3s; }
+.clock.ot     { color:var(--success); text-shadow:0 0 40px rgba(34,197,94,0.5); }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+.progress-bar { height:4px; background:var(--surface2); border-radius:2px; overflow:hidden; margin-top:12px; }
+.progress-fill { height:100%; background:var(--teal); border-radius:2px; transition:width 1s linear, background 0.3s; }
+
+.current-card {
+  background:linear-gradient(135deg,rgba(46,196,182,0.12),rgba(14,61,92,0.6));
+  border:1px solid rgba(46,196,182,0.3); border-radius:16px; padding:20px 22px; position:relative; overflow:hidden;
+}
+.current-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--teal),transparent); }
+.current-no { font-size:11px; font-weight:700; color:var(--teal); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:4px; }
+.current-name { font-size:26px; font-weight:800; color:#fff; letter-spacing:-0.5px; }
+.current-meta { display:flex; gap:14px; margin-top:10px; flex-wrap:wrap; }
+.meta-item .meta-lbl { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; }
+.meta-item .meta-val { font-size:15px; font-weight:700; color:var(--teal2); margin-top:2px; }
+
+.next-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:14px 18px; display:flex; align-items:center; gap:14px; }
+.next-label { font-size:10px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:3px; }
+.next-name { font-size:15px; font-weight:700; color:var(--sub); }
+.next-info { font-size:12px; color:var(--muted); margin-top:2px; }
+.next-ot { margin-left:auto; text-align:right; flex-shrink:0; }
+.next-ot-lbl { font-size:10px; color:var(--muted); }
+.next-ot-val { font-size:18px; font-weight:800; color:var(--sub); }
+
+.announce-log { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:14px 16px; max-height:140px; overflow-y:auto; }
+.log-title { font-size:10px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px; }
+.log-item { font-size:12px; color:var(--sub); padding:4px 0; border-bottom:1px solid var(--border); }
+.log-item:last-child { border-bottom:none; }
+.log-time { color:var(--muted); font-size:10px; margin-right:8px; }
+.log-item.hi { color:var(--teal2); }
+
+.controls { display:flex; gap:8px; }
+.btn { flex:1; padding:11px; border-radius:var(--r); border:none; font-size:13px; font-weight:700; font-family:inherit; cursor:pointer; transition:all 0.2s; }
+.btn-start  { background:var(--teal); color:#fff; }
+.btn-start:hover { background:var(--teal2); color:#0b2d45; }
+.btn-pause  { background:var(--surface2); color:var(--warn); border:1px solid rgba(245,158,11,0.3); }
+.btn:disabled { opacity:0.4; cursor:not-allowed; }
+.dns-btn {
+  padding:2px 7px; border-radius:4px; font-size:10px; font-weight:600;
+  background:transparent; color:var(--muted);
+  border:1px solid rgba(255,255,255,0.1); cursor:pointer;
+  font-family:inherit; transition:all 0.2s; white-space:nowrap;
+}
+.dns-btn:hover { border-color:rgba(255,255,255,0.25); color:var(--sub); }
+.dns-btn.active { background:rgba(255,255,255,0.06); color:var(--muted); border-color:rgba(255,255,255,0.15); }
+.ath-row.dns { opacity:0.35; }
+.btn-dive {
+  width:100%; padding:14px; border-radius:var(--r);
+  background:linear-gradient(135deg, #0e6a7a, var(--teal));
+  color:#fff; border:none; font-size:16px; font-weight:800;
+  font-family:inherit; cursor:pointer; transition:all 0.2s;
+  letter-spacing:0.04em;
+  box-shadow: 0 4px 20px rgba(46,196,182,0.3);
+}
+.btn-dive:hover { box-shadow:0 6px 24px rgba(46,196,182,0.5); transform:translateY(-1px); }
+.btn-dive:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
+.btn-end-dive {
+  width:100%; padding:12px; border-radius:var(--r);
+  background:rgba(239,68,68,0.15); color:#f87171;
+  border:1px solid rgba(239,68,68,0.3);
+  font-size:15px; font-weight:800;
+  font-family:inherit; cursor:pointer; transition:all 0.2s;
+  margin-top:8px; display:none;
+}
+.btn-end-dive:hover { background:rgba(239,68,68,0.3); }
+.btn-end-dive.active { display:block; }
+.dive-timer-wrap {
+  display:none;
+  background:linear-gradient(135deg, rgba(46,196,182,0.15), rgba(14,61,92,0.8));
+  border:1px solid rgba(46,196,182,0.4);
+  border-radius:var(--r);
+  padding:16px;
+  text-align:center;
+  margin-top:0;
+}
+.dive-timer-wrap.active { display:block; }
+.dive-timer-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--teal); margin-bottom:6px; }
+.dive-timer { font-size:56px; font-weight:800; color:#fff; font-variant-numeric:tabular-nums; letter-spacing:-2px; line-height:1; }
+.dive-timer.ht { color:var(--warn); text-shadow:0 0 20px rgba(245,158,11,0.5); }
+
+/* SIDEBAR */
+.sidebar { display:flex; flex-direction:column; background:var(--surface); }
+.sidebar-head { padding:14px 18px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.sidebar-title { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--sub); flex-shrink:0; }
+.import-btn { padding:5px 10px; border-radius:6px; background:var(--teal); color:#fff; border:none; font-size:11px; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap; }
+
+.drop-zone { margin:12px; border:1.5px dashed var(--border); border-radius:var(--r); padding:18px; text-align:center; cursor:pointer; transition:all 0.2s; font-size:12px; color:var(--muted); }
+.drop-zone:hover,.drop-zone.over { border-color:var(--teal); color:var(--teal2); }
+
+/* SEA SETUP */
+.sea-setup { padding:12px 16px; border-bottom:1px solid var(--border); }
+.sea-setup-title { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; }
+.setup-link { font-size:11px; color:var(--teal); cursor:pointer; font-weight:600; }
+.first-ot-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px; }
+.fld-label { font-size:10px; color:var(--muted); margin-bottom:4px; }
+.gen-btn { width:100%; padding:8px; background:var(--teal); color:#fff; border:none; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
+.gen-btn:hover { background:var(--teal2); color:#0b2d45; }
+
+/* ATHLETE LIST */
+.athlete-list { flex:1; overflow-y:auto; }
+.ath-row { display:flex; align-items:center; gap:8px; padding:8px 12px; border-bottom:1px solid var(--border); font-size:12px; transition:background 0.15s; }
+.ath-row.current { background:rgba(46,196,182,0.1); border-left:3px solid var(--teal); padding-left:9px; }
+.ath-row.done { opacity:0.4; }
+.ath-main { flex:1; cursor:pointer; min-width:0; }
+.ath-main:active { opacity:0.7; }
+.ath-row1 { display:flex; align-items:center; gap:6px; margin-bottom:3px; }
+.ath-row2 { display:flex; flex-wrap:wrap; gap:5px; }
+.ath-no { font-size:11px; color:var(--muted); width:18px; flex-shrink:0; }
+.ath-name { flex:1; font-weight:700; color:var(--text); font-size:13px; }
+.ath-disc { font-size:10px; color:var(--teal2); background:rgba(46,196,182,0.1); padding:2px 6px; border-radius:4px; flex-shrink:0; }
+.ath-detail { font-size:10px; color:var(--sub); background:var(--surface2); padding:2px 6px; border-radius:4px; }
+
+/* MANUAL */
+.manual-section { padding:12px; border-top:1px solid var(--border); }
+.manual-title { font-size:10px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px; }
+.manual-row { display:flex; flex-direction:column; gap:4px; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid var(--border); }
+.manual-row-top { display:grid; grid-template-columns:28px 1fr auto auto; gap:4px; align-items:center; }
+.manual-row-bottom { display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; align-items:center; }
+.manual-row-sublabel { font-size:10px; color:var(--sub); margin-bottom:4px; letter-spacing:0.03em; font-weight:600; }
+.add-row-btn { width:100%; padding:6px; background:none; border:1px dashed var(--border); border-radius:6px; color:var(--muted); font-size:12px; cursor:pointer; font-family:inherit; margin-top:2px; }
+.add-row-btn:hover { border-color:var(--teal); color:var(--teal2); }
+.load-btn { width:100%; padding:9px; margin-top:8px; background:var(--teal); color:#fff; border:none; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
+
+@media(max-width:768px){
+  .main{grid-template-columns:1fr;}
+  .clock{font-size:60px;}
+  .current-name{font-size:20px;}
+  .sidebar{border-top:1px solid var(--border);}
+}
+</style>
+</head>
+<body>
+
+<!-- DELAY BANNER -->
+<div class="delay-banner" id="delayBanner"></div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="logo">FreeDive<span>Japan</span> — Competition</div>
+  <div class="header-right">
+    <div class="venue-selector">
+      <button class="venue-btn active" id="btnSea"  onclick="setVenue('sea')">🌊 Sea</button>
+      <button class="venue-btn"        id="btnPool" onclick="setVenue('pool')">🏊 Pool</button>
+    </div>
+    <button class="delay-btn" onclick="openDelayModal()">⏱ Delay</button>
+    <div>
+      <span class="status-dot" id="statusDot"></span>
+      <span class="status-text" id="statusText">Ready</span>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- STAGE -->
+  <div class="stage">
+    <div class="clock-wrap">
+      <div class="realtime-label" id="dateLabel">— / —</div>
+      <div class="realtime-clock" id="realtimeClock">—:——:——</div>
+      <div class="clock-divider"></div>
+      <div class="clock-label" id="clockLabel">Time to OT</div>
+      <div class="clock" id="clock">0:00</div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    </div>
+
+    <div class="current-card">
+      <div class="current-no"  id="currentNo">— / —</div>
+      <div class="current-name" id="currentName">Load athlete list to begin</div>
+      <div class="current-meta" id="currentMeta"></div>
+      <button class="btn-dive" id="btnDive" onclick="startDiving()" disabled style="margin-top:16px;">🤿 Start Diving</button>
+      <button class="btn-end-dive" id="btnEndDive" onclick="endDiving()">🏁 End Diving</button>
+    </div>
+
+    <div class="dive-timer-wrap" id="diveTimerWrap">
+      <div class="dive-timer-label">🤿 Dive Time</div>
+      <div class="dive-timer" id="diveTimerDisplay">0:00</div>
+    </div>
+
+    <div class="next-card" id="nextCard" style="display:none">
+      <div style="flex:1">
+        <div class="next-label">Up Next</div>
+        <div class="next-name" id="nextName">—</div>
+        <div class="next-info" id="nextInfo">—</div>
+      </div>
+      <div class="next-ot">
+        <div class="next-ot-lbl">OT</div>
+        <div class="next-ot-val" id="nextOT">—</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-start" id="btnStart" onclick="startCountdown()" disabled style="flex:1;">▶ Start Competition</button>
+    </div>
+
+    <div class="announce-log">
+      <div class="log-title">Announcements</div>
+      <div id="logList"><div style="color:var(--muted);font-size:12px;">No announcements yet.</div></div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-head">
+      <span class="sidebar-title" id="sidebarTitle">Athlete List</span>
+      <button class="import-btn" onclick="document.getElementById('csvFile').click()">📂 CSV</button>
+      <input type="file" id="csvFile" accept=".csv" style="display:none" onchange="handleCSV(this.files[0])">
+    </div>
+
+    <!-- SEA SETUP (海モードのみ) -->
+    <div class="sea-setup" id="seaSetup">
+      <div class="sea-setup-title">
+        OT Interval Rules
+        <span class="setup-link" onclick="openRulesModal()">✏️ Edit</span>
+      </div>
+      <div id="rulesPreview" style="font-size:11px;color:var(--sub);margin-bottom:10px;"></div>
+      <div class="first-ot-row">
+        <div>
+          <div class="fld-label">First athlete OT</div>
+          <div id="firstOTWrap" class="time-select-wrap"></div>
+        </div>
+        <div>
+          <div class="fld-label">Start No.</div>
+          <input class="fi" id="startNo" placeholder="1" type="number" min="1" value="1">
+        </div>
+      </div>
+      <button class="gen-btn" onclick="generateFromCSV()">⚡ Generate Start List</button>
+    </div>
+
+    <div class="drop-zone" id="dropZone"
+      onclick="document.getElementById('csvFile').click()"
+      ondragover="event.preventDefault();this.classList.add('over')"
+      ondragleave="this.classList.remove('over')"
+      ondrop="event.preventDefault();this.classList.remove('over');handleCSV(event.dataTransfer.files[0])">
+      📂 Drop CSV or click to import<br>
+      <span style="font-size:10px;margin-top:4px;display:block">No,Name,Nationality,Gender,Disc,AP_m,AP_time</span>
+    </div>
+
+    <div class="athlete-list" id="athleteList"></div>
+
+    <!-- MANUAL (プールモードで主に使用) -->
+    <div class="manual-section" id="manualSection">
+      <div class="manual-title">Manual Entry</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
+        <div style="font-size:11px;color:var(--muted);white-space:nowrap;">Competition Date</div>
+        <select class="fi" id="compMonth" style="flex:1;"></select>
+        <select class="fi" id="compDay"   style="flex:1;"></select>
+      </div>
+
+      <div id="manualRows"></div>
+      <button class="add-row-btn" onclick="addManualRow()">＋ Add</button>
+      <button class="load-btn" onclick="loadManual()">Load List</button>
+    </div>
+  </div>
+</div>
+
+<!-- RULES MODAL -->
+<div class="modal-overlay" id="rulesModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('rulesModal')">✕</button>
+    <div class="modal-title">OT Interval Rules (Sea)</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:16px;">
+      If AP ≥ threshold → use this interval (minutes). Rules are checked from highest to lowest.
+    </p>
+    <div style="display:grid;grid-template-columns:1fr 1fr 30px;gap:6px;margin-bottom:6px;">
+      <span style="font-size:10px;color:var(--muted)">AP ≥ (m)</span>
+      <span style="font-size:10px;color:var(--muted)">Interval (min)</span>
+      <span></span>
+    </div>
+    <div id="ruleRows"></div>
+    <button class="add-rule-btn" onclick="addRuleRow()">＋ Add rule</button>
+    <div class="modal-foot">
+      <button class="btn-modal-cancel" onclick="closeModal('rulesModal')">Cancel</button>
+      <button class="btn-modal-primary" onclick="saveRules()">Save Rules</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELAY MODAL -->
+<div class="modal-overlay" id="delayModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('delayModal')">✕</button>
+    <div class="modal-title">⏱ Add Delay</div>
+    <p style="font-size:13px;color:var(--sub);">Shift all remaining OTs by this many minutes.</p>
+    <div style="margin-top:16px;">
+      <div class="fld-label" style="margin-bottom:8px;">Delay (minutes)</div>
+      <select class="fi" id="delaySelect" style="font-size:18px;font-weight:700;text-align:center;"></select>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-modal-cancel" onclick="closeModal('delayModal')">Cancel</button>
+      <button class="btn-modal-primary" onclick="applyDelay()">Apply Delay</button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+var athletes = [];
+var rawCSV = []; 
+var currentIdx = 0;
+var timer = null;
+var isPaused = false;
+var announcedAt = {};
+var venue = 'sea';
+var delayMins = 5;
+var totalDelayApplied = 0;
+var manualRowCount = 0;
+
+
+var intervalRules = [
+  { ap: 100, interval: 13 },
+  { ap: 70,  interval: 11 },
+  { ap: 40,  interval: 9  },
+  { ap: 0,   interval: 7  },
+];
+
+
+var SEA_DISCS  = ['CWT','CWTB','CNF','FIM'];
+var POOL_DISCS = ['STA','DYN','DNF','DYNB'];
+
+function getDiscOptions() {
+  return venue === 'sea' ? SEA_DISCS : POOL_DISCS;
+}
+
+function updateAllDiscSelects() {
+  var opts = getDiscOptions();
+  for (var i = 1; i <= manualRowCount; i++) {
+    var sel = document.getElementById('m-disc-' + i);
+    if (!sel) continue;
+    var cur = sel.value;
+    sel.innerHTML = '<option value="">Disc</option>' +
+      opts.map(function(d) {
+        return '<option value="' + d + '"' + (cur === d ? ' selected' : '') + '>' + d + '</option>';
+      }).join('');
+  }
+}
+
+function setVenue(v) {
+  venue = v;
+  document.getElementById('btnSea').classList.toggle('active', v === 'sea');
+  document.getElementById('btnPool').classList.toggle('active', v === 'pool');
+  document.getElementById('seaSetup').style.display = v === 'sea' ? 'block' : 'none';
+  renderRulesPreview();
+  updateAllDiscSelects();
+}
+
+
+function renderRulesPreview() {
+  var sorted0 = intervalRules.slice().sort(function(a,b){ return b.ap - a.ap; });
+  document.getElementById('rulesPreview').innerHTML = sorted0.map(function(r){ return 'AP ≥ ' + r.ap + 'm → ' + r.interval + ' min'; }).join(' &nbsp;·&nbsp; ');
+}
+
+function openRulesModal() {
+  var sorted2 = intervalRules.slice().sort(function(a,b){ return b.ap - a.ap; });
+  var container = document.getElementById('ruleRows');
+  container.innerHTML = '';
+  sorted1.forEach(function(r, i){ addRuleRow(r.ap, r.interval); });
+  openModal('rulesModal');
+}
+
+var ruleRowCount = 0;
+function addRuleRow(ap='', interval='') {
+  ruleRowCount++;
+  var id = ruleRowCount;
+  var div = document.createElement('div');
+  div.className = 'rule-row';
+  div.id = 'rr-' + id;
+  var apOpts = '<option value="">—</option>';
+  for (var d = 200; d >= 0; d--) {
+    apOpts += '<option value="' + d + '"' + (String(ap) === String(d) ? ' selected' : '') + '>' + d + 'm</option>';
+  }
+  var intOpts = '<option value="">—</option>';
+  for (var m = 1; m <= 30; m++) {
+    intOpts += '<option value="' + m + '"' + (String(interval) === String(m) ? ' selected' : '') + '>' + m + ' min</option>';
+  }
+  div.innerHTML =
+    '<select class="fi" id="rap-' + id + '">' + apOpts + '</select>' +
+    '<select class="fi" id="rint-' + id + '">' + intOpts + '</select>' +
+    '<button class="del-rule-btn" onclick="document.getElementById(\'rr-' + id + '\').remove()">×</button>';
+  document.getElementById('ruleRows').appendChild(div);
+}
+
+function saveRules() {
+  var rows = document.querySelectorAll('#ruleRows .rule-row');
+  var newRules = [];
+  rows.forEach(function(row) {
+    var id = row.id.replace('rr-','');
+    var apEl = document.getElementById('rap-'+id);
+    var ivEl = document.getElementById('rint-'+id);
+    var ap = apEl ? parseFloat(apEl.value) : NaN;
+    var iv = ivEl ? parseFloat(ivEl.value) : NaN;
+    if (!isNaN(ap) && !isNaN(iv)) newRules.push({ ap: ap, interval: iv });
+  });
+  if (!newRules.length) { alert('Please add at least one rule.'); return; }
+  intervalRules = newRules.sort(function(a,b){ return b.ap - a.ap; });
+  renderRulesPreview();
+  closeModal('rulesModal');
+}
+
+function getInterval(ap_m) {
+  var depth = parseFloat(ap_m) || 0;
+  var sorted2 = intervalRules.slice().sort(function(a,b){ return b.ap - a.ap; });
+  for (var i = 0; i < sorted2.length; i++) {
+    if (depth >= sorted2[i].ap) return sorted2[i].interval;
+  }
+  var last = sorted2[sorted2.length - 1];
+  return last ? last.interval : 10;
+}
+
+
+function otToMinutes(otStr) {
+  var _ot = otStr.split(':').map(Number); var h = _ot[0]; var m = _ot[1];
+  return h * 60 + m;
+}
+
+function minutesToOT(totalMin) {
+  var h = Math.floor(totalMin / 60);
+  var m = totalMin % 60;
+  return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+}
+
+function otToDate(otStr) {
+  var parts = otStr.split(':');
+  var h = parseInt(parts[0]) || 0;
+  var m = parseInt(parts[1]) || 0;
+  var d = new Date();
+  
+  var mSel = document.getElementById('compMonth');
+  var dSel = document.getElementById('compDay');
+  if (mSel && mSel.value && dSel && dSel.value) {
+    d.setMonth(parseInt(mSel.value) - 1);
+    d.setDate(parseInt(dSel.value));
+  }
+  d.setHours(h, m, 0, 0);
+  return d;
+}
+
+function formatTime(secs) {
+  var abs = Math.abs(secs);
+  var mm = Math.floor(abs / 60);
+  var ss = abs % 60;
+  var sign = secs < 0 ? '+' : '';
+  return sign + mm + ':' + String(ss).padStart(2,'0');
+}
+
+function nowStr() {
+  var d = new Date();
+  return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0') + ':' + String(d.getSeconds()).padStart(2,'0');
+}
+
+
+function handleCSV(file) {
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var lines = e.target.result.trim().split('\n');
+    var start = lines[0].toLowerCase().indexOf('name') >= 0 ? 1 : 0;
+    rawCSV = [];
+    for (var i = start; i < lines.length; i++) {
+      var cols = lines[i].split(',').map(function(c){ return c.trim().replace(/"/g,''); });
+      if (cols.length < 2) continue;
+      rawCSV.push({
+        no:          cols[0] || String(i),
+        name:        cols[1],
+        nationality: cols[2] || '',
+        gender:      cols[3] || '',
+        disc:        cols[4] || '',
+        ap_m:        cols[5] || '',
+        ap_t:        cols[6] || '',
+        wt:          '',
+        ot:          '',
+      });
+    }
+    document.getElementById('dropZone').style.display = 'none';
+    if (venue === 'pool') {
+      
+      loadAthletes(rawCSV.map(function(r) {
+        var otMin = otToMinutes(r.ot);
+        var wtMin = otMin - 45;
+        var wt = wtMin >= 0 ? minutesToOT(wtMin) : r.wt || '';
+        return Object.assign({}, r, {wt: wt, done: false});
+      }));
+    } else {
+      
+      addLog('CSV loaded: ' + rawCSV.length + ' athletes. Set first OT and click Generate.', false);
+      renderRawPreview();
+    }
+  };
+  reader.readAsText(file);
+}
+
+function renderRawPreview() {
+  var el = document.getElementById('athleteList');
+  el.innerHTML = rawCSV.map(function(a) {
+    return '<div class="ath-row">' +
+      '<span class="ath-no">' + a.no + '</span>' +
+      '<span class="ath-name">' + a.name + '</span>' +
+      '<span class="ath-disc">' + a.disc + '</span>' +
+      '<span class="ath-ot" style="color:var(--muted)">AP:' + (a.ap_m||'?') + 'm</span>' +
+    '</div>';
+  }).join('');
+}
+
+
+function generateFromCSV() {
+  var firstOT = timeSelectValue('firstOT-h','firstOT-m');
+  
+  if (firstOT) firstOT = firstOT.substring(0,5);
+  if (!firstOT || firstOT === ':') { alert('Please set the first athlete OT.'); return; }
+  if (!rawCSV.length) { alert('Please import a CSV first.'); return; }
+
+  var currentMin = otToMinutes(firstOT);
+  var result = rawCSV.map(function(a, i) {
+    var ot = minutesToOT(currentMin);
+    var wtMin = currentMin - 45;
+    var wt = wtMin >= 0 ? minutesToOT(wtMin) : minutesToOT(wtMin + 24*60);
+    var interval = getInterval(a.ap_m);
+    var next = currentMin + interval;
+    currentMin = next;
+    return Object.assign({}, a, {ot: ot, wt: wt, done: false});
+  });
+
+  loadAthletes(result);
+  addLog('Start list generated. First OT: ' + firstOT, false);
+}
+
+function loadAthletes(list) {
+  athletes = list;
+  currentIdx = 0;
+  announcedAt = {};
+  renderList();
+  updateStage();
+  document.getElementById('btnStart').disabled = false;
+  document.getElementById('btnDive').disabled = true;
+  addLog('Loaded ' + athletes.length + ' athletes', false);
+
+  
+  document.getElementById('manualRows').innerHTML = '';
+  manualRowCount = 0;
+  list.forEach(function(a) {
+    addManualRow();
+    var id = manualRowCount;
+
+    
+    var noEl = document.getElementById('m-no-' + id);
+    if (noEl) noEl.value = a.no || '';
+
+    
+    var nameEl = document.getElementById('m-name-' + id);
+    if (nameEl) nameEl.value = a.name || '';
+
+    
+    var natEl = document.getElementById('m-nat-' + id);
+    if (natEl) natEl.value = a.nationality || '';
+
+    
+    var genderEl = document.getElementById('m-gender-' + id);
+    if (genderEl && a.gender) genderEl.value = a.gender;
+
+    
+    var otH = document.getElementById('m-ot-' + id + '-h');
+    var otM = document.getElementById('m-ot-' + id + '-m');
+    if (otH && otM && a.ot) {
+      var otParts = a.ot.split(':');
+      otH.value = otParts[0] ? String(parseInt(otParts[0])).padStart(2,'0') : '';
+      otM.value = otParts[1] ? String(parseInt(otParts[1])).padStart(2,'0') : '';
+    }
+
+    
+    var discEl = document.getElementById('m-disc-' + id);
+    if (discEl && a.disc) discEl.value = a.disc;
+
+    
+    var apEl = document.getElementById('m-ap-' + id);
+    if (apEl && a.ap_m) apEl.value = String(parseInt(a.ap_m));
+
+    
+    if (a.ap_t && a.ap_t !== '') {
+      var dtM = document.getElementById('m-dt-' + id + '-m');
+      var dtS = document.getElementById('m-dt-' + id + '-s');
+      var dtParts = a.ap_t.split(':');
+      if (dtM && dtParts[0]) dtM.value = String(parseInt(dtParts[0])).padStart(2,'0');
+      if (dtS && dtParts[1]) dtS.value = String(parseInt(dtParts[1])).padStart(2,'0');
+      autoCalcHT(id);
+    }
+
+    
+    var remarksEl = document.getElementById('m-remarks-' + id);
+    if (remarksEl && a.remarks) remarksEl.value = a.remarks;
+  });
+}
+
+
+function addManualRow() {
+  manualRowCount++;
+  var id = manualRowCount;
+  var div = document.createElement('div');
+  div.className = 'manual-row';
+  div.innerHTML =
+    '<div style="background:var(--surface2);border-radius:10px;padding:12px;border:1px solid var(--border);">' +
+      '<div style="display:grid;grid-template-columns:44px 1fr;gap:6px;margin-bottom:10px;">' +
+        '<div>' +
+          '<div class="manual-row-sublabel">No.</div>' +
+          '<input class="fi" placeholder="' + id + '" id="m-no-' + id + '" style="text-align:center;padding:8px 4px;">' +
+        '</div>' +
+        '<div>' +
+          '<div class="manual-row-sublabel">Name</div>' +
+          '<input class="fi" placeholder="Athlete name" id="m-name-' + id + '">' +
+        '</div>' +
+      '</div>' +
+      '<div style="display:grid;grid-template-columns:60px 80px 1fr;gap:6px;margin-bottom:10px;">' +
+        '<div>' +
+          '<div class="manual-row-sublabel">NAT</div>' +
+          '<input class="fi" placeholder="JPN" id="m-nat-' + id + '" style="text-transform:uppercase;padding:8px 4px;text-align:center;">' +
+        '</div>' +
+        '<div>' +
+          '<div class="manual-row-sublabel">Discipline</div>' +
+          '<select class="fi" id="m-disc-' + id + '" style="padding:8px 4px;"></select>' +
+        '</div>' +
+        '<div>' +
+          '<div class="manual-row-sublabel">OT (Official Top)</div>' +
+          '<div id="m-ot-wrap-' + id + '"></div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px;">' +
+        '<div>' +
+          '<div class="manual-row-sublabel">AP — Announced Performance</div>' +
+          '<select class="fi" id="m-ap-' + id + '"></select>' +
+        '</div>' +
+        '<div>' +
+          '<div class="manual-row-sublabel">DT — Dive Time</div>' +
+          '<div id="m-dt-wrap-' + id + '"></div>' +
+        '</div>' +
+        '<div>' +
+          '<div class="manual-row-sublabel">HT — Half Time (auto)</div>' +
+          '<div id="m-ht-wrap-' + id + '"></div>' +
+        '</div>' +
+      '</div>' +
+      '<div>' +
+        '<div class="manual-row-sublabel">Remarks</div>' +
+        '<select class="fi" id="m-remarks-' + id + '">' +
+          '<option value="">None</option>' +
+          '<option value="National Record Attempt">National Record Attempt</option>' +
+          '<option value="Continental Record Attempt">Continental Record Attempt</option>' +
+          '<option value="World Record Attempt">World Record Attempt</option>' +
+        '</select>' +
+      '</div>' +
+    '</div>';
+  document.getElementById('manualRows').appendChild(div);
+  
+  buildOTSelect('m-ot-wrap-' + id, 'm-ot-' + id);
+  
+  var sel = document.getElementById('m-disc-' + id);
+  var opts = getDiscOptions();
+  sel.innerHTML = '<option value="">Disc</option>' +
+    opts.map(function(d) { return '<option value="' + d + '">' + d + '</option>'; }).join('');
+  
+  var apSel = document.getElementById('m-ap-' + id);
+  apSel.innerHTML = '<option value="">AP(m)</option>';
+  for (var d = 200; d >= 1; d--) {
+    apSel.innerHTML += '<option value="' + d + '">' + d + 'm</option>';
+  }
+  
+  buildMMSSSelect('m-dt-wrap-' + id, 'm-dt-' + id, function() { autoCalcHT(id); });
+  
+  buildMMSSSelect('m-ht-wrap-' + id, 'm-ht-' + id, null);
+}
+
+function loadManual() {
+  var parsed = [];
+  for (var i = 1; i <= manualRowCount; i++) {
+    var nameEl2 = document.getElementById('m-name-'+i); var name = nameEl2 ? nameEl2.value.trim() : '';
+    var otH = document.getElementById('m-ot-'+i+'-h');
+    var otM = document.getElementById('m-ot-'+i+'-m');
+    var ot = (otH && otM) ? (otH.value + ':' + otM.value) : '';
+    if (!name) continue;
+
+    var finalOT = ot;
+    
+    if (venue === 'sea' && !ot) {
+      var firstOT = document.getElementById('firstOT').value.trim();
+      if (!firstOT) { alert('Please set first OT in the Sea Setup section.'); return; }
+      var apEl2 = document.getElementById('m-ap-'+i); var ap = apEl2 ? apEl2.value : '0';
+      var idx = parsed.length;
+      var startMin = otToMinutes(firstOT);
+      for (var j = 0; j < idx; j++) startMin += getInterval(parsed[j].ap_m);
+      finalOT = minutesToOT(startMin);
+    }
+
+    parsed.push({
+      no: (document.getElementById('m-no-'+i) ? document.getElementById('m-no-'+i).value : String(i)),
+      name,
+      ot: finalOT,
+      disc: (document.getElementById('m-disc-'+i) ? document.getElementById('m-disc-'+i).value : ''),
+      ap_m: document.getElementById('m-ap-'+i) ? document.getElementById('m-ap-'+i).value : '',
+      dt: (document.getElementById('m-dt-'+i+'-m') && document.getElementById('m-dt-'+i+'-s'))
+        ? (document.getElementById('m-dt-'+i+'-m').value + ':' + document.getElementById('m-dt-'+i+'-s').value) : '',
+      ht: (document.getElementById('m-ht-'+i+'-m') && document.getElementById('m-ht-'+i+'-s'))
+        ? (document.getElementById('m-ht-'+i+'-m').value + ':' + document.getElementById('m-ht-'+i+'-s').value) : '',
+      nationality: document.getElementById('m-nat-'+i) ? document.getElementById('m-nat-'+i).value.toUpperCase() : '',
+      gender: document.getElementById('m-gender-'+i) ? document.getElementById('m-gender-'+i).value : '',
+      remarks: document.getElementById('m-remarks-'+i) ? document.getElementById('m-remarks-'+i).value : '',
+      ap_t: '', gender: '', wt: '', done: false
+    });
+  }
+  if (!parsed.length) { alert('Please enter at least one athlete name.'); return; }
+  loadAthletes(parsed);
+}
+
+
+function openDelayModal() {
+  var sel = document.getElementById('delaySelect');
+  sel.innerHTML = '';
+  for (var i = 1; i <= 60; i++) {
+    sel.innerHTML += '<option value="' + i + '"' + (i === 5 ? ' selected' : '') + '>' + i + ' min</option>';
+  }
+  openModal('delayModal');
+}
+
+function applyDelay() {
+  if (!athletes.length) { closeModal('delayModal'); return; }
+  delayMins = parseInt(document.getElementById('delaySelect').value) || 5;
+  athletes.forEach(function(a, i) {
+    if (!a.done) {
+      var newMin = otToMinutes(a.ot) + delayMins;
+      a.ot = minutesToOT(newMin);
+    }
+  });
+  totalDelayApplied += delayMins;
+
+  
+  var banner = document.getElementById('delayBanner');
+  banner.textContent = '⏱ Delay applied: +' + delayMins + ' min (total delay: +' + totalDelayApplied + ' min). All remaining OTs updated.';
+  banner.classList.add('show');
+
+  renderList();
+  updateStage();
+  speak('Attention all athletes. The competition has been delayed by ' + delayMins + ' minutes. All Official Tops have been updated.');
+  addLog('⏱ DELAY +' + delayMins + ' min applied. Total delay: +' + totalDelayApplied + ' min', true);
+  closeModal('delayModal');
+}
+
+
+function renderList() {
+  var el = document.getElementById('athleteList');
+  if (!athletes.length) { el.innerHTML = ''; return; }
+  el.innerHTML = athletes.map(function(a, i) {
+    var rowClass = i === currentIdx ? 'current' : (a.done ? 'done' : '');
+    var dnsBtnClass = 'dns-btn' + (a.dns ? ' active' : '');
+    var dnsClass = a.dns ? ' dns' : '';
+    var doneIcon = a.done && !a.dns ? '✅ ' : '';
+    return '<div class="ath-row ' + rowClass + dnsClass + '" id="ath-' + i + '">' +
+      '<div class="ath-main" onclick="jumpToEdit(' + i + ')">' +
+        '<div class="ath-row1">' +
+          '<span class="ath-no">' + a.no + '</span>' +
+          '<span class="ath-name">' + doneIcon + a.name + (a.nationality ? ' <span style="color:var(--muted);font-size:10px;">' + a.nationality + '</span>' : '') + '</span>' +
+          '<span class="ath-disc">' + a.disc + '</span>' +
+        '</div>' +
+        '<div class="ath-row2">' +
+          '<span class="ath-detail">OT ' + a.ot + '</span>' +
+          (a.wt ? '<span class="ath-detail">WT ' + a.wt + '</span>' : '') +
+          (a.ap_m ? '<span class="ath-detail">AP ' + a.ap_m + 'm' + (a.ap_t ? ' / ' + a.ap_t : '') + '</span>' : '') +
+          (a.dt && a.dt !== ':' ? '<span class="ath-detail">DT ' + a.dt + '</span>' : '') +
+          (a.ht && a.ht !== ':' ? '<span class="ath-detail">HT ' + a.ht + '</span>' : '') +
+          (a.remarks ? '<span class="ath-detail" style="color:var(--warn);">⭐ ' + a.remarks + '</span>' : '') +
+        '</div>' +
+      '</div>' +
+      '<button class="' + dnsBtnClass + '" onclick="toggleDNS(' + i + ')" title="Mark as DNS">' + (a.dns ? '✕ DNS' : 'DNS') + '</button>' +
+    '</div>';
+  }).join('');
+  var cur = document.getElementById('ath-' + currentIdx);
+  if (cur) cur.scrollIntoView({ block: 'center', behavior: 'smooth' });
+}
+
+function updateStage() {
+  var a = athletes[currentIdx];
+  if (!a) {
+    document.getElementById('currentName').textContent = 'All athletes completed';
+    document.getElementById('currentNo').textContent = '—';
+    document.getElementById('currentMeta').innerHTML = '';
+    document.getElementById('nextCard').style.display = 'none';
+    document.getElementById('clock').textContent = '—:——';
+    return;
+  }
+  document.getElementById('currentNo').textContent = '#' + a.no + '  (' + (currentIdx+1) + ' / ' + athletes.length + ')';
+  document.getElementById('currentName').textContent = a.name;
+  var metaHTML = '';
+  metaHTML += '<div class="meta-item"><div class="meta-lbl">Discipline</div><div class="meta-val">' + (a.disc||'—') + '</div></div>';
+  metaHTML += '<div class="meta-item"><div class="meta-lbl">OT</div><div class="meta-val">' + a.ot + '</div></div>';
+  if (a.ap_m) metaHTML += '<div class="meta-item"><div class="meta-lbl">AP</div><div class="meta-val">' + a.ap_m + 'm</div></div>';
+  if (a.ap_t) metaHTML += '<div class="meta-item"><div class="meta-lbl">AP Time</div><div class="meta-val">' + a.ap_t + '</div></div>';
+  if (a.dt) metaHTML += '<div class="meta-item"><div class="meta-lbl">DT</div><div class="meta-val">' + a.dt + '</div></div>';
+  if (a.ht) metaHTML += '<div class="meta-item"><div class="meta-lbl">HT</div><div class="meta-val">' + a.ht + '</div></div>';
+  if (a.nationality) metaHTML += '<div class="meta-item"><div class="meta-lbl">NAT</div><div class="meta-val">' + a.nationality + '</div></div>';
+  if (a.gender) metaHTML += '<div class="meta-item"><div class="meta-lbl">Gender</div><div class="meta-val">' + a.gender + '</div></div>';
+  if (a.remarks) metaHTML += '<div class="meta-item" style="grid-column:1/-1;"><div class="meta-lbl">Remarks</div><div class="meta-val" style="color:var(--warn);">⭐ ' + a.remarks + '</div></div>';
+  document.getElementById('currentMeta').innerHTML = metaHTML;
+  var next = athletes[currentIdx+1];
+  if (next) {
+    document.getElementById('nextCard').style.display = 'flex';
+    document.getElementById('nextName').textContent = next.name;
+    document.getElementById('nextInfo').textContent = '#' + next.no + ' · ' + next.disc + (next.ap_m ? ' · ' + next.ap_m + 'm' : '');
+    document.getElementById('nextOT').textContent = next.ot;
+  } else {
+    document.getElementById('nextCard').style.display = 'none';
+  }
+}
+
+
+function startCountdown() {
+  if (!athletes.length) return;
+  
+  if (window.speechSynthesis) {
+    var u = new SpeechSynthesisUtterance('');
+    window.speechSynthesis.speak(u);
+    window.speechSynthesis.cancel();
+  }
+  isPaused = false;
+  document.getElementById('statusDot').className = 'status-dot live';
+  document.getElementById('statusText').textContent = 'Live';
+  
+  var btnStart = document.getElementById('btnStart');
+  if (btnStart) btnStart.parentNode.style.display = 'none';
+  if (timer) clearInterval(timer);
+  timer = setInterval(tick, 1000);
+  
+  setTimeout(function() {
+    speak('Competition started. First athlete, number ' + athletes[currentIdx].no + ', ' + athletes[currentIdx].name + '. Official Top at ' + athletes[currentIdx].ot + '.');
+  }, 500);
+  tick();
+}
+
+function updateRealtimeClock() {
+  var d = new Date();
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var dateEl = document.getElementById('dateLabel');
+  if (dateEl) dateEl.textContent = months[d.getMonth()] + ' ' + d.getDate();
+  var h = String(d.getHours()).padStart(2,'0');
+  var m = String(d.getMinutes()).padStart(2,'0');
+  var s = String(d.getSeconds()).padStart(2,'0');
+  var el = document.getElementById('realtimeClock');
+  if (el) el.textContent = h + ':' + m + ':' + s;
+
+}
+setInterval(updateRealtimeClock, 1000);
+updateRealtimeClock();
+
+function tick() {
+  if (isPaused) return;
+  var a = athletes[currentIdx];
+  if (!a) { stopCountdown(); return; }
+
+  var otDate = otToDate(a.ot);
+  var secs = Math.round((otDate - new Date()) / 1000);
+
+  var pct = Math.min(100, Math.max(0, ((120 - Math.max(0, secs)) / 120) * 100));
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  var clockEl = document.getElementById('clock');
+  if (secs > 120) {
+    clockEl.className = 'clock'; clockEl.textContent = formatTime(secs);
+    document.getElementById('clockLabel').textContent = 'Time to OT';
+  } else if (secs > 30) {
+    clockEl.className = 'clock warn'; clockEl.textContent = formatTime(secs);
+    document.getElementById('clockLabel').textContent = 'Time to OT';
+  } else if (secs > 0) {
+    clockEl.className = 'clock danger'; clockEl.textContent = formatTime(secs);
+    document.getElementById('clockLabel').textContent = 'Time to OT';
+  } else if (secs === 0) {
+    clockEl.className = 'clock ot'; clockEl.textContent = 'OT!';
+    document.getElementById('clockLabel').textContent = 'Official Top';
+  } else {
+    clockEl.className = 'clock ot'; clockEl.textContent = formatTime(secs);
+    document.getElementById('clockLabel').textContent = 'After OT';
+  }
+
+  var fill = document.getElementById('progressFill');
+  fill.style.background = secs <= 0 ? 'var(--success)' : secs <= 30 ? 'var(--danger)' : secs <= 60 ? 'var(--warn)' : 'var(--teal)';
+
+  checkAnnounce(a, secs);
+  
+  if (athletes[currentIdx] && athletes[currentIdx].dns && !announcedAt['dns_skip_'+currentIdx]) {
+    announcedAt['dns_skip_'+currentIdx] = true;
+    speak('Athlete number ' + athletes[currentIdx].no + ', ' + athletes[currentIdx].name + ' is DNS. Moving to next athlete.');
+    addLog('🚫 DNS: ' + athletes[currentIdx].name, true);
+    moveToNext();
+    return;
+  }
+}
+
+function checkAnnounce(a, secs) {
+  var k = currentIdx + '_';
+  var before = [
+    { s:240, key:'240', text:'Four minutes.' },
+    { s:180, key:'180', text:'Three minutes.' },
+    { s:120, key:'120', text:'Two minutes to Official Top.' },
+    { s:90,  key:'90',  text:'One thirty.' },
+    { s:60,  key:'60',  text:'One minute.' },
+    { s:30,  key:'30',  text:'Thirty seconds.' },
+    { s:20,  key:'20',  text:'Twenty.' },
+    { s:10,  key:'10',  text:'Ten.' },
+    { s:5,   key:'5',   text:'Five.' },
+    { s:4,   key:'4',   text:'Four.' },
+    { s:3,   key:'3',   text:'Three.' },
+    { s:2,   key:'2',   text:'Two.' },
+    { s:1,   key:'1',   text:'One.' },
+  ];
+  var after = [
+    { s:-1,  key:'p1',  text:'Plus one.' },
+    { s:-2,  key:'p2',  text:'Two.' },
+    { s:-3,  key:'p3',  text:'Three.' },
+    { s:-4,  key:'p4',  text:'Four.' },
+    { s:-5,  key:'p5',  text:'Five.' },
+    { s:-6,  key:'p6',  text:'Six.' },
+    { s:-7,  key:'p7',  text:'Seven.' },
+    { s:-8,  key:'p8',  text:'Eight.' },
+    { s:-9,  key:'p9',  text:'Nine.' },
+    { s:-10, key:'p10', text:'Ten.' },
+    { s:-20, key:'p20', text:'Twenty.' },
+    { s:-25, key:'p25', text:'Twenty five.' },
+    { s:-26, key:'p26', text:'Twenty six.' },
+    { s:-27, key:'p27', text:'Twenty seven.' },
+    { s:-28, key:'p28', text:'Twenty eight.' },
+    { s:-29, key:'p29', text:'Twenty nine.' },
+    { s:-30, key:'p30', text:'Start cancelled.' },
+  ];
+
+  
+  for (var i = 0; i < before.length; i++) {
+    var b = before[i];
+    if (secs <= b.s && secs > b.s - 1 && !announcedAt[k + b.key]) {
+      announcedAt[k + b.key] = true;
+      speak(b.text);
+      addLog('[' + b.key + 's] ' + b.text, b.s <= 10);
+    }
+  }
+
+  
+  if (secs <= 0 && secs > -1 && !announcedAt[k + 'ot']) {
+    announcedAt[k + 'ot'] = true;
+    speak('Official Top.');
+    addLog('[OT] ' + a.name, true);
+    document.getElementById('btnDive').disabled = false;
+  }
+
+  
+  for (var j = 0; j < after.length; j++) {
+    var af = after[j];
+    if (secs <= af.s && secs > af.s - 1 && !announcedAt[k + af.key]) {
+      announcedAt[k + af.key] = true;
+      speak(af.text);
+      addLog('[+' + Math.abs(af.s) + 's]', af.s === -30);
+      if (af.s === -30) {
+        setTimeout(function() { moveToNext(); }, 2000);
+      }
+    }
+  }
+}
+
+function jumpToEdit(idx) {
+  var a = athletes[idx];
+  if (!a) return;
+
+  
+  var manualSection = document.getElementById('manualSection');
+  if (manualSection) manualSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  
+  for (var i = 1; i <= manualRowCount; i++) {
+    var nameEl = document.getElementById('m-name-' + i);
+    if (nameEl && nameEl.value === a.name) {
+      
+      var row = nameEl.closest('.manual-row');
+      if (row) {
+        row.style.outline = '2px solid var(--teal)';
+        setTimeout(function(r){ r.style.outline = ''; }, 2000);
+      }
+      return;
+    }
+  }
+}
+
+function toggleDNS(idx) {
+  athletes[idx].dns = !athletes[idx].dns;
+  renderList();
+  if (athletes[idx].dns) {
+    addLog('🚫 DNS: ' + athletes[idx].name, false);
+  } else {
+    addLog('↩ DNS cancelled: ' + athletes[idx].name, false);
+  }
+}
+
+function moveToNext() {
+  athletes[currentIdx].done = true;
+  if (currentIdx < athletes.length - 1) {
+    currentIdx++;
+    renderList(); updateStage();
+    var next = athletes[currentIdx];
+    speak('Next athlete. Number ' + next.no + '. ' + next.name + '. Official Top at ' + next.ot + '.');
+    addLog('→ Next: ' + next.name + ' (OT ' + next.ot + ')', false);
+  } else {
+    stopCountdown();
+    speak('All athletes have completed. The session is finished.');
+    addLog('✅ All athletes completed', false);
+    renderList(); updateStage();
+  }
+}
+
+function stopCountdown() {
+  if (timer) { clearInterval(timer); timer = null; }
+  document.getElementById('statusDot').className = 'status-dot';
+  document.getElementById('statusText').textContent = 'Stopped';
+  document.getElementById('btnStart').disabled = false;
+}
+
+function pauseCountdown() {
+  isPaused = !isPaused;
+  document.getElementById('btnPause').textContent = isPaused ? '▶ Resume' : '⏸ Pause';
+  document.getElementById('statusText').textContent = isPaused ? 'Paused' : 'Live';
+}
+
+function skipAthlete() {
+  if (!athletes.length) return;
+  addLog('⏭ Skipped: ' + athletes[currentIdx].name, false);
+  athletes[currentIdx].done = true;
+  currentIdx++;
+  announcedAt = {};
+  if (currentIdx >= athletes.length) { stopCountdown(); updateStage(); renderList(); return; }
+  renderList(); updateStage();
+}
+
+
+var diveTimer = null;
+var diveStartTime = null;
+var diveHTSeconds = 0;
+var diveHTAnnounced = false;
+
+function startDiving() {
+  var a = athletes[currentIdx];
+  if (!a) return;
+
+  
+  if (timer) { clearInterval(timer); timer = null; }
+  window.speechSynthesis.cancel();
+  document.getElementById('statusDot').className = 'status-dot live';
+  document.getElementById('statusText').textContent = 'Diving';
+
+  
+  var parts = [];
+  parts.push(a.name);
+  if (a.nationality) parts.push('From ' + a.nationality);
+  if (a.disc) parts.push(a.disc);
+  if (a.ap_m) parts.push(a.ap_m + ' meters');
+  if (a.dt && a.dt !== ':') parts.push('Dive Time ' + a.dt);
+  if (a.remarks) parts.push(a.remarks);
+  speak(parts.join('. ') + '.');
+  addLog('🤿 ' + a.name + (a.remarks ? ' [' + a.remarks + ']' : ''), true);
+
+  
+  diveHTSeconds = 0;
+  diveHTAnnounced = false;
+  if (a.ht && a.ht !== ':') {
+    var htParts = a.ht.split(':');
+    diveHTSeconds = (parseInt(htParts[0]) || 0) * 60 + (parseInt(htParts[1]) || 0);
+  }
+
+  
+  diveStartTime = Date.now();
+  if (diveTimer) clearInterval(diveTimer);
+  document.getElementById('diveTimerWrap').classList.add('active');
+
+  document.getElementById('btnDive').style.display = 'none';
+  document.getElementById('btnEndDive').classList.add('active');
+
+  diveTimer = setInterval(function() {
+    var elapsed = Math.floor((Date.now() - diveStartTime) / 1000);
+    var m = Math.floor(elapsed / 60);
+    var s = elapsed % 60;
+    var display = m + ':' + String(s).padStart(2, '0');
+    var el = document.getElementById('diveTimerDisplay');
+    el.textContent = display;
+
+    
+    if (diveHTSeconds > 0 && elapsed === diveHTSeconds && !diveHTAnnounced) {
+      diveHTAnnounced = true;
+      speak('Half time.');
+      el.classList.add('ht');
+      addLog('⏱ Half time: ' + a.name, true);
+    }
+
+    
+    var announceSeconds = [30, 60, 75, 90, 105, 120, 135, 150, 165, 180,
+      195, 210, 225, 240, 255, 270, 285, 300, 315, 330, 345, 360,
+      375, 390, 405, 420, 435, 450, 465, 480, 495, 510, 525, 540,
+      555, 570, 585, 600];
+    if (announceSeconds.indexOf(elapsed) !== -1) {
+      var mm = Math.floor(elapsed / 60);
+      var ss = elapsed % 60;
+      var timeStr = '';
+      if (mm === 0) {
+        timeStr = 'Thirty seconds.';
+      } else if (ss === 0) {
+        var minWords = ['Zero','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten'];
+        timeStr = (mm < minWords.length ? minWords[mm] : mm) + ' minute' + (mm > 1 ? 's.' : '.');
+      } else {
+        var minWords2 = ['Zero','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten'];
+        var secWords = {15:'fifteen', 30:'thirty', 45:'forty five'};
+        var mStr = mm < minWords2.length ? minWords2[mm] : String(mm);
+        var sStr = secWords[ss] || String(ss);
+        timeStr = mStr + ' ' + sStr + '.';
+      }
+      speak('Dive Time ' + timeStr);
+      addLog('⏱ Dive Time ' + (mm > 0 ? mm + ':' + String(ss).padStart(2,'0') : '0:30'), false);
+    }
+  }, 1000);
+}
+
+function stopDiveTimer() {
+  if (diveTimer) { clearInterval(diveTimer); diveTimer = null; }
+  document.getElementById('diveTimerWrap').classList.remove('active');
+  document.getElementById('diveTimerDisplay').textContent = '0:00';
+  document.getElementById('diveTimerDisplay').classList.remove('ht');
+  document.getElementById('btnDive').style.display = 'block';
+  document.getElementById('btnEndDive').classList.remove('active');
+  diveHTAnnounced = false;
+}
+
+function endDiving() {
+  window.speechSynthesis.cancel();
+  stopDiveTimer();
+  var a = athletes[currentIdx];
+  if (a) {
+    addLog('🏁 End Diving: ' + a.name, false);
+    
+    a.done = true;
+    
+    var card = document.querySelector('.current-card');
+    if (card) {
+      card.style.opacity = '0.4';
+      card.style.pointerEvents = 'none';
+    }
+    document.getElementById('btnDive').disabled = true;
+    document.getElementById('btnEndDive').classList.remove('active');
+  }
+  
+  moveToNext();
+  
+  var card2 = document.querySelector('.current-card');
+  if (card2) {
+    card2.style.opacity = '';
+    card2.style.pointerEvents = '';
+  }
+  
+  if (!timer) {
+    if (window.speechSynthesis) {
+      var u = new SpeechSynthesisUtterance('');
+      window.speechSynthesis.speak(u);
+      window.speechSynthesis.cancel();
+    }
+    document.getElementById('statusDot').className = 'status-dot live';
+    document.getElementById('statusText').textContent = 'Live';
+    timer = setInterval(tick, 1000);
+    tick();
+  }
+}
+
+function speak(text) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  var u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-US'; u.rate = 0.9; u.pitch = 1.0; u.volume = 1.0;
+  window.speechSynthesis.speak(u);
+}
+
+
+function addLog(text, hi) {
+  var list = document.getElementById('logList');
+  var placeholder = list.querySelector('div[style]');
+  if (placeholder) placeholder.remove();
+  var item = document.createElement('div');
+  item.className = 'log-item' + (hi ? ' hi' : '');
+  item.innerHTML = '<span class="log-time">' + nowStr() + '</span>' + text;
+  list.insertBefore(item, list.firstChild);
+}
+
+
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+
+function makeOptions(start, end, step, pad, suffix) {
+  var opts = '<option value="">—</option>';
+  for (var i = start; i <= end; i += step) {
+    var val = pad ? String(i).padStart(2,'0') : String(i);
+    var label = suffix ? val + suffix : val;
+    opts += '<option value="' + val + '">' + label + '</option>';
+  }
+  return opts;
+}
+
+function makeTimeSelect(id, type) {
+  
+  var start = 0, end = 23;
+  if (type === 'm' || type === 's') end = 59;
+  var sel = document.createElement('select');
+  sel.className = 'time-select';
+  sel.id = id;
+  sel.innerHTML = makeOptions(start, end, 1, true, '');
+  return sel;
+}
+
+function timeSelectValue(hId, mId) {
+  var h = document.getElementById(hId) ? document.getElementById(hId).value : '';
+  var m = document.getElementById(mId) ? document.getElementById(mId).value : '';
+  if (!h || !m) return '';
+  return h + ':' + m;
+}
+
+
+function buildMMSSSelect(containerId, prefix, onchange) {
+  var wrap = document.getElementById(containerId);
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  wrap.className = 'time-select-wrap';
+
+  var smLabel = document.createElement('span');
+  smLabel.style.cssText = 'font-size:9px;color:var(--muted);';
+
+  
+  var sm = document.createElement('select');
+  sm.className = 'time-select';
+  sm.id = prefix + '-m';
+  sm.innerHTML = '<option value="">m</option>';
+  for (var m = 0; m <= 29; m++) {
+    sm.innerHTML += '<option value="' + String(m).padStart(2,'0') + '">' + String(m).padStart(2,'0') + '</option>';
+  }
+  if (onchange) sm.addEventListener('change', onchange);
+
+  
+  var ss = document.createElement('select');
+  ss.className = 'time-select';
+  ss.id = prefix + '-s';
+  ss.innerHTML = '<option value="">s</option>';
+  for (var s = 0; s <= 59; s++) {
+    ss.innerHTML += '<option value="' + String(s).padStart(2,'0') + '">' + String(s).padStart(2,'0') + '</option>';
+  }
+  if (onchange) ss.addEventListener('change', onchange);
+
+  var sep = document.createElement('span');
+  sep.className = 'time-sep'; sep.textContent = ':';
+
+  wrap.appendChild(sm); wrap.appendChild(sep); wrap.appendChild(ss);
+}
+
+function autoCalcHT(id) {
+  var dtM = document.getElementById('m-dt-' + id + '-m');
+  var dtS = document.getElementById('m-dt-' + id + '-s');
+  var htM = document.getElementById('m-ht-' + id + '-m');
+  var htS = document.getElementById('m-ht-' + id + '-s');
+  if (!dtM || !dtS || !htM || !htS) return;
+  var m = parseInt(dtM.value) || 0;
+  var s = parseInt(dtS.value) || 0;
+  var totalSecs = m * 60 + s;
+  var halfSecs = Math.floor(totalSecs / 2);
+  var hm = Math.floor(halfSecs / 60);
+  var hs = halfSecs % 60;
+  
+  htM.value = String(hm).padStart(2,'0');
+  htS.value = String(hs).padStart(2,'0');
+}
+
+function buildOTSelect(containerId, prefix) {
+  var wrap = document.getElementById(containerId);
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  wrap.className = 'time-select-wrap';
+  var sh = makeTimeSelect(prefix+'-h', 'h');
+  var sm = makeTimeSelect(prefix+'-m', 'm');
+  var sep1 = document.createElement('span'); sep1.className='time-sep'; sep1.textContent=':';
+  wrap.appendChild(sh); wrap.appendChild(sep1);
+  wrap.appendChild(sm);
+}
+
+
+setVenue('sea');
+buildOTSelect('firstOTWrap', 'firstOT');
+
+
+var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var mSel = document.getElementById('compMonth');
+var dSel = document.getElementById('compDay');
+if (mSel) {
+  mSel.innerHTML = '<option value="">Month</option>';
+  months.forEach(function(mn, idx) {
+    var selected = idx === new Date().getMonth() ? ' selected' : '';
+    mSel.innerHTML += '<option value="' + (idx+1) + '"' + selected + '>' + mn + '</option>';
+  });
+}
+if (dSel) {
+  dSel.innerHTML = '<option value="">Day</option>';
+  var today = new Date().getDate();
+  for (var d = 1; d <= 31; d++) {
+    dSel.innerHTML += '<option value="' + d + '"' + (d === today ? ' selected' : '') + '>' + d + '</option>';
+  }
+}
+renderRulesPreview();
+addManualRow(); addManualRow(); addManualRow();
+</script>
+</body>
+</html>
