@@ -4,27 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>STA Timer — Freediving Japan</title>
-<script>
-window.onerror = function(msg, src, line, col, err) {
-  var d = document.getElementById('_dbg');
-  if (!d) { d = document.createElement('div'); d.id='_dbg';
-    d.style.cssText='position:fixed;bottom:0;left:0;right:0;background:#1a0000;color:#ff6b6b;font-size:11px;padding:6px 10px;z-index:9999;font-family:monospace;max-height:120px;overflow-y:auto;border-top:1px solid #ff000055';
-    document.body.appendChild(d); }
-  var entry = document.createElement('div');
-  entry.textContent = '❌ ' + msg + ' [' + (src||'').split('/').pop() + ':' + line + ':' + col + ']';
-  d.appendChild(entry);
-  return false;
-};
-window.addEventListener('unhandledrejection', function(e) {
-  var d = document.getElementById('_dbg');
-  if (!d) { d = document.createElement('div'); d.id='_dbg';
-    d.style.cssText='position:fixed;bottom:0;left:0;right:0;background:#1a0000;color:#ff6b6b;font-size:11px;padding:6px 10px;z-index:9999;font-family:monospace;max-height:120px;overflow-y:auto;border-top:1px solid #ff000055';
-    document.body.appendChild(d); }
-  var entry = document.createElement('div');
-  entry.textContent = '⚠️ ' + String(e.reason);
-  d.appendChild(entry);
-});
-</script>
 <style>
 :root {
   --teal:       #2ec4b6;
@@ -46,7 +25,7 @@ window.addEventListener('unhandledrejection', function(e) {
 html, body {
   height: 100%; background: var(--bg); color: var(--text);
   font-family: -apple-system, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
-  overflow: hidden; touch-action: manipulation; -webkit-font-smoothing: antialiased;
+  overflow-y: auto; -webkit-font-smoothing: antialiased;
 }
 
 /* BG */
@@ -73,9 +52,9 @@ html, body {
 /* LAYOUT */
 .app {
   position: relative; z-index: 1;
-  height: 100%; display: flex; flex-direction: column;
+  min-height: 100%; display: flex; flex-direction: column;
   padding-top: env(safe-area-inset-top, 10px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
 }
 
 /* HEADER */
@@ -98,6 +77,8 @@ header {
 .ble-dot.pulse { animation: blink .9s infinite; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.15} }
 .nav-back { font-size: 12px; color: var(--muted); text-decoration: none; }
+.lang-btn { font-size: 10px; font-weight: 700; letter-spacing: .1em; color: var(--muted); background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 3px 8px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.lang-btn.ja { color: var(--teal); border-color: var(--teal); }
 .nav-back:hover { color: var(--teal); }
 
 /* MODE TABS */
@@ -113,8 +94,15 @@ header {
 .mode-tab.active { background: var(--teal-dim); border-color: var(--teal); color: var(--teal-light); }
 
 /* TABLE CONFIG PANEL */
+.cfg-toggle {
+  width: 100%; display: flex; justify-content: space-between; align-items: center;
+  background: none; border: none; color: var(--muted);
+  font-size: 10px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase;
+  cursor: pointer; padding: 0 0 8px; -webkit-tap-highlight-color: transparent;
+}
+.cfg-toggle:active { opacity: .7; }
 .config-panel {
-  margin: 4px 16px; padding: 10px 12px;
+  margin: 4px 16px; padding: 8px 12px;
   background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
   flex-shrink: 0; display: none;
 }
@@ -150,7 +138,7 @@ header {
 
 /* PHASE BANNER */
 .phase-banner {
-  flex-shrink: 0; text-align: center; padding: 2px 0 0;
+  flex-shrink: 0; text-align: center; padding: 0;
 }
 .phase-label {
   font-size: 10px; letter-spacing: .22em; text-transform: uppercase;
@@ -162,7 +150,7 @@ header {
 
 /* SET PROGRESS */
 .set-list-wrap {
-  flex-shrink: 0; padding: 0 16px; max-height: 160px; overflow-y: auto;
+  flex-shrink: 0; padding: 0 16px; max-height: 120px; overflow-y: auto;
 }
 .set-list-wrap::-webkit-scrollbar { width: 2px; }
 .set-list-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
@@ -206,9 +194,9 @@ header {
 
 /* TIMER RING */
 .timer-wrap {
-  position: relative; width: min(280px, 78vw); aspect-ratio: 1;
+  position: relative; width: min(300px, 84vw); aspect-ratio: 1;
   display: flex; align-items: center; justify-content: center;
-  margin: 4px auto; cursor: pointer;
+  margin: 2px auto; cursor: pointer;
   -webkit-tap-highlight-color: transparent; user-select: none; flex-shrink: 0;
 }
 .ring-svg {
@@ -221,15 +209,15 @@ header {
 .ring-spo2   { fill: none; stroke: transparent;  stroke-width: 7; stroke-linecap: round; transition: stroke-dashoffset .8s ease, stroke .5s; }
 .ring-hold.danger { stroke: var(--warm); }
 
-.timer-inner { display: flex; flex-direction: column; align-items: center; gap: 0; }
+.timer-inner { display: flex; flex-direction: column; align-items: center; gap: 0; pointer-events: none; }
 .time-main {
-  font-size: clamp(46px, 14vw, 70px); font-variant-numeric: tabular-nums;
+  font-size: clamp(52px, 15vw, 72px); font-variant-numeric: tabular-nums;
   letter-spacing: -.02em; font-weight: 300; color: var(--text);
   line-height: 1; transition: color .4s;
 }
 .time-main.danger { color: var(--warm); }
 .time-ms {
-  font-size: clamp(14px, 4vw, 20px); color: var(--muted);
+  font-size: clamp(16px, 4.5vw, 22px); color: var(--muted);
   font-variant-numeric: tabular-nums; font-weight: 300; letter-spacing: .04em;
 }
 .spo2-row {
@@ -245,11 +233,35 @@ header {
 .spo2-v.warn { color: var(--warm); }
 .spo2-v.crit { color: var(--danger); }
 .spo2-pct { font-size: 11px; color: var(--muted); }
+/* dive number */
+.dive-num {
+  font-size: 11px; letter-spacing: .15em; text-transform: uppercase;
+  color: var(--teal); font-weight: 700; margin-top: 6px;
+  min-height: 16px; transition: opacity .3s;
+}
+
+/* phase ring label */
+.phase-ring-label {
+  font-size: 11px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase;
+  margin-top: 6px; transition: color .4s;
+}
+.phase-ring-label.hold { color: var(--teal); }
+.phase-ring-label.rest { color: var(--muted); }
+
+/* rest timer */
+.rest-timer {
+  font-size: clamp(13px, 3.5vw, 17px);
+  font-variant-numeric: tabular-nums; font-weight: 400;
+  color: var(--muted); letter-spacing: .04em;
+  margin-top: 4px;
+}
+.rest-timer span { color: var(--teal-light); font-weight: 600; }
+
 /* tap hint */
 .tap-hint {
   font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
   color: var(--muted); margin-top: 8px; font-weight: 600;
-  transition: opacity .3s;
+  transition: opacity .3s; pointer-events: none;
 }
 
 
@@ -260,15 +272,16 @@ header {
 }
 .ring-countdown.visible { opacity: 1; }
 .ring-countdown-num {
-  font-size: clamp(60px, 18vw, 90px); font-variant-numeric: tabular-nums;
-  font-weight: 200; color: var(--success); letter-spacing: -.04em;
+  font-size: clamp(44px, 13vw, 64px); font-variant-numeric: tabular-nums;
+  font-weight: 200; color: var(--success); letter-spacing: -.02em;
   text-shadow: 0 0 30px rgba(34,197,94,.4);
 }
 
 /* SPO2 MINI CHART */
 .spo2-chart-area {
   flex-shrink: 0; width: 100%; max-width: 300px; margin: 0 auto;
-  height: 40px; opacity: 0; transition: opacity .4s; position: relative;
+  height: 32px; opacity: 0; transition: opacity .4s; position: relative;
+  pointer-events: none;
 }
 .spo2-chart-area.visible { opacity: 1; }
 .spo2-chart-tag {
@@ -278,17 +291,17 @@ header {
 
 /* SESSION STATS */
 .stats-row {
-  display: flex; justify-content: center; gap: 18px;
-  padding: 4px 16px; flex-shrink: 0;
+  display: flex; justify-content: center; gap: 10px;
+  padding: 2px 16px; flex-shrink: 0;
 }
 .stat { display: flex; flex-direction: column; align-items: center; gap: 0; }
 .stat-lbl { font-size: 8px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
-.stat-val { font-size: 16px; font-variant-numeric: tabular-nums; color: var(--teal-light); font-weight: 300; }
+.stat-val { font-size: 14px; font-variant-numeric: tabular-nums; color: var(--teal-light); font-weight: 300; }
 
 /* CONTROLS */
-.controls { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 4px 16px; flex-shrink: 0; }
+.controls { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 2px 16px 4px; flex-shrink: 0; }
 .btn-main {
-  width: 100%; max-width: 300px; height: 50px; border-radius: 13px; border: none;
+  width: 100%; max-width: 300px; height: 42px; border-radius: 13px; border: none;
   font-size: 14px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700;
   cursor: pointer; transition: all .15s; -webkit-tap-highlight-color: transparent;
 }
@@ -298,7 +311,7 @@ header {
 .btn-main:active { transform: scale(.97); opacity: .85; }
 .btn-row { display: flex; gap: 7px; width: 100%; max-width: 300px; }
 .btn-sub {
-  flex: 1; height: 38px; border-radius: 9px; border: 1px solid var(--border);
+  flex: 1; height: 36px; border-radius: 9px; border: 1px solid var(--border);
   background: var(--surface2); color: var(--muted);
   font-size: 10px; letter-spacing: .06em; text-transform: uppercase; font-weight: 700;
   cursor: pointer; transition: all .15s; -webkit-tap-highlight-color: transparent;
@@ -308,12 +321,30 @@ header {
 .btn-sub.save { color: var(--teal-light); border-color: var(--teal); }
 .btn-sub.lap  { color: var(--teal-light); border-color: var(--teal); }
 .btn-sub.next { color: var(--teal-light); border-color: var(--teal); background: var(--teal-dim); }
-.lap-best  { color: var(--teal) !important; }
-.lap-worst { color: var(--warm) !important; }
+.btn-sub.end  { color: var(--warm); border-color: var(--warm); }
+.sw-next-ring-btn {
+  background: var(--teal-dim); border: 1.5px solid var(--teal);
+  border-radius: 20px; padding: 8px 24px;
+  color: var(--teal-light); font-size: 14px; font-weight: 700;
+  letter-spacing: .06em; cursor: pointer;
+  -webkit-tap-highlight-color: transparent; transition: all .15s;
+}
+.sw-next-ring-btn:active { background: var(--teal); color: #0b2d45; transform: scale(.97); }
+.fc-btn {
+  background: rgba(249,115,22,0.12); border: 1.5px solid var(--warm);
+  border-radius: 20px; padding: 8px 20px;
+  color: var(--warm); font-size: 13px; font-weight: 700;
+  letter-spacing: .08em; cursor: pointer;
+  -webkit-tap-highlight-color: transparent; transition: all .15s;
+}
+.fc-btn:active { background: var(--warm); color: #fff; transform: scale(.97); }
+.fc-btn.done { opacity: .4; pointer-events: none; }
+.fc-tag { font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 4px; color: var(--warm); background: rgba(249,115,22,.12); flex-shrink: 0; }
+
 .btn-sub:disabled { opacity: .3; pointer-events: none; }
 
 /* LOG LIST */
-.log-section { flex: 1; padding: 4px 16px 8px; min-height: 0; display: flex; flex-direction: column; }
+.log-section { flex: 1; padding: 4px 16px 4px; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; }
 .log-hdr { font-size: 8px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; font-weight: 700; }
 .log-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 3px; }
 .log-list::-webkit-scrollbar { width: 2px; }
@@ -335,7 +366,6 @@ header {
 .log-spo2.ok   { color: var(--teal);   background: rgba(46,196,182,.12); }
 .log-spo2.warn { color: var(--warm);   background: rgba(249,115,22,.12); }
 .log-spo2.crit { color: var(--danger); background: rgba(239,68,68,.12); }
-.log-pb   { font-size: 8px; color: var(--warm); font-weight: 700; letter-spacing: .08em; flex-shrink: 0; }
 
 /* MODALS */
 .overlay {
@@ -441,6 +471,7 @@ header {
         <span class="ble-dot" id="bleDot"></span>
         <span id="bleLabel">SpO2</span>
       </button>
+      <button class="lang-btn" id="langBtn" onclick="toggleLang()">EN</button>
       <a href="training-log.html" class="nav-back">← Log</a>
     </div>
   </header>
@@ -454,6 +485,11 @@ header {
 
   <!-- CONFIG PANEL -->
   <div class="config-panel" id="configPanel">
+    <button class="cfg-toggle" id="cfgToggle" onclick="toggleCfgPanel()">
+      <span id="cfgToggleLabel">設定</span>
+      <span id="cfgToggleArrow">▲</span>
+    </button>
+    <div id="cfgBody">
 
     <!-- O2 Table: Hold(manual/auto) → Rest(固定) -->
     <!-- 順: Hold Stop / Hold Time / Rest Time / Sets / Prep -->
@@ -482,7 +518,7 @@ header {
           </select>
         </div>
         <div class="cfg-item">
-          <span class="cfg-lbl">Prep</span>
+          <span class="cfg-lbl">スタートまで</span>
           <select class="cfg-sel" id="sel-prep-o2" onchange="cfg.prepSec=parseInt(this.value)">
           </select>
         </div>
@@ -516,13 +552,14 @@ header {
           </select>
         </div>
         <div class="cfg-item">
-          <span class="cfg-lbl">Prep</span>
+          <span class="cfg-lbl">スタートまで</span>
           <select class="cfg-sel" id="sel-prep-co2" onchange="cfg.prepSec=parseInt(this.value)">
           </select>
         </div>
       </div>
     </div>
 
+    </div>
   </div>
 
   <!-- PHASE LABEL -->
@@ -550,6 +587,9 @@ header {
         <span class="spo2-v ok" id="spo2V">--</span>
         <span class="spo2-pct">%</span>
       </div>
+      <div class="dive-num" id="diveNum"></div>
+      <div class="phase-ring-label" id="phaseRingLabel" style="display:none"></div>
+      <div class="rest-timer" id="restTimer" style="display:none"></div>
       <div class="tap-hint" id="tapHint">TAP TO START</div>
     </div>
     <!-- countdown overlay -->
@@ -558,10 +598,16 @@ header {
     </div>
   </div>
 
+  <!-- NEXT DIVE BTN -->
+  <div style="text-align:center;flex-shrink:0;min-height:36px;display:flex;align-items:center;justify-content:center;gap:12px">
+    <button class="sw-next-ring-btn" id="btnNext" onclick="swNextDive()" style="display:none">次へ（<span id="btnNextNum">2</span>本目）</button>
+    <button class="fc-btn" id="btnFC" onclick="onFC()" style="display:none">1st Contraction</button>
+  </div>
+
   <!-- SPO2 MINI CHART -->
   <div class="spo2-chart-area" id="spo2ChartArea">
     <span class="spo2-chart-tag">SpO2 Live</span>
-    <canvas id="spo2Live"></canvas>
+    <canvas id="spo2Live" style="pointer-events:none"></canvas>
   </div>
 
   <!-- STATS -->
@@ -577,9 +623,8 @@ header {
     <button class="btn-main start" id="btnMain" onclick="onMainBtn()">Start</button>
     <div class="btn-row">
       <button class="btn-sub"      onclick="onReset()">Reset</button>
-      <button class="btn-sub lap"  id="btnLap" onclick="onLap()">Lap</button>
-      <button class="btn-sub next" id="btnNext" onclick="swNextDive()" style="display:none">次へ</button>
-      <button class="btn-sub save" id="btnSave" disabled onclick="openSave()">Save Session</button>
+      <button class="btn-sub end" id="btnEnd" onclick="onEndSession()" style="display:none">終了</button>
+      <button class="btn-sub save" id="btnSave" disabled onclick="directToLog()">ログ登録へ</button>
       <button class="btn-sub" id="btnClearAll" onclick="onClear()">Clear All</button>
     </div>
   </div>
@@ -602,7 +647,7 @@ header {
 <!-- SAVE MODAL -->
 <div class="overlay" id="saveOverlay" onclick="if(event.target===this)closeSave()">
   <div class="sheet">
-    <div class="sheet-title">Save Session</div>
+    <div class="sheet-title">ログ登録へ</div>
     <div class="sheet-time" id="saveTime">—</div>
     <div class="spo2-summary" id="saveSpo2Summary" style="display:none">
       <div class="spo2-s"><span class="spo2-s-lbl">Start</span><span class="spo2-s-val ok"   id="ss-start">—</span></div>
@@ -659,6 +704,68 @@ header {
 
 <script>
 // ── SUPABASE ─────────────────────────────────────────────
+// ── AIDA アナウンサー（aida-rules.js インライン版）──────
+const AIDA_ANNOUNCEMENTS = [
+  { sb: 120, en: 'Two minutes',      ja: '2分前' },
+  { sb:  90, en: 'One thirty',       ja: '1分30秒' },
+  { sb:  60, en: 'One minute',       ja: '1分前' },
+  { sb:  30, en: 'Thirty seconds',   ja: '30秒' },
+  { sb:  20, en: 'Twenty seconds',   ja: '20秒' },
+  { sb:  10, en: 'Ten seconds',      ja: '10秒' },
+  { sb:   5, en: 'Five',             ja: '5' },
+  { sb:   4, en: 'Four',             ja: '4' },
+  { sb:   3, en: 'Three',            ja: '3' },
+  { sb:   2, en: 'Two',              ja: '2' },
+  { sb:   1, en: 'One',              ja: '1' },
+  { sb:   0, en: 'Official Top',     ja: 'オフィシャルトップ' },
+];
+let _announcerLang    = 'en';
+let _announcerEnabled = true;
+let _firedSet         = new Set();
+let _synth            = 'speechSynthesis' in window ? window.speechSynthesis : null;
+
+function announce(text) {
+  if (!_announcerEnabled || !_synth) return;
+  _synth.cancel();
+  setTimeout(() => {
+    const utt  = new SpeechSynthesisUtterance(text);
+    utt.lang   = _announcerLang === 'ja' ? 'ja-JP' : 'en-US';
+    utt.volume = 1.0;
+    utt.rate   = 0.88;
+    // iOS: ローカル音声を優先選択
+    const voices = _synth.getVoices();
+    const lang   = _announcerLang === 'ja' ? 'ja' : 'en';
+    const voice  = voices.find(v => v.lang.startsWith(lang) && v.localService)
+                || voices.find(v => v.lang.startsWith(lang));
+    if (voice) utt.voice = voice;
+    _synth.speak(utt);
+  }, 80);
+}
+
+function toggleLang() {
+  _announcerLang = _announcerLang === 'en' ? 'ja' : 'en';
+  const btn = document.getElementById('langBtn');
+  if (btn) { btn.textContent = _announcerLang.toUpperCase(); btn.className = 'lang-btn' + (_announcerLang==='ja'?' ja':''); }
+  // テスト発話
+  announce(_announcerLang === 'ja' ? '日本語' : 'English');
+}
+
+function resetAnnouncer() {
+  _firedSet = new Set();
+  if (_synth) _synth.cancel();
+}
+
+function checkAnnouncements(remainingSec) {
+  if (!_announcerEnabled) return;
+  for (const a of AIDA_ANNOUNCEMENTS) {
+    if (remainingSec <= a.sb && !_firedSet.has(a.sb)) {
+      _firedSet.add(a.sb);
+      announce(_announcerLang === 'ja' ? a.ja : a.en);
+      break;
+    }
+  }
+}
+
 // ── Supabase 軽量fetch実装（CDN不要）──
 const _SB_URL = 'https://bbhqvbpsuccbdcnhnobm.supabase.co';
 const _SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJiaHF2YnBzdWNjYmRjbmhub2JtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyODQwMzksImV4cCI6MjA5NTg2MDAzOX0.MexR8_hY56m3XRff0EJOQM3uQShXr2L9kGyYXLSzKbs';
@@ -741,6 +848,17 @@ function toast(msg, err=false) {
   setTimeout(() => t.classList.remove('show'), 2400);
 }
 
+// ── CONFIG PANEL TOGGLE ─────────────────────────────────
+let cfgOpen = true;
+function toggleCfgPanel(forceClose) {
+  if (forceClose !== undefined) cfgOpen = !forceClose;
+  else cfgOpen = !cfgOpen;
+  const body  = document.getElementById('cfgBody');
+  const arrow = document.getElementById('cfgToggleArrow');
+  if (body)  body.style.display  = cfgOpen ? '' : 'none';
+  if (arrow) arrow.textContent   = cfgOpen ? '▲' : '▼';
+}
+
 // ── MODE & CONFIG ─────────────────────────────────────────
 let mode = 'free'; // free | o2 | co2
 const cfg = {
@@ -772,13 +890,18 @@ function setMode(m) {
   document.getElementById('cfg-o2').style.display  = m==='o2'  ? '' : 'none';
   document.getElementById('cfg-co2').style.display = m==='co2' ? '' : 'none';
   panel.classList.toggle('visible', m!=='free');
+  if (m !== 'free') { cfgOpen = true; toggleCfgPanel(false); }
   // Lap/Stopwatchモード切替
   const isSW = m === 'free';
-  document.getElementById('btnLap').style.display = isSW ? '' : 'none';
+  const _bl = document.getElementById('btnLap'); if(_bl) _bl.style.display = isSW ? '' : 'none';
   document.getElementById('btnNext').style.display = 'none';
+  document.getElementById('btnFC').style.display = 'none';
+  swLocked = false;
+  document.getElementById('setListWrap').style.display = isSW ? 'none' : '';
   // btnLap/btnNext: startHold/endHoldで制御
-  document.getElementById('btnMain').style.display = isSW ? 'none' : '';
-  document.getElementById('btnClearAll').style.display = isSW ? 'none' : '';
+  // 全モードでSTART/CLEAR ALLボタン非表示（リングタップで操作）
+  document.getElementById('btnMain').style.display = 'none';
+  document.getElementById('btnClearAll').style.display = 'none';
   updateRingStartBtn();
   renderSetDots();
   onReset();
@@ -814,20 +937,17 @@ function buildPrepOptions(selId, defaultSec) {
   const sel = document.getElementById(selId);
   if (!sel) return;
   sel.innerHTML = '';
-  // 先頭に「なし」
   const none = document.createElement('option');
-  none.value = 0; none.textContent = 'なし';
+  none.value = 0; none.textContent = 'すぐ';
   if (defaultSec === 0) none.selected = true;
   sel.appendChild(none);
-  // 選択肢
   const opts = [
-    [15,  '15s'],
-    [30,  '30s'],
-    [60,  '1min'],
-    [90,  '1min 30s'],
-    [120, '2min'],
-    [180, '3min'],
-    [240, '4min'],
+    [15,  '15秒後'],
+    [30,  '30秒後'],
+    [60,  '1分後'],
+    [90,  '1分30秒後'],
+    [120, '2分後'],
+    [180, '3分後'],
   ];
   opts.forEach(([s, label]) => {
     const opt = document.createElement('option');
@@ -873,8 +993,12 @@ let phaseStart= 0;
 let rafId     = null;
 let currentSet= 0;       // 0-based
 let holdDives = [];      // saved hold records
-let laps      = [];      // stopwatch lap records
+let laps      = [];      // stopwatch lap records（未使用・互換のため残す）
+let currentFC = null;    // 現在ホールドのFC時間(ms)
 let swDive    = 0;       // stopwatch dive count
+let swLocked  = false;   // stopwatch: next押すまでスタート不可
+let restRafId = null;    // stopwatch rest timer RAF
+let restStart = 0;       // rest timer start time
 let spo2Buf   = [];      // current hold spo2 data
 let currentSpo2 = null;
 let countdownSec = 0;    // countdown remaining
@@ -896,6 +1020,7 @@ function tick() {
     const s = Math.ceil(remaining / 1000);
     setDisplayCountdown(s);
     setRestRing(1 - remaining / (countdownSec * 1000));
+    checkAnnouncements(Math.floor(remaining / 1000));
     if (remaining <= 0) startHold();
     else { rafId = requestAnimationFrame(tick); return; }
   }
@@ -920,8 +1045,10 @@ function tick() {
     updateRestDisplay(phaseMs);
     // 自動停止（O2固定 or CO2オート）
     const autoSec = restFixedSec() || restAutoSec();
-    if (autoSec && phaseMs >= autoSec * 1000) {
-      endRest(); return;
+    if (autoSec) {
+      const remainingRest = Math.max(0, autoSec * 1000 - phaseMs);
+      checkAnnouncements(Math.floor(remainingRest / 1000));
+      if (phaseMs >= autoSec * 1000) { endRest(); return; }
     }
   }
 
@@ -931,16 +1058,18 @@ function tick() {
 
 // ── PHASE TRANSITIONS ─────────────────────────────────────
 function startSession() {
-  currentSet = 0; holdDives = []; spo2Buf = [];
-  if (mode === 'free' && swDive === 0) laps = []; // 初回のみlapsリセット
+  currentSet = 0; spo2Buf = [];
+  if (mode !== 'free') holdDives = []; // freeモードは累積、テーブルモードはリセット
+  if (mode !== 'free') laps = [];
   renderSetDots(); renderLog();
   document.getElementById('btnSave').disabled = true;
   const th=document.getElementById('tapHint'); if(th) th.style.opacity='0';
-  if (mode !== 'free') document.getElementById('btnMain').style.display = '';
+  // btnMain非表示のまま（リングタップで操作）
   beginCountdownOrHold();
 }
 
 function beginCountdownOrHold() {
+  resetAnnouncer();
   if (mode === 'free' || cfg.prepSec === 0) {
     startHold();
   } else {
@@ -958,7 +1087,14 @@ function beginCountdownOrHold() {
 }
 
 function setDisplayCountdown(s) {
-  document.getElementById('countdownNum').textContent = s > 0 ? s : 'GO';
+  const el = document.getElementById('countdownNum');
+  if (s > 0) {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    el.textContent = `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+  } else {
+    el.textContent = 'GO';
+  }
   document.getElementById('timeMain').textContent = fmt(0);
   document.getElementById('timeMs').textContent = '.00';
 }
@@ -967,16 +1103,34 @@ function startHold() {
   phase = 'hold'; phaseStart = performance.now(); phaseMs = 0;
   spo2Buf = [];
   document.getElementById('ringCountdown').classList.remove('visible');
+  document.getElementById('btnEnd').style.display = 'none';
   ringHold.classList.remove('danger');
+  stopRestTimer();
+  showPhaseRingLabel('Hold', 'hold');
+  // 休憩時間をlogに追加（2本目以降）
+  if (mode === 'free' && swDive > 0 && restStart > 0) {
+    const restMs = performance.now() - restStart;
+    const restRec = { isRest: true, set: swDive, ms: restMs };
+    holdDives.push(restRec);
+    renderLog();
+  }
+  restStart = 0;
+  // FCボタン表示
+  currentFC = null;
+  const _fcBtn = document.getElementById('btnFC');
+  if (_fcBtn) { _fcBtn.style.display=''; _fcBtn.classList.remove('done'); _fcBtn.textContent='1st Contraction'; }
   setRestRing(0);
   showPhase('hold', mode==='free'
     ? 'Stopwatch — Running'
     : `Set ${currentSet+1}/${totalSets()} — Hold`);
+  updateDiveNum();
   setBtnMain('stop', mode==='free' ? 'Stop' : 'Stop Hold');
-  if (mode !== 'free') document.getElementById('btnMain').style.display = '';
+  // btnMain非表示のまま（リングタップで操作）
   if (mode === 'free') {
-    document.getElementById('btnLap').style.opacity = '1';
-    renderLaps();
+    // FC初期化
+    currentFC = null;
+    const fcBtn = document.getElementById('btnFC');
+    if (fcBtn) { fcBtn.style.display=''; fcBtn.classList.remove('done'); fcBtn.textContent='1st Contraction'; }
   }
   if (mode==='mock' || bleMode==='mock') startMock();
   cancelAnimationFrame(rafId);
@@ -991,8 +1145,13 @@ function endHold(auto=false) {
     set: currentSet+1, ms: phaseMs,
     spo2Profile: [...spo2Buf],
     minSpo2: spo2Buf.length ? Math.min(...spo2Buf.map(p=>p.v)) : null,
+    fc: currentFC, // First Contraction time (ms)
     auto,
   };
+  // FCボタン非表示
+  const _fcBtnEnd = document.getElementById('btnFC');
+  if (_fcBtnEnd) _fcBtnEnd.style.display = 'none';
+  currentFC = null;
   holdDives.push(rec);
   renderSetDots(); renderLog(); updateStats();
 
@@ -1000,11 +1159,14 @@ function endHold(auto=false) {
     phase = 'idle';
     setHoldRing(0);
     swDive++;
+    swLocked = true;
+    hidePhaseRingLabel(); // HOLD非表示
     showPhase('rest', `Stopwatch — ${swDive}本目 完了`);
-    setBtnMain('start', 'Resume');
-    document.getElementById('btnMain').style.display = 'none';
+    if (mode === 'free') startRestTimer();
+    // diveNumはここで更新しない（次へ or スタート時に更新）
+    setBtnMain('start', 'Start');
     document.getElementById('btnSave').disabled = false;
-    document.getElementById('btnLap').style.opacity = '0.35';
+  
     updateSwNextBtn();
     releaseWakeLock();
     return;
@@ -1021,21 +1183,16 @@ function endHold(auto=false) {
 
 function startRest() {
   phase = 'rest'; phaseStart = performance.now(); phaseMs = 0;
+  resetAnnouncer();
+  showPhaseRingLabel('Rest', 'rest');
   const fixedSec = restFixedSec() || restAutoSec();
   const label = fixedSec ? fmt(fixedSec*1000) : '—';
   showPhase('rest', `Set ${currentSet+1}/${totalSets()} — Rest ${label}`);
   setHoldRing(0);
   setBtnMain('rest', 'Resting…');
-  if (mode === 'o2') {
-    // O2: rest固定 → ボタン無効
-    document.getElementById('btnMain').className = 'btn-main rest';
-    document.getElementById('btnMain').onclick = null;
-  } else {
-    // CO2: rest手動 or 自動 → 手動時はボタン有効
-    if (cfg.co2Stop === 'manual') {
-      setBtnMain('start', 'End Rest → Hold');
-    }
-  }
+  updateDiveNum();
+  document.getElementById('btnEnd').style.display = '';
+  // ボタン非表示のままリング表示で状態を示す
   cancelAnimationFrame(rafId);
   rafId = requestAnimationFrame(tick);
 }
@@ -1047,16 +1204,14 @@ function endRest() {
 
 function finishSession() {
   phase = 'done';
+  hidePhaseRingLabel();
   releaseWakeLock(); stopMock();
   renderSetDots(); renderLog(); updateStats();
   document.getElementById('btnSave').disabled = false;
-  // 完了バナー
-  const total = holdDives.length;
-  const best  = holdDives.length ? Math.max(...holdDives.map(d=>d.ms)) : 0;
-  document.getElementById('completeTitle').textContent = 'Session Complete!';
-  document.getElementById('completeSub').textContent
-    = `${total} sets · Best ${fmt(best)}`;
-  document.getElementById('completeBanner').classList.add('show');
+  // テーブルモードは直接ログ登録へ
+  if (mode === 'o2' || mode === 'co2') {
+    directToLog();
+  }
 }
 
 function dismissComplete() {
@@ -1066,6 +1221,7 @@ function dismissComplete() {
 
 // ── DISPLAY ───────────────────────────────────────────────
 function updateHoldDisplay(ms) {
+  ringHold.style.stroke = '';
   document.getElementById('timeMain').textContent = fmt(ms);
   document.getElementById('timeMs').textContent   = fmtMs(ms);
   const autoSec = holdAutoSec() || holdFixedSec();
@@ -1081,6 +1237,7 @@ function updateHoldDisplay(ms) {
 }
 
 function updateRestDisplay(ms) {
+  if (mode !== 'free') ringHold.style.stroke = 'var(--muted)';
   const fixedSec = restFixedSec() || restAutoSec();
   if (fixedSec) {
     const remain = Math.max(0, fixedSec*1000 - ms);
@@ -1110,6 +1267,13 @@ function setBtnMain(cls, label) {
 // ── MAIN BUTTON LOGIC ─────────────────────────────────────
 function onMainBtn() {
   if (phase === 'idle') {
+    if (mode === 'free' && swLocked) return;
+    // iOS: タップ時にSpeech APIをアンロック
+    if (_synth) {
+      const u = new SpeechSynthesisUtterance('');
+      u.volume = 0;
+      _synth.speak(u);
+    }
     startSession();
   } else if (phase === 'hold') {
     // 手動Stop（フリー or o2-manual or co2は常に手動でhold終了可）
@@ -1135,16 +1299,21 @@ function onReset() {
   document.getElementById('spo2Row').classList.add('hidden');
   document.getElementById('spo2ChartArea').classList.remove('visible');
   showPhase('', mode==='o2'?'O2 Table':mode==='co2'?'CO2 Table':'Stopwatch');
+  if (mode !== 'free') { cfgOpen = true; toggleCfgPanel(false); }
+  updateDiveNum();
   updateRingStartBtn();
   setBtnMain('start', 'Start');
-  document.getElementById('btnMain').style.display = mode==='free' ? 'none' : '';
-  document.getElementById('btnClearAll').style.display = mode==='free' ? 'none' : '';
+  document.getElementById('btnMain').style.display = 'none';
+  document.getElementById('btnClearAll').style.display = 'none';
   document.getElementById('btnSave').disabled = true;
-  document.getElementById('btnLap').style.opacity = '0.35';
+
   document.getElementById('completeBanner').classList.remove('show');
   document.getElementById('lapSection').style.display = 'none';
   document.getElementById('lapList').innerHTML = '';
-  swDive = 0;
+  swDive = 0; swLocked = false; currentFC = null;
+  stopRestTimer();
+  hidePhaseRingLabel();
+  const _fcR = document.getElementById('btnFC'); if(_fcR) _fcR.style.display='none';
   const nb = document.getElementById('btnNext');
   if (nb) nb.style.display = 'none';
   updateRingStartBtn();
@@ -1216,34 +1385,66 @@ function renderSetList() {
 function swNextDive() {
   if (mode !== 'free') return;
   const nextNum = swDive + 1;
-  // 状態を完全リセット（swDiveは維持）
+  swLocked = false;
+  hidePhaseRingLabel();
+  // 休憩タイマーは次のスタートまで継続
+  // タイマーのみリセット（holdDives・lapsは累積して残す）
   cancelAnimationFrame(rafId); rafId = null;
-  phase = 'idle'; phaseMs = 0;
-  holdDives = []; laps = []; spo2Buf = [];
+  phase = 'idle'; phaseMs = 0; spo2Buf = [];
   setHoldRing(0); setRestRing(0);
   document.getElementById('timeMain').textContent = '00:00';
   document.getElementById('timeMs').textContent   = '.00';
   document.getElementById('timeMain').classList.remove('danger');
-  document.getElementById('lapSection').style.display  = 'none';
-  document.getElementById('lapList').innerHTML   = '';
-  document.getElementById('logSection').style.display  = 'none';
-  document.getElementById('logList').innerHTML   = '';
   document.getElementById('btnNext').style.display     = 'none';
-  document.getElementById('btnSave').disabled          = true;
-  document.getElementById('btnLap').style.opacity      = '0.35';
+  document.getElementById('btnSave').disabled          = false; // 累積データあり
+  const _bl2 = document.getElementById('btnLap'); if(_bl2) _bl2.style.opacity='0.35';
   document.getElementById('tapHint').style.opacity     = '1';
   showPhase('', `Stopwatch — ${nextNum}本目`);
-  updateStats();
+  updateDiveNum();
+  // ログ再描画（累積表示）
+  renderLog();
 }
 
 function updateSwNextBtn() {
   const btn = document.getElementById('btnNext');
+  const numEl = document.getElementById('btnNextNum');
   if (!btn) return;
-  if (mode === 'free' && phase === 'idle' && swDive > 0) {
-    btn.textContent = `次へ（${swDive + 1}本目）`;
+  if (mode === 'free' && swLocked) {
+    if (numEl) numEl.textContent = swDive + 1;
     btn.style.display = '';
   } else {
     btn.style.display = 'none';
+  }
+}
+
+// ── END SESSION ──────────────────────────────────────────
+function onEndSession() {
+  // 休憩中に終了 → 現在のセットまでで完了扱い
+  cancelAnimationFrame(rafId); rafId = null;
+  stopMock();
+  document.getElementById('btnEnd').style.display = 'none';
+  finishSession();
+}
+
+// ── DIVE NUM DISPLAY ─────────────────────────────────────
+function updateDiveNum() {
+  const el = document.getElementById('diveNum');
+  if (!el) return;
+  if (mode === 'free') {
+    // hold中: swDive+1本目（swDiveは完了本数）
+    // idle中: swDive+1本目の準備中（swDive>0の場合のみ表示）
+    if (phase === 'hold') {
+      el.textContent = `${swDive + 1}本目`;
+    } else {
+      // idle中は表示しない（次へ or スタート時にholdで表示される）
+      el.textContent = '';
+    }
+  } else if (mode === 'o2' || mode === 'co2') {
+    const total = totalSets();
+    const cur = currentSet + 1;
+    el.textContent = phase === 'idle' ? '' : `${cur} / ${total}`;
+  } else {
+    el.textContent = '';
   }
 }
 
@@ -1256,23 +1457,58 @@ function updateRingStartBtn() {
   el.style.opacity = (phase==='idle' && !nextVisible) ? '1' : '0';
 }
 
-// ── LAP ──────────────────────────────────────────────────
-function onLap() {
-  if (mode !== 'free') return;
-  // hold中のみラップ記録（running時）
+// ── PHASE RING LABEL ─────────────────────────────────────
+function showPhaseRingLabel(text, cls) {
+  const el = document.getElementById('phaseRingLabel');
+  if (!el) return;
+  el.textContent = text;
+  el.className = 'phase-ring-label ' + cls;
+  el.style.display = '';
+}
+function hidePhaseRingLabel() {
+  const el = document.getElementById('phaseRingLabel');
+  if (el) el.style.display = 'none';
+}
+
+// ── STOPWATCH REST TIMER ────────────────────────────────
+function startRestTimer() {
+  stopRestTimer();
+  restStart = performance.now();
+  const el = document.getElementById('restTimer');
+  if (!el) return;
+  el.style.display = '';
+  function tick() {
+    const ms = performance.now() - restStart;
+    el.innerHTML = `休憩 <span>${fmt(ms)}</span>`;
+    restRafId = requestAnimationFrame(tick);
+  }
+  restRafId = requestAnimationFrame(tick);
+}
+
+function stopRestTimer() {
+  if (restRafId) { cancelAnimationFrame(restRafId); restRafId = null; }
+  const el = document.getElementById('restTimer');
+  if (el) { el.style.display = 'none'; el.textContent = ''; }
+}
+
+// ── FIRST CONTRACTION ───────────────────────────────────
+function onFC() {
   if (phase !== 'hold') return;
-  const now = performance.now() - phaseStart;
-  const prev = laps.length ? laps[laps.length-1].total : 0;
-  const split = now - prev;
-  if (split < 100) return; // 100ms未満は無視
-  laps.push({ n: laps.length+1, split, total: now });
-  renderLaps();
+  if (currentFC !== null) return; // 1ホールドにつき1回のみ
+  currentFC = performance.now() - phaseStart;
+  // ボタンをdone状態に
+  const btn = document.getElementById('btnFC');
+  if (btn) {
+    btn.classList.add('done');
+    btn.textContent = '1st: ' + fmt(currentFC);
+  }
+  toast('FC: ' + fmt(currentFC));
 }
 
 function renderLaps() {
   const sec  = document.getElementById('lapSection');
   const list = document.getElementById('lapList');
-  if (!laps.length) { sec.style.display='none'; return; }
+  if (!sec || !list || !laps.length) { if(sec) sec.style.display='none'; return; }
   sec.style.display = '';
   const splits = laps.map(l=>l.split);
   const best   = Math.min(...splits);
@@ -1295,7 +1531,7 @@ function renderLaps() {
 // ── STATS ─────────────────────────────────────────────────
 function updateStats() {
   const done = holdDives.length;
-  document.getElementById('stSets').textContent = done;
+  document.getElementById('stSets').textContent = holdDives.filter(d=>!d.isRest).length;
   document.getElementById('stTotal').textContent = mode==='free'?'∞':totalSets();
   if (!done) {
     document.getElementById('stBest').textContent = '—';
@@ -1303,11 +1539,12 @@ function updateStats() {
     document.getElementById('stSpo2').textContent = '—';
     return;
   }
-  const best = Math.max(...holdDives.map(d=>d.ms));
-  const avg  = holdDives.reduce((a,d)=>a+d.ms,0)/done;
+  const holdOnly2 = holdDives.filter(d=>!d.isRest);
+  const best = holdOnly2.length ? Math.max(...holdOnly2.map(d=>d.ms)) : 0;
+  const avg  = holdOnly2.length ? holdOnly2.reduce((a,d)=>a+d.ms,0)/holdOnly2.length : 0;
   document.getElementById('stBest').textContent = fmt(best);
   document.getElementById('stAvg').textContent  = fmt(avg);
-  const mins = holdDives.filter(d=>d.minSpo2!=null).map(d=>d.minSpo2);
+  const mins = holdDives.filter(d=>!d.isRest&&d.minSpo2!=null).map(d=>d.minSpo2);
   document.getElementById('stSpo2').textContent = mins.length ? Math.min(...mins)+'%' : '—';
 }
 
@@ -1319,26 +1556,52 @@ function renderLog() {
   sec.style.display = '';
   const best = holdDives.length ? Math.max(...holdDives.map(d=>d.ms)) : 0;
   list.innerHTML = '';
+  // holdのみでbest計算
+  const holdOnly = holdDives.filter(d => !d.isRest);
+  const bestMs = holdOnly.length ? Math.max(...holdOnly.map(d=>d.ms)) : 0;
+  // hold本数のインデックスを先に計算
+  const holdIndices = holdDives.map((d,i) => d.isRest ? null : i).filter(i => i !== null);
   [...holdDives].reverse().forEach((d,i) => {
-    const num = holdDives.length - i;
-    const isPB = d.ms===best && holdDives.length>1;
-    const spo2Tag = d.minSpo2!=null
-      ? `<span class="log-spo2 ${spo2Class(d.minSpo2)}">${d.minSpo2}%</span>` : '';
+    const absIdx = holdDives.length - 1 - i;
+    const holdRank = d.isRest ? null : holdIndices.indexOf(absIdx) + 1;
+    const num = d.isRest ? '' : holdRank;
     const el = document.createElement('div');
     el.className = 'log-item';
-    el.innerHTML = `
-      <span class="log-n">${num}</span>
-      <span class="log-type hold">Hold</span>
-      <span class="log-t">${fmt(d.ms)}<span style="font-size:12px;color:var(--muted)">${fmtMs(d.ms)}</span></span>
-      ${spo2Tag}
-      <span class="log-pb">${isPB?'PB':''}</span>`;
-    el.onclick = () => openDetail(d);
+    if (d.isRest) {
+      // 休憩行
+      el.style.opacity = '0.55';
+      el.innerHTML = `
+        <span class="log-n">${num}</span>
+        <span class="log-type rest">Rest</span>
+        <span class="log-t" style="color:var(--muted)">${fmt(d.ms)}<span style="font-size:12px">${fmtMs(d.ms)}</span></span>
+      `;
+    } else {
+      const spo2Tag = d.minSpo2!=null
+        ? `<span class="log-spo2 ${spo2Class(d.minSpo2)}">${d.minSpo2}%</span>` : '';
+      const fcTag = d.fc!=null
+        ? `<span class="fc-tag">1st ${fmt(d.fc)}</span>` : '';
+      el.innerHTML = `
+        <span class="log-n">${num}</span>
+        <span class="log-type hold">Hold</span>
+        <span class="log-t">${fmt(d.ms)}<span style="font-size:12px;color:var(--muted)">${fmtMs(d.ms)}</span></span>
+        ${fcTag}${spo2Tag}
+      `;
+      el.onclick = () => openDetail(d);
+    }
     list.appendChild(el);
   });
 }
 
 // ── TIMER CLICK ───────────────────────────────────────────
-document.getElementById('timerWrap').addEventListener('click', onMainBtn);
+document.getElementById('timerWrap').addEventListener('click', () => {
+  // iOS: タップ時にSpeech APIをアンロック
+  if (_synth && (phase === 'idle' || phase === 'stopped')) {
+    const u = new SpeechSynthesisUtterance('');
+    u.volume = 0;
+    _synth.speak(u);
+  }
+  onMainBtn();
+});
 document.addEventListener('keydown', e => {
   if (e.code==='Space') { e.preventDefault(); onMainBtn(); }
   if (e.code==='KeyR')  onReset();
@@ -1531,6 +1794,13 @@ function selHyp(btn) {
   saveHypoxia = parseInt(btn.dataset.v);
 }
 
+function directToLog() {
+  if (!holdDives.length) return;
+  saveHypoxia = 0;
+  document.getElementById('saveNote') && (document.getElementById('saveNote').value = '');
+  confirmSave();
+}
+
 async function confirmSave() {
   closeSave();
   const best = holdDives.length ? Math.max(...holdDives.map(d=>d.ms)) : 0;
@@ -1555,6 +1825,9 @@ async function confirmSave() {
     source:'sta-timer',
   };
 
+  // localStorageに一時保存
+  try { localStorage.setItem('sta_pending_session', JSON.stringify(sessionData)); } catch(e) {}
+
   if (_user) {
     const { error } = await _sb.from('training_logs').insert({
       user_id:    _user.id,
@@ -1565,11 +1838,14 @@ async function confirmSave() {
       is_public:  false,
       data:       sessionData,
     });
-    toast(error ? '⚠️ DB保存失敗' : '✓ Training Log に保存しました', !!error);
-  } else {
-    toast('✓ 保存（未ログイン・ローカルのみ）');
+    if (error) {
+      toast('⚠️ DB保存失敗', true);
+      return;
+    }
   }
-  onReset();
+
+  // training-log.htmlに遷移（データはlocalStorageで渡す）
+  window.location.href = 'training-log.html?from=sta-timer';
 }
 
 // ── DETAIL MODAL ──────────────────────────────────────────
