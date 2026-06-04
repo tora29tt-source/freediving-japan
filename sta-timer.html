@@ -245,15 +245,13 @@ header {
 .spo2-v.warn { color: var(--warm); }
 .spo2-v.crit { color: var(--danger); }
 .spo2-pct { font-size: 11px; color: var(--muted); }
-/* start button inside ring */
-.ring-start-btn {
-  margin-top: 10px;
-  width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--teal);
-  background: var(--teal-dim); color: var(--teal-light);
-  font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
-  cursor: pointer; transition: all .15s; -webkit-tap-highlight-color: transparent;
+/* tap hint */
+.tap-hint {
+  font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--muted); margin-top: 8px; font-weight: 600;
+  transition: opacity .3s;
 }
-.ring-start-btn:active { background: var(--teal); color: #0b2d45; transform: scale(.95); }
+
 
 /* countdown overlay inside ring */
 .ring-countdown {
@@ -309,6 +307,7 @@ header {
 .btn-sub:active { opacity: .7; transform: scale(.97); }
 .btn-sub.save { color: var(--teal-light); border-color: var(--teal); }
 .btn-sub.lap  { color: var(--teal-light); border-color: var(--teal); }
+.btn-sub.next { color: var(--teal-light); border-color: var(--teal); background: var(--teal-dim); }
 .lap-best  { color: var(--teal) !important; }
 .lap-worst { color: var(--warm) !important; }
 .btn-sub:disabled { opacity: .3; pointer-events: none; }
@@ -551,7 +550,7 @@ header {
         <span class="spo2-v ok" id="spo2V">--</span>
         <span class="spo2-pct">%</span>
       </div>
-      <button class="ring-start-btn" id="ringStartBtn" onclick="onMainBtn()" style="display:none">START</button>
+      <div class="tap-hint" id="tapHint">TAP TO START</div>
     </div>
     <!-- countdown overlay -->
     <div class="ring-countdown" id="ringCountdown">
@@ -578,9 +577,10 @@ header {
     <button class="btn-main start" id="btnMain" onclick="onMainBtn()">Start</button>
     <div class="btn-row">
       <button class="btn-sub"      onclick="onReset()">Reset</button>
-      <button class="btn-sub lap"  id="btnLap" disabled onclick="onLap()">Lap</button>
+      <button class="btn-sub lap"  id="btnLap" onclick="onLap()">Lap</button>
+      <button class="btn-sub next" id="btnNext" onclick="swNextDive()" style="display:none">次へ</button>
       <button class="btn-sub save" id="btnSave" disabled onclick="openSave()">Save Session</button>
-      <button class="btn-sub"      onclick="onClear()">Clear All</button>
+      <button class="btn-sub" id="btnClearAll" onclick="onClear()">Clear All</button>
     </div>
   </div>
 
@@ -775,9 +775,11 @@ function setMode(m) {
   // Lap/Stopwatchモード切替
   const isSW = m === 'free';
   document.getElementById('btnLap').style.display = isSW ? '' : 'none';
-  document.getElementById('btnLap').disabled = true;
-  document.getElementById('ringStartBtn').style.display = isSW ? 'none' : '';
-  if (!isSW) updateRingStartBtn();
+  document.getElementById('btnNext').style.display = 'none';
+  // btnLap/btnNext: startHold/endHoldで制御
+  document.getElementById('btnMain').style.display = isSW ? 'none' : '';
+  document.getElementById('btnClearAll').style.display = isSW ? 'none' : '';
+  updateRingStartBtn();
   renderSetDots();
   onReset();
 }
@@ -872,6 +874,7 @@ let rafId     = null;
 let currentSet= 0;       // 0-based
 let holdDives = [];      // saved hold records
 let laps      = [];      // stopwatch lap records
+let swDive    = 0;       // stopwatch dive count
 let spo2Buf   = [];      // current hold spo2 data
 let currentSpo2 = null;
 let countdownSec = 0;    // countdown remaining
@@ -929,9 +932,11 @@ function tick() {
 // ── PHASE TRANSITIONS ─────────────────────────────────────
 function startSession() {
   currentSet = 0; holdDives = []; spo2Buf = [];
+  if (mode === 'free' && swDive === 0) laps = []; // 初回のみlapsリセット
   renderSetDots(); renderLog();
   document.getElementById('btnSave').disabled = true;
-  document.getElementById('ringStartBtn').style.display = 'none';
+  const th=document.getElementById('tapHint'); if(th) th.style.opacity='0';
+  if (mode !== 'free') document.getElementById('btnMain').style.display = '';
   beginCountdownOrHold();
 }
 
@@ -968,8 +973,9 @@ function startHold() {
     ? 'Stopwatch — Running'
     : `Set ${currentSet+1}/${totalSets()} — Hold`);
   setBtnMain('stop', mode==='free' ? 'Stop' : 'Stop Hold');
+  if (mode !== 'free') document.getElementById('btnMain').style.display = '';
   if (mode === 'free') {
-    document.getElementById('btnLap').disabled = false;
+    document.getElementById('btnLap').style.opacity = '1';
     renderLaps();
   }
   if (mode==='mock' || bleMode==='mock') startMock();
@@ -993,10 +999,13 @@ function endHold(auto=false) {
   if (mode === 'free') {
     phase = 'idle';
     setHoldRing(0);
-    showPhase('rest', 'Stopwatch — Stopped');
-    setBtnMain('start', 'Start');
+    swDive++;
+    showPhase('rest', `Stopwatch — ${swDive}本目 完了`);
+    setBtnMain('start', 'Resume');
+    document.getElementById('btnMain').style.display = 'none';
     document.getElementById('btnSave').disabled = false;
-    document.getElementById('btnLap').disabled  = laps.length === 0;
+    document.getElementById('btnLap').style.opacity = '0.35';
+    updateSwNextBtn();
     releaseWakeLock();
     return;
   }
@@ -1128,11 +1137,17 @@ function onReset() {
   showPhase('', mode==='o2'?'O2 Table':mode==='co2'?'CO2 Table':'Stopwatch');
   updateRingStartBtn();
   setBtnMain('start', 'Start');
+  document.getElementById('btnMain').style.display = mode==='free' ? 'none' : '';
+  document.getElementById('btnClearAll').style.display = mode==='free' ? 'none' : '';
   document.getElementById('btnSave').disabled = true;
-  document.getElementById('btnLap').disabled  = true;
+  document.getElementById('btnLap').style.opacity = '0.35';
   document.getElementById('completeBanner').classList.remove('show');
   document.getElementById('lapSection').style.display = 'none';
   document.getElementById('lapList').innerHTML = '';
+  swDive = 0;
+  const nb = document.getElementById('btnNext');
+  if (nb) nb.style.display = 'none';
+  updateRingStartBtn();
   renderSetDots(); renderLog(); updateStats();
   // liveChart clear: just blank the canvas
   const lc = document.getElementById('spo2Live');
@@ -1197,25 +1212,59 @@ function renderSetList() {
   }
 }
 
+// ── STOPWATCH NEXT DIVE ──────────────────────────────────
+function swNextDive() {
+  if (mode !== 'free') return;
+  const nextNum = swDive + 1;
+  // 状態を完全リセット（swDiveは維持）
+  cancelAnimationFrame(rafId); rafId = null;
+  phase = 'idle'; phaseMs = 0;
+  holdDives = []; laps = []; spo2Buf = [];
+  setHoldRing(0); setRestRing(0);
+  document.getElementById('timeMain').textContent = '00:00';
+  document.getElementById('timeMs').textContent   = '.00';
+  document.getElementById('timeMain').classList.remove('danger');
+  document.getElementById('lapSection').style.display  = 'none';
+  document.getElementById('lapList').innerHTML   = '';
+  document.getElementById('logSection').style.display  = 'none';
+  document.getElementById('logList').innerHTML   = '';
+  document.getElementById('btnNext').style.display     = 'none';
+  document.getElementById('btnSave').disabled          = true;
+  document.getElementById('btnLap').style.opacity      = '0.35';
+  document.getElementById('tapHint').style.opacity     = '1';
+  showPhase('', `Stopwatch — ${nextNum}本目`);
+  updateStats();
+}
+
+function updateSwNextBtn() {
+  const btn = document.getElementById('btnNext');
+  if (!btn) return;
+  if (mode === 'free' && phase === 'idle' && swDive > 0) {
+    btn.textContent = `次へ（${swDive + 1}本目）`;
+    btn.style.display = '';
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
 // ── RING START BTN ───────────────────────────────────────
 function updateRingStartBtn() {
-  const btn = document.getElementById('ringStartBtn');
-  if (!btn) return;
-  if (mode === 'free') { btn.style.display='none'; return; }
-  btn.style.display = (phase==='idle') ? '' : 'none';
+  const el = document.getElementById('tapHint');
+  if (!el) return;
+  const nb = document.getElementById('btnNext');
+  const nextVisible = nb && nb.style.display !== 'none';
+  el.style.opacity = (phase==='idle' && !nextVisible) ? '1' : '0';
 }
 
 // ── LAP ──────────────────────────────────────────────────
 function onLap() {
   if (mode !== 'free') return;
-  // running中: 現在時刻でラップ打つ
-  // stopped中: 最後の計測値でラップ打つ
-  const now = phase === 'hold'
-    ? performance.now() - phaseStart
-    : phaseMs;
+  // hold中のみラップ記録（running時）
+  if (phase !== 'hold') return;
+  const now = performance.now() - phaseStart;
   const prev = laps.length ? laps[laps.length-1].total : 0;
   const split = now - prev;
-  if (split <= 0) return;
+  if (split < 100) return; // 100ms未満は無視
   laps.push({ n: laps.length+1, split, total: now });
   renderLaps();
 }
