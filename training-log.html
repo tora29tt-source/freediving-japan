@@ -2705,6 +2705,36 @@ function lopts(u){return{responsive:true,plugins:{legend:{display:false}},scales
 
 // ===== TOAST =====
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+// sta-timerからのデータ受け取り
+(function() {
+  try {
+    const raw = localStorage.getItem('sta_pending_session');
+    if (!raw || !location.search.includes('from=sta-timer')) return;
+    const d = JSON.parse(raw);
+    localStorage.removeItem('sta_pending_session');
+    // 種目をSTAに設定
+    document.querySelectorAll('#disc-chips .chip').forEach(c => {
+      if (c.textContent === 'STA') c.click();
+    });
+    // ダイブログを展開
+    if (d.diveLog) {
+      d.diveLog.forEach(dive => {
+        sessionDives.push({
+          id: Date.now() + Math.random(),
+          disc: 'STA',
+          time: dive.time,
+          holdTime: dive.holdTime,
+          spo2Profile: dive.spo2Profile || null,
+          minSpo2: dive.minSpo2 || null,
+        });
+      });
+      updateDiveNumLabel();
+      renderDiveLog();
+    }
+    if (d.note) document.getElementById('f-note').value = d.note;
+    if (d.date) document.getElementById('f-date').value = d.date;
+  } catch(e) {}
+})();
 
 // ===== INIT =====
 document.getElementById('f-date').value = today();
