@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>STA Timer — Freediving Japan</title>
+<script>
+window.onerror = function(msg, src, line, col, err) {
+  var d = document.getElementById('_dbg');
+  if (!d) { d = document.createElement('div'); d.id='_dbg';
+    d.style.cssText='position:fixed;bottom:0;left:0;right:0;background:#1a0000;color:#ff6b6b;font-size:11px;padding:6px 10px;z-index:9999;font-family:monospace;max-height:120px;overflow-y:auto;border-top:1px solid #ff000055';
+    document.body.appendChild(d); }
+  var entry = document.createElement('div');
+  entry.textContent = '❌ ' + msg + ' [' + (src||'').split('/').pop() + ':' + line + ':' + col + ']';
+  d.appendChild(entry);
+  return false;
+};
+window.addEventListener('unhandledrejection', function(e) {
+  var d = document.getElementById('_dbg');
+  if (!d) { d = document.createElement('div'); d.id='_dbg';
+    d.style.cssText='position:fixed;bottom:0;left:0;right:0;background:#1a0000;color:#ff6b6b;font-size:11px;padding:6px 10px;z-index:9999;font-family:monospace;max-height:120px;overflow-y:auto;border-top:1px solid #ff000055';
+    document.body.appendChild(d); }
+  var entry = document.createElement('div');
+  entry.textContent = '⚠️ ' + String(e.reason);
+  d.appendChild(entry);
+});
+</script>
+<style>
+:root {
+  --teal:       #2ec4b6;
+  --teal-light: #a8ece8;
+  --teal-dim:   rgba(46,196,182,0.12);
+  --warm:       #f97316;
+  --danger:     #ef4444;
+  --success:    #22c55e;
+  --bg:         #060f17;
+  --surface:    #0b2035;
+  --surface2:   #0f2a44;
+  --surface3:   #163354;
+  --text:       #e8f4f8;
+  --muted:      #5a8ca8;
+  --border:     #1a3f5c;
+  --ocean:      #0e3d5c;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%; background: var(--bg); color: var(--text);
+  font-family: -apple-system, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  overflow: hidden; touch-action: manipulation; -webkit-font-smoothing: antialiased;
+}
+
+/* BG */
+.bg-layer {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 55% at 50% 0%, #0e3d5c55 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 85% 100%, #2ec4b612 0%, transparent 60%);
+}
+.bubbles { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.bubble {
+  position: absolute; bottom: -10px; border-radius: 50%;
+  background: var(--teal); opacity: 0;
+  animation: rise var(--dur) ease-in infinite var(--delay);
+  left: var(--x); width: var(--sz); height: var(--sz);
+}
+@keyframes rise {
+  0%  { transform:translateY(0) scale(1);   opacity:0; }
+  10% { opacity:.3; }
+  90% { opacity:.06; }
+  100%{ transform:translateY(-100vh) scale(.3); opacity:0; }
+}
+
+/* LAYOUT */
+.app {
+  position: relative; z-index: 1;
+  height: 100%; display: flex; flex-direction: column;
+  padding-top: env(safe-area-inset-top, 10px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* HEADER */
+header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 16px 4px; flex-shrink: 0;
+}
+.logo { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--teal); font-weight: 700; opacity: .8; }
+.hdr-right { display: flex; align-items: center; gap: 10px; }
+.ble-btn {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 10px; letter-spacing: .08em; text-transform: uppercase; font-weight: 600;
+  color: var(--muted); background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 20px; padding: 4px 10px;
+  cursor: pointer; transition: all .2s; -webkit-tap-highlight-color: transparent;
+}
+.ble-btn.on  { border-color: var(--teal); color: var(--teal); background: var(--teal-dim); }
+.ble-btn.mock{ border-color: var(--warm); color: var(--warm); }
+.ble-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.ble-dot.pulse { animation: blink .9s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.15} }
+.nav-back { font-size: 12px; color: var(--muted); text-decoration: none; }
+.nav-back:hover { color: var(--teal); }
+
+/* MODE TABS */
+.mode-tabs {
+  display: flex; gap: 6px; padding: 4px 16px; flex-shrink: 0;
+}
+.mode-tab {
+  flex: 1; height: 32px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--surface2); color: var(--muted);
+  font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  cursor: pointer; transition: all .15s; -webkit-tap-highlight-color: transparent;
+}
+.mode-tab.active { background: var(--teal-dim); border-color: var(--teal); color: var(--teal-light); }
+
+/* TABLE CONFIG PANEL */
+.config-panel {
+  margin: 4px 16px; padding: 10px 12px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  flex-shrink: 0; display: none;
+}
+.config-panel.visible { display: block; }
+.cfg-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+}
+.cfg-item { display: flex; flex-direction: column; gap: 4px; }
+.cfg-lbl {
+  font-size: 9px; letter-spacing: .15em; text-transform: uppercase;
+  color: var(--muted); font-weight: 700;
+}
+.cfg-sel {
+  height: 34px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--surface2); color: var(--text);
+  font-size: 14px; font-variant-numeric: tabular-nums;
+  padding: 0 10px; outline: none; cursor: pointer;
+  -webkit-appearance: none; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%235a8ca8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 10px center;
+  padding-right: 28px;
+}
+.cfg-sel:focus { border-color: var(--teal); }
+.cfg-stop-row { display: flex; gap: 4px; }
+.stop-btn {
+  flex: 1; height: 34px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--surface2); color: var(--muted);
+  font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  cursor: pointer; transition: all .15s; -webkit-tap-highlight-color: transparent;
+}
+.stop-btn.active { background: var(--teal-dim); border-color: var(--teal); color: var(--teal-light); }
+
+/* PHASE BANNER */
+.phase-banner {
+  flex-shrink: 0; text-align: center; padding: 2px 0 0;
+}
+.phase-label {
+  font-size: 10px; letter-spacing: .22em; text-transform: uppercase;
+  font-weight: 700; color: var(--teal); height: 16px; transition: color .4s;
+}
+.phase-label.rest   { color: var(--muted); }
+.phase-label.danger { color: var(--warm); }
+.phase-label.countdown { color: var(--success); }
+
+/* SET PROGRESS */
+.set-list-wrap {
+  flex-shrink: 0; padding: 0 16px; max-height: 160px; overflow-y: auto;
+}
+.set-list-wrap::-webkit-scrollbar { width: 2px; }
+.set-list-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.set-list { display: flex; flex-direction: column; gap: 3px; }
+.set-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 10px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--surface);
+  transition: all .3s;
+}
+.set-row.done {
+  background: var(--surface2); border-color: transparent; opacity: .45;
+}
+.set-row.current {
+  border-color: var(--teal); background: rgba(46,196,182,.06);
+}
+.set-row.pending { opacity: .3; }
+.set-n {
+  font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted); min-width: 28px;
+}
+.set-phase-lbl {
+  font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  flex: 1;
+}
+.set-phase-lbl.hold { color: var(--teal-light); }
+.set-phase-lbl.rest { color: var(--muted); }
+.set-phase-lbl.pending { color: var(--border); }
+.set-time {
+  font-size: 14px; font-variant-numeric: tabular-nums; font-weight: 300;
+  color: var(--text-muted); min-width: 44px; text-align: right;
+  color: var(--muted);
+}
+.set-time.done-time { color: var(--teal); }
+.set-spo2 {
+  font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 4px; min-width: 36px; text-align: center;
+}
+.set-spo2.ok   { color: var(--teal);   background: rgba(46,196,182,.12); }
+.set-spo2.warn { color: var(--warm);   background: rgba(249,115,22,.12); }
+.set-spo2.crit { color: var(--danger); background: rgba(239,68,68,.12); }
+
+/* TIMER RING */
+.timer-wrap {
+  position: relative; width: min(280px, 78vw); aspect-ratio: 1;
+  display: flex; align-items: center; justify-content: center;
+  margin: 4px auto; cursor: pointer;
+  -webkit-tap-highlight-color: transparent; user-select: none; flex-shrink: 0;
+}
+.ring-svg {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  transform: rotate(-90deg); pointer-events: none;
+}
+.ring-track  { fill: none; stroke: var(--surface2); stroke-width: 4; }
+.ring-hold   { fill: none; stroke: var(--teal);  stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset .1s linear, stroke .5s; }
+.ring-rest   { fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; stroke-dasharray: 4 6; transition: stroke-dashoffset .1s linear; }
+.ring-spo2   { fill: none; stroke: transparent;  stroke-width: 7; stroke-linecap: round; transition: stroke-dashoffset .8s ease, stroke .5s; }
+.ring-hold.danger { stroke: var(--warm); }
+
+.timer-inner { display: flex; flex-direction: column; align-items: center; gap: 0; }
+.time-main {
+  font-size: clamp(46px, 14vw, 70px); font-variant-numeric: tabular-nums;
+  letter-spacing: -.02em; font-weight: 300; color: var(--text);
+  line-height: 1; transition: color .4s;
+}
+.time-main.danger { color: var(--warm); }
+.time-ms {
+  font-size: clamp(14px, 4vw, 20px); color: var(--muted);
+  font-variant-numeric: tabular-nums; font-weight: 300; letter-spacing: .04em;
+}
+.spo2-row {
+  display: flex; align-items: baseline; gap: 2px; margin-top: 4px;
+  height: 26px; transition: opacity .4s;
+}
+.spo2-row.hidden { opacity: 0; pointer-events: none; }
+.spo2-v {
+  font-size: clamp(20px, 6vw, 28px); font-variant-numeric: tabular-nums;
+  font-weight: 600; line-height: 1; transition: color .5s;
+}
+.spo2-v.ok   { color: var(--teal-light); }
+.spo2-v.warn { color: var(--warm); }
+.spo2-v.crit { color: var(--danger); }
+.spo2-pct { font-size: 11px; color: var(--muted); }
+/* countdown overlay inside ring */
+.ring-countdown {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  pointer-events: none; opacity: 0; transition: opacity .2s;
+}
+.ring-countdown.visible { opacity: 1; }
+.ring-countdown-num {
+  font-size: clamp(60px, 18vw, 90px); font-variant-numeric: tabular-nums;
+  font-weight: 200; color: var(--success); letter-spacing: -.04em;
+  text-shadow: 0 0 30px rgba(34,197,94,.4);
+}
+
+/* SPO2 MINI CHART */
+.spo2-chart-area {
+  flex-shrink: 0; width: 100%; max-width: 300px; margin: 0 auto;
+  height: 40px; opacity: 0; transition: opacity .4s; position: relative;
+}
+.spo2-chart-area.visible { opacity: 1; }
+.spo2-chart-tag {
+  position: absolute; top: 0; left: 2px;
+  font-size: 8px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 600;
+}
+
+/* SESSION STATS */
+.stats-row {
+  display: flex; justify-content: center; gap: 18px;
+  padding: 4px 16px; flex-shrink: 0;
+}
+.stat { display: flex; flex-direction: column; align-items: center; gap: 0; }
+.stat-lbl { font-size: 8px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.stat-val { font-size: 16px; font-variant-numeric: tabular-nums; color: var(--teal-light); font-weight: 300; }
+
+/* CONTROLS */
+.controls { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 4px 16px; flex-shrink: 0; }
+.btn-main {
+  width: 100%; max-width: 300px; height: 50px; border-radius: 13px; border: none;
+  font-size: 14px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700;
+  cursor: pointer; transition: all .15s; -webkit-tap-highlight-color: transparent;
+}
+.btn-main.start { background: var(--teal); color: #0b2d45; }
+.btn-main.stop  { background: var(--ocean); color: var(--text); border: 1px solid var(--teal); }
+.btn-main.rest  { background: var(--surface3); color: var(--muted); border: 1px solid var(--border); pointer-events: none; }
+.btn-main:active { transform: scale(.97); opacity: .85; }
+.btn-row { display: flex; gap: 7px; width: 100%; max-width: 300px; }
+.btn-sub {
+  flex: 1; height: 38px; border-radius: 9px; border: 1px solid var(--border);
+  background: var(--surface2); color: var(--muted);
+  font-size: 10px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700;
+  cursor: pointer; transition: all .15s; -webkit-tap-highlight-color: transparent;
+}
+.btn-sub:active { opacity: .7; transform: scale(.97); }
+.btn-sub.save { color: var(--teal-light); border-color: var(--teal); }
+.btn-sub.lap  { color: var(--teal-light); border-color: var(--teal); }
+.lap-item { display:flex; align-items:center; gap:8px; padding:5px 10px; background:var(--surface); border-radius:7px; border:1px solid var(--border); animation: sIn .2s ease; }
+.lap-n    { font-size:9px; color:var(--muted); width:16px; text-align:center; flex-shrink:0; }
+.lap-split{ font-size:16px; font-variant-numeric:tabular-nums; font-weight:300; color:var(--text); flex:1; }
+.lap-total{ font-size:12px; font-variant-numeric:tabular-nums; color:var(--muted); }
+.lap-best { color:var(--teal); }
+.lap-worst{ color:var(--warm); }
+.btn-sub:disabled { opacity: .3; pointer-events: none; }
+
+/* LOG LIST */
+.log-section { flex: 1; padding: 4px 16px 8px; min-height: 0; display: flex; flex-direction: column; }
+.log-hdr { font-size: 8px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; font-weight: 700; }
+.log-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 3px; }
+.log-list::-webkit-scrollbar { width: 2px; }
+.log-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.log-item {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 10px; background: var(--surface); border-radius: 7px;
+  border: 1px solid var(--border); cursor: pointer; transition: border-color .15s;
+  animation: sIn .2s ease;
+}
+.log-item:hover { border-color: var(--teal); }
+@keyframes sIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+.log-n    { font-size: 9px; color: var(--muted); width: 16px; text-align: center; flex-shrink: 0; }
+.log-type { font-size: 8px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 1px 5px; border-radius: 4px; flex-shrink: 0; }
+.log-type.hold { color: var(--teal);  background: var(--teal-dim); }
+.log-type.rest { color: var(--muted); background: var(--surface2); }
+.log-t    { font-size: 16px; font-variant-numeric: tabular-nums; font-weight: 300; color: var(--text); flex: 1; }
+.log-spo2 { font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 4px; flex-shrink: 0; }
+.log-spo2.ok   { color: var(--teal);   background: rgba(46,196,182,.12); }
+.log-spo2.warn { color: var(--warm);   background: rgba(249,115,22,.12); }
+.log-spo2.crit { color: var(--danger); background: rgba(239,68,68,.12); }
+.log-pb   { font-size: 8px; color: var(--warm); font-weight: 700; letter-spacing: .08em; flex-shrink: 0; }
+
+/* MODALS */
+.overlay {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(6,15,23,.88);
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .25s;
+}
+.overlay.open { opacity: 1; pointer-events: all; }
+.sheet {
+  background: var(--surface); border-radius: 20px 20px 0 0; border: 1px solid var(--border);
+  padding: 18px 18px calc(18px + env(safe-area-inset-bottom, 0px));
+  width: 100%; max-width: 480px; max-height: 88vh; overflow-y: auto;
+  transform: translateY(100%); transition: transform .3s cubic-bezier(.32,.72,0,1);
+}
+.overlay.open .sheet { transform: translateY(0); }
+.sheet-title { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--teal); font-weight: 700; margin-bottom: 14px; text-align: center; }
+.sheet-time { font-size: 42px; font-variant-numeric: tabular-nums; font-weight: 200; color: var(--text); text-align: center; margin-bottom: 8px; letter-spacing: -.02em; }
+
+/* spo2 summary in save modal */
+.spo2-summary { display: flex; justify-content: center; gap: 18px; padding: 9px 12px; background: var(--surface2); border-radius: 9px; border: 1px solid var(--border); margin-bottom: 12px; }
+.spo2-s { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.spo2-s-lbl { font-size: 8px; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.spo2-s-val { font-size: 20px; font-variant-numeric: tabular-nums; font-weight: 400; }
+.spo2-s-val.ok   { color: var(--teal-light); }
+.spo2-s-val.warn { color: var(--warm); }
+.spo2-s-val.crit { color: var(--danger); }
+.chart-wrap { height: 70px; margin-bottom: 12px; }
+.chart-lbl { font-size: 8px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 3px; }
+
+.field-lbl { font-size: 9px; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
+.fi {
+  width: 100%; height: 40px; border-radius: 9px; border: 1px solid var(--border);
+  background: var(--surface2); color: var(--text); padding: 0 12px; font-size: 13px;
+  font-family: inherit; outline: none; -webkit-appearance: none; margin-bottom: 10px;
+}
+.fi:focus { border-color: var(--teal); }
+.sym-row { display: flex; gap: 5px; margin-bottom: 12px; }
+.sym-btn {
+  flex: 1; height: 36px; border-radius: 7px; border: 1px solid var(--border);
+  background: var(--surface2); color: var(--muted); font-size: 10px;
+  font-weight: 700; cursor: pointer; transition: all .15s; -webkit-tap-highlight-color: transparent;
+}
+.sym-btn.active { background: var(--teal-dim); border-color: var(--teal); color: var(--teal-light); }
+.sheet-btns { display: flex; gap: 8px; }
+.sheet-btn {
+  flex: 1; height: 46px; border-radius: 11px; border: none; font-size: 13px;
+  font-weight: 700; cursor: pointer; letter-spacing: .06em; text-transform: uppercase;
+  transition: all .15s; -webkit-tap-highlight-color: transparent;
+}
+.sheet-btn:active { transform: scale(.97); }
+.sheet-btn.cancel  { background: var(--surface2); color: var(--muted); }
+.sheet-btn.confirm { background: var(--teal); color: #0b2d45; }
+
+/* detail modal */
+.detail-meta { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 12px; }
+.dm { background: var(--surface2); border-radius: 7px; padding: 7px 8px; text-align: center; }
+.dm-lbl { font-size: 8px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.dm-val { font-size: 17px; font-variant-numeric: tabular-nums; font-weight: 400; color: var(--teal-light); }
+
+/* TOAST */
+.toast {
+  position: fixed; top: 56px; left: 50%; transform: translateX(-50%);
+  background: var(--teal); color: #0b2d45;
+  padding: 6px 16px; border-radius: 18px; font-size: 11px; font-weight: 700;
+  z-index: 200; letter-spacing: .04em; opacity: 0; pointer-events: none;
+  transition: opacity .2s; white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+.toast.err { background: var(--danger); color: #fff; }
+
+/* session complete banner */
+.complete-banner {
+  position: fixed; inset: 0; z-index: 90; display: flex; align-items: center; justify-content: center;
+  background: rgba(6,15,23,.9); opacity: 0; pointer-events: none; transition: opacity .3s;
+}
+.complete-banner.show { opacity: 1; pointer-events: all; }
+.complete-card {
+  background: var(--surface); border: 1px solid var(--teal); border-radius: 20px;
+  padding: 32px 40px; text-align: center; max-width: 300px;
+}
+.complete-icon { font-size: 40px; margin-bottom: 12px; }
+.complete-title { font-size: 18px; font-weight: 700; color: var(--teal-light); margin-bottom: 8px; }
+.complete-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+.complete-btn {
+  width: 100%; height: 44px; border-radius: 10px; border: none;
+  background: var(--teal); color: #0b2d45; font-size: 13px; font-weight: 700;
+  cursor: pointer; letter-spacing: .08em; text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+<div class="bg-layer"></div>
+<div class="bubbles" id="bubbles"></div>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <header>
+    <span class="logo">Freediving Japan</span>
+    <div class="hdr-right">
+      <button class="ble-btn" id="bleBtn" onclick="toggleBLE()">
+        <span class="ble-dot" id="bleDot"></span>
+        <span id="bleLabel">SpO2</span>
+      </button>
+      <a href="training-log.html" class="nav-back">← Log</a>
+    </div>
+  </header>
+
+  <!-- MODE TABS -->
+  <div class="mode-tabs">
+    <button class="mode-tab active" id="tab-free" onclick="setMode('free')">Stopwatch</button>
+    <button class="mode-tab"        id="tab-o2"   onclick="setMode('o2')">O2 Table</button>
+    <button class="mode-tab"        id="tab-co2"  onclick="setMode('co2')">CO2 Table</button>
+  </div>
+
+  <!-- CONFIG PANEL -->
+  <div class="config-panel" id="configPanel">
+
+    <!-- O2 Table: Hold(manual/auto) → Rest(固定) -->
+    <!-- 順: Hold Stop / Hold Time / Rest Time / Sets / Prep -->
+    <div id="cfg-o2" style="display:none">
+      <div class="cfg-grid">
+        <div class="cfg-item">
+          <span class="cfg-lbl">Hold Stop</span>
+          <div class="cfg-stop-row">
+            <button class="stop-btn active" id="o2-stop-manual" onclick="setCfgStop('o2','manual')">Manual</button>
+            <button class="stop-btn"        id="o2-stop-auto"   onclick="setCfgStop('o2','auto')">Auto</button>
+          </div>
+        </div>
+        <div class="cfg-item" id="o2-auto-row" style="opacity:.35;pointer-events:none">
+          <span class="cfg-lbl">Hold Time</span>
+          <select class="cfg-sel" id="sel-o2Hold" onchange="onSelChange('o2Hold',this.value)">
+          </select>
+        </div>
+        <div class="cfg-item">
+          <span class="cfg-lbl">Rest Time</span>
+          <select class="cfg-sel" id="sel-o2Rest" onchange="onSelChange('o2Rest',this.value)">
+          </select>
+        </div>
+        <div class="cfg-item">
+          <span class="cfg-lbl">Sets</span>
+          <select class="cfg-sel" id="sel-o2Sets" onchange="cfg.o2Sets=parseInt(this.value);renderSetDots()">
+          </select>
+        </div>
+        <div class="cfg-item">
+          <span class="cfg-lbl">Prep</span>
+          <select class="cfg-sel" id="sel-prep-o2" onchange="cfg.prepSec=parseInt(this.value)">
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- CO2 Table: Hold(固定) → Rest(manual/auto) -->
+    <!-- 順: Hold Stop / Hold Time / Rest Time / Sets / Prep — O2と完全統一 -->
+    <div id="cfg-co2" style="display:none">
+      <div class="cfg-grid">
+        <div class="cfg-item">
+          <span class="cfg-lbl">Hold Stop</span>
+          <div class="cfg-stop-row">
+            <button class="stop-btn active" id="co2-stop-manual" onclick="setCfgStop('co2','manual')">Manual</button>
+            <button class="stop-btn"        id="co2-stop-auto"   onclick="setCfgStop('co2','auto')">Auto</button>
+          </div>
+        </div>
+        <div class="cfg-item" id="co2-auto-row" style="opacity:.35;pointer-events:none">
+          <span class="cfg-lbl">Hold Time</span>
+          <select class="cfg-sel" id="sel-co2Hold" onchange="onSelChange('co2Hold',this.value)">
+          </select>
+        </div>
+        <div class="cfg-item">
+          <span class="cfg-lbl">Rest Time</span>
+          <select class="cfg-sel" id="sel-co2Rest" onchange="onSelChange('co2Rest',this.value)">
+          </select>
+        </div>
+        <div class="cfg-item">
+          <span class="cfg-lbl">Sets</span>
+          <select class="cfg-sel" id="sel-co2Sets" onchange="cfg.co2Sets=parseInt(this.value);renderSetDots()">
+          </select>
+        </div>
+        <div class="cfg-item">
+          <span class="cfg-lbl">Prep</span>
+          <select class="cfg-sel" id="sel-prep-co2" onchange="cfg.prepSec=parseInt(this.value)">
+          </select>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PHASE LABEL -->
+  <div class="phase-banner">
+    <div class="phase-label" id="phaseLabel">STA — Static Apnea</div>
+  </div>
+
+  <!-- SET LIST -->
+  <div class="set-list-wrap" id="setListWrap" style="display:none">
+    <div class="set-list" id="setList"></div>
+  </div>
+
+  <!-- TIMER RING -->
+  <div class="timer-wrap" id="timerWrap">
+    <svg class="ring-svg" viewBox="0 0 280 280">
+      <circle class="ring-track" cx="140" cy="140" r="128"/>
+      <circle class="ring-spo2"  cx="140" cy="140" r="128" id="ringSpo2"/>
+      <circle class="ring-rest"  cx="140" cy="140" r="118" id="ringRest"/>
+      <circle class="ring-hold"  cx="140" cy="140" r="118" id="ringHold"/>
+    </svg>
+    <div class="timer-inner">
+      <div class="time-main" id="timeMain">00:00</div>
+      <div class="time-ms"   id="timeMs">.00</div>
+      <div class="spo2-row hidden" id="spo2Row">
+        <span class="spo2-v ok" id="spo2V">--</span>
+        <span class="spo2-pct">%</span>
+      </div>
+    </div>
+    <!-- countdown overlay -->
+    <div class="ring-countdown" id="ringCountdown">
+      <span class="ring-countdown-num" id="countdownNum"></span>
+    </div>
+  </div>
+
+  <!-- SPO2 MINI CHART -->
+  <div class="spo2-chart-area" id="spo2ChartArea">
+    <span class="spo2-chart-tag">SpO2 Live</span>
+    <canvas id="spo2Live"></canvas>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat"><span class="stat-lbl">Best Hold</span><span class="stat-val" id="stBest">—</span></div>
+    <div class="stat"><span class="stat-lbl">Sets</span><span class="stat-val" id="stSets">0/<span id="stTotal">—</span></span></div>
+    <div class="stat"><span class="stat-lbl">Avg Hold</span><span class="stat-val" id="stAvg">—</span></div>
+    <div class="stat"><span class="stat-lbl">Min SpO2</span><span class="stat-val" id="stSpo2">—</span></div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <button class="btn-main start" id="btnMain" onclick="onMainBtn()">Start</button>
+    <div class="btn-row">
+      <button class="btn-sub"      onclick="onReset()">Reset</button>
+      <button class="btn-sub lap"  id="btnLap" disabled onclick="onLap()" style="display:none">Lap</button>
+      <button class="btn-sub save" id="btnSave" disabled onclick="openSave()">Save Session</button>
+      <button class="btn-sub"      onclick="onClear()">Clear All</button>
+    </div>
+  </div>
+
+  <!-- LOG -->
+  <div class="log-section" id="logSection" style="display:none">
+    <div class="log-hdr">Dives</div>
+    <div class="log-list" id="logList"></div>
+  </div>
+
+  <!-- LAP LIST (stopwatch mode) -->
+  <div class="log-section" id="lapSection" style="display:none">
+    <div class="log-hdr">Laps</div>
+    <div class="log-list" id="lapList"></div>
+  </div>
+
+</div><!-- /app -->
+
+<!-- SAVE MODAL -->
+<div class="overlay" id="saveOverlay" onclick="if(event.target===this)closeSave()">
+  <div class="sheet">
+    <div class="sheet-title">Save Session</div>
+    <div class="sheet-time" id="saveTime">—</div>
+    <div class="spo2-summary" id="saveSpo2Summary" style="display:none">
+      <div class="spo2-s"><span class="spo2-s-lbl">Start</span><span class="spo2-s-val ok"   id="ss-start">—</span></div>
+      <div class="spo2-s"><span class="spo2-s-lbl">Min</span>  <span class="spo2-s-val crit" id="ss-min">—</span></div>
+      <div class="spo2-s"><span class="spo2-s-lbl">End</span>  <span class="spo2-s-val ok"   id="ss-end">—</span></div>
+    </div>
+    <div id="saveChartWrap" style="display:none">
+      <div class="chart-lbl">Best Hold — SpO2 Profile</div>
+      <div class="chart-wrap"><canvas id="saveChart"></canvas></div>
+    </div>
+    <div class="field-lbl">Note</div>
+    <input class="fi" id="saveNote" placeholder="任意メモ" maxlength="100">
+    <div class="field-lbl">低酸素感 (Hypoxia)</div>
+    <div class="sym-row">
+      <button class="sym-btn" data-v="0" onclick="selHyp(this)">0 なし</button>
+      <button class="sym-btn" data-v="1" onclick="selHyp(this)">1 かも</button>
+      <button class="sym-btn" data-v="2" onclick="selHyp(this)">2 あり</button>
+      <button class="sym-btn" data-v="3" onclick="selHyp(this)">3 強</button>
+    </div>
+    <div class="sheet-btns">
+      <button class="sheet-btn cancel"  onclick="closeSave()">Cancel</button>
+      <button class="sheet-btn confirm" onclick="confirmSave()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="overlay" id="detailOverlay" onclick="if(event.target===this)closeDetail()">
+  <div class="sheet">
+    <div class="sheet-title">Dive Detail</div>
+    <div class="sheet-time" id="detailTime">—</div>
+    <div id="detailChartWrap" style="display:none">
+      <div class="chart-lbl">SpO2 Profile</div>
+      <div class="chart-wrap" style="height:90px"><canvas id="detailChart"></canvas></div>
+    </div>
+    <div class="detail-meta" id="detailMeta"></div>
+    <div class="sheet-btns">
+      <button class="sheet-btn cancel" onclick="closeDetail()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- SESSION COMPLETE -->
+<div class="complete-banner" id="completeBanner">
+  <div class="complete-card">
+    <div class="complete-icon">🎯</div>
+    <div class="complete-title" id="completeTitle">Session Complete!</div>
+    <div class="complete-sub"  id="completeSub">All sets done</div>
+    <button class="complete-btn" onclick="dismissComplete()">Save & Review</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── SUPABASE ─────────────────────────────────────────────
+// ── Supabase 軽量fetch実装（CDN不要）──
+const _SB_URL = 'https://bbhqvbpsuccbdcnhnobm.supabase.co';
+const _SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJiaHF2YnBzdWNjYmRjbmhub2JtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyODQwMzksImV4cCI6MjA5NTg2MDAzOX0.MexR8_hY56m3XRff0EJOQM3uQShXr2L9kGyYXLSzKbs';
+let _user = null;
+
+const _sb = {
+  async insert(table, row) {
+    const res = await fetch(`${_SB_URL}/rest/v1/${table}`, {
+      method: 'POST',
+      headers: {
+        'apikey': _SB_KEY,
+        'Authorization': 'Bearer ' + (_user?.access_token || _SB_KEY),
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(row)
+    });
+    if (!res.ok) { const t = await res.text(); return { error: { message: t } }; }
+    return { error: null };
+  },
+  from(table) {
+    return { insert: (row) => _sb.insert(table, row) };
+  }
+};
+
+// セッション取得（localStorageから）
+(function() {
+  try {
+    const raw = localStorage.getItem('sb-bbhqvbpsuccbdcnhnobm-auth-token');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      _user = parsed?.user || null;
+      if (_user) _user.access_token = parsed?.access_token || _SB_KEY;
+    }
+  } catch(e) {}
+})();
+
+// ── BUBBLES ──────────────────────────────────────────────
+for (let i = 0; i < 14; i++) {
+  const b = document.createElement('div');
+  b.className = 'bubble';
+  const sz = (2 + Math.random() * 4).toFixed(1) + 'px';
+  b.style.cssText = `--x:${Math.random()*100}%;--dur:${7+Math.random()*11}s;--delay:${Math.random()*14}s;--sz:${sz}`;
+  document.getElementById('bubbles').appendChild(b);
+}
+
+// ── SVG RINGS ────────────────────────────────────────────
+const ringHold = document.getElementById('ringHold');
+const ringRest = document.getElementById('ringRest');
+const ringSpo2 = document.getElementById('ringSpo2');
+const R = 118, R2 = 128;
+const C = 2 * Math.PI * R, C2 = 2 * Math.PI * R2;
+ringHold.style.strokeDasharray = C;
+ringHold.style.strokeDashoffset = C;
+ringRest.style.strokeDasharray = C;
+ringRest.style.strokeDashoffset = C;
+ringSpo2.style.strokeDasharray = C2;
+ringSpo2.style.strokeDashoffset = C2;
+
+function setHoldRing(ratio) { ringHold.style.strokeDashoffset = C * (1 - Math.min(ratio,1)); }
+function setRestRing(ratio) { ringRest.style.strokeDashoffset = C * (1 - Math.min(ratio,1)); }
+function setSpo2Ring(v) {
+  if (v === null) { ringSpo2.style.stroke = 'transparent'; return; }
+  const ratio = (v - 70) / 30;
+  ringSpo2.style.stroke = spo2Color(v);
+  ringSpo2.style.strokeDashoffset = C2 * (1 - Math.max(0, Math.min(ratio, 1)));
+}
+
+// ── UTIL ─────────────────────────────────────────────────
+function fmt(ms) {
+  const s = Math.floor(ms / 1000);
+  return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+}
+function fmtMs(ms) { return '.' + String(Math.floor((ms%1000)/10)).padStart(2,'0'); }
+function spo2Class(v) { return v==null?'ok': v>=95?'ok': v>=90?'warn':'crit'; }
+function spo2Color(v) { return v==null?'transparent': v>=95?'#2ec4b6': v>=90?'#f97316':'#ef4444'; }
+function toast(msg, err=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show' + (err?' err':'');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// ── MODE & CONFIG ─────────────────────────────────────────
+let mode = 'free'; // free | o2 | co2
+const cfg = {
+  o2RestMin:2,  o2RestSec:0,   // rest固定: 2:00
+  o2HoldMin:1,  o2HoldSec:0,   // holdオート時: 1:00
+  o2Stop: 'manual',
+  o2Sets: 8,
+  co2HoldMin:1, co2HoldSec:30, // hold固定: 1:30
+  co2RestMin:2, co2RestSec:0,  // restオート時: 2:00
+  co2Stop: 'manual',
+  co2Sets: 8,
+  prepSec: 0,   // カウントダウン開始時間（秒）、0=なし
+};
+// display values (sec)
+const cfgSec = {
+  o2Rest:  () => cfg.o2RestMin*60 + cfg.o2RestSec,
+  o2Hold:  () => cfg.o2HoldMin*60 + cfg.o2HoldSec,
+  co2Hold: () => cfg.co2HoldMin*60 + cfg.co2HoldSec,
+  co2Rest: () => cfg.co2RestMin*60 + cfg.co2RestSec,
+  sets:    () => mode==='o2' ? cfg.o2Sets : cfg.co2Sets,
+};
+
+function setMode(m) {
+  mode = m;
+  ['free','o2','co2'].forEach(x => {
+    document.getElementById('tab-'+x).classList.toggle('active', x===m);
+  });
+  const panel = document.getElementById('configPanel');
+  document.getElementById('cfg-o2').style.display  = m==='o2'  ? '' : 'none';
+  document.getElementById('cfg-co2').style.display = m==='co2' ? '' : 'none';
+  panel.classList.toggle('visible', m!=='free');
+  // Lap/Stopwatchモード切替
+  const isSW = m === 'free';
+  document.getElementById('btnLap').style.display = isSW ? '' : 'none';
+  renderSetDots();
+  onReset();
+}
+
+// セレクトの選択肢を生成してセット
+function buildTimeOptions(selId, defaultSec) {
+  const sel = document.getElementById(selId);
+  if (!sel) return;
+  sel.innerHTML = '';
+  // 0:15 〜 10:00 in 15sec steps
+  for (let s = 15; s <= 600; s += 15) {
+    const m = Math.floor(s/60), sec = s%60;
+    const label = `${m}:${String(sec).padStart(2,'0')}`;
+    const opt = document.createElement('option');
+    opt.value = s; opt.textContent = label;
+    if (s === defaultSec) opt.selected = true;
+    sel.appendChild(opt);
+  }
+}
+function buildSetsOptions(selId, defaultVal) {
+  const sel = document.getElementById(selId);
+  if (!sel) return;
+  sel.innerHTML = '';
+  for (let n = 1; n <= 20; n++) {
+    const opt = document.createElement('option');
+    opt.value = n; opt.textContent = n + ' sets';
+    if (n === defaultVal) opt.selected = true;
+    sel.appendChild(opt);
+  }
+}
+function buildPrepOptions(selId, defaultSec) {
+  const sel = document.getElementById(selId);
+  if (!sel) return;
+  sel.innerHTML = '';
+  // 先頭に「なし」
+  const none = document.createElement('option');
+  none.value = 0; none.textContent = 'なし';
+  if (defaultSec === 0) none.selected = true;
+  sel.appendChild(none);
+  // 選択肢
+  const opts = [
+    [15,  '15s'],
+    [30,  '30s'],
+    [60,  '1min'],
+    [90,  '1min 30s'],
+    [120, '2min'],
+    [180, '3min'],
+    [240, '4min'],
+  ];
+  opts.forEach(([s, label]) => {
+    const opt = document.createElement('option');
+    opt.value = s; opt.textContent = label;
+    if (s === defaultSec) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+function initSelects() {
+  buildTimeOptions('sel-o2Hold', cfg.o2HoldSec + cfg.o2HoldMin*60);
+  buildTimeOptions('sel-o2Rest', cfg.o2RestSec + cfg.o2RestMin*60);
+  buildSetsOptions('sel-o2Sets', cfg.o2Sets);
+  buildPrepOptions('sel-prep-o2',  0);
+  buildTimeOptions('sel-co2Hold', cfg.co2HoldSec + cfg.co2HoldMin*60);
+  buildTimeOptions('sel-co2Rest', cfg.co2RestSec + cfg.co2RestMin*60);
+  buildSetsOptions('sel-co2Sets', cfg.co2Sets);
+  buildPrepOptions('sel-prep-co2', 0);
+}
+function onSelChange(key, val) {
+  const sec = parseInt(val);
+  if (key === 'o2Hold')  { cfg.o2HoldMin  = Math.floor(sec/60); cfg.o2HoldSec  = sec%60; }
+  if (key === 'o2Rest')  { cfg.o2RestMin  = Math.floor(sec/60); cfg.o2RestSec  = sec%60; }
+  if (key === 'co2Hold') { cfg.co2HoldMin = Math.floor(sec/60); cfg.co2HoldSec = sec%60; }
+  if (key === 'co2Rest') { cfg.co2RestMin = Math.floor(sec/60); cfg.co2RestSec = sec%60; }
+}
+
+function setCfgStop(tbl, val) {
+  cfg[tbl + 'Stop'] = val;
+  document.getElementById(tbl+'-stop-manual').classList.toggle('active', val==='manual');
+  document.getElementById(tbl+'-stop-auto').classList.toggle('active', val==='auto');
+  const autoRow = document.getElementById(tbl+'-auto-row');
+  if (autoRow) {
+    autoRow.style.opacity       = val==='auto' ? '1'    : '0.35';
+    autoRow.style.pointerEvents = val==='auto' ? 'auto' : 'none';
+  }
+}
+
+// ── SESSION STATE ─────────────────────────────────────────
+// phase: 'idle' | 'countdown' | 'hold' | 'rest' | 'done'
+let phase     = 'idle';
+let phaseMs   = 0;       // elapsed in current phase
+let phaseStart= 0;
+let rafId     = null;
+let currentSet= 0;       // 0-based
+let holdDives = [];      // saved hold records
+let laps      = [];      // stopwatch lap records
+let spo2Buf   = [];      // current hold spo2 data
+let currentSpo2 = null;
+let countdownSec = 0;    // countdown remaining
+
+function totalSets() { return mode==='o2'?cfg.o2Sets: mode==='co2'?cfg.co2Sets: Infinity; }
+function holdAutoSec() { return mode==='o2'  && cfg.o2Stop==='auto'  ? cfgSec.o2Hold()  : null; }
+function restAutoSec() { return mode==='co2' && cfg.co2Stop==='auto' ? cfgSec.co2Rest() : null; }
+function restFixedSec(){ return mode==='o2'  ? cfgSec.o2Rest()  : null; }
+function holdFixedSec(){ return mode==='co2' ? cfgSec.co2Hold() : null; }
+
+// ── TIMER LOOP ────────────────────────────────────────────
+function tick() {
+  try {
+  const now = performance.now();
+  phaseMs = now - phaseStart;
+
+  if (phase === 'countdown') {
+    const remaining = Math.max(0, (countdownSec * 1000) - phaseMs);
+    const s = Math.ceil(remaining / 1000);
+    setDisplayCountdown(s);
+    setRestRing(1 - remaining / (countdownSec * 1000));
+    if (remaining <= 0) startHold();
+    else { rafId = requestAnimationFrame(tick); return; }
+  }
+
+  if (phase === 'hold') {
+    updateHoldDisplay(phaseMs);
+    // BLE SpO2記録
+    if (currentSpo2 !== null) {
+      const t = parseFloat((phaseMs/1000).toFixed(1));
+      if (!spo2Buf.length || t - spo2Buf[spo2Buf.length-1].t >= 0.9)
+        spo2Buf.push({ t, v: currentSpo2 });
+      updateLiveChart();
+    }
+    // 自動停止（O2オート or CO2固定）
+    const autoSec = holdAutoSec() || holdFixedSec();
+    if (autoSec && phaseMs >= autoSec * 1000) {
+      endHold(true); return;
+    }
+  }
+
+  if (phase === 'rest') {
+    updateRestDisplay(phaseMs);
+    // 自動停止（O2固定 or CO2オート）
+    const autoSec = restFixedSec() || restAutoSec();
+    if (autoSec && phaseMs >= autoSec * 1000) {
+      endRest(); return;
+    }
+  }
+
+  rafId = requestAnimationFrame(tick);
+  } catch(e) { console.error('tick error:', e); }
+}
+
+// ── PHASE TRANSITIONS ─────────────────────────────────────
+function startSession() {
+  currentSet = 0; holdDives = []; spo2Buf = [];
+  renderSetDots(); renderLog();
+  document.getElementById('btnSave').disabled = true;
+  beginCountdownOrHold();
+}
+
+function beginCountdownOrHold() {
+  if (mode === 'free' || cfg.prepSec === 0) {
+    startHold();
+  } else {
+    countdownSec = cfg.prepSec;
+    phase = 'countdown';
+    phaseStart = performance.now();
+    ringHold.style.strokeDashoffset = C; // clear
+    setRestRing(0);
+    showPhase('countdown', `Set ${currentSet+1} — Prepare`);
+    document.getElementById('ringCountdown').classList.add('visible');
+    cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(tick);
+    requestWakeLock();
+  }
+}
+
+function setDisplayCountdown(s) {
+  document.getElementById('countdownNum').textContent = s > 0 ? s : 'GO';
+  document.getElementById('timeMain').textContent = fmt(0);
+  document.getElementById('timeMs').textContent = '.00';
+}
+
+function startHold() {
+  phase = 'hold'; phaseStart = performance.now(); phaseMs = 0;
+  spo2Buf = [];
+  document.getElementById('ringCountdown').classList.remove('visible');
+  ringHold.classList.remove('danger');
+  setRestRing(0);
+  showPhase('hold', mode==='free'
+    ? 'Stopwatch — Running'
+    : `Set ${currentSet+1}/${totalSets()} — Hold`);
+  setBtnMain('stop', mode==='free' ? 'Stop' : 'Stop Hold');
+  if (mode === 'free') {
+    document.getElementById('btnLap').disabled = false;
+    laps = []; renderLaps();
+  }
+  if (mode==='mock' || bleMode==='mock') startMock();
+  cancelAnimationFrame(rafId);
+  rafId = requestAnimationFrame(tick);
+}
+
+function endHold(auto=false) {
+  cancelAnimationFrame(rafId); rafId=null;
+  stopMock();
+  phaseMs = performance.now() - phaseStart;
+  const rec = {
+    set: currentSet+1, ms: phaseMs,
+    spo2Profile: [...spo2Buf],
+    minSpo2: spo2Buf.length ? Math.min(...spo2Buf.map(p=>p.v)) : null,
+    auto,
+  };
+  holdDives.push(rec);
+  renderSetDots(); renderLog(); updateStats();
+
+  if (mode === 'free') {
+    phase = 'idle';
+    setHoldRing(0);
+    showPhase('rest', 'Stopwatch — Stopped');
+    setBtnMain('start', 'Start');
+    document.getElementById('btnSave').disabled = false;
+    document.getElementById('btnLap').disabled  = true;
+    releaseWakeLock();
+    return;
+  }
+
+  currentSet++;
+  if (currentSet >= totalSets()) {
+    finishSession(); return;
+  }
+
+  // 休憩へ
+  startRest();
+}
+
+function startRest() {
+  phase = 'rest'; phaseStart = performance.now(); phaseMs = 0;
+  const fixedSec = restFixedSec() || restAutoSec();
+  const label = fixedSec ? fmt(fixedSec*1000) : '—';
+  showPhase('rest', `Set ${currentSet+1}/${totalSets()} — Rest ${label}`);
+  setHoldRing(0);
+  setBtnMain('rest', 'Resting…');
+  if (mode === 'o2') {
+    // O2: rest固定 → ボタン無効
+    document.getElementById('btnMain').className = 'btn-main rest';
+    document.getElementById('btnMain').onclick = null;
+  } else {
+    // CO2: rest手動 or 自動 → 手動時はボタン有効
+    if (cfg.co2Stop === 'manual') {
+      setBtnMain('start', 'End Rest → Hold');
+    }
+  }
+  cancelAnimationFrame(rafId);
+  rafId = requestAnimationFrame(tick);
+}
+
+function endRest() {
+  cancelAnimationFrame(rafId); rafId=null;
+  beginCountdownOrHold();
+}
+
+function finishSession() {
+  phase = 'done';
+  releaseWakeLock(); stopMock();
+  renderSetDots(); renderLog(); updateStats();
+  document.getElementById('btnSave').disabled = false;
+  // 完了バナー
+  const total = holdDives.length;
+  const best  = holdDives.length ? Math.max(...holdDives.map(d=>d.ms)) : 0;
+  document.getElementById('completeTitle').textContent = 'Session Complete!';
+  document.getElementById('completeSub').textContent
+    = `${total} sets · Best ${fmt(best)}`;
+  document.getElementById('completeBanner').classList.add('show');
+}
+
+function dismissComplete() {
+  document.getElementById('completeBanner').classList.remove('show');
+  openSave();
+}
+
+// ── DISPLAY ───────────────────────────────────────────────
+function updateHoldDisplay(ms) {
+  document.getElementById('timeMain').textContent = fmt(ms);
+  document.getElementById('timeMs').textContent   = fmtMs(ms);
+  const autoSec = holdAutoSec() || holdFixedSec();
+  if (autoSec) {
+    setHoldRing(ms / (autoSec * 1000));
+    ringHold.classList.toggle('danger', ms > autoSec*1000*0.8);
+  } else {
+    setHoldRing(ms / (300*1000));
+    ringHold.classList.toggle('danger', ms >= 60000);
+  }
+  document.getElementById('timeMain').classList.toggle('danger', ms >= 60000 && !autoSec);
+  document.getElementById('phaseLabel').classList.toggle('danger', ms >= 60000 && !autoSec);
+}
+
+function updateRestDisplay(ms) {
+  const fixedSec = restFixedSec() || restAutoSec();
+  if (fixedSec) {
+    const remain = Math.max(0, fixedSec*1000 - ms);
+    document.getElementById('timeMain').textContent = fmt(remain);
+    document.getElementById('timeMs').textContent   = fmtMs(remain);
+    setRestRing(ms / (fixedSec * 1000));
+  } else {
+    document.getElementById('timeMain').textContent = fmt(ms);
+    document.getElementById('timeMs').textContent   = fmtMs(ms);
+    setRestRing(ms / (120*1000));
+  }
+}
+
+function showPhase(cls, text) {
+  const el = document.getElementById('phaseLabel');
+  el.textContent = text;
+  el.className = 'phase-label ' + cls;
+}
+
+function setBtnMain(cls, label) {
+  const b = document.getElementById('btnMain');
+  b.className = 'btn-main ' + cls;
+  b.textContent = label;
+  b.onclick = onMainBtn;
+}
+
+// ── MAIN BUTTON LOGIC ─────────────────────────────────────
+function onMainBtn() {
+  if (phase === 'idle') {
+    startSession();
+  } else if (phase === 'hold') {
+    // 手動Stop（フリー or o2-manual or co2は常に手動でhold終了可）
+    endHold(false);
+  } else if (phase === 'rest') {
+    // CO2 manual: 休憩手動終了
+    if (mode === 'co2' && cfg.co2Stop === 'manual') endRest();
+  } else if (phase === 'done') {
+    openSave();
+  }
+}
+
+function onReset() {
+  cancelAnimationFrame(rafId); rafId=null;
+  phase = 'idle'; phaseMs = 0; currentSet = 0;
+  holdDives = []; laps = []; spo2Buf = []; currentSpo2 = null;
+  stopMock();
+  setHoldRing(0); setRestRing(0); setSpo2Ring(null);
+  document.getElementById('timeMain').textContent = '00:00';
+  document.getElementById('timeMs').textContent   = '.00';
+  document.getElementById('timeMain').classList.remove('danger');
+  document.getElementById('ringCountdown').classList.remove('visible');
+  document.getElementById('spo2Row').classList.add('hidden');
+  document.getElementById('spo2ChartArea').classList.remove('visible');
+  showPhase('', mode==='o2'?'O2 Table':mode==='co2'?'CO2 Table':'Stopwatch');
+  setBtnMain('start', 'Start');
+  document.getElementById('btnSave').disabled = true;
+  document.getElementById('btnLap').disabled  = true;
+  document.getElementById('completeBanner').classList.remove('show');
+  document.getElementById('lapSection').style.display = 'none';
+  document.getElementById('lapList').innerHTML = '';
+  renderSetDots(); renderLog(); updateStats();
+  // liveChart clear: just blank the canvas
+  const lc = document.getElementById('spo2Live');
+  if (lc) { const ctx2=lc.getContext('2d'); ctx2.clearRect(0,0,lc.width,lc.height); }
+  releaseWakeLock();
+}
+
+function onClear() {
+  if (holdDives.length === 0 && phase==='idle') return;
+  if (!confirm('セッションをクリアしますか？')) return;
+  onReset();
+}
+
+// ── SET LIST ──────────────────────────────────────────────
+function renderSetDots() { renderSetList(); } // alias
+function renderSetList() {
+  const wrap = document.getElementById('setListWrap');
+  const list = document.getElementById('setList');
+  if (mode === 'free') { wrap.style.display='none'; return; }
+  wrap.style.display = '';
+  const n = totalSets();
+  let html = '';
+  for (let i = 0; i < n; i++) {
+    const done = i < holdDives.length;
+    const isCurrent = !done && i === currentSet && phase !== 'idle' && phase !== 'done';
+    const d = holdDives[i];
+
+    let rowCls = done ? 'done' : isCurrent ? 'current' : 'pending';
+    let phaseLbl = '', phaseClass = 'pending', timeStr = '', spo2Tag = '';
+
+    if (done && d) {
+      phaseLbl  = 'Hold';
+      phaseClass = 'hold';
+      timeStr   = `<span class="set-time done-time">${fmt(d.ms)}</span>`;
+      if (d.minSpo2 != null) {
+        const sc = d.minSpo2>=95?'ok':d.minSpo2>=90?'warn':'crit';
+        spo2Tag = `<span class="set-spo2 ${sc}">${d.minSpo2}%</span>`;
+      }
+    } else if (isCurrent) {
+      if (phase === 'hold') { phaseLbl = 'Hold'; phaseClass = 'hold'; }
+      else if (phase === 'rest') { phaseLbl = 'Rest'; phaseClass = 'rest'; }
+      else if (phase === 'countdown') { phaseLbl = 'Prepare'; phaseClass = 'hold'; }
+      timeStr = '<span class="set-time">—</span>';
+    } else {
+      phaseLbl = 'Set ' + (i+1);
+      timeStr = '<span class="set-time">—</span>';
+    }
+
+    html += `<div class="set-row ${rowCls}">
+      <span class="set-n">#${i+1}</span>
+      <span class="set-phase-lbl ${phaseClass}">${phaseLbl}</span>
+      ${timeStr}${spo2Tag}
+    </div>`;
+  }
+  list.innerHTML = html;
+
+  // currentRowを画面内にスクロール
+  if (phase !== 'idle') {
+    const rows = list.querySelectorAll('.set-row');
+    const cur = list.querySelector('.set-row.current');
+    if (cur) cur.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+}
+
+// ── LAP ──────────────────────────────────────────────────
+function onLap() {
+  if (phase !== 'hold' || mode !== 'free') return;
+  const now = performance.now() - phaseStart;
+  const prev = laps.length ? laps[laps.length-1].total : 0;
+  laps.push({ n: laps.length+1, split: now - prev, total: now });
+  renderLaps();
+}
+
+function renderLaps() {
+  const sec  = document.getElementById('lapSection');
+  const list = document.getElementById('lapList');
+  if (!laps.length) { sec.style.display='none'; return; }
+  sec.style.display = '';
+  const splits = laps.map(l=>l.split);
+  const best   = Math.min(...splits);
+  const worst  = Math.max(...splits);
+  list.innerHTML = '';
+  [...laps].reverse().forEach(l => {
+    const isBest  = splits.length > 1 && l.split === best;
+    const isWorst = splits.length > 1 && l.split === worst;
+    const cls = isBest ? 'lap-best' : isWorst ? 'lap-worst' : '';
+    const el = document.createElement('div');
+    el.className = 'lap-item';
+    el.innerHTML = `
+      <span class="lap-n">${l.n}</span>
+      <span class="lap-split ${cls}">${fmt(l.split)}<span style="font-size:12px;color:var(--muted)">${fmtMs(l.split)}</span></span>
+      <span class="lap-total">${fmt(l.total)}</span>`;
+    list.appendChild(el);
+  });
+}
+
+// ── STATS ─────────────────────────────────────────────────
+function updateStats() {
+  const done = holdDives.length;
+  document.getElementById('stSets').textContent = done;
+  document.getElementById('stTotal').textContent = mode==='free'?'∞':totalSets();
+  if (!done) {
+    document.getElementById('stBest').textContent = '—';
+    document.getElementById('stAvg').textContent  = '—';
+    document.getElementById('stSpo2').textContent = '—';
+    return;
+  }
+  const best = Math.max(...holdDives.map(d=>d.ms));
+  const avg  = holdDives.reduce((a,d)=>a+d.ms,0)/done;
+  document.getElementById('stBest').textContent = fmt(best);
+  document.getElementById('stAvg').textContent  = fmt(avg);
+  const mins = holdDives.filter(d=>d.minSpo2!=null).map(d=>d.minSpo2);
+  document.getElementById('stSpo2').textContent = mins.length ? Math.min(...mins)+'%' : '—';
+}
+
+// ── LOG ───────────────────────────────────────────────────
+function renderLog() {
+  const sec  = document.getElementById('logSection');
+  const list = document.getElementById('logList');
+  if (!holdDives.length) { sec.style.display='none'; return; }
+  sec.style.display = '';
+  const best = holdDives.length ? Math.max(...holdDives.map(d=>d.ms)) : 0;
+  list.innerHTML = '';
+  [...holdDives].reverse().forEach((d,i) => {
+    const num = holdDives.length - i;
+    const isPB = d.ms===best && holdDives.length>1;
+    const spo2Tag = d.minSpo2!=null
+      ? `<span class="log-spo2 ${spo2Class(d.minSpo2)}">${d.minSpo2}%</span>` : '';
+    const el = document.createElement('div');
+    el.className = 'log-item';
+    el.innerHTML = `
+      <span class="log-n">${num}</span>
+      <span class="log-type hold">Hold</span>
+      <span class="log-t">${fmt(d.ms)}<span style="font-size:12px;color:var(--muted)">${fmtMs(d.ms)}</span></span>
+      ${spo2Tag}
+      <span class="log-pb">${isPB?'PB':''}</span>`;
+    el.onclick = () => openDetail(d);
+    list.appendChild(el);
+  });
+}
+
+// ── TIMER CLICK ───────────────────────────────────────────
+document.getElementById('timerWrap').addEventListener('click', onMainBtn);
+document.addEventListener('keydown', e => {
+  if (e.code==='Space') { e.preventDefault(); onMainBtn(); }
+  if (e.code==='KeyR')  onReset();
+});
+
+// ── BLE SpO2 ──────────────────────────────────────────────
+let bleDevice=null, bleMode='off', mockInt=null, mockTick=0;
+
+function toggleBLE() {
+  if (bleMode==='off') {
+    if (!navigator.bluetooth) { setBle('mock'); toast('BLE非対応 → モックで動作'); if(phase==='hold')startMock(); return; }
+    connectBLE();
+  } else { disconnectBLE(); }
+}
+
+async function connectBLE() {
+  setBle('connecting');
+  try {
+    bleDevice = await navigator.bluetooth.requestDevice({
+      acceptAllDevices: true,
+      optionalServices: ['00001822-0000-1000-8000-00805f9b34fb']
+    });
+    bleDevice.addEventListener('gattserverdisconnected', ()=>{ setBle('off'); toast('SpO2切断'); });
+    const srv  = await bleDevice.gatt.connect();
+    const svc  = await srv.getPrimaryService('00001822-0000-1000-8000-00805f9b34fb');
+    try {
+      const c = await svc.getCharacteristic('00002a5f-0000-1000-8000-00805f9b34fb');
+      await c.startNotifications();
+      c.addEventListener('characteristicvaluechanged', e => {
+        const v = e.target.value;
+        const s = v.getUint16(1,true)*0.01;
+        if (s>0&&s<=100) onSpo2(Math.round(s));
+      });
+    } catch { toast('SpO2通知を開始できませんでした', true); }
+    setBle('on'); toast(`✓ ${bleDevice.name||'Device'} 接続`);
+  } catch(e) { setBle('off'); if(e.name!=='NotFoundError') toast('接続失敗', true); }
+}
+
+function disconnectBLE() {
+  stopMock(); bleDevice?.gatt?.connected && bleDevice.gatt.disconnect();
+  bleDevice=null; setBle('off');
+  document.getElementById('spo2Row').classList.add('hidden');
+  setSpo2Ring(null);
+}
+
+function setBle(m) {
+  bleMode = m;
+  const btn=document.getElementById('bleBtn');
+  const dot=document.getElementById('bleDot');
+  const lbl=document.getElementById('bleLabel');
+  btn.className = 'ble-btn' + (m==='on'?' on': m==='mock'?' mock': m==='connecting'?' mock':'');
+  dot.classList.toggle('pulse', m==='connecting');
+  lbl.textContent = m==='on'?'SpO2 Live': m==='mock'?'SpO2 Mock': m==='connecting'?'接続中…':'SpO2';
+}
+
+function onSpo2(v) {
+  currentSpo2 = v;
+  const el = document.getElementById('spo2V');
+  el.textContent = v;
+  el.className = 'spo2-v ' + spo2Class(v);
+  document.getElementById('spo2Row').classList.remove('hidden');
+  setSpo2Ring(v);
+  if (phase==='hold') {
+    document.getElementById('spo2ChartArea').classList.add('visible');
+    const t = parseFloat(((performance.now()-phaseStart)/1000).toFixed(1));
+    if (!spo2Buf.length || t-spo2Buf[spo2Buf.length-1].t>=0.9)
+      spo2Buf.push({t,v});
+    updateLiveChart();
+  }
+}
+
+// mock: 典型的なSTA SpO2カーブ
+function startMock() {
+  if (mockInt) return;
+  mockTick=0;
+  mockInt = setInterval(()=>{
+    mockTick++;
+    let v;
+    const t=mockTick;
+    if(t<20)      v=98-t*0.05;
+    else if(t<60) v=97-(t-20)*0.12;
+    else if(t<120)v=92-(t-60)*0.25;
+    else          v=77-(t-120)*0.08;
+    v += (Math.random()-.5)*0.6;
+    onSpo2(Math.max(72,Math.min(100,Math.round(v))));
+  },1000);
+}
+function stopMock() { if(mockInt){clearInterval(mockInt);mockInt=null;} }
+
+// ── CANVAS CHART HELPERS（CDN不要）──────────────────────
+function drawSparkline(canvasId, pts, minY=70, maxY=100, h=null) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas || !pts || pts.length < 2) return;
+  const W = canvas.offsetWidth || canvas.width || 300;
+  const H = h || canvas.offsetHeight || canvas.height || 48;
+  canvas.width  = W * (window.devicePixelRatio || 1);
+  canvas.height = H * (window.devicePixelRatio || 1);
+  const ctx = canvas.getContext('2d');
+  ctx.scale(window.devicePixelRatio||1, window.devicePixelRatio||1);
+  ctx.clearRect(0, 0, W, H);
+
+  const vals = pts.map(p=>p.v);
+  const lo = Math.max(minY, Math.min(...vals) - 3);
+  const hi = maxY;
+  const xStep = W / (pts.length - 1);
+
+  const toX = i => i * xStep;
+  const toY = v => H - ((v - lo) / (hi - lo)) * (H - 10) - 2;
+
+  // fill
+  const lastColor = spo2Color(vals[vals.length-1]);
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, lastColor.replace(')', ',0.25)').replace('rgb(','rgba(').replace('#2ec4b6','rgba(46,196,182').replace('#f97316','rgba(249,115,22').replace('#ef4444','rgba(239,68,68'));
+  // simpler approach:
+  const fillAlpha = '28';
+  const fillColor = lastColor === '#2ec4b6' ? 'rgba(46,196,182,0.15)' : lastColor === '#f97316' ? 'rgba(249,115,22,0.15)' : 'rgba(239,68,68,0.15)';
+  ctx.beginPath();
+  ctx.moveTo(toX(0), H);
+  pts.forEach((p,i) => ctx.lineTo(toX(i), toY(p.v)));
+  ctx.lineTo(toX(pts.length-1), H);
+  ctx.closePath();
+  ctx.fillStyle = fillColor;
+  ctx.fill();
+
+  // line
+  ctx.beginPath();
+  ctx.moveTo(toX(0), toY(pts[0].v));
+  for (let i = 1; i < pts.length; i++) {
+    const cx = (toX(i-1) + toX(i)) / 2;
+    ctx.bezierCurveTo(cx, toY(pts[i-1].v), cx, toY(pts[i].v), toX(i), toY(pts[i].v));
+  }
+  ctx.strokeStyle = lastColor;
+  ctx.lineWidth = 1.8;
+  ctx.stroke();
+
+  // y-axis labels
+  ctx.fillStyle = '#5a8ca8';
+  ctx.font = '8px -apple-system, sans-serif';
+  [80, 90, 100].forEach(v => {
+    if (v >= lo && v <= hi) {
+      ctx.fillText(v + '%', 2, toY(v) - 1);
+    }
+  });
+}
+
+function initLiveChart() { /* no-op: using canvas直描 */ }
+
+function updateLiveChart() {
+  if (!spo2Buf.length) return;
+  requestAnimationFrame(() => drawSparkline('spo2Live', spo2Buf.slice(-60), 70, 100, 40));
+}
+
+// ── SAVE MODAL ────────────────────────────────────────────
+let saveHypoxia=0, saveSpo2Snap=[];
+
+function openSave() {
+  if (!holdDives.length) return;
+  saveSpo2Snap = holdDives.length
+    ? holdDives.reduce((best,d)=>d.ms>best.ms?d:best).spo2Profile
+    : [];
+  saveHypoxia = 0;
+  document.querySelectorAll('.sym-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('saveNote').value='';
+
+  const best = holdDives.length ? Math.max(...holdDives.map(d=>d.ms)) : 0;
+  document.getElementById('saveTime').textContent =
+    `${holdDives.length} sets · Best ${fmt(best)}`;
+
+  // spo2 summary
+  if (saveSpo2Snap.length>2) {
+    const vals=saveSpo2Snap.map(p=>p.v);
+    const setS=(id,v)=>{ const el=document.getElementById(id); el.textContent=v; el.className='spo2-s-val '+spo2Class(v); };
+    setS('ss-start',vals[0]); setS('ss-min',Math.min(...vals)); setS('ss-end',vals[vals.length-1]);
+    document.getElementById('saveSpo2Summary').style.display='';
+    document.getElementById('saveChartWrap').style.display='';
+    setTimeout(() => drawSparkline('saveChart', saveSpo2Snap, 70, 100, 70), 50);
+  } else {
+    document.getElementById('saveSpo2Summary').style.display='none';
+    document.getElementById('saveChartWrap').style.display='none';
+  }
+
+  document.getElementById('saveOverlay').classList.add('open');
+}
+
+function closeSave() { document.getElementById('saveOverlay').classList.remove('open'); }
+
+function selHyp(btn) {
+  document.querySelectorAll('.sym-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  saveHypoxia = parseInt(btn.dataset.v);
+}
+
+async function confirmSave() {
+  closeSave();
+  const best = holdDives.length ? Math.max(...holdDives.map(d=>d.ms)) : 0;
+  const avg  = holdDives.length ? holdDives.reduce((a,d)=>a+d.ms,0)/holdDives.length : 0;
+  const minS = holdDives.filter(d=>d.minSpo2!=null).map(d=>d.minSpo2);
+  const sessionData = {
+    id:         Date.now().toString(),
+    date:       new Date().toISOString().slice(0,10),
+    env:        'dry',
+    discipline: 'STA',
+    tableMode:  mode,
+    sets:       holdDives.length,
+    bestTime:   fmt(best),
+    avgTime:    fmt(avg),
+    minSpo2:    minS.length ? Math.min(...minS) : null,
+    hypoxia:    saveHypoxia,
+    note:       document.getElementById('saveNote').value.trim()||null,
+    diveLog:    holdDives.map(d=>({
+      disc:'STA', time:fmt(d.ms), holdTime:Math.round(d.ms/1000),
+      spo2Profile:d.spo2Profile, minSpo2:d.minSpo2,
+    })),
+    source:'sta-timer',
+  };
+
+  if (_user) {
+    const { error } = await _sb.from('training_logs').insert({
+      user_id:    _user.id,
+      date:       sessionData.date,
+      discipline: 'STA',
+      performance:sessionData.bestTime,
+      notes:      sessionData.note||null,
+      is_public:  false,
+      data:       sessionData,
+    });
+    toast(error ? '⚠️ DB保存失敗' : '✓ Training Log に保存しました', !!error);
+  } else {
+    toast('✓ 保存（未ログイン・ローカルのみ）');
+  }
+  onReset();
+}
+
+// ── DETAIL MODAL ──────────────────────────────────────────
+function openDetail(d) {
+  document.getElementById('detailTime').textContent = fmt(d.ms)+fmtMs(d.ms);
+  document.getElementById('detailMeta').innerHTML = `
+    <div class="dm"><div class="dm-lbl">Hold</div><div class="dm-val">${Math.round(d.ms/1000)}s</div></div>
+    <div class="dm"><div class="dm-lbl">Min SpO2</div><div class="dm-val" style="color:${spo2Color(d.minSpo2)}">${d.minSpo2??'—'}${d.minSpo2?'%':''}</div></div>
+    <div class="dm"><div class="dm-lbl">Set #</div><div class="dm-val">${d.set}</div></div>`;
+  if (d.spo2Profile?.length>2) {
+    document.getElementById('detailChartWrap').style.display='';
+    setTimeout(() => drawSparkline('detailChart', d.spo2Profile, 70, 100, 90), 50);
+  } else {
+    document.getElementById('detailChartWrap').style.display='none';
+  }
+  document.getElementById('detailOverlay').classList.add('open');
+}
+function closeDetail(){document.getElementById('detailOverlay').classList.remove('open');}
+
+// ── WAKE LOCK ─────────────────────────────────────────────
+let wakeLock=null;
+async function requestWakeLock(){try{if('wakeLock'in navigator)wakeLock=await navigator.wakeLock.request('screen');}catch{}}
+function releaseWakeLock(){if(wakeLock){wakeLock.release();wakeLock=null;}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&(phase==='hold'||phase==='rest'))requestWakeLock();});
+initSelects();
+// O2/CO2デフォルトをautoに
+setCfgStop('o2','auto');
+setCfgStop('co2','auto');
+initLiveChart();
+</script>
+</body>
+</html>
