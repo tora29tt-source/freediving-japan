@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mouthfill Calculator | Freediving Japan</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      background: linear-gradient(180deg, #0b2d45 0%, #040f1a 100%);
+      font-family: 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+      color: #e8f4f8;
+      padding: 0 0 80px;
+    }
+    .container { max-width: 480px; margin: 0 auto; padding: 0 14px; }
+    .header { text-align: center; padding: 24px 0 14px; }
+    .header-sub { font-size: 10px; letter-spacing: 0.3em; color: #2ec4b6; opacity: 0.7; margin-bottom: 5px; }
+    .header h1 { font-size: 21px; font-weight: 900; background: linear-gradient(135deg, #fff, #a8ece8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .mode-btns { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
+    .mode-btn { padding: 6px 18px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: 700; border: 1px solid rgba(46,196,182,0.3); background: rgba(46,196,182,0.1); color: #2ec4b6; }
+    .mode-btn.active { background: #2ec4b6; color: #0b2d45; border-color: #2ec4b6; }
+
+    .card { background: rgba(14,61,92,0.5); border: 1px solid rgba(46,196,182,0.2); border-radius: 18px; padding: 18px 16px; margin-bottom: 12px; }
+    label { font-size: 11px; color: #a8ece8; letter-spacing: 0.1em; display: block; margin-bottom: 6px; }
+    select { background: rgba(11,45,69,0.9); border: 1px solid rgba(46,196,182,0.4); border-radius: 7px; padding: 5px 8px; color: #2ec4b6; font-size: 14px; font-weight: 700; outline: none; cursor: pointer; }
+    .factor-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .factor-display { font-size: 18px; font-weight: 900; color: #2ec4b6; }
+    .factor-sub { font-size: 9px; color: rgba(168,236,232,0.45); }
+    .reach-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; margin-bottom: 14px; }
+    .reach-tag { background: rgba(46,196,182,0.06); border: 1px solid rgba(46,196,182,0.15); border-radius: 6px; padding: 3px 7px; font-size: 9px; }
+    .reach-tag span { font-size: 11px; font-weight: 700; color: #2ec4b6; }
+    .divider { border-top: 1px solid rgba(46,196,182,0.1); margin: 4px 0 14px; }
+
+    /* Phase bar */
+    .phase-box { background: rgba(11,45,69,0.6); border-radius: 12px; padding: 14px 16px; }
+    .phase-box-title { font-size: 10px; color: rgba(168,236,232,0.5); margin-bottom: 12px; letter-spacing: 0.08em; }
+    .phase-inner { display: flex; gap: 12px; align-items: flex-start; }
+    .bar-wrap { flex-shrink: 0; display: flex; gap: 6px; }
+    .depth-labels { display: flex; flex-direction: column; justify-content: space-between; height: 160px; }
+    .depth-label { font-size: 8px; color: rgba(255,255,255,0.3); line-height: 1; }
+    .depth-label.active { color: #fff; font-weight: 700; }
+    .color-bar { width: 24px; height: 160px; border-radius: 6px; overflow: hidden; display: flex; flex-direction: column; }
+    .bar-jaw { background: rgba(46,196,182,0.85); }
+    .bar-cheek { background: rgba(255,255,255,0.3); }
+    .bar-tongue { background: rgba(168,236,232,0.12); }
+    .phase-controls { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+    .phase-row { display: flex; align-items: center; justify-content: space-between; }
+    .phase-name { font-size: 12px; font-weight: 700; }
+    .phase-thresh { font-size: 9px; color: rgba(255,255,255,0.3); }
+    .phase-select-row { display: flex; align-items: center; gap: 6px; font-size: 10px; color: rgba(255,255,255,0.4); }
+
+    /* Charge */
+    .charge-item { background: rgba(46,196,182,0.06); border: 1px solid rgba(46,196,182,0.2); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .charge-label { font-size: 10px; font-weight: 700; color: #2ec4b6; min-width: 48px; }
+    .charge-field { display: flex; align-items: center; gap: 5px; font-size: 10px; color: rgba(255,255,255,0.4); }
+    .btn-row { display: flex; gap: 8px; margin-top: 8px; margin-bottom: 14px; }
+    .btn-add { flex: 1; background: rgba(46,196,182,0.08); border: 1px solid rgba(46,196,182,0.25); border-radius: 10px; padding: 9px; color: #2ec4b6; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .btn-topup { flex: 1; background: rgba(46,196,182,0.05); border: 1px solid rgba(46,196,182,0.15); border-radius: 10px; padding: 9px; color: rgba(168,236,232,0.6); font-size: 12px; font-weight: 700; cursor: pointer; }
+    .btn-remove { margin-left: auto; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 3px 8px; color: rgba(255,255,255,0.4); font-size: 11px; cursor: pointer; }
+    .reach-banner { padding: 12px 14px; border-radius: 12px; background: rgba(46,196,182,0.06); border: 1px solid rgba(46,196,182,0.2); display: flex; justify-content: space-between; align-items: center; }
+    .reach-banner-label { font-size: 11px; color: rgba(168,236,232,0.6); line-height: 1.5; }
+    .reach-banner-depth { font-size: 28px; font-weight: 900; color: #fff; line-height: 1; }
+    .reach-banner-sub { font-size: 9px; color: rgba(168,236,232,0.4); margin-top: 2px; }
+
+    /* Table */
+    .table-wrap { background: rgba(14,61,92,0.4); border: 1px solid rgba(46,196,182,0.15); border-radius: 18px; overflow: hidden; margin-bottom: 12px; }
+    .table-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 14px 14px 14px; border-bottom: 1px solid rgba(46,196,182,0.08); }
+    .table-input-row { display: flex; align-items: center; gap: 8px; font-size: 11px; color: rgba(168,236,232,0.55); }
+    .ref-header { padding: 10px 10px 0; }
+    .ref-header-row { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-bottom: 8px; }
+    .ref-label { font-size: 9px; color: rgba(168,236,232,0.4); }
+    .info-btn { width: 16px; height: 16px; border-radius: 50%; background: rgba(46,196,182,0.15); border: 1px solid rgba(46,196,182,0.3); color: rgba(168,236,232,0.7); font-size: 10px; font-weight: 900; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+    .info-popup { display: none; margin-bottom: 8px; padding: 12px 14px; border-radius: 10px; background: rgba(11,45,69,0.9); border: 1px solid rgba(46,196,182,0.2); font-size: 10px; color: rgba(168,236,232,0.7); line-height: 1.9; }
+    .info-popup.show { display: block; }
+    .info-example { background: rgba(46,196,182,0.08); border-radius: 8px; padding: 8px 10px; margin-top: 8px; font-family: monospace; font-size: 9px; line-height: 2; }
+    .table-header { display: grid; grid-template-columns: 40px 1fr 1fr 1fr; padding: 6px 10px 8px; border-bottom: 1px solid rgba(46,196,182,0.15); font-size: 8px; color: rgba(168,236,232,0.4); gap: 3px; }
+    .table-header span:nth-child(2), .table-header span:nth-child(3), .table-header span:nth-child(4) { text-align: center; }
+    .table-header span:nth-child(4) { color: rgba(168,236,232,0.35); }
+    #table-body .row { display: grid; grid-template-columns: 40px 1fr 1fr 1fr; gap: 3px; padding: 6px 10px; border-bottom: 1px solid rgba(46,196,182,0.05); }
+    .row.charge-row { background: rgba(46,196,182,0.08); }
+    .row.before-row { background: rgba(46,196,182,0.03); }
+    .depth-cell .d { font-size: 12px; font-weight: 700; color: #2ec4b6; }
+    .depth-cell .bar-info { font-size: 7px; color: rgba(255,255,255,0.22); }
+    .depth-cell .tag { font-size: 7px; color: #2ec4b6; }
+    .pct-cell { display: flex; align-items: center; gap: 4px; }
+    .pct-cell .pct { font-size: 14px; font-weight: 900; line-height: 1; }
+    .pct-cell .ml { font-size: 9px; color: rgba(255,255,255,0.28); margin-top: 1px; }
+    .phase-badge { font-size: 7px; font-weight: 700; border-radius: 4px; padding: 1px 4px; border: 1px solid; margin-top: 2px; display: inline-block; }
+    svg.lung { width: 32px; height: 40px; }
+    svg.mouth { width: 32px; height: 32px; }
+
+    /* Viz */
+    .viz-card { background: rgba(14,61,92,0.4); border: 1px solid rgba(46,196,182,0.15); border-radius: 18px; padding: 14px; margin-bottom: 12px; }
+    .viz-title { font-size: 11px; color: #a8ece8; font-weight: 700; margin-bottom: 12px; }
+    .phase-map { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 8px; }
+    .phase-tile { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; }
+    .phase-tile-box { width: 38px; height: 38px; border-radius: 6px; display: flex; align-items: center; justify-content: center; border: 1px solid; }
+    .phase-tile-box span { font-size: 9px; font-weight: 700; }
+    .phase-tile-name { font-size: 7px; font-weight: 700; }
+    .phase-tile-depth { font-size: 7px; color: rgba(255,255,255,0.3); }
+    .phase-legend { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; font-size: 9px; }
+    .phase-legend-item { display: flex; align-items: center; gap: 4px; }
+    .legend-dot { width: 8px; height: 8px; border-radius: 2px; border: 1px solid; }
+
+    /* Save */
+    .btn-save { width: 100%; background: linear-gradient(135deg, #2ec4b6, #1a5f82); border: none; border-radius: 14px; padding: 14px; color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; margin-bottom: 12px; }
+
+    /* Advanced overlay */
+    #advanced-screen { display: none; }
+    #advanced-screen.active { display: block; }
+    #standard-screen.hidden { display: none; }
+    .coming-soon-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.75); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+    .coming-soon-icon { font-size: 36px; }
+    .coming-soon-title { font-size: 20px; font-weight: 900; color: #fff; }
+    .coming-soon-sub { font-size: 12px; color: rgba(255,255,255,0.5); }
+    .btn-back { padding: 10px 24px; border-radius: 8px; cursor: pointer; background: rgba(46,196,182,0.2); border: 1px solid #2ec4b6; color: #2ec4b6; font-size: 13px; font-weight: 700; margin-top: 8px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="header-sub">FREEDIVING JAPAN</div>
+    <h1>Mouthfill Calculator</h1>
+    <div class="mode-btns">
+      <button class="mode-btn active" id="btn-standard" onclick="setScreen('standard')">Standard</button>
+      <button class="mode-btn" id="btn-advanced" onclick="setScreen('advanced')">Advanced</button>
+    </div>
+  </div>
+
+  <!-- Standard Screen -->
+  <div id="standard-screen">
+
+    <!-- 基本設定 -->
+    <div class="card">
+      <label>Surface Mouthfill (0m charge reach)</label>
+      <div class="factor-row">
+        <select id="reach-input" onchange="onReachChange()"></select>
+        <span style="font-size:12px;color:#2ec4b6;">m</span>
+        <div>
+          <div class="factor-display" id="factor-display">Factor 4</div>
+          <div class="factor-sub" id="factor-sub">= (30 / 10) + 1</div>
+        </div>
+      </div>
+      <div class="reach-tags" id="reach-tags"></div>
+
+      <!-- Phase bar -->
+      <div class="phase-box">
+        <div class="phase-box-title">EQUALIZATION PHASES</div>
+        <div class="phase-inner">
+          <div class="bar-wrap">
+            <div class="depth-labels" id="depth-labels"></div>
+            <div class="color-bar">
+              <div class="bar-jaw" id="bar-jaw" style="flex:3"></div>
+              <div class="bar-cheek" id="bar-cheek" style="flex:17"></div>
+              <div class="bar-tongue" id="bar-tongue" style="flex:10"></div>
+            </div>
+          </div>
+          <div class="phase-controls">
+            <div>
+              <div class="phase-row">
+                <div class="phase-name" style="color:#2ec4b6">Jaw</div>
+                <div class="phase-thresh" id="jaw-thresh">76.9% threshold</div>
+              </div>
+              <div class="phase-select-row">
+                0m -
+                <select id="jaw-end" onchange="render()"></select>
+              </div>
+            </div>
+            <div>
+              <div class="phase-row">
+                <div class="phase-name" style="color:rgba(255,255,255,0.75)">Cheek</div>
+                <div class="phase-thresh" id="cheek-thresh">33.3% threshold</div>
+              </div>
+              <div class="phase-select-row">
+                <span id="cheek-start">3</span>m -
+                <select id="cheek-end" onchange="render()"></select>
+              </div>
+            </div>
+            <div>
+              <div class="phase-name" style="color:rgba(168,236,232,0.4)">Tongue</div>
+              <div style="font-size:10px;color:rgba(168,236,232,0.35)" id="tongue-range">20m - 30m</div>
+              <div style="font-size:9px;color:rgba(168,236,232,0.25)" id="tongue-thresh">33.3% - 0%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Charge -->
+      <label>チャージ設定</label>
+      <div id="charge-list"></div>
+      <div class="btn-row">
+        <button class="btn-add" onclick="addCharge()">+ チャージ追加</button>
+        <button class="btn-topup" onclick="addTopup()">+ トップアップ追加</button>
+      </div>
+
+      <!-- Reach banner -->
+      <div class="reach-banner" id="reach-banner" style="display:none">
+        <div class="reach-banner-label" id="reach-banner-label"></div>
+        <div>
+          <div class="reach-banner-depth" id="reach-banner-depth"></div>
+          <div class="reach-banner-sub">推定到達深度</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <div class="table-inputs">
+        <div class="table-input-row">
+          肺活量
+          <select id="lung-l" onchange="render()" style="border-color:rgba(125,211,252,0.4);color:#7dd3fc;"></select>
+          <span style="color:#7dd3fc;font-size:12px;">L</span>
+        </div>
+        <div class="table-input-row">
+          マウスフィル容量
+          <select id="mf-ml" onchange="render()" style="border-color:rgba(168,236,232,0.3);color:#a8ece8;"></select>
+          <span style="color:#a8ece8;font-size:12px;">ml</span>
+        </div>
+      </div>
+      <div class="ref-header">
+        <div class="ref-header-row">
+          <span class="ref-label">Surface Mouthfill (Ref)</span>
+          <span class="info-btn" onclick="toggleInfo()">?</span>
+        </div>
+        <div class="info-popup" id="info-popup">
+          <strong style="color:#2ec4b6">計算ロジック</strong><br>
+          ファクターはその人の実測能力値。<br>
+          チャージ深度〜推定到達深度を直線で結んで各深度での残量を計算しています。
+          <div class="info-example">
+            <strong style="color:#2ec4b6">Factor 4で30mに100%チャージした場合</strong><br>
+            推定到達深度 = (4気圧 × 4 - 1) × 10 = <strong style="color:#fff">150m</strong><br>
+            30m → 100% / 70m → 67% / 110m → 33% / 150m → 0%
+          </div>
+          <div style="color:rgba(168,236,232,0.5);font-size:9px;margin-top:6px">
+            同じ直線がチャージした深度からスライドして適用されます。
+          </div>
+        </div>
+      </div>
+      <div class="table-header">
+        <span>深度</span>
+        <span>肺</span>
+        <span>口</span>
+        <span>Surface MF (Ref)</span>
+      </div>
+      <div id="table-body"></div>
+    </div>
+
+    <!-- Viz -->
+    <!-- Graph -->
+    <div class="viz-card">
+      <div class="viz-title">① 深度別 残量グラフ</div>
+      <canvas id="chart" width="340" height="160"></canvas>
+    </div>
+
+    <!-- Phase map -->
+    <div class="viz-card">
+      <div class="viz-title">② フェーズマップ</div>
+      <div class="phase-map" id="phase-map"></div>
+      <div class="phase-legend" id="phase-legend"></div>
+    </div>
+
+    <button class="btn-save" onclick="saveRecord()">この設定を記録する</button>
+    <div id="records-section"></div>
+  </div>
+
+  <!-- Advanced Screen overlay -->
+  <div id="advanced-screen">
+    <div class="coming-soon-overlay">
+      <div class="coming-soon-icon">🚧</div>
+      <div class="coming-soon-title">開発中</div>
+      <div class="coming-soon-sub">Coming Soon</div>
+      <button class="btn-back" onclick="setScreen('standard')">← Standard に戻る</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========== State ==========
+let state = {
+  reachDepth: 30,
+  jawEnd: 3,
+  cheekEnd: 20,
+  lungL: 6,
+  mfMl: 150,
+  charges: [{ id: 1, depth: 18, fillPct: 80, isTopup: false }],
+  records: [],
+  nextId: 2,
+};
+
+// ========== Helpers ==========
+const depthToBar = d => d / 10 + 1;
+const factor = () => Math.round(((state.reachDepth / 10) + 1) * 100) / 100;
+
+function calcPct(d, reach, chargeDepth = 0, chargePct = 100) {
+  if (d <= chargeDepth) return d === chargeDepth ? chargePct : 0;
+  if (d >= reach) return 0;
+  return Math.max(0, Math.round((chargePct * (1 - (d - chargeDepth) / (reach - chargeDepth))) * 10) / 10);
+}
+
+function calcReach(chargeDepth, fillPct) {
+  return Math.max(0, Math.round((depthToBar(chargeDepth) * factor() * (fillPct / 100) - 1) * 10));
+}
+
+function getPhase(pct) {
+  const jawThresh = Math.round((100 / depthToBar(state.jawEnd)) * 10) / 10;
+  const cheekThresh = Math.round((100 / depthToBar(state.cheekEnd)) * 10) / 10;
+  if (pct >= jawThresh) return { name: 'Jaw', color: '#2ec4b6' };
+  if (pct >= cheekThresh) return { name: 'Cheek', color: '#f0c040' };
+  if (pct > 0) return { name: 'Tongue', color: '#e0e0e0' };
+  return { name: '-', color: 'rgba(255,255,255,0.25)' };
+}
+
+// ========== Init selects ==========
+function initSelects() {
+  // reach
+  const reachSel = document.getElementById('reach-input');
+  for (let v = 1; v <= 80; v++) {
+    const o = document.createElement('option');
+    o.value = v; o.textContent = v + 'm';
+    if (v === state.reachDepth) o.selected = true;
+    reachSel.appendChild(o);
+  }
+  // lung
+  const lungSel = document.getElementById('lung-l');
+  for (let v = 30; v <= 100; v++) {
+    const o = document.createElement('option');
+    o.value = v / 10; o.textContent = (v / 10).toFixed(1);
+    if (v / 10 === state.lungL) o.selected = true;
+    lungSel.appendChild(o);
+  }
+  // mf
+  const mfSel = document.getElementById('mf-ml');
+  for (let v = 50; v <= 300; v += 10) {
+    const o = document.createElement('option');
+    o.value = v; o.textContent = v;
+    if (v === state.mfMl) o.selected = true;
+    mfSel.appendChild(o);
+  }
+}
+
+function updatePhaseSelects() {
+  const jawSel = document.getElementById('jaw-end');
+  jawSel.innerHTML = '';
+  for (let v = 1; v < state.reachDepth; v++) {
+    const o = document.createElement('option');
+    o.value = v; o.textContent = v + 'm';
+    if (v === state.jawEnd) o.selected = true;
+    jawSel.appendChild(o);
+  }
+  const cheekSel = document.getElementById('cheek-end');
+  cheekSel.innerHTML = '';
+  for (let v = state.jawEnd + 1; v < state.reachDepth; v++) {
+    const o = document.createElement('option');
+    o.value = v; o.textContent = v + 'm';
+    if (v === state.cheekEnd) o.selected = true;
+    cheekSel.appendChild(o);
+  }
+}
+
+// ========== Events ==========
+function onReachChange() {
+  state.reachDepth = parseInt(document.getElementById('reach-input').value);
+  if (state.jawEnd >= state.reachDepth) state.jawEnd = Math.max(1, state.reachDepth - 2);
+  if (state.cheekEnd >= state.reachDepth) state.cheekEnd = Math.max(2, state.reachDepth - 1);
+  render();
+}
+
+function toggleInfo() {
+  document.getElementById('info-popup').classList.toggle('show');
+}
+
+function addCharge() {
+  state.charges.push({ id: state.nextId++, depth: 20, fillPct: 80, isTopup: false });
+  render();
+}
+
+function addTopup() {
+  state.charges.push({ id: state.nextId++, depth: 30, fillPct: 100, isTopup: true });
+  render();
+}
+
+function removeCharge(id) {
+  state.charges = state.charges.filter(c => c.id !== id);
+  render();
+}
+
+function saveRecord() {
+  const now = new Date();
+  const label = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+  state.records.unshift({ label, factor: factor(), charges: state.charges.length });
+  if (state.records.length > 10) state.records.pop();
+  renderRecords();
+}
+
+function setScreen(s) {
+  document.getElementById('standard-screen').classList.toggle('hidden', s !== 'standard');
+  document.getElementById('advanced-screen').classList.toggle('active', s === 'advanced');
+  document.getElementById('btn-standard').classList.toggle('active', s === 'standard');
+  document.getElementById('btn-advanced').classList.toggle('active', s === 'advanced');
+}
+
+// ========== Render ==========
+function render() {
+  state.jawEnd = parseInt(document.getElementById('jaw-end').value) || state.jawEnd;
+  state.cheekEnd = parseInt(document.getElementById('cheek-end').value) || state.cheekEnd;
+  state.lungL = parseFloat(document.getElementById('lung-l').value);
+  state.mfMl = parseInt(document.getElementById('mf-ml').value);
+
+  const f = factor();
+  document.getElementById('factor-display').textContent = `Factor ${Number.isInteger(f) ? f : f.toFixed(2)}`;
+  document.getElementById('factor-sub').textContent = `= (${state.reachDepth} / 10) + 1`;
+
+  // reach tags
+  const tagsEl = document.getElementById('reach-tags');
+  tagsEl.innerHTML = [5,10,15,20,25,30].map(cd => {
+    const r = Math.round((depthToBar(cd) * f - 1) * 10);
+    return `<div class="reach-tag"><span style="color:rgba(168,236,232,0.5);font-size:9px">${cd}m→</span><span>${r}m</span></div>`;
+  }).join('');
+
+  // phase thresholds
+  const jawThresh = Math.round((100 / depthToBar(state.jawEnd)) * 10) / 10;
+  const cheekThresh = Math.round((100 / depthToBar(state.cheekEnd)) * 10) / 10;
+  document.getElementById('jaw-thresh').textContent = `${jawThresh}% threshold`;
+  document.getElementById('cheek-thresh').textContent = `${cheekThresh}% threshold`;
+  document.getElementById('cheek-start').textContent = state.jawEnd;
+  document.getElementById('tongue-range').textContent = `${state.cheekEnd}m - ${state.reachDepth}m`;
+  document.getElementById('tongue-thresh').textContent = `${cheekThresh}% - 0%`;
+
+  // bar heights
+  const total = state.reachDepth;
+  document.getElementById('bar-jaw').style.flex = state.jawEnd;
+  document.getElementById('bar-cheek').style.flex = state.cheekEnd - state.jawEnd;
+  document.getElementById('bar-tongue').style.flex = total - state.cheekEnd;
+
+  // depth labels
+  const labelsEl = document.getElementById('depth-labels');
+  labelsEl.style.height = '160px';
+  const ticks = [];
+  for (let d = 0; d <= state.reachDepth; d += 5) ticks.push(d);
+  labelsEl.innerHTML = ticks.map(d => {
+    const isActive = d === state.jawEnd || d === state.cheekEnd;
+    return `<div class="depth-label ${isActive ? 'active' : ''}">${d}m</div>`;
+  }).join('');
+
+  updatePhaseSelects();
+
+  // charges
+  const sorted = [...state.charges].sort((a, b) => a.depth - b.depth);
+  const chargeListEl = document.getElementById('charge-list');
+  chargeListEl.innerHTML = sorted.map(c => `
+    <div class="charge-item">
+      <span class="charge-label">${c.isTopup ? 'TOP UP' : 'CHARGE'}</span>
+      <div class="charge-field">深度
+        <select onchange="updateCharge(${c.id},'depth',this.value)" style="border-color:rgba(46,196,182,0.4);color:#2ec4b6;font-size:13px;font-weight:700;">
+          ${Array.from({length:101},(_,i)=>`<option value="${i}" ${i===c.depth?'selected':''}>${i}m</option>`).join('')}
+        </select>
+      </div>
+      ${!c.isTopup ? `<div class="charge-field">充填
+        <select onchange="updateCharge(${c.id},'fillPct',this.value)" style="border-color:rgba(46,196,182,0.4);color:#2ec4b6;font-size:13px;font-weight:700;">
+          ${[10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100].map(v=>`<option value="${v}" ${v===c.fillPct?'selected':''}>${v}%</option>`).join('')}
+        </select>
+      </div>` : '<span style="font-size:10px;color:rgba(168,236,232,0.5)">→ 100%</span>'}
+      <button class="btn-remove" onclick="removeCharge(${c.id})">✕</button>
+    </div>
+  `).join('');
+
+  // reach banner
+  const lastCharge = sorted[sorted.length - 1];
+  const bannerEl = document.getElementById('reach-banner');
+  if (lastCharge) {
+    const reach = calcReach(lastCharge.depth, lastCharge.fillPct);
+    document.getElementById('reach-banner-label').innerHTML = `${lastCharge.depth}mで${lastCharge.fillPct}%チャージ<br><span style="font-size:9px;color:rgba(168,236,232,0.35)">Factor ${Number.isInteger(f)?f:f.toFixed(2)}</span>`;
+    document.getElementById('reach-banner-depth').textContent = reach + 'm';
+    bannerEl.style.display = 'flex';
+  } else {
+    bannerEl.style.display = 'none';
+  }
+
+  // Compute display points
+  const displayPoints = computeDisplayPoints(sorted, f);
+  renderTable(displayPoints, f, jawThresh, cheekThresh);
+  renderChart(displayPoints);
+  renderPhaseMap(displayPoints, jawThresh, cheekThresh);
+}
+
+function updateCharge(id, key, val) {
+  state.charges = state.charges.map(c => c.id === id ? {...c, [key]: key === 'depth' ? parseInt(val) : parseInt(val)} : c);
+  render();
+}
+
+function computeDisplayPoints(sorted, f) {
+  const events = sorted.map(c => ({ depth: c.depth, fillPct: c.fillPct, isTopup: c.isTopup }));
+  const depthsToShow = new Set();
+  for (let d = 0; d <= 150; d += 5) depthsToShow.add(d);
+  events.forEach(e => depthsToShow.add(e.depth));
+  const sortedDepths = [...depthsToShow].sort((a, b) => a - b);
+
+  let lungRemainingMl = state.lungL * 1000;
+  let lastChargeDepth = 0, lastChargePct = 0, lastReachDepth = 0;
+  const steps = [];
+
+  for (const d of sortedDepths) {
+    const bar = depthToBar(d);
+    const lungMlNow = lungRemainingMl / bar;
+    const lungPctNow = Math.max(0, Math.round((lungMlNow / (state.lungL * 1000)) * 100));
+    const mfPctNow = lastChargePct > 0 ? calcPct(d, lastReachDepth, lastChargeDepth, lastChargePct) : 0;
+    const mfMlNow = Math.round((mfPctNow / 100) * state.mfMl);
+    const eventHere = events.find(e => e.depth === d);
+
+    if (eventHere && d > 0) {
+      steps.push({ d, bar: bar.toFixed(1), lungMl: Math.round(lungMlNow), lungPct: lungPctNow, mfMl: mfMlNow, mfPct: Math.round(mfPctNow), sim0m: d <= state.reachDepth ? calcPct(d, state.reachDepth) : null, phase: getPhase(Math.round(mfPctNow)), isChargePoint: false, isBefore: true });
+    }
+
+    let mfPctFinal = mfPctNow, mfMlFinal = mfMlNow;
+    let lungMlFinal = lungMlNow, lungPctFinal = lungPctNow;
+    let isChargePoint = false;
+
+    if (eventHere) {
+      isChargePoint = true;
+      lastChargeDepth = d; lastChargePct = eventHere.fillPct;
+      lastReachDepth = calcReach(d, eventHere.fillPct);
+      mfPctFinal = eventHere.fillPct;
+      mfMlFinal = Math.round((mfPctFinal / 100) * state.mfMl);
+      const addedMfMl = Math.max(0, mfMlFinal - mfMlNow);
+      lungRemainingMl = Math.max(0, lungRemainingMl - addedMfMl * bar);
+      lungMlFinal = lungRemainingMl / bar;
+      lungPctFinal = Math.max(0, Math.round((lungMlFinal / (state.lungL * 1000)) * 100));
+    }
+
+    const finalMfPct = isChargePoint ? mfPctFinal : Math.round(mfPctNow);
+    steps.push({ d, bar: bar.toFixed(1), lungMl: Math.round(isChargePoint ? lungMlFinal : lungMlNow), lungPct: isChargePoint ? lungPctFinal : lungPctNow, mfMl: isChargePoint ? mfMlFinal : mfMlNow, mfPct: finalMfPct, sim0m: d <= state.reachDepth ? calcPct(d, state.reachDepth) : null, phase: getPhase(finalMfPct), isChargePoint, isBefore: false, chargeFillPct: eventHere?.fillPct });
+  }
+  return steps;
+}
+
+function lungSVG(pct) {
+  const fill = Math.max(0.05, pct / 100);
+  return `<svg class="lung" viewBox="0 0 48 60"><defs><clipPath id="lc${Math.round(pct*10)}"><rect x="0" y="${60-fill*60}" width="48" height="${fill*60}"/></clipPath></defs><path d="M24,4 C24,4 10,8 8,20 C6,32 4,40 4,50 C4,56 8,58 14,56 C18,54 20,48 22,44 L24,40 L26,44 C28,48 30,54 34,56 C40,58 44,56 44,50 C44,40 42,32 40,20 C38,8 24,4 24,4Z" fill="none" stroke="rgba(46,196,182,0.3)" stroke-width="1.5"/><path d="M24,4 C24,4 10,8 8,20 C6,32 4,40 4,50 C4,56 8,58 14,56 C18,54 20,48 22,44 L24,40 L26,44 C28,48 30,54 34,56 C40,58 44,56 44,50 C44,40 42,32 40,20 C38,8 24,4 24,4Z" fill="#2ec4b6" opacity="${0.15+fill*0.5}" clip-path="url(#lc${Math.round(pct*10)})"/></svg>`;
+}
+
+function mouthSVG(pct) {
+  const fill = Math.max(0.02, pct / 100);
+  const rx = 14*fill, ry = 10*fill+3;
+  return `<svg class="mouth" viewBox="0 0 48 48"><ellipse cx="24" cy="24" rx="20" ry="21" fill="none" stroke="rgba(249,115,22,0.25)" stroke-width="1.5"/><ellipse cx="24" cy="22" rx="${rx}" ry="${ry}" fill="#2ec4b6" opacity="${0.25+fill*0.55}"/></svg>`;
+}
+
+function pctCell(pct, ml, color, svgFn, phase) {
+  const badge = phase ? `<div class="phase-badge" style="color:${phase.color};background:${phase.color}18;border-color:${phase.color}44">${phase.name}</div>` : '';
+  return `<div class="pct-cell">${svgFn(pct)}<div><div class="pct" style="color:${color}">${pct}%</div><div class="ml">${ml}ml</div>${badge}</div></div>`;
+}
+
+function renderTable(pts, f, jawThresh, cheekThresh) {
+  const tbody = document.getElementById('table-body');
+  tbody.innerHTML = pts.map((p, i) => {
+    const cls = p.isChargePoint ? 'row charge-row' : p.isBefore ? 'row before-row' : 'row';
+    const depthColor = p.isChargePoint ? '#2ec4b6' : 'rgba(255,255,255,0.62)';
+    const tag = p.isBefore ? '<div class="tag">before</div>' : p.isChargePoint ? `<div class="tag">▶${p.chargeFillPct}%</div>` : '';
+    const sim = p.sim0m !== null ? pctCell(p.sim0m, Math.round(p.sim0m/100*state.mfMl), 'rgba(168,236,232,0.7)', mouthSVG, getPhase(p.sim0m)) : '<div style="color:rgba(255,255,255,0.15);font-size:11px;display:flex;align-items:center;justify-content:center">-</div>';
+    const mfColor = p.mfPct <= 0 ? 'rgba(255,255,255,0.2)' : '#2ec4b6';
+    return `<div class="${cls}">
+      <div class="depth-cell"><div class="d" style="color:${depthColor}">${p.d}m</div><div class="bar-info">${p.bar}気圧</div>${tag}</div>
+      ${pctCell(p.lungPct, p.lungMl, '#7dd3fc', lungSVG, null)}
+      ${pctCell(p.mfPct, p.mfMl, mfColor, mouthSVG, p.phase)}
+      ${sim}
+    </div>`;
+  }).join('');
+}
+
+function renderChart(pts) {
+  const canvas = document.getElementById('chart');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const PL = 32, PR = 10, PT = 10, PB = 20;
+  const iW = W - PL - PR, iH = H - PT - PB;
+
+  const main = pts.filter(p => !p.isBefore && p.d % 5 === 0);
+  const lastMeaningful = main.filter(p => p.mfPct > 0 || p.isChargePoint);
+  const maxD = lastMeaningful.length > 0 ? Math.max(lastMeaningful[lastMeaningful.length-1].d + 10, 30) : 50;
+  const clipped = main.filter(p => p.d <= maxD);
+
+  const tx = d => PL + (d / maxD) * iW;
+  const ty = pct => PT + (1 - pct / 100) * iH;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+  ctx.lineWidth = 1;
+  [0,25,50,75,100].forEach(pct => {
+    ctx.beginPath(); ctx.moveTo(PL, ty(pct)); ctx.lineTo(W-PR, ty(pct)); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.font = '7px sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText(pct+'%', PL-4, ty(pct)+4);
+  });
+  const step = maxD <= 50 ? 10 : maxD <= 100 ? 20 : 30;
+  for (let d = 0; d <= maxD; d += step) {
+    ctx.beginPath(); ctx.moveTo(tx(d), PT); ctx.lineTo(tx(d), H-PB); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.textAlign = 'center';
+    ctx.fillText(d+'m', tx(d), H-PB+12);
+  }
+
+  // lung line
+  ctx.beginPath(); ctx.strokeStyle = 'rgba(125,211,252,0.5)'; ctx.lineWidth = 1.5;
+  ctx.setLineDash([3,2]);
+  clipped.forEach((p, i) => { if (i===0) ctx.moveTo(tx(p.d), ty(p.lungPct)); else ctx.lineTo(tx(p.d), ty(p.lungPct)); });
+  ctx.stroke(); ctx.setLineDash([]);
+
+  // mouth line
+  ctx.beginPath(); ctx.strokeStyle = '#2ec4b6'; ctx.lineWidth = 2;
+  clipped.forEach((p, i) => { if (i===0) ctx.moveTo(tx(p.d), ty(p.mfPct)); else ctx.lineTo(tx(p.d), ty(p.mfPct)); });
+  ctx.stroke();
+
+  // charge points
+  clipped.filter(p => p.isChargePoint).forEach(p => {
+    ctx.beginPath(); ctx.arc(tx(p.d), ty(p.mfPct), 5, 0, Math.PI*2);
+    ctx.fillStyle = '#2ec4b6'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.font = '7px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(p.d+'m', tx(p.d), ty(p.mfPct)-10);
+  });
+
+  // legend
+  ctx.setLineDash([3,2]); ctx.strokeStyle = 'rgba(125,211,252,0.5)'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(PL, PT+8); ctx.lineTo(PL+14, PT+8); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(125,211,252,0.7)'; ctx.textAlign = 'left'; ctx.font = '7px sans-serif';
+  ctx.fillText('肺', PL+17, PT+12);
+  ctx.strokeStyle = '#2ec4b6'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(PL+30, PT+8); ctx.lineTo(PL+44, PT+8); ctx.stroke();
+  ctx.fillStyle = '#2ec4b6'; ctx.fillText('口', PL+47, PT+12);
+}
+
+function renderPhaseMap(pts, jawThresh, cheekThresh) {
+  const main = pts.filter(p => !p.isBefore && p.d % 5 === 0);
+  const mapEl = document.getElementById('phase-map');
+  mapEl.innerHTML = main.map(p => {
+    const ph = p.phase;
+    const outline = p.isChargePoint ? `outline:2px solid #f97316;outline-offset:1px;` : '';
+    return `<div class="phase-tile">
+      <div class="phase-tile-box" style="background:${ph.color}22;border-color:${ph.color}55;${outline}">
+        <span style="color:${ph.color}">${p.mfPct}%</span>
+      </div>
+      <div class="phase-tile-name" style="color:${ph.color}">${ph.name}</div>
+      <div class="phase-tile-depth">${p.d}m</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('phase-legend').innerHTML = [
+    { name: 'Jaw', color: '#2ec4b6', range: `${jawThresh}%以上` },
+    { name: 'Cheek', color: '#f0c040', range: `${cheekThresh}〜${jawThresh}%` },
+    { name: 'Tongue', color: '#e0e0e0', range: `${cheekThresh}%以下` },
+  ].map(p => `<div class="phase-legend-item"><div class="legend-dot" style="background:${p.color}33;border-color:${p.color}66"></div><span style="color:${p.color}">${p.name}: ${p.range}</span></div>`).join('');
+}
+
+function renderRecords() {
+  const el = document.getElementById('records-section');
+  if (!state.records.length) { el.innerHTML = ''; return; }
+  el.innerHTML = `<div class="table-wrap">
+    <div style="padding:12px 16px;border-bottom:1px solid rgba(46,196,182,0.1);font-size:11px;color:#a8ece8;letter-spacing:0.1em">記録</div>
+    ${state.records.map(r => `<div style="padding:10px 16px;border-bottom:1px solid rgba(46,196,182,0.05);display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:11px;color:rgba(255,255,255,0.32)">${r.label}</div>
+      <div style="font-size:12px;font-weight:700;color:#2ec4b6">F${r.factor} · ${r.charges}チャージ</div>
+    </div>`).join('')}
+  </div>`;
+}
+
+// ========== Boot ==========
+initSelects();
+updatePhaseSelects();
+render();
+</script>
+</body>
+</html>
