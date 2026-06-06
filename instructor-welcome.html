@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>インストラクターの方へ — Freediving Japan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Noto+Sans+JP:wght@300;400;500&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #090B0F;
+    --bg2:      #0E1118;
+    --accent:   #5AB4E8;
+    --text:     #E8EDF2;
+    --text-dim: #7A8899;
+    --text-mid: #B0BCC9;
+    --border:   rgba(90,180,232,0.14);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 300;
+    line-height: 1.8;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 28px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: rgba(9,11,15,0.92);
+    backdrop-filter: blur(6px);
+    z-index: 10;
+  }
+
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 17px;
+    color: var(--accent);
+  }
+  .logo span {
+    color: var(--text-dim);
+    font-size: 12px;
+    font-family: 'Noto Sans JP';
+    font-weight: 300;
+    margin-left: 12px;
+  }
+
+  .header-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    border: 1px solid var(--border);
+    padding: 5px 12px;
+    letter-spacing: 0.1em;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 96px 40px 72px;
+  }
+
+  .hero-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(34px, 5.5vw, 58px);
+    line-height: 1.15;
+    margin-bottom: 28px;
+  }
+  .hero h1 em { font-style: italic; color: var(--accent); }
+
+  .hero-sub {
+    font-size: 15px;
+    color: var(--text-mid);
+    max-width: 560px;
+    line-height: 2;
+  }
+
+  /* ── SECTIONS ── */
+  .section {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 80px 40px;
+    border-top: 1px solid var(--border);
+  }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .section h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(24px, 3.8vw, 38px);
+    line-height: 1.2;
+    margin-bottom: 32px;
+  }
+  .section h2 em { font-style: italic; color: var(--accent); }
+
+  .body-text {
+    font-size: 15px;
+    color: var(--text-mid);
+    line-height: 2;
+    margin-bottom: 20px;
+  }
+
+  /* ── QUOTE ── */
+  .highlight-quote {
+    border-left: 2px solid var(--accent);
+    padding: 18px 24px;
+    background: rgba(90,180,232,0.06);
+    margin: 28px 0;
+    font-size: 15px;
+    color: var(--text-mid);
+    line-height: 2;
+    font-style: italic;
+  }
+
+  /* ── CARDS ── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 14px;
+    margin-top: 36px;
+  }
+
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 24px;
+    transition: border-color 0.25s;
+  }
+  .card:hover { border-color: rgba(90,180,232,0.35); }
+
+  .card-icon { font-size: 24px; margin-bottom: 14px; display: block; }
+
+  .card h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 17px;
+    margin-bottom: 8px;
+  }
+
+  .card p { font-size: 13px; color: var(--text-dim); line-height: 1.9; }
+
+  /* ── FEATURE LIST ── */
+  .feature-list {
+    list-style: none;
+    margin-top: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .feature-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 20px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    font-size: 14px;
+    color: var(--text-mid);
+    line-height: 1.8;
+    transition: border-color 0.25s;
+  }
+  .feature-list li:hover { border-color: rgba(90,180,232,0.3); }
+
+  .feature-list .icon {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    background: rgba(90,180,232,0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    margin-top: 2px;
+  }
+
+  /* ── TWO COL ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 32px;
+  }
+  @media (max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
+
+  .col-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 24px;
+  }
+  .col-box.green { border-color: rgba(80,200,120,0.22); }
+  .col-box.amber { border-color: rgba(240,180,50,0.22); }
+
+  .col-box h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px;
+    margin-bottom: 14px;
+  }
+
+  .col-box ul {
+    list-style: none;
+    font-size: 13px;
+    color: var(--text-dim);
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .col-box ul li {
+    padding-left: 14px;
+    position: relative;
+    line-height: 1.7;
+  }
+  .col-box ul li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    opacity: 0.45;
+  }
+  .col-box.green ul li::before { color: rgba(80,200,120,0.8); }
+  .col-box.amber ul li::before { color: rgba(240,180,50,0.8); }
+
+  /* ── TABLE ── */
+  .info-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 24px;
+    font-size: 13px;
+  }
+  .info-table th {
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-dim);
+    font-weight: 400;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+  }
+  .info-table td {
+    padding: 13px 14px;
+    border-bottom: 1px solid rgba(90,180,232,0.07);
+    color: var(--text-mid);
+    line-height: 1.8;
+    vertical-align: top;
+  }
+  .info-table tr:last-child td { border-bottom: none; }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 7px;
+    font-size: 10px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .tag.free { background: rgba(80,200,120,0.1); color: rgb(80,200,120); }
+  .tag.paid { background: rgba(240,180,50,0.1); color: rgb(240,180,50); }
+
+  /* ── PHASE LIST ── */
+  .phase-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 32px;
+    position: relative;
+  }
+  .phase-list::before {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--accent), transparent);
+  }
+  .phase-item {
+    display: flex;
+    gap: 24px;
+    padding: 22px 0;
+  }
+  .phase-num {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--bg2);
+    border: 1px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+  .phase-content h4 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+  .phase-content p { font-size: 13px; color: var(--text-dim); line-height: 1.9; }
+
+  /* ── PROFILE ── */
+  .profile-box {
+    display: flex;
+    gap: 28px;
+    align-items: flex-start;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 32px;
+    margin-top: 36px;
+  }
+  @media (max-width: 640px) { .profile-box { flex-direction: column; } }
+
+  .profile-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3A8FC4, var(--accent));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: var(--bg);
+    flex-shrink: 0;
+  }
+
+  .profile-info h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 19px;
+    margin-bottom: 5px;
+  }
+  .profile-info .role {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    margin-bottom: 14px;
+  }
+  .profile-info p { font-size: 13px; color: var(--text-dim); line-height: 1.9; }
+
+  /* ── STAT ROW ── */
+  .stat-row {
+    display: flex;
+    gap: 24px;
+    margin: 24px 0;
+    flex-wrap: wrap;
+  }
+  .stat {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 16px 22px;
+    min-width: 120px;
+  }
+  .stat-val {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-label { font-size: 11px; color: var(--text-dim); letter-spacing: 0.04em; }
+
+  /* ── AI FLOW ── */
+  .ai-flow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    margin-top: 32px;
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .ai-step {
+    width: 100%;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 18px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .ai-step.accent {
+    border-color: rgba(90,180,232,0.45);
+    background: rgba(90,180,232,0.06);
+  }
+  .ai-step-icon { font-size: 20px; }
+  .ai-step-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .ai-step.accent .ai-step-label { color: var(--text); font-weight: 500; }
+  .ai-step-text { font-size: 13px; color: var(--text-mid); line-height: 1.8; }
+  .ai-step.accent .ai-step-text { color: var(--text); }
+  .ai-arrow {
+    font-size: 18px;
+    color: var(--accent);
+    opacity: 0.4;
+    padding: 4px 0;
+    line-height: 1;
+  }
+
+  /* ── CTA ── */
+  .cta-section {
+    text-align: center;
+    padding: 96px 40px;
+    border-top: 1px solid var(--border);
+  }
+
+  .cta-section h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(26px, 4vw, 40px);
+    margin-bottom: 18px;
+  }
+
+  .cta-section p {
+    font-size: 14px;
+    color: var(--text-mid);
+    margin-bottom: 36px;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 2;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(90,180,232,0.08);
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    margin-bottom: 20px;
+  }
+  .badge .dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s ease infinite;
+  }
+
+  .btn-primary {
+    display: inline-block;
+    padding: 14px 36px;
+    background: var(--accent);
+    color: var(--bg);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    transition: background 0.2s;
+    margin-right: 10px;
+    margin-bottom: 10px;
+  }
+  .btn-primary:hover { background: #7dcaf0; }
+
+  .btn-ghost {
+    display: inline-block;
+    padding: 13px 36px;
+    background: transparent;
+    color: var(--accent);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    border: 1px solid var(--border);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    transition: border-color 0.2s;
+    margin-bottom: 10px;
+  }
+  .btn-ghost:hover { border-color: var(--accent); }
+
+  footer {
+    text-align: center;
+    padding: 36px 40px;
+    border-top: 1px solid var(--border);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  @media (max-width: 640px) {
+    header { padding: 20px; }
+    .hero, .section { padding: 56px 20px; }
+    .card-grid { grid-template-columns: 1fr; }
+    .stat-row { gap: 12px; }
+    .cta-section { padding: 72px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    Freediving Japan
+    <span>Instructor Welcome</span>
+  </div>
+  <div class="header-badge">β PREVIEW</div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">From Takuya · To Instructors</div>
+  <h1>インストラクターの<br>みんなへ、<em>本音で。</em></h1>
+  <p class="hero-sub">
+    Freediving Japanを作っている寺島拓哉（リダイバー）です。<br>
+    同じ海に潜ってる仲間に、このプロジェクトの本当のところを正直に話したくて作ったページです。<br><br>
+    最初に一番大事なことだけ書いておきます。これは僕一人のビジネスじゃなくて、<strong style="color: var(--text);">フリーダイバー全員・インストラクター全員のための仕組み</strong>として作っています。だから、できれば一緒に作る側に回ってほしい。そういうお願いです。
+  </p>
+</div>
+
+<!-- ── SECTION 1: WHY ── -->
+<section class="section">
+  <div class="section-label">01 — Why</div>
+  <h2>なんで<em>作ったか</em>、<br>正直に話します</h2>
+
+  <p class="body-text">
+    僕がフリーダイビングを始めたのは2017年、社会人2年目のときです。
+    「フリーダイビング」で検索して True Notice を見つけて、そこで初めての講習を受けました。
+    そのあと Big Blue でも練習するようになって、どんどんのめり込んでいった。
+    最初は2分も止められなかったのが、今はSTAで7分54秒。これ、当時の自分に言っても絶対に信じないと思います。
+  </p>
+  <p class="body-text">
+    ある時点から「もっと深く知りたい」と思い始めると、日本語の情報が全然足りなくなってくる。
+    2〜4枚目のライセンスも全部英語のインストラクターで取りました。
+    理由はシンプルで、英語の方が圧倒的に情報がリッチだったから。
+    マウスフィルにしても潜水反射にしても、ちゃんとした解説は英語のフォーラムやYouTubeにしか無かった。
+    今は日本語のコンテンツも確実に増えてますけど、そこにたどり着くまでがまだ大変だな、とは感じます。
+  </p>
+
+  <div class="highlight-quote">
+    当時の自分みたいな人が、日本語でちゃんと情報を見つけられる場所があったら
+    どれだけよかったか。それがずっと頭の隅にありました。
+  </div>
+
+  <p class="body-text">
+    もう一つ大事だと思ってること。フリーダイビングにはまるかどうかって、
+    最初に誰に教えてもらうかでかなり決まると思うんですよね。
+  </p>
+  <p class="body-text">
+    別に「悪いインストラクター」がいるとかじゃなく、単純に相性の問題。
+    最初の一人が自分に合わない人だと、「自分に向いてないのかも」って思って離れてしまう人もいる。
+    あらかじめその人の教え方・価値観・レビューを見て選べたら、そういうミスマッチはかなり減ると思っています。
+  </p>
+
+  <div class="highlight-quote">
+    前職でIBMのコンサルをやっていたので、こういうプラットフォームを作る技術はたまたまある。
+    実は、このサイトを制作会社に発注したら500〜800万円・半年以上かかる規模のものなんですけど、
+    技術がある人間が業界の中にたまたま一人いた。だったら自分がやればいいか、と思っただけです。
+  </div>
+
+  <p class="body-text">
+    正直に言うと、これを作りたいという気持ちはかなり前からありました。
+    去年、実際にソフトウェア開発の会社さんと打ち合わせもして、一度は本気で進めようとしたんです。
+    でも、開発の費用がそれなりにかかること、それからフリーダイビングならではの細かい要件——
+    既存のパッケージにそのまま当てはめられない部分——があって、去年の時点では一度断念しました。
+  </p>
+  <p class="body-text">
+    それが今できているのは、率直にAIのおかげです。
+    システム開発のハードルが一気に下がって、お金をかけずに、しかも自分が現場で「こうしたい」と思う細かい要件まで
+    一人で形にできるようになった。去年は無理だったことが、今年は実際に動くものになっています。
+  </p>
+
+  <div class="card-grid">
+    <div class="card">
+      <span class="card-icon">🌊</span>
+      <h3>情報を集約する</h3>
+      <p>日本語でフリーダイビングを深く学べる場所を作る。当時の僕みたいな人が英語に頼らなくていいように。</p>
+    </div>
+    <div class="card">
+      <span class="card-icon">🔗</span>
+      <h3>マッチングを改善する</h3>
+      <p>生徒とインストラクターが、相性を確認した上で出会える仕組みを作る。最初の一歩をうまくいかせたい。</p>
+    </div>
+    <div class="card">
+      <span class="card-icon">🛠️</span>
+      <h3>面倒なことを巻き取る</h3>
+      <p>集客・管理・大会運営ツール。教えること以外の仕事を減らして、本業に集中できるようにしたい。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 1.5: FOR EVERYONE ── -->
+<section class="section">
+  <div class="section-label">01.5 — 一番言いたいこと</div>
+  <h2>誰か一人のためじゃなく、<br><em>みんなの「土台」</em>にしたい</h2>
+
+  <p class="body-text">
+    誤解されたくないので、ここははっきり書きます。
+    僕はこれで「自分の生徒を集めたい」と思って作ってるわけじゃないです。
+    むしろ逆で、特定の誰か一人だけが得をする仕組みにはしたくない。
+  </p>
+  <p class="body-text">
+    フリーダイビング業界って、正直まだ小さいですよね。
+    その小さいパイをインストラクター同士で取り合っても、誰も幸せにならない。
+    そうじゃなくて、<strong style="color: var(--text);">「フリーダイビングを始める人」そのものを業界全体で増やす</strong>。
+    パイ自体を大きくする。そのための共通の土台を作りたいんです。
+  </p>
+
+  <div class="highlight-quote">
+    一人のスター選手や一つの団体が目立つより、
+    日本中のどこの海に行っても、自分に合ったいいインストラクターに出会える。
+    そういう状態を作れた方が、業界としてはずっと強い。
+  </div>
+
+  <p class="body-text">
+    だからこのページも「登録してくれたら僕が儲かる」みたいな話じゃなくて、
+    一緒に土台を作って、それぞれが自分の場所でちゃんと食べていけるようにしたい、という相談です。
+    僕は技術を出す。みんなは現場の知恵とフィードバックを出す。それで業界全体が少し前に進む。
+    そういう関係でいられたら一番いいなと思っています。
+  </p>
+</section>
+
+<!-- ── SECTION 1.6: SAFETY ── -->
+<section class="section">
+  <div class="section-label">01.6 — もう一つ大事なこと</div>
+  <h2>情報を集めるだけじゃ、<br><em>意味がない</em>と思っています</h2>
+
+  <p class="body-text">
+    このプラットフォームは情報を集約することをやっています。でも正直、情報の集約「だけ」には価値がないと思っています。
+    むしろ、それだけだと危険ですらある。
+  </p>
+  <p class="body-text">
+    フリーダイビングって、他のスポーツや趣味と違って、<strong style="color: var(--text);">一つのミスが命に直結する遊び</strong>ですよね。
+    なのに今は、誰かがネットで検索して——特に最近だとChatGPTみたいなAIが出してきた答えを参考にして——
+    そのまま海に潜ってしまう。これが個人的に一番こわいと思っています。
+  </p>
+
+  <div class="highlight-quote">
+    AIは「それっぽい答え」を返してくる。でも海の中では、
+    その「それっぽさ」が取り返しのつかない事故になる。
+  </div>
+
+  <p class="body-text">
+    だからこそ、ちゃんとした場所で、ちゃんとしたインストラクターが「最低限ここだけは」を伝える。
+    それがこれからますます大事になると思っています。
+    情報を集めるだけじゃなくて、その情報に責任を持てる人の顔が見える状態を作る。
+    安全に関わることは、これからもどんどんやっていきたいです。
+  </p>
+</section>
+
+<!-- ── SECTION 2: PAIN POINTS ── -->
+<section class="section">
+  <div class="section-label">02 — あるある</div>
+  <h2>インストラクターって<br><em>こういうこと</em>、ありません？</h2>
+
+  <p class="body-text">
+    友達のインストラクターと話してると、みんな似たようなことを言うんですよね。
+    「教えるのは好きだけど、それ以外が……」みたいな。
+  </p>
+
+  <ul class="feature-list">
+    <li>
+      <span class="icon">🔍</span>
+      <span>試しに「フリーダイビング 習いたい 鹿児島」でGoogleで検索してみてください。個人インストラクターのページ、ほぼ出てきません。スクール公式か、スキューバのページばかり。せっかくホームページを作っても、新規の人には届いていない。</span>
+    </li>
+    <li>
+      <span class="icon">📸</span>
+      <span>Instagramで発信はしてるけど、フォロワーが増えるだけで生徒になかなか繋がらない。インスタって「すでに知ってる人」には届くけど、全く知らない初心者には弱い。SEOとSNSは全然別の話。</span>
+    </li>
+    <li>
+      <span class="icon">📋</span>
+      <span>生徒の管理がLINEとメモ帳とExcelにバラバラになってる。「あの人何回受けたっけ」「連絡先どこだっけ」を毎回探すのが地味にしんどい。</span>
+    </li>
+    <li>
+      <span class="icon">🏆</span>
+      <span>大会を開きたいけど、APの収集をGoogleフォームで作って、スタートリストをExcelで手作りして、当日のカウントダウンも手動で……毎回ここに数時間〜半日かかる。自分でVolcano Cupを運営するまで、運営がこんなに大変だと思ってなかったです。正直、運営に消耗して自分の競技どころじゃなくなる。</span>
+    </li>
+    <li>
+      <span class="icon">🌊</span>
+      <span>競技も続けたい。でも競技に集中する時間を確保するためには、運営業務を減らさないといけない。どっちも中途半端になりがち。</span>
+    </li>
+  </ul>
+
+  <p class="body-text" style="margin-top: 28px;">
+    全部が全部当てはまる人はいないと思うけど、どれか一個でも「分かる」と思ったなら、
+    このプラットフォームが役に立てることがあるかもしれません。
+  </p>
+
+  <div class="two-col">
+    <div class="col-box green">
+      <h3>✅ 集客に悩んでる場合</h3>
+      <ul>
+        <li>登録するとGoogleの検索結果に表示されるようになる</li>
+        <li>「フリーダイビング 習いたい ○○」で辿り着いた初心者が、あなたのページを見つけられる</li>
+        <li>SNSだけでは届かない層へのリーチが生まれる</li>
+        <li>手数料を払ってもプラスになる設計にする予定</li>
+      </ul>
+    </div>
+    <div class="col-box green">
+      <h3>✅ 集客は足りてる場合</h3>
+      <ul>
+        <li>生徒管理・連絡・受講履歴をまとめて管理できる</li>
+        <li>大会ツールを使って運営の手間を減らせる</li>
+        <li>トレーニングログを生徒と共有して指導に使える</li>
+        <li>新しいチャンネルとして追加するだけでOK</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 3: FEATURES ── -->
+<section class="section">
+  <div class="section-label">03 — Features</div>
+  <h2>いま使える、<em>これから使えるもの</em></h2>
+
+  <p class="body-text">
+    プラットフォームは段階的にリリースしています。β版の現在から使えるものと、近日対応予定のものを整理しました。
+  </p>
+
+  <table class="info-table">
+    <tr>
+      <th>機能</th>
+      <th>内容</th>
+      <th>状態</th>
+    </tr>
+    <tr>
+      <td>ランキング・大会情報</td>
+      <td>AIDAデータと連携した国内大会情報・選手ランキングの閲覧</td>
+      <td><span class="tag free">公開中</span></td>
+    </tr>
+    <tr>
+      <td>STAトレーニングタイマー</td>
+      <td>O2/CO2テーブル・AIDA公式アナウンス・SpO2連携対応のタイマー</td>
+      <td><span class="tag free">公開中</span></td>
+    </tr>
+    <tr>
+      <td>Mouthfill Calculator</td>
+      <td>マウスフィルファクターと深度別残量の可視化ツール</td>
+      <td><span class="tag free">公開中</span></td>
+    </tr>
+    <tr>
+      <td>大会運営ツール</td>
+      <td>AP収集・スタートリスト生成・カウントダウン・結果入力・Protest対応</td>
+      <td><span class="tag free">β対応中</span></td>
+    </tr>
+    <tr>
+      <td>トレーニングログ</td>
+      <td>セッション・ダイブ記録の管理・生徒との共有</td>
+      <td><span class="tag paid">近日公開</span></td>
+    </tr>
+    <tr>
+      <td>CRM・生徒管理</td>
+      <td>生徒情報・連絡先・受講履歴・予約管理</td>
+      <td><span class="tag paid">開発中</span></td>
+    </tr>
+    <tr>
+      <td>素潜りラボ（学習コンテンツ）</td>
+      <td>耳抜き・息止め・競技など有料動画講座（Stripe決済・Vimeo配信）</td>
+      <td><span class="tag paid">撮影準備中</span></td>
+    </tr>
+    <tr>
+      <td>インストラクター掲載・マッチング</td>
+      <td>プロフィールページ、生徒との自動マッチング</td>
+      <td><span class="tag paid">Phase 2</span></td>
+    </tr>
+  </table>
+</section>
+
+<!-- ── SECTION 4: NOT FOR YOU ── -->
+<section class="section">
+  <div class="section-label">04 — 正直なところ</div>
+  <h2>使わなくていい<em>理由</em>も<br>ちゃんと言います</h2>
+
+  <p class="body-text">
+    「登録して！」って言いたい気持ちはあるんですけど、全員に向いてるとは正直思っていなくて。
+    無理に使ってもらっても意味ないので、向いてないケースもちゃんと書いておきます。
+  </p>
+
+  <div class="two-col">
+    <div class="col-box amber">
+      <h3>⚠️ 今すぐじゃなくていいかも</h3>
+      <ul>
+        <li>紹介だけで十分に生徒が来ていて、特に困っていない</li>
+        <li>デジタルよりも対面・コミュニティだけで完結させたい</li>
+        <li>新しいツールを覚えるコストを今は払いたくない</li>
+        <li>外部プラットフォームに依存したくないポリシーがある</li>
+      </ul>
+    </div>
+    <div class="col-box">
+      <h3>💬 それでも一個だけ伝えると</h3>
+      <ul>
+        <li>登録は無料で、使わなくてもお金は一切かからない</li>
+        <li>大会機能だけ使う、とかでも全然OK</li>
+        <li>「これ使いにくい」ってフィードバックをくれるだけでも本当に助かる</li>
+        <li>今は小さくても、育てばみんなにとって意味が大きくなる</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION AI ── -->
+<section class="section">
+  <div class="section-label">04.5 — これから</div>
+  <h2>AIで、<em>インストラクターの<br>仕事はどう変わるか</em></h2>
+
+  <p class="body-text">
+    少し未来の話をしてもいいですか。
+    もう「薄々感じてる」じゃなくて、実際に動き出してます。
+  </p>
+  <p class="body-text">
+    ChatGPTのユーザーは2024年末時点で週3億人を超えました。
+    Perplexity AIという検索特化のAIは月間クエリ数が10億を超えています。
+    そして2025年にはGoogleが「AI Overview」を全面展開し、
+    検索結果の上にAIの要約が表示されるようになった——つまり、<strong style="color: var(--text);">Googleを開かずに答えが出る時代</strong>がもう始まっています。
+  </p>
+
+  <div class="highlight-quote">
+    「フリーダイビング始めたい」と思ったとき、Googleじゃなく
+    自分のAIアシスタントに聞く。そういう人が、今まさに増えています。
+  </div>
+
+  <div class="ai-flow">
+    <div class="ai-step">
+      <div class="ai-step-icon">🙋</div>
+      <div class="ai-step-label">生徒さん</div>
+      <div class="ai-step-text">「フリーダイビング始めたい、どこがいい？」と自分のAIに聞く</div>
+    </div>
+    <div class="ai-arrow">↓</div>
+    <div class="ai-step">
+      <div class="ai-step-icon">🤖</div>
+      <div class="ai-step-label">AIエージェント</div>
+      <div class="ai-step-text">ネット上のデータを収集して、その人に合ったインストラクターを選ぶ</div>
+    </div>
+    <div class="ai-arrow">↓</div>
+    <div class="ai-step accent">
+      <div class="ai-step-icon">📡</div>
+      <div class="ai-step-label">ここが問題</div>
+      <div class="ai-step-text">ネット上に情報がないインストラクターは、そもそも候補に入らない</div>
+    </div>
+    <div class="ai-arrow">↓</div>
+    <div class="ai-step">
+      <div class="ai-step-icon">📅</div>
+      <div class="ai-step-label">予約まで自動化</div>
+      <div class="ai-step-text">AIが候補を絞り、問い合わせ・日程調整まで自動で進む流れが実用段階に入っている</div>
+    </div>
+  </div>
+
+  <p class="body-text" style="margin-top: 36px;">
+    今は口コミと友達経由でうまく回ってると思います。でもその経路だと、
+    あなたのことを「まだ知らない人」には永遠に届かない。
+    AIは<strong style="color: var(--text);">「存在する情報」しか拾えない。</strong>
+    情報が無ければ推薦されない、それだけのことです。
+  </p>
+  <p class="body-text">
+    レビュー・実績・活動ログをネット上に積み上げることが資産になる時代。
+    今から動いてる人が、2〜3年後に圧倒的に有利になる。
+    口コミだけで回してると、この変化に乗り遅れるリスクがあります。
+  </p>
+
+  <div class="highlight-quote" style="margin-top: 32px;">
+    正直に言うと、このウェブサイト自体も数年後には必要なくなってるかもしれない。<br>
+    でも僕が作りたいのは「ウェブサイト」じゃなくて、<em style="font-style: normal; color: var(--accent);">コミュニティの脊髄</em>みたいなものだと思っています。
+  </div>
+
+  <p class="body-text">
+    脊髄って、それ自体が目的じゃないですよね。神経が通るための構造体。
+    このプラットフォームもそういうものだと思っていて——
+    ここで選手がランキングを見て「あいつに勝ちたい」と思ったり、
+    インストラクターが生徒と繋がったり、大会の参加者同士が出会ったりする。
+    その繋がりが積み重なって、コミュニティになっていく。
+  </p>
+  <p class="body-text">
+    Volcano Cupを何回か運営してみて、一番印象に残ってるのは大会の順位じゃなくて、
+    「あの大会がきっかけで練習仲間ができた」という話を聞いたときです。
+    プラットフォームの価値もたぶんそこにあって、ツールや機能の話より先に、
+    そういう「場」が育っていくことの方が、長期的には意味が大きいと思っています。
+  </p>
+
+  <div class="highlight-quote">
+    ウェブサイトは変わるし、なくなるかもしれない。<br>
+    でもここで起きた出会いや、一緒に潜った記憶は、プラットフォームが消えても残る。<br>
+    それを作りたい。
+  </div>
+
+  <div class="section-label" style="margin-top: 52px; margin-bottom: 18px;">AIがもたらす恩恵</div>
+  <h3 style="font-family: 'DM Serif Display', serif; font-size: 22px; margin-bottom: 22px; line-height: 1.3;">
+    でも正直、AIって<em style="color: var(--accent);">僕らにとっていいことしかない</em>とも思ってます
+  </h3>
+
+  <ul class="feature-list" style="margin-top: 20px;">
+    <li>
+      <span class="icon">💰</span>
+      <span><strong style="color: var(--text);">個人でも本格的なシステムが作れる。</strong>
+      このサイトをちゃんとした制作会社に発注したら、500〜800万円・半年以上かかります。
+      僕は一人で1ヶ月で作った。ニッチすぎてお金にならないからと誰もやらなかったことが、
+      個人でできるようになりました。</span>
+    </li>
+    <li>
+      <span class="icon">🎬</span>
+      <span><strong style="color: var(--text);">コンテンツ制作のハードルが劇的に下がる。</strong>
+      「練習する時間を削りたくないからコンテンツが作れない」という人も、
+      AIのサポートで価値あるコンテンツをかなり短時間で作れるようになっています。</span>
+    </li>
+    <li>
+      <span class="icon">🌊</span>
+      <span><strong style="color: var(--text);">AIが全自動化する時代ほど、身体体験の価値が上がる。</strong>
+      フリーダイビングは物理的に身体が必要なスポーツで、AIが入ってこれない領域。
+      デジタル化が進むほど、海の中で自分の体一つで遊ぶ体験は希少になる。
+      その体験を作れるのは、インストラクターのみなさんだと思ってます。</span>
+    </li>
+  </ul>
+</section>
+
+<!-- ── SECTION 5: ROADMAP ── -->
+<section class="section">
+  <div class="section-label">05 — Roadmap</div>
+  <h2>どう<em>育てていく</em>のか</h2>
+
+  <p class="body-text">
+    まずは選手・インストラクター・大会を繋ぐ基盤を完成させ、
+    段階的に収益化とコンテンツを展開していきます。
+  </p>
+
+  <div class="phase-list">
+    <div class="phase-item">
+      <div class="phase-num">01</div>
+      <div class="phase-content">
+        <h4>プラットフォーム基盤（現在）</h4>
+        <p>認証・ランキング・大会機能・トレーニングログを整備。インストラクター仲間に実際に使ってもらいながらフィードバックを収集する。</p>
+      </div>
+    </div>
+    <div class="phase-item">
+      <div class="phase-num">02</div>
+      <div class="phase-content">
+        <h4>素潜りラボ（来月〜）</h4>
+        <p>耳抜き・息止めの有料動画講座をリリース。初心者がつまずきやすい基礎を、安心して学べるコンテンツとして用意する。</p>
+      </div>
+    </div>
+    <div class="phase-item">
+      <div class="phase-num">03</div>
+      <div class="phase-content">
+        <h4>CRM・マッチング（Phase 2）</h4>
+        <p>集まった初心者をインストラクターへ繋ぐマッチング機能と、生徒管理CRMを展開。インストラクターが教えることだけに集中できる仕組みを実現する。</p>
+      </div>
+    </div>
+    <div class="phase-item">
+      <div class="phase-num">04</div>
+      <div class="phase-content">
+        <h4>インバウンド対応（Phase 2後半〜）</h4>
+        <p>英語対応とインバウンド向けコンテンツで海外からの問い合わせ導線を作る。外国人選手・ダイバーを日本のインストラクターへ繋ぐ。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 5.5: COLLABORATE ── -->
+<section class="section">
+  <div class="section-label">05.5 — 一緒にやりませんか</div>
+  <h2>みんなの専門性を、<br><em>コンテンツにして残したい</em></h2>
+
+  <p class="body-text">
+    もう一つ、これは「使ってください」じゃなくて「一緒に作りませんか」というお誘いです。
+    来月末から「素潜りラボ」という有料の動画講座を撮り始めます。
+    第一弾は耳抜き（こうようさんに依頼済み）と息止め入門の2本からスタートです。
+  </p>
+  <p class="body-text">
+    でも僕一人が全部教えるのは違うと思っていて。
+    耳抜きが死ぬほど上手い人、魚突き出身で独自の理論を持ってる人、女性指導が得意な人——
+    インストラクターそれぞれに「これだけは誰にも負けない」という専門領域がありますよね。
+    それを一個ずつちゃんとした講座にして、業界の財産として残していきたい。
+  </p>
+
+  <div class="two-col">
+    <div class="col-box green">
+      <h3>✅ 講師として参加する場合</h3>
+      <ul>
+        <li>自分の得意分野を一本の講座にできる（撮影・編集は僕が手伝います）</li>
+        <li>売上はレベニューシェア。教えるほど自分の収入になる</li>
+        <li>「あの講座を作った人」として実績・権威性が残る</li>
+        <li>AI時代に「ネット上の資産」になる（後述します）</li>
+      </ul>
+    </div>
+    <div class="col-box">
+      <h3>💬 撮影のハードルについて</h3>
+      <ul>
+        <li>「練習時間を削りたくない」→ 撮影は1日完結で組みます</li>
+        <li>構成・台本づくりはこちらで叩き台を用意します</li>
+        <li>機材（Sony A7S III）も編集も僕が持ち出します</li>
+        <li>まず「こういうの話せるよ」という雑談からでOK</li>
+      </ul>
+    </div>
+  </div>
+
+  <p class="body-text" style="margin-top: 28px;">
+    こうして集めた専門性を、いつかちゃんと海外にも届けたいと思っています。
+    というのも、僕は普段から海外で潜ることが多くて、フリーダイバーの友達もたぶん外国人の方が多いんですけど、
+    その目線で日本の海を見ると、ポテンシャルが本当にすごいんですよね。
+  </p>
+  <p class="body-text">
+    日本って北から南まで長いから、地形もポイントも多種多様で。
+    例えば2月でいうと、北では流氷の下を潜れる。同じ時期に沖縄や奄美大島ではクジラに会える。
+    冬の同じ季節にそんな両極端なことができる国、たぶん日本だけです。
+    それ以外にも貴重なダイビングサイトが日本中に点在してるのに、外国人にはほとんど知られていない。
+  </p>
+  <p class="body-text">
+    実際、海外の友達から「沖縄でフリーダイビングしたいんだけど、どこ行けばいい？」ってしょっちゅう聞かれます。
+    そのたびに知り合いを個別に紹介してるんですけど、こういう情報が一箇所にまとまっていれば、
+    日本のポイントもインストラクターも包括的に見つけてもらえるし、
+    みんなのところにインバウンドのお客さんを呼び込める。そういう導線も作っていきたいと思っています。
+  </p>
+</section>
+
+<!-- ── SECTION 6: WHO ── -->
+<section class="section">
+  <div class="section-label">06 — 自己紹介</div>
+  <h2>一応、自己紹介</h2>
+
+  <div class="stat-row">
+    <div class="stat">
+      <div class="stat-val">7'54"</div>
+      <div class="stat-label">STA 日本記録</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">13年</div>
+      <div class="stat-label">ぶりの記録更新</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">2017</div>
+      <div class="stat-label">フリーダイビング開始</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">IBM</div>
+      <div class="stat-label">前職（コンサルタント）</div>
+    </div>
+  </div>
+
+  <div class="profile-box">
+    <div class="profile-avatar">T</div>
+    <div class="profile-info">
+      <h3>寺島 拓哉 — Takuya Terashima</h3>
+      <div class="role">日本STA記録保持者 / Volcano Cup 主催 / 元IBMコンサルタント</div>
+      <p>
+        2017年にTrue Noticeで始めたフリーダイビングが、気づいたらSTAの日本記録（7分54秒、前記録から13年ぶりの更新）になっていました。
+        Volcano Cupという大会も自分で立ち上げて主催しています。<br><br>
+        体のデータを正直に言うと、肺活量6L・パッキングで7Lと、確かに恵まれてる方ではあります。
+        でも記録を伸ばせたのは結局「燃費」の方で、安静時心拍はSTA集中期で35〜40まで落とせるようになりました（一般的には60〜70）。
+        この辺の「才能の話」と「努力でどうにかなる話」をちゃんと切り分けて伝えたい、というのが素潜りラボを作ってる理由でもあります。<br><br>
+        前職はIBMでコンサルタント。このプロジェクトは、業界に育ててもらった恩返しのつもりで作っています。
+        コードもデザインも一人で書いて、フィリピンと鹿児島を行き来しながら進めてます。
+        正直まだ全然完成してないし、一人でやれることには限界がある。だから、一緒に使いながら育ててくれる仲間が欲しいんです。
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-section">
+  <div class="badge"><span class="dot"></span>β版 先行アクセス受付中</div>
+  <h2>まず触ってみてください</h2>
+  <p>
+    登録は無料です。使ってみて「ここ使いにくい」「こういう機能ほしい」があれば
+    直接言ってください。それが一番助かります。<br>
+    講座を一緒に作る話、大会で使ってみる話、なんでもまずは雑談から。
+  </p>
+  <a href="/auth.html" class="btn-primary">アカウント登録（無料）</a>
+  <a href="mailto:takuya@freediving-japan.com" class="btn-ghost">Takuyaに直接連絡する</a>
+</div>
+
+<footer>
+  © 2026 Freediving Japan — Built by Takuya Terashima
+</footer>
+
+</body>
+</html>
