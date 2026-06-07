@@ -1148,6 +1148,8 @@ function applyRestDefault() {
     }
   });
 }
+
+function syncRestInput() {
   // selectの値をhidden inputに同期（レガシー互換）
   const sel = document.getElementById('f-rest-time-sel');
   const inp = document.getElementById('f-rest-time');
@@ -2868,62 +2870,94 @@ updateDistLabels();
 
     if (!d || !d.diveLog || !d.diveLog.length) return;
 
+    function fmtSec(sec) {
+      sec = parseInt(sec) || 0;
+      if (sec <= 0) return '';
+      return Math.floor(sec/60) + ':' + String(sec%60).padStart(2,'0');
+    }
+
     function applyData() {
-      // 環境
+      // ── 1. 環境 ──
       var envVal = (d.env === 'pool') ? 'pool' : 'dry';
-      var envBtn = document.querySelector('#env-main-btns .env-btn[onclick*="' + envVal + '"]');
+      var envBtn = document.querySelector('#env-main-btns .env-btn[onclick*="\'' + envVal + '\'"]');
       if (envBtn) setEnv(envVal, envBtn);
 
-      // 日付
-      if (d.date) { var el = document.getElementById('f-date'); if (el) el.value = d.date; }
+      // ── 2. 日付 ──
+      if (d.date) { var dateEl = document.getElementById('f-date'); if (dateEl) dateEl.value = d.date; }
 
-      // STA選択
-      setTimeout(function() {
-        var chip = document.querySelector('[data-disc="STA"]');
-        if (chip) setDisc('STA', chip);
+      // ── 3. 種目 STA ──
+      var chip = document.querySelector('#disc-chips .chip[data-disc="STA"]');
+      if (chip) setDisc('STA', chip);  // → showIntervalSection → diveMode='target'
 
-        // インターバルモード
-        setTimeout(function() {
-          var ivBtn = document.getElementById('mode-interval');
-          if (ivBtn) setDiveMode('interval', ivBtn);
+      // ── 4. インターバルモードへ ──
+      var ivBtn = document.getElementById('mode-interval');
+      if (ivBtn) setDiveMode('interval', ivBtn);  // → sec-interval 表示 + updateIntervalFields
 
-          // セレクト・本数設定
-          setTimeout(function() {
-            var firstRestSec = (d.diveLog[0] && d.diveLog[0].restSec) ? d.diveLog[0].restSec : 0;
-            var firstHoldSec = (d.sessionPlan && d.sessionPlan[0]) ? d.sessionPlan[0].holdSec : 0;
+      // ── 5. select を実データで構築 ──
+      var firstRestSec = (d.diveLog[0] && d.diveLog[0].restSec) ? d.diveLog[0].restSec : 0;
+      var firstHoldSec = 0;
+      if (d.sessionPlan && d.sessionPlan[0] && d.sessionPlan[0].holdSec) {
+        firstHoldSec = d.sessionPlan[0].holdSec;
+      } else if (d.diveLog[0] && d.diveLog[0].holdTime) {
+        firstHoldSec = d.diveLog[0].holdTime;
+      }
 
-            buildSetsSelect('f-iv-sets', d.diveLog.length);
-            buildRestSelect('f-rest-time-sel', firstRestSec);
-            buildTimeSelect('f-interval-hold-sel', firstHoldSec);
+      buildSetsSelect('f-iv-sets', d.diveLog.length);
+      buildRestSelect('f-rest-time-sel', firstRestSec);
+      buildTimeSelect('f-interval-hold-sel', firstHoldSec);
 
-            var setsEl = document.getElementById('f-iv-sets');
-            if (setsEl) setsEl.value = d.diveLog.length;
-            var restSel = document.getElementById('f-rest-time-sel');
-            if (restSel && firstRestSec) { restSel.value = firstRestSec; syncRestInput(); }
-            var holdSel = document.getElementById('f-interval-hold-sel');
-            if (holdSel && firstHoldSec) holdSel.value = firstHoldSec;
+      var setsEl = document.getElementById('f-iv-sets');
+      if (setsEl) setsEl.value = String(d.diveLog.length);
+      var restSel = document.getElementById('f-rest-time-sel');
+      if (restSel) restSel.value = firstRestSec ? String(firstRestSec) : '';
+      var holdSel = document.getElementById('f-interval-hold-sel');
+      if (holdSel) holdSel.value = firstHoldSec ? String(firstHoldSec) : '';
+      syncRestInput();
 
-            calcInterval();
+      // ── 6. 行テーブル生成 ──
+      calcInterval();
 
-            // 行データ
-            setTimeout(function() {
-              var rows = document.querySelectorAll('#iv-sets-table tr[data-row]');
-              rows.forEach(function(tr, i) {
-                var dive = d.diveLog[i]; if (!dive) return;
-                var h = tr.querySelector('.iv-hold'); if (h && dive.time) h.value = dive.time;
-                var r = tr.querySelector('.iv-rest'); if (r && dive.restFmt) r.value = dive.restFmt;
-                var n = tr.querySelector('.iv-note'); if (n && dive.fc) n.value = 'FC:' + dive.fc;
-              });
-              if (d.note) { var noteEl = document.getElementById('f-note'); if (noteEl) noteEl.value = d.note; }
-              var banner = document.createElement('div');
-              banner.style.cssText = 'background:var(--accent-dim);border:1px solid var(--accent);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--accent2);margin-bottom:12px';
-              banner.innerHTML = '🏊 <strong>sta-timer</strong> から読み込み — Best: <strong>' + (d.bestTime||'—') + '</strong> / ' + d.diveLog.length + 'セット';
-              var ft = document.querySelector('#epanel-input .card-body');
-              if (ft) ft.insertBefore(banner, ft.firstChild);
-            }, 100);
-          }, 100);
-        }, 50);
-      }, 50);
+      // ── 7. 各行に実測値を反映 ──
+      var rows = document.querySelectorAll('#iv-sets-table tr[data-row]');
+      rows.forEach(function(tr, i) {
+        var dive = d.diveLog[i]; if (!dive) return;
+        // Hold（実測タイム）
+        var h = tr.querySelector('.iv-hold');
+        if (h) h.value = dive.time || (dive.holdTime ? fmtSec(dive.holdTime) : '');
+        // Rest
+        var r = tr.querySelector('.iv-rest');
+        if (r && (dive.restFmt || dive.restSec)) r.value = dive.restFmt || fmtSec(dive.restSec);
+        // メモ：FC / Min SpO2 を集約
+        var n = tr.querySelector('.iv-note');
+        if (n) {
+          var parts = [];
+          if (dive.fc) parts.push('FC:' + dive.fc);
+          if (dive.minSpo2 != null) parts.push('SpO2 ' + dive.minSpo2 + '%');
+          if (parts.length) n.value = parts.join(' / ');
+        }
+        // STA種目セレクト（存在すれば固定）
+        var ds = tr.querySelector('.iv-disc');
+        if (ds) ds.value = 'STA';
+      });
+
+      // ── 8. セッションメモ ──
+      if (d.note) { var noteEl = document.getElementById('f-note'); if (noteEl) noteEl.value = d.note; }
+
+      // ── 9. 読み込みバナー ──
+      if (!document.getElementById('sta-import-banner')) {
+        var banner = document.createElement('div');
+        banner.id = 'sta-import-banner';
+        banner.style.cssText = 'background:var(--accent-dim);border:1px solid var(--accent);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--accent2);margin-bottom:12px';
+        banner.innerHTML = '🏊 <strong>STA Timer</strong> から読み込みました — Best: <strong>' + (d.bestTime||'—') + '</strong> / ' + d.diveLog.length + 'セット' + (d.minSpo2!=null ? ' / Min SpO2 ' + d.minSpo2 + '%' : '');
+        var ft = document.querySelector('#epanel-input .card-body');
+        if (ft) ft.insertBefore(banner, ft.firstChild);
+      }
+
+      // URLパラメータを掃除（リロード時の二重読込防止）
+      try {
+        var clean = location.pathname + location.hash;
+        history.replaceState(null, '', clean);
+      } catch(e) {}
     }
 
     if (document.readyState === 'loading') {
