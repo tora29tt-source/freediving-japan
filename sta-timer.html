@@ -766,7 +766,7 @@ header {
       <button class="btn-sub"      onclick="onReset()">Reset</button>
       <button class="btn-sub end" id="btnEnd" onclick="onEndSession()" style="display:none">終了</button>
       <button class="btn-sub" id="btnPause" onclick="onPause()" style="display:none">⏸ 一時中断</button>
-      <button class="btn-sub save" id="btnSave" disabled onclick="directToLog()">ログ登録へ</button>
+      <button class="btn-sub save" id="btnSave" disabled onclick="openSave()">ログ登録へ</button>
       <button class="btn-sub" id="btnClearAll" onclick="onClear()">Clear All</button>
     </div>
   </div>
@@ -784,30 +784,35 @@ header {
 
 <!-- SAVE MODAL -->
 <div class="overlay" id="saveOverlay" onclick="if(event.target===this)closeSave()">
-  <div class="sheet">
-    <div class="sheet-title">ログ登録へ</div>
-    <div class="sheet-time" id="saveTime">—</div>
-    <div class="spo2-summary" id="saveSpo2Summary" style="display:none">
-      <div class="spo2-s"><span class="spo2-s-lbl">Start</span><span class="spo2-s-val ok"   id="ss-start">—</span></div>
-      <div class="spo2-s"><span class="spo2-s-lbl">Min</span>  <span class="spo2-s-val crit" id="ss-min">—</span></div>
-      <div class="spo2-s"><span class="spo2-s-lbl">End</span>  <span class="spo2-s-val ok"   id="ss-end">—</span></div>
+  <div class="sheet" style="max-height:85vh;display:flex;flex-direction:column">
+    <div class="sheet-title">セッション確認</div>
+
+    <!-- 環境選択 -->
+    <div style="display:flex;gap:6px;margin-bottom:12px">
+      <button id="save-env-dry"  onclick="setSaveEnv('dry')"
+        style="flex:1;height:34px;border-radius:8px;border:1px solid var(--teal);background:var(--teal-dim);color:var(--teal-light);font-size:12px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent">🏠 Dry</button>
+      <button id="save-env-pool" onclick="setSaveEnv('pool')"
+        style="flex:1;height:34px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent">🏊 Pool</button>
     </div>
-    <div id="saveChartWrap" style="display:none">
-      <div class="chart-lbl">Best Hold — SpO2 Profile</div>
+
+    <!-- サマリー行 -->
+    <div id="saveSummaryBar" style="display:flex;gap:12px;justify-content:center;margin-bottom:12px;flex-wrap:wrap"></div>
+
+    <!-- SpO2チャート -->
+    <div id="saveChartWrap" style="display:none;margin-bottom:10px">
+      <div class="chart-lbl">Best Hold — SpO2</div>
       <div class="chart-wrap"><canvas id="saveChart"></canvas></div>
     </div>
-    <div class="field-lbl">Note</div>
-    <input class="fi" id="saveNote" placeholder="任意メモ" maxlength="100">
-    <div class="field-lbl">低酸素感 (Hypoxia)</div>
-    <div class="sym-row">
-      <button class="sym-btn" data-v="0" onclick="selHyp(this)">0 なし</button>
-      <button class="sym-btn" data-v="1" onclick="selHyp(this)">1 かも</button>
-      <button class="sym-btn" data-v="2" onclick="selHyp(this)">2 あり</button>
-      <button class="sym-btn" data-v="3" onclick="selHyp(this)">3 強</button>
-    </div>
+
+    <!-- セット一覧 -->
+    <div id="saveDiveList" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:4px;margin-bottom:12px"></div>
+
+    <!-- メモ -->
+    <input class="fi" id="saveNote" placeholder="メモ（任意）" maxlength="100" style="margin-bottom:12px">
+
     <div class="sheet-btns">
-      <button class="sheet-btn cancel"  onclick="closeSave()">Cancel</button>
-      <button class="sheet-btn confirm" onclick="confirmSave()">Save</button>
+      <button class="sheet-btn cancel"  onclick="closeSave()">キャンセル</button>
+      <button class="sheet-btn confirm" onclick="confirmSave()">登録してログへ</button>
     </div>
   </div>
 </div>
@@ -1067,6 +1072,7 @@ function toast(msg, err=false) {
 let sessionPlan = [];
 let planConfirmed = false;
 let planFromPreset = false;
+let sessionEnv = 'dry'; // 'dry' | 'pool'
 let activePresetId = null; // 現在アクティブなプリセットID // プリセット経由でモーダルを開いた場合true // O2/CO2: 「完了」を押すまではリングタップでスタートさせない
 
 // ── PRESETS ──────────────────────────────────────────────
@@ -1932,13 +1938,15 @@ function tick() {
 // ── PHASE TRANSITIONS ─────────────────────────────────────
 function startSession() {
   currentSet = 0; spo2Buf = [];
-  if (mode !== 'free') holdDives = []; // freeモードは累積、テーブルモードはリセット
+  if (mode !== 'free') holdDives = [];
   if (mode !== 'free') laps = [];
   renderSetDots(); renderLog();
   document.getElementById('btnSave').disabled = true;
   const th=document.getElementById('tapHint'); if(th) th.style.opacity='0';
   document.getElementById('setListWrap').classList.remove('plan-mode');
-  onSessionStartCamera(); // マニュアルモード時バッファ録画開始
+  // セッション開始後は一時中断ボタンを常に表示
+  document.getElementById('btnPause').style.display = '';
+  onSessionStartCamera();
   beginCountdownOrHold();
 }
 
@@ -2524,6 +2532,10 @@ function onPause() {
       pausedRestElapsed = null;
       startRestTimer();
     }
+    // surface再開時はオーバーレイを再表示
+    if (phase === 'surface') {
+      document.getElementById('surfaceOverlay').classList.add('visible');
+    }
     cancelAnimationFrame(rafId);
     rafId = requestAnimationFrame(tick);
     requestWakeLock();
@@ -2532,7 +2544,7 @@ function onPause() {
     document.getElementById('btnPause').style.color = '';
     showPhase(phase, document.getElementById('phaseLabel').textContent.replace(' [中断中]', ''));
     toast('▶ 再開');
-  } else if (phase === 'hold' || phase === 'rest' || phase === 'countdown') {
+  } else if (phase === 'hold' || phase === 'rest' || phase === 'countdown' || phase === 'surface') {
     // Pause
     pausedPhase = phase;
     pausedMs = performance.now() - phaseStart;
@@ -2544,6 +2556,10 @@ function onPause() {
     phase = 'paused';
     cancelAnimationFrame(rafId); rafId = null;
     releaseWakeLock();
+    // surface中断時はオーバーレイを隠す
+    if (pausedPhase === 'surface') {
+      document.getElementById('surfaceOverlay').classList.remove('visible');
+    }
     document.getElementById('btnPause').textContent = '▶ 再開';
     document.getElementById('btnPause').style.borderColor = 'var(--teal)';
     document.getElementById('btnPause').style.color = 'var(--teal-light)';
@@ -2687,6 +2703,9 @@ function updateStats() {
   document.getElementById('stAvg').textContent  = fmt(avg);
   const mins = holdDives.filter(d=>!d.isRest&&d.minSpo2!=null).map(d=>d.minSpo2);
   document.getElementById('stSpo2').textContent = mins.length ? Math.min(...mins)+'%' : '—';
+  // holdDivesが1件でもあれば登録ボタンを有効化
+  const saveBtn = document.getElementById('btnSave');
+  if (saveBtn) saveBtn.disabled = holdDives.filter(d=>!d.isRest).length === 0;
 }
 
 // ── LOG ───────────────────────────────────────────────────
@@ -2857,31 +2876,70 @@ function updateLiveChart() {
 // ── SAVE MODAL ────────────────────────────────────────────
 let saveHypoxia=0, saveSpo2Snap=[];
 
+function setSaveEnv(env) {
+  sessionEnv = env;
+  const dryBtn  = document.getElementById('save-env-dry');
+  const poolBtn = document.getElementById('save-env-pool');
+  const activeStyle  = 'flex:1;height:34px;border-radius:8px;border:1px solid var(--teal);background:var(--teal-dim);color:var(--teal-light);font-size:12px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent';
+  const inactiveStyle= 'flex:1;height:34px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent';
+  if (dryBtn)  dryBtn.style.cssText  = env === 'dry'  ? activeStyle : inactiveStyle;
+  if (poolBtn) poolBtn.style.cssText = env === 'pool' ? activeStyle : inactiveStyle;
+}
+
 function openSave() {
-  if (!holdDives.length) return;
-  saveSpo2Snap = holdDives.length
-    ? holdDives.reduce((best,d)=>d.ms>best.ms?d:best).spo2Profile
-    : [];
-  saveHypoxia = 0;
-  document.querySelectorAll('.sym-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('saveNote').value='';
+  const holdOnly = holdDives.filter(d => !d.isRest);
+  if (!holdOnly.length) return;
 
-  const best = holdDives.length ? Math.max(...holdDives.map(d=>d.ms)) : 0;
-  document.getElementById('saveTime').textContent =
-    `${holdDives.length} sets · Best ${fmt(best)}`;
+  document.getElementById('saveNote').value = '';
+  // 環境ボタンをsessionEnvに合わせて初期化
+  setSaveEnv(sessionEnv);
 
-  // spo2 summary
-  if (saveSpo2Snap.length>2) {
-    const vals=saveSpo2Snap.map(p=>p.v);
-    const setS=(id,v)=>{ const el=document.getElementById(id); el.textContent=v; el.className='spo2-s-val '+spo2Class(v); };
-    setS('ss-start',vals[0]); setS('ss-min',Math.min(...vals)); setS('ss-end',vals[vals.length-1]);
-    document.getElementById('saveSpo2Summary').style.display='';
-    document.getElementById('saveChartWrap').style.display='';
-    setTimeout(() => drawSparkline('saveChart', saveSpo2Snap, 70, 100, 70), 50);
+  // ── サマリーバー ──
+  const best = Math.max(...holdOnly.map(d => d.ms));
+  const avg  = holdOnly.reduce((a,d) => a+d.ms, 0) / holdOnly.length;
+  const mins = holdOnly.filter(d => d.minSpo2 != null).map(d => d.minSpo2);
+  const bar  = document.getElementById('saveSummaryBar');
+  bar.innerHTML = [
+    ['Sets',     holdOnly.length],
+    ['Best',     fmt(best)],
+    ['Avg',      fmt(avg)],
+    mins.length ? ['Min SpO2', Math.min(...mins)+'%'] : null,
+  ].filter(Boolean).map(([lbl, val]) =>
+    `<div style="text-align:center;background:var(--surface2);border-radius:8px;padding:6px 12px;flex:1;min-width:60px">
+      <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:2px">${lbl}</div>
+      <div style="font-size:15px;font-variant-numeric:tabular-nums;font-weight:600;color:var(--teal)">${val}</div>
+    </div>`
+  ).join('');
+
+  // ── SpO2チャート（ベストホールド）──
+  saveSpo2Snap = holdOnly.reduce((best,d) => d.ms>best.ms ? d : best).spo2Profile || [];
+  if (saveSpo2Snap.length > 2) {
+    document.getElementById('saveChartWrap').style.display = '';
+    setTimeout(() => drawSparkline('saveChart', saveSpo2Snap, 70, 100, 60), 50);
   } else {
-    document.getElementById('saveSpo2Summary').style.display='none';
-    document.getElementById('saveChartWrap').style.display='none';
+    document.getElementById('saveChartWrap').style.display = 'none';
   }
+
+  // ── セット一覧 ──
+  const listEl = document.getElementById('saveDiveList');
+  listEl.innerHTML = '';
+  holdOnly.forEach((d, i) => {
+    const spo2 = d.minSpo2 != null
+      ? `<span style="font-size:10px;color:${spo2Color(d.minSpo2)};margin-left:4px">${d.minSpo2}%</span>` : '';
+    const fc = d.fc != null
+      ? `<span style="font-size:10px;color:var(--teal);margin-left:4px">FC ${fmt(d.fc)}</span>` : '';
+    // Rest時間: sessionPlan[i].restSec（最終セットはなし）
+    const restSec = (sessionPlan[i] && i < holdOnly.length - 1) ? sessionPlan[i].restSec : null;
+    const restTag = restSec != null
+      ? `<span style="font-size:10px;color:var(--muted);margin-left:4px">R ${fmt(restSec*1000)}</span>` : '';
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--surface2);border-radius:8px';
+    row.innerHTML = `
+      <span style="font-size:10px;font-weight:700;color:var(--muted);min-width:22px">#${i+1}</span>
+      <span style="font-size:15px;font-variant-numeric:tabular-nums;font-weight:500;color:var(--text);flex:1">${fmt(d.ms)}</span>
+      ${fc}${spo2}${restTag}`;
+    listEl.appendChild(row);
+  });
 
   document.getElementById('saveOverlay').classList.add('open');
 }
@@ -2903,25 +2961,36 @@ function directToLog() {
 
 async function confirmSave() {
   closeSave();
-  const best = holdDives.length ? Math.max(...holdDives.map(d=>d.ms)) : 0;
-  const avg  = holdDives.length ? holdDives.reduce((a,d)=>a+d.ms,0)/holdDives.length : 0;
-  const minS = holdDives.filter(d=>d.minSpo2!=null).map(d=>d.minSpo2);
+  const holdOnly = holdDives.filter(d => !d.isRest);
+  const best = holdOnly.length ? Math.max(...holdOnly.map(d=>d.ms)) : 0;
+  const avg  = holdOnly.length ? holdOnly.reduce((a,d)=>a+d.ms,0)/holdOnly.length : 0;
+  const minS = holdOnly.filter(d=>d.minSpo2!=null).map(d=>d.minSpo2);
   const sessionData = {
     id:         Date.now().toString(),
     date:       new Date().toISOString().slice(0,10),
-    env:        'dry',
+    env:        sessionEnv,
     discipline: 'STA',
-    tableMode:  mode,
-    sets:       holdDives.length,
+    tableMode:  tableSub || mode,
+    presetId:   activePresetId || null,
+    sets:       holdOnly.length,
     bestTime:   fmt(best),
     avgTime:    fmt(avg),
     minSpo2:    minS.length ? Math.min(...minS) : null,
-    hypoxia:    saveHypoxia,
-    note:       document.getElementById('saveNote').value.trim()||null,
-    diveLog:    holdDives.map(d=>({
-      disc:'STA', time:fmt(d.ms), holdTime:Math.round(d.ms/1000),
-      spo2Profile:d.spo2Profile, minSpo2:d.minSpo2,
+    note:       document.getElementById('saveNote') ? document.getElementById('saveNote').value.trim()||null : null,
+    diveLog:    holdOnly.map((d,i)=>({
+      set:        i+1,
+      disc:       'STA',
+      time:       fmt(d.ms),
+      holdTime:   Math.round(d.ms/1000),
+      restSec:    (sessionPlan[i] && i < holdOnly.length-1) ? sessionPlan[i].restSec : null,
+      restFmt:    (sessionPlan[i] && i < holdOnly.length-1) ? fmt(sessionPlan[i].restSec*1000) : null,
+      fc:         d.fc != null ? fmt(d.fc) : null,
+      fcMs:       d.fc || null,
+      spo2Profile:d.spo2Profile,
+      minSpo2:    d.minSpo2,
+      auto:       d.auto || false,
     })),
+    sessionPlan: sessionPlan.map(p => ({ holdSec: p.holdSec, restSec: p.restSec })),
     source:'sta-timer',
   };
 
