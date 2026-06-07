@@ -136,6 +136,59 @@ header {
 }
 .stop-btn.active { background: var(--teal-dim); border-color: var(--teal); color: var(--teal-light); }
 
+/* PLAN EDITOR */
+.pm-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.pm-num {
+  background: var(--surface3);
+  border-bottom: 1px solid var(--border);
+  padding: 5px 12px;
+  font-size: 9px; font-weight: 800; letter-spacing: .15em;
+  text-transform: uppercase; color: var(--muted);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.pm-dup {
+  font-size: 10px; font-weight: 700; color: var(--teal);
+  background: none; border: 1px solid var(--teal);
+  border-radius: 5px; padding: 2px 8px; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.pm-row {
+  display: flex; align-items: center;
+  padding: 10px 12px; gap: 10px;
+}
+.pm-row + .pm-row { border-top: 1px solid var(--border); }
+.pm-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; width: 36px; flex-shrink: 0;
+}
+.pm-label.hold { color: var(--teal-light); }
+.pm-label.rest { color: var(--muted); }
+.pm-stepper {
+  display: inline-flex; align-items: stretch; flex: 0 0 auto;
+  height: 40px; line-height: 1;
+  border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+}
+.pm-btn {
+  flex: 0 0 40px; width: 40px; height: 40px; padding: 0;
+  background: var(--surface);
+  border: none; font-size: 20px; line-height: 1; color: var(--text);
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  display: flex; align-items: center; justify-content: center;
+}
+.pm-btn:active { background: var(--border); }
+.pm-val {
+  flex: 0 0 auto; min-width: 64px; height: 40px; padding: 0 8px;
+  background: var(--surface);
+  border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+  font-size: 15px; line-height: 1; font-variant-numeric: tabular-nums; font-weight: 500;
+  color: var(--text); display: flex; align-items: center; justify-content: center;
+}
+
 /* PHASE BANNER */
 .phase-banner {
   flex-shrink: 0; text-align: center; padding: 0;
@@ -150,43 +203,55 @@ header {
 
 /* SET PROGRESS */
 .set-list-wrap {
-  flex-shrink: 0; padding: 0 16px; max-height: 120px; overflow-y: auto;
+  flex-shrink: 0; padding: 0 16px; max-height: 240px; overflow-y: auto;
+}
+.set-list-wrap.plan-mode {
+  max-height: none; overflow-y: visible;
 }
 .set-list-wrap::-webkit-scrollbar { width: 2px; }
 .set-list-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-.set-list { display: flex; flex-direction: column; gap: 3px; }
+.set-list { display: flex; flex-direction: column; gap: 2px; }
 .set-row {
-  display: flex; align-items: center; gap: 8px;
-  padding: 5px 10px; border-radius: 8px;
+  display: flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 7px;
   border: 1px solid var(--border); background: var(--surface);
   transition: all .3s;
 }
+.set-row.plan-row-inline {
+  flex-direction: row; align-items: center; padding: 3px 8px; gap: 4px;
+}
 .set-row.done {
-  background: var(--surface2); border-color: transparent; opacity: .45;
+  background: var(--surface2); border-color: transparent; opacity: .6;
 }
 .set-row.current {
   border-color: var(--teal); background: rgba(46,196,182,.06);
 }
-.set-row.pending { opacity: .3; }
+.set-row.pending { opacity: .7; }
 .set-n {
   font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
-  color: var(--muted); min-width: 28px;
+  color: var(--muted); min-width: 24px; flex-shrink: 0;
+}
+.set-left {
+  flex: 1; display: flex; flex-direction: column; gap: 1px; min-width: 0;
 }
 .set-phase-lbl {
   font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
-  flex: 1;
 }
 .set-phase-lbl.hold { color: var(--teal-light); }
 .set-phase-lbl.rest { color: var(--muted); }
+.set-phase-lbl.surface { color: #eab308; }
 .set-phase-lbl.pending { color: var(--border); }
+.set-sub {
+  display: flex; gap: 5px; align-items: center; flex-wrap: wrap;
+}
 .set-time {
-  font-size: 14px; font-variant-numeric: tabular-nums; font-weight: 300;
-  color: var(--text-muted); min-width: 44px; text-align: right;
+  font-size: 15px; font-variant-numeric: tabular-nums; font-weight: 300;
+  min-width: 52px; text-align: right; flex-shrink: 0;
   color: var(--muted);
 }
 .set-time.done-time { color: var(--teal); }
 .set-spo2 {
-  font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 4px; min-width: 36px; text-align: center;
+  font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 4px;
 }
 .set-spo2.ok   { color: var(--teal);   background: rgba(46,196,182,.12); }
 .set-spo2.warn { color: var(--warm);   background: rgba(249,115,22,.12); }
@@ -204,8 +269,8 @@ header {
   transform: rotate(-90deg); pointer-events: none;
 }
 .ring-track  { fill: none; stroke: var(--surface2); stroke-width: 4; }
-.ring-hold   { fill: none; stroke: var(--teal);  stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset .1s linear, stroke .5s; }
-.ring-rest   { fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; stroke-dasharray: 4 6; transition: stroke-dashoffset .1s linear; }
+.ring-hold   { fill: none; stroke: var(--danger); stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset .1s linear, stroke .5s; }
+.ring-rest   { fill: none; stroke: var(--success); stroke-width: 2; stroke-linecap: round; stroke-dasharray: 4 6; transition: stroke-dashoffset .1s linear; }
 .ring-spo2   { fill: none; stroke: transparent;  stroke-width: 7; stroke-linecap: round; transition: stroke-dashoffset .8s ease, stroke .5s; }
 .ring-hold.danger { stroke: var(--warm); }
 
@@ -245,8 +310,9 @@ header {
   font-size: 11px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase;
   margin-top: 6px; transition: color .4s;
 }
-.phase-ring-label.hold { color: var(--teal); }
-.phase-ring-label.rest { color: var(--muted); }
+.phase-ring-label.hold    { color: var(--danger); }
+.phase-ring-label.rest    { color: var(--success); }
+.phase-ring-label.surface { color: #eab308; }
 
 /* rest timer */
 .rest-timer {
@@ -264,6 +330,40 @@ header {
   transition: opacity .3s; pointer-events: none;
 }
 
+
+/* SURFACE PROTOCOL overlay inside ring */
+.surface-overlay {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 2px;
+  pointer-events: none; opacity: 0; transition: opacity .3s;
+  background: rgba(6,15,23,.72); border-radius: 50%;
+}
+.surface-overlay.visible { opacity: 1; }
+.surface-label {
+  font-size: clamp(10px, 2.8vw, 13px); letter-spacing: .28em; text-transform: uppercase;
+  font-weight: 900; color: #fff;
+  text-shadow: 0 0 24px rgba(234,179,8,.8), 0 1px 3px rgba(0,0,0,.6);
+}
+.surface-num {
+  font-size: clamp(58px, 17vw, 76px); font-variant-numeric: tabular-nums;
+  font-weight: 100; color: #eab308; letter-spacing: -.03em;
+  text-shadow: 0 0 40px rgba(234,179,8,.7), 0 0 80px rgba(234,179,8,.3);
+  line-height: .95;
+}
+.surface-bar-wrap {
+  width: 56%; height: 3px; background: rgba(234,179,8,.18);
+  border-radius: 2px; margin-top: 6px; overflow: hidden;
+}
+.surface-bar {
+  height: 100%; background: #eab308; width: 0%;
+  transition: width .1s linear;
+  box-shadow: 0 0 8px rgba(234,179,8,.8);
+}
+.surface-rest-lbl {
+  font-size: clamp(9px, 2.2vw, 11px); letter-spacing: .1em;
+  color: rgba(255,255,255,.45); font-weight: 500; margin-top: 5px;
+  font-variant-numeric: tabular-nums;
+}
 
 /* countdown overlay inside ring */
 .ring-countdown {
@@ -517,12 +617,20 @@ header {
           <select class="cfg-sel" id="sel-o2Sets" onchange="cfg.o2Sets=parseInt(this.value);renderSetDots()">
           </select>
         </div>
-        <div class="cfg-item">
-          <span class="cfg-lbl">スタートまで</span>
+        <div class="cfg-item" style="grid-column:1/-1">
+          <span class="cfg-lbl">ブリーズアップ <span onclick="togglePrepHelp()" style="cursor:pointer;font-size:11px;color:var(--teal);font-weight:600;letter-spacing:0;text-transform:none;background:var(--teal-dim);border-radius:50%;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center">?</span></span>
           <select class="cfg-sel" id="sel-prep-o2" onchange="cfg.prepSec=parseInt(this.value)">
           </select>
         </div>
       </div>
+      <div id="prepHelpTip" style="display:none;margin-top:6px;padding:7px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-size:10px;color:var(--muted);line-height:1.6">
+        ⓘ 1本目の開始前にのみ適用されます。一時中断から再開した後も同様に適用されます。2本目以降はレスト設定で管理します。
+      </div>
+      <div style="margin-top:8px;display:flex;gap:6px;align-items:center">
+        <button class="btn-sub" id="btnCameraToggle" onclick="onCameraToggle()" style="flex:1;height:30px;font-size:10px;color:var(--muted)">📹 録画：OFF</button>
+        <button class="btn-sub" id="btnCameraReview" onclick="openCameraReview()" style="display:none;flex:1;height:30px;font-size:10px;color:var(--teal-light);border-color:var(--teal)">クリップ確認</button>
+      </div>
+      <button onclick="onCfgStart()" style="margin-top:10px;width:100%;height:40px;border-radius:10px;border:none;background:var(--teal);color:#0b2d45;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;-webkit-tap-highlight-color:transparent">作成</button>
     </div>
 
     <!-- CO2 Table: Hold(固定) → Rest(manual/auto) -->
@@ -547,27 +655,48 @@ header {
           </select>
         </div>
         <div class="cfg-item">
+          <span class="cfg-lbl">Rest Decrement</span>
+          <select class="cfg-sel" id="sel-co2Decrement" onchange="cfg.co2DecrementSec=parseInt(this.value)">
+          </select>
+        </div>
+        <div class="cfg-item">
           <span class="cfg-lbl">Sets</span>
           <select class="cfg-sel" id="sel-co2Sets" onchange="cfg.co2Sets=parseInt(this.value);renderSetDots()">
           </select>
         </div>
-        <div class="cfg-item">
-          <span class="cfg-lbl">スタートまで</span>
+        <div class="cfg-item" style="grid-column:1/-1">
+          <span class="cfg-lbl">ブリーズアップ <span onclick="togglePrepHelp()" style="cursor:pointer;font-size:11px;color:var(--teal);font-weight:600;letter-spacing:0;text-transform:none;background:var(--teal-dim);border-radius:50%;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center">?</span></span>
           <select class="cfg-sel" id="sel-prep-co2" onchange="cfg.prepSec=parseInt(this.value)">
           </select>
         </div>
       </div>
+      <div style="margin-top:8px;display:flex;gap:6px;align-items:center">
+        <button class="btn-sub" id="btnCameraToggleCo2" onclick="onCameraToggle()" style="flex:1;height:30px;font-size:10px;color:var(--muted)">📹 録画：OFF</button>
+        <button class="btn-sub" id="btnCameraReviewCo2" onclick="openCameraReview()" style="display:none;flex:1;height:30px;font-size:10px;color:var(--teal-light);border-color:var(--teal)">クリップ確認</button>
+      </div>
+      <button onclick="onCfgStart()" style="margin-top:10px;width:100%;height:40px;border-radius:10px;border:none;background:var(--teal);color:#0b2d45;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;-webkit-tap-highlight-color:transparent">作成</button>
     </div>
 
     </div>
   </div>
+
+  <!-- CONFIG COMPACT SUMMARY (shown after 作成) -->
+  <div id="cfgSummary" style="display:none;margin:0 16px 0;padding:7px 12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;flex-shrink:0">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div id="cfgSummaryText" style="font-size:11px;color:var(--muted);letter-spacing:.04em;font-variant-numeric:tabular-nums;flex:1"></div>
+    </div>
+  </div>
+
+  <!-- SESSION PLAN EDITOR → モーダルで表示 -->
+
+  <!-- SESSION PLAN EDITOR → モーダルで表示 -->
 
   <!-- PHASE LABEL -->
   <div class="phase-banner">
     <div class="phase-label" id="phaseLabel">STA — Static Apnea</div>
   </div>
 
-  <!-- SET LIST -->
+  <!-- UNIFIED SESSION LIST (hidden until session starts) -->
   <div class="set-list-wrap" id="setListWrap" style="display:none">
     <div class="set-list" id="setList"></div>
   </div>
@@ -596,11 +725,22 @@ header {
     <div class="ring-countdown" id="ringCountdown">
       <span class="ring-countdown-num" id="countdownNum"></span>
     </div>
+    <!-- surface protocol overlay -->
+    <div class="surface-overlay" id="surfaceOverlay">
+      <span class="surface-label">Surface Protocol</span>
+      <span class="surface-num" id="surfaceNum">0</span>
+      <div class="surface-bar-wrap"><div class="surface-bar" id="surfaceBar"></div></div>
+      <span class="surface-rest-lbl" id="surfaceRestLbl"></span>
+    </div>
   </div>
 
   <!-- NEXT DIVE BTN -->
   <div style="text-align:center;flex-shrink:0;min-height:36px;display:flex;align-items:center;justify-content:center;gap:12px">
     <button class="sw-next-ring-btn" id="btnNext" onclick="swNextDive()" style="display:none">次へ（<span id="btnNextNum">2</span>本目）</button>
+  </div>
+
+  <!-- 1ST CONTRACTION (separated from Next to avoid accidental taps) -->
+  <div style="text-align:center;flex-shrink:0;min-height:28px;display:flex;align-items:center;justify-content:center">
     <button class="fc-btn" id="btnFC" onclick="onFC()" style="display:none">1st Contraction</button>
   </div>
 
@@ -624,16 +764,13 @@ header {
     <div class="btn-row">
       <button class="btn-sub"      onclick="onReset()">Reset</button>
       <button class="btn-sub end" id="btnEnd" onclick="onEndSession()" style="display:none">終了</button>
+      <button class="btn-sub" id="btnPause" onclick="onPause()" style="display:none">⏸ 一時中断</button>
       <button class="btn-sub save" id="btnSave" disabled onclick="directToLog()">ログ登録へ</button>
       <button class="btn-sub" id="btnClearAll" onclick="onClear()">Clear All</button>
     </div>
   </div>
 
-  <!-- LOG -->
-  <div class="log-section" id="logSection" style="display:none">
-    <div class="log-hdr">Dives</div>
-    <div class="log-list" id="logList"></div>
-  </div>
+  <!-- LOG (merged into set list area above) -->
 
   <!-- LAP LIST (stopwatch mode) -->
   <div class="log-section" id="lapSection" style="display:none">
@@ -702,6 +839,50 @@ header {
 
 <div class="toast" id="toast"></div>
 
+<!-- SESSION PLAN MODAL -->
+<div class="overlay" id="planOverlay">
+  <div class="sheet" style="max-height:92vh;display:flex;flex-direction:column;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))">
+    <div class="sheet-title" id="planModalTitle">セッション作成</div>
+    <div id="planModalSummary" style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:10px;font-variant-numeric:tabular-nums"></div>
+    <div id="planList" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-right:2px"></div>
+    <div style="height:14px;flex-shrink:0"></div>
+    <div class="sheet-btns">
+      <button class="sheet-btn cancel" onclick="closePlanModal()">キャンセル</button>
+      <button class="sheet-btn confirm" onclick="onPlanDone()">完了</button>
+    </div>
+  </div>
+</div>
+
+<!-- CAMERA SETUP MODAL (shown once before session if camera recording enabled) -->
+<div class="overlay" id="cameraSetupOverlay" onclick="if(event.target===this)closeCameraSetup()">
+  <div class="sheet">
+    <div class="sheet-title">📹 インカメラ録画</div>
+    <div style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:16px;line-height:2">
+      息止めが終了したタイミングの<br><strong style="color:var(--text)">前後30秒</strong>をカメラで録画します。<br>
+      <span style="font-size:11px">録画データはセッション内のみ確認でき、<br>終了時に削除されます。</span>
+    </div>
+    <div class="sheet-btns">
+      <button class="sheet-btn cancel" onclick="closeCameraSetup(false)">使わない</button>
+      <button class="sheet-btn confirm" onclick="closeCameraSetup(true)">使う</button>
+    </div>
+  </div>
+</div>
+
+<!-- CAMERA REVIEW MODAL -->
+<div class="overlay" id="cameraReviewOverlay" onclick="if(event.target===this)closeCameraReview()">
+  <div class="sheet" style="max-height:90vh">
+    <div class="sheet-title">📹 録画クリップ</div>
+    <div id="cameraClipList" style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;max-height:55vh;overflow-y:auto"></div>
+    <div class="sheet-btns">
+      <button class="sheet-btn cancel" onclick="closeCameraReview()">閉じる</button>
+      <button class="sheet-btn confirm" onclick="downloadAllClips()">全て保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden video elements for camera -->
+<video id="cameraPreview" autoplay muted playsinline style="display:none;position:fixed;bottom:0;left:0;width:80px;height:60px;z-index:50;border-radius:8px;border:1.5px solid var(--danger);opacity:0.85;object-fit:cover"></video>
+
 <script>
 // ── SUPABASE ─────────────────────────────────────────────
 // ── AIDA アナウンサー（aida-rules.js インライン版）──────
@@ -755,9 +936,25 @@ function resetAnnouncer() {
   if (_synth) _synth.cancel();
 }
 
-function checkAnnouncements(remainingSec) {
+function checkCountdownAnnouncements(remainingSec) {
   if (!_announcerEnabled) return;
   for (const a of AIDA_ANNOUNCEMENTS) {
+    // Only fire announcements that are ≤ countdownSec (avoid "2分" when countdown is 90s)
+    if (a.sb > countdownSec) continue;
+    if (remainingSec <= a.sb && !_firedSet.has(a.sb)) {
+      _firedSet.add(a.sb);
+      announce(_announcerLang === 'ja' ? a.ja : a.en);
+      break;
+    }
+  }
+}
+
+function checkAnnouncements(remainingSec) {
+  if (!_announcerEnabled) return;
+  // レスト設定時間を上限にする（設定より長いアナウンスは発火しない）
+  const restSec = restFixedSec() || restAutoSec() || Infinity;
+  for (const a of AIDA_ANNOUNCEMENTS) {
+    if (a.sb > restSec) continue; // この設定では存在しない残り時間はスキップ
     if (remainingSec <= a.sb && !_firedSet.has(a.sb)) {
       _firedSet.add(a.sb);
       announce(_announcerLang === 'ja' ? a.ja : a.en);
@@ -848,6 +1045,193 @@ function toast(msg, err=false) {
   setTimeout(() => t.classList.remove('show'), 2400);
 }
 
+// ── SESSION PLAN ─────────────────────────────────────────
+let sessionPlan = [];
+
+function buildDefaultPlan() {
+  var n = (mode==='o2') ? cfg.o2Sets : cfg.co2Sets;
+  sessionPlan = [];
+  var isManualHold = (mode==='o2' && cfg.o2Stop==='manual') || (mode==='co2' && cfg.co2Stop==='manual');
+  var baseHold = isManualHold ? 0 : ((mode==='o2') ? (cfg.o2HoldMin*60+cfg.o2HoldSec) : (cfg.co2HoldMin*60+cfg.co2HoldSec));
+  var baseRest = (mode==='o2') ? (cfg.o2RestMin*60+cfg.o2RestSec) : (cfg.co2RestMin*60+cfg.co2RestSec);
+  var dec = (mode==='co2') ? (cfg.co2DecrementSec||0) : 0;
+  for (var i = 0; i < n; i++) {
+    sessionPlan.push({ holdSec: baseHold, restSec: Math.max(0, baseRest - dec*i) });
+  }
+}
+function planHoldSec() {
+  if (sessionPlan.length === 0) return null;
+  var s = sessionPlan[currentSet] ? sessionPlan[currentSet].holdSec : null;
+  return (s && s > 0) ? s : null;
+}
+function planRestSec() {
+  if (sessionPlan.length === 0) return null;
+  return sessionPlan[currentSet] ? (sessionPlan[currentSet].restSec || null) : null;
+}
+
+
+function pmFmt(s) {
+  return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
+}
+
+function renderPlanEditor(flashIdx) {
+  var list = document.getElementById('planList');
+  list.innerHTML = '';
+  var isManualHold = (mode==='o2' && cfg.o2Stop==='manual') || (mode==='co2' && cfg.co2Stop==='manual');
+  var n = sessionPlan.length;
+
+  for (var i = 0; i < n; i++) {
+    (function(i){
+      var p = sessionPlan[i];
+      var hasRest = i < n-1;
+
+      // カード
+      var card = document.createElement('div');
+      card.className = 'pm-card';
+      card.id = 'planCard'+i;
+
+      // 番号バー
+      var numBar = document.createElement('div');
+      numBar.className = 'pm-num';
+      numBar.innerHTML = '<span># '+(i+1)+'</span>';
+      var dup = document.createElement('button');
+      dup.className = 'pm-dup';
+      dup.textContent = '+ 複製';
+      dup.onclick = function(){ insertPlanRow(i); };
+      numBar.appendChild(dup);
+      card.appendChild(numBar);
+
+      // Hold行
+      var hRow = document.createElement('div');
+      hRow.className = 'pm-row';
+      var hLbl = document.createElement('span');
+      hLbl.className = 'pm-label hold';
+      hLbl.textContent = 'Hold';
+      hRow.appendChild(hLbl);
+
+      if (isManualHold) {
+        var mTag = document.createElement('div');
+        mTag.style.cssText = 'font-size:13px;color:var(--warm);font-variant-numeric:tabular-nums';
+        mTag.textContent = 'Manual';
+        hRow.appendChild(mTag);
+      } else {
+        var hStepper = makeStepper(p.holdSec, 15, 15, 600, function(v){
+          sessionPlan[i].holdSec = v;
+        });
+        hRow.appendChild(hStepper);
+      }
+      card.appendChild(hRow);
+
+      // Rest行
+      if (hasRest) {
+        var rRow = document.createElement('div');
+        rRow.className = 'pm-row';
+        var rLbl = document.createElement('span');
+        rLbl.className = 'pm-label rest';
+        rLbl.textContent = 'Rest';
+        rRow.appendChild(rLbl);
+        var rStepper = makeStepper(p.restSec, 15, 0, 600, function(v){
+          sessionPlan[i].restSec = v;
+        });
+        rRow.appendChild(rStepper);
+        card.appendChild(rRow);
+      }
+
+      list.appendChild(card);
+      if (i === flashIdx) {
+        setTimeout(function(){ card.style.outline = '2px solid var(--teal)'; setTimeout(function(){ card.style.outline=''; }, 600); }, 10);
+      }
+    })(i);
+  }
+}
+
+function makeStepper(initVal, step, minVal, maxVal, onChange) {
+  var val = initVal;
+  var wrap = document.createElement('div');
+  wrap.className = 'pm-stepper';
+
+  var btnM = document.createElement('button');
+  btnM.className = 'pm-btn';
+  btnM.textContent = '−';
+
+  var valEl = document.createElement('div');
+  valEl.className = 'pm-val';
+  valEl.textContent = pmFmt(val);
+
+  var btnP = document.createElement('button');
+  btnP.className = 'pm-btn';
+  btnP.textContent = '+';
+
+  btnM.onclick = function() {
+    val = Math.max(minVal, val - step);
+    valEl.textContent = pmFmt(val);
+    onChange(val);
+  };
+  btnP.onclick = function() {
+    val = Math.min(maxVal, val + step);
+    valEl.textContent = pmFmt(val);
+    onChange(val);
+  };
+
+  wrap.appendChild(btnM);
+  wrap.appendChild(valEl);
+  wrap.appendChild(btnP);
+  return wrap;
+}
+
+function insertPlanRow(afterIdx) {
+  var src = sessionPlan[afterIdx];
+  sessionPlan.splice(afterIdx+1, 0, { holdSec: src.holdSec, restSec: src.restSec });
+  renderPlanEditor(afterIdx+1);
+  setTimeout(function(){
+    var card = document.getElementById('planCard'+(afterIdx+1));
+    if (card) card.scrollIntoView({ block:'nearest', behavior:'smooth' });
+  }, 50);
+}
+
+function onCfgStart() {
+  buildDefaultPlan();
+  document.getElementById('planModalTitle').textContent = mode==='o2' ? 'O2 Table — セッション作成' : 'CO2 Table — セッション作成';
+  document.getElementById('planModalSummary').innerHTML = buildCfgSummaryHTML();
+  renderPlanEditor();
+  document.getElementById('planOverlay').classList.add('open');
+}
+
+function closePlanModal() {
+  document.getElementById('planOverlay').classList.remove('open');
+}
+
+function onPlanDone() {
+  document.getElementById('planOverlay').classList.remove('open');
+  toggleCfgPanel(true);
+  document.getElementById('configPanel').style.display = 'none';
+  document.getElementById('cfgSummaryText').innerHTML = buildCfgSummaryHTML();
+  document.getElementById('cfgSummary').style.display = '';
+  document.getElementById('setListWrap').style.display = '';
+  document.getElementById('setListWrap').classList.add('plan-mode');
+  renderSetDots();
+  var th = document.getElementById('tapHint');
+  if (th) th.style.opacity = '1';
+}
+
+function buildCfgSummaryHTML() {
+  if (mode === 'o2') {
+    var holdStop = cfg.o2Stop==='auto' ? pmFmt(cfg.o2HoldMin*60+cfg.o2HoldSec) : 'Manual';
+    var rest = pmFmt(cfg.o2RestMin*60+cfg.o2RestSec);
+    return '<span style="color:var(--teal-light);font-weight:600">O2</span>&nbsp; Hold '+holdStop+' &nbsp;·&nbsp; Rest <span style="color:var(--success)">'+rest+'</span> &nbsp;·&nbsp; '+cfg.o2Sets+' sets';
+  } else if (mode === 'co2') {
+    var hold = pmFmt(cfg.co2HoldMin*60+cfg.co2HoldSec);
+    var restStop = cfg.co2Stop==='auto' ? pmFmt(cfg.co2RestMin*60+cfg.co2RestSec) : 'Manual';
+    var dec = cfg.co2DecrementSec > 0 ? ' &nbsp;·&nbsp; <span style="color:var(--warm)">−'+cfg.co2DecrementSec+'s/set</span>' : '';
+    return '<span style="color:var(--teal-light);font-weight:600">CO2</span>&nbsp; Hold <span style="color:var(--danger)">'+hold+'</span> &nbsp;·&nbsp; Rest '+restStop+dec+' &nbsp;·&nbsp; '+cfg.co2Sets+' sets';
+  }
+  return '';
+}
+
+function onCfgSummaryTap() {
+  // インライン編集に変更したためモーダルは開かない
+}
+
 // ── CONFIG PANEL TOGGLE ─────────────────────────────────
 let cfgOpen = true;
 function toggleCfgPanel(forceClose) {
@@ -870,6 +1254,7 @@ const cfg = {
   co2RestMin:2, co2RestSec:0,  // restオート時: 2:00
   co2Stop: 'manual',
   co2Sets: 8,
+  co2DecrementSec: 0,  // Rest decrementなし
   prepSec: 0,   // カウントダウン開始時間（秒）、0=なし
 };
 // display values (sec)
@@ -891,13 +1276,18 @@ function setMode(m) {
   document.getElementById('cfg-co2').style.display = m==='co2' ? '' : 'none';
   panel.classList.toggle('visible', m!=='free');
   if (m !== 'free') { cfgOpen = true; toggleCfgPanel(false); }
+  // サマリーをリセット
+  const sum = document.getElementById('cfgSummary');
+  if (sum) sum.style.display = 'none';
+  if (m !== 'free') document.getElementById('configPanel').style.display = '';
   // Lap/Stopwatchモード切替
   const isSW = m === 'free';
   const _bl = document.getElementById('btnLap'); if(_bl) _bl.style.display = isSW ? '' : 'none';
   document.getElementById('btnNext').style.display = 'none';
   document.getElementById('btnFC').style.display = 'none';
   swLocked = false;
-  document.getElementById('setListWrap').style.display = isSW ? 'none' : '';
+  document.getElementById('setListWrap').style.display = isSW ? 'none' : 'none'; // 常に非表示、セッション開始時に表示
+  document.getElementById('freeLogWrap') && (document.getElementById('freeLogWrap').style.display = 'none');
   // btnLap/btnNext: startHold/endHoldで制御
   // 全モードでSTART/CLEAR ALLボタン非表示（リングタップで操作）
   document.getElementById('btnMain').style.display = 'none';
@@ -956,6 +1346,21 @@ function buildPrepOptions(selId, defaultSec) {
     sel.appendChild(opt);
   });
 }
+function buildDecrementOptions(selId, defaultSec) {
+  const sel = document.getElementById(selId);
+  if (!sel) return;
+  sel.innerHTML = '';
+  const none = document.createElement('option');
+  none.value = 0; none.textContent = 'なし';
+  if (defaultSec === 0) none.selected = true;
+  sel.appendChild(none);
+  for (let s = 5; s <= 60; s += 5) {
+    const opt = document.createElement('option');
+    opt.value = s; opt.textContent = `−${s}秒`;
+    if (s === defaultSec) opt.selected = true;
+    sel.appendChild(opt);
+  }
+}
 function initSelects() {
   buildTimeOptions('sel-o2Hold', cfg.o2HoldSec + cfg.o2HoldMin*60);
   buildTimeOptions('sel-o2Rest', cfg.o2RestSec + cfg.o2RestMin*60);
@@ -963,6 +1368,7 @@ function initSelects() {
   buildPrepOptions('sel-prep-o2',  0);
   buildTimeOptions('sel-co2Hold', cfg.co2HoldSec + cfg.co2HoldMin*60);
   buildTimeOptions('sel-co2Rest', cfg.co2RestSec + cfg.co2RestMin*60);
+  buildDecrementOptions('sel-co2Decrement', cfg.co2DecrementSec);
   buildSetsOptions('sel-co2Sets', cfg.co2Sets);
   buildPrepOptions('sel-prep-co2', 0);
 }
@@ -986,10 +1392,12 @@ function setCfgStop(tbl, val) {
 }
 
 // ── SESSION STATE ─────────────────────────────────────────
-// phase: 'idle' | 'countdown' | 'hold' | 'rest' | 'done'
+// phase: 'idle' | 'countdown' | 'hold' | 'surface' | 'rest' | 'done' | 'paused'
 let phase     = 'idle';
 let phaseMs   = 0;       // elapsed in current phase
 let phaseStart= 0;
+let pausedMs  = 0;       // ms elapsed when paused
+let pausedPhase = null;  // phase before pause
 let rafId     = null;
 let currentSet= 0;       // 0-based
 let holdDives = [];      // saved hold records
@@ -1004,10 +1412,22 @@ let currentSpo2 = null;
 let countdownSec = 0;    // countdown remaining
 
 function totalSets() { return mode==='o2'?cfg.o2Sets: mode==='co2'?cfg.co2Sets: Infinity; }
-function holdAutoSec() { return mode==='o2'  && cfg.o2Stop==='auto'  ? cfgSec.o2Hold()  : null; }
-function restAutoSec() { return mode==='co2' && cfg.co2Stop==='auto' ? cfgSec.co2Rest() : null; }
-function restFixedSec(){ return mode==='o2'  ? cfgSec.o2Rest()  : null; }
-function holdFixedSec(){ return mode==='co2' ? cfgSec.co2Hold() : null; }
+function holdAutoSec() {
+  if (sessionPlan.length > 0) return planHoldSec(); // planが有効なら優先
+  return mode==='o2' && cfg.o2Stop==='auto' ? cfgSec.o2Hold() : null;
+}
+function restAutoSec() {
+  if (sessionPlan.length > 0 && mode==='co2' && cfg.co2Stop==='auto') return planRestSec();
+  return mode==='co2' && cfg.co2Stop==='auto' ? cfgSec.co2Rest() : null;
+}
+function restFixedSec() {
+  if (sessionPlan.length > 0 && mode==='o2') return planRestSec();
+  return mode==='o2' ? cfgSec.o2Rest() : null;
+}
+function holdFixedSec() {
+  if (sessionPlan.length > 0 && mode==='co2') return planHoldSec();
+  return mode==='co2' ? cfgSec.co2Hold() : null;
+}
 
 // ── TIMER LOOP ────────────────────────────────────────────
 function tick() {
@@ -1020,7 +1440,7 @@ function tick() {
     const s = Math.ceil(remaining / 1000);
     setDisplayCountdown(s);
     setRestRing(1 - remaining / (countdownSec * 1000));
-    checkAnnouncements(Math.floor(remaining / 1000));
+    checkCountdownAnnouncements(Math.floor(remaining / 1000));
     if (remaining <= 0) startHold();
     else { rafId = requestAnimationFrame(tick); return; }
   }
@@ -1034,6 +1454,11 @@ function tick() {
         spo2Buf.push({ t, v: currentSpo2 });
       updateLiveChart();
     }
+    // テーブルモード: セットリストのHold時間をリアルタイム更新
+    if (mode !== 'free') {
+      const lht = document.getElementById('liveHoldTime');
+      if (lht) lht.textContent = fmt(phaseMs);
+    }
     // 自動停止（O2オート or CO2固定）
     const autoSec = holdAutoSec() || holdFixedSec();
     if (autoSec && phaseMs >= autoSec * 1000) {
@@ -1041,8 +1466,39 @@ function tick() {
     }
   }
 
+  if (phase === 'surface') {
+    const s = Math.floor(phaseMs / 1000);
+    document.getElementById('surfaceNum').textContent = s;
+    // Ring counts up over 15s in green
+    setRestRing(phaseMs / (15 * 1000));
+    // 裏でレスト残り時間を表示（surface overlayの後ろに透けて見える）
+    const restSec = restFixedSec() || restAutoSec();
+    if (restSec) {
+      const restRemain = Math.max(0, restSec * 1000 - phaseMs);
+      document.getElementById('timeMain').textContent = fmt(restRemain);
+      document.getElementById('timeMs').textContent = fmtMs(restRemain);
+      // セットリストのRest残り時間も更新
+      const lrt = document.getElementById('liveRestTime');
+      if (lrt) lrt.textContent = fmt(restRemain);
+    }
+    if (phaseMs >= 15000) { endSurface(); return; }
+  }
+
   if (phase === 'rest') {
     updateRestDisplay(phaseMs);
+    // テーブルモード: セットリストのRest残り時間をリアルタイム更新
+    if (mode !== 'free') {
+      const lrt = document.getElementById('liveRestTime');
+      if (lrt) {
+        const fixedSec = restFixedSec() || restAutoSec();
+        if (fixedSec) {
+          const remain = Math.max(0, fixedSec * 1000 - phaseMs);
+          lrt.textContent = fmt(remain);
+        } else {
+          lrt.textContent = fmt(phaseMs);
+        }
+      }
+    }
     // 自動停止（O2固定 or CO2オート）
     const autoSec = restFixedSec() || restAutoSec();
     if (autoSec) {
@@ -1064,7 +1520,8 @@ function startSession() {
   renderSetDots(); renderLog();
   document.getElementById('btnSave').disabled = true;
   const th=document.getElementById('tapHint'); if(th) th.style.opacity='0';
-  // btnMain非表示のまま（リングタップで操作）
+  document.getElementById('setListWrap').classList.remove('plan-mode');
+  onSessionStartCamera(); // マニュアルモード時バッファ録画開始
   beginCountdownOrHold();
 }
 
@@ -1107,6 +1564,7 @@ function startHold() {
   ringHold.classList.remove('danger');
   stopRestTimer();
   showPhaseRingLabel('Hold', 'hold');
+  document.getElementById('btnPause').style.display = '';
   // 休憩時間をlogに追加（2本目以降）
   if (mode === 'free' && swDive > 0 && restStart > 0) {
     const restMs = performance.now() - restStart;
@@ -1133,6 +1591,9 @@ function startHold() {
     if (fcBtn) { fcBtn.style.display=''; fcBtn.classList.remove('done'); fcBtn.textContent='1st Contraction'; }
   }
   if (mode==='mock' || bleMode==='mock') startMock();
+  // Camera: schedule recording for last 30s if auto hold
+  const _autoSec = holdAutoSec() || holdFixedSec();
+  if (_autoSec) scheduleHoldRecording(_autoSec);
   cancelAnimationFrame(rafId);
   rafId = requestAnimationFrame(tick);
 }
@@ -1156,19 +1617,49 @@ function endHold(auto=false) {
   renderSetDots(); renderLog(); updateStats();
 
   if (mode === 'free') {
-    phase = 'idle';
     setHoldRing(0);
     swDive++;
     swLocked = true;
-    hidePhaseRingLabel(); // HOLD非表示
+    hidePhaseRingLabel();
     showPhase('rest', `Stopwatch — ${swDive}本目 完了`);
-    if (mode === 'free') startRestTimer();
-    // diveNumはここで更新しない（次へ or スタート時に更新）
-    setBtnMain('start', 'Start');
+    startRestTimer(); // rest timer runs in background during surface
     document.getElementById('btnSave').disabled = false;
-  
     updateSwNextBtn();
     releaseWakeLock();
+    // Go through surface protocol first
+    startSurface();
+    return;
+  }
+
+  // Table modes: surface → rest (handled in endSurface)
+  startSurface();
+}
+
+function startSurface() {
+  phase = 'surface'; phaseStart = performance.now(); phaseMs = 0;
+  document.getElementById('surfaceOverlay').classList.add('visible');
+  document.getElementById('surfaceNum').textContent = '0';
+  document.getElementById('ringCountdown').classList.remove('visible');
+  // timeMain/timeMs はそのまま表示（後ろにレスト残り時間を透過表示）
+  showPhaseRingLabel('SP', 'surface');
+  setHoldRing(0);
+  setRestRing(0);
+  ringRest.style.stroke = '#eab308';
+  ringHold.style.stroke = 'transparent';
+  showPhase('rest', 'Surface Protocol');
+  document.getElementById('btnPause').style.display = '';
+  onSurfaceStart(); // カメラ録画スケジュール
+  cancelAnimationFrame(rafId);
+  rafId = requestAnimationFrame(tick);
+}
+
+function endSurface() {
+  document.getElementById('surfaceOverlay').classList.remove('visible');
+  ringHold.style.stroke = '';
+  ringRest.style.stroke = '';
+
+  if (mode === 'free') {
+    hidePhaseRingLabel();
     return;
   }
 
@@ -1176,9 +1667,36 @@ function endHold(auto=false) {
   if (currentSet >= totalSets()) {
     finishSession(); return;
   }
+  // サーフェス15秒分をレストに内包: phaseStartをそのまま引き継ぐ
+  const surfaceElapsed = phaseMs; // ≈15000ms
+  startRestFromSurface(surfaceElapsed);
+}
 
-  // 休憩へ
-  startRest();
+function startRestFromSurface(alreadyElapsedMs) {
+  // サーフェス分だけ経過済みとしてレストを開始
+  phase = 'rest';
+  phaseStart = performance.now() - alreadyElapsedMs;
+  phaseMs = alreadyElapsedMs;
+  resetAnnouncer();
+  // サーフェス中に経過した時間分のアナウンスを発火済みとしてスキップ
+  // （例：restSec=120, alreadyElapsed=15s → 残り105s → 120sのアナウンスはスキップ）
+  const fixedSec = restFixedSec() || restAutoSec();
+  if (fixedSec) {
+    const alreadyPassedRemaining = fixedSec - Math.floor(alreadyElapsedMs / 1000);
+    for (const a of AIDA_ANNOUNCEMENTS) {
+      if (a.sb > alreadyPassedRemaining) _firedSet.add(a.sb);
+    }
+  }
+  showPhaseRingLabel('Rest', 'rest');
+  const label = fixedSec ? fmt(fixedSec*1000) : '—';
+  showPhase('rest', `Set ${currentSet+1}/${totalSets()} — Rest ${label}`);
+  setHoldRing(0);
+  setBtnMain('rest', 'Resting…');
+  updateDiveNum();
+  document.getElementById('btnEnd').style.display = '';
+  document.getElementById('btnPause').style.display = '';
+  cancelAnimationFrame(rafId);
+  rafId = requestAnimationFrame(tick);
 }
 
 function startRest() {
@@ -1192,7 +1710,7 @@ function startRest() {
   setBtnMain('rest', 'Resting…');
   updateDiveNum();
   document.getElementById('btnEnd').style.display = '';
-  // ボタン非表示のままリング表示で状態を示す
+  document.getElementById('btnPause').style.display = '';
   cancelAnimationFrame(rafId);
   rafId = requestAnimationFrame(tick);
 }
@@ -1237,7 +1755,7 @@ function updateHoldDisplay(ms) {
 }
 
 function updateRestDisplay(ms) {
-  if (mode !== 'free') ringHold.style.stroke = 'var(--muted)';
+  if (mode !== 'free') ringHold.style.stroke = 'var(--success)';
   const fixedSec = restFixedSec() || restAutoSec();
   if (fixedSec) {
     const remain = Math.max(0, fixedSec*1000 - ms);
@@ -1278,6 +1796,9 @@ function onMainBtn() {
   } else if (phase === 'hold') {
     // 手動Stop（フリー or o2-manual or co2は常に手動でhold終了可）
     endHold(false);
+  } else if (phase === 'surface') {
+    // Surface Protocol中はタップ無効
+    return;
   } else if (phase === 'rest') {
     // CO2 manual: 休憩手動終了
     if (mode === 'co2' && cfg.co2Stop === 'manual') endRest();
@@ -1296,10 +1817,18 @@ function onReset() {
   document.getElementById('timeMs').textContent   = '.00';
   document.getElementById('timeMain').classList.remove('danger');
   document.getElementById('ringCountdown').classList.remove('visible');
+  document.getElementById('surfaceOverlay').classList.remove('visible');
+  document.getElementById('setListWrap').style.display = 'none';
   document.getElementById('spo2Row').classList.add('hidden');
   document.getElementById('spo2ChartArea').classList.remove('visible');
   showPhase('', mode==='o2'?'O2 Table':mode==='co2'?'CO2 Table':'Stopwatch');
-  if (mode !== 'free') { cfgOpen = true; toggleCfgPanel(false); }
+  if (mode !== 'free') {
+    cfgOpen = true; toggleCfgPanel(false);
+    document.getElementById('configPanel').style.display = '';
+    const sum = document.getElementById('cfgSummary');
+    if (sum) sum.style.display = 'none';
+    sessionPlan = [];
+  }
   updateDiveNum();
   updateRingStartBtn();
   setBtnMain('start', 'Start');
@@ -1310,6 +1839,11 @@ function onReset() {
   document.getElementById('completeBanner').classList.remove('show');
   document.getElementById('lapSection').style.display = 'none';
   document.getElementById('lapList').innerHTML = '';
+  document.getElementById('btnPause').style.display = 'none';
+  document.getElementById('btnPause').textContent = '⏸ 一時中断';
+  document.getElementById('btnPause').style.borderColor = '';
+  document.getElementById('btnPause').style.color = '';
+  stopAllCameraActivity();
   swDive = 0; swLocked = false; currentFC = null;
   stopRestTimer();
   hidePhaseRingLabel();
@@ -1330,55 +1864,187 @@ function onClear() {
   onReset();
 }
 
-// ── SET LIST ──────────────────────────────────────────────
-function renderSetDots() { renderSetList(); } // alias
-function renderSetList() {
+// ── UNIFIED SESSION LIST ──────────────────────────────────
+function renderSetDots() { renderUnifiedList(); }
+function renderSetList() { renderUnifiedList(); }
+
+function renderUnifiedList() {
   const wrap = document.getElementById('setListWrap');
   const list = document.getElementById('setList');
-  if (mode === 'free') { wrap.style.display='none'; return; }
+
+  // セッション未開始かつプランもなくホールド実績もなし → 非表示
+  if (phase === 'idle' && holdDives.length === 0 && sessionPlan.length === 0) {
+    wrap.style.display = 'none';
+    return;
+  }
   wrap.style.display = '';
-  const n = totalSets();
-  let html = '';
-  for (let i = 0; i < n; i++) {
-    const done = i < holdDives.length;
-    const isCurrent = !done && i === currentSet && phase !== 'idle' && phase !== 'done';
-    const d = holdDives[i];
+  list.innerHTML = '';
 
-    let rowCls = done ? 'done' : isCurrent ? 'current' : 'pending';
-    let phaseLbl = '', phaseClass = 'pending', timeStr = '', spo2Tag = '';
-
-    if (done && d) {
-      phaseLbl  = 'Hold';
-      phaseClass = 'hold';
-      timeStr   = `<span class="set-time done-time">${fmt(d.ms)}</span>`;
-      if (d.minSpo2 != null) {
-        const sc = d.minSpo2>=95?'ok':d.minSpo2>=90?'warn':'crit';
-        spo2Tag = `<span class="set-spo2 ${sc}">${d.minSpo2}%</span>`;
+  if (mode === 'free') {
+    const holdOnly = holdDives.filter(d => !d.isRest);
+    const holdIndices = holdDives.map((d,i) => d.isRest ? null : i).filter(i => i !== null);
+    [...holdDives].reverse().forEach((d, i) => {
+      const absIdx = holdDives.length - 1 - i;
+      const holdRank = d.isRest ? null : holdIndices.indexOf(absIdx) + 1;
+      const el = document.createElement('div');
+      el.className = 'set-row ' + (d.isRest ? 'done' : 'done');
+      if (d.isRest) {
+        el.style.opacity = '0.5';
+        el.innerHTML = `
+          <span class="set-n"></span>
+          <span class="set-left"><span class="set-phase-lbl rest">Rest</span></span>
+          <span class="set-time">${fmt(d.ms)}</span>`;
+      } else {
+        const spo2Tag = d.minSpo2 != null
+          ? `<span class="set-spo2 ${spo2Class(d.minSpo2)}">${d.minSpo2}%</span>` : '';
+        const fcTag = d.fc != null
+          ? `<span class="fc-tag">1st ${fmt(d.fc)}</span>` : '';
+        el.innerHTML = `
+          <span class="set-n">#${holdRank}</span>
+          <span class="set-left">
+            <span class="set-phase-lbl hold">Hold</span>
+            <span class="set-sub">${fcTag}${spo2Tag}</span>
+          </span>
+          <span class="set-time done-time">${fmt(d.ms)}</span>`;
+        el.style.cursor = 'pointer';
+        el.onclick = () => openDetail(d);
       }
+      list.appendChild(el);
+    });
+    return;
+  }
+
+  // テーブルモード
+  const n = totalSets();
+  const holdOnly = holdDives.filter(d => !d.isRest);
+
+  for (let i = 0; i < n; i++) {
+    const d = holdOnly[i];
+    const isCurrent = !d && i === currentSet && phase !== 'idle' && phase !== 'done';
+    const isDone = !!d;
+    const isPending = !isDone && !isCurrent;
+
+    const el = document.createElement('div');
+
+    if (isDone) {
+      // ── 完了行 ──────────────────────────────────────────
+      // Hold実績 / Rest実績（次のセットのRestはそのセットが終わった後に確定）
+      const spo2Tag = d.minSpo2 != null
+        ? `<span class="set-spo2 ${d.minSpo2>=95?'ok':d.minSpo2>=90?'warn':'crit'}">${d.minSpo2}%</span>` : '';
+      const planRest = sessionPlan[i];
+      const restLabel = planRest ? fmt(planRest.restSec * 1000) : '';
+      const hasRest = i < n - 1; // 最終セットにRest行は不要
+
+      el.className = 'set-row done';
+      el.style.cssText = 'flex-direction:column;align-items:stretch;gap:2px;padding:4px 10px;opacity:.55;border-color:transparent;background:var(--surface2)';
+      el.innerHTML = `
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="set-n">#${i+1}</span>
+          <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--danger);min-width:22px;flex-shrink:0">Hold</span>
+          <span style="flex:1;font-size:11px;color:var(--muted)">${spo2Tag}</span>
+          <span style="font-size:14px;font-variant-numeric:tabular-nums;color:var(--teal);font-weight:500">${fmt(d.ms)}</span>
+        </div>
+        ${hasRest ? `
+        <div style="display:flex;align-items:center;gap:6px;padding-left:4px">
+          <span class="set-n"></span>
+          <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:22px;flex-shrink:0">Rest</span>
+          <span style="flex:1"></span>
+          <span style="font-size:12px;font-variant-numeric:tabular-nums;color:var(--muted);font-weight:400">${restLabel}</span>
+        </div>` : ''}`;
+      el.style.cursor = 'pointer';
+      el.onclick = () => openDetail(d);
+
     } else if (isCurrent) {
-      if (phase === 'hold') { phaseLbl = 'Hold'; phaseClass = 'hold'; }
-      else if (phase === 'rest') { phaseLbl = 'Rest'; phaseClass = 'rest'; }
-      else if (phase === 'countdown') { phaseLbl = 'Prepare'; phaseClass = 'hold'; }
-      timeStr = '<span class="set-time">—</span>';
+      // ── 進行中行 ─────────────────────────────────────────
+      const isHolding = phase === 'hold';
+      const isResting = phase === 'rest' || phase === 'surface';
+      const isPrepare = phase === 'countdown';
+
+      el.className = 'set-row current';
+      el.style.cssText = 'flex-direction:column;align-items:stretch;gap:3px;padding:5px 10px;border-color:var(--teal);background:rgba(46,196,182,.04)';
+
+      // Hold行
+      const holdDot = isHolding
+        ? `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--danger);margin-right:4px;animation:blink .8s infinite"></span>`
+        : isPrepare
+        ? `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#eab308;margin-right:4px;animation:blink .8s infinite"></span>`
+        : '';
+      const holdLbl   = isPrepare ? 'Prepare' : 'Hold';
+      const holdColor = isHolding ? 'var(--danger)' : isPrepare ? '#eab308' : 'var(--teal-light)';
+      const holdBg    = isHolding ? 'background:rgba(239,68,68,.12);border-radius:6px;padding:3px 6px;margin:0 -2px'
+                      : isPrepare ? 'background:rgba(234,179,8,.08);border-radius:6px;padding:3px 6px;margin:0 -2px' : '';
+
+      // Hold時間表示: Hold中はリアルタイム(liveHoldTime)、Rest中は確定した実績、準備中は—
+      let holdTimeHtml;
+      if (isResting) {
+        // Hold終了済み → holdDivesにはまだ入っていないが直前のレコードは push 済
+        // endHold後にrenderUnifiedListが呼ばれる前に pushされているので holdOnly[i]がある
+        // ただしisCurrent条件は!d なので、resting中はdはnull
+        // → endHoldでpushした直後にrenderSetDotsが呼ばれるので holdOnly[i]は存在しない
+        // → 直前のholdDivesの末尾から取得
+        const lastHold = [...holdDives].reverse().find(r => !r.isRest);
+        holdTimeHtml = lastHold
+          ? `<span style="font-size:14px;font-variant-numeric:tabular-nums;color:var(--teal);font-weight:500">${fmt(lastHold.ms)}</span>`
+          : `<span id="liveHoldTime" style="font-size:14px;font-variant-numeric:tabular-nums;color:${holdColor};font-weight:400">—</span>`;
+      } else {
+        holdTimeHtml = `<span id="liveHoldTime" style="font-size:14px;font-variant-numeric:tabular-nums;color:${holdColor};font-weight:400">${isHolding ? '00:00' : '—'}</span>`;
+      }
+
+      el.innerHTML = `
+        <div style="display:flex;align-items:center;gap:6px;${holdBg}">
+          <span class="set-n">#${i+1}</span>
+          <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:${holdColor};min-width:22px;flex-shrink:0;display:flex;align-items:center">${holdDot}${holdLbl}</span>
+          <span style="flex:1"></span>
+          ${holdTimeHtml}
+        </div>`;
+
+      // Rest行（Rest/Surface中のみ — 残り時間をリアルタイム表示）
+      if (isResting && i < n - 1) {
+        const restPlan = sessionPlan[i];
+        const restTotal = restPlan ? restPlan.restSec : null;
+        el.innerHTML += `
+          <div style="display:flex;align-items:center;gap:6px;background:rgba(34,197,94,.1);border-radius:6px;padding:3px 6px;margin:0 -2px">
+            <span class="set-n"></span>
+            <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--success);min-width:22px;flex-shrink:0;display:flex;align-items:center">
+              <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--success);margin-right:4px;animation:blink .8s infinite"></span>Rest
+            </span>
+            <span style="flex:1"></span>
+            <span id="liveRestTime" style="font-size:14px;font-variant-numeric:tabular-nums;color:var(--success);font-weight:500">${restTotal ? fmt(restTotal*1000) : '—'}</span>
+          </div>`;
+      }
+
     } else {
-      phaseLbl = 'Set ' + (i+1);
-      timeStr = '<span class="set-time">—</span>';
+      // ── 未着手行（pending）─────────────────────────────
+      // セッション開始前 → セット計画をテキストで表示（select編集は不要）
+      const plan = sessionPlan[i];
+      const isManualHold = (mode==='o2'&&cfg.o2Stop==='manual')||(mode==='co2'&&cfg.co2Stop==='manual');
+      const holdSec = plan ? plan.holdSec : 0;
+      const restSec = plan ? plan.restSec : 0;
+      const holdLabel = (isManualHold && holdSec === 0) ? 'Manual' : fmt(holdSec * 1000);
+      const holdLabelColor = (isManualHold && holdSec === 0) ? 'color:var(--warm)' : 'color:var(--muted)';
+
+      el.className = 'set-row pending';
+      el.style.cssText = 'flex-direction:column;align-items:stretch;gap:2px;padding:4px 10px;opacity:.45';
+      el.innerHTML = `
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="set-n">#${i+1}</span>
+          <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:22px;flex-shrink:0">Hold</span>
+          <span style="flex:1"></span>
+          <span style="font-size:13px;font-variant-numeric:tabular-nums;font-weight:400;${holdLabelColor}">${holdLabel}</span>
+        </div>
+        ${i < n-1 ? `
+        <div style="display:flex;align-items:center;gap:6px;padding-left:4px">
+          <span class="set-n"></span>
+          <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:22px;flex-shrink:0">Rest</span>
+          <span style="flex:1"></span>
+          <span style="font-size:12px;font-variant-numeric:tabular-nums;color:var(--muted);font-weight:400">${fmt(restSec*1000)}</span>
+        </div>` : ''}`;
     }
-
-    html += `<div class="set-row ${rowCls}">
-      <span class="set-n">#${i+1}</span>
-      <span class="set-phase-lbl ${phaseClass}">${phaseLbl}</span>
-      ${timeStr}${spo2Tag}
-    </div>`;
+    list.appendChild(el);
   }
-  list.innerHTML = html;
 
-  // currentRowを画面内にスクロール
-  if (phase !== 'idle') {
-    const rows = list.querySelectorAll('.set-row');
-    const cur = list.querySelector('.set-row.current');
-    if (cur) cur.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-  }
+  const cur = list.querySelector('.set-row.current');
+  if (cur) cur.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 
 // ── STOPWATCH NEXT DIVE ──────────────────────────────────
@@ -1387,8 +2053,10 @@ function swNextDive() {
   const nextNum = swDive + 1;
   swLocked = false;
   hidePhaseRingLabel();
-  // 休憩タイマーは次のスタートまで継続
-  // タイマーのみリセット（holdDives・lapsは累積して残す）
+  // サーフェス中に押された場合のクリーンアップ
+  document.getElementById('surfaceOverlay').classList.remove('visible');
+  ringHold.style.stroke = '';
+  ringRest.style.stroke = '';
   cancelAnimationFrame(rafId); rafId = null;
   phase = 'idle'; phaseMs = 0; spo2Buf = [];
   setHoldRing(0); setRestRing(0);
@@ -1396,12 +2064,11 @@ function swNextDive() {
   document.getElementById('timeMs').textContent   = '.00';
   document.getElementById('timeMain').classList.remove('danger');
   document.getElementById('btnNext').style.display     = 'none';
-  document.getElementById('btnSave').disabled          = false; // 累積データあり
+  document.getElementById('btnSave').disabled          = false;
   const _bl2 = document.getElementById('btnLap'); if(_bl2) _bl2.style.opacity='0.35';
   document.getElementById('tapHint').style.opacity     = '1';
   showPhase('', `Stopwatch — ${nextNum}本目`);
   updateDiveNum();
-  // ログ再描画（累積表示）
   renderLog();
 }
 
@@ -1417,12 +2084,57 @@ function updateSwNextBtn() {
   }
 }
 
+// ── PAUSE / RESUME ────────────────────────────────────────
+function onPause() {
+  if (phase === 'paused') {
+    // Resume
+    phaseStart = performance.now() - pausedMs;
+    phase = pausedPhase;
+    pausedPhase = null;
+    // Restore rest start offset if we were in free rest
+    if (phase === 'rest' && mode === 'free' && pausedRestElapsed != null) {
+      restStart = performance.now() - pausedRestElapsed;
+      pausedRestElapsed = null;
+      startRestTimer();
+    }
+    cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(tick);
+    requestWakeLock();
+    document.getElementById('btnPause').textContent = '⏸ 一時中断';
+    document.getElementById('btnPause').style.borderColor = '';
+    document.getElementById('btnPause').style.color = '';
+    showPhase(phase, document.getElementById('phaseLabel').textContent.replace(' [中断中]', ''));
+    toast('▶ 再開');
+  } else if (phase === 'hold' || phase === 'rest' || phase === 'countdown') {
+    // Pause
+    pausedPhase = phase;
+    pausedMs = performance.now() - phaseStart;
+    // Save rest elapsed if in free rest
+    if (phase === 'rest' && mode === 'free') {
+      pausedRestElapsed = performance.now() - restStart;
+      stopRestTimer();
+    }
+    phase = 'paused';
+    cancelAnimationFrame(rafId); rafId = null;
+    releaseWakeLock();
+    document.getElementById('btnPause').textContent = '▶ 再開';
+    document.getElementById('btnPause').style.borderColor = 'var(--teal)';
+    document.getElementById('btnPause').style.color = 'var(--teal-light)';
+    const lbl = document.getElementById('phaseLabel');
+    lbl.textContent = lbl.textContent + ' [中断中]';
+    toast('⏸ 一時中断中');
+  }
+}
+let pausedRestElapsed = null;
+
 // ── END SESSION ──────────────────────────────────────────
 function onEndSession() {
   // 休憩中に終了 → 現在のセットまでで完了扱い
   cancelAnimationFrame(rafId); rafId = null;
   stopMock();
   document.getElementById('btnEnd').style.display = 'none';
+  document.getElementById('btnPause').style.display = 'none';
+  pausedPhase = null; pausedMs = 0;
   finishSession();
 }
 
@@ -1549,48 +2261,7 @@ function updateStats() {
 }
 
 // ── LOG ───────────────────────────────────────────────────
-function renderLog() {
-  const sec  = document.getElementById('logSection');
-  const list = document.getElementById('logList');
-  if (!holdDives.length) { sec.style.display='none'; return; }
-  sec.style.display = '';
-  const best = holdDives.length ? Math.max(...holdDives.map(d=>d.ms)) : 0;
-  list.innerHTML = '';
-  // holdのみでbest計算
-  const holdOnly = holdDives.filter(d => !d.isRest);
-  const bestMs = holdOnly.length ? Math.max(...holdOnly.map(d=>d.ms)) : 0;
-  // hold本数のインデックスを先に計算
-  const holdIndices = holdDives.map((d,i) => d.isRest ? null : i).filter(i => i !== null);
-  [...holdDives].reverse().forEach((d,i) => {
-    const absIdx = holdDives.length - 1 - i;
-    const holdRank = d.isRest ? null : holdIndices.indexOf(absIdx) + 1;
-    const num = d.isRest ? '' : holdRank;
-    const el = document.createElement('div');
-    el.className = 'log-item';
-    if (d.isRest) {
-      // 休憩行
-      el.style.opacity = '0.55';
-      el.innerHTML = `
-        <span class="log-n">${num}</span>
-        <span class="log-type rest">Rest</span>
-        <span class="log-t" style="color:var(--muted)">${fmt(d.ms)}<span style="font-size:12px">${fmtMs(d.ms)}</span></span>
-      `;
-    } else {
-      const spo2Tag = d.minSpo2!=null
-        ? `<span class="log-spo2 ${spo2Class(d.minSpo2)}">${d.minSpo2}%</span>` : '';
-      const fcTag = d.fc!=null
-        ? `<span class="fc-tag">1st ${fmt(d.fc)}</span>` : '';
-      el.innerHTML = `
-        <span class="log-n">${num}</span>
-        <span class="log-type hold">Hold</span>
-        <span class="log-t">${fmt(d.ms)}<span style="font-size:12px;color:var(--muted)">${fmtMs(d.ms)}</span></span>
-        ${fcTag}${spo2Tag}
-      `;
-      el.onclick = () => openDetail(d);
-    }
-    list.appendChild(el);
-  });
-}
+function renderLog() { renderUnifiedList(); }
 
 // ── TIMER CLICK ───────────────────────────────────────────
 document.getElementById('timerWrap').addEventListener('click', () => {
@@ -1870,10 +2541,287 @@ let wakeLock=null;
 async function requestWakeLock(){try{if('wakeLock'in navigator)wakeLock=await navigator.wakeLock.request('screen');}catch{}}
 function releaseWakeLock(){if(wakeLock){wakeLock.release();wakeLock=null;}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&(phase==='hold'||phase==='rest'))requestWakeLock();});
+// ── PREP HELP TOGGLE ─────────────────────────────────────
+function togglePrepHelp() {
+  const tip = document.getElementById('prepHelpTip');
+  if (tip) tip.style.display = tip.style.display === 'none' ? '' : 'none';
+}
+
+// ── CAMERA RECORDING ─────────────────────────────────────
+let cameraEnabled      = false;
+let cameraStream       = null;
+let cameraClips        = []; // {label, blob, ext}
+let holdRecordTimeout  = null;
+let restRecordTimeout  = null;
+
+// ── オートモード用（通常録画）────────────────────────────
+let autoRecorder       = null;
+let autoChunks         = [];
+let isAutoRecording    = false;
+
+// ── マニュアルモード用（常時バッファリング）───────────────
+// 1秒ごとのチャンクを循環バッファに保持（最大60秒）
+let bufRecorder        = null;
+let bufChunks          = [];        // {blob, ts} の配列（最大60個）
+let isBufRecording     = false;
+const BUF_MAX_SEC      = 60;
+let bufRestChunks      = [];        // タップ後の「後ろ30秒」チャンク
+let bufRestRecorder    = null;
+let isCapturingAfter   = false;
+let captureAfterLabel  = '';
+
+function _syncCameraButtons() {
+  const on = cameraEnabled;
+  ['btnCameraToggle','btnCameraToggleCo2'].forEach(id => {
+    const b = document.getElementById(id); if (!b) return;
+    b.textContent = on ? '📹 録画：ON' : '📹 録画：OFF';
+    b.style.color = on ? 'var(--danger)' : 'var(--muted)';
+    b.style.borderColor = on ? 'var(--danger)' : '';
+  });
+}
+function _syncCameraReviewButtons(show) {
+  ['btnCameraReview','btnCameraReviewCo2'].forEach(id => {
+    const b = document.getElementById(id); if (!b) return;
+    b.style.display = show ? '' : 'none';
+  });
+}
+
+function onCameraToggle() {
+  if (!cameraEnabled) {
+    document.getElementById('cameraSetupOverlay').classList.add('open');
+  } else {
+    cameraEnabled = false;
+    stopAllCameraActivity();
+    _syncCameraButtons();
+  }
+}
+
+function closeCameraSetup(enable) {
+  document.getElementById('cameraSetupOverlay').classList.remove('open');
+  if (enable) initCamera();
+}
+
+async function initCamera() {
+  try {
+    let stream = null;
+    const constraintsList = [
+      { video: { facingMode: { ideal: 'user' } }, audio: true },
+      { video: { facingMode: 'user' }, audio: true },
+      { video: true, audio: true },
+      { video: true, audio: false },
+    ];
+    let lastErr = null;
+    for (const c of constraintsList) {
+      try { stream = await navigator.mediaDevices.getUserMedia(c); break; }
+      catch(e) { lastErr = e; }
+    }
+    if (!stream) throw lastErr;
+    cameraStream = stream;
+    const preview = document.getElementById('cameraPreview');
+    preview.srcObject = cameraStream;
+    preview.style.display = '';
+    cameraEnabled = true;
+    _syncCameraButtons();
+    toast('📹 録画準備完了');
+  } catch(e) {
+    cameraEnabled = false;
+    let msg = 'カメラアクセス失敗';
+    if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') msg = 'カメラ許可が必要です（設定→Safari→カメラ）';
+    else if (e.name === 'NotFoundError') msg = 'カメラが見つかりません';
+    else if (e.name === 'NotSupportedError') msg = 'HTTPS環境が必要です';
+    toast(msg, true);
+    console.error('Camera error:', e.name, e.message);
+  }
+}
+
+function getSupportedMimeType() {
+  const types = ['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'];
+  for (const t of types) { if (MediaRecorder.isTypeSupported(t)) return t; }
+  return '';
+}
+
+function stopCameraStream() {
+  stopAllCameraActivity();
+  if (cameraStream) { cameraStream.getTracks().forEach(t=>t.stop()); cameraStream = null; }
+  const preview = document.getElementById('cameraPreview');
+  preview.srcObject = null; preview.style.display = 'none';
+}
+
+function stopAllCameraActivity() {
+  clearTimeout(holdRecordTimeout);
+  clearTimeout(restRecordTimeout);
+  // オート録画停止
+  if (autoRecorder && autoRecorder.state !== 'inactive') autoRecorder.stop();
+  autoRecorder = null; autoChunks = []; isAutoRecording = false;
+  // バッファ録画停止
+  stopBufRecording();
+  bufRestChunks = []; isCapturingAfter = false;
+  if (bufRestRecorder && bufRestRecorder.state !== 'inactive') bufRestRecorder.stop();
+  bufRestRecorder = null;
+}
+
+// ── オートモード録画 ─────────────────────────────────────
+function scheduleHoldRecording(autoSec) {
+  clearTimeout(holdRecordTimeout);
+  if (!cameraEnabled || !autoSec) return;
+  const delay = Math.max(0, (autoSec - 30) * 1000);
+  holdRecordTimeout = setTimeout(() => {
+    startAutoRecording(`Set #${currentSet+1}`);
+  }, delay);
+}
+
+function startAutoRecording(label) {
+  if (!cameraEnabled || !cameraStream || isAutoRecording) return;
+  try {
+    autoChunks = [];
+    const mimeType = getSupportedMimeType();
+    const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
+    autoRecorder = new MediaRecorder(cameraStream, mimeType ? { mimeType } : {});
+    autoRecorder.ondataavailable = e => { if (e.data.size > 0) autoChunks.push(e.data); };
+    autoRecorder.onstop = () => {
+      const blob = new Blob(autoChunks, { type: mimeType || 'video/webm' });
+      cameraClips.push({ label, blob, ext });
+      _syncCameraReviewButtons(true);
+      toast(`📹 Set #${currentSet+1} 保存`);
+    };
+    autoRecorder.start();
+    isAutoRecording = true;
+  } catch(e) { console.error('auto record error', e); }
+}
+
+function stopAutoRecordingAfter30s() {
+  clearTimeout(restRecordTimeout);
+  restRecordTimeout = setTimeout(() => {
+    if (autoRecorder && autoRecorder.state !== 'inactive') autoRecorder.stop();
+    isAutoRecording = false;
+  }, 30000);
+}
+
+// ── マニュアルモード：常時バッファリング ─────────────────
+// セッション開始時に呼ぶ。1秒ごとにchunkを取り出し循環バッファに保持
+function startBufRecording() {
+  if (!cameraEnabled || !cameraStream || isBufRecording) return;
+  try {
+    bufChunks = [];
+    const mimeType = getSupportedMimeType();
+    bufRecorder = new MediaRecorder(cameraStream, mimeType ? { mimeType } : {});
+    bufRecorder.ondataavailable = e => {
+      if (e.data.size > 0) {
+        bufChunks.push({ blob: e.data, ts: Date.now() });
+        // 60秒より古いチャンクを削除
+        const cutoff = Date.now() - BUF_MAX_SEC * 1000;
+        while (bufChunks.length > 0 && bufChunks[0].ts < cutoff) bufChunks.shift();
+      }
+    };
+    bufRecorder.start(1000); // 1秒ごとにchunkを発行
+    isBufRecording = true;
+  } catch(e) { console.error('buf record error', e); }
+}
+
+function stopBufRecording() {
+  if (bufRecorder && bufRecorder.state !== 'inactive') bufRecorder.stop();
+  bufRecorder = null; isBufRecording = false;
+}
+
+// タップ時：過去30秒のバッファを確保 → 以降30秒を別録画して結合
+function captureManualClip(label) {
+  if (!cameraEnabled || !isBufRecording) return;
+  captureAfterLabel = label;
+
+  // 過去30秒分のchunkを取り出す
+  const cutoff = Date.now() - 30000;
+  const beforeChunks = bufChunks.filter(c => c.ts >= cutoff).map(c => c.blob);
+
+  // 以降30秒を別のMediaRecorderで録画
+  isCapturingAfter = true;
+  bufRestChunks = [];
+  const mimeType = getSupportedMimeType();
+  const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
+  try {
+    bufRestRecorder = new MediaRecorder(cameraStream, mimeType ? { mimeType } : {});
+    bufRestRecorder.ondataavailable = e => { if (e.data.size > 0) bufRestChunks.push(e.data); };
+    bufRestRecorder.onstop = () => {
+      // before + after を結合してclipとして保存
+      const allChunks = [...beforeChunks, ...bufRestChunks];
+      const blob = new Blob(allChunks, { type: mimeType || 'video/webm' });
+      cameraClips.push({ label: captureAfterLabel, blob, ext });
+      _syncCameraReviewButtons(true);
+      isCapturingAfter = false;
+      toast(`📹 ${captureAfterLabel} 保存`);
+    };
+    bufRestRecorder.start();
+  } catch(e) { console.error('capture after error', e); }
+
+  // 30秒後に停止
+  clearTimeout(restRecordTimeout);
+  restRecordTimeout = setTimeout(() => {
+    if (bufRestRecorder && bufRestRecorder.state !== 'inactive') bufRestRecorder.stop();
+  }, 30000);
+}
+
+// ── 録画スケジュール（startSurfaceから呼ぶ）──────────────
+function onSurfaceStart() {
+  const isManual = !(holdAutoSec() || holdFixedSec());
+  if (!cameraEnabled) return;
+  if (isManual) {
+    // マニュアル：タップ前後30秒をcaptureManualClipで取得
+    captureManualClip(`Set #${currentSet+1}`);
+  } else {
+    // オート：autoRecordingが走っているはずなのでサーフェス後30秒でstop
+    stopAutoRecordingAfter30s();
+  }
+}
+
+// セッション開始時（マニュアルモード）にバッファ録画を開始
+function onSessionStartCamera() {
+  if (!cameraEnabled) return;
+  const isManual = !(holdAutoSec() || holdFixedSec());
+  if (isManual) startBufRecording();
+}
+
+
+function openCameraReview() {
+  const listEl = document.getElementById('cameraClipList');
+  listEl.innerHTML = '';
+  if (!cameraClips.length) {
+    listEl.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:12px;padding:20px">クリップなし</div>';
+  } else {
+    cameraClips.forEach((clip, i) => {
+      const url = URL.createObjectURL(clip.blob);
+      const div = document.createElement('div');
+      div.style.cssText = 'background:var(--surface2);border-radius:10px;padding:10px;border:1px solid var(--border)';
+      div.innerHTML = `
+        <div style="font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">${clip.label}</div>
+        <video src="${url}" controls playsinline style="width:100%;border-radius:6px;max-height:160px;background:#000"></video>
+        <button onclick="downloadClip(${i})" style="margin-top:6px;width:100%;height:32px;border-radius:7px;border:1px solid var(--teal);background:var(--teal-dim);color:var(--teal-light);font-size:11px;font-weight:700;cursor:pointer">ダウンロード</button>
+      `;
+      listEl.appendChild(div);
+    });
+  }
+  document.getElementById('cameraReviewOverlay').classList.add('open');
+}
+
+function closeCameraReview() {
+  document.getElementById('cameraReviewOverlay').classList.remove('open');
+}
+
+function downloadClip(i) {
+  const clip = cameraClips[i];
+  if (!clip) return;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(clip.blob);
+  a.download = `sta-${clip.label.replace(/[^\w]/g,'-')}.${clip.ext || 'webm'}`;
+  a.click();
+}
+
+function downloadAllClips() {
+  cameraClips.forEach((_, i) => downloadClip(i));
+}
+
 initSelects();
-// O2/CO2デフォルトをautoに
-setCfgStop('o2','auto');
-setCfgStop('co2','auto');
+// O2/CO2デフォルトをmanualに
+setCfgStop('o2','manual');
+setCfgStop('co2','manual');
 initLiveChart();
 // 初期モード設定（UIを確実に初期化）
 setMode('free');
