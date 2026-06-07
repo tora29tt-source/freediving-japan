@@ -2849,52 +2849,46 @@ updateDistLabels();
   try {
     if (!location.search.includes('from=sta-timer')) return;
 
-    var raw = null;
-    try { raw = sessionStorage.getItem('sta_pending_session'); } catch(e) {}
-    if (!raw) { try { raw = localStorage.getItem('sta_pending_session'); } catch(e) {} }
-
-    if (!raw) {
-      // データが取れない場合はバナーで通知
-      document.addEventListener('DOMContentLoaded', function() {
-        var b = document.createElement('div');
-        b.style.cssText = 'background:#c00;color:#fff;padding:10px;font-size:13px;font-weight:700;text-align:center';
-        b.textContent = '⚠️ sta-timerデータなし (storage empty)';
-        document.body.insertBefore(b, document.body.firstChild);
-      });
-      return;
+    // URLパラメータから取得（最優先）
+    var d = null;
+    var params = new URLSearchParams(location.search);
+    var dParam = params.get('d');
+    if (dParam) {
+      try { d = JSON.parse(decodeURIComponent(dParam)); } catch(e) {}
     }
-
-    var d;
-    try { d = JSON.parse(raw); } catch(e) { return; }
+    // fallback: storage
+    if (!d) {
+      var raw = null;
+      try { raw = sessionStorage.getItem('sta_pending_session'); } catch(e) {}
+      if (!raw) { try { raw = localStorage.getItem('sta_pending_session'); } catch(e) {} }
+      if (raw) { try { d = JSON.parse(raw); } catch(e) {} }
+    }
     try { sessionStorage.removeItem('sta_pending_session'); } catch(e) {}
     try { localStorage.removeItem('sta_pending_session'); } catch(e) {}
 
     if (!d || !d.diveLog || !d.diveLog.length) return;
 
-    // データ取得成功 → フォームに反映
     function applyData() {
-      // 環境を直接セット（click()はiOSで不安定なため直接関数呼び出し）
+      // 環境
       var envVal = (d.env === 'pool') ? 'pool' : 'dry';
       var envBtn = document.querySelector('#env-main-btns .env-btn[onclick*="' + envVal + '"]');
       if (envBtn) setEnv(envVal, envBtn);
 
       // 日付
-      if (d.date) {
-        var dateEl = document.getElementById('f-date');
-        if (dateEl) dateEl.value = d.date;
-      }
+      if (d.date) { var el = document.getElementById('f-date'); if (el) el.value = d.date; }
 
-      // 種目チップを直接選択
+      // STA選択
       setTimeout(function() {
-        setDisc('STA', document.querySelector('[data-disc="STA"]'));
+        var chip = document.querySelector('[data-disc="STA"]');
+        if (chip) setDisc('STA', chip);
 
-        // インターバルモード切り替え
+        // インターバルモード
         setTimeout(function() {
           var ivBtn = document.getElementById('mode-interval');
           if (ivBtn) setDiveMode('interval', ivBtn);
 
+          // セレクト・本数設定
           setTimeout(function() {
-            // 本数・Hold・Rest設定
             var firstRestSec = (d.diveLog[0] && d.diveLog[0].restSec) ? d.diveLog[0].restSec : 0;
             var firstHoldSec = (d.sessionPlan && d.sessionPlan[0]) ? d.sessionPlan[0].holdSec : 0;
 
@@ -2904,49 +2898,40 @@ updateDistLabels();
 
             var setsEl = document.getElementById('f-iv-sets');
             if (setsEl) setsEl.value = d.diveLog.length;
-
             var restSel = document.getElementById('f-rest-time-sel');
             if (restSel && firstRestSec) { restSel.value = firstRestSec; syncRestInput(); }
-
             var holdSel = document.getElementById('f-interval-hold-sel');
             if (holdSel && firstHoldSec) holdSel.value = firstHoldSec;
 
             calcInterval();
 
-            // 行データ入力
+            // 行データ
             setTimeout(function() {
               var rows = document.querySelectorAll('#iv-sets-table tr[data-row]');
               rows.forEach(function(tr, i) {
-                var dive = d.diveLog[i];
-                if (!dive) return;
-                var h = tr.querySelector('.iv-hold');
-                if (h && dive.time) h.value = dive.time;
-                var r = tr.querySelector('.iv-rest');
-                if (r && dive.restFmt) r.value = dive.restFmt;
-                var n = tr.querySelector('.iv-note');
-                if (n && dive.fc) n.value = 'FC:' + dive.fc;
+                var dive = d.diveLog[i]; if (!dive) return;
+                var h = tr.querySelector('.iv-hold'); if (h && dive.time) h.value = dive.time;
+                var r = tr.querySelector('.iv-rest'); if (r && dive.restFmt) r.value = dive.restFmt;
+                var n = tr.querySelector('.iv-note'); if (n && dive.fc) n.value = 'FC:' + dive.fc;
               });
-
-              // バナー
+              if (d.note) { var noteEl = document.getElementById('f-note'); if (noteEl) noteEl.value = d.note; }
               var banner = document.createElement('div');
               banner.style.cssText = 'background:var(--accent-dim);border:1px solid var(--accent);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--accent2);margin-bottom:12px';
               banner.innerHTML = '🏊 <strong>sta-timer</strong> から読み込み — Best: <strong>' + (d.bestTime||'—') + '</strong> / ' + d.diveLog.length + 'セット';
-              var formTop = document.querySelector('#epanel-input .card-body');
-              if (formTop) formTop.insertBefore(banner, formTop.firstChild);
+              var ft = document.querySelector('#epanel-input .card-body');
+              if (ft) ft.insertBefore(banner, ft.firstChild);
             }, 100);
-          }, 150);
+          }, 100);
         }, 50);
       }, 50);
     }
 
-    // DOMが確実に準備できてから実行
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', applyData);
     } else {
-      setTimeout(applyData, 100);
+      applyData();
     }
-
-  } catch(e) { console.error('sta-timer import:', e); }
+  } catch(e) { console.error('import error:', e); }
 })();
 </script>
 </body>

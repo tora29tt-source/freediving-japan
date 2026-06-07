@@ -2997,12 +2997,15 @@ async function confirmSave() {
     source:'sta-timer',
   };
 
-  // セッションデータの受け渡し: sessionStorage優先、localStorage fallback
+  // データをURLパラメータとstorageの両方で渡す（確実性のため）
   const dataStr = JSON.stringify(sessionData);
   try { sessionStorage.setItem('sta_pending_session', dataStr); } catch(e) {}
   try { localStorage.setItem('sta_pending_session', dataStr); } catch(e) {}
 
-  // DB保存はバックグラウンドで（遷移をブロックしない）
+  // URLパラメータにも埋め込む（storageが使えない環境のフォールバック）
+  const encoded = encodeURIComponent(dataStr);
+  
+  // DB保存はバックグラウンドで
   if (_user) {
     _sb.from('training_logs').insert({
       user_id:    _user.id,
@@ -3017,8 +3020,8 @@ async function confirmSave() {
     }).catch(function(e) { console.warn('DB save error:', e); });
   }
 
-  // すぐに遷移
-  window.location.href = 'training-log.html?from=sta-timer';
+  // URLパラメータ経由で遷移
+  window.location.href = 'training-log.html?from=sta-timer&d=' + encoded;
 }
 
 // ── DETAIL MODAL ──────────────────────────────────────────
