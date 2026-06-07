@@ -2994,8 +2994,11 @@ async function confirmSave() {
     source:'sta-timer',
   };
 
-  // localStorageに一時保存
-  try { localStorage.setItem('sta_pending_session', JSON.stringify(sessionData)); } catch(e) {}
+  // セッションデータの受け渡し: sessionStorage優先、localStorage fallback
+  const dataStr = JSON.stringify(sessionData);
+  let stored = false;
+  try { sessionStorage.setItem('sta_pending_session', dataStr); stored = true; } catch(e) {}
+  try { localStorage.setItem('sta_pending_session', dataStr); stored = true; } catch(e) {}
 
   if (_user) {
     const { error } = await _sb.from('training_logs').insert({

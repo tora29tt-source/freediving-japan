@@ -2024,8 +2024,10 @@ async function saveSession() {
     source: uddfDives.length ? 'uddf' : 'manual'
   };
   sessions.unshift(s);
-  // localStorage保存
-  try { localStorage.setItem('fj_v2', JSON.stringify(sessions)); } catch(e) {}
+  // localStorage保存（両方に保存）
+  const saveStr = JSON.stringify(sessions);
+  try { localStorage.setItem('fj_v2', saveStr); } catch(e) {}
+  try { sessionStorage.setItem('fj_v2', saveStr); } catch(e) {}
   // Supabase保存は無効化中
   showToast('✅ セッションを保存しました');
   resetForm();
@@ -2823,10 +2825,16 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
 // sta-timerからのデータ受け取り
 (function() {
   try {
-    const raw = localStorage.getItem('sta_pending_session');
-    if (!raw || !location.search.includes('from=sta-timer')) return;
+    if (!location.search.includes('from=sta-timer')) return;
+    // sessionStorage優先、次にlocalStorage
+    var raw = null;
+    try { raw = sessionStorage.getItem('sta_pending_session'); } catch(e) {}
+    if (!raw) { try { raw = localStorage.getItem('sta_pending_session'); } catch(e) {} }
+    if (!raw) return;
     const d = JSON.parse(raw);
-    localStorage.removeItem('sta_pending_session');
+    // 読んだら削除
+    try { sessionStorage.removeItem('sta_pending_session'); } catch(e) {}
+    try { localStorage.removeItem('sta_pending_session'); } catch(e) {}
     if (!d.diveLog || !d.diveLog.length) return;
 
     // ページ初期化後に実行するため少し遅延
@@ -2925,7 +2933,8 @@ updateDistLabels();
 // 認証＋データ読み込み（localStorageから直接読み込み）
 ;(async () => {
   try {
-    sessions = JSON.parse(localStorage.getItem('fj_v2') || '[]');
+    const raw = localStorage.getItem('fj_v2') || sessionStorage.getItem('fj_v2') || '[]';
+    sessions = JSON.parse(raw);
   } catch(e) {
     sessions = [];
   }
