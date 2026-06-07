@@ -943,23 +943,14 @@ const _sb = createClient(
 )
 let _currentUser = null
 
-// 認証チェック
+// 認証チェック（無効化）
 async function initAuth() {
-  const { data: { session } } = await _sb.auth.getSession()
-  if (!session) { window.location.href = 'auth.html'; return false }
-  _currentUser = session.user
   return true
 }
 
-// Supabaseからログ読み込み
+// Supabaseからログ読み込み（無効化）
 async function loadSessionsFromDB() {
-  const { data, error } = await _sb
-    .from('training_logs')
-    .select('*')
-    .eq('user_id', _currentUser.id)
-    .order('date', { ascending: false })
-  if (error) { console.error(error); return [] }
-  return data.map(r => ({ ...r.data, id: r.id, share_token: r.share_token, is_public: r.is_public }))
+  return []
 }
 
 // ===== STATE =====
@@ -1892,24 +1883,7 @@ async function saveSession() {
     source: uddfDives.length ? 'uddf' : 'manual'
   };
   sessions.unshift(s);
-  // Supabaseに保存
-  if (_currentUser) {
-    const { data, error } = await _sb.from('training_logs').insert({
-      user_id: _currentUser.id,
-      date: s.date,
-      discipline: s.discipline,
-      performance: s.bestDepth ? `${s.bestDepth}m` : s.bestTime || null,
-      location: s.location || null,
-      notes: s.note || null,
-      is_public: false,
-      data: s
-    }).select().single()
-    if (!error && data) {
-      s.id = data.id
-      s.share_token = data.share_token
-      sessions[0] = s
-    }
-  }
+  // Supabase保存は無効化中
   showToast('✅ セッションを保存しました');
   resetForm();
 }
@@ -2546,7 +2520,6 @@ function scaleBadge(val, labels, colors) {
 async function delSess(id) {
   if(!confirm('削除しますか？'))return;
   sessions=sessions.filter(s=>s.id!==id);
-  if (_currentUser) await _sb.from('training_logs').delete().eq('id', id)
   renderList();
 }
 
@@ -2556,7 +2529,6 @@ function editSession(id) {
 
   // セッションを削除リストから外してフォームに読み込む
   sessions = sessions.filter(x => x.id !== id);
-  if (_currentUser) _sb.from('training_logs').delete().eq('id', id).then(() => {})
 
   // ログ登録画面へ移動
   goto('entry', document.querySelectorAll('.nav-item')[0]);
@@ -2744,17 +2716,9 @@ document.querySelectorAll('#disc-chips .chip').forEach(c => {
 });
 updateDistLabels();
 
-// 認証＋データ読み込み
+// 認証＋データ読み込み（認証無効化：localStorageから直接読み込み）
 ;(async () => {
-  const ok = await initAuth()
-  if (!ok) return
-  sessions = await loadSessionsFromDB()
-  // localStorageのデータをマイグレーション（初回のみ）
-  const local = JSON.parse(localStorage.getItem('fj_v2') || '[]')
-  if (local.length > 0 && sessions.length === 0) {
-    sessions = local
-    showToast('ローカルデータを引き継ぎました')
-  }
+  sessions = JSON.parse(localStorage.getItem('fj_v2') || '[]')
   renderList()
   renderDash()
 })();
