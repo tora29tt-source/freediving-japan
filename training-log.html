@@ -606,6 +606,18 @@ tr:last-child td { border-bottom: none; }
                 oninput="toHalf(this,'time',event)">
             </div>
           </div>
+          <div class="row4" id="fld-sta-metrics" style="margin-bottom:10px;display:none">
+            <div class="fld">
+              <label style="color:var(--muted)">💓 FC（収縮開始）</label>
+              <input type="text" inputmode="numeric" class="fi" id="f-fc" placeholder="—"
+                oninput="toHalf(this,'time',event)">
+            </div>
+            <div class="fld">
+              <label style="color:var(--muted)">🩸 Min SpO₂ (%)</label>
+              <input type="text" inputmode="numeric" class="fi" id="f-min-spo2" placeholder="—" maxlength="3"
+                oninput="this.value=this.value.replace(/[^\d]/g,'').slice(0,3)">
+            </div>
+          </div>
           </div><!-- /sec-target-dive -->
 
           <!-- インターバルセクション -->
@@ -1041,6 +1053,16 @@ function setEnv(v, el) {
   state.disc = '';
   document.querySelectorAll('#disc-chips .chip').forEach(c => c.classList.remove('sel'));
   document.getElementById('sec-laps').style.display = 'none';
+  // 種目未選択になるので、インターバル/モードトグルを閉じて表の残骸を消す
+  diveMode = 'target';
+  const ivSec = document.getElementById('sec-interval');
+  if (ivSec) ivSec.style.display = 'none';
+  const tgtSec = document.getElementById('sec-target-dive');
+  if (tgtSec) tgtSec.style.display = '';
+  const modeToggle = document.getElementById('dive-mode-toggle');
+  if (modeToggle) modeToggle.style.display = 'none';
+  const ivTable = document.getElementById('iv-sets-table');
+  if (ivTable) ivTable.innerHTML = '';
   document.getElementById('dive-sea-scales').style.display = isSea ? '' : 'none';
   if (!isSea) { diveState.squeeze=0; diveState.dcs=0; diveState.narcosis=0; }
 }
@@ -1065,6 +1087,9 @@ function setDisc(v, el) {
   const showLaps = state.env === 'pool' && ['DYN','DNF','DYNB'].includes(v);
   document.getElementById('sec-laps').style.display = showLaps ? '' : 'none';
   if (showLaps) updateLapTable();
+  // FC / Min SpO2 欄（STA系のみ）
+  const staMetrics = document.getElementById('fld-sta-metrics');
+  if (staMetrics) staMetrics.style.display = ['STA','RVSTA','FRCSTA'].includes(v) ? '' : 'none';
   // インターバルセクション
   showIntervalSection(v);
 }
@@ -1274,6 +1299,8 @@ function renderIvTable() {
       hold: tr.querySelector('.iv-hold')?.value || '',
       dist: tr.querySelector('.iv-dist')?.value || '',
       rest: tr.querySelector('.iv-rest')?.value || '',
+      fc:   tr.querySelector('.iv-fc')?.value || '',
+      spo2: tr.querySelector('.iv-spo2')?.value || '',
       note: tr.querySelector('.iv-note')?.value || '',
     };
   });
@@ -1291,51 +1318,75 @@ function renderIvTable() {
     const hold = (p.hold && p.hold.trim()) ? p.hold : holdSelFmt;
     const dist = (p.dist && p.dist.trim()) ? p.dist : defaultDist;
     const rest = (p.rest && p.rest.trim()) ? p.rest : defaultRest;
+    const fc   = p.fc ?? '';
+    const spo2 = p.spo2 ?? '';
     const note = p.note ?? '';
     const isLast = (i === sets - 1);
 
     const discCell = isSTA
-      ? `<td style="padding:4px 6px">
-           <select class="fi iv-disc" style="padding:4px 6px;font-size:11px;height:32px;min-width:80px">
+      ? `<td style="padding:3px 3px">
+           <select class="fi iv-disc" style="padding:4px 2px;font-size:10px;height:30px;width:100%">
              ${['STA','RVSTA','FRCSTA'].map(v =>
-               `<option value="${v}"${v===rowDisc?' selected':''}>${v==='STA'?'STA':v==='RVSTA'?'RV STA':'FRC STA'}</option>`
+               `<option value="${v}"${v===rowDisc?' selected':''}>${v==='STA'?'STA':v==='RVSTA'?'RV':'FRC'}</option>`
              ).join('')}
            </select>
          </td>`
       : '';
 
     const holdCell = isSTA
-      ? `<td style="padding:4px 6px"><input type="text" inputmode="numeric" class="fi iv-hold" value="${hold}" placeholder="—" oninput="toHalf(this,'time',event)" style="padding:5px 8px;font-size:12px;width:65px"></td>`
-      : `<td style="padding:4px 6px"><input type="text" inputmode="numeric" class="fi iv-dist" maxlength="3" value="${dist}" placeholder="${defaultDist||'—'}" oninput="toHalf(this,'num',event)" style="padding:5px 8px;font-size:12px;width:65px"></td>`;
+      ? `<td style="padding:3px 3px"><input type="text" inputmode="numeric" class="fi iv-hold" value="${hold}" placeholder="—" oninput="toHalf(this,'time',event)" style="padding:5px 2px;font-size:12px;width:100%;text-align:center"></td>`
+      : `<td style="padding:3px 3px"><input type="text" inputmode="numeric" class="fi iv-dist" maxlength="3" value="${dist}" placeholder="${defaultDist||'—'}" oninput="toHalf(this,'num',event)" style="padding:5px 2px;font-size:12px;width:100%;text-align:center"></td>`;
 
     const restCell = isLast
-      ? `<td style="padding:4px 6px"><span style="font-size:12px;color:var(--muted);padding:0 8px">—</span></td>`
-      : `<td style="padding:4px 6px"><input type="text" inputmode="numeric" class="fi iv-rest" value="${rest}" placeholder="${defaultRest||'—'}" oninput="toHalf(this,'time',event)" style="padding:5px 8px;font-size:12px;width:65px"></td>`;
+      ? `<td style="padding:3px 3px;text-align:center"><span style="font-size:12px;color:var(--muted)">—</span></td>`
+      : `<td style="padding:3px 3px"><input type="text" inputmode="numeric" class="fi iv-rest" value="${rest}" placeholder="${defaultRest||'—'}" oninput="toHalf(this,'time',event)" style="padding:5px 2px;font-size:12px;width:100%;text-align:center"></td>`;
+
+    // FC / Min SpO2（STAのみ）
+    const fcCell = isSTA
+      ? `<td style="padding:3px 3px"><input type="text" inputmode="numeric" class="fi iv-fc" value="${fc}" placeholder="—" oninput="toHalf(this,'time',event)" style="padding:5px 2px;font-size:12px;width:100%;text-align:center"></td>`
+      : '';
+    const spo2Cell = isSTA
+      ? `<td style="padding:3px 3px"><input type="text" inputmode="numeric" class="fi iv-spo2" value="${spo2}" maxlength="3" placeholder="—" oninput="this.value=this.value.replace(/[^\\d]/g,'').slice(0,3)" style="padding:5px 2px;font-size:12px;width:100%;text-align:center"></td>`
+      : '';
 
     return `<tr data-row="${i}" style="border-bottom:1px solid rgba(30,54,95,.4)">
-      <td style="padding:6px 8px;font-size:11px;font-weight:700;color:var(--accent2);white-space:nowrap">${i+1}本目</td>
+      <td style="padding:4px 2px;font-size:10px;font-weight:700;color:var(--accent2);white-space:nowrap;text-align:center">${i+1}</td>
       ${discCell}
       ${holdCell}
       ${restCell}
-      <td style="padding:4px 6px"><input type="text" class="fi iv-note" value="${note}" placeholder="メモ" style="padding:5px 8px;font-size:12px;width:80px"></td>
+      ${fcCell}
+      ${spo2Cell}
+      <td style="padding:3px 3px"><input type="text" class="fi iv-note" value="${note}" placeholder="メモ" style="padding:5px 4px;font-size:12px;width:100%"></td>
     </tr>`;
   }).join('');
 
   container.style.display = '';
+  // 列幅（合計100%）。STA: # / 種目 / Hold / Rest / FC / SpO2 / メモ
+  const colgroup = isSTA
+    ? `<colgroup>
+         <col style="width:8%"><col style="width:18%"><col style="width:16%"><col style="width:16%"><col style="width:15%"><col style="width:12%"><col style="width:15%">
+       </colgroup>`
+    : `<colgroup>
+         <col style="width:10%"><col style="width:28%"><col style="width:28%"><col style="width:34%">
+       </colgroup>`;
   container.innerHTML = `
-    <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">各本の記録</div>
-    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
-    <table style="min-width:100%;border-collapse:collapse;background:var(--surface2);border-radius:var(--rs);overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;gap:8px">
+      <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">各本の記録</div>
+      <button onclick="applyIntervalToDives()" style="font-size:11px;font-weight:700;padding:5px 10px;border-radius:14px;border:none;background:var(--accent);color:#fff;cursor:pointer;white-space:nowrap">⬇ 一覧に反映</button>
+    </div>
+    <table style="width:100%;table-layout:fixed;border-collapse:collapse;background:var(--surface2);border-radius:var(--rs);overflow:hidden">
+      ${colgroup}
       <thead><tr style="background:var(--surface3)">
-        <th style="padding:6px 8px;font-size:10px;color:var(--muted);text-align:left;font-weight:700"></th>
-        ${isSTA ? '<th style="padding:6px 8px;font-size:10px;color:var(--muted);text-align:left;font-weight:700">種目</th>' : ''}
-        <th style="padding:6px 8px;font-size:10px;color:var(--muted);text-align:left;font-weight:700">${isSTA ? 'Hold' : '距離(m)'}</th>
-        <th style="padding:6px 8px;font-size:10px;color:var(--muted);text-align:left;font-weight:700">Rest</th>
-        <th style="padding:6px 8px;font-size:10px;color:var(--muted);text-align:left;font-weight:700">メモ</th>
+        <th style="padding:6px 2px;font-size:9px;color:var(--muted);text-align:center;font-weight:700"></th>
+        ${isSTA ? '<th style="padding:6px 2px;font-size:9px;color:var(--muted);text-align:center;font-weight:700">種目</th>' : ''}
+        <th style="padding:6px 2px;font-size:9px;color:var(--muted);text-align:center;font-weight:700">${isSTA ? 'Hold' : '距離'}</th>
+        <th style="padding:6px 2px;font-size:9px;color:var(--muted);text-align:center;font-weight:700">Rest</th>
+        ${isSTA ? '<th style="padding:6px 2px;font-size:9px;color:var(--muted);text-align:center;font-weight:700">FC</th>' : ''}
+        ${isSTA ? '<th style="padding:6px 2px;font-size:9px;color:var(--muted);text-align:center;font-weight:700">SpO₂</th>' : ''}
+        <th style="padding:6px 2px;font-size:9px;color:var(--muted);text-align:center;font-weight:700">メモ</th>
       </tr></thead>
       <tbody>${rows}</tbody>
-    </table>
-    </div>`;
+    </table>`;
 }
 
 function getIvTableData() {
@@ -1345,6 +1396,8 @@ function getIvTableData() {
     hold: tr.querySelector('.iv-hold')?.value || null,
     dist: tr.querySelector('.iv-dist')?.value || null,
     rest: tr.querySelector('.iv-rest')?.value || null,
+    fc:   tr.querySelector('.iv-fc')?.value || null,
+    spo2: tr.querySelector('.iv-spo2')?.value || null,
     note: tr.querySelector('.iv-note')?.value || null,
   }));
 }
@@ -1352,6 +1405,81 @@ function getIvTableData() {
 // Legacy stubs for old references
 function calcSTARest() { calcInterval(); }
 function calcDynInterval() { calcInterval(); }
+
+// ===== INTERVAL ⇆ DIVE RECORDS（双方向同期）=====
+// インターバル表の各行を、sessionDives の個別レコードに展開する。
+// 既存のインターバル由来レコード（source==='interval'）は置換し、
+// 個別に手入力されたダイブ（source未設定）はそのまま残す。
+let suppressIvSync = false; // 逆同期の無限ループ防止
+
+function applyIntervalToDives() {
+  const disc = state.disc;
+  const isSTA = ['STA','RVSTA','FRCSTA'].includes(disc);
+  const tableRows = getIvTableData();
+  if (!tableRows.length) { showToast('❌ 本数を設定してください'); return; }
+
+  // 既存のインターバル由来ダイブを除去（手入力ダイブは保持）
+  const manualDives = sessionDives.filter(d => d.source !== 'interval');
+
+  const baseTs = Date.now();
+  const ivDives = tableRows.map((r, i) => {
+    const rowDisc = isSTA ? (r.disc || disc) : disc;
+    const isRowSTA = ['STA','RVSTA','FRCSTA'].includes(rowDisc);
+    return {
+      id: baseTs + i,
+      source: 'interval',
+      ivRow: i,
+      disc: rowDisc,
+      target: null,
+      targetTime: null,
+      depth: null,
+      dist: (!isRowSTA && state.env === 'pool') ? (parseFloat(r.dist) || null) : null,
+      time: isRowSTA ? (r.hold || null) : (r.rest || null),
+      restTime: r.rest || null,
+      fc:   isRowSTA ? (r.fc || null) : null,
+      minSpo2: (isRowSTA && r.spo2 != null && r.spo2 !== '') ? (parseInt(r.spo2) || null) : null,
+      lapTimes: null,
+      interval: null,
+      profile: null,
+      speed: null,
+      hypoxia: 0, squeeze: null, dcs: null, narcosis: null,
+      note: r.note || null,
+    };
+  });
+
+  sessionDives = [...manualDives, ...ivDives];
+  renderDiveLog();
+  showToast(`✅ ${ivDives.length}本をダイブ一覧に反映`);
+}
+
+// sessionDives の中のインターバル由来レコードから、表を復元する（逆方向）
+function syncIntervalTableFromDives() {
+  if (suppressIvSync) return;
+  const ivDives = sessionDives.filter(d => d.source === 'interval').sort((a,b)=>(a.ivRow??0)-(b.ivRow??0));
+  if (!ivDives.length) return;
+  const isSTA = ['STA','RVSTA','FRCSTA'].includes(state.disc);
+
+  // 本数selectを合わせてテーブル再構築
+  const setsEl = document.getElementById('f-iv-sets');
+  if (setsEl) {
+    if (setsEl.options.length <= 1) buildSetsSelect('f-iv-sets', ivDives.length);
+    setsEl.value = String(ivDives.length);
+  }
+  renderIvTable();
+
+  // 各行へ書き戻し
+  const rows = document.querySelectorAll('#iv-sets-table tr[data-row]');
+  rows.forEach((tr, i) => {
+    const d = ivDives[i]; if (!d) return;
+    const h = tr.querySelector('.iv-hold'); if (h) h.value = d.time || '';
+    const ds = tr.querySelector('.iv-disc'); if (ds && d.disc) ds.value = d.disc;
+    const di = tr.querySelector('.iv-dist'); if (di && d.dist != null) di.value = d.dist;
+    const r = tr.querySelector('.iv-rest'); if (r && d.restTime) r.value = d.restTime;
+    const fc = tr.querySelector('.iv-fc'); if (fc && d.fc) fc.value = d.fc;
+    const sp = tr.querySelector('.iv-spo2'); if (sp && d.minSpo2 != null) sp.value = d.minSpo2;
+    const n = tr.querySelector('.iv-note'); if (n && d.note) n.value = d.note;
+  });
+}
 
 function setPoolSize(size, el) {
   state.poolSize = size;
@@ -1514,21 +1642,15 @@ function addDive() {
   if (!disc) { showToast('❌ 種目を選択してください'); return; }
 
   const isInterval = diveMode === 'interval';
-  const ivData = isInterval ? getIntervalData() : null;
+
+  // インターバルモード: 表の各行を個別ダイブレコードに展開（1件に潰さない）
+  if (isInterval) {
+    applyIntervalToDives();
+    return;
+  }
 
   let depthVal = null, timeVal = null;
-  if (isInterval) {
-    // インターバルモード: interval フィールドから値を取得
-    if (!ivData) { showToast('❌ インターバルデータを入力してください'); return; }
-    const isSTA = disc === 'STA';
-    if (isSTA) {
-      timeVal = ivData.holdTime || null;
-    } else {
-      depthVal = ivData.dist || null;
-      timeVal  = ivData.restTime || null;
-    }
-    if (!ivData.sets && !depthVal && !timeVal) { showToast('❌ インターバルデータを入力してください'); return; }
-  } else {
+  {
     depthVal = parseFloat(document.getElementById('f-best-depth').value) || null;
     timeVal  = document.getElementById('f-best-time').value.trim() || null;
     const DRY_ACTIVITY = ['WALK','STR','GYM','CARDIO','EQ'];
@@ -1536,16 +1658,24 @@ function addDive() {
     if (!depthVal && !timeVal && !isDryActivity) { showToast('❌ 深度またはタイムを入力してください'); return; }
   }
 
+  const isSTAdisc = ['STA','RVSTA','FRCSTA'].includes(disc);
+  const fcVal   = isSTAdisc ? (document.getElementById('f-fc')?.value.trim() || null) : null;
+  const spo2Raw = isSTAdisc ? (document.getElementById('f-min-spo2')?.value.trim() || '') : '';
+  const spo2Val = spo2Raw !== '' ? (parseInt(spo2Raw) || null) : null;
+
   const dive = {
     id: editingDiveId || Date.now(),
+    source: 'manual',
     disc,
     target: parseFloat(document.getElementById('f-target').value) || null,
     targetTime: document.getElementById('f-target-time').value.trim() || null,
     depth: state.env === 'sea' ? depthVal : null,
     dist:  state.env === 'pool' && disc !== 'STA' ? depthVal : null,
     time: timeVal,
+    fc: fcVal,
+    minSpo2: spo2Val,
     lapTimes: getLapData(),
-    interval: getIntervalData(),
+    interval: null,
     profile: pendingUDDFData?.profile || null,
     speed:   pendingUDDFData?.speed   || null,
     hypoxia:  diveState.hypoxia,
@@ -1597,6 +1727,7 @@ function clearDiveInput() {
   document.getElementById('fld-target-dist').style.display = '';
   document.getElementById('fld-result-dist').style.display = '';
   document.getElementById('f-dive-note').value = '';
+  ['f-fc','f-min-spo2'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
   document.getElementById('lap-table').innerHTML = '';
   ['f-hold-time','f-rest-time','f-iv-sets','f-interval-dist']
     .forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
@@ -1629,25 +1760,22 @@ function editDive(id) {
   document.getElementById('f-best-depth').value  = d.depth ?? d.dist ?? '';
   document.getElementById('f-best-time').value   = d.time || '';
   document.getElementById('f-dive-note').value   = d.note || '';
-  // Restore interval data
-  if (d.interval) {
-    const iv = d.interval;
-    if (iv.type === 'sta') {
-      document.getElementById('f-interval-dist').value = iv.holdTime||'';
-      document.getElementById('f-rest-time').value = iv.restTime||'';
-      document.getElementById('f-iv-sets').value   = iv.sets||'';
-      calcInterval();
-    } else if (iv.type === 'dyn') {
-      document.getElementById('f-interval-dist').value = iv.dist||'';
-      document.getElementById('f-rest-time').value     = iv.restTime||'';
-      document.getElementById('f-iv-sets').value       = iv.sets||'';
-      calcInterval();
-    }
-  }
 
-  // Set discipline chip
+  // FC / Min SpO2（STA系のみ。専用フィールドに復元 — 数値のまま保持）
+  const isSTAedit = ['STA','RVSTA','FRCSTA'].includes(d.disc);
+  const staMetrics = document.getElementById('fld-sta-metrics');
+  if (staMetrics) staMetrics.style.display = isSTAedit ? '' : 'none';
+  const fcEl = document.getElementById('f-fc');     if (fcEl) fcEl.value = d.fc || '';
+  const spEl = document.getElementById('f-min-spo2'); if (spEl) spEl.value = (d.minSpo2 != null ? d.minSpo2 : '');
+
+  // インターバル由来ダイブを個別編集する場合は target モードに切替え
+  if (d.source === 'interval') {
+    const tBtn = document.getElementById('mode-target-btn');
+    if (tBtn && diveMode !== 'target') setDiveMode('target', tBtn);
+  }
+  // Set discipline chip（data-disc 基準。RV STA/FRC STA はラベルとvalueが異なるため）
   document.querySelectorAll('#disc-chips .chip').forEach(c => {
-    c.classList.toggle('sel', c.textContent === d.disc);
+    c.classList.toggle('sel', (c.dataset.disc || c.textContent) === d.disc);
   });
   state.disc = d.disc;
   updateDistLabels();
@@ -1710,8 +1838,9 @@ function renderDiveLog() {
       <span class="dive-log-val">${valStr}</span>
       <span class="dive-log-time">${d.time||''}</span>
       ${d.lapTimes?.length ? `<span style="font-size:10px;color:var(--muted)">📊${d.lapTimes.length}lap</span>` : ''}
-      ${d.interval?.type==='sta' ? `<span style="font-size:10px;color:var(--sub)">🔁${d.interval.holdTime||'?'}/${d.interval.restTime||'?'}${d.interval.sets?'×'+d.interval.sets:''}</span>` : ''}
-      ${d.interval?.type==='dyn' ? `<span style="font-size:10px;color:var(--sub)">🔁${d.interval.dist??'?'}m ${d.interval.cycleTime||'?'}cy${d.interval.sets?'×'+d.interval.sets:''}</span>` : ''}
+      ${d.source==='interval' ? `<span style="font-size:10px;color:var(--sub)">🔁IV</span>` : ''}
+      ${d.fc ? `<span style="font-size:10px;color:var(--sub)">FC ${d.fc}</span>` : ''}
+      ${d.minSpo2!=null ? `<span style="font-size:10px;padding:1px 5px;border-radius:4px;background:rgba(59,130,246,.18);color:#60a5fa">SpO₂ ${d.minSpo2}%</span>` : ''}
       ${d.hypoxia ? `<span style="font-size:10px;padding:1px 5px;border-radius:4px;background:rgba(239,68,68,.2);color:#f87171">酸欠${d.hypoxia}</span>` : ''}
       ${d.squeeze ? `<span style="font-size:10px;padding:1px 5px;border-radius:4px;background:rgba(245,158,11,.2);color:#fbbf24">SQ${d.squeeze}</span>` : ''}
       <button class="dive-log-del" style="color:var(--accent2);font-size:12px" onclick="editDive(${d.id})">編集</button>
@@ -1731,6 +1860,14 @@ function renderDiveLog() {
   if (bestTime)      parts.push(`ベストタイム <strong>${bestTime}</strong>`);
   parts.push(`計 <strong>${sessionDives.length}本</strong>`);
   document.getElementById('dive-log-summary').innerHTML = parts.join('　·　');
+
+  // 逆同期: インターバル由来ダイブを表へ反映（編集モード中は触らない）
+  if (!suppressIvSync && !editingDiveId && diveMode === 'interval'
+      && ['STA','RVSTA','FRCSTA'].includes(state.disc)
+      && sessionDives.some(d => d.source === 'interval')) {
+    suppressIvSync = true;
+    try { syncIntervalTableFromDives(); } finally { suppressIvSync = false; }
+  }
 }
 
 // ===== INLINE UDDF (in dive input section) =====
@@ -1883,21 +2020,6 @@ function importUDDFDive(idx) {
   showToast(`✅ Dive ${idx+1}: ${d.depth??''}m ${d.time||''} 追加`);
 }
 
-function getIntervalData() {
-  if (diveMode !== 'interval') return null;
-  const disc  = state.disc;
-  const isSTA = ['STA','RVSTA','FRCSTA'].includes(disc);
-  const distRaw = document.getElementById('f-interval-dist').value.trim();
-  const rest  = document.getElementById('f-rest-time').value.trim() || null;
-  const sets  = parseInt(document.getElementById('f-iv-sets').value) || null;
-  if (!distRaw && !rest) return null;
-  const rows = getIvTableData();
-  if (isSTA) {
-    return { type:'sta', holdTime: distRaw||null, restTime: rest, sets, rows };
-  }
-  return { type:'dyn', dist: parseFloat(distRaw)||null, restTime: rest, sets, rows };
-}
-
 function getLapData() {
   const rows = document.querySelectorAll('.lap-row');
   if (!rows.length) return null;
@@ -1985,7 +2107,7 @@ function resetForm() {
   // Reset disc chips - show sea disciplines
   document.querySelectorAll('#disc-chips .chip').forEach(c => {
     c.classList.remove('sel');
-    c.style.display = ['CWT','CWTB','CNF','FIM'].includes(c.textContent) ? '' : 'none';
+    c.style.display = ['CWT','CWTB','CNF','FIM'].includes(c.dataset.disc || c.textContent) ? '' : 'none';
   });
   updateDistLabels();
   setCond(3);
@@ -2927,18 +3049,21 @@ updateDistLabels();
         // Rest
         var r = tr.querySelector('.iv-rest');
         if (r && (dive.restFmt || dive.restSec)) r.value = dive.restFmt || fmtSec(dive.restSec);
-        // メモ：FC / Min SpO2 を集約
-        var n = tr.querySelector('.iv-note');
-        if (n) {
-          var parts = [];
-          if (dive.fc) parts.push('FC:' + dive.fc);
-          if (dive.minSpo2 != null) parts.push('SpO2 ' + dive.minSpo2 + '%');
-          if (parts.length) n.value = parts.join(' / ');
-        }
-        // STA種目セレクト（存在すれば固定）
+        // FC
+        var fcEl = tr.querySelector('.iv-fc');
+        if (fcEl && dive.fc) fcEl.value = dive.fc;
+        // Min SpO2
+        var spEl = tr.querySelector('.iv-spo2');
+        if (spEl && dive.minSpo2 != null) spEl.value = dive.minSpo2;
+        // STA種目セレクト
         var ds = tr.querySelector('.iv-disc');
         if (ds) ds.value = 'STA';
       });
+
+      // ── 7b. 表 → ダイブ一覧へ自動展開 ──
+      if (typeof applyIntervalToDives === 'function') {
+        try { applyIntervalToDives(); } catch(e) { console.warn('applyIntervalToDives:', e); }
+      }
 
       // ── 8. セッションメモ ──
       if (d.note) { var noteEl = document.getElementById('f-note'); if (noteEl) noteEl.value = d.note; }
