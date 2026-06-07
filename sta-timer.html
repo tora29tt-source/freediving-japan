@@ -847,6 +847,9 @@ header {
     <div id="planModalSummary" style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:10px;font-variant-numeric:tabular-nums"></div>
     <div id="planList" style="flex:1 1 auto;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-right:2px"></div>
     <div style="height:14px;flex-shrink:0"></div>
+    <div id="planSavePresetBtn" style="padding:0 0 8px">
+      <button onclick="saveAsPreset()" style="width:100%;height:34px;border-radius:8px;border:1px solid var(--teal);background:var(--teal-dim);color:var(--teal);font-size:11px;font-weight:700;letter-spacing:.08em;cursor:pointer;-webkit-tap-highlight-color:transparent">＋ プリセットとして保存</button>
+    </div>
     <div class="sheet-btns">
       <button class="sheet-btn cancel" onclick="closePlanModal()">キャンセル</button>
       <button class="sheet-btn confirm" onclick="onPlanDone()">完了</button>
@@ -885,6 +888,16 @@ header {
 <video id="cameraPreview" autoplay muted playsinline style="display:none;position:fixed;bottom:0;left:0;width:80px;height:60px;z-index:50;border-radius:8px;border:1.5px solid var(--danger);opacity:0.85;object-fit:cover"></video>
 
 <script>
+'use strict';
+window.onerror = function(msg, src, line, col, err) {
+  // line:0 = クロスオリジン/ネットワークエラー（Supabase fetch等）は無視
+  if (!line || line === 0) return true;
+  var d = document.createElement('div');
+  d.style.cssText = 'position:fixed;bottom:80px;left:0;right:0;background:#900;color:#fff;font-size:12px;padding:8px 12px;z-index:9999;word-break:break-all;font-family:monospace';
+  d.textContent = 'ERROR line:'+line+' — '+msg;
+  document.body.appendChild(d);
+  setTimeout(function(){ if(d.parentNode)d.remove(); }, 10000);
+};
 // ── SUPABASE ─────────────────────────────────────────────
 // ── AIDA アナウンサー（aida-rules.js インライン版）──────
 const AIDA_ANNOUNCEMENTS = [
@@ -969,20 +982,24 @@ const _SB_URL = 'https://bbhqvbpsuccbdcnhnobm.supabase.co';
 const _SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJiaHF2YnBzdWNjYmRjbmhub2JtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyODQwMzksImV4cCI6MjA5NTg2MDAzOX0.MexR8_hY56m3XRff0EJOQM3uQShXr2L9kGyYXLSzKbs';
 let _user = null;
 
+const _SB_DISABLED = (location.hostname === 'claude.ai' || location.hostname.endsWith('.claude.ai') || location.protocol === 'blob:' || !location.hostname);
 const _sb = {
   async insert(table, row) {
-    const res = await fetch(`${_SB_URL}/rest/v1/${table}`, {
-      method: 'POST',
-      headers: {
-        'apikey': _SB_KEY,
-        'Authorization': 'Bearer ' + (_user?.access_token || _SB_KEY),
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal'
-      },
-      body: JSON.stringify(row)
-    });
-    if (!res.ok) { const t = await res.text(); return { error: { message: t } }; }
-    return { error: null };
+    if (_SB_DISABLED) return { error: null }; // Claude.ai環境ではスキップ
+    try {
+      const res = await fetch(`${_SB_URL}/rest/v1/${table}`, {
+        method: 'POST',
+        headers: {
+          'apikey': _SB_KEY,
+          'Authorization': 'Bearer ' + (_user?.access_token || _SB_KEY),
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(row)
+      });
+      if (!res.ok) { const t = await res.text(); return { error: { message: t } }; }
+      return { error: null };
+    } catch(e) { return { error: { message: e.message } }; }
   },
   from(table) {
     return { insert: (row) => _sb.insert(table, row) };
@@ -1048,7 +1065,9 @@ function toast(msg, err=false) {
 
 // ── SESSION PLAN ─────────────────────────────────────────
 let sessionPlan = [];
-let planConfirmed = false; // O2/CO2: 「完了」を押すまではリングタップでスタートさせない
+let planConfirmed = false;
+let planFromPreset = false;
+let activePresetId = null; // 現在アクティブなプリセットID // プリセット経由でモーダルを開いた場合true // O2/CO2: 「完了」を押すまではリングタップでスタートさせない
 
 // ── PRESETS ──────────────────────────────────────────────
 const PRESETS = [
@@ -1059,10 +1078,12 @@ const PRESETS = [
     desc: 'Hold Manual・Rest 2:00固定・8セット / 酸素耐性の基礎トレーニング',
     tags: [{ label: 'O2', cls: 'o2' }, { label: 'Manual Hold', cls: 'info' }, { label: '8 sets', cls: 'info' }],
     apply: function() {
-      cfg.o2Stop    = 'manual';
-      cfg.o2RestMin = 2; cfg.o2RestSec = 0;
-      cfg.o2Sets    = 8;
-      cfg.prepSec   = 0;
+      cfg.tblHoldStop     = 'manual'; // Hold: タップで止める
+      cfg.tblHoldMin      = 1; cfg.tblHoldSec = 0; // Hold Time (Auto時の値)
+      cfg.tblRestMin      = 2; cfg.tblRestSec = 0; // Rest: 2:00固定
+      cfg.tblDecrementSec = 0;
+      cfg.tblSets         = 8;
+      cfg.prepSec         = 0;
     },
     mode: 'o2',
   },
@@ -1073,22 +1094,141 @@ const PRESETS = [
     desc: 'Hold 2:00・Rest 2:00→−10秒ずつ・8セット / CO2耐性の基礎トレーニング',
     tags: [{ label: 'CO2', cls: 'co2' }, { label: 'Decrement −10s', cls: 'info' }, { label: '8 sets', cls: 'info' }],
     apply: function() {
-      cfg.co2Stop         = 'manual';
-      cfg.co2HoldMin      = 2; cfg.co2HoldSec = 0;
-      cfg.co2RestMin      = 2; cfg.co2RestSec = 0;
-      cfg.co2DecrementSec = 10;
-      cfg.co2Sets         = 8;
+      cfg.tblHoldStop     = 'auto';
+      cfg.tblHoldMin      = 2; cfg.tblHoldSec = 0;
+      cfg.tblRestMin      = 2; cfg.tblRestSec = 0;
+      cfg.tblDecrementSec = 10;
+      cfg.tblSets         = 8;
       cfg.prepSec         = 0;
     },
     mode: 'co2',
   },
+  {
+    id: 'relaxation',
+    name: 'Relaxation',
+    icon: '🧘',
+    desc: '1stコントラクションが来たらタップして止める。毎セット、コントラクションまでの時間を伸ばすことが目的。Rest 2:00固定・8セット',
+    tags: [{ label: 'O2', cls: 'o2' }, { label: 'Manual Hold', cls: 'info' }, { label: 'FC Focus', cls: 'info' }, { label: '8 sets', cls: 'info' }],
+    apply: function() {
+      cfg.tblHoldStop     = 'manual';
+      cfg.tblHoldMin      = 1; cfg.tblHoldSec = 0;
+      cfg.tblRestMin      = 2; cfg.tblRestSec = 0;
+      cfg.tblDecrementSec = 0;
+      cfg.tblSets         = 8;
+      cfg.prepSec         = 0;
+    },
+    mode: 'o2',
+  },
 ];
+
+// ── ユーザー保存プリセット（メモリ内、セッション中のみ保持）──
+let userPresets = [];
+
+function saveAsPreset() {
+  // 名前を入力（promptの代わりにtoastとインプット）
+  const sub = tableSub.toUpperCase();
+  const holdStr = cfg.tblHoldStop === 'manual' ? 'Manual' : pmFmt(cfg.tblHoldMin*60+cfg.tblHoldSec);
+  const restStr = pmFmt(cfg.tblRestMin*60+cfg.tblRestSec);
+  const dec = cfg.tblDecrementSec;
+  const sets = cfg.tblSets;
+  const autoName = sub + ' ' + holdStr + ' / Rest ' + restStr + (dec>0?' −'+dec+'s':'') + ' × '+sets;
+
+  // 名前入力シートを表示
+  showNameInput(autoName, function(name) {
+    if (!name) return;
+    const snap = {
+      tblHoldMin: cfg.tblHoldMin, tblHoldSec: cfg.tblHoldSec,
+      tblRestMin: cfg.tblRestMin, tblRestSec: cfg.tblRestSec,
+      tblHoldStop: cfg.tblHoldStop, tblRestStop: cfg.tblRestStop,
+      tblSets: cfg.tblSets, tblDecrementSec: cfg.tblDecrementSec,
+      prepSec: cfg.prepSec,
+    };
+    const sub_ = tableSub;
+    userPresets.push({
+      id: 'user-' + Date.now(),
+      name: name,
+      icon: sub_ === 'co2' ? '💨' : '🫁',
+      desc: sub_.toUpperCase() + ' / Hold ' + holdStr + ' / Rest ' + restStr + (dec>0?' −'+dec+'s/set':'') + ' / '+sets+' sets',
+      tags: [
+        { label: sub_.toUpperCase(), cls: sub_ },
+        { label: sets+' sets', cls: 'info' },
+      ],
+      apply: (function(s, m){ return function() {
+        Object.assign(cfg, s);
+        syncTableUI();
+      }; })(snap, sub_),
+      mode: sub_,
+      userAdded: true,
+    });
+    toast('✓ プリセット「' + name + '」を保存しました');
+  });
+}
+
+function showNameInput(defaultName, callback) {
+  // 既存オーバーレイがあれば再利用
+  let overlay = document.getElementById('nameInputOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'nameInputOverlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:3000;display:flex;align-items:flex-end;justify-content:center';
+    document.body.appendChild(overlay);
+  }
+  overlay.innerHTML = '';
+  overlay.style.display = 'flex';
+
+  const sheet = document.createElement('div');
+  sheet.style.cssText = 'background:var(--surface);border-radius:16px 16px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom,0px));width:100%;max-width:480px;box-sizing:border-box';
+  sheet.innerHTML = '<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px">プリセット名</div>';
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.value = defaultName;
+  input.style.cssText = 'width:100%;height:40px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:14px;padding:0 12px;box-sizing:border-box;outline:none;-webkit-appearance:none';
+
+  const btns = document.createElement('div');
+  btns.style.cssText = 'display:flex;gap:8px;margin-top:12px';
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.textContent = 'キャンセル';
+  cancelBtn.style.cssText = 'flex:1;height:40px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:13px;cursor:pointer';
+  cancelBtn.onclick = function() { overlay.style.display='none'; };
+
+  const saveBtn = document.createElement('button');
+  saveBtn.textContent = '保存';
+  saveBtn.style.cssText = 'flex:2;height:40px;border-radius:10px;border:none;background:var(--teal);color:#0b2d45;font-size:13px;font-weight:700;cursor:pointer';
+  saveBtn.onclick = function() {
+    overlay.style.display = 'none';
+    callback(input.value.trim());
+  };
+
+  btns.appendChild(cancelBtn);
+  btns.appendChild(saveBtn);
+  sheet.appendChild(input);
+  sheet.appendChild(btns);
+  overlay.appendChild(sheet);
+  setTimeout(function(){ input.focus(); input.select(); }, 100);
+}
+
 
 function renderPresets() {
   const list = document.getElementById('presetList');
   if (!list) return;
   list.innerHTML = '';
-  PRESETS.forEach(function(p) {
+  const all = PRESETS.concat(userPresets);
+  // ユーザー保存プリセットがあればセクションヘッダー追加
+  if (userPresets.length > 0) {
+    const builtinHdr = document.createElement('div');
+    builtinHdr.style.cssText = 'font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:4px 2px 6px';
+    builtinHdr.textContent = 'ビルトイン';
+    list.appendChild(builtinHdr);
+  }
+  all.forEach(function(p) {
+    if (p.userAdded && all.indexOf(p) === PRESETS.length) {
+      const userHdr = document.createElement('div');
+      userHdr.style.cssText = 'font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:12px 2px 6px';
+      userHdr.textContent = '保存済み';
+      list.appendChild(userHdr);
+    }
     const card = document.createElement('div');
     card.className = 'preset-card';
 
@@ -1132,6 +1272,8 @@ function renderPresets() {
 }
 
 function applyPreset(p) {
+  planFromPreset = true;
+  activePresetId = p.id;
   // 設定を適用してからO2/CO2モードに切り替え、そのままプランモーダルへ
   p.apply();
   // タブをO2/CO2に切り替え（presetパネルを隠す）
@@ -1310,18 +1452,44 @@ function insertPlanRow(afterIdx) {
 function onCfgStart() {
   planConfirmed = false;
   buildDefaultPlan();
-  document.getElementById('planModalTitle').textContent = mode==='o2' ? 'O2 Table — セッション作成' : 'CO2 Table — セッション作成';
+  var sub = (tableSub || 'o2').toUpperCase();
+  document.getElementById('planModalTitle').textContent = sub + ' Table — セッション作成';
   document.getElementById('planModalSummary').innerHTML = buildCfgSummaryHTML();
   renderPlanEditor();
+  // プリセット保存ボタン: TABLEタブ経由の時のみ表示
+  var saveBtn = document.getElementById('planSavePresetBtn');
+  if (saveBtn) saveBtn.style.display = planFromPreset ? 'none' : '';
   document.getElementById('planOverlay').classList.add('open');
 }
 
 function closePlanModal() {
   document.getElementById('planOverlay').classList.remove('open');
+  if (mode === 'o2' || mode === 'co2') {
+    // プリセット経由ならPRESETタブに戻す、TABLE経由ならTABLEタブに戻す
+    var backTo = planFromPreset ? 'preset' : 'table';
+    planFromPreset = false;
+    ['free','table','preset'].forEach(function(x) {
+      var t = document.getElementById('tab-'+x);
+      if (t) t.classList.toggle('active', x===backTo);
+    });
+    var presetPanel = document.getElementById('presetPanel');
+    if (presetPanel) presetPanel.style.display = backTo==='preset' ? '' : 'none';
+    document.getElementById('configPanel').style.display = backTo==='table' ? '' : 'none';
+    var tw = document.getElementById('timerWrap'); if (tw) tw.style.display = '';
+    var ph = document.querySelector('.phase-banner'); if (ph) ph.style.display = '';
+    var sr = document.querySelector('.stats-row'); if (sr) sr.style.display = '';
+    var ct = document.querySelector('.controls'); if (ct) ct.style.display = '';
+    if (backTo === 'preset') {
+      renderPresets();
+    } else {
+      syncTableUI();
+    }
+  }
 }
 
 function onPlanDone() {
   planConfirmed = true;
+  planFromPreset = false;
   document.getElementById('planOverlay').classList.remove('open');
   toggleCfgPanel(true);
   document.getElementById('configPanel').style.display = 'none';
@@ -1329,10 +1497,23 @@ function onPlanDone() {
   document.getElementById('cfgSummary').style.display = '';
   document.getElementById('setListWrap').style.display = '';
   document.getElementById('setListWrap').classList.add('plan-mode');
+  // リング・タイマー・コントロールを確実に表示
+  var tw = document.getElementById('timerWrap'); if (tw) tw.style.display = '';
+  var sa = document.getElementById('spo2ChartArea'); if (sa) sa.style.display = '';
+  var ph = document.querySelector('.phase-banner'); if (ph) ph.style.display = '';
+  var sr = document.querySelector('.stats-row'); if (sr) sr.style.display = '';
+  var ct = document.querySelector('.controls'); if (ct) ct.style.display = '';
   renderSetDots();
   var th = document.getElementById('tapHint');
   if (th) th.style.opacity = '1';
   updateRingStartBtn();
+  // TABLEタブをアクティブに
+  ['free','table','preset'].forEach(function(x) {
+    var t = document.getElementById('tab-'+x);
+    if (t) t.classList.toggle('active', x==='table');
+  });
+  var presetPanel = document.getElementById('presetPanel');
+  if (presetPanel) presetPanel.style.display = 'none';
 }
 
 function buildCfgSummaryHTML() {
@@ -1395,49 +1576,67 @@ const cfgSec = {
 };
 
 function setMode(m) {
-  mode = m;
-  planConfirmed = false;
+  // preset タブは mode を変えない（free/o2/co2 のどれかを保持）
+  // UI切り替えのみ行う
+  const isPreset = (m === 'preset');
+
   ['free','table','preset'].forEach(x => {
     const t = document.getElementById('tab-'+x);
     if (t) t.classList.toggle('active', x===m);
   });
+
   const panel = document.getElementById('configPanel');
   const presetPanel = document.getElementById('presetPanel');
-  if (presetPanel) presetPanel.style.display = m==='preset' ? '' : 'none';
+  const timerWrap = document.getElementById('timerWrap');
+  const spo2Area  = document.getElementById('spo2ChartArea');
+  const phaseBanner = document.querySelector('.phase-banner');
+  const statsRow    = document.querySelector('.stats-row');
+  const controls    = document.querySelector('.controls');
+  const sum = document.getElementById('cfgSummary');
+
+  if (isPreset) {
+    // PRESETタブ: タイマー・コントロール・設定パネルを隠してプリセットリストだけ表示
+    if (presetPanel) presetPanel.style.display = '';
+    panel.style.display = 'none';
+    panel.classList.remove('visible');
+    if (timerWrap)   timerWrap.style.display   = 'none';
+    if (spo2Area)    spo2Area.style.display     = 'none';
+    if (phaseBanner) phaseBanner.style.display  = 'none';
+    if (statsRow)    statsRow.style.display     = 'none';
+    if (controls)    controls.style.display     = 'none';
+    if (sum)         sum.style.display          = 'none';
+    document.getElementById('setListWrap').style.display = 'none';
+    renderPresets();
+    return; // modeは変えない・onResetも呼ばない
+  }
+
+  // preset以外: 通常タブ切り替え
+  mode = m;
+  planConfirmed = false;
+  if (presetPanel) presetPanel.style.display = 'none';
+  if (timerWrap)   timerWrap.style.display   = '';
+  if (spo2Area)    spo2Area.style.display     = '';
+  if (phaseBanner) phaseBanner.style.display  = '';
+  if (statsRow)    statsRow.style.display     = '';
+  if (controls)    controls.style.display     = '';
+
   panel.classList.toggle('visible', m==='table');
   if (m === 'table') {
     cfgOpen = true; toggleCfgPanel(false);
-    document.getElementById('configPanel').style.display = '';
+    panel.style.display = '';
     syncTableUI();
-  }
-  if (m === 'preset') {
-    renderPresets();
+  } else {
     panel.style.display = 'none';
   }
-  const sum = document.getElementById('cfgSummary');
   if (sum) sum.style.display = 'none';
-  // preset以外に戻る時はタイマー周りを再表示
-  if (m !== 'preset') {
-    document.querySelector('.phase-banner') && (document.querySelector('.phase-banner').style.display = '');
-    document.querySelector('.stats-row')    && (document.querySelector('.stats-row').style.display    = '');
-    document.querySelector('.controls')     && (document.querySelector('.controls').style.display     = '');
-    const tw = document.getElementById('timerWrap'); if (tw) tw.style.display = '';
-    const sa = document.getElementById('spo2ChartArea'); if (sa) sa.style.display = '';
-  }
-  if (m === 'preset') {
-    document.querySelector('.phase-banner') && (document.querySelector('.phase-banner').style.display = 'none');
-    document.querySelector('.stats-row')    && (document.querySelector('.stats-row').style.display    = 'none');
-    document.querySelector('.controls')     && (document.querySelector('.controls').style.display     = 'none');
-    const tw = document.getElementById('timerWrap'); if (tw) tw.style.display = 'none';
-    const sa = document.getElementById('spo2ChartArea'); if (sa) sa.style.display = 'none';
-  }
+
   const isSW = m === 'free';
   const _bl = document.getElementById('btnLap'); if(_bl) _bl.style.display = isSW ? '' : 'none';
   document.getElementById('btnNext').style.display = 'none';
   document.getElementById('btnFC').style.display = 'none';
   swLocked = false;
   document.getElementById('setListWrap').style.display = 'none';
-  document.getElementById('freeLogWrap') && (document.getElementById('freeLogWrap').style.display = 'none');
+  const flw = document.getElementById('freeLogWrap'); if(flw) flw.style.display = 'none';
   document.getElementById('btnMain').style.display = 'none';
   document.getElementById('btnClearAll').style.display = 'none';
   updateRingStartBtn();
@@ -1464,6 +1663,13 @@ function updateTblRestStopRow() {
   // Rest Stopのラベル更新（どちらも同じUIで使える）
 }
 
+function selSafeSet(sel, val) {
+  if (!sel) return;
+  var v = String(val);
+  for (var i = 0; i < sel.options.length; i++) {
+    if (sel.options[i].value === v) { sel.value = v; return; }
+  }
+}
 function syncTableUI() {
   // セグメントボタン
   document.getElementById('tbl-seg-o2').classList.toggle('active',  tableSub==='o2');
@@ -1484,17 +1690,11 @@ function syncTableUI() {
   const sd = document.getElementById('sel-tblDecrement');
   const ss = document.getElementById('sel-tblSets');
   const sp = document.getElementById('sel-tblPrep');
-  function safeSet(sel, val) {
-    if (!sel) return;
-    // 選択肢に存在する値のみセット（Safariエラー対策）
-    const exists = Array.from(sel.options).some(o => parseInt(o.value) === parseInt(val));
-    if (exists) sel.value = val;
-  }
-  safeSet(sh, cfg.tblHoldMin*60+cfg.tblHoldSec);
-  safeSet(sr, cfg.tblRestMin*60+cfg.tblRestSec);
-  safeSet(sd, cfg.tblDecrementSec);
-  safeSet(ss, cfg.tblSets);
-  safeSet(sp, cfg.prepSec);
+  selSafeSet(sh, cfg.tblHoldMin*60+cfg.tblHoldSec);
+  selSafeSet(sr, cfg.tblRestMin*60+cfg.tblRestSec);
+  selSafeSet(sd, cfg.tblDecrementSec);
+  selSafeSet(ss, cfg.tblSets);
+  selSafeSet(sp, cfg.prepSec);
 }
 
 function setCfgStop(tbl, val) {
@@ -1596,16 +1796,6 @@ function onSelChange(key, val) {
   if (key === 'co2Rest') { cfg.co2RestMin = Math.floor(sec/60); cfg.co2RestSec = sec%60; }
 }
 
-function setCfgStop(tbl, val) {
-  cfg[tbl + 'Stop'] = val;
-  document.getElementById(tbl+'-stop-manual').classList.toggle('active', val==='manual');
-  document.getElementById(tbl+'-stop-auto').classList.toggle('active', val==='auto');
-  const autoRow = document.getElementById(tbl+'-auto-row');
-  if (autoRow) {
-    autoRow.style.opacity       = val==='auto' ? '1'    : '0.35';
-    autoRow.style.pointerEvents = val==='auto' ? 'auto' : 'none';
-  }
-}
 
 // ── SESSION STATE ─────────────────────────────────────────
 // phase: 'idle' | 'countdown' | 'hold' | 'surface' | 'rest' | 'done' | 'paused'
@@ -1800,10 +1990,18 @@ function startHold() {
     renderLog();
   }
   restStart = 0;
-  // FCボタン表示
+  // FCボタン表示（Relaxationプリセットは非表示）
   currentFC = null;
   const _fcBtn = document.getElementById('btnFC');
-  if (_fcBtn) { _fcBtn.style.display=''; _fcBtn.classList.remove('done'); _fcBtn.textContent='1st Contraction'; }
+  if (_fcBtn) {
+    if (activePresetId === 'relaxation') {
+      _fcBtn.style.display = 'none';
+    } else {
+      _fcBtn.style.display = '';
+      _fcBtn.classList.remove('done');
+      _fcBtn.textContent = '1st Contraction';
+    }
+  }
   setRestRing(0);
   showPhase('hold', mode==='free'
     ? 'Stopwatch — Running'
