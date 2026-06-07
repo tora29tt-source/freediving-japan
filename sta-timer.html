@@ -2960,6 +2960,8 @@ function directToLog() {
 }
 
 async function confirmSave() {
+  // noteを先に取得（closeSave()でDOMが隠れる前に）
+  const noteVal = document.getElementById('saveNote') ? document.getElementById('saveNote').value.trim() : '';
   closeSave();
   const holdOnly = holdDives.filter(d => !d.isRest);
   const best = holdOnly.length ? Math.max(...holdOnly.map(d=>d.ms)) : 0;
@@ -2976,7 +2978,7 @@ async function confirmSave() {
     bestTime:   fmt(best),
     avgTime:    fmt(avg),
     minSpo2:    minS.length ? Math.min(...minS) : null,
-    note:       document.getElementById('saveNote') ? document.getElementById('saveNote').value.trim()||null : null,
+    note:       noteVal || null,
     diveLog:    holdOnly.map((d,i)=>({
       set:        i+1,
       disc:       'STA',
@@ -2996,12 +2998,12 @@ async function confirmSave() {
 
   // セッションデータの受け渡し: sessionStorage優先、localStorage fallback
   const dataStr = JSON.stringify(sessionData);
-  let stored = false;
-  try { sessionStorage.setItem('sta_pending_session', dataStr); stored = true; } catch(e) {}
-  try { localStorage.setItem('sta_pending_session', dataStr); stored = true; } catch(e) {}
+  try { sessionStorage.setItem('sta_pending_session', dataStr); } catch(e) {}
+  try { localStorage.setItem('sta_pending_session', dataStr); } catch(e) {}
 
+  // DB保存はバックグラウンドで（遷移をブロックしない）
   if (_user) {
-    const { error } = await _sb.from('training_logs').insert({
+    _sb.from('training_logs').insert({
       user_id:    _user.id,
       date:       sessionData.date,
       discipline: 'STA',
@@ -3009,14 +3011,12 @@ async function confirmSave() {
       notes:      sessionData.note||null,
       is_public:  false,
       data:       sessionData,
-    });
-    if (error) {
-      toast('⚠️ DB保存失敗（ローカルに保存して続行）', true);
-      // DB失敗でも遷移は続行
-    }
+    }).then(function(res) {
+      if (res && res.error) console.warn('DB save failed:', res.error.message);
+    }).catch(function(e) { console.warn('DB save error:', e); });
   }
 
-  // training-log.htmlに遷移（データはlocalStorageで渡す）
+  // すぐに遷移
   window.location.href = 'training-log.html?from=sta-timer';
 }
 
