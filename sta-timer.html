@@ -136,6 +136,42 @@ header {
 }
 .stop-btn.active { background: var(--teal-dim); border-color: var(--teal); color: var(--teal-light); }
 
+/* PRESET */
+.preset-list {
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 8px 16px;
+}
+.preset-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: border-color .15s;
+}
+.preset-card:active { border-color: var(--teal); }
+.preset-card-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px;
+}
+.preset-icon { font-size: 22px; flex-shrink: 0; }
+.preset-info { flex: 1; }
+.preset-name {
+  font-size: 13px; font-weight: 700; color: var(--text);
+  margin-bottom: 2px;
+}
+.preset-desc {
+  font-size: 10px; color: var(--muted); letter-spacing: .03em; line-height: 1.5;
+}
+.preset-tags {
+  display: flex; gap: 5px; padding: 0 14px 10px; flex-wrap: wrap;
+}
+.preset-tag {
+  font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 4px;
+}
+.preset-tag.o2  { color: var(--teal-light); background: var(--teal-dim); }
+.preset-tag.co2 { color: var(--danger);     background: rgba(239,68,68,.1); }
+.preset-tag.info{ color: var(--muted);      background: var(--surface2); }
+
 /* PLAN EDITOR */
 .pm-card {
   background: var(--surface2);
@@ -580,9 +616,9 @@ header {
 
   <!-- MODE TABS -->
   <div class="mode-tabs">
-    <button class="mode-tab active" id="tab-free" onclick="setMode('free')">Stopwatch</button>
-    <button class="mode-tab"        id="tab-o2"   onclick="setMode('o2')">O2 Table</button>
-    <button class="mode-tab"        id="tab-co2"  onclick="setMode('co2')">CO2 Table</button>
+    <button class="mode-tab active" id="tab-free"   onclick="setMode('free')">Stopwatch</button>
+    <button class="mode-tab"        id="tab-table"  onclick="setMode('table')">Table</button>
+    <button class="mode-tab"        id="tab-preset" onclick="setMode('preset')">Preset</button>
   </div>
 
   <!-- CONFIG PANEL -->
@@ -592,94 +628,57 @@ header {
       <span id="cfgToggleArrow">▲</span>
     </button>
     <div id="cfgBody">
-
-    <!-- O2 Table: Hold(manual/auto) → Rest(固定) -->
-    <!-- 順: Hold Stop / Hold Time / Rest Time / Sets / Prep -->
-    <div id="cfg-o2" style="display:none">
-      <div class="cfg-grid">
-        <div class="cfg-item">
-          <span class="cfg-lbl">Hold Stop</span>
-          <div class="cfg-stop-row">
-            <button class="stop-btn active" id="o2-stop-manual" onclick="setCfgStop('o2','manual')">Manual</button>
-            <button class="stop-btn"        id="o2-stop-auto"   onclick="setCfgStop('o2','auto')">Auto</button>
-          </div>
-        </div>
-        <div class="cfg-item" id="o2-auto-row" style="opacity:.35;pointer-events:none">
-          <span class="cfg-lbl">Hold Time</span>
-          <select class="cfg-sel" id="sel-o2Hold" onchange="onSelChange('o2Hold',this.value)">
-          </select>
-        </div>
-        <div class="cfg-item">
-          <span class="cfg-lbl">Rest Time</span>
-          <select class="cfg-sel" id="sel-o2Rest" onchange="onSelChange('o2Rest',this.value)">
-          </select>
-        </div>
-        <div class="cfg-item">
-          <span class="cfg-lbl">Sets</span>
-          <select class="cfg-sel" id="sel-o2Sets" onchange="cfg.o2Sets=parseInt(this.value);renderSetDots()">
-          </select>
-        </div>
-        <div class="cfg-item" style="grid-column:1/-1">
-          <span class="cfg-lbl">ブリーズアップ <span onclick="togglePrepHelp()" style="cursor:pointer;font-size:11px;color:var(--teal);font-weight:600;letter-spacing:0;text-transform:none;background:var(--teal-dim);border-radius:50%;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center">?</span></span>
-          <select class="cfg-sel" id="sel-prep-o2" onchange="cfg.prepSec=parseInt(this.value)">
-          </select>
-        </div>
-      </div>
-      <div id="prepHelpTip" style="display:none;margin-top:6px;padding:7px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-size:10px;color:var(--muted);line-height:1.6">
-        ⓘ 1本目の開始前にのみ適用されます。一時中断から再開した後も同様に適用されます。2本目以降はレスト設定で管理します。
-      </div>
-      <div style="margin-top:8px;display:flex;gap:6px;align-items:center">
-        <button class="btn-sub" id="btnCameraToggle" onclick="onCameraToggle()" style="flex:1;height:30px;font-size:10px;color:var(--muted)">📹 録画：OFF</button>
-        <button class="btn-sub" id="btnCameraReview" onclick="openCameraReview()" style="display:none;flex:1;height:30px;font-size:10px;color:var(--teal-light);border-color:var(--teal)">クリップ確認</button>
-      </div>
-      <button onclick="onCfgStart()" style="margin-top:10px;width:100%;height:40px;border-radius:10px;border:none;background:var(--teal);color:#0b2d45;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;-webkit-tap-highlight-color:transparent">作成</button>
+    <!-- O2/CO2 切り替えセグメント -->
+    <div style="display:flex;gap:4px;margin-bottom:10px">
+      <button class="stop-btn active" id="tbl-seg-o2"  onclick="setTableSub('o2')">O2</button>
+      <button class="stop-btn"        id="tbl-seg-co2" onclick="setTableSub('co2')">CO2</button>
     </div>
 
-    <!-- CO2 Table: Hold(固定) → Rest(manual/auto) -->
-    <!-- 順: Hold Stop / Hold Time / Rest Time / Sets / Prep — O2と完全統一 -->
-    <div id="cfg-co2" style="display:none">
-      <div class="cfg-grid">
-        <div class="cfg-item">
-          <span class="cfg-lbl">Hold Stop</span>
-          <div class="cfg-stop-row">
-            <button class="stop-btn active" id="co2-stop-manual" onclick="setCfgStop('co2','manual')">Manual</button>
-            <button class="stop-btn"        id="co2-stop-auto"   onclick="setCfgStop('co2','auto')">Auto</button>
-          </div>
-        </div>
-        <div class="cfg-item" id="co2-auto-row" style="opacity:.35;pointer-events:none">
-          <span class="cfg-lbl">Hold Time</span>
-          <select class="cfg-sel" id="sel-co2Hold" onchange="onSelChange('co2Hold',this.value)">
-          </select>
-        </div>
-        <div class="cfg-item">
-          <span class="cfg-lbl">Rest Time</span>
-          <select class="cfg-sel" id="sel-co2Rest" onchange="onSelChange('co2Rest',this.value)">
-          </select>
-        </div>
-        <div class="cfg-item">
-          <span class="cfg-lbl">Rest Decrement</span>
-          <select class="cfg-sel" id="sel-co2Decrement" onchange="cfg.co2DecrementSec=parseInt(this.value)">
-          </select>
-        </div>
-        <div class="cfg-item">
-          <span class="cfg-lbl">Sets</span>
-          <select class="cfg-sel" id="sel-co2Sets" onchange="cfg.co2Sets=parseInt(this.value);renderSetDots()">
-          </select>
-        </div>
-        <div class="cfg-item" style="grid-column:1/-1">
-          <span class="cfg-lbl">ブリーズアップ <span onclick="togglePrepHelp()" style="cursor:pointer;font-size:11px;color:var(--teal);font-weight:600;letter-spacing:0;text-transform:none;background:var(--teal-dim);border-radius:50%;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center">?</span></span>
-          <select class="cfg-sel" id="sel-prep-co2" onchange="cfg.prepSec=parseInt(this.value)">
-          </select>
+    <!-- 統合設定グリッド -->
+    <div class="cfg-grid">
+      <div class="cfg-item">
+        <span class="cfg-lbl">Hold Stop</span>
+        <div class="cfg-stop-row">
+          <button class="stop-btn active" id="tbl-stop-hold-manual" onclick="setCfgStop('tbl','holdManual')">Manual</button>
+          <button class="stop-btn"        id="tbl-stop-hold-auto"   onclick="setCfgStop('tbl','holdAuto')">Auto</button>
         </div>
       </div>
-      <div style="margin-top:8px;display:flex;gap:6px;align-items:center">
-        <button class="btn-sub" id="btnCameraToggleCo2" onclick="onCameraToggle()" style="flex:1;height:30px;font-size:10px;color:var(--muted)">📹 録画：OFF</button>
-        <button class="btn-sub" id="btnCameraReviewCo2" onclick="openCameraReview()" style="display:none;flex:1;height:30px;font-size:10px;color:var(--teal-light);border-color:var(--teal)">クリップ確認</button>
+      <div class="cfg-item" id="tbl-hold-time-row" style="opacity:.35;pointer-events:none">
+        <span class="cfg-lbl">Hold Time</span>
+        <select class="cfg-sel" id="sel-tblHold" onchange="onTblSelChange('hold',this.value)"></select>
       </div>
-      <button onclick="onCfgStart()" style="margin-top:10px;width:100%;height:40px;border-radius:10px;border:none;background:var(--teal);color:#0b2d45;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;-webkit-tap-highlight-color:transparent">作成</button>
+      <div class="cfg-item">
+        <span class="cfg-lbl">Rest Time</span>
+        <select class="cfg-sel" id="sel-tblRest" onchange="onTblSelChange('rest',this.value)"></select>
+      </div>
+      <div class="cfg-item" id="tbl-decrement-row" style="visibility:hidden">
+        <span class="cfg-lbl">Decrement</span>
+        <select class="cfg-sel" id="sel-tblDecrement" onchange="onTblSelChange('decrement',this.value)"></select>
+      </div>
+      <div class="cfg-item">
+        <span class="cfg-lbl">Sets</span>
+        <select class="cfg-sel" id="sel-tblSets" onchange="onTblSelChange('sets',this.value)"></select>
+      </div>
+      <div class="cfg-item">
+        <span class="cfg-lbl">ブリーズアップ <span onclick="togglePrepHelp()" style="cursor:pointer;font-size:11px;color:var(--teal);font-weight:600;letter-spacing:0;text-transform:none;background:var(--teal-dim);border-radius:50%;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center">?</span></span>
+        <select class="cfg-sel" id="sel-tblPrep" onchange="cfg.prepSec=parseInt(this.value)"></select>
+      </div>
     </div>
+    <div id="prepHelpTip" style="display:none;margin-top:6px;padding:7px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-size:10px;color:var(--muted);line-height:1.6">
+      ⓘ 1本目の開始前にのみ適用されます。2本目以降はレスト設定で管理します。
+    </div>
+    <div style="margin-top:8px;display:flex;gap:6px;align-items:center">
+      <button class="btn-sub" id="btnCameraToggle" onclick="onCameraToggle()" style="flex:1;height:30px;font-size:10px;color:var(--muted)">📹 録画：OFF</button>
+      <button class="btn-sub" id="btnCameraReview" onclick="openCameraReview()" style="display:none;flex:1;height:30px;font-size:10px;color:var(--teal-light);border-color:var(--teal)">クリップ確認</button>
+    </div>
+    <button onclick="onCfgStart()" style="margin-top:10px;width:100%;height:40px;border-radius:10px;border:none;background:var(--teal);color:#0b2d45;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;-webkit-tap-highlight-color:transparent">作成</button>
 
     </div>
+  </div>
+
+  <!-- PRESET PANEL -->
+  <div id="presetPanel" style="display:none">
+    <div class="preset-list" id="presetList"></div>
   </div>
 
   <!-- CONFIG COMPACT SUMMARY (shown after 作成) -->
@@ -1049,14 +1048,131 @@ function toast(msg, err=false) {
 
 // ── SESSION PLAN ─────────────────────────────────────────
 let sessionPlan = [];
+let planConfirmed = false; // O2/CO2: 「完了」を押すまではリングタップでスタートさせない
+
+// ── PRESETS ──────────────────────────────────────────────
+const PRESETS = [
+  {
+    id: 'o2-basic',
+    name: 'O2 Basic',
+    icon: '🫁',
+    desc: 'Hold Manual・Rest 2:00固定・8セット / 酸素耐性の基礎トレーニング',
+    tags: [{ label: 'O2', cls: 'o2' }, { label: 'Manual Hold', cls: 'info' }, { label: '8 sets', cls: 'info' }],
+    apply: function() {
+      cfg.o2Stop    = 'manual';
+      cfg.o2RestMin = 2; cfg.o2RestSec = 0;
+      cfg.o2Sets    = 8;
+      cfg.prepSec   = 0;
+    },
+    mode: 'o2',
+  },
+  {
+    id: 'co2-basic',
+    name: 'CO2 Basic',
+    icon: '💨',
+    desc: 'Hold 2:00・Rest 2:00→−10秒ずつ・8セット / CO2耐性の基礎トレーニング',
+    tags: [{ label: 'CO2', cls: 'co2' }, { label: 'Decrement −10s', cls: 'info' }, { label: '8 sets', cls: 'info' }],
+    apply: function() {
+      cfg.co2Stop         = 'manual';
+      cfg.co2HoldMin      = 2; cfg.co2HoldSec = 0;
+      cfg.co2RestMin      = 2; cfg.co2RestSec = 0;
+      cfg.co2DecrementSec = 10;
+      cfg.co2Sets         = 8;
+      cfg.prepSec         = 0;
+    },
+    mode: 'co2',
+  },
+];
+
+function renderPresets() {
+  const list = document.getElementById('presetList');
+  if (!list) return;
+  list.innerHTML = '';
+  PRESETS.forEach(function(p) {
+    const card = document.createElement('div');
+    card.className = 'preset-card';
+
+    const header = document.createElement('div');
+    header.className = 'preset-card-header';
+
+    const icon = document.createElement('div');
+    icon.className = 'preset-icon';
+    icon.textContent = p.icon;
+
+    const info = document.createElement('div');
+    info.className = 'preset-info';
+
+    const name = document.createElement('div');
+    name.className = 'preset-name';
+    name.textContent = p.name;
+
+    const desc = document.createElement('div');
+    desc.className = 'preset-desc';
+    desc.textContent = p.desc;
+
+    info.appendChild(name);
+    info.appendChild(desc);
+    header.appendChild(icon);
+    header.appendChild(info);
+    card.appendChild(header);
+
+    const tags = document.createElement('div');
+    tags.className = 'preset-tags';
+    p.tags.forEach(function(t) {
+      const tag = document.createElement('span');
+      tag.className = 'preset-tag ' + t.cls;
+      tag.textContent = t.label;
+      tags.appendChild(tag);
+    });
+    card.appendChild(tags);
+
+    card.addEventListener('click', function() { applyPreset(p); });
+    list.appendChild(card);
+  });
+}
+
+function applyPreset(p) {
+  // 設定を適用してからO2/CO2モードに切り替え、そのままプランモーダルへ
+  p.apply();
+  // タブをO2/CO2に切り替え（presetパネルを隠す）
+  tableSub = p.mode; mode = p.mode;
+  ['free','table','preset'].forEach(function(x) {
+    const t = document.getElementById('tab-'+x);
+    if (t) t.classList.toggle('active', x==='table');
+  });
+  document.getElementById('presetPanel').style.display = 'none';
+  document.getElementById('configPanel').style.display = 'none';
+  const sum = document.getElementById('cfgSummary');
+  if (sum) sum.style.display = 'none';
+  // selectのUI値を再同期
+  const so2H = document.getElementById('sel-o2Hold');
+  const so2R = document.getElementById('sel-o2Rest');
+  const sc2H = document.getElementById('sel-co2Hold');
+  const sc2R = document.getElementById('sel-co2Rest');
+  const sc2D = document.getElementById('sel-co2Decrement');
+  const so2S = document.getElementById('sel-o2Sets');
+  const sc2S = document.getElementById('sel-co2Sets');
+  if (so2H) so2H.value = cfg.o2HoldMin*60+cfg.o2HoldSec;
+  if (so2R) so2R.value = cfg.o2RestMin*60+cfg.o2RestSec;
+  if (sc2H) sc2H.value = cfg.co2HoldMin*60+cfg.co2HoldSec;
+  if (sc2R) sc2R.value = cfg.co2RestMin*60+cfg.co2RestSec;
+  if (sc2D) sc2D.value = cfg.co2DecrementSec;
+  if (so2S) so2S.value = cfg.o2Sets;
+  if (sc2S) sc2S.value = cfg.co2Sets;
+  // ManualボタンのUI同期
+  syncTableUI();
+  // プランを生成してモーダルを開く
+  onCfgStart();
+  toast('📋 ' + p.name + ' を読み込みました');
+}
 
 function buildDefaultPlan() {
-  var n = (mode==='o2') ? cfg.o2Sets : cfg.co2Sets;
+  var n = cfg.tblSets;
   sessionPlan = [];
-  var isManualHold = (mode==='o2' && cfg.o2Stop==='manual') || (mode==='co2' && cfg.co2Stop==='manual');
-  var baseHold = isManualHold ? 0 : ((mode==='o2') ? (cfg.o2HoldMin*60+cfg.o2HoldSec) : (cfg.co2HoldMin*60+cfg.co2HoldSec));
-  var baseRest = (mode==='o2') ? (cfg.o2RestMin*60+cfg.o2RestSec) : (cfg.co2RestMin*60+cfg.co2RestSec);
-  var dec = (mode==='co2') ? (cfg.co2DecrementSec||0) : 0;
+  var isManualHold = cfg.tblHoldStop === 'manual';
+  var baseHold = isManualHold ? 0 : (cfg.tblHoldMin*60+cfg.tblHoldSec);
+  var baseRest = cfg.tblRestMin*60+cfg.tblRestSec;
+  var dec = (tableSub==='co2') ? (cfg.tblDecrementSec||0) : 0;
   for (var i = 0; i < n; i++) {
     sessionPlan.push({ holdSec: baseHold, restSec: Math.max(0, baseRest - dec*i) });
   }
@@ -1079,7 +1195,7 @@ function pmFmt(s) {
 function renderPlanEditor(flashIdx) {
   var list = document.getElementById('planList');
   list.innerHTML = '';
-  var isManualHold = (mode==='o2' && cfg.o2Stop==='manual') || (mode==='co2' && cfg.co2Stop==='manual');
+  var isManualHold = cfg.tblHoldStop === 'manual';
   var n = sessionPlan.length;
 
   for (var i = 0; i < n; i++) {
@@ -1192,6 +1308,7 @@ function insertPlanRow(afterIdx) {
 }
 
 function onCfgStart() {
+  planConfirmed = false;
   buildDefaultPlan();
   document.getElementById('planModalTitle').textContent = mode==='o2' ? 'O2 Table — セッション作成' : 'CO2 Table — セッション作成';
   document.getElementById('planModalSummary').innerHTML = buildCfgSummaryHTML();
@@ -1204,6 +1321,7 @@ function closePlanModal() {
 }
 
 function onPlanDone() {
+  planConfirmed = true;
   document.getElementById('planOverlay').classList.remove('open');
   toggleCfgPanel(true);
   document.getElementById('configPanel').style.display = 'none';
@@ -1214,20 +1332,16 @@ function onPlanDone() {
   renderSetDots();
   var th = document.getElementById('tapHint');
   if (th) th.style.opacity = '1';
+  updateRingStartBtn();
 }
 
 function buildCfgSummaryHTML() {
-  if (mode === 'o2') {
-    var holdStop = cfg.o2Stop==='auto' ? pmFmt(cfg.o2HoldMin*60+cfg.o2HoldSec) : 'Manual';
-    var rest = pmFmt(cfg.o2RestMin*60+cfg.o2RestSec);
-    return '<span style="color:var(--teal-light);font-weight:600">O2</span>&nbsp; Hold '+holdStop+' &nbsp;·&nbsp; Rest <span style="color:var(--success)">'+rest+'</span> &nbsp;·&nbsp; '+cfg.o2Sets+' sets';
-  } else if (mode === 'co2') {
-    var hold = pmFmt(cfg.co2HoldMin*60+cfg.co2HoldSec);
-    var restStop = cfg.co2Stop==='auto' ? pmFmt(cfg.co2RestMin*60+cfg.co2RestSec) : 'Manual';
-    var dec = cfg.co2DecrementSec > 0 ? ' &nbsp;·&nbsp; <span style="color:var(--warm)">−'+cfg.co2DecrementSec+'s/set</span>' : '';
-    return '<span style="color:var(--teal-light);font-weight:600">CO2</span>&nbsp; Hold <span style="color:var(--danger)">'+hold+'</span> &nbsp;·&nbsp; Rest '+restStop+dec+' &nbsp;·&nbsp; '+cfg.co2Sets+' sets';
-  }
-  return '';
+  var sub = tableSub.toUpperCase();
+  var holdStop = cfg.tblHoldStop==='auto' ? pmFmt(cfg.tblHoldMin*60+cfg.tblHoldSec) : 'Manual';
+  var restStop = cfg.tblRestStop==='auto' ? pmFmt(cfg.tblRestMin*60+cfg.tblRestSec) : 'Manual';
+  var restLabel = cfg.tblRestStop==='manual' ? pmFmt(cfg.tblRestMin*60+cfg.tblRestSec) : restStop;
+  var dec = (tableSub==='co2' && cfg.tblDecrementSec>0) ? ' &nbsp;·&nbsp; <span style="color:var(--warm)">−'+cfg.tblDecrementSec+'s/set</span>' : '';
+  return '<span style="color:var(--teal-light);font-weight:600">'+sub+'</span>&nbsp; Hold '+holdStop+' &nbsp;·&nbsp; Rest '+restLabel+dec+' &nbsp;·&nbsp; '+cfg.tblSets+' sets';
 }
 
 function onCfgSummaryTap() {
@@ -1248,50 +1362,82 @@ function toggleCfgPanel(forceClose) {
 // ── MODE & CONFIG ─────────────────────────────────────────
 let mode = 'free'; // free | o2 | co2
 const cfg = {
-  o2RestMin:2,  o2RestSec:0,   // rest固定: 2:00
-  o2HoldMin:1,  o2HoldSec:0,   // holdオート時: 1:00
-  o2Stop: 'manual',
-  o2Sets: 8,
-  co2HoldMin:1, co2HoldSec:30, // hold固定: 1:30
-  co2RestMin:2, co2RestSec:0,  // restオート時: 2:00
-  co2Stop: 'manual',
-  co2Sets: 8,
-  co2DecrementSec: 0,  // Rest decrementなし
-  prepSec: 0,   // カウントダウン開始時間（秒）、0=なし
+  // 統合テーブル設定（tbl prefix）
+  tblHoldMin: 1, tblHoldSec: 0,   // Hold Time (Auto時)
+  tblRestMin: 2, tblRestSec: 0,   // Rest Time
+  tblHoldStop: 'manual',           // 'manual' | 'auto'
+  tblRestStop: 'manual',           // 'manual' | 'auto'
+  tblSets: 8,
+  tblDecrementSec: 0,
+  // 後方互換エイリアス（presetのapply等で参照されるため残す）
+  get o2Stop()  { return cfg.tblHoldStop; }, set o2Stop(v)  { cfg.tblHoldStop = v; },
+  get co2Stop() { return cfg.tblRestStop; }, set co2Stop(v) { cfg.tblRestStop = v; },
+  get o2Sets()  { return cfg.tblSets; },     set o2Sets(v)  { cfg.tblSets = v; },
+  get co2Sets() { return cfg.tblSets; },     set co2Sets(v) { cfg.tblSets = v; },
+  get o2HoldMin()  { return cfg.tblHoldMin; }, set o2HoldMin(v)  { cfg.tblHoldMin = v; },
+  get o2HoldSec()  { return cfg.tblHoldSec; }, set o2HoldSec(v)  { cfg.tblHoldSec = v; },
+  get o2RestMin()  { return cfg.tblRestMin; }, set o2RestMin(v)  { cfg.tblRestMin = v; },
+  get o2RestSec()  { return cfg.tblRestSec; }, set o2RestSec(v)  { cfg.tblRestSec = v; },
+  get co2HoldMin() { return cfg.tblHoldMin; }, set co2HoldMin(v) { cfg.tblHoldMin = v; },
+  get co2HoldSec() { return cfg.tblHoldSec; }, set co2HoldSec(v) { cfg.tblHoldSec = v; },
+  get co2RestMin() { return cfg.tblRestMin; }, set co2RestMin(v) { cfg.tblRestMin = v; },
+  get co2RestSec() { return cfg.tblRestSec; }, set co2RestSec(v) { cfg.tblRestSec = v; },
+  get co2DecrementSec() { return cfg.tblDecrementSec; }, set co2DecrementSec(v) { cfg.tblDecrementSec = v; },
+  prepSec: 0,
 };
 // display values (sec)
 const cfgSec = {
-  o2Rest:  () => cfg.o2RestMin*60 + cfg.o2RestSec,
-  o2Hold:  () => cfg.o2HoldMin*60 + cfg.o2HoldSec,
-  co2Hold: () => cfg.co2HoldMin*60 + cfg.co2HoldSec,
-  co2Rest: () => cfg.co2RestMin*60 + cfg.co2RestSec,
-  sets:    () => mode==='o2' ? cfg.o2Sets : cfg.co2Sets,
+  o2Rest:  () => cfg.tblRestMin*60 + cfg.tblRestSec,
+  o2Hold:  () => cfg.tblHoldMin*60 + cfg.tblHoldSec,
+  co2Hold: () => cfg.tblHoldMin*60 + cfg.tblHoldSec,
+  co2Rest: () => cfg.tblRestMin*60 + cfg.tblRestSec,
+  sets:    () => cfg.tblSets,
 };
 
 function setMode(m) {
   mode = m;
-  ['free','o2','co2'].forEach(x => {
-    document.getElementById('tab-'+x).classList.toggle('active', x===m);
+  planConfirmed = false;
+  ['free','table','preset'].forEach(x => {
+    const t = document.getElementById('tab-'+x);
+    if (t) t.classList.toggle('active', x===m);
   });
   const panel = document.getElementById('configPanel');
-  document.getElementById('cfg-o2').style.display  = m==='o2'  ? '' : 'none';
-  document.getElementById('cfg-co2').style.display = m==='co2' ? '' : 'none';
-  panel.classList.toggle('visible', m!=='free');
-  if (m !== 'free') { cfgOpen = true; toggleCfgPanel(false); }
-  // サマリーをリセット
+  const presetPanel = document.getElementById('presetPanel');
+  if (presetPanel) presetPanel.style.display = m==='preset' ? '' : 'none';
+  panel.classList.toggle('visible', m==='table');
+  if (m === 'table') {
+    cfgOpen = true; toggleCfgPanel(false);
+    document.getElementById('configPanel').style.display = '';
+    syncTableUI();
+  }
+  if (m === 'preset') {
+    renderPresets();
+    panel.style.display = 'none';
+  }
   const sum = document.getElementById('cfgSummary');
   if (sum) sum.style.display = 'none';
-  if (m !== 'free') document.getElementById('configPanel').style.display = '';
-  // Lap/Stopwatchモード切替
+  // preset以外に戻る時はタイマー周りを再表示
+  if (m !== 'preset') {
+    document.querySelector('.phase-banner') && (document.querySelector('.phase-banner').style.display = '');
+    document.querySelector('.stats-row')    && (document.querySelector('.stats-row').style.display    = '');
+    document.querySelector('.controls')     && (document.querySelector('.controls').style.display     = '');
+    const tw = document.getElementById('timerWrap'); if (tw) tw.style.display = '';
+    const sa = document.getElementById('spo2ChartArea'); if (sa) sa.style.display = '';
+  }
+  if (m === 'preset') {
+    document.querySelector('.phase-banner') && (document.querySelector('.phase-banner').style.display = 'none');
+    document.querySelector('.stats-row')    && (document.querySelector('.stats-row').style.display    = 'none');
+    document.querySelector('.controls')     && (document.querySelector('.controls').style.display     = 'none');
+    const tw = document.getElementById('timerWrap'); if (tw) tw.style.display = 'none';
+    const sa = document.getElementById('spo2ChartArea'); if (sa) sa.style.display = 'none';
+  }
   const isSW = m === 'free';
   const _bl = document.getElementById('btnLap'); if(_bl) _bl.style.display = isSW ? '' : 'none';
   document.getElementById('btnNext').style.display = 'none';
   document.getElementById('btnFC').style.display = 'none';
   swLocked = false;
-  document.getElementById('setListWrap').style.display = isSW ? 'none' : 'none'; // 常に非表示、セッション開始時に表示
+  document.getElementById('setListWrap').style.display = 'none';
   document.getElementById('freeLogWrap') && (document.getElementById('freeLogWrap').style.display = 'none');
-  // btnLap/btnNext: startHold/endHoldで制御
-  // 全モードでSTART/CLEAR ALLボタン非表示（リングタップで操作）
   document.getElementById('btnMain').style.display = 'none';
   document.getElementById('btnClearAll').style.display = 'none';
   updateRingStartBtn();
@@ -1300,6 +1446,77 @@ function setMode(m) {
 }
 
 // セレクトの選択肢を生成してセット
+// ── TABLE SUB MODE (o2/co2) ──────────────────────────────
+let tableSub = 'o2'; // 'o2' | 'co2'
+
+function setTableSub(sub) {
+  tableSub = sub;
+  mode = sub; // modeもo2/co2に同期（既存ロジックとの互換）
+  document.getElementById('tbl-seg-o2').classList.toggle('active',  sub==='o2');
+  document.getElementById('tbl-seg-co2').classList.toggle('active', sub==='co2');
+  // CO2のみDecrement行を表示
+  document.getElementById('tbl-decrement-row').style.visibility = sub==='co2' ? 'visible' : 'hidden';
+  // Rest Stopをco2のみManualデフォルト
+  updateTblRestStopRow();
+}
+
+function updateTblRestStopRow() {
+  // Rest Stopのラベル更新（どちらも同じUIで使える）
+}
+
+function syncTableUI() {
+  // セグメントボタン
+  document.getElementById('tbl-seg-o2').classList.toggle('active',  tableSub==='o2');
+  document.getElementById('tbl-seg-co2').classList.toggle('active', tableSub==='co2');
+  mode = tableSub;
+  // Decrement行
+  document.getElementById('tbl-decrement-row').style.visibility = tableSub==='co2' ? 'visible' : 'hidden';
+  // Hold Stop ボタン
+  const hm = cfg.tblHoldStop === 'manual';
+  document.getElementById('tbl-stop-hold-manual').classList.toggle('active', hm);
+  document.getElementById('tbl-stop-hold-auto').classList.toggle('active', !hm);
+  const htr = document.getElementById('tbl-hold-time-row');
+  if (htr) { htr.style.opacity = hm ? '.35' : '1'; htr.style.pointerEvents = hm ? 'none' : 'auto'; }
+  // Rest Stop 廃止 — Rest Timeは常に有効
+  // select値
+  const sh = document.getElementById('sel-tblHold');
+  const sr = document.getElementById('sel-tblRest');
+  const sd = document.getElementById('sel-tblDecrement');
+  const ss = document.getElementById('sel-tblSets');
+  const sp = document.getElementById('sel-tblPrep');
+  function safeSet(sel, val) {
+    if (!sel) return;
+    // 選択肢に存在する値のみセット（Safariエラー対策）
+    const exists = Array.from(sel.options).some(o => parseInt(o.value) === parseInt(val));
+    if (exists) sel.value = val;
+  }
+  safeSet(sh, cfg.tblHoldMin*60+cfg.tblHoldSec);
+  safeSet(sr, cfg.tblRestMin*60+cfg.tblRestSec);
+  safeSet(sd, cfg.tblDecrementSec);
+  safeSet(ss, cfg.tblSets);
+  safeSet(sp, cfg.prepSec);
+}
+
+function setCfgStop(tbl, val) {
+  if (tbl === 'tbl') {
+    if (val === 'holdManual') { cfg.tblHoldStop = 'manual'; }
+    if (val === 'holdAuto')   { cfg.tblHoldStop = 'auto'; }
+    if (val === 'restManual') { cfg.tblRestStop = 'manual'; }
+    if (val === 'restAuto')   { cfg.tblRestStop = 'auto'; }
+    syncTableUI();
+    return;
+  }
+  // 旧互換パスは統合後不要
+}
+
+function onTblSelChange(key, val) {
+  const s = parseInt(val);
+  if (key === 'hold')      { cfg.tblHoldMin = Math.floor(s/60); cfg.tblHoldSec = s%60; }
+  if (key === 'rest')      { cfg.tblRestMin = Math.floor(s/60); cfg.tblRestSec = s%60; }
+  if (key === 'decrement') { cfg.tblDecrementSec = s; }
+  if (key === 'sets')      { cfg.tblSets = s; renderSetDots(); }
+}
+
 function buildTimeOptions(selId, defaultSec) {
   const sel = document.getElementById(selId);
   if (!sel) return;
@@ -1364,15 +1581,12 @@ function buildDecrementOptions(selId, defaultSec) {
   }
 }
 function initSelects() {
-  buildTimeOptions('sel-o2Hold', cfg.o2HoldSec + cfg.o2HoldMin*60);
-  buildTimeOptions('sel-o2Rest', cfg.o2RestSec + cfg.o2RestMin*60);
-  buildSetsOptions('sel-o2Sets', cfg.o2Sets);
-  buildPrepOptions('sel-prep-o2',  0);
-  buildTimeOptions('sel-co2Hold', cfg.co2HoldSec + cfg.co2HoldMin*60);
-  buildTimeOptions('sel-co2Rest', cfg.co2RestSec + cfg.co2RestMin*60);
-  buildDecrementOptions('sel-co2Decrement', cfg.co2DecrementSec);
-  buildSetsOptions('sel-co2Sets', cfg.co2Sets);
-  buildPrepOptions('sel-prep-co2', 0);
+  // 統合テーブル用
+  buildTimeOptions('sel-tblHold', cfg.tblHoldMin*60+cfg.tblHoldSec);
+  buildTimeOptions('sel-tblRest', cfg.tblRestMin*60+cfg.tblRestSec);
+  buildDecrementOptions('sel-tblDecrement', cfg.tblDecrementSec);
+  buildSetsOptions('sel-tblSets', cfg.tblSets);
+  buildPrepOptions('sel-tblPrep', 0);
 }
 function onSelChange(key, val) {
   const sec = parseInt(val);
@@ -1413,22 +1627,27 @@ let spo2Buf   = [];      // current hold spo2 data
 let currentSpo2 = null;
 let countdownSec = 0;    // countdown remaining
 
-function totalSets() { return mode==='o2'?cfg.o2Sets: mode==='co2'?cfg.co2Sets: Infinity; }
+function totalSets() { return (mode==='o2'||mode==='co2') ? cfg.tblSets : Infinity; }
 function holdAutoSec() {
-  if (sessionPlan.length > 0) return planHoldSec(); // planが有効なら優先
-  return mode==='o2' && cfg.o2Stop==='auto' ? cfgSec.o2Hold() : null;
+  if (sessionPlan.length > 0) return planHoldSec();
+  return (mode==='o2'||mode==='co2') && cfg.tblHoldStop==='auto' ? cfgSec.o2Hold() : null;
 }
 function restAutoSec() {
-  if (sessionPlan.length > 0 && mode==='co2' && cfg.co2Stop==='auto') return planRestSec();
-  return mode==='co2' && cfg.co2Stop==='auto' ? cfgSec.co2Rest() : null;
+  return null; // Rest Stopは廃止、restFixedSec/currentRestSecで統一
 }
 function restFixedSec() {
-  if (sessionPlan.length > 0 && mode==='o2') return planRestSec();
-  return mode==='o2' ? cfgSec.o2Rest() : null;
+  // Rest Stopがautoなら restAutoSecが担う、manualならsessionPlanから取得
+  if (sessionPlan.length > 0 && (mode==='o2'||mode==='co2')) return planRestSec();
+  return (mode==='o2'||mode==='co2') ? cfgSec.o2Rest() : null;
+}
+function currentRestSec() {
+  // O2/CO2どちらでも現在セットのrest秒数を返す（manual/auto問わず）
+  if (sessionPlan.length > 0) return planRestSec();
+  return restFixedSec() || restAutoSec() || null;
 }
 function holdFixedSec() {
-  if (sessionPlan.length > 0 && mode==='co2') return planHoldSec();
-  return mode==='co2' ? cfgSec.co2Hold() : null;
+  if (sessionPlan.length > 0 && (mode==='o2'||mode==='co2')) return planHoldSec();
+  return (mode==='o2'||mode==='co2') ? cfgSec.co2Hold() : null;
 }
 
 // ── TIMER LOOP ────────────────────────────────────────────
@@ -1471,14 +1690,20 @@ function tick() {
   if (phase === 'surface') {
     const s = Math.floor(phaseMs / 1000);
     document.getElementById('surfaceNum').textContent = s;
-    // Ring counts up over 15s in green
+    // Ring counts up over 15s
     setRestRing(phaseMs / (15 * 1000));
-    // 裏でレスト残り時間を表示（surface overlayの後ろに透けて見える）
-    const restSec = restFixedSec() || restAutoSec();
+    // surface bar
+    const surfBar = document.getElementById('surfaceBar');
+    if (surfBar) surfBar.style.width = Math.min(100, phaseMs / 150) + '%';
+    // Rest残り時間（O2固定 / CO2 auto / CO2 manual すべて対応）
+    const restSec = currentRestSec();
     if (restSec) {
       const restRemain = Math.max(0, restSec * 1000 - phaseMs);
       document.getElementById('timeMain').textContent = fmt(restRemain);
       document.getElementById('timeMs').textContent = fmtMs(restRemain);
+      // SP overlay下部にRest残り時間を表示
+      const srl = document.getElementById('surfaceRestLbl');
+      if (srl) srl.textContent = 'Rest ' + fmt(restRemain);
       // セットリストのRest残り時間も更新
       const lrt = document.getElementById('liveRestTime');
       if (lrt) lrt.textContent = fmt(restRemain);
@@ -1501,8 +1726,8 @@ function tick() {
         }
       }
     }
-    // 自動停止（O2固定 or CO2オート）
-    const autoSec = restFixedSec() || restAutoSec();
+    // 自動停止（O2固定 / CO2 auto / CO2 manualすべて対応）
+    const autoSec = currentRestSec();
     if (autoSec) {
       const remainingRest = Math.max(0, autoSec * 1000 - phaseMs);
       checkAnnouncements(Math.floor(remainingRest / 1000));
@@ -1680,9 +1905,8 @@ function startRestFromSurface(alreadyElapsedMs) {
   phaseStart = performance.now() - alreadyElapsedMs;
   phaseMs = alreadyElapsedMs;
   resetAnnouncer();
-  // サーフェス中に経過した時間分のアナウンスを発火済みとしてスキップ
-  // （例：restSec=120, alreadyElapsed=15s → 残り105s → 120sのアナウンスはスキップ）
-  const fixedSec = restFixedSec() || restAutoSec();
+  // O2/CO2 manual/auto すべて対応
+  const fixedSec = currentRestSec();
   if (fixedSec) {
     const alreadyPassedRemaining = fixedSec - Math.floor(alreadyElapsedMs / 1000);
     for (const a of AIDA_ANNOUNCEMENTS) {
@@ -1758,7 +1982,7 @@ function updateHoldDisplay(ms) {
 
 function updateRestDisplay(ms) {
   if (mode !== 'free') ringHold.style.stroke = 'var(--success)';
-  const fixedSec = restFixedSec() || restAutoSec();
+  const fixedSec = currentRestSec();
   if (fixedSec) {
     const remain = Math.max(0, fixedSec*1000 - ms);
     document.getElementById('timeMain').textContent = fmt(remain);
@@ -1788,6 +2012,10 @@ function setBtnMain(cls, label) {
 function onMainBtn() {
   if (phase === 'idle') {
     if (mode === 'free' && swLocked) return;
+    if ((mode === 'o2' || mode === 'co2') && !planConfirmed) {
+      toast('「作成」からセッションを作成してください', true);
+      return;
+    }
     // iOS: タップ時にSpeech APIをアンロック
     if (_synth) {
       const u = new SpeechSynthesisUtterance('');
@@ -1801,9 +2029,6 @@ function onMainBtn() {
   } else if (phase === 'surface') {
     // Surface Protocol中はタップ無効
     return;
-  } else if (phase === 'rest') {
-    // CO2 manual: 休憩手動終了
-    if (mode === 'co2' && cfg.co2Stop === 'manual') endRest();
   } else if (phase === 'done') {
     openSave();
   }
@@ -1823,8 +2048,8 @@ function onReset() {
   document.getElementById('setListWrap').style.display = 'none';
   document.getElementById('spo2Row').classList.add('hidden');
   document.getElementById('spo2ChartArea').classList.remove('visible');
-  showPhase('', mode==='o2'?'O2 Table':mode==='co2'?'CO2 Table':'Stopwatch');
-  if (mode !== 'free') {
+  showPhase('', (mode==='o2'||mode==='co2') ? (tableSub.toUpperCase()+' Table') : 'Stopwatch');
+  if (mode === 'o2' || mode === 'co2') {
     cfgOpen = true; toggleCfgPanel(false);
     document.getElementById('configPanel').style.display = '';
     const sum = document.getElementById('cfgSummary');
@@ -1939,11 +2164,13 @@ function renderUnifiedList() {
 
       el.className = 'set-row done';
       el.style.cssText = 'flex-direction:column;align-items:stretch;gap:2px;padding:4px 10px;opacity:.55;border-color:transparent;background:var(--surface2)';
+      const fcTag = d.fc != null
+        ? `<span class="fc-tag">1st ${fmt(d.fc)}</span>` : '';
       el.innerHTML = `
         <div style="display:flex;align-items:center;gap:6px">
           <span class="set-n">#${i+1}</span>
           <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--danger);min-width:22px;flex-shrink:0">Hold</span>
-          <span style="flex:1;font-size:11px;color:var(--muted)">${spo2Tag}</span>
+          <span style="flex:1;font-size:11px;color:var(--muted)">${fcTag}${spo2Tag}</span>
           <span style="font-size:14px;font-variant-numeric:tabular-nums;color:var(--teal);font-weight:500">${fmt(d.ms)}</span>
         </div>
         ${hasRest ? `
@@ -2019,7 +2246,7 @@ function renderUnifiedList() {
       // ── 未着手行（pending）─────────────────────────────
       // セッション開始前 → セット計画をテキストで表示（select編集は不要）
       const plan = sessionPlan[i];
-      const isManualHold = (mode==='o2'&&cfg.o2Stop==='manual')||(mode==='co2'&&cfg.co2Stop==='manual');
+      const isManualHold = cfg.tblHoldStop === 'manual';
       const holdSec = plan ? plan.holdSec : 0;
       const restSec = plan ? plan.restSec : 0;
       const holdLabel = (isManualHold && holdSec === 0) ? 'Manual' : fmt(holdSec * 1000);
@@ -2168,6 +2395,8 @@ function updateRingStartBtn() {
   if (!el) return;
   const nb = document.getElementById('btnNext');
   const nextVisible = nb && nb.style.display !== 'none';
+  const locked = (mode==='o2' || mode==='co2') && !planConfirmed;
+  el.textContent = locked ? '「作成」から開始' : 'TAP TO START';
   el.style.opacity = (phase==='idle' && !nextVisible) ? '1' : '0';
 }
 
@@ -2821,12 +3050,9 @@ function downloadAllClips() {
 }
 
 initSelects();
-// O2/CO2デフォルトをmanualに
-setCfgStop('o2','manual');
-setCfgStop('co2','manual');
 initLiveChart();
 // 初期モード設定（UIを確実に初期化）
-setMode('free');
+tableSub = 'o2'; setMode('free');
 </script>
 </body>
 </html>
