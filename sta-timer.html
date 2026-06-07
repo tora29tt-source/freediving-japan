@@ -3008,8 +3008,8 @@ async function confirmSave() {
       data:       sessionData,
     });
     if (error) {
-      toast('⚠️ DB保存失敗', true);
-      return;
+      toast('⚠️ DB保存失敗（ローカルに保存して続行）', true);
+      // DB失敗でも遷移は続行
     }
   }
 
