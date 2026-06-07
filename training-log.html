@@ -2822,6 +2822,28 @@ function lopts(u){return{responsive:true,plugins:{legend:{display:false}},scales
 
 // ===== TOAST =====
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+
+
+// ===== INIT =====
+document.getElementById('f-date').value = today();
+updateDiveNumLabel();
+document.querySelectorAll('#disc-chips .chip').forEach(c => {
+  c.style.display = ['CWT','CWTB','CNF','FIM'].includes(c.textContent) ? '' : 'none';
+});
+updateDistLabels();
+
+// 認証＋データ読み込み（localStorageから直接読み込み）
+;(async () => {
+  try {
+    const raw = localStorage.getItem('fj_v2') || sessionStorage.getItem('fj_v2') || '[]';
+    sessions = JSON.parse(raw);
+  } catch(e) {
+    sessions = [];
+  }
+  renderList();
+  renderDash();
+})();
+
 // sta-timerからのデータ受け取り
 (function() {
   try {
@@ -2837,7 +2859,7 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
     try { localStorage.removeItem('sta_pending_session'); } catch(e) {}
     if (!d.diveLog || !d.diveLog.length) return;
 
-    // ページ初期化後に実行するため少し遅延
+    // INIT完了後に実行
     setTimeout(function() {
       // 1. 環境: sta-timerの設定に合わせる
       var envTarget = (d.env === 'pool') ? 2 : 3; // 2=プール, 3=ドライ
@@ -2847,14 +2869,19 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
       // 2. 日付
       if (d.date) document.getElementById('f-date').value = d.date;
 
-      // 3. 種目: STA を選択
+      // 3. 種目: STAチップを強制表示してクリック
+      document.querySelectorAll('#disc-chips .chip').forEach(function(c) {
+        c.style.display = ''; // 全部一旦表示
+      });
       document.querySelectorAll('#disc-chips .chip').forEach(function(c) {
         if (c.dataset.disc === 'STA') c.click();
       });
 
-      // 4. インターバルモードに切り替え
-      var ivBtn = document.getElementById('mode-interval');
-      if (ivBtn) ivBtn.click();
+      // 4. インターバルモードに切り替え（STAクリック後に少し待つ）
+      setTimeout(function() {
+        var ivBtn = document.getElementById('mode-interval');
+        if (ivBtn) ivBtn.click();
+      }, 50);
 
       // 5. 本数をセット
       buildSetsSelect('f-iv-sets', d.diveLog.length);
@@ -2886,7 +2913,7 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
       if (holdSel && firstHoldSec) holdSel.value = firstHoldSec;
 
       // 8. テーブルを描画してから各行にデータを流し込む
-      renderIvTable();
+      setTimeout(function() { renderIvTable(); }, 20);
       setTimeout(function() {
         var rows = document.querySelectorAll('#iv-sets-table tr[data-row]');
         rows.forEach(function(tr, i) {
@@ -2920,26 +2947,6 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
       }, 100);
     }, 200);
   } catch(e) { console.error('sta-timer import error:', e); }
-})();
-
-// ===== INIT =====
-document.getElementById('f-date').value = today();
-updateDiveNumLabel();
-document.querySelectorAll('#disc-chips .chip').forEach(c => {
-  c.style.display = ['CWT','CWTB','CNF','FIM'].includes(c.textContent) ? '' : 'none';
-});
-updateDistLabels();
-
-// 認証＋データ読み込み（localStorageから直接読み込み）
-;(async () => {
-  try {
-    const raw = localStorage.getItem('fj_v2') || sessionStorage.getItem('fj_v2') || '[]';
-    sessions = JSON.parse(raw);
-  } catch(e) {
-    sessions = [];
-  }
-  renderList();
-  renderDash();
 })();
 </script>
 </body>

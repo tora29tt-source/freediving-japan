@@ -2255,6 +2255,7 @@ function onReset() {
   document.getElementById('spo2Row').classList.add('hidden');
   document.getElementById('spo2ChartArea').classList.remove('visible');
   showPhase('', (mode==='o2'||mode==='co2') ? (tableSub.toUpperCase()+' Table') : 'Stopwatch');
+  sessionPlan = []; // モード切替時は常にリセット
   if (mode === 'o2' || mode === 'co2') {
     cfgOpen = true; toggleCfgPanel(false);
     document.getElementById('configPanel').style.display = '';
