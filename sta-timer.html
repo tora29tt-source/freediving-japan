@@ -142,6 +142,7 @@ header {
   border: 1px solid var(--border);
   border-radius: 12px;
   overflow: hidden;
+  flex: 0 0 auto;
 }
 .pm-num {
   background: var(--surface3);
@@ -160,6 +161,7 @@ header {
 .pm-row {
   display: flex; align-items: center;
   padding: 10px 12px; gap: 10px;
+  min-height: 60px;
 }
 .pm-row + .pm-row { border-top: 1px solid var(--border); }
 .pm-label {
@@ -844,7 +846,7 @@ header {
   <div class="sheet" style="max-height:92vh;display:flex;flex-direction:column;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))">
     <div class="sheet-title" id="planModalTitle">セッション作成</div>
     <div id="planModalSummary" style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:10px;font-variant-numeric:tabular-nums"></div>
-    <div id="planList" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-right:2px"></div>
+    <div id="planList" style="flex:1 1 auto;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-right:2px"></div>
     <div style="height:14px;flex-shrink:0"></div>
     <div class="sheet-btns">
       <button class="sheet-btn cancel" onclick="closePlanModal()">キャンセル</button>
