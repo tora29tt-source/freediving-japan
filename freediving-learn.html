@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>フリーダイビングを学ぶ — コース管理</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&display=swap');
+
+  :root {
+    --bg: #060d14;
+    --surface: #0d1e2b;
+    --surface2: #122433;
+    --surface3: #0a1823;
+    --border: rgba(46,196,182,0.15);
+    --teal: #2ec4b6;
+    --teal-dim: rgba(46,196,182,0.6);
+    --teal-glow: rgba(46,196,182,0.08);
+    --text: #e8f4f8;
+    --text-muted: #7a9aaa;
+    --warm: #f97316;
+    --gold: #f4c430;
+
+    --c-breath: #2ec4b6;
+    --c-ear: #7c9ef8;
+    --c-depth: #c084fc;
+    --c-comp: #fb7185;
+    --c-film: #fbbf24;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 50% 0%, rgba(14,61,92,0.4) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 80% 100%, rgba(46,196,182,0.04) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 16px 80px;
+  }
+
+  header {
+    padding: 36px 0 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+
+  .header-label {
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--teal);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    opacity: 0.7;
+  }
+
+  .header-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px;
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .header-title span { color: var(--teal); font-style: italic; }
+
+  .header-meta {
+    margin-top: 10px;
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .summary-bar {
+    display: flex;
+    gap: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+
+  .summary-item {
+    flex: 1;
+    text-align: center;
+    padding: 12px 8px;
+    border-right: 1px solid var(--border);
+  }
+  .summary-item:last-child { border-right: none; }
+  .summary-num { font-family: 'DM Serif Display', serif; font-size: 22px; line-height: 1; }
+  .summary-label { font-size: 9px; color: var(--text-muted); margin-top: 3px; letter-spacing: 0.05em; }
+
+  .group-section { margin-bottom: 28px; }
+
+  .group-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 0 2px;
+  }
+
+  .group-bar { width: 3px; height: 18px; border-radius: 2px; flex-shrink: 0; }
+  .group-title { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+  .group-count { font-size: 10px; color: var(--text-muted); margin-left: auto; }
+
+  .group-progress {
+    height: 2px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .group-progress-fill { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
+
+  .courses-list { display: flex; flex-direction: column; gap: 6px; }
+
+  .course-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .course-card:hover { border-color: rgba(255,255,255,0.15); }
+  .course-card.expanded { border-color: rgba(255,255,255,0.18); }
+
+  .course-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 14px;
+  }
+
+  .course-accent { width: 2px; height: 28px; border-radius: 2px; flex-shrink: 0; opacity: 0.7; }
+
+  .course-info { flex: 1; min-width: 0; }
+
+  .course-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.3;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .course-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  .tag {
+    font-size: 9px;
+    padding: 2px 7px;
+    border-radius: 8px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+
+  .tag-instructor { background: rgba(249,115,22,0.1); color: var(--warm); border: 1px solid rgba(249,115,22,0.2); }
+  .tag-price { background: rgba(244,196,48,0.08); color: var(--gold); border: 1px solid rgba(244,196,48,0.18); }
+  .tag-target { background: rgba(255,255,255,0.04); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.08); }
+
+  .course-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; }
+  .status-done { background: var(--teal); box-shadow: 0 0 5px var(--teal); }
+  .status-wip { background: var(--warm); box-shadow: 0 0 5px var(--warm); }
+  .status-todo { background: var(--text-muted); opacity: 0.3; }
+
+  .chevron { color: var(--text-muted); font-size: 10px; transition: transform 0.2s; opacity: 0.6; }
+  .course-card.expanded .chevron { transform: rotate(180deg); }
+
+  .course-body { display: none; border-top: 1px solid var(--border); }
+  .course-card.expanded .course-body { display: block; }
+
+  .course-body-inner {
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .section-label {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 7px;
+    opacity: 0.8;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 7px;
+  }
+
+  /* ── チャプター編集 UI ── */
+  .chapters { display: flex; flex-direction: column; gap: 3px; }
+
+  .chapter-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    padding: 7px 10px;
+    border-radius: 5px;
+    background: var(--surface2);
+    font-size: 11px;
+    line-height: 1.5;
+    transition: background 0.15s;
+  }
+
+  .chapter-item:hover { background: var(--surface3); }
+
+  .chapter-num {
+    color: var(--text-muted);
+    font-size: 9px;
+    min-width: 14px;
+    padding-top: 5px;
+    opacity: 0.7;
+    flex-shrink: 0;
+  }
+
+  .chapter-content { flex: 1; min-width: 0; }
+
+  /* 表示モード */
+  .chapter-view { display: flex; flex-direction: column; gap: 2px; }
+  .chapter-text { color: var(--text); }
+  .chapter-sub { color: var(--text-muted); font-size: 10px; line-height: 1.4; }
+
+  /* チャプター操作ボタン群 */
+  .chapter-controls {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .chapter-item:hover .chapter-controls { opacity: 1; }
+
+  .ctrl-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.12s;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .ctrl-btn:hover { border-color: var(--teal); color: var(--teal); background: var(--teal-glow); }
+  .ctrl-btn.del:hover { border-color: #fb7185; color: #fb7185; background: rgba(251,113,133,0.08); }
+  .ctrl-btn.edit-active { border-color: var(--teal); color: var(--teal); background: var(--teal-glow); }
+
+  /* チャプター追加ボタン */
+  .add-chapter-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 10px;
+    border-radius: 5px;
+    border: 1px dashed rgba(46,196,182,0.2);
+    background: transparent;
+    color: var(--teal);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 11px;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.15s;
+    opacity: 0.6;
+    margin-top: 4px;
+  }
+  .add-chapter-btn:hover { background: var(--teal-glow); opacity: 1; border-color: var(--teal-dim); }
+
+  /* メモ */
+  .memo-area {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 11px;
+    padding: 9px 11px;
+    resize: vertical;
+    min-height: 60px;
+    line-height: 1.6;
+    transition: border-color 0.2s;
+  }
+  .memo-area:focus { outline: none; border-color: var(--teal-dim); }
+  .memo-area::placeholder { color: var(--text-muted); opacity: 0.4; }
+
+  /* ステータス */
+  .status-row { display: flex; gap: 7px; flex-wrap: wrap; }
+
+  .status-btn {
+    padding: 4px 11px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 10px;
+    font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .status-btn:hover { border-color: var(--teal); color: var(--teal); }
+  .status-btn.active-done { border-color: var(--teal); color: var(--teal); background: var(--teal-glow); }
+  .status-btn.active-wip { border-color: var(--warm); color: var(--warm); background: rgba(249,115,22,0.08); }
+  .status-btn.active-todo { border-color: rgba(255,255,255,0.15); color: var(--text-muted); }
+
+  /* 追加ボタン */
+  .add-btn {
+    width: 100%;
+    padding: 13px;
+    border: 1px dashed rgba(46,196,182,0.25);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--teal);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+    opacity: 0.7;
+  }
+  .add-btn:hover { background: var(--teal-glow); opacity: 1; border-color: var(--teal-dim); }
+
+  /* チャプター編集モーダル */
+  .chap-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    align-items: flex-end;
+  }
+  .chap-modal-overlay.open { display: flex; }
+
+  .chap-modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--teal-dim);
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 0 0 env(safe-area-inset-bottom, 20px);
+    animation: slideUp 0.22s ease;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+
+  .chap-modal-handle {
+    width: 36px;
+    height: 4px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 2px;
+    margin: 12px auto 0;
+  }
+
+  .chap-modal-inner { padding: 18px 20px 32px; display: flex; flex-direction: column; gap: 16px; }
+
+  .chap-modal-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+
+  .chap-modal-title-group { display: flex; flex-direction: column; gap: 3px; }
+
+  .chap-modal-eyebrow {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--teal);
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+
+  .chap-modal-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px;
+    color: var(--text);
+  }
+
+  .chap-modal-close {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .chap-modal-close:hover { border-color: var(--teal); color: var(--teal); }
+
+  .chap-field { display: flex; flex-direction: column; gap: 6px; }
+
+  .chap-field-label {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  .chap-field input,
+  .chap-field textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 15px;
+    padding: 12px 14px;
+    width: 100%;
+    transition: border-color 0.15s;
+    line-height: 1.5;
+  }
+  .chap-field input:focus,
+  .chap-field textarea:focus { outline: none; border-color: var(--teal-dim); }
+  .chap-field textarea { resize: vertical; min-height: 90px; font-size: 13px; }
+
+  .chap-modal-actions { display: flex; gap: 10px; }
+
+  .chap-btn-save {
+    flex: 1;
+    padding: 14px;
+    background: var(--teal);
+    color: var(--bg);
+    border: none;
+    border-radius: 10px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .chap-btn-save:hover { opacity: 0.85; }
+
+  .chap-btn-delete {
+    padding: 14px 16px;
+    background: rgba(251,113,133,0.08);
+    color: #fb7185;
+    border: 1px solid rgba(251,113,133,0.25);
+    border-radius: 10px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .chap-btn-delete:hover { background: rgba(251,113,133,0.15); }
+
+  .chap-move-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .chap-btn-move {
+    flex: 1;
+    padding: 9px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: all 0.15s;
+  }
+  .chap-btn-move:hover:not(:disabled) { border-color: var(--teal); color: var(--teal); }
+  .chap-btn-move:disabled { opacity: 0.2; pointer-events: none; }
+
+  /* コースモーダル */
+  .course-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    align-items: flex-end;
+  }
+  .course-modal-overlay.open { display: flex; }
+
+  .course-modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--teal-dim);
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    max-height: 88vh;
+    overflow-y: auto;
+    padding: 0 0 env(safe-area-inset-bottom, 24px);
+    animation: slideUp 0.22s ease;
+  }
+
+  .course-modal-handle {
+    width: 36px;
+    height: 4px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 2px;
+    margin: 12px auto 0;
+  }
+
+  .course-modal-inner {
+    padding: 20px 20px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .course-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .course-modal-eyebrow {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--teal);
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-bottom: 4px;
+  }
+
+  .course-modal-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 17px;
+    color: var(--text);
+  }
+
+  .course-modal-close {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .course-modal-close:hover { border-color: var(--teal); color: var(--teal); }
+
+  .course-field { display: flex; flex-direction: column; gap: 7px; }
+
+  .course-field-label {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  .course-field input,
+  .course-field select,
+  .course-field textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 16px;
+    padding: 13px 15px;
+    width: 100%;
+    transition: border-color 0.15s;
+    line-height: 1.5;
+    -webkit-appearance: none;
+  }
+  .course-field input:focus,
+  .course-field select:focus,
+  .course-field textarea:focus { outline: none; border-color: var(--teal-dim); }
+  .course-field select option { background: var(--surface2); }
+  .course-field textarea { resize: vertical; min-height: 80px; font-size: 14px; }
+
+  .course-modal-status-row { display: flex; gap: 8px; }
+
+  .course-modal-status-btn {
+    flex: 1;
+    padding: 11px 6px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+  }
+  .course-modal-status-btn.active-todo { border-color: rgba(255,255,255,0.2); color: var(--text); background: rgba(255,255,255,0.05); }
+  .course-modal-status-btn.active-wip  { border-color: var(--warm); color: var(--warm); background: rgba(249,115,22,0.08); }
+  .course-modal-status-btn.active-done { border-color: var(--teal); color: var(--teal); background: var(--teal-glow); }
+
+  .course-modal-actions { display: flex; gap: 10px; margin-top: 4px; }
+
+  .course-btn-save {
+    flex: 1;
+    padding: 15px;
+    background: var(--teal);
+    color: var(--bg);
+    border: none;
+    border-radius: 12px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .course-btn-save:hover { opacity: 0.85; }
+
+  .course-btn-delete {
+    padding: 15px 18px;
+    background: rgba(251,113,133,0.08);
+    color: #fb7185;
+    border: 1px solid rgba(251,113,133,0.25);
+    border-radius: 12px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .course-btn-delete:hover { background: rgba(251,113,133,0.15); }
+
+  /* コース追加モーダル（既存） */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 100;
+    align-items: flex-end;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px 16px 0 0;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 22px 18px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+  }
+
+  .modal-title { font-family: 'DM Serif Display', serif; font-size: 17px; color: var(--text); }
+
+  .modal input, .modal select, .modal textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    padding: 9px 11px;
+  }
+  .modal input:focus, .modal select:focus, .modal textarea:focus {
+    outline: none;
+    border-color: var(--teal-dim);
+  }
+  .modal select option { background: var(--surface2); }
+  .modal-label { font-size: 10px; color: var(--text-muted); margin-bottom: 4px; }
+  .modal-field { display: flex; flex-direction: column; }
+  .modal-actions { display: flex; gap: 9px; margin-top: 4px; }
+
+  .btn-primary {
+    flex: 1;
+    padding: 12px;
+    background: var(--teal);
+    color: var(--bg);
+    border: none;
+    border-radius: 8px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .btn-cancel {
+    padding: 12px 18px;
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="header-label">Freediving Japan</div>
+    <div class="header-title">フリーダイビングを<span>学ぶ</span></div>
+    <div class="header-meta">
+      <span>📚 コース管理ワークスペース</span>
+      <span id="last-updated">—</span>
+    </div>
+  </header>
+
+  <div class="summary-bar">
+    <div class="summary-item">
+      <div class="summary-num" id="sum-total" style="color:var(--text)">0</div>
+      <div class="summary-label">総コース数</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-num" id="sum-done" style="color:var(--teal)">0</div>
+      <div class="summary-label">構成完了</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-num" id="sum-wip" style="color:var(--warm)">0</div>
+      <div class="summary-label">作業中</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-num" id="sum-todo" style="color:var(--text-muted)">0</div>
+      <div class="summary-label">未着手</div>
+    </div>
+  </div>
+
+  <div id="groups-container"></div>
+  <button class="add-btn" onclick="openModal()">＋ コースを追加</button>
+</div>
+
+<!-- コース編集モーダル -->
+<div class="course-modal-overlay" id="course-edit-modal" onclick="closeCourseModalOutside(event)">
+  <div class="course-modal">
+    <div class="course-modal-handle"></div>
+    <div class="course-modal-inner">
+      <div class="course-modal-header">
+        <div>
+          <div class="course-modal-eyebrow" id="cem-eyebrow">コースを編集</div>
+          <div class="course-modal-title" id="cem-title">—</div>
+        </div>
+        <button class="course-modal-close" onclick="closeCourseModal()">✕</button>
+      </div>
+
+      <div class="course-field">
+        <div class="course-field-label">コース名</div>
+        <input id="cem-name" type="text" placeholder="コース名">
+      </div>
+
+      <div class="course-field">
+        <div class="course-field-label">グループ</div>
+        <select id="cem-group">
+          <option value="breath">🫁 息止め系</option>
+          <option value="ear">👂 耳抜き系</option>
+          <option value="depth">🏊 競技デプス／ダイナミック系</option>
+          <option value="comp">🏆 競技種目系</option>
+          <option value="film">🎬 水中撮影系</option>
+        </select>
+      </div>
+
+      <div class="course-field">
+        <div class="course-field-label">講師</div>
+        <input id="cem-instructor" type="text" placeholder="講師名">
+      </div>
+
+      <div class="course-field">
+        <div class="course-field-label">価格</div>
+        <input id="cem-price" type="text" placeholder="例：¥5,000">
+      </div>
+
+      <div class="course-field">
+        <div class="course-field-label">対象</div>
+        <input id="cem-target" type="text" placeholder="例：初心者〜20m">
+      </div>
+
+      <div class="course-field">
+        <div class="course-field-label">ステータス</div>
+        <div class="course-modal-status-row">
+          <button class="course-modal-status-btn" id="cem-st-todo" onclick="cemSetStatus('todo')">未着手</button>
+          <button class="course-modal-status-btn" id="cem-st-wip"  onclick="cemSetStatus('wip')">作業中</button>
+          <button class="course-modal-status-btn" id="cem-st-done" onclick="cemSetStatus('done')">構成完了</button>
+        </div>
+      </div>
+
+      <div class="course-field">
+        <div class="course-field-label">メモ</div>
+        <textarea id="cem-memo" placeholder="構成メモ・撮影メモ・決定事項など..."></textarea>
+      </div>
+
+      <div class="course-modal-actions">
+        <button class="course-btn-save" onclick="saveCourseModal()">保存</button>
+        <button class="course-btn-delete" onclick="deleteCourseModal()">削除</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- チャプター編集モーダル -->
+<div class="chap-modal-overlay" id="chap-modal" onclick="closeChapModalOutside(event)">
+  <div class="chap-modal">
+    <div class="chap-modal-handle"></div>
+    <div class="chap-modal-inner">
+      <div class="chap-modal-header">
+        <div class="chap-modal-title-group">
+          <div class="chap-modal-eyebrow" id="chap-modal-eyebrow">チャプター編集</div>
+          <div class="chap-modal-title" id="chap-modal-title">—</div>
+        </div>
+        <button class="chap-modal-close" onclick="closeChapModal()">✕</button>
+      </div>
+
+      <div class="chap-field">
+        <div class="chap-field-label">タイトル</div>
+        <input id="chap-input-title" type="text" placeholder="チャプタータイトルを入力">
+      </div>
+
+      <div class="chap-field">
+        <div class="chap-field-label">サブテキスト（内容メモ）</div>
+        <textarea id="chap-input-sub" placeholder="収録内容・ポイント・研究データなど..."></textarea>
+      </div>
+
+      <div>
+        <div class="chap-field-label" style="margin-bottom:8px;">並び替え</div>
+        <div class="chap-move-row">
+          <button class="chap-btn-move" id="chap-btn-up" onclick="chapModalMove(-1)">↑ 上へ移動</button>
+          <button class="chap-btn-move" id="chap-btn-down" onclick="chapModalMove(1)">↓ 下へ移動</button>
+        </div>
+      </div>
+
+      <div class="chap-modal-actions">
+        <button class="chap-btn-save" onclick="saveChapModal()">保存</button>
+        <button class="chap-btn-delete" onclick="deleteChapModal()">削除</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-title">コースを追加</div>
+    <div class="modal-field">
+      <div class="modal-label">コース名</div>
+      <input id="new-name" type="text" placeholder="例：耳抜き_基礎完全講座">
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">グループ</div>
+      <select id="new-group">
+        <option value="breath">息止め系</option>
+        <option value="ear">耳抜き系</option>
+        <option value="depth">競技デプス／ダイナミック系</option>
+        <option value="comp">競技種目系</option>
+        <option value="film">水中撮影系</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">講師</div>
+      <input id="new-instructor" type="text" placeholder="例：こうよう">
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">価格</div>
+      <input id="new-price" type="text" placeholder="例：¥5,000">
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">対象</div>
+      <input id="new-target" type="text" placeholder="例：初心者〜20m">
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">メモ</div>
+      <textarea id="new-memo" placeholder="構成メモ・撮影メモなど" rows="3"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">キャンセル</button>
+      <button class="btn-primary" onclick="addCourse()">追加</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const GROUPS = [
+  { key: 'breath', label: '息止め系',               color: 'var(--c-breath)', emoji: '🫁' },
+  { key: 'ear',    label: '耳抜き系',               color: 'var(--c-ear)',    emoji: '👂' },
+  { key: 'depth',  label: '競技デプス／ダイナミック系', color: 'var(--c-depth)', emoji: '🏊' },
+  { key: 'comp',   label: '競技種目系',              color: 'var(--c-comp)',   emoji: '🏆' },
+  { key: 'film',   label: '水中撮影系',              color: 'var(--c-film)',   emoji: '🎬' },
+];
+
+const INITIAL = [
+  { id:1, group:'ear', name:'耳抜き_基礎完全講座', instructor:'こうよう', target:'初心者〜20m', price:'¥5,000', status:'todo',
+    chapters:[
+      {title:'耳抜きの仕組み', sub:'鼓膜・耳管・圧平衡の基礎'},
+      {title:'よくある失敗パターン', sub:'無理に潜る・慌てるなど'},
+      {title:'Valsalva / Frenzel の違い', sub:'初心者はまずValsalvaから'},
+      {title:'陸上練習法', sub:'鼻をつまんで試す・鏡で確認'},
+      {title:'水中での実践', sub:'5m→10m→20mへのロードマップ'},
+    ], memo:'' },
+  { id:2, group:'ear', name:'耳抜き_中級講座', instructor:'こうよう', target:'20m〜60m', price:'¥8,000', status:'todo',
+    chapters:[
+      {title:'Frenzel マスター', sub:'舌・喉・顎の連動'},
+      {title:'マウスフィル基礎', sub:'40m以深への準備'},
+      {title:'ハンズフリー Frenzel', sub:'ハーネスなし・下降中の実践'},
+    ], memo:'' },
+  { id:3, group:'ear', name:'耳抜き_上級マスター講座', instructor:'花子', target:'60m以上', price:'¥12,000', status:'todo',
+    chapters:[
+      {title:'マウスフィル完全習得', sub:'チャージ深度・ファクター設計'},
+      {title:'スクイズ対策', sub:'肺スクイズ・耳スクイズの予防'},
+    ], memo:'' },
+  { id:4, group:'breath', name:'息止め_入門講座', instructor:'寺嶋', target:'完全初心者・魚突き・スキンダイビング層', price:'¥5,000', status:'done',
+    chapters:[
+      {title:'Ch0：なぜ"人から学ぶ"のか【最重要・冒頭】', sub:'AI時代でも安全は独学できない／ブラックアウト=サイレントキラー（前兆なし・40歳未満男性に多い）／訓練されてないバディは独りと同じ／ワンアップワンダウン／浮上後30秒。→近くのインストラクターへ導線'},
+      {title:'Ch1：息止めのロジック', sub:'タンク×燃費モデル・肺/血液/溶存酸素の3分類＋脾臓という隠れタンク・SpO2（まず99%維持）'},
+      {title:'Ch2：才能と努力の話', sub:'肺活量6L・パッキング7L vs 一般平均3.5〜4L。小柄な女性でも記録は出る→タンクより燃費'},
+      {title:'Ch3：息止めは日常で決まる', sub:'前日食（チャーハン+エビ）・ゾーン2（心拍130以下/30〜60分/毎日）。研究:8週で安静時心拍-9.1%・最大息止め+15.8%'},
+      {title:'Ch4：CO2と仲良くなる', sub:'CO2感覚の育て方・CO2テーブル入門（安全に量を積む手段）。⚠水中でやるなら訓練バディ必須'},
+      {title:'Ch5：水中と陸上は別物', sub:'水圧・浮力の影響・顔面浸漬で潜水反射・陸トレの限界。だから水中は独学NG（Ch0と接続）'},
+      {title:'Ch6：コントラクションへの向き合い方', sub:'必ず来る正常な防衛反応として受容・腸腰筋付近でブロックする感覚（動画必須）'},
+      {title:'Ch7：2〜3分達成ロードマップと次の一歩', sub:'1分・2分・3分の壁とTakuya実体験＋適応のタイムスケール。締め:「続きは見ていてくれる人と」→マッチング導線'},
+    ], memo:'構成確定。v2でCh0「人から学ぶ」安全哲学を冒頭に追加（独学の危険性=この講座の核メッセージ）。各章にも研究データを肉付け。この講座は「独学完成」でなく「正しく習い始める土台」という立ち位置。' },
+  { id:5, group:'breath', name:'息止め_中級講座', instructor:'寺嶋', target:'2〜3分できる・ファンダイバー', price:'¥8,000', status:'wip',
+    chapters:[
+      {title:'イントロ：正解はひとつじゃない', sub:'メタ分析(Massini2022)=全トレ法が有意に効く(g=1.30)が唯一の最適プロトコルは無い。僕のやり方も正解でも不正解でもある→自分で選ぶ目を養うのが中級の課題'},
+      {title:'何に時間を使うか（優先順位）', sub:'有酸素＞安全に積めるテーブル＞最大息止め。土台を飛ばすと遠回りになる（Takuyaの実例とセット）'},
+      {title:'潜水反射を意識的に鍛える', sub:'椅子に座ったまま60→48bpmに落とせる実例・冷水顔面浸漬・HRV'},
+      {title:'コントラクションを「使う」', sub:'腸腰筋付近でブロックする段階的体感（動画必須）・受容の心理生理'},
+      {title:'マインドトラベル技術', sub:'気持ちいい場所を移動するイメージ技術・呼吸×自律神経×心理的受容'},
+      {title:'ゾーン2応用＋自分のデータを取る', sub:'安静時心拍/HRV追跡・目標値設定。個人差があるから一律の答えはない→計測重視'},
+      {title:'5分の壁を超える', sub:'2フェーズモデル(easy-going/struggle)の実践'},
+      {title:'Takuyaの遠回り集', sub:'日本一になる過程で無駄だった事・気づき・今も不明な事を研究と突合。断定しない誠実さで信頼を作る'},
+    ], memo:'v2で「経験×研究の両輪」構造に再設計。各章を「①Takuyaの経験→②研究が示すこと→③あなたへの提案」の3点セットで構成する方針。"地図を渡して選び方を教えるコーチ"のポジショニング。順序は確定、撮影前に最終調整。' },
+  { id:6, group:'breath', name:'STA競技者向け講座', instructor:'寺嶋', target:'既存フリーダイバー・競技者', price:'¥12,000', status:'wip',
+    chapters:[
+      {title:'競技時系列フレームワーク', sub:'0-2分:心拍↓ / 2-5分:楽なフェーズ / 5-7分:コントラクション戦 / 7分+:意識を守る。2フェーズモデルの競技レベル精緻化'},
+      {title:'CO2スタート地点の設定技術', sub:'化学受容器感受性の個人差・CO2プロファイルを計測して最適化'},
+      {title:'ハイパーベンチレーションの競技的使い方', sub:'危険=ダメではなくCO2設定の調整手段として捉え直す。⚠SWB機序の理解＋安全バディ絶対が前提'},
+      {title:'直前呼吸法の個人最適化', sub:'吐気>吸気で副交感優位・HRV最大化。Takuyaの実データをもとに設計'},
+      {title:'パッキング(GI)の競技的扱い', sub:'最大4L追加可だがMSNA40%増・パッキングBO/気胸リスク。深度導入として慎重に'},
+      {title:'世界記録の現在地と方向性', sub:'男子Mifsud11:35(2009)/女子Schwerdtner9:22(2025更新)/2025和歌山WC・市原由里子アジア記録。データ駆動訓練トレンド'},
+      {title:'世界トップ選手インタビュー(仏人2名)', sub:'世界ランキングトップ10選手の知見を組み込み権威性向上。Phase2で単体無料公開→海外導線'},
+    ], memo:'フレームワーク確定済み。v2で世界記録の現在地・CO2プロファイル個人差・パッキングのリスク・直前呼吸の科学を追加。仏人トップ10選手インタビューをChapterに組込予定。ハイパーベンチレーション章は必ずSWB安全教育とセットで。' },
+  { id:7, group:'depth', name:'デプス基礎講座', instructor:'美鈴', target:'競技者', price:'¥12,000', status:'todo',
+    chapters:[
+      {title:'フリーフォール習得', sub:''},
+      {title:'ターン技術', sub:''},
+      {title:'パッキング', sub:''},
+      {title:'ダイビング設計・浮力管理', sub:''},
+      {title:'トレーニングプラン設計', sub:''},
+    ], memo:'' },
+  { id:8, group:'depth', name:'ダイナミック基礎講座', instructor:'大井', target:'競技者', price:'¥12,000', status:'todo',
+    chapters:[
+      {title:'ターン技術', sub:''},
+      {title:'浮力コントロール', sub:''},
+    ], memo:'講師:大井さん。詳細未定。' },
+  { id:9,  group:'comp', name:'モノフィン講座（CWT/DYN）',   instructor:'花子',   target:'競技者', price:'¥12,000', status:'todo', chapters:[], memo:'' },
+  { id:10, group:'comp', name:'バイフィン講座（CWTB/DYNB）', instructor:'かじまり', target:'競技者', price:'¥12,000', status:'todo', chapters:[], memo:'' },
+  { id:11, group:'comp', name:'ノーフィン講座（CNF/DNF）',   instructor:'かじまり', target:'競技者', price:'¥12,000', status:'todo', chapters:[], memo:'' },
+  { id:12, group:'comp', name:'FIM講座',                     instructor:'未定',   target:'競技者', price:'¥12,000', status:'todo', chapters:[], memo:'講師候補未定' },
+  { id:13, group:'film', name:'水中写真撮影講座', instructor:'未定', target:'未定', price:'未定', status:'todo', chapters:[], memo:'' },
+  { id:14, group:'film', name:'水中動画撮影講座', instructor:'未定', target:'未定', price:'未定', status:'todo', chapters:[], memo:'Takuyaが講師候補か？要検討' },
+];
+
+let courses = JSON.parse(localStorage.getItem('fdlearn_v1') || 'null') || INITIAL;
+
+function save() {
+  localStorage.setItem('fdlearn_v1', JSON.stringify(courses));
+  document.getElementById('last-updated').textContent =
+    '更新: ' + new Date().toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+
+function toggleCard(id) {
+  document.getElementById('card-'+id)?.classList.toggle('expanded');
+}
+
+function setStatus(id, st, e) {
+  e.stopPropagation();
+  const c = courses.find(x=>x.id===id);
+  if(c){ c.status=st; save(); render(); }
+}
+
+function saveMemo(id) {
+  const el = document.getElementById('memo-'+id);
+  const c = courses.find(x=>x.id===id);
+  if(c && el){ c.memo=el.value; save(); }
+}
+
+// ── チャプター編集モーダル ──
+let chapModalState = null; // { courseId, chapIdx }
+
+function openChapModal(courseId, chapIdx, e) {
+  e && e.stopPropagation();
+  const c = courses.find(x=>x.id===courseId);
+  if(!c) return;
+
+  const ch = c.chapters[chapIdx];
+  chapModalState = { courseId, chapIdx };
+
+  // ヘッダー
+  document.getElementById('chap-modal-eyebrow').textContent = c.name;
+  document.getElementById('chap-modal-title').textContent   = `Ch${String(chapIdx+1).padStart(2,'0')}`;
+
+  // フィールド
+  document.getElementById('chap-input-title').value = ch.title || '';
+  document.getElementById('chap-input-sub').value   = ch.sub   || '';
+
+  // 並び替えボタンの有効/無効
+  document.getElementById('chap-btn-up').disabled   = (chapIdx === 0);
+  document.getElementById('chap-btn-down').disabled = (chapIdx === c.chapters.length - 1);
+
+  document.getElementById('chap-modal').classList.add('open');
+  setTimeout(() => document.getElementById('chap-input-title').focus(), 100);
+}
+
+function closeChapModal() {
+  document.getElementById('chap-modal').classList.remove('open');
+  chapModalState = null;
+}
+
+function closeChapModalOutside(e) {
+  if(e.target === document.getElementById('chap-modal')) closeChapModal();
+}
+
+function saveChapModal() {
+  if(!chapModalState) return;
+  const { courseId, chapIdx } = chapModalState;
+  const c = courses.find(x=>x.id===courseId);
+  if(!c || !c.chapters[chapIdx]) return;
+
+  const title = document.getElementById('chap-input-title').value.trim();
+  c.chapters[chapIdx].title = title || c.chapters[chapIdx].title;
+  c.chapters[chapIdx].sub   = document.getElementById('chap-input-sub').value;
+
+  save(); render(); closeChapModal();
+}
+
+function deleteChapModal() {
+  if(!chapModalState) return;
+  const { courseId, chapIdx } = chapModalState;
+  const c = courses.find(x=>x.id===courseId);
+  if(!c) return;
+  c.chapters.splice(chapIdx, 1);
+  save(); render(); closeChapModal();
+}
+
+function chapModalMove(dir) {
+  if(!chapModalState) return;
+  const { courseId, chapIdx } = chapModalState;
+  const c = courses.find(x=>x.id===courseId);
+  if(!c) return;
+
+  // 現在のフォームの値を先に反映
+  const title = document.getElementById('chap-input-title').value.trim();
+  c.chapters[chapIdx].title = title || c.chapters[chapIdx].title;
+  c.chapters[chapIdx].sub   = document.getElementById('chap-input-sub').value;
+
+  const target = chapIdx + dir;
+  if(target < 0 || target >= c.chapters.length) return;
+  [c.chapters[chapIdx], c.chapters[target]] = [c.chapters[target], c.chapters[chapIdx]];
+
+  chapModalState.chapIdx = target;
+
+  // ボタンの有効無効を更新
+  document.getElementById('chap-btn-up').disabled   = (target === 0);
+  document.getElementById('chap-btn-down').disabled = (target === c.chapters.length - 1);
+  document.getElementById('chap-modal-title').textContent = `Ch${String(target+1).padStart(2,'0')}`;
+
+  save(); render();
+}
+
+function addChapter(courseId, e) {
+  e.stopPropagation();
+  const c = courses.find(x=>x.id===courseId);
+  if(!c) return;
+  c.chapters.push({ title: '新しいチャプター', sub: '' });
+  save();
+
+  const newIdx = c.chapters.length - 1;
+
+  // カードが閉じていれば開く
+  const card = document.getElementById('card-'+courseId);
+  if(card && !card.classList.contains('expanded')) card.classList.add('expanded');
+
+  render();
+  // 追加後すぐモーダルを開く
+  setTimeout(() => openChapModal(courseId, newIdx, null), 30);
+}
+
+// ── コース編集モーダル ──
+let cemState = null; // courseId
+
+function openCourseModal(courseId, e) {
+  e && e.stopPropagation();
+  const c = courses.find(x=>x.id===courseId);
+  if(!c) return;
+  cemState = courseId;
+
+  const g = GROUPS.find(x=>x.key===c.group);
+  document.getElementById('cem-eyebrow').textContent = g ? g.emoji+' '+g.label : 'コース編集';
+  document.getElementById('cem-title').textContent   = c.name;
+
+  document.getElementById('cem-name').value       = c.name        || '';
+  document.getElementById('cem-instructor').value  = c.instructor  || '';
+  document.getElementById('cem-price').value       = c.price       || '';
+  document.getElementById('cem-target').value      = c.target      || '';
+  document.getElementById('cem-memo').value        = c.memo        || '';
+  document.getElementById('cem-group').value       = c.group       || 'breath';
+
+  cemSetStatus(c.status || 'todo');
+
+  document.getElementById('course-edit-modal').classList.add('open');
+  setTimeout(() => document.getElementById('cem-name').focus(), 100);
+}
+
+function closeCourseModal() {
+  document.getElementById('course-edit-modal').classList.remove('open');
+  cemState = null;
+}
+
+function closeCourseModalOutside(e) {
+  if(e.target === document.getElementById('course-edit-modal')) closeCourseModal();
+}
+
+function cemSetStatus(st) {
+  ['todo','wip','done'].forEach(s => {
+    const btn = document.getElementById('cem-st-'+s);
+    btn.className = 'course-modal-status-btn' + (s===st ? ' active-'+s : '');
+  });
+  // 現在の選択を data 属性に保持
+  document.getElementById('course-edit-modal').dataset.status = st;
+}
+
+function saveCourseModal() {
+  if(!cemState) return;
+  const c = courses.find(x=>x.id===cemState);
+  if(!c) return;
+
+  const name = document.getElementById('cem-name').value.trim();
+  if(!name) { document.getElementById('cem-name').focus(); return; }
+
+  c.name       = name;
+  c.group      = document.getElementById('cem-group').value;
+  c.instructor = document.getElementById('cem-instructor').value.trim();
+  c.price      = document.getElementById('cem-price').value.trim();
+  c.target     = document.getElementById('cem-target').value.trim();
+  c.memo       = document.getElementById('cem-memo').value;
+  c.status     = document.getElementById('course-edit-modal').dataset.status || c.status;
+
+  save(); render(); closeCourseModal();
+}
+
+function deleteCourseModal() {
+  if(!cemState) return;
+  if(!confirm('このコースを削除しますか？')) return;
+  courses = courses.filter(x=>x.id!==cemState);
+  save(); render(); closeCourseModal();
+}
+
+function chapQuickMove(courseId, chapIdx, dir, e) {
+  e.stopPropagation();
+  const c = courses.find(x=>x.id===courseId);
+  if(!c) return;
+  const target = chapIdx + dir;
+  if(target < 0 || target >= c.chapters.length) return;
+  [c.chapters[chapIdx], c.chapters[target]] = [c.chapters[target], c.chapters[chapIdx]];
+  save(); render();
+}
+
+function render() {
+  // 展開状態を保持
+  const expanded = new Set(
+    [...document.querySelectorAll('.course-card.expanded')].map(el => parseInt(el.id.replace('card-','')))
+  );
+
+  document.getElementById('sum-total').textContent = courses.length;
+  document.getElementById('sum-done').textContent  = courses.filter(c=>c.status==='done').length;
+  document.getElementById('sum-wip').textContent   = courses.filter(c=>c.status==='wip').length;
+  document.getElementById('sum-todo').textContent  = courses.filter(c=>c.status==='todo').length;
+
+  const container = document.getElementById('groups-container');
+  container.innerHTML = GROUPS.map(g => {
+    const list = courses.filter(c=>c.group===g.key);
+    if(!list.length) return '';
+    const done = list.filter(c=>c.status==='done').length;
+    const pct = Math.round(done/list.length*100);
+
+    const cards = list.map(c => {
+      const dot = c.status==='done'?'status-done':c.status==='wip'?'status-wip':'status-todo';
+
+      const chapHtml = c.chapters.length
+        ? c.chapters.map((ch, ci) => {
+            const isFirst = ci === 0;
+            const isLast  = ci === c.chapters.length - 1;
+
+            return `
+              <div class="chapter-item">
+                <div class="chapter-num">${String(ci+1).padStart(2,'0')}</div>
+                <div class="chapter-content">
+                  <div class="chapter-view">
+                    <div class="chapter-text">${escHtml(ch.title)}</div>
+                    ${ch.sub ? `<div class="chapter-sub">${escHtml(ch.sub)}</div>` : ''}
+                  </div>
+                </div>
+                <div class="chapter-controls" onclick="event.stopPropagation()">
+                  <button class="ctrl-btn" title="上へ" onclick="chapQuickMove(${c.id},${ci},-1,event)" ${isFirst?'style="opacity:0.2;pointer-events:none"':''}>↑</button>
+                  <button class="ctrl-btn" title="下へ" onclick="chapQuickMove(${c.id},${ci},1,event)"  ${isLast ?'style="opacity:0.2;pointer-events:none"':''}>↓</button>
+                  <button class="ctrl-btn" title="編集" onclick="openChapModal(${c.id},${ci},event)">✎</button>
+                </div>
+              </div>`;
+          }).join('')
+        : `<div style="font-size:11px;color:var(--text-muted);padding:6px 0;">チャプター未設定</div>`;
+
+      const isExpanded = expanded.has(c.id);
+
+      return `
+        <div class="course-card ${isExpanded?'expanded':''}" id="card-${c.id}">
+          <div class="course-header" onclick="toggleCard(${c.id})">
+            <div class="course-accent" style="background:${g.color}"></div>
+            <div class="course-info">
+              <div class="course-name">${escHtml(c.name)}</div>
+              <div class="course-tags">
+                ${c.instructor&&c.instructor!=='未定'?`<span class="tag tag-instructor">${escHtml(c.instructor)}</span>`:''}
+                ${c.price&&c.price!=='未定'?`<span class="tag tag-price">${escHtml(c.price)}</span>`:''}
+                ${c.target&&c.target!=='未定'?`<span class="tag tag-target">${escHtml(c.target)}</span>`:''}
+              </div>
+            </div>
+            <div class="course-right">
+              <button class="ctrl-btn" style="opacity:0.5;margin-right:2px;" title="コースを編集" onclick="openCourseModal(${c.id},event)">✎</button>
+              <div class="status-dot ${dot}"></div>
+              <div class="chevron">▼</div>
+            </div>
+          </div>
+          <div class="course-body">
+            <div class="course-body-inner">
+              <div>
+                <div class="section-header">
+                  <div class="section-label">チャプター構成</div>
+                </div>
+                <div class="chapters">${chapHtml}</div>
+                <button class="add-chapter-btn" onclick="addChapter(${c.id},event)">＋ チャプターを追加</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="group-section">
+        <div class="group-header">
+          <div class="group-bar" style="background:${g.color}"></div>
+          <div class="group-title" style="color:${g.color}">${g.emoji} ${g.label}</div>
+          <div class="group-count">${done}/${list.length} 完了</div>
+        </div>
+        <div class="group-progress">
+          <div class="group-progress-fill" style="width:${pct}%;background:${g.color}"></div>
+        </div>
+        <div class="courses-list">${cards}</div>
+      </div>`;
+  }).join('');
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function openModal(){ document.getElementById('modal').classList.add('open'); }
+function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+function closeModalOutside(e){ if(e.target===document.getElementById('modal')) closeModal(); }
+
+function addCourse() {
+  const name = document.getElementById('new-name').value.trim();
+  if(!name) return;
+  const newId = Math.max(...courses.map(c=>c.id),0)+1;
+  courses.push({
+    id: newId,
+    group: document.getElementById('new-group').value,
+    name,
+    instructor: document.getElementById('new-instructor').value,
+    target: document.getElementById('new-target').value,
+    price: document.getElementById('new-price').value,
+    status: 'todo',
+    chapters: [],
+    memo: document.getElementById('new-memo').value,
+  });
+  save(); render(); closeModal();
+  ['new-name','new-instructor','new-target','new-price','new-memo'].forEach(id=>{
+    document.getElementById(id).value='';
+  });
+}
+
+render();
+document.getElementById('last-updated').textContent =
+  '起動: ' + new Date().toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+</script>
+</body>
+</html>
