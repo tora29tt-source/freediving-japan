@@ -131,7 +131,11 @@ footer{color:var(--muted);font-size:11.5px;text-align:center;padding:24px}
 .sel-badge.out{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--line)}
 .sel-wc-note{margin-top:14px;padding:10px 14px;background:rgba(96,165,250,.07);border:1px solid rgba(96,165,250,.2);border-radius:8px;font-size:11px;color:rgba(255,255,255,.55);line-height:1.6}
 .sel-wc-note b{color:#60a5fa}
-@media(max-width:640px){.sel-disc-grid{grid-template-columns:1fr}}</style></head>
+@media(max-width:640px){.sel-disc-grid{grid-template-columns:1fr}}
+/* 海版モーダル用 sel-gtab カラーオーバーライド */
+#seaSelOverlay .sel-gtab.active{background:var(--sea);border-color:var(--sea);color:#fff}
+.sel-disc-block.sea .sel-disc-label{background:rgba(26,122,138,.08)}
+.sel-disc-block.sea .sel-disc-label .dn{color:var(--sea)}</style></head>
 <body>
 <header><div class="wrap"><h1>AIDA <span>Japan</span> ランキング</h1>
 <p>2000–2026 日本記録データベース · プロトタイプ</p></div></header>
@@ -146,7 +150,31 @@ footer{color:var(--muted);font-size:11.5px;text-align:center;padding:24px}
 <footer>データ出典: AIDA International · 顔写真: AIDA選手プロフィール · 社内プロトタイプ</footer>
 <div class="overlay" id="overlay"><div class="card" id="card"></div></div>
 
-<!-- 代表選考モーダル -->
+<!-- 海版代表選考モーダル -->
+<div class="sel-overlay" id="seaSelOverlay">
+  <div class="sel-modal">
+    <div class="sel-modal-hd">
+      <h2>🌊 <span>2027年</span> 海・深度世界選手権<br>日本代表選考 現時点見込み</h2>
+      <span class="sclose" onclick="hideSeaSelModal()">×</span>
+    </div>
+    <div class="sel-period" style="border-left-color:rgba(26,122,138,.5);background:rgba(26,122,138,.06)">
+      <b style="color:var(--sea)">選考対象期間</b>：2025年6月11日〜 2027年6月10日（6月30日登録締め切りから逆算）<br>
+      <b style="color:var(--sea)">選考基準</b>：各海種目 男女別 上位4名。WC権保有者がいる場合は派遣枠が追加されます。<br>
+      ※ 現在データは2026年5月末時点。名前クリックで選手詳細。
+    </div>
+    <div class="sel-gtabs">
+      <div class="sel-gtab active" style="--active-bg:var(--sea)" onclick="setSeaSelGender('Male',this)">男子</div>
+      <div class="sel-gtab" style="--active-bg:var(--sea)" onclick="setSeaSelGender('Female',this)">女子</div>
+    </div>
+    <div class="sel-disc-grid" id="seaSelGrid"></div>
+    <div class="sel-wc-note" style="background:rgba(26,122,138,.07);border-color:rgba(26,122,138,.2)">
+      <b style="color:var(--sea)">ワイルドカードについて</b>：2026年AIDA種目別世界ランキング1〜10位に入った日本人選手に付与される特別参加権。選考4名は常に固定で、WC保有者のうちポイント上位2名までが別枠として追加（最大計6名）。WC保有者が3名以上の場合、3位以降のWC保有者は通常の選考枠として扱われます。<br>
+      2026年シーズン終了後にAIDA公式サイトで確定 → <a href="https://www.aidainternational.org/Ranking/WildCards" target="_blank" style="color:var(--sea)">AIDA WildCards</a>
+    </div>
+  </div>
+</div>
+
+<!-- プール版代表選考モーダル -->
 <div class="sel-overlay" id="selOverlay">
   <div class="sel-modal">
     <div class="sel-modal-hd">
@@ -354,7 +382,10 @@ function renderHero(){
     +'<div class="sub">AIDA公式ランキング（日本・全年）の各種目1位＝現在の日本記録 · 更新 '+'2026-05-29'+' · 名前クリックで全記録</div>'
     +group('pool','プール種目','水平距離・時間を競う')
     +group('sea','海（深度）種目','ロープ沿いに深さを競う')
-    +'<div style="margin-top:14px"><div class="sel-btn" onclick="showSelModal()">🏅 2027年プール世界選手権 日本代表候補</div></div>';
+    +'<div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px">'
+    +'<div class="sel-btn" onclick="showSelModal()">🏅 2027年プール世界選手権 日本代表候補</div>'
+    +'<div class="sel-btn" style="background:linear-gradient(135deg,rgba(26,122,138,.18),rgba(26,122,138,.1));border-color:rgba(26,122,138,.5);color:var(--sea)" onclick="showSeaSelModal()">🌊 2027年海・深度世界選手権 日本代表候補</div>'
+    +'</div>';
 }
 
 function render(){
@@ -523,6 +554,110 @@ function showAthlete(name,fromOverall){
 function hideA(){document.getElementById('overlay').classList.remove('show');}
 document.getElementById('overlay').onclick=e=>{if(e.target.id==='overlay')hideA();};
 renderHero();render();
+
+// ================================================================
+// 2027年海・深度世界選手権 代表選考モーダル
+// ================================================================
+(function(){
+  const SEA_START='2025-06-11';
+  const SEA_END  ='2027-06-10';
+  const SEA_DISCS=['CWT','CWTB','CNF','FIM'];
+  const DISC_JA_SEA={CWT:'コンスタントウェイト（フィン）',CWTB:'バイフィン',CNF:'ノーフィン',FIM:'フリーイマージョン'};
+
+  function getSeaRecs(){
+    return DATA.records.filter(r=>SEA_DISCS.includes(r.discipline)&&r.date>=SEA_START&&r.date<=SEA_END);
+  }
+  function getBestSea(disc,gender){
+    const best={};
+    getSeaRecs().filter(r=>r.discipline===disc&&r.gender===gender).forEach(r=>{
+      if(!best[r.name]||r.points>best[r.name].points) best[r.name]=r;
+    });
+    return Object.values(best).sort((a,b)=>b.points-a.points);
+  }
+
+  // WCオブジェクト（現時点では空。確定後にここを更新すること）
+  const WC_SEA={
+    CWT:{Male:[],Female:[]},
+    CWTB:{Male:[],Female:[]},
+    CNF:{Male:[],Female:[]},
+    FIM:{Male:[],Female:[]}
+  };
+  function getWCSetSea(disc,gender){
+    return new Set((WC_SEA[disc]&&WC_SEA[disc][gender])||[]);
+  }
+
+  const SEL_QUOTA=4;
+  const MAX_WC=2;
+  const RK_CLS=['r1','r2','r3','r4','','','',''];
+  const MEDALS=['🥇','🥈','🥉','4位','5位','6位','7位','8位'];
+
+  function renderSeaGrid(gender){
+    const html=SEA_DISCS.map(disc=>{
+      const athletes=getBestSea(disc,gender);
+      const wcSet=getWCSetSea(disc,gender);
+
+      const wcAthletes=athletes.filter(a=>wcSet.has(a.name));
+      const wcSlotNames=new Set(wcAthletes.slice(0,MAX_WC).map(a=>a.name));
+      const nonSlotAthletes=athletes.filter(a=>!wcSlotNames.has(a.name));
+      const selectedNames=new Set(nonSlotAthletes.slice(0,SEL_QUOTA).map(a=>a.name));
+
+      const wcSlotCount=wcSlotNames.size;
+      const totalDispatch=SEL_QUOTA+wcSlotCount;
+
+      const rows=athletes.slice(0,8).map((a,i)=>{
+        const isWCSlot=wcSlotNames.has(a.name);
+        const isSelected=selectedNames.has(a.name);
+        const rowCls=isWCSlot?'wc-r':isSelected?'selected':'';
+        const rkc=i<4?RK_CLS[i]:'';
+        const badgeHtml=isWCSlot
+          ?'<span class="sel-badge wc">ワイルドカード</span>'
+          :isSelected?'<span class="sel-badge ok">✓ 選考内</span>':'';
+        return `<div class="sel-row ${rowCls}">
+          <div class="sel-rk ${rkc}">${MEDALS[i]||i+1+'位'}</div>
+          ${av(a.name,'savatar')}
+          <div class="sel-name" onclick="hideSeaSelModal();showAthlete('${esc(a.name)}',false)">${a.name}</div>
+          <div class="sel-res">${a.result}</div>
+          <div class="sel-date">${a.date}</div>
+          ${badgeHtml}
+        </div>`;
+      }).join('');
+
+      const empty=!athletes.length?'<div style="padding:16px;color:var(--muted);font-size:12px;text-align:center">選考期間内の記録なし</div>':'';
+
+      const footerHtml=wcSlotCount>0
+        ?`<div style="padding:6px 14px 8px;font-size:10px;color:#60a5fa;border-top:1px solid var(--line)">ワイルドカード別枠 ${wcSlotCount}名 ＋ 選考 ${SEL_QUOTA}名 ＝ ${totalDispatch}名派遣</div>`
+        :`<div style="padding:6px 14px 8px;font-size:10px;color:var(--muted);border-top:1px solid var(--line)">選考 ${SEL_QUOTA}名（ワイルドカード：2026年シーズン終了後確定）</div>`;
+
+      return `<div class="sel-disc-block sea">
+        <div class="sel-disc-label">
+          <span class="dn">${DISC_JA_SEA[disc]} <small style="opacity:.6;font-size:9px">${disc}</small></span>
+          <span class="dq">${wcSlotCount>0?`WC${wcSlotCount}＋選考${SEL_QUOTA}＝${totalDispatch}名`:`選考 ${SEL_QUOTA}名`}</span>
+        </div>
+        ${rows}${empty}${footerHtml}
+      </div>`;
+    }).join('');
+    document.getElementById('seaSelGrid').innerHTML=html;
+  }
+
+  let seaSelGender='Male';
+  window.setSeaSelGender=function(g,el){
+    seaSelGender=g;
+    document.querySelectorAll('#seaSelOverlay .sel-gtab').forEach(t=>t.classList.remove('active'));
+    el.classList.add('active');
+    renderSeaGrid(seaSelGender);
+  };
+  window.showSeaSelModal=function(){
+    renderSeaGrid(seaSelGender);
+    document.getElementById('seaSelOverlay').classList.add('show');
+  };
+  window.hideSeaSelModal=function(){
+    document.getElementById('seaSelOverlay').classList.remove('show');
+  };
+  document.getElementById('seaSelOverlay').addEventListener('click',function(e){
+    if(e.target===this) hideSeaSelModal();
+  });
+})();
+
 
 // ================================================================
 // 2027年プール世界選手権 代表選考モーダル
