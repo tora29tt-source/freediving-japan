@@ -411,8 +411,8 @@ header {
 .ring-countdown.visible { opacity: 1; }
 .ring-countdown-num {
   font-size: clamp(44px, 13vw, 64px); font-variant-numeric: tabular-nums;
-  font-weight: 200; color: var(--success); letter-spacing: -.02em;
-  text-shadow: 0 0 30px rgba(34,197,94,.4);
+  font-weight: 200; color: #fff; letter-spacing: -.02em;
+  text-shadow: 0 0 30px rgba(255,255,255,.3);
 }
 
 /* SPO2 MINI CHART */
@@ -1332,7 +1332,10 @@ function planHoldSec() {
 }
 function planRestSec() {
   if (sessionPlan.length === 0) return null;
-  return sessionPlan[currentSet] ? (sessionPlan[currentSet].restSec || null) : null;
+  // surface中: currentSetはまだインクリメント前 → そのまま参照
+  // rest中: currentSetはインクリメント済み（次Hold用）→ 1つ前を参照
+  const idx = (phase === 'rest') ? currentSet - 1 : currentSet;
+  return sessionPlan[idx] ? (sessionPlan[idx].restSec || null) : null;
 }
 
 
@@ -1900,8 +1903,8 @@ function tick() {
       // SP overlay下部にRest残り時間を表示
       const srl = document.getElementById('surfaceRestLbl');
       if (srl) srl.textContent = 'Rest ' + fmt(restRemain);
-      // セットリストのRest残り時間も更新
-      const lrt = document.getElementById('liveRestTime');
+      // セットリストのRest残り時間も更新（surface中はcurrentSetがインクリメント前）
+      const lrt = document.getElementById('liveRestTime-'+currentSet);
       if (lrt) lrt.textContent = fmt(restRemain);
     }
     if (phaseMs >= 15000) { endSurface(); return; }
@@ -1911,7 +1914,8 @@ function tick() {
     updateRestDisplay(phaseMs);
     // テーブルモード: セットリストのRest残り時間をリアルタイム更新
     if (mode !== 'free') {
-      const lrt = document.getElementById('liveRestTime');
+      // rest中はcurrentSetがインクリメント済みなので1つ前のインデックス
+      const lrt = document.getElementById('liveRestTime-'+(currentSet-1));
       if (lrt) {
         const fixedSec = restFixedSec() || restAutoSec();
         if (fixedSec) {
@@ -2015,6 +2019,7 @@ function startHold() {
     ? 'Stopwatch — Running'
     : `Set ${currentSet+1}/${totalSets()} — Hold`);
   updateDiveNum();
+  renderSetDots(); // phase='hold'になった後に再描画（YOU ARE HERE表示のため）
   setBtnMain('stop', mode==='free' ? 'Stop' : 'Stop Hold');
   // btnMain非表示のまま（リングタップで操作）
   if (mode === 'free') {
@@ -2081,6 +2086,7 @@ function startSurface() {
   ringHold.style.stroke = 'transparent';
   showPhase('rest', 'Surface Protocol');
   document.getElementById('btnPause').style.display = '';
+  renderSetDots(); // phase='surface'になった後に再描画（YOU ARE HERE表示のため）
   onSurfaceStart(); // カメラ録画スケジュール
   cancelAnimationFrame(rafId);
   rafId = requestAnimationFrame(tick);
@@ -2127,6 +2133,7 @@ function startRestFromSurface(alreadyElapsedMs) {
   updateDiveNum();
   document.getElementById('btnEnd').style.display = '';
   document.getElementById('btnPause').style.display = '';
+  renderSetDots(); // phase='rest'になった後に再描画（YOU ARE HERE表示のため）
   cancelAnimationFrame(rafId);
   rafId = requestAnimationFrame(tick);
 }
@@ -2143,13 +2150,14 @@ function startRest() {
   updateDiveNum();
   document.getElementById('btnEnd').style.display = '';
   document.getElementById('btnPause').style.display = '';
+  renderSetDots(); // phase='rest'になった後に再描画（YOU ARE HERE表示のため）
   cancelAnimationFrame(rafId);
   rafId = requestAnimationFrame(tick);
 }
 
 function endRest() {
   cancelAnimationFrame(rafId); rafId=null;
-  beginCountdownOrHold();
+  startHold(); // 2本目以降はprepをスキップして直接スタート
 }
 
 function finishSession() {
@@ -2369,24 +2377,36 @@ function renderUnifiedList() {
       const restLabel = planRest ? fmt(planRest.restSec * 1000) : '';
       const hasRest = i < n - 1; // 最終セットにRest行は不要
 
+      // このセットのRestが現在進行中かどうか
+      // surface中はcurrentSetがまだインクリメント前、rest中はインクリメント後
+      const isActiveRest = hasRest && ((phase === 'surface' && i === currentSet) || (phase === 'rest' && i === currentSet - 1));
       el.className = 'set-row done';
-      el.style.cssText = 'flex-direction:column;align-items:stretch;gap:2px;padding:4px 10px;opacity:.55;border-color:transparent;background:var(--surface2)';
+      el.style.cssText = isActiveRest
+        ? 'flex-direction:column;align-items:stretch;gap:2px;padding:4px 10px;border-color:var(--teal);background:rgba(46,196,182,.04)'
+        : 'flex-direction:column;align-items:stretch;gap:2px;padding:4px 10px;opacity:.55;border-color:transparent;background:var(--surface2)';
       const fcTag = d.fc != null
         ? `<span class="fc-tag">1st ${fmt(d.fc)}</span>` : '';
-      el.innerHTML = `
-        <div style="display:flex;align-items:center;gap:6px">
-          <span class="set-n">#${i+1}</span>
-          <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--danger);min-width:22px;flex-shrink:0">Hold</span>
-          <span style="flex:1;font-size:11px;color:var(--muted)">${fcTag}${spo2Tag}</span>
-          <span style="font-size:14px;font-variant-numeric:tabular-nums;color:var(--teal);font-weight:500">${fmt(d.ms)}</span>
-        </div>
-        ${hasRest ? `
-        <div style="display:flex;align-items:center;gap:6px;padding-left:4px">
-          <span class="set-n"></span>
-          <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:22px;flex-shrink:0">Rest</span>
-          <span style="flex:1"></span>
-          <span style="font-size:12px;font-variant-numeric:tabular-nums;color:var(--muted);font-weight:400">${restLabel}</span>
-        </div>` : ''}`;
+      var holdRow = '<div style="display:flex;align-items:center;gap:6px">'
+        + '<span class="set-n">#'+(i+1)+'</span>'
+        + '<span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--danger);min-width:22px;flex-shrink:0">Hold</span>'
+        + '<span style="flex:1;font-size:11px;color:var(--muted)">'+fcTag+spo2Tag+'</span>'
+        + '<span style="font-size:14px;font-variant-numeric:tabular-nums;color:var(--teal);font-weight:500">'+fmt(d.ms)+'</span>'
+        + '</div>';
+      var restRow = '';
+      if (hasRest) {
+        var restBg = isActiveRest ? 'background:rgba(34,197,94,.1);border-radius:6px;padding:3px 6px;margin:0 -2px' : 'padding-left:4px';
+        var restColor = isActiveRest ? 'var(--success)' : 'var(--muted)';
+        var youAreHere = isActiveRest ? '<span style="font-size:8px;font-weight:800;letter-spacing:.1em;color:var(--success);opacity:.8;white-space:nowrap">YOU ARE HERE</span>' : '';
+        var restTimeSize = isActiveRest ? '14' : '12';
+        restRow = '<div style="display:flex;align-items:center;gap:6px;'+restBg+'">'
+          + '<span class="set-n"></span>'
+          + '<span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:'+restColor+';min-width:22px;flex-shrink:0">Rest</span>'
+          + '<span style="flex:1"></span>'
+          + '<span style="display:flex;align-items:center;gap:6px">'+youAreHere
+          + '<span id="liveRestTime-'+i+'" style="font-size:'+restTimeSize+'px;font-variant-numeric:tabular-nums;color:'+restColor+';font-weight:'+(isActiveRest?'500':'400')+'">'+restLabel+'</span>'
+          + '</span></div>';
+      }
+      el.innerHTML = holdRow + restRow;
       el.style.cursor = 'pointer';
       el.onclick = () => openDetail(d);
 
@@ -2396,58 +2416,58 @@ function renderUnifiedList() {
       const isResting = phase === 'rest' || phase === 'surface';
       const isPrepare = phase === 'countdown';
 
+      // Rest/Surface中はpending行と同じ見た目（次のHoldはまだ始まっていない）
+      if (isResting) {
+        el.className = 'set-row pending';
+        el.style.cssText = 'flex-direction:column;align-items:stretch;gap:2px;padding:4px 10px;opacity:.45';
+        const plan = sessionPlan[i];
+        const isManualHold = cfg.tblHoldStop === 'manual';
+        const holdSec = plan ? plan.holdSec : 0;
+        const restSec = plan ? plan.restSec : 0;
+        const holdLabel = (isManualHold && holdSec === 0) ? 'Manual' : fmt(holdSec * 1000);
+        const holdLabelColor = (isManualHold && holdSec === 0) ? 'color:var(--warm)' : 'color:var(--muted)';
+        el.innerHTML = `
+          <div style="display:flex;align-items:center;gap:6px">
+            <span class="set-n">#${i+1}</span>
+            <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:22px;flex-shrink:0">Hold</span>
+            <span style="flex:1"></span>
+            <span style="font-size:13px;font-variant-numeric:tabular-nums;font-weight:400;${holdLabelColor}">${holdLabel}</span>
+          </div>
+          ${i < n-1 ? `
+          <div style="display:flex;align-items:center;gap:6px;padding-left:4px">
+            <span class="set-n"></span>
+            <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:22px;flex-shrink:0">Rest</span>
+            <span style="flex:1"></span>
+            <span style="font-size:12px;font-variant-numeric:tabular-nums;color:var(--muted);font-weight:400">${fmt(restSec*1000)}</span>
+          </div>` : ''}`;
+        list.appendChild(el);
+        continue;
+      }
+
       el.className = 'set-row current';
       el.style.cssText = 'flex-direction:column;align-items:stretch;gap:3px;padding:5px 10px;border-color:var(--teal);background:rgba(46,196,182,.04)';
 
-      // Hold行
-      const holdDot = isHolding
-        ? `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--danger);margin-right:4px;animation:blink .8s infinite"></span>`
-        : isPrepare
-        ? `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#eab308;margin-right:4px;animation:blink .8s infinite"></span>`
-        : '';
       const holdLbl   = isPrepare ? 'Prepare' : 'Hold';
       const holdColor = isHolding ? 'var(--danger)' : isPrepare ? '#eab308' : 'var(--teal-light)';
       const holdBg    = isHolding ? 'background:rgba(239,68,68,.12);border-radius:6px;padding:3px 6px;margin:0 -2px'
                       : isPrepare ? 'background:rgba(234,179,8,.08);border-radius:6px;padding:3px 6px;margin:0 -2px' : '';
 
-      // Hold時間表示: Hold中はリアルタイム(liveHoldTime)、Rest中は確定した実績、準備中は—
-      let holdTimeHtml;
-      if (isResting) {
-        // Hold終了済み → holdDivesにはまだ入っていないが直前のレコードは push 済
-        // endHold後にrenderUnifiedListが呼ばれる前に pushされているので holdOnly[i]がある
-        // ただしisCurrent条件は!d なので、resting中はdはnull
-        // → endHoldでpushした直後にrenderSetDotsが呼ばれるので holdOnly[i]は存在しない
-        // → 直前のholdDivesの末尾から取得
-        const lastHold = [...holdDives].reverse().find(r => !r.isRest);
-        holdTimeHtml = lastHold
-          ? `<span style="font-size:14px;font-variant-numeric:tabular-nums;color:var(--teal);font-weight:500">${fmt(lastHold.ms)}</span>`
-          : `<span id="liveHoldTime" style="font-size:14px;font-variant-numeric:tabular-nums;color:${holdColor};font-weight:400">—</span>`;
-      } else {
-        holdTimeHtml = `<span id="liveHoldTime" style="font-size:14px;font-variant-numeric:tabular-nums;color:${holdColor};font-weight:400">${isHolding ? '00:00' : '—'}</span>`;
-      }
+      const holdTimeHtml = `<span id="liveHoldTime" style="font-size:14px;font-variant-numeric:tabular-nums;color:${holdColor};font-weight:400">${isHolding ? '00:00' : '—'}</span>`;
+
+      // 時間の左に表示するアクティブラベル
+      const holdTimeDot = isHolding
+        ? `<span style="font-size:8px;font-weight:800;letter-spacing:.1em;color:var(--danger);opacity:.7;white-space:nowrap;margin-right:6px">YOU ARE HERE</span>`
+        : isPrepare
+        ? `<span style="font-size:8px;font-weight:800;letter-spacing:.1em;color:#eab308;opacity:.7;white-space:nowrap;margin-right:6px">YOU ARE HERE</span>`
+        : '';
 
       el.innerHTML = `
         <div style="display:flex;align-items:center;gap:6px;${holdBg}">
           <span class="set-n">#${i+1}</span>
-          <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:${holdColor};min-width:22px;flex-shrink:0;display:flex;align-items:center">${holdDot}${holdLbl}</span>
+          <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:${holdColor};min-width:22px;flex-shrink:0">${holdLbl}</span>
           <span style="flex:1"></span>
-          ${holdTimeHtml}
+          <span style="display:flex;align-items:center">${holdTimeDot}${holdTimeHtml}</span>
         </div>`;
-
-      // Rest行（Rest/Surface中のみ — 残り時間をリアルタイム表示）
-      if (isResting && i < n - 1) {
-        const restPlan = sessionPlan[i];
-        const restTotal = restPlan ? restPlan.restSec : null;
-        el.innerHTML += `
-          <div style="display:flex;align-items:center;gap:6px;background:rgba(34,197,94,.1);border-radius:6px;padding:3px 6px;margin:0 -2px">
-            <span class="set-n"></span>
-            <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--success);min-width:22px;flex-shrink:0;display:flex;align-items:center">
-              <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--success);margin-right:4px;animation:blink .8s infinite"></span>Rest
-            </span>
-            <span style="flex:1"></span>
-            <span id="liveRestTime" style="font-size:14px;font-variant-numeric:tabular-nums;color:var(--success);font-weight:500">${restTotal ? fmt(restTotal*1000) : '—'}</span>
-          </div>`;
-      }
 
     } else {
       // ── 未着手行（pending）─────────────────────────────
@@ -2597,7 +2617,9 @@ function updateDiveNum() {
     }
   } else if (mode === 'o2' || mode === 'co2') {
     const total = totalSets();
-    const cur = currentSet + 1;
+    // Rest/Surface中はcurrentSetがインクリメント済み（次のHoldのインデックス）
+    // なので表示は「今終わったHoldの番号」= currentSet（インクリメント後）
+    const cur = (phase === 'rest' || phase === 'surface') ? currentSet : currentSet + 1;
     el.textContent = phase === 'idle' ? '' : `${cur} / ${total}`;
   } else {
     el.textContent = '';
