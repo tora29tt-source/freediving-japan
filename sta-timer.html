@@ -307,7 +307,7 @@ header {
   transform: rotate(-90deg); pointer-events: none;
 }
 .ring-track  { fill: none; stroke: var(--surface2); stroke-width: 4; }
-.ring-hold   { fill: none; stroke: var(--danger); stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset .1s linear, stroke .5s; }
+.ring-hold   { fill: none; stroke: transparent; stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset .1s linear, stroke .5s; }
 .ring-rest   { fill: none; stroke: var(--success); stroke-width: 2; stroke-linecap: round; stroke-dasharray: 4 6; transition: stroke-dashoffset .1s linear; }
 .ring-spo2   { fill: none; stroke: transparent;  stroke-width: 7; stroke-linecap: round; transition: stroke-dashoffset .8s ease, stroke .5s; }
 .ring-hold.danger { stroke: var(--warm); }
@@ -1996,6 +1996,7 @@ function startHold() {
   document.getElementById('ringCountdown').classList.remove('visible');
   document.getElementById('btnEnd').style.display = 'none';
   ringHold.classList.remove('danger');
+  ringHold.style.stroke = 'var(--danger)'; // Hold開始時に赤を設定
   stopRestTimer();
   showPhaseRingLabel('Hold', 'hold');
   document.getElementById('btnPause').style.display = '';
@@ -3302,11 +3303,6 @@ function _drawOverlay(W, H) {
     ctx.textAlign = 'right';
     ctx.fillText(fmt(o.holdMs), tRX, mY + cH * 0.15);
 
-    // ミリ秒
-    ctx.font      = `300 ${u * 0.3}px -apple-system,sans-serif`;
-    ctx.fillStyle = '#5a8ca8';
-    ctx.textAlign = 'left';
-    ctx.fillText(fmtMs(o.holdMs), tRX + u * 0.06, mY + cH * 0.04);
 
     // SpO2（カード右側）
     if (o.spo2 !== null) {
@@ -3348,7 +3344,7 @@ function _drawOverlay(W, H) {
 
     ctx.font      = `300 ${u * 0.52}px -apple-system,sans-serif`;
     ctx.fillStyle = '#e8f4f8';
-    ctx.fillText(fmt(o.diveMs) + fmtMs(o.diveMs), liX, lmY + cH * 0.16);
+    ctx.fillText(fmt(o.diveMs), liX, lmY + cH * 0.16);
 
     // ── 右下カード: SURFACE PROTOCOL + 経過秒数 + SpO2 ──
     const elSec = Math.floor(o.spElapsed / 1000);
