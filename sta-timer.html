@@ -764,6 +764,8 @@ header {
     <button class="btn-main start" id="btnMain" onclick="onMainBtn()" style="display:none">Start</button>
     <div class="btn-row">
       <button class="btn-sub"      onclick="onReset()">Reset</button>
+      <button class="btn-sub" id="btnCameraToggleFree" onclick="onCameraToggle()" style="display:none;color:var(--muted)">📹 録画：OFF</button>
+      <button class="btn-sub" id="btnCameraReviewFree" onclick="openCameraReview()" style="display:none;color:var(--teal-light);border-color:var(--teal)">クリップ確認</button>
       <button class="btn-sub end" id="btnEnd" onclick="onEndSession()" style="display:none">終了</button>
       <button class="btn-sub" id="btnPause" onclick="onPause()" style="display:none">⏸ 一時中断</button>
       <button class="btn-sub save" id="btnSave" disabled onclick="openSave()">ログ登録へ</button>
@@ -1643,6 +1645,9 @@ function setMode(m) {
 
   const isSW = m === 'free';
   const _bl = document.getElementById('btnLap'); if(_bl) _bl.style.display = isSW ? '' : 'none';
+  // freeモード用カメラボタンの表示制御
+  const _bct = document.getElementById('btnCameraToggleFree'); if(_bct) _bct.style.display = isSW ? '' : 'none';
+  const _bcr = document.getElementById('btnCameraReviewFree'); if(_bcr) _bcr.style.display = 'none'; // クリップありの時だけ表示
   document.getElementById('btnNext').style.display = 'none';
   document.getElementById('btnFC').style.display = 'none';
   swLocked = false;
@@ -1877,11 +1882,9 @@ function tick() {
         spo2Buf.push({ t, v: currentSpo2 });
       updateLiveChart();
     }
-    // テーブルモード: セットリストのHold時間をリアルタイム更新
-    if (mode !== 'free') {
-      const lht = document.getElementById('liveHoldTime');
-      if (lht) lht.textContent = fmt(phaseMs);
-    }
+    // セットリストのHold時間をリアルタイム更新（全モード共通）
+    const lht = document.getElementById('liveHoldTime');
+    if (lht) lht.textContent = fmt(phaseMs);
     // 自動停止（O2オート or CO2固定）
     const autoSec = holdAutoSec() || holdFixedSec();
     if (autoSec && phaseMs >= autoSec * 1000) {
@@ -1898,6 +1901,11 @@ function tick() {
     // surface bar
     const surfBar = document.getElementById('surfaceBar');
     if (surfBar) surfBar.style.width = Math.min(100, phaseMs / 150) + '%';
+    // freeモード: セットリストのSP秒数をリアルタイム更新
+    if (mode === 'free') {
+      const lst = document.getElementById('liveSurfaceTime');
+      if (lst) lst.textContent = s + 's';
+    }
     // Rest残り時間（O2固定 / CO2 auto / CO2 manual すべて対応）
     const restSec = currentRestSec();
     if (restSec) {
@@ -2026,6 +2034,11 @@ function startHold() {
     ? 'Stopwatch — Running'
     : `Set ${currentSet+1}/${totalSets()} — Hold`);
   updateDiveNum();
+  // freeモード: 1本目のhold開始時にsetListWrapを表示
+  if (mode === 'free') {
+    const slw = document.getElementById('setListWrap');
+    if (slw) slw.style.display = '';
+  }
   renderSetDots(); // phase='hold'になった後に再描画（YOU ARE HERE表示のため）
   setBtnMain('stop', mode==='free' ? 'Stop' : 'Stop Hold');
   // btnMain非表示のまま（リングタップで操作）
@@ -2295,6 +2308,8 @@ function onReset() {
   document.getElementById('btnPause').style.borderColor = '';
   document.getElementById('btnPause').style.color = '';
   stopAllCameraActivity();
+  // freeモードのクリップ確認ボタンはリセット時に非表示
+  const _bcrF = document.getElementById('btnCameraReviewFree'); if(_bcrF) _bcrF.style.display = 'none';
   swDive = 0; swLocked = false; currentFC = null;
   stopRestTimer();
   hidePhaseRingLabel();
@@ -2332,24 +2347,24 @@ function renderUnifiedList() {
   list.innerHTML = '';
 
   if (mode === 'free') {
-    const holdOnly = holdDives.filter(d => !d.isRest);
-    const holdIndices = holdDives.map((d,i) => d.isRest ? null : i).filter(i => i !== null);
-    [...holdDives].reverse().forEach((d, i) => {
-      const absIdx = holdDives.length - 1 - i;
-      const holdRank = d.isRest ? null : holdIndices.indexOf(absIdx) + 1;
+    // 完了済みレコードを正順で表示
+    let holdRank = 0;
+    holdDives.forEach((d) => {
       const el = document.createElement('div');
-      el.className = 'set-row ' + (d.isRest ? 'done' : 'done');
       if (d.isRest) {
+        el.className = 'set-row done';
         el.style.opacity = '0.5';
         el.innerHTML = `
           <span class="set-n"></span>
           <span class="set-left"><span class="set-phase-lbl rest">Rest</span></span>
           <span class="set-time">${fmt(d.ms)}</span>`;
       } else {
+        holdRank++;
         const spo2Tag = d.minSpo2 != null
           ? `<span class="set-spo2 ${spo2Class(d.minSpo2)}">${d.minSpo2}%</span>` : '';
         const fcTag = d.fc != null
           ? `<span class="fc-tag">1st ${fmt(d.fc)}</span>` : '';
+        el.className = 'set-row done';
         el.innerHTML = `
           <span class="set-n">#${holdRank}</span>
           <span class="set-left">
@@ -2362,6 +2377,39 @@ function renderUnifiedList() {
       }
       list.appendChild(el);
     });
+
+    // 進行中カード（Hold中 or Surface中）
+    if (phase === 'hold') {
+      const el = document.createElement('div');
+      el.className = 'set-row current';
+      el.style.cssText = 'flex-direction:column;align-items:stretch;gap:3px;padding:5px 10px;border-color:var(--danger);background:rgba(239,68,68,.04)';
+      el.innerHTML = `
+        <div style="display:flex;align-items:center;gap:6px;background:rgba(239,68,68,.12);border-radius:6px;padding:3px 6px;margin:0 -2px">
+          <span class="set-n">#${holdRank + 1}</span>
+          <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--danger);min-width:22px;flex-shrink:0">Hold</span>
+          <span style="flex:1"></span>
+          <span style="font-size:8px;font-weight:800;letter-spacing:.1em;color:var(--danger);opacity:.7;white-space:nowrap;margin-right:6px">YOU ARE HERE</span>
+          <span id="liveHoldTime" style="font-size:14px;font-variant-numeric:tabular-nums;color:var(--danger);font-weight:400">00:00</span>
+        </div>`;
+      list.appendChild(el);
+    } else if (phase === 'surface') {
+      const el = document.createElement('div');
+      el.className = 'set-row current';
+      el.style.cssText = 'flex-direction:column;align-items:stretch;gap:3px;padding:5px 10px;border-color:#eab308;background:rgba(234,179,8,.04)';
+      el.innerHTML = `
+        <div style="display:flex;align-items:center;gap:6px;background:rgba(234,179,8,.08);border-radius:6px;padding:3px 6px;margin:0 -2px">
+          <span class="set-n">#${holdRank}</span>
+          <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#eab308;min-width:22px;flex-shrink:0">SP</span>
+          <span style="flex:1"></span>
+          <span style="font-size:8px;font-weight:800;letter-spacing:.1em;color:#eab308;opacity:.7;white-space:nowrap;margin-right:6px">YOU ARE HERE</span>
+          <span id="liveSurfaceTime" style="font-size:14px;font-variant-numeric:tabular-nums;color:#eab308;font-weight:400">0s</span>
+        </div>`;
+      list.appendChild(el);
+    }
+
+    // 最新行にスクロール
+    const lastRow = list.lastElementChild;
+    if (lastRow) lastRow.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     return;
   }
 
@@ -3069,7 +3117,7 @@ function openDetail(d) {
   } else {
     document.getElementById('detailChartWrap').style.display='none';
   }
-  const label = `Set #${d.set}`;
+  const label = mode === 'free' ? `Dive #${d.set}` : `Set #${d.set}`;
   _detailClipIndex = cameraClips.findIndex(c => c.label === label);
   document.getElementById('detailClipBtn').style.display = _detailClipIndex >= 0 ? '' : 'none';
   document.getElementById('detailOverlay').classList.add('open');
@@ -3135,7 +3183,7 @@ let camOverlay = {
 
 function _syncCameraButtons() {
   const on = cameraEnabled;
-  ['btnCameraToggle','btnCameraToggleCo2'].forEach(id => {
+  ['btnCameraToggle','btnCameraToggleCo2','btnCameraToggleFree'].forEach(id => {
     const b = document.getElementById(id); if (!b) return;
     b.textContent = on ? '📹 録画：ON' : '📹 録画：OFF';
     b.style.color = on ? 'var(--danger)' : 'var(--muted)';
@@ -3143,7 +3191,7 @@ function _syncCameraButtons() {
   });
 }
 function _syncCameraReviewButtons(show) {
-  ['btnCameraReview','btnCameraReviewCo2'].forEach(id => {
+  ['btnCameraReview','btnCameraReviewCo2','btnCameraReviewFree'].forEach(id => {
     const b = document.getElementById(id); if (!b) return;
     b.style.display = show ? '' : 'none';
   });
@@ -3516,7 +3564,8 @@ function onHoldStartCamera() {
   if (isManual) {
     camOverlay.phase  = 'hold';
     camOverlay.holdMs = 0;
-    startCamRecording(`Set #${currentSet+1}`);
+    const label = mode === 'free' ? `Dive #${swDive+1}` : `Set #${currentSet+1}`;
+    startCamRecording(label);
   }
 }
 
