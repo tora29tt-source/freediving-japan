@@ -712,7 +712,7 @@ header {
     </svg>
     <div class="timer-inner">
       <div class="time-main" id="timeMain">00:00</div>
-      <div class="time-ms"   id="timeMs">.00</div>
+      <div class="time-ms"   id="timeMs" style="visibility:hidden">.00</div>
       <div class="spo2-row hidden" id="spo2Row">
         <span class="spo2-v ok" id="spo2V">--</span>
         <span class="spo2-pct">%</span>
@@ -720,7 +720,7 @@ header {
       <div class="dive-num" id="diveNum"></div>
       <div class="phase-ring-label" id="phaseRingLabel" style="display:none"></div>
       <div class="rest-timer" id="restTimer" style="display:none"></div>
-      <div class="tap-hint" id="tapHint">TAP TO START</div>
+      <div class="tap-hint" id="tapHint" style="opacity:0">TAP TO START</div>
     </div>
     <!-- countdown overlay -->
     <div class="ring-countdown" id="ringCountdown">
@@ -761,13 +761,13 @@ header {
 
   <!-- CONTROLS -->
   <div class="controls">
-    <button class="btn-main start" id="btnMain" onclick="onMainBtn()">Start</button>
+    <button class="btn-main start" id="btnMain" onclick="onMainBtn()" style="display:none">Start</button>
     <div class="btn-row">
       <button class="btn-sub"      onclick="onReset()">Reset</button>
       <button class="btn-sub end" id="btnEnd" onclick="onEndSession()" style="display:none">終了</button>
       <button class="btn-sub" id="btnPause" onclick="onPause()" style="display:none">⏸ 一時中断</button>
       <button class="btn-sub save" id="btnSave" disabled onclick="openSave()">ログ登録へ</button>
-      <button class="btn-sub" id="btnClearAll" onclick="onClear()">Clear All</button>
+      <button class="btn-sub" id="btnClearAll" onclick="onClear()" style="display:none">Clear All</button>
     </div>
   </div>
 
@@ -1996,7 +1996,8 @@ function startHold() {
   document.getElementById('ringCountdown').classList.remove('visible');
   document.getElementById('btnEnd').style.display = 'none';
   ringHold.classList.remove('danger');
-  ringHold.style.stroke = 'var(--danger)'; // Hold開始時に赤を設定
+  ringHold.style.stroke = 'var(--danger)';
+  document.getElementById('timeMs').style.visibility = '';
   stopRestTimer();
   showPhaseRingLabel('Hold', 'hold');
   document.getElementById('btnPause').style.display = '';
@@ -2263,6 +2264,7 @@ function onReset() {
   setHoldRing(0); setRestRing(0); setSpo2Ring(null);
   document.getElementById('timeMain').textContent = '00:00';
   document.getElementById('timeMs').textContent   = '.00';
+  document.getElementById('timeMs').style.visibility = 'hidden';
   document.getElementById('timeMain').classList.remove('danger');
   document.getElementById('ringCountdown').classList.remove('visible');
   document.getElementById('surfaceOverlay').classList.remove('visible');
