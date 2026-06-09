@@ -3178,16 +3178,26 @@ async function initCamera() {
     if (!stream) throw lastErr;
     cameraStream = stream;
 
-    // Canvasセットアップ
-    camCanvas = document.getElementById('camCanvas');
-    camCtx = camCanvas.getContext('2d');
-    camCanvas.width  = 1280;
-    camCanvas.height = 720;
-
-    // video要素にストリームをセット（Canvas描画用）
+    // video要素にストリームをセット
     const vid = document.getElementById('cameraPreview');
     vid.srcObject = cameraStream;
+
+    // videoのメタデータ（解像度）を取得してからcanvasサイズを確定する
+    await new Promise(resolve => {
+      if (vid.readyState >= 1) { resolve(); return; }
+      vid.onloadedmetadata = resolve;
+    });
     await vid.play().catch(()=>{});
+
+    // Canvasセットアップ（解像度確定後に1回だけ設定 → 以降変更しない）
+    camCanvas = document.getElementById('camCanvas');
+    camCtx = camCanvas.getContext('2d');
+    const vw = vid.videoWidth  || 1280;
+    const vh = vid.videoHeight || 720;
+    camCanvas.width  = vw;
+    camCanvas.height = vh;
+    // アスペクト比をCSSで保持（プレビュー表示用）
+    camCanvas.style.aspectRatio = `${vw}/${vh}`;
 
     // Canvas プレビュー表示
     camCanvas.style.display = '';
@@ -3195,7 +3205,7 @@ async function initCamera() {
     cameraEnabled = true;
     _syncCameraButtons();
 
-    // Canvasプレビュー描画ループ開始（録画前もプレビュー表示）
+    // Canvasプレビュー描画ループ開始
     _startCanvasPreview();
     toast('📹 録画準備完了');
   } catch(e) {
@@ -3213,26 +3223,19 @@ async function initCamera() {
 function _startCanvasPreview() {
   if (!camCanvas || !camCtx) return;
   const vid = document.getElementById('cameraPreview');
+  const W = camCanvas.width, H = camCanvas.height;
+  const vw = vid.videoWidth  || W;
+  const vh = vid.videoHeight || H;
+  const scale = Math.max(W / vw, H / vh);
+  const dx = (W - vw * scale) / 2;
+  const dy = (H - vh * scale) / 2;
+
   function loop() {
     camRafId = requestAnimationFrame(loop);
     if (vid.readyState < 2) return;
-
-    // ビデオの実際のアスペクト比に合わせてCanvasサイズを決定（初回のみ）
-    if (vid.videoWidth > 0 && camCanvas.width !== vid.videoWidth) {
-      camCanvas.width  = vid.videoWidth;
-      camCanvas.height = vid.videoHeight;
-    }
-
-    const W = camCanvas.width, H = camCanvas.height;
     camCtx.save();
     // 左右反転（インカメラ用ミラー）
     camCtx.translate(W, 0); camCtx.scale(-1, 1);
-    // アスペクト比を保ったままobject-fit:coverと同等に描画
-    const vw = vid.videoWidth  || W;
-    const vh = vid.videoHeight || H;
-    const scale = Math.max(W / vw, H / vh);
-    const dx = (W - vw * scale) / 2;
-    const dy = (H - vh * scale) / 2;
     camCtx.drawImage(vid, dx, dy, vw * scale, vh * scale);
     camCtx.restore();
     if (isRecording) _drawOverlay(W, H);
@@ -3253,8 +3256,8 @@ function _drawOverlay(W, H) {
     ctx.fillRect(0, H - BAR, W, BAR);
 
     const pad   = W * 0.04;
-    const timeY = H - Math.round(BAR * 0.18); // 下から18%の位置
-    const lblY  = H - Math.round(BAR * 0.72); // 下から72%の位置
+    const timeY = H - Math.round(BAR * 0.14);
+    const lblY  = H - Math.round(BAR * 0.68);
 
     // HOLD ラベル
     ctx.fillStyle = '#ef4444';
@@ -3262,18 +3265,22 @@ function _drawOverlay(W, H) {
     ctx.textAlign = 'left';
     ctx.fillText('HOLD', pad, lblY);
 
-    // ダイブタイム（大）
-    const holdStr = fmt(ov.holdMs);
-    const tSize   = Math.round(H * 0.10);
-    ctx.fillStyle = '#e8f4f8';
-    ctx.font      = `300 ${tSize}px -apple-system, sans-serif`;
-    ctx.fillText(holdStr, pad, timeY);
+    // MM:SS を固定幅エリア内で右揃え（"00:00"幅を基準に右端固定）
+    const tSize    = Math.round(H * 0.10);
+    ctx.font       = `300 ${tSize}px -apple-system, sans-serif`;
+    const maxTimeW = ctx.measureText('00:00').width;
+    const timeRX   = pad + maxTimeW; // MM:SSの右端X（固定）
 
-    // ms（タイムの右）
-    const tW = ctx.measureText(holdStr).width;
+    ctx.fillStyle  = '#e8f4f8';
+    ctx.textAlign  = 'right';
+    ctx.fillText(fmt(ov.holdMs), timeRX, timeY);
+
+    // .ss は timeRX の直後（常に同じX）
+    const msSize  = Math.round(tSize * 0.44);
     ctx.fillStyle = '#5a8ca8';
-    ctx.font      = `300 ${Math.round(tSize * 0.44)}px -apple-system, sans-serif`;
-    ctx.fillText(fmtMs(ov.holdMs), pad + tW + W * 0.01, timeY - Math.round(tSize * 0.10));
+    ctx.font      = `300 ${msSize}px -apple-system, sans-serif`;
+    ctx.textAlign = 'left';
+    ctx.fillText(fmtMs(ov.holdMs), timeRX + W * 0.006, timeY - Math.round(tSize * 0.08));
 
     // SpO2（右側・ラベルと値が重ならないよう縦に並べる）
     if (ov.spo2 !== null) {
@@ -3304,24 +3311,26 @@ function _drawOverlay(W, H) {
     ctx.textAlign = 'left';
     ctx.fillText('SURFACE PROTOCOL', pad, lblY);
 
-    // 経過秒数（左・大）
+    // 経過秒数（左・大）— 右端固定で数字幅変化によるガタつきを防ぐ
     const elapsedSec = Math.floor(ov.spElapsed / 1000);
-    const elStr  = elapsedSec + 's';
     const elSize = Math.round(H * 0.13);
-    ctx.fillStyle = '#ffffff';
-    ctx.font      = `200 ${elSize}px -apple-system, sans-serif`;
-    ctx.fillText(elStr, pad, valY);
+    ctx.font = `200 ${elSize}px -apple-system, sans-serif`;
+    const maxElW = ctx.measureText('00s').width; // "00s"幅を基準に固定
+    const elRX   = pad + maxElW;                 // 右端X固定
 
-    // ダイブタイム（経過秒数の右隣・小）
-    const elW     = ctx.measureText(elStr).width;
-    const dtStr   = fmt(ov.diveMs) + fmtMs(ov.diveMs);
-    const dtSize  = Math.round(elSize * 0.38);
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'right';
+    ctx.fillText(elapsedSec + 's', elRX, valY);
+
+    // ダイブタイム（経過秒数エリアの右隣・固定X）
+    const dtX    = elRX + W * 0.03;
+    const dtSize = Math.round(elSize * 0.38);
     ctx.fillStyle = '#a8ece8';
     ctx.font      = `300 ${dtSize}px -apple-system, sans-serif`;
-    ctx.fillText('DIVE', pad + elW + W * 0.025, valY - Math.round(elSize * 0.48));
+    ctx.textAlign = 'left';
+    ctx.fillText('DIVE', dtX, valY - Math.round(elSize * 0.48));
     ctx.fillStyle = '#e8f4f8';
-    ctx.font      = `300 ${dtSize}px -apple-system, sans-serif`;
-    ctx.fillText(dtStr, pad + elW + W * 0.025, valY - Math.round(elSize * 0.10));
+    ctx.fillText(fmt(ov.diveMs) + fmtMs(ov.diveMs), dtX, valY - Math.round(elSize * 0.10));
 
     // SpO2（右側・ラベルと値を縦配置）
     if (ov.spo2 !== null) {
@@ -3427,9 +3436,12 @@ function onSurfaceStart() {
 // ── Hold開始時に呼ぶ（マニュアルモード）────────────────────
 function onHoldStartCamera() {
   if (!cameraEnabled) return;
-  const isManual = !(holdAutoSec() || holdFixedSec());
+  // cfg.tblHoldStop が 'manual' かどうかで判定（sessionPlan経由の誤判定を回避）
+  const isManual = (mode === 'o2' || mode === 'co2')
+    ? cfg.tblHoldStop === 'manual'
+    : true; // Stopwatchモードは常にマニュアル
   if (isManual) {
-    camOverlay.phase = 'hold';
+    camOverlay.phase  = 'hold';
     camOverlay.holdMs = 0;
     startCamRecording(`Set #${currentSet+1}`);
   }
