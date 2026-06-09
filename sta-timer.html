@@ -1645,9 +1645,8 @@ function setMode(m) {
 
   const isSW = m === 'free';
   const _bl = document.getElementById('btnLap'); if(_bl) _bl.style.display = isSW ? '' : 'none';
-  // freeモード用カメラボタンの表示制御
   const _bct = document.getElementById('btnCameraToggleFree'); if(_bct) _bct.style.display = isSW ? '' : 'none';
-  const _bcr = document.getElementById('btnCameraReviewFree'); if(_bcr) _bcr.style.display = 'none'; // クリップありの時だけ表示
+  const _bcr = document.getElementById('btnCameraReviewFree'); if(_bcr) _bcr.style.display = 'none';
   document.getElementById('btnNext').style.display = 'none';
   document.getElementById('btnFC').style.display = 'none';
   swLocked = false;
@@ -2034,7 +2033,7 @@ function startHold() {
     ? 'Stopwatch — Running'
     : `Set ${currentSet+1}/${totalSets()} — Hold`);
   updateDiveNum();
-  // freeモード: 1本目のhold開始時にsetListWrapを表示
+  // freeモード: hold開始時にsetListWrapを表示
   if (mode === 'free') {
     const slw = document.getElementById('setListWrap');
     if (slw) slw.style.display = '';
@@ -2062,7 +2061,7 @@ function endHold(auto=false) {
   stopMock();
   phaseMs = performance.now() - phaseStart;
   const rec = {
-    set: currentSet+1, ms: phaseMs,
+    set: mode === 'free' ? swDive+1 : currentSet+1, ms: phaseMs,
     spo2Profile: [...spo2Buf],
     minSpo2: spo2Buf.length ? Math.min(...spo2Buf.map(p=>p.v)) : null,
     fc: currentFC, // First Contraction time (ms)
@@ -2308,7 +2307,6 @@ function onReset() {
   document.getElementById('btnPause').style.borderColor = '';
   document.getElementById('btnPause').style.color = '';
   stopAllCameraActivity();
-  // freeモードのクリップ確認ボタンはリセット時に非表示
   const _bcrF = document.getElementById('btnCameraReviewFree'); if(_bcrF) _bcrF.style.display = 'none';
   swDive = 0; swLocked = false; currentFC = null;
   stopRestTimer();
@@ -2347,7 +2345,6 @@ function renderUnifiedList() {
   list.innerHTML = '';
 
   if (mode === 'free') {
-    // 完了済みレコードを正順で表示
     let holdRank = 0;
     holdDives.forEach((d) => {
       const el = document.createElement('div');
@@ -2378,7 +2375,7 @@ function renderUnifiedList() {
       list.appendChild(el);
     });
 
-    // 進行中カード（Hold中 or Surface中）
+    // 進行中カード
     if (phase === 'hold') {
       const el = document.createElement('div');
       el.className = 'set-row current';
@@ -2407,7 +2404,6 @@ function renderUnifiedList() {
       list.appendChild(el);
     }
 
-    // 最新行にスクロール
     const lastRow = list.lastElementChild;
     if (lastRow) lastRow.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     return;
@@ -3557,10 +3553,9 @@ function onSurfaceStart() {
 // ── Hold開始時に呼ぶ（マニュアルモード）────────────────────
 function onHoldStartCamera() {
   if (!cameraEnabled) return;
-  // cfg.tblHoldStop が 'manual' かどうかで判定（sessionPlan経由の誤判定を回避）
   const isManual = (mode === 'o2' || mode === 'co2')
     ? cfg.tblHoldStop === 'manual'
-    : true; // Stopwatchモードは常にマニュアル
+    : true;
   if (isManual) {
     camOverlay.phase  = 'hold';
     camOverlay.holdMs = 0;
