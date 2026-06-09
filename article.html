@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>記事タイトル — Freediving Japan</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ocean-deep:  #0b2d45;
+  --ocean-mid:   #0e3d5c;
+  --ocean-light: #1a5f82;
+  --teal:        #2ec4b6;
+  --teal-light:  #a8ece8;
+  --abyss:       #04161f;
+  --warm:        #f97316;
+  --on-dark:        rgba(255,255,255,0.92);
+  --on-dark-mid:    rgba(255,255,255,0.60);
+  --on-dark-soft:   rgba(255,255,255,0.34);
+  --hairline:       rgba(168,236,232,0.12);
+  --glass:          rgba(255,255,255,0.042);
+}
+
+html { background: var(--abyss); }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  background: linear-gradient(180deg,
+    var(--ocean-mid)  0%,
+    var(--ocean-deep) 16%,
+    #071f30 45%,
+    var(--abyss) 100%);
+  background-attachment: fixed;
+  color: var(--on-dark);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+.icon { width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;display:block; }
+
+/* ── header ── */
+.header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(6,32,46,0.65);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--hairline);
+  padding: 0 18px; height: 52px;
+  display: flex; align-items: center; gap: 10px;
+}
+.back-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 1px solid var(--hairline);
+  color: var(--on-dark-mid); text-decoration: none; flex-shrink: 0;
+  transition: color 0.2s, border-color 0.2s;
+}
+.back-btn:hover { color: var(--on-dark); border-color: rgba(168,236,232,0.28); }
+.back-btn .icon { width:17px;height:17px; }
+.header-label { font-size: 12px; color: var(--on-dark-soft); letter-spacing: 0.06em; flex: 1; }
+
+/* 読了プログレスバー */
+.progress-bar {
+  position: fixed; top: 52px; left: 0; right: 0; height: 2px;
+  background: var(--hairline); z-index: 101;
+}
+.progress-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, var(--teal), var(--teal-light));
+  transition: width 0.1s linear;
+}
+
+/* ── アイキャッチ ── */
+.hero {
+  position: relative; height: 56vw; max-height: 340px; min-height: 220px;
+  overflow: hidden;
+}
+.hero-img {
+  position: absolute; inset: 0;
+  background: var(--ocean-mid);
+  background-image: url('../images/pool_portrait.jpg');
+  background-size: cover; background-position: center 20%;
+}
+.hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(4,22,31,0.10) 0%, rgba(4,22,31,0.70) 100%);
+}
+
+
+/* ── 記事メタ ── */
+.article-meta-wrap {
+  padding: 22px 18px 0;
+  max-width: 680px; margin: 0 auto;
+}
+.article-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
+  border-radius: 100px; padding: 3px 11px; margin-bottom: 13px; width: fit-content;
+}
+.tag-interview { background: rgba(46,196,182,0.14); border: 1px solid rgba(46,196,182,0.28); color: var(--teal-light); }
+.tag-news      { background: rgba(249,115,22,0.12);  border: 1px solid rgba(249,115,22,0.26);  color: #fba96a; }
+.tag-tips      { background: rgba(168,236,232,0.08); border: 1px solid rgba(168,236,232,0.18); color: var(--on-dark-mid); }
+.article-tag .icon { width:10px;height:10px; }
+
+.article-title {
+  font-size: 22px; font-weight: 700; color: var(--on-dark);
+  line-height: 1.50; letter-spacing: 0.01em; margin-bottom: 14px;
+}
+.article-byline {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 11px; color: var(--on-dark-soft);
+  padding-bottom: 18px; border-bottom: 1px solid var(--hairline);
+}
+.byline-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--ocean-light); flex-shrink: 0;
+  border: 1px solid var(--hairline); overflow: hidden;
+}
+.byline-avatar img { width:100%;height:100%;object-fit:cover; }
+.byline-name { color: var(--on-dark-mid); font-weight: 500; }
+.byline-dot { width:2px;height:2px;border-radius:50%;background:currentColor; }
+
+/* ── プロフィールカード ── */
+.profile-card {
+  margin: 22px 18px;
+  max-width: 680px; margin-left: auto; margin-right: auto;
+  background: rgba(14,61,92,0.35);
+  border: 1px solid rgba(46,196,182,0.18);
+  border-radius: 16px; overflow: hidden;
+  margin-bottom: 0;
+}
+.profile-card-inner { padding: 18px; }
+.profile-card-eyebrow {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--teal); margin-bottom: 13px; opacity: 0.80;
+}
+.profile-main { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+.profile-avatar {
+  width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0;
+  background: var(--ocean-light);
+  border: 2px solid rgba(46,196,182,0.25); overflow: hidden;
+}
+.profile-avatar img { width:100%;height:100%;object-fit:cover; }
+.profile-info { flex: 1; min-width: 0; }
+.profile-name { font-size: 16px; font-weight: 700; color: var(--on-dark); margin-bottom: 3px; }
+.profile-role { font-size: 11px; color: var(--teal-light); margin-bottom: 6px; }
+.profile-bio { font-size: 12px; color: var(--on-dark-mid); line-height: 1.75; }
+
+/* 記録グリッド（選手の場合） */
+.profile-records {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1px; background: var(--hairline);
+  border-top: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
+  margin: 0 -18px; /* カード幅いっぱいに */
+}
+.record-item {
+  background: rgba(11,45,69,0.40);
+  padding: 12px 10px; text-align: center;
+}
+.record-value {
+  font-size: 15px; font-weight: 700; color: var(--teal-light);
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  margin-bottom: 3px;
+}
+.record-label { font-size: 9px; color: var(--on-dark-soft); letter-spacing: 0.10em; line-height: 1.4; }
+
+/* プロフィールリンク */
+.profile-links {
+  display: flex; gap: 8px; padding: 14px 18px;
+  flex-wrap: wrap;
+}
+.profile-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 500; letter-spacing: 0.06em;
+  padding: 8px 14px; border-radius: 100px; text-decoration: none;
+  transition: background 0.2s, border-color 0.2s;
+  border: 1px solid var(--hairline); color: var(--on-dark-mid);
+}
+.profile-link:hover { color: var(--on-dark); border-color: rgba(168,236,232,0.28); }
+.profile-link.link-ranking {
+  border-color: rgba(46,196,182,0.28); color: var(--teal-light);
+  background: rgba(46,196,182,0.07);
+}
+.profile-link.link-ranking:hover { background: rgba(46,196,182,0.14); }
+.profile-link.link-instructor {
+  border-color: rgba(249,115,22,0.28); color: #fba96a;
+  background: rgba(249,115,22,0.07);
+}
+.profile-link.link-instructor:hover { background: rgba(249,115,22,0.14); }
+.profile-link .icon { width:13px;height:13px; }
+
+/* ── 本文 ── */
+.article-body {
+  padding: 28px 18px;
+  max-width: 680px; margin: 0 auto;
+}
+
+/* 本文テキスト */
+.body-p {
+  font-size: 15px; line-height: 2.0; color: var(--on-dark-mid);
+  margin-bottom: 24px; letter-spacing: 0.02em;
+}
+.body-p:first-child { color: var(--on-dark); } /* リード文は少し明るく */
+
+/* 見出し */
+.body-h2 {
+  font-size: 17px; font-weight: 700; color: var(--on-dark);
+  line-height: 1.5; margin: 36px 0 14px;
+  padding-left: 14px;
+  border-left: 2px solid var(--teal);
+  letter-spacing: 0.02em;
+}
+
+/* プルクオート（深海っぽい引用） */
+.pullquote {
+  margin: 32px 0;
+  padding: 24px 20px;
+  background: rgba(14,61,92,0.30);
+  border: 1px solid rgba(46,196,182,0.16);
+  border-radius: 14px;
+  position: relative; overflow: hidden;
+}
+.pullquote::before {
+  content: '"';
+  position: absolute; top: -10px; left: 12px;
+  font-size: 80px; font-weight: 900;
+  color: var(--teal); opacity: 0.12;
+  line-height: 1; font-family: Georgia, serif;
+  pointer-events: none;
+}
+.pullquote-text {
+  font-size: 17px; font-weight: 500; color: var(--on-dark);
+  line-height: 1.75; letter-spacing: 0.02em; margin-bottom: 12px;
+  position: relative; z-index: 1;
+}
+.pullquote-attr {
+  font-size: 11px; color: var(--teal-light); letter-spacing: 0.08em;
+  display: flex; align-items: center; gap: 8px;
+}
+.pullquote-attr::before { content: '—'; }
+
+/* 本文内画像 */
+.body-img {
+  width: 100%; border-radius: 12px; overflow: hidden;
+  margin: 28px 0; border: 1px solid var(--hairline);
+}
+.body-img img { width:100%;display:block; }
+.body-img-caption {
+  font-size: 11px; color: var(--on-dark-soft);
+  padding: 8px 12px; line-height: 1.6; letter-spacing: 0.02em;
+}
+
+/* ── シェア ── */
+.share-wrap {
+  padding: 0 18px 28px;
+  max-width: 680px; margin: 0 auto;
+  border-top: 1px solid var(--hairline); padding-top: 24px;
+}
+.share-label { font-size: 11px; color: var(--on-dark-soft); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px; }
+.share-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.share-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 12px; font-weight: 500; letter-spacing: 0.06em;
+  padding: 10px 16px; border-radius: 100px;
+  border: 1px solid var(--hairline); color: var(--on-dark-mid);
+  background: transparent; cursor: pointer; text-decoration: none;
+  transition: color 0.2s, border-color 0.2s;
+}
+.share-btn:hover { color: var(--on-dark); border-color: rgba(168,236,232,0.28); }
+.share-btn .icon { width:15px;height:15px; }
+
+/* ── 関連記事 ── */
+.related-wrap {
+  padding: 0 18px 28px;
+  max-width: 680px; margin: 0 auto;
+}
+.related-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--teal); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.related-label::after { content:''; flex:1; height:1px; background:var(--hairline); }
+.related-cards { display: flex; flex-direction: column; gap: 1px; }
+.related-card {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 0; border-bottom: 1px solid var(--hairline);
+  text-decoration: none; transition: opacity 0.2s;
+}
+.related-card:last-child { border-bottom: none; }
+.related-card:hover { opacity: 0.70; }
+.related-thumb {
+  width: 64px; height: 50px; border-radius: 9px; flex-shrink: 0;
+  background: var(--ocean-mid); background-size: cover; background-position: center;
+  border: 1px solid var(--hairline);
+}
+.related-body { flex: 1; min-width: 0; }
+.related-tag { font-size: 9px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--teal); margin-bottom: 4px; }
+.related-title { font-size: 12px; font-weight: 500; color: var(--on-dark); line-height: 1.55; }
+
+/* ── bottom nav ── */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: rgba(4,22,31,0.88);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--hairline);
+  display: flex; height: 60px; z-index: 100;
+}
+.bnav-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 4px;
+  color: var(--on-dark-soft); text-decoration: none; transition: color 0.2s;
+}
+.bnav-item .icon { width:21px;height:21px; }
+.bnav-item.active { color: var(--teal); }
+.bnav-label { font-size: 9px; font-weight: 500; letter-spacing: 0.06em; }
+
+.article-bottom-spacer { height: 80px; }
+
+@media (min-width: 700px) {
+  .article-title { font-size: 26px; }
+  .body-p { font-size: 16px; }
+  .bottom-nav { max-width: 640px; left: 50%; transform: translateX(-50%); border-left: 1px solid var(--hairline); border-right: 1px solid var(--hairline); }
+}
+</style>
+</head>
+<body>
+
+<!-- header -->
+<header class="header">
+  <a class="back-btn" href="index.html">
+    <svg class="icon" viewBox="0 0 24 24"><path d="M19 12H5"/><path d="M11 6l-6 6 6 6"/></svg>
+  </a>
+  <div class="header-label">メディア</div>
+</header>
+
+<!-- 読了プログレスバー -->
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+<!-- アイキャッチ -->
+<div class="hero">
+  <div class="hero-img"></div>
+  <div class="hero-overlay"></div>
+
+</div>
+
+<!-- 記事メタ -->
+<div class="article-meta-wrap">
+  <div class="article-tag tag-interview">
+    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/></svg>
+    インタビュー
+  </div>
+  <h1 class="article-title">「深さじゃなく、静けさを求めて潜る」<br>— 山田 誠・AIDA Japan 代表選手</h1>
+  <div class="article-byline">
+    <div class="byline-avatar"><img src="../images/takuya.jpg" alt="Takuya"></div>
+    <span class="byline-name">Takuya Terajima</span>
+    <span class="byline-dot"></span>
+    <span>2026.06.05</span>
+    <span class="byline-dot"></span>
+    <span>5分で読める</span>
+  </div>
+</div>
+
+<!-- プロフィールカード（選手 + インストラクター両方の例） -->
+<div class="profile-card" style="margin: 20px 18px;">
+  <div class="profile-card-inner">
+    <div class="profile-card-eyebrow">この記事に登場する人物</div>
+    <div class="profile-main">
+      <div class="profile-avatar"><img src="../images/pool_portrait.jpg" alt="山田 誠"></div>
+      <div class="profile-info">
+        <div class="profile-name">山田 誠</div>
+        <div class="profile-role">競技フリーダイバー / AIDAインストラクター</div>
+        <div class="profile-bio">2016年からフリーダイビングを始め、競技歴8年。2024年AIDA Japan選手権STA部門3位。現在は都内でインストラクターとしても活動中。</div>
+      </div>
+    </div>
+  </div>
+  <!-- 記録グリッド（選手の場合のみ表示） -->
+  <div class="profile-records">
+    <div class="record-item">
+      <div class="record-value">7'12"</div>
+      <div class="record-label">STA<br>自己ベスト</div>
+    </div>
+    <div class="record-item">
+      <div class="record-value">82m</div>
+      <div class="record-label">CWT<br>自己ベスト</div>
+    </div>
+    <div class="record-item">
+      <div class="record-value">AIDA★★★</div>
+      <div class="record-label">インストラクター<br>資格</div>
+    </div>
+  </div>
+  <!-- リンク -->
+  <div class="profile-links">
+    <a class="profile-link link-ranking" href="../AIDA_ranking_prototype.html#yamada-makoto">
+      <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M8.5 12.5L7 21l5-3 5 3-1.5-8.5"/></svg>
+      ランキングを見る
+    </a>
+    <a class="profile-link link-instructor" href="../explore/index.html#yamada-makoto">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M3 9l9-4 9 4-9 4-9-4z"/><path d="M7 11v5c0 1 2.5 2.5 5 2.5s5-1.5 5-2.5v-5"/></svg>
+      インストラクターページ
+    </a>
+  </div>
+</div>
+
+<!-- 本文 -->
+<div class="article-body">
+
+  <p class="body-p">
+    鹿児島の海で、山田誠は目を閉じた。水深20メートル。耳に届く音はもう何もない。肺の中の空気が少しずつ圧縮されていくのを感じながら、彼はただ落ちていく。
+  </p>
+
+  <p class="body-p">
+    「深さを競うのは、もちろん楽しい。でも自分が本当に求めているのは、あの静けさなんだと思う。地上では絶対に味わえない、完全な静寂。そこに辿り着きたくて潜り続けてる」
+  </p>
+
+  <div class="pullquote">
+    <div class="pullquote-text">息を止めた瞬間から、時間の流れ方が変わる。あれは競技じゃなくて、一種の瞑想だと思ってる。</div>
+    <div class="pullquote-attr">山田 誠</div>
+  </div>
+
+  <h2 class="body-h2">記録との向き合い方</h2>
+
+  <p class="body-p">
+    2024年のAIDA Japan選手権でSTA部門3位に入賞した山田。しかし彼が語る競技への姿勢は、意外なほど淡々としている。「記録は結果であって、目的じゃない。練習で積み上げたものが大会で出るかどうか、それだけ」。
+  </p>
+
+  <div class="body-img">
+    <img src="../images/dive_deep_rope.jpg" alt="ロープを伝って潜行する山田選手">
+    <div class="body-img-caption">2024年AIDA Japan選手権。山田選手のCWT競技の様子。Photo: Takuya Terajima</div>
+  </div>
+
+  <h2 class="body-h2">インストラクターとして伝えること</h2>
+
+  <p class="body-p">
+    競技の傍ら、都内のスクールでインストラクターとしても活動する山田。生徒に最初に伝えることは、記録でも技術でもない。「まず怖くない、ということを体で覚えてもらう。海は怖い場所じゃない。そこから全部始まる」。
+  </p>
+
+  <p class="body-p">
+    フリーダイビングの事故の多くは、無理をすることから起きる。経験を積んだ選手でもそれは変わらない。「自分の限界を知ること。それがこのスポーツで一番大切なスキルだと思う」。
+  </p>
+
+  <div class="pullquote">
+    <div class="pullquote-text">生徒が初めて水面に戻ってきて「気持ちよかった」って言う瞬間。あれがインストラクターをやめられない理由です。</div>
+    <div class="pullquote-attr">山田 誠</div>
+  </div>
+
+</div>
+
+<!-- シェア -->
+<div class="share-wrap">
+  <div class="share-label">シェアする</div>
+  <div class="share-btns">
+    <a class="share-btn" href="#">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M4 4l16 8-16 8V4z"/></svg>
+      X でシェア
+    </a>
+    <a class="share-btn" href="#">
+      <svg class="icon" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><circle cx="17.5" cy="6.5" r="1"/></svg>
+      Instagram
+    </a>
+    <button class="share-btn" onclick="navigator.clipboard.writeText(location.href)">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      リンクをコピー
+    </button>
+  </div>
+</div>
+
+<!-- 関連記事 -->
+<div class="related-wrap">
+  <div class="related-label">関連記事</div>
+  <div class="related-cards">
+    <a class="related-card" href="interview-002.html">
+      <div class="related-thumb" style="background-image:url('../images/dive_deep_rope.jpg');background-position:center 30%;"></div>
+      <div class="related-body">
+        <div class="related-tag">インタビュー</div>
+        <div class="related-title">「息を止めることは、考えをやめること」— 鈴木 凛</div>
+      </div>
+    </a>
+    <a class="related-card" href="tips-001.html">
+      <div class="related-thumb" style="background-image:url('../images/surface_boat_view.jpg');background-position:center top;"></div>
+      <div class="related-body">
+        <div class="related-tag">技術・安全</div>
+        <div class="related-title">耳抜きができない理由と、正しい練習法</div>
+      </div>
+    </a>
+  </div>
+</div>
+
+<div class="article-bottom-spacer"></div>
+
+<!-- bottom nav -->
+<nav class="bottom-nav">
+  <a class="bnav-item" href="../index.html">
+    <svg class="icon" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7"/><path d="M6 9.5V20h12V9.5"/></svg>
+    <span class="bnav-label">ホーム</span>
+  </a>
+  <a class="bnav-item" href="../explore/index.html">
+    <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    <span class="bnav-label">探す</span>
+  </a>
+  <a class="bnav-item active" href="index.html">
+    <svg class="icon" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h7v16H6a2 2 0 0 0-2 2z"/><path d="M20 5a2 2 0 0 0-2-2h-5v16h5a2 2 0 0 1 2 2z"/></svg>
+    <span class="bnav-label">メディア</span>
+  </a>
+  <a class="bnav-item" href="../mypage.html">
+    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/></svg>
+    <span class="bnav-label">マイページ</span>
+  </a>
+</nav>
+
+<script>
+// 読了プログレスバー
+const progress = document.getElementById('progress');
+window.addEventListener('scroll', () => {
+  const total = document.body.scrollHeight - window.innerHeight;
+  const pct = Math.min(100, (window.scrollY / total) * 100);
+  progress.style.width = pct + '%';
+}, { passive: true });
+</script>
+
+</body>
+</html>
