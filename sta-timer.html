@@ -3230,17 +3230,17 @@ function _startCanvasPreview() {
   const dx = (W - vw * scale) / 2;
   const dy = (H - vh * scale) / 2;
 
+  if (camRafId) { cancelAnimationFrame(camRafId); camRafId = null; }
+
   function loop() {
     camRafId = requestAnimationFrame(loop);
     if (vid.readyState < 2) return;
     camCtx.save();
-    // 左右反転（インカメラ用ミラー）
     camCtx.translate(W, 0); camCtx.scale(-1, 1);
     camCtx.drawImage(vid, dx, dy, vw * scale, vh * scale);
     camCtx.restore();
     if (isRecording) _drawOverlay(W, H);
   }
-  if (camRafId) cancelAnimationFrame(camRafId);
   loop();
 }
 
@@ -3368,6 +3368,8 @@ function stopCameraStream() {
 function stopAllCameraActivity() {
   clearTimeout(holdRecordTimeout);
   clearTimeout(restRecordTimeout);
+  clearInterval(restRecordTimeout);
+  holdRecordTimeout = null; restRecordTimeout = null;
   if (camRecorder && camRecorder.state !== 'inactive') camRecorder.stop();
   camRecorder = null; camChunks = []; isRecording = false; camRecordLabel = '';
 }
@@ -3380,22 +3382,29 @@ function startCamRecording(label) {
   try {
     const canvasStream = camCanvas.captureStream(30);
     // audioトラックをcameraStreamから追加
-    const audioTracks = cameraStream.getAudioTracks();
+    const audioTracks = cameraStream ? cameraStream.getAudioTracks() : [];
     audioTracks.forEach(t => canvasStream.addTrack(t));
 
     const mimeType = getSupportedMimeType();
     const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
-    camRecorder = new MediaRecorder(canvasStream, mimeType ? { mimeType } : {});
-    camRecorder.ondataavailable = e => { if (e.data.size > 0) camChunks.push(e.data); };
+    const opts = mimeType ? { mimeType } : {};
+    camRecorder = new MediaRecorder(canvasStream, opts);
+    camRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) camChunks.push(e.data); };
+    camRecorder.onerror = e => { console.error('MediaRecorder error:', e); };
     camRecorder.onstop = () => {
+      if (camChunks.length === 0) { toast('録画データなし', true); return; }
       const blob = new Blob(camChunks, { type: mimeType || 'video/webm' });
       cameraClips.push({ label: camRecordLabel, blob, ext });
       _syncCameraReviewButtons(true);
       toast(`📹 ${camRecordLabel} 保存`);
     };
-    camRecorder.start();
+    // timeslice=1000ms でiOS安定化（ondataavailableを定期発火させてメモリ蓄積を防ぐ）
+    camRecorder.start(1000);
     isRecording = true;
-  } catch(e) { console.error('cam record error', e); }
+  } catch(e) {
+    console.error('cam record error', e);
+    toast('録画開始失敗', true);
+  }
 }
 
 // ── オートモード：Hold残り30秒で録画予約 ─────────────────
@@ -3412,25 +3421,32 @@ function scheduleHoldRecording(autoSec) {
 // ── Surface開始時に呼ぶ ───────────────────────────────────
 function onSurfaceStart() {
   if (!cameraEnabled) return;
-  // 録画中でなければ開始（マニュアルモードでHold全体が30秒未満の場合など）
+  // 録画中でなければ開始
   if (!isRecording) {
     camOverlay.phase = 'hold';
     startCamRecording(`Set #${currentSet+1}`);
   }
   // Surface開始時刻を記録（rest中の継続オーバーレイ用）
   _camSurfaceStartTime = performance.now();
-  // Hold最終タイムを確定保存（Surface中の固定表示用）
+  // Hold最終タイムを確定保存
   camOverlay.diveMs = camOverlay.holdMs;
   // オーバーレイをSurfaceモードに切り替え
-  camOverlay.phase = 'surface';
-  camOverlay.spCount = 0;
+  camOverlay.phase     = 'surface';
   camOverlay.spElapsed = 0;
+
   // Surface後30秒で録画停止
+  // setTimeoutはiOSバックグラウンドで遅延するためsetIntervalで監視
   clearTimeout(restRecordTimeout);
-  restRecordTimeout = setTimeout(() => {
-    if (camRecorder && camRecorder.state !== 'inactive') camRecorder.stop();
-    isRecording = false;
-  }, 30000);
+  clearInterval(restRecordTimeout);
+  const stopAt = Date.now() + 30000;
+  restRecordTimeout = setInterval(() => {
+    if (Date.now() >= stopAt) {
+      clearInterval(restRecordTimeout);
+      restRecordTimeout = null;
+      if (camRecorder && camRecorder.state !== 'inactive') camRecorder.stop();
+      isRecording = false;
+    }
+  }, 500);
 }
 
 // ── Hold開始時に呼ぶ（マニュアルモード）────────────────────
@@ -3449,6 +3465,14 @@ function onHoldStartCamera() {
 
 // セッション開始時（何もしない、各Hold開始で録画）
 function onSessionStartCamera() {}
+
+// ── 画面復帰時にCanvasループを再起動（iOSバックグラウンド対策）──
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && cameraEnabled && camCanvas) {
+    // RAFが止まっている場合に再起動
+    if (!camRafId) _startCanvasPreview();
+  }
+});
 
 // ── tick()から毎フレーム呼ぶ：オーバーレイデータ更新 ──────
 // Surface後30秒は phase='rest' になるが録画は継続するため、
