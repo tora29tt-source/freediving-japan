@@ -2133,7 +2133,7 @@ function startRestFromSurface(alreadyElapsedMs) {
   }
   showPhaseRingLabel('Rest', 'rest');
   const label = fixedSec ? fmt(fixedSec*1000) : '—';
-  showPhase('rest', `Set ${currentSet+1}/${totalSets()} — Rest ${label}`);
+  showPhase('rest', `Set ${currentSet}/${totalSets()} — Rest ${label}`);
   setHoldRing(0);
   setBtnMain('rest', 'Resting…');
   updateDiveNum();
@@ -2150,7 +2150,7 @@ function startRest() {
   showPhaseRingLabel('Rest', 'rest');
   const fixedSec = restFixedSec() || restAutoSec();
   const label = fixedSec ? fmt(fixedSec*1000) : '—';
-  showPhase('rest', `Set ${currentSet+1}/${totalSets()} — Rest ${label}`);
+  showPhase('rest', `Set ${currentSet}/${totalSets()} — Rest ${label}`);
   setHoldRing(0);
   setBtnMain('rest', 'Resting…');
   updateDiveNum();
@@ -3323,81 +3323,86 @@ function _drawOverlay(W, H) {
 
   } else {
     // ── SURFACE カード（左下）+ SpO2ピル（右下）──────────
-    const cW = u * 6.0;
     const cH = u * 1.2;
-    const cX = pad;
-    const cY = H - pad - cH;
     const r  = cH * 0.3;
-
-    // 背景
-    ctx.fillStyle = 'rgba(6,15,23,0.82)';
-    pill(cX, cY, cW, cH, r); ctx.fill();
-
-    // 左アクセントバー（アンバー）
-    ctx.fillStyle = '#eab308cc';
-    pill(cX, cY + cH * 0.18, u * 0.06, cH * 0.64, u * 0.03); ctx.fill();
-
-    const iX = cX + u * 0.2;
-    const mY = cY + cH * 0.5;
     ctx.textBaseline = 'middle';
 
-    // SURFACE PROTOCOL ラベル
-    ctx.font      = `700 ${u * 0.22}px -apple-system,sans-serif`;
-    ctx.fillStyle = '#eab30877';
-    ctx.textAlign = 'left';
-    ctx.fillText('SURFACE PROTOCOL', iX, mY - cH * 0.22);
+    // ── 左下カード: DIVE タイムのみ ──────────────────────
+    const lcW = u * 3.8;
+    const lcX = pad;
+    const lcY = H - pad - cH;
 
-    // 経過秒数（固定幅右揃え）
-    const elSec = Math.floor(o.spElapsed / 1000);
-    ctx.font = `200 ${u * 0.7}px -apple-system,sans-serif`;
-    const eRefW = ctx.measureText('00s').width;
-    const eRX   = iX + eRefW;
-    ctx.fillStyle = '#ffffff';
-    ctx.textAlign = 'right';
-    ctx.fillText(elSec + 's', eRX, mY + cH * 0.15);
+    ctx.fillStyle = 'rgba(6,15,23,0.82)';
+    pill(lcX, lcY, lcW, cH, r); ctx.fill();
 
-    // 仕切り線
-    ctx.strokeStyle = '#1a3f5c';
-    ctx.lineWidth   = 0.8;
-    ctx.beginPath();
-    ctx.moveTo(eRX + u * 0.2, cY + cH * 0.18);
-    ctx.lineTo(eRX + u * 0.2, cY + cH * 0.82);
-    ctx.stroke();
+    ctx.fillStyle = '#2ec4b6cc';
+    pill(lcX, lcY + cH * 0.18, u * 0.06, cH * 0.64, u * 0.03); ctx.fill();
 
-    // DIVE ラベル + タイム
-    const dX = eRX + u * 0.34;
+    const lmY = lcY + cH * 0.5;
+    const liX = lcX + u * 0.2;
+
     ctx.font      = `700 ${u * 0.22}px -apple-system,sans-serif`;
     ctx.fillStyle = '#2ec4b677';
     ctx.textAlign = 'left';
-    ctx.fillText('DIVE', dX, mY - cH * 0.2);
-    ctx.font      = `300 ${u * 0.38}px -apple-system,sans-serif`;
-    ctx.fillStyle = '#a8ece8';
-    ctx.fillText(fmt(o.diveMs) + fmtMs(o.diveMs), dX, mY + cH * 0.2);
+    ctx.fillText('DIVE', liX, lmY - cH * 0.22);
 
-    // SpO2 独立ピル（右下）
-    if (o.spo2 !== null) {
-      const sc   = o.spo2 >= 95 ? '#2ec4b6' : o.spo2 >= 90 ? '#f97316' : '#ef4444';
-      const spW  = u * 2.6;
-      const spH  = cH;
-      const spX  = W - pad - spW;
-      const spY  = H - pad - spH;
-      const spR  = spH * 0.3;
+    ctx.font      = `300 ${u * 0.52}px -apple-system,sans-serif`;
+    ctx.fillStyle = '#e8f4f8';
+    ctx.fillText(fmt(o.diveMs) + fmtMs(o.diveMs), liX, lmY + cH * 0.16);
 
-      ctx.fillStyle = 'rgba(6,15,23,0.82)';
-      pill(spX, spY, spW, spH, spR); ctx.fill();
+    // ── 右下カード: SURFACE PROTOCOL + 経過秒数 + SpO2 ──
+    const elSec = Math.floor(o.spElapsed / 1000);
 
-      ctx.fillStyle = sc + 'cc';
-      pill(spX, spY + spH * 0.18, u * 0.06, spH * 0.64, u * 0.03); ctx.fill();
+    // SpO2あり/なしでカード幅を変える
+    const hasSpo2 = o.spo2 !== null;
+    const rcW = hasSpo2 ? u * 4.8 : u * 3.2;
+    const rcX = W - pad - rcW;
+    const rcY = H - pad - cH;
 
-      const smY = spY + spH * 0.5;
-      const sRX = spX + spW - u * 0.16;
+    ctx.fillStyle = 'rgba(6,15,23,0.82)';
+    pill(rcX, rcY, rcW, cH, r); ctx.fill();
+
+    // 左アクセント（アンバー）
+    ctx.fillStyle = '#eab308cc';
+    pill(rcX, rcY + cH * 0.18, u * 0.06, cH * 0.64, u * 0.03); ctx.fill();
+
+    const rmY = rcY + cH * 0.5;
+    const riX = rcX + u * 0.2;
+
+    // SURFACE PROTOCOL ラベル
+    ctx.font      = `700 ${u * 0.2}px -apple-system,sans-serif`;
+    ctx.fillStyle = '#eab30877';
+    ctx.textAlign = 'left';
+    ctx.fillText('SURFACE', riX, rmY - cH * 0.22);
+
+    // 経過秒数（大）
+    ctx.font = `200 ${u * 0.68}px -apple-system,sans-serif`;
+    const elRefW = ctx.measureText('00s').width;
+    const elRX   = riX + elRefW;
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'right';
+    ctx.fillText(elSec + 's', elRX, rmY + cH * 0.15);
+
+    // SpO2（右端、仕切り線で分離）
+    if (hasSpo2) {
+      const sc = o.spo2 >= 95 ? '#2ec4b6' : o.spo2 >= 90 ? '#f97316' : '#ef4444';
+
+      // 仕切り線
+      ctx.strokeStyle = '#1a3f5c';
+      ctx.lineWidth   = 0.8;
+      ctx.beginPath();
+      ctx.moveTo(elRX + u * 0.22, rcY + cH * 0.18);
+      ctx.lineTo(elRX + u * 0.22, rcY + cH * 0.82);
+      ctx.stroke();
+
+      const sX = rcX + rcW - u * 0.16;
       ctx.font      = `700 ${u * 0.2}px -apple-system,sans-serif`;
       ctx.fillStyle = '#5a8ca866';
       ctx.textAlign = 'right';
-      ctx.fillText('SpO₂', sRX, smY - spH * 0.2);
-      ctx.font      = `600 ${u * 0.52}px -apple-system,sans-serif`;
+      ctx.fillText('SpO₂', sX, rmY - cH * 0.2);
+      ctx.font      = `600 ${u * 0.5}px -apple-system,sans-serif`;
       ctx.fillStyle = sc;
-      ctx.fillText(o.spo2 + '%', sRX, smY + spH * 0.18);
+      ctx.fillText(o.spo2 + '%', sX, rmY + cH * 0.18);
     }
   }
 
