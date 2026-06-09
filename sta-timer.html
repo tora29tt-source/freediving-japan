@@ -3247,109 +3247,163 @@ function _startCanvasPreview() {
 // ── オーバーレイ描画 ──────────────────────────────────────
 function _drawOverlay(W, H) {
   const ctx = camCtx;
-  const ov  = camOverlay;
-  const BAR = Math.round(H * 0.18); // 下部バーの高さ
+  const o   = camOverlay;
 
-  if (ov.phase === 'hold') {
-    // ── 前半（Hold中）: ダイブタイム(左) + SpO2(右) ─────
-    ctx.fillStyle = 'rgba(6,15,23,0.70)';
-    ctx.fillRect(0, H - BAR, W, BAR);
+  // ── ヘルパー: 角丸矩形 ────────────────────────────────────
+  function pill(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y); ctx.arcTo(x + w, y, x + w, y + r, r);
+    ctx.lineTo(x + w, y + h - r); ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+    ctx.lineTo(x + r, y + h); ctx.arcTo(x, y + h, x, y + h - r, r);
+    ctx.lineTo(x, y + r); ctx.arcTo(x, y, x + r, y, r);
+    ctx.closePath();
+  }
 
-    const pad   = W * 0.04;
-    const timeY = H - Math.round(BAR * 0.14);
-    const lblY  = H - Math.round(BAR * 0.68);
+  // スケール基準: 短辺の1/12が基本単位（縦横どちらでもコンパクト）
+  const S   = Math.min(W, H);
+  const u   = S / 12;          // 1unit ≈ Sの8.3%
+  const pad = u * 0.5;
+
+  ctx.save();
+
+  if (o.phase === 'hold') {
+    // ── HOLD カード（左下・小さなピル）────────────────────
+    const cW = u * 5.0;
+    const cH = u * 1.2;
+    const cX = pad;
+    const cY = H - pad - cH;
+    const r  = cH * 0.3;
+
+    // 背景
+    ctx.fillStyle = 'rgba(6,15,23,0.82)';
+    pill(cX, cY, cW, cH, r); ctx.fill();
+
+    // 左アクセントバー（赤）
+    ctx.fillStyle = '#ef4444cc';
+    pill(cX, cY + cH * 0.18, u * 0.06, cH * 0.64, u * 0.03); ctx.fill();
+
+    const iX = cX + u * 0.2;
+    const mY = cY + cH * 0.5;
+
+    ctx.textBaseline = 'middle';
 
     // HOLD ラベル
-    ctx.fillStyle = '#ef4444';
-    ctx.font = `700 ${Math.round(H * 0.038)}px -apple-system, sans-serif`;
+    ctx.font      = `700 ${u * 0.28}px -apple-system,sans-serif`;
+    ctx.fillStyle = '#ef444477';
     ctx.textAlign = 'left';
-    ctx.fillText('HOLD', pad, lblY);
+    ctx.fillText('HOLD', iX, mY - cH * 0.22);
 
-    // MM:SS を固定幅エリア内で右揃え（"00:00"幅を基準に右端固定）
-    const tSize    = Math.round(H * 0.10);
-    ctx.font       = `300 ${tSize}px -apple-system, sans-serif`;
-    const maxTimeW = ctx.measureText('00:00').width;
-    const timeRX   = pad + maxTimeW; // MM:SSの右端X（固定）
+    // タイム（固定幅右揃え）
+    ctx.font = `200 ${u * 0.68}px -apple-system,sans-serif`;
+    const rW = ctx.measureText('00:00').width;
+    const tRX = iX + rW;
+    ctx.fillStyle = '#e8f4f8';
+    ctx.textAlign = 'right';
+    ctx.fillText(fmt(o.holdMs), tRX, mY + cH * 0.15);
 
-    ctx.fillStyle  = '#e8f4f8';
-    ctx.textAlign  = 'right';
-    ctx.fillText(fmt(ov.holdMs), timeRX, timeY);
-
-    // .ss は timeRX の直後（常に同じX）
-    const msSize  = Math.round(tSize * 0.44);
+    // ミリ秒
+    ctx.font      = `300 ${u * 0.3}px -apple-system,sans-serif`;
     ctx.fillStyle = '#5a8ca8';
-    ctx.font      = `300 ${msSize}px -apple-system, sans-serif`;
     ctx.textAlign = 'left';
-    ctx.fillText(fmtMs(ov.holdMs), timeRX + W * 0.006, timeY - Math.round(tSize * 0.08));
+    ctx.fillText(fmtMs(o.holdMs), tRX + u * 0.06, mY + cH * 0.04);
 
-    // SpO2（右側・ラベルと値が重ならないよう縦に並べる）
-    if (ov.spo2 !== null) {
-      const spo2Color = ov.spo2 >= 95 ? '#2ec4b6' : ov.spo2 >= 90 ? '#f97316' : '#ef4444';
+    // SpO2（カード右側）
+    if (o.spo2 !== null) {
+      const sc = o.spo2 >= 95 ? '#2ec4b6' : o.spo2 >= 90 ? '#f97316' : '#ef4444';
+      const sX = cX + cW - u * 0.18;
+      ctx.font      = `700 ${u * 0.22}px -apple-system,sans-serif`;
+      ctx.fillStyle = '#5a8ca866';
       ctx.textAlign = 'right';
-      ctx.fillStyle = '#5a8ca8';
-      ctx.font      = `700 ${Math.round(H * 0.032)}px -apple-system, sans-serif`;
-      ctx.fillText('SpO₂', W - pad, lblY);
-      ctx.fillStyle = spo2Color;
-      ctx.font      = `600 ${Math.round(H * 0.088)}px -apple-system, sans-serif`;
-      ctx.fillText(ov.spo2 + '%', W - pad, timeY);
-      ctx.textAlign = 'left';
+      ctx.fillText('SpO₂', sX, mY - cH * 0.2);
+      ctx.font      = `600 ${u * 0.58}px -apple-system,sans-serif`;
+      ctx.fillStyle = sc;
+      ctx.fillText(o.spo2 + '%', sX, mY + cH * 0.18);
     }
 
   } else {
-    // ── 後半（Surface中）: 経過秒数(左・大) + ダイブタイム(左・小) + SpO2(右) ──
-    const BAR2 = Math.round(H * 0.22);
-    ctx.fillStyle = 'rgba(6,15,23,0.75)';
-    ctx.fillRect(0, H - BAR2, W, BAR2);
+    // ── SURFACE カード（左下）+ SpO2ピル（右下）──────────
+    const cW = u * 6.0;
+    const cH = u * 1.2;
+    const cX = pad;
+    const cY = H - pad - cH;
+    const r  = cH * 0.3;
 
-    const pad  = W * 0.04;
-    const lblY = H - Math.round(BAR2 * 0.75);
-    const valY = H - Math.round(BAR2 * 0.12);
+    // 背景
+    ctx.fillStyle = 'rgba(6,15,23,0.82)';
+    pill(cX, cY, cW, cH, r); ctx.fill();
+
+    // 左アクセントバー（アンバー）
+    ctx.fillStyle = '#eab308cc';
+    pill(cX, cY + cH * 0.18, u * 0.06, cH * 0.64, u * 0.03); ctx.fill();
+
+    const iX = cX + u * 0.2;
+    const mY = cY + cH * 0.5;
+    ctx.textBaseline = 'middle';
 
     // SURFACE PROTOCOL ラベル
-    ctx.fillStyle = '#eab308';
-    ctx.font      = `700 ${Math.round(H * 0.034)}px -apple-system, sans-serif`;
+    ctx.font      = `700 ${u * 0.22}px -apple-system,sans-serif`;
+    ctx.fillStyle = '#eab30877';
     ctx.textAlign = 'left';
-    ctx.fillText('SURFACE PROTOCOL', pad, lblY);
+    ctx.fillText('SURFACE PROTOCOL', iX, mY - cH * 0.22);
 
-    // 経過秒数（左・大）— 右端固定で数字幅変化によるガタつきを防ぐ
-    const elapsedSec = Math.floor(ov.spElapsed / 1000);
-    const elSize = Math.round(H * 0.13);
-    ctx.font = `200 ${elSize}px -apple-system, sans-serif`;
-    const maxElW = ctx.measureText('00s').width; // "00s"幅を基準に固定
-    const elRX   = pad + maxElW;                 // 右端X固定
-
+    // 経過秒数（固定幅右揃え）
+    const elSec = Math.floor(o.spElapsed / 1000);
+    ctx.font = `200 ${u * 0.7}px -apple-system,sans-serif`;
+    const eRefW = ctx.measureText('00s').width;
+    const eRX   = iX + eRefW;
     ctx.fillStyle = '#ffffff';
     ctx.textAlign = 'right';
-    ctx.fillText(elapsedSec + 's', elRX, valY);
+    ctx.fillText(elSec + 's', eRX, mY + cH * 0.15);
 
-    // ダイブタイム（経過秒数エリアの右隣・固定X）
-    const dtX    = elRX + W * 0.03;
-    const dtSize = Math.round(elSize * 0.38);
-    ctx.fillStyle = '#a8ece8';
-    ctx.font      = `300 ${dtSize}px -apple-system, sans-serif`;
+    // 仕切り線
+    ctx.strokeStyle = '#1a3f5c';
+    ctx.lineWidth   = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(eRX + u * 0.2, cY + cH * 0.18);
+    ctx.lineTo(eRX + u * 0.2, cY + cH * 0.82);
+    ctx.stroke();
+
+    // DIVE ラベル + タイム
+    const dX = eRX + u * 0.34;
+    ctx.font      = `700 ${u * 0.22}px -apple-system,sans-serif`;
+    ctx.fillStyle = '#2ec4b677';
     ctx.textAlign = 'left';
-    ctx.fillText('DIVE', dtX, valY - Math.round(elSize * 0.48));
-    ctx.fillStyle = '#e8f4f8';
-    ctx.fillText(fmt(ov.diveMs) + fmtMs(ov.diveMs), dtX, valY - Math.round(elSize * 0.10));
+    ctx.fillText('DIVE', dX, mY - cH * 0.2);
+    ctx.font      = `300 ${u * 0.38}px -apple-system,sans-serif`;
+    ctx.fillStyle = '#a8ece8';
+    ctx.fillText(fmt(o.diveMs) + fmtMs(o.diveMs), dX, mY + cH * 0.2);
 
-    // SpO2（右側・ラベルと値を縦配置）
-    if (ov.spo2 !== null) {
-      const spo2Color = ov.spo2 >= 95 ? '#2ec4b6' : ov.spo2 >= 90 ? '#f97316' : '#ef4444';
+    // SpO2 独立ピル（右下）
+    if (o.spo2 !== null) {
+      const sc   = o.spo2 >= 95 ? '#2ec4b6' : o.spo2 >= 90 ? '#f97316' : '#ef4444';
+      const spW  = u * 2.6;
+      const spH  = cH;
+      const spX  = W - pad - spW;
+      const spY  = H - pad - spH;
+      const spR  = spH * 0.3;
+
+      ctx.fillStyle = 'rgba(6,15,23,0.82)';
+      pill(spX, spY, spW, spH, spR); ctx.fill();
+
+      ctx.fillStyle = sc + 'cc';
+      pill(spX, spY + spH * 0.18, u * 0.06, spH * 0.64, u * 0.03); ctx.fill();
+
+      const smY = spY + spH * 0.5;
+      const sRX = spX + spW - u * 0.16;
+      ctx.font      = `700 ${u * 0.2}px -apple-system,sans-serif`;
+      ctx.fillStyle = '#5a8ca866';
       ctx.textAlign = 'right';
-      ctx.fillStyle = '#5a8ca8';
-      ctx.font      = `700 ${Math.round(H * 0.032)}px -apple-system, sans-serif`;
-      ctx.fillText('SpO₂', W - pad, lblY);
-      const sValSize = Math.round(H * 0.10);
-      ctx.fillStyle  = spo2Color + '33';
-      ctx.font       = `700 ${sValSize}px -apple-system, sans-serif`;
-      const sW = ctx.measureText(ov.spo2 + '%').width;
-      ctx.fillRect(W - pad - sW - W * 0.02, valY - sValSize, sW + W * 0.025, sValSize + H * 0.01);
-      ctx.fillStyle = spo2Color;
-      ctx.fillText(ov.spo2 + '%', W - pad, valY);
-      ctx.textAlign = 'left';
+      ctx.fillText('SpO₂', sRX, smY - spH * 0.2);
+      ctx.font      = `600 ${u * 0.52}px -apple-system,sans-serif`;
+      ctx.fillStyle = sc;
+      ctx.fillText(o.spo2 + '%', sRX, smY + spH * 0.18);
     }
   }
+
+  ctx.restore();
 }
+
 
 function getSupportedMimeType() {
   const types = ['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'];
