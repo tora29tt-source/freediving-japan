@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>フリーダイビングとは？スキューバとの違い、始め方まで — Freediving Japan</title>
+<meta name="description" content="フリーダイビングとは何か。スキューバダイビングとの違い、必要な道具、始め方まで。日本記録保持者・寺島拓哉が設立したFreediving Japanが解説します。">
+<style>
+:root {
+  --ocean-deep:  #0b2d45;
+  --ocean-mid:   #0e3d5c;
+  --ocean-light: #1a5f82;
+  --teal:        #2ec4b6;
+  --teal-light:  #a8ece8;
+  --foam:        #f0f9fb;
+  --warm:        #f97316;
+  --sand:        #fdf8f2;
+  --text:        #1a2b38;
+  --text-mid:    #3d5166;
+  --text-light:  #6b8091;
+  --font-body:   -apple-system, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  color: var(--text);
+  background: white;
+  line-height: 1.8;
+  font-size: 16px;
+}
+
+/* ── HEADER ── */
+.site-header {
+  background: var(--ocean-deep);
+  padding: 0 20px;
+  height: 52px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.site-logo {
+  color: white; font-size: 14px; font-weight: 600;
+  text-decoration: none; display: flex; align-items: center; gap: 8px;
+}
+.site-logo .dot { width: 6px; height: 6px; background: var(--teal); border-radius: 50%; }
+.site-nav a {
+  color: rgba(255,255,255,.6); font-size: 13px; text-decoration: none;
+  margin-left: 20px; transition: color .15s;
+}
+.site-nav a:hover { color: white; }
+
+/* ── BREADCRUMB ── */
+.breadcrumb {
+  padding: 12px 20px;
+  font-size: 12px; color: var(--text-light);
+  border-bottom: 1px solid #eef2f6;
+  background: var(--sand);
+}
+.breadcrumb a { color: var(--ocean-light); text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb span { margin: 0 6px; opacity: .4; }
+
+/* ── HERO ── */
+.hero {
+  background: var(--ocean-deep);
+  padding: 48px 20px 40px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 70% 50%, rgba(46,196,182,.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-inner { max-width: 680px; margin: 0 auto; position: relative; }
+.hero-category {
+  display: inline-block;
+  background: rgba(46,196,182,.2);
+  color: var(--teal);
+  font-size: 11px; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  padding: 4px 12px; border-radius: 20px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(46,196,182,.3);
+}
+.hero h1 {
+  font-size: clamp(22px, 5vw, 32px);
+  font-weight: 700;
+  color: white;
+  line-height: 1.35;
+  margin-bottom: 16px;
+  letter-spacing: -.01em;
+}
+.hero-meta {
+  display: flex; align-items: center; gap: 16px;
+  flex-wrap: wrap;
+}
+.hero-meta .by {
+  color: rgba(255,255,255,.5); font-size: 13px;
+}
+.hero-meta .by strong { color: rgba(255,255,255,.8); }
+.hero-meta .date { color: rgba(255,255,255,.4); font-size: 12px; }
+.hero-meta .read-time {
+  color: var(--teal); font-size: 12px;
+  background: rgba(46,196,182,.1);
+  padding: 3px 10px; border-radius: 10px;
+}
+
+/* ── LAYOUT ── */
+.article-wrap {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 20px 80px;
+}
+
+/* ── LEAD ── */
+.lead {
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--text-mid);
+  padding: 32px 0 24px;
+  border-bottom: 1px solid #eef2f6;
+  margin-bottom: 36px;
+}
+
+/* ── TOC ── */
+.toc {
+  background: var(--foam);
+  border-left: 3px solid var(--teal);
+  border-radius: 0 10px 10px 0;
+  padding: 20px 20px 20px 24px;
+  margin-bottom: 40px;
+}
+.toc-title {
+  font-size: 12px; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--ocean-light); margin-bottom: 12px;
+}
+.toc ol { padding-left: 18px; }
+.toc li { margin-bottom: 8px; }
+.toc a {
+  font-size: 14px; color: var(--ocean-mid);
+  text-decoration: none; line-height: 1.5;
+  transition: color .15s;
+}
+.toc a:hover { color: var(--teal); }
+
+/* ── BODY ── */
+.article-body h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ocean-deep);
+  margin: 48px 0 16px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--teal-light);
+  line-height: 1.4;
+}
+.article-body h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ocean-mid);
+  margin: 32px 0 12px;
+}
+.article-body p {
+  margin-bottom: 20px;
+  color: var(--text);
+  line-height: 1.9;
+}
+.article-body strong { color: var(--ocean-deep); font-weight: 700; }
+
+/* ── PULLQUOTE ── */
+.pullquote {
+  border-left: 4px solid var(--teal);
+  margin: 32px 0;
+  padding: 16px 20px;
+  background: var(--foam);
+  border-radius: 0 10px 10px 0;
+}
+.pullquote p {
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--ocean-mid);
+  line-height: 1.7;
+  margin: 0;
+  font-style: italic;
+}
+.pullquote cite {
+  display: block;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--text-light);
+  font-style: normal;
+}
+
+/* ── COMPARISON TABLE ── */
+.compare-table {
+  width: 100%; border-collapse: collapse;
+  margin: 28px 0;
+  font-size: 14px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(11,45,69,.08);
+}
+.compare-table thead { background: var(--ocean-deep); color: white; }
+.compare-table th {
+  padding: 12px 16px; text-align: left;
+  font-size: 12px; font-weight: 600;
+  letter-spacing: .06em; text-transform: uppercase;
+}
+.compare-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eef2f6;
+  color: var(--text-mid);
+  line-height: 1.6;
+}
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table tbody tr:nth-child(odd) { background: var(--foam); }
+.compare-table .label-col { font-weight: 600; color: var(--ocean-mid); }
+
+/* ── INFO BOX ── */
+.info-box {
+  background: #fff8f3;
+  border: 1.5px solid #fddcbb;
+  border-radius: 10px;
+  padding: 20px 22px;
+  margin: 32px 0;
+}
+.info-box-title {
+  font-size: 13px; font-weight: 700;
+  color: var(--warm); margin-bottom: 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+.info-box p { font-size: 14px; color: var(--text-mid); margin-bottom: 10px; }
+.info-box p:last-child { margin-bottom: 0; }
+
+/* ── STEP LIST ── */
+.step-list { list-style: none; margin: 20px 0 28px; }
+.step-list li {
+  display: flex; gap: 14px; align-items: flex-start;
+  margin-bottom: 16px;
+}
+.step-num {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--ocean-deep); color: white;
+  font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 2px;
+}
+.step-body { flex: 1; }
+.step-body strong { display: block; font-size: 15px; margin-bottom: 4px; color: var(--ocean-deep); }
+.step-body span { font-size: 14px; color: var(--text-mid); line-height: 1.7; }
+
+/* ── CTA ── */
+.cta-box {
+  background: var(--ocean-deep);
+  border-radius: 14px;
+  padding: 28px 24px;
+  margin: 48px 0 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.cta-box::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(46,196,182,.2) 0%, transparent 60%);
+}
+.cta-box h3 {
+  color: white; font-size: 18px; margin-bottom: 8px;
+  position: relative;
+}
+.cta-box p {
+  color: rgba(255,255,255,.6); font-size: 14px;
+  margin-bottom: 20px; position: relative;
+}
+.cta-btn {
+  display: inline-block;
+  background: var(--teal); color: white;
+  padding: 13px 28px; border-radius: 8px;
+  font-size: 15px; font-weight: 700;
+  text-decoration: none;
+  position: relative;
+  transition: background .15s;
+}
+.cta-btn:hover { background: #25a99c; }
+
+/* ── AUTHOR ── */
+.author-box {
+  display: flex; gap: 16px; align-items: flex-start;
+  background: var(--foam);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 48px 0 0;
+}
+.author-icon {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--ocean-mid);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 20px;
+}
+.author-info .name { font-size: 14px; font-weight: 700; color: var(--ocean-deep); margin-bottom: 4px; }
+.author-info .desc { font-size: 13px; color: var(--text-light); line-height: 1.6; }
+
+/* ── TAGS ── */
+.tags { margin: 32px 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.tag {
+  font-size: 12px; color: var(--ocean-light);
+  background: var(--foam);
+  border: 1px solid #d4e8f0;
+  border-radius: 20px;
+  padding: 4px 12px;
+  text-decoration: none;
+  transition: all .15s;
+}
+.tag:hover { background: var(--teal-light); border-color: var(--teal); }
+
+/* ── RELATED ── */
+.related { margin-top: 48px; }
+.related-title {
+  font-size: 13px; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--text-light); margin-bottom: 16px;
+}
+.related-list { display: flex; flex-direction: column; gap: 10px; }
+.related-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px;
+  background: var(--foam);
+  border-radius: 10px;
+  text-decoration: none;
+  border: 1px solid #eef2f6;
+  transition: border-color .15s, background .15s;
+}
+.related-item:hover { border-color: var(--teal); background: white; }
+.related-item .arrow { color: var(--teal); font-size: 16px; margin-left: auto; flex-shrink: 0; }
+.related-item .r-cat { font-size: 10px; color: var(--text-light); margin-bottom: 3px; text-transform: uppercase; letter-spacing: .05em; }
+.related-item .r-title { font-size: 14px; font-weight: 500; color: var(--ocean-deep); line-height: 1.4; }
+
+/* ── FOOTER ── */
+.site-footer {
+  background: var(--ocean-deep);
+  padding: 28px 20px;
+  text-align: center;
+  margin-top: 60px;
+}
+.site-footer p { color: rgba(255,255,255,.35); font-size: 12px; }
+.site-footer a { color: var(--teal); text-decoration: none; }
+
+@media (max-width: 600px) {
+  .hero { padding: 32px 16px 28px; }
+  .article-wrap { padding: 0 16px 60px; }
+  .compare-table { font-size: 13px; }
+  .compare-table th, .compare-table td { padding: 10px 12px; }
+  .site-nav { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <a href="/" class="site-logo">
+    <div class="dot"></div>
+    Freediving Japan
+  </a>
+  <nav class="site-nav">
+    <a href="/media/">メディア</a>
+    <a href="/explore/">スクールを探す</a>
+    <a href="/learn/">学ぶ</a>
+  </nav>
+</header>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb">
+  <a href="/">ホーム</a>
+  <span>›</span>
+  <a href="/media/">メディア</a>
+  <span>›</span>
+  フリーダイビングとは
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-category">入門・基礎知識</div>
+    <h1>フリーダイビングとは？<br>スキューバとの違い、始め方まで</h1>
+    <div class="hero-meta">
+      <span class="by">By <strong>Freediving Japan 編集部</strong></span>
+      <span class="date">2026年6月</span>
+      <span class="read-time">約8分で読めます</span>
+    </div>
+  </div>
+</div>
+
+<!-- ARTICLE -->
+<div class="article-wrap">
+
+  <!-- LEAD -->
+  <p class="lead">
+    息を止めて、ただ潜る。タンクも、エンジンも、余計な音も何もない。水の中でそれができるのが、フリーダイビングです。「難しそう」「危なそう」と思う人も多いですが、正しい知識と環境があれば、多くの人が体験できるスポーツです。このページでは、フリーダイビングの基本から始め方まで、ひととおり解説します。
+  </p>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">この記事の内容</div>
+    <ol>
+      <li><a href="#what">フリーダイビングとは何か</a></li>
+      <li><a href="#diff">スキューバダイビングとの違い</a></li>
+      <li><a href="#body">潜ると体の中で何が起きるか</a></li>
+      <li><a href="#types">競技の種類</a></li>
+      <li><a href="#start">始め方・費用感</a></li>
+      <li><a href="#safe">安全について</a></li>
+    </ol>
+  </div>
+
+  <div class="article-body">
+
+    <!-- SECTION 1 -->
+    <h2 id="what">フリーダイビングとは何か</h2>
+
+    <p>フリーダイビングとは、<strong>タンクなどの呼吸補助器具を使わず、1回の息継ぎだけで潜るダイビング</strong>のことです。英語では"Freediving"、日本語では「素潜り」と呼ばれることもあります。</p>
+
+    <p>競技としてのフリーダイビングは、国際団体AIDAとCMASが定めたルールのもとで行われ、深度・時間・距離をそれぞれ競う複数の種目があります。現在の世界記録は深度部門で300メートルを超えており、人間の限界を更新し続けています。</p>
+
+    <p>一方で、競技とは関係なく「海の中をゆっくり泳ぎたい」「魚と同じ目線で海を見たい」という目的で楽しむ人も多く、スキンダイビングや魚突き（スピアフィッシング）もフリーダイビングの技術を使います。</p>
+
+    <div class="pullquote">
+      <p>「道具が少ないほど、海との距離が縮まる。タンクを背負っていたとき、僕は海の中にいた。タンクを外したとき、初めて海の中に溶け込んだ気がした」</p>
+      <cite>— 寺島拓哉（Freediving Japan 代表・日本STA記録保持者）</cite>
+    </div>
+
+    <!-- SECTION 2 -->
+    <h2 id="diff">スキューバダイビングとの違い</h2>
+
+    <p>「ダイビング」と聞くと多くの人がイメージするのはスキューバダイビングですが、フリーダイビングとは根本的に異なります。</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>比較</th>
+          <th>フリーダイビング</th>
+          <th>スキューバダイビング</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="label-col">呼吸</td>
+          <td>息を止めて潜る</td>
+          <td>タンクから呼吸しながら潜る</td>
+        </tr>
+        <tr>
+          <td class="label-col">道具</td>
+          <td>フィン・マスク・ウエットスーツ</td>
+          <td>タンク・レギュレーター・BCDなど多数</td>
+        </tr>
+        <tr>
+          <td class="label-col">準備・講習</td>
+          <td>1〜2日で基礎が学べる</td>
+          <td>数日〜1週間程度</td>
+        </tr>
+        <tr>
+          <td class="label-col">費用感（体験）</td>
+          <td>8,000〜15,000円程度</td>
+          <td>10,000〜20,000円程度</td>
+        </tr>
+        <tr>
+          <td class="label-col">機動性</td>
+          <td>高い（荷物が少ない）</td>
+          <td>低い（機材が重い・多い）</td>
+        </tr>
+        <tr>
+          <td class="label-col">水中での音</td>
+          <td>ほぼ無音</td>
+          <td>呼吸音・気泡音がある</td>
+        </tr>
+        <tr>
+          <td class="label-col">潜水時間</td>
+          <td>数秒〜数分（息が続く間）</td>
+          <td>30〜60分程度（タンク残量次第）</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>スキューバダイビングは長時間・深場を楽しめる一方、フリーダイビングは機材が少なく、どこでも手軽に始められます。「海に何度も潜りたいが毎回タンクを準備するのが大変」という理由でスキューバからフリーダイビングに転向する人も少なくありません。</p>
+
+    <!-- SECTION 3 -->
+    <h2 id="body">潜ると体の中で何が起きるか</h2>
+
+    <p>フリーダイビングで水に潜ると、人間の体には自動的にいくつかの反応が起きます。これを<strong>哺乳類潜水反射</strong>と呼びます。</p>
+
+    <h3>心拍数が下がる</h3>
+    <p>顔を水につけた瞬間から、心拍数が自動的に低下します。これは酸素消費を抑えるための本能的な反応です。熟練したフリーダイバーでは、潜水中の心拍数が安静時の半分以下になることもあります。</p>
+
+    <h3>血液が内臓に集中する</h3>
+    <p>深く潜ると、血液が手足から心臓・肺・脳などの中枢部に集まります（血液シフト）。これにより、水圧による肺の圧縮に体が対応できるようになります。</p>
+
+    <h3>脾臓が収縮する</h3>
+    <p>フリーダイビングを繰り返すことで、脾臓が赤血球を血液中に放出するようになります。これにより血中酸素量が増え、息が続く時間が伸びていきます。これはトレーニングによって後天的に獲得できる能力です。</p>
+
+    <div class="info-box">
+      <div class="info-box-title">💡 息苦しさの正体はCO2</div>
+      <p>潜っているときの「苦しい」という感覚は、酸素が足りないからではなく、<strong>体内にCO2（二酸化炭素）が溜まるから</strong>です。</p>
+      <p>酸素はまだ十分残っている状態でも、CO2が一定量を超えると「早く呼吸したい」という衝動が生まれます。フリーダイビングのトレーニングの大きな目的のひとつは、このCO2への耐性を高めることです。</p>
+    </div>
+
+    <!-- SECTION 4 -->
+    <h2 id="types">競技の種類</h2>
+
+    <p>フリーダイビングには複数の競技種目があります。大きく「プール競技」と「深度競技」に分かれます。</p>
+
+    <h3>プール競技</h3>
+    <p><strong>STA（静的アプノエ）</strong>は、プールの水面に顔をつけてどれだけ長く息を止めていられるかを競います。移動しないため純粋な息止め時間の勝負です。世界記録は24分以上。日本記録は寺島拓哉の7分54秒（2026年4月更新）。</p>
+    <p><strong>DYN（動的アプノエ）</strong>は、プールの底を水平に泳いでどれだけ長い距離を進めるかを競います。フィンあり（DYNB）とフィンなし（DNF）の2種目があります。</p>
+
+    <h3>深度競技</h3>
+    <p>海や湖でロープに沿って垂直に潜り、到達深度を競います。フィンの種類やウエイトの使用可否によって、CWT・CNF・FIM・VWTの4種目に分かれています。</p>
+
+    <!-- SECTION 5 -->
+    <h2 id="start">始め方・費用感</h2>
+
+    <p>フリーダイビングを始めるには、大きく3つのルートがあります。</p>
+
+    <ul class="step-list">
+      <li>
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>体験コースに参加する</strong>
+          <span>1〜2時間、プールや海でインストラクターと一緒に基礎を体験します。費用は8,000〜15,000円程度。「まず試してみたい」という人にはここから始めるのがおすすめです。</span>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>認定コース（ライセンス取得）を受ける</strong>
+          <span>AIDAやSSIなど国際認定団体のコースを受講し、ライセンスを取得します。2〜3日で取得できるコースが多く、費用は30,000〜60,000円程度。取得後は国内外でフリーダイビングができる環境が広がります。</span>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>継続的にスクールに通う</strong>
+          <span>ライセンス取得後も、スクールや個人インストラクターについて技術を磨いていきます。プール練習・海での実践・競技への出場など、目標に合わせた形で続けられます。</span>
+        </div>
+      </li>
+    </ul>
+
+    <h3>必要な道具</h3>
+    <p>始めるにあたって最低限必要な道具は<strong>マスク・フィン・ウエットスーツ</strong>の3点です。体験コースや初心者向けスクールでは機材レンタルができることがほとんどなので、最初は手ぶらで参加できます。</p>
+
+    <!-- SECTION 6 -->
+    <h2 id="safe">安全について</h2>
+
+    <p>フリーダイビングで最も重要なことは、<strong>絶対に1人で潜らない</strong>ことです。</p>
+
+    <p>万が一水中で意識を失った場合（ブラックアウト）、バディ（一緒に潜るパートナー）がいなければ命に関わります。これはベテランでも初心者でも変わりません。</p>
+
+    <div class="info-box">
+      <div class="info-box-title">⚠️ 安全の基本ルール</div>
+      <p>・必ずバディと一緒に潜る（1人では絶対に潜らない）</p>
+      <p>・過呼吸（ハイパーベンチレーション）をしない</p>
+      <p>・限界を超えて頑張らない。苦しくなったら必ず浮上する</p>
+      <p>・インストラクターのいる環境で練習を始める</p>
+    </div>
+
+    <p>フリーダイビングは正しい知識と環境を整えれば安全に楽しめるスポーツです。最初の一歩は、信頼できるインストラクターと一緒に踏み出すことを強くおすすめします。</p>
+
+  </div><!-- /.article-body -->
+
+  <!-- TAGS -->
+  <div class="tags">
+    <a href="#" class="tag">フリーダイビング 基礎</a>
+    <a href="#" class="tag">スキューバとの違い</a>
+    <a href="#" class="tag">始め方</a>
+    <a href="#" class="tag">STA</a>
+    <a href="#" class="tag">耳抜き</a>
+    <a href="#" class="tag">安全</a>
+    <a href="#" class="tag">初心者</a>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-box">
+    <h3>スクール・インストラクターを探す</h3>
+    <p>全国のフリーダイビングスクール・インストラクターをFreediving Japanで検索できます。</p>
+    <a href="/explore/" class="cta-btn">スクールを探してみる →</a>
+  </div>
+
+  <!-- AUTHOR -->
+  <div class="author-box">
+    <div class="author-icon">🌊</div>
+    <div class="author-info">
+      <div class="name">Freediving Japan 編集部</div>
+      <div class="desc">日本記録保持者・寺島拓哉が設立したフリーダイビングプラットフォーム「Freediving Japan」の編集部。競技者・インストラクター・初心者が使える情報と道具を届けます。</div>
+    </div>
+  </div>
+
+  <!-- RELATED -->
+  <div class="related">
+    <div class="related-title">関連記事</div>
+    <div class="related-list">
+      <a href="#" class="related-item">
+        <div>
+          <div class="r-cat">入門・体験</div>
+          <div class="r-title">「耳抜きができない」を解決する3つのアプローチ</div>
+        </div>
+        <span class="arrow">›</span>
+      </a>
+      <a href="#" class="related-item">
+        <div>
+          <div class="r-cat">人物メディア</div>
+          <div class="r-title">IBM辞めてフリーダイバーになった話——収入・不安・後悔してるか</div>
+        </div>
+        <span class="arrow">›</span>
+      </a>
+      <a href="#" class="related-item">
+        <div>
+          <div class="r-cat">競技・大会</div>
+          <div class="r-title">日本記録7分54秒——静的アプノエの日本記録更新の裏側</div>
+        </div>
+        <span class="arrow">›</span>
+      </a>
+    </div>
+  </div>
+
+</div><!-- /.article-wrap -->
+
+<footer class="site-footer">
+  <p>© 2026 <a href="/">Freediving Japan</a> — すべての人に、海への入口を。</p>
+</footer>
+
+</body>
+</html>

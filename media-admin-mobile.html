@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>メディア管理 — Freediving Japan</title>
+<style>
+:root {
+  --ocean-deep:  #0b2d45;
+  --ocean-mid:   #0e3d5c;
+  --ocean-light: #1a5f82;
+  --teal:        #2ec4b6;
+  --teal-light:  #a8ece8;
+  --foam:        #f0f9fb;
+  --warm:        #f97316;
+  --sand:        #fdf8f2;
+  --radius: 10px;
+  --font: -apple-system, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: var(--font); background: #f0f4f7; color: var(--ocean-deep); min-height: 100vh; padding-bottom: 80px; }
+
+/* HEADER */
+.header {
+  background: var(--ocean-deep);
+  padding: 12px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.header-left { display: flex; align-items: center; gap: 8px; }
+.dot { width: 7px; height: 7px; background: var(--teal); border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.4)} }
+.header-title { color: white; font-size: 14px; font-weight: 600; }
+.header-sub { color: var(--teal-light); font-size: 11px; opacity: .7; }
+
+/* STATS BAR */
+.stats-bar {
+  background: var(--ocean-mid);
+  padding: 10px 16px;
+  display: flex; gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.stats-bar::-webkit-scrollbar { display: none; }
+.stat {
+  flex: 1; min-width: 64px;
+  text-align: center;
+  padding: 6px 8px;
+  border-right: 1px solid rgba(255,255,255,.1);
+}
+.stat:last-child { border-right: none; }
+.stat .n { font-size: 20px; font-weight: 700; color: var(--teal); line-height: 1; }
+.stat .l { font-size: 10px; color: rgba(255,255,255,.5); margin-top: 2px; }
+.progress-bar-wrap { padding: 8px 16px; background: var(--ocean-mid); }
+.progress-track { background: rgba(255,255,255,.1); border-radius: 4px; height: 4px; }
+.progress-fill { height: 4px; border-radius: 4px; background: linear-gradient(90deg, var(--teal), #0b9488); transition: width .6s; }
+.progress-label { display: flex; justify-content: space-between; margin-top: 4px; }
+.progress-label span { font-size: 10px; color: rgba(255,255,255,.4); }
+
+/* CONTROLS */
+.controls { background: white; padding: 10px 16px; border-bottom: 1px solid #e4eaf0; position: sticky; top: 48px; z-index: 90; }
+.search-wrap { position: relative; margin-bottom: 8px; }
+.search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); opacity: .35; pointer-events: none; }
+.search-wrap input {
+  width: 100%; padding: 9px 10px 9px 32px;
+  border: 1.5px solid #dde3ea; border-radius: 8px;
+  font-size: 14px; font-family: var(--font);
+  outline: none; transition: border-color .15s;
+}
+.search-wrap input:focus { border-color: var(--teal); }
+
+.filter-scroll { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.filter-scroll::-webkit-scrollbar { display: none; }
+.chip {
+  flex-shrink: 0;
+  padding: 5px 12px; border-radius: 20px;
+  border: 1.5px solid #dde3ea; background: white;
+  font-size: 12px; font-family: var(--font); font-weight: 500;
+  cursor: pointer; color: #5a6a7a; white-space: nowrap;
+  transition: all .15s;
+}
+.chip.active { background: var(--ocean-deep); border-color: var(--ocean-deep); color: white; }
+.chip.cat-A.active { background: #6366f1; border-color: #6366f1; }
+.chip.cat-B.active { background: #ec4899; border-color: #ec4899; }
+.chip.cat-C.active { background: #10b981; border-color: #10b981; }
+.chip.cat-D.active { background: #f59e0b; border-color: #f59e0b; }
+.chip.cat-E.active { background: #f97316; border-color: #f97316; }
+.chip.cat-P.active { background: #8b5cf6; border-color: #8b5cf6; }
+.chip.cat-Q.active { background: #06b6d4; border-color: #06b6d4; }
+.chip.cat-S.active { background: #0ea5e9; border-color: #0ea5e9; }
+.chip.cat-T.active { background: #f43f5e; border-color: #f43f5e; }
+
+/* COUNT */
+.list-meta { padding: 8px 16px 4px; display: flex; justify-content: space-between; align-items: center; }
+.list-meta span { font-size: 12px; color: #8a97a6; }
+.sort-btn { font-size: 12px; color: var(--ocean-light); background: none; border: none; font-family: var(--font); cursor: pointer; }
+
+/* LIST */
+.article-list { padding: 0 12px; }
+.article-item {
+  background: white; border-radius: 10px; margin-bottom: 6px;
+  overflow: hidden; box-shadow: 0 1px 3px rgba(11,45,69,.06);
+  transition: box-shadow .15s;
+}
+.article-item.priority { border-left: 3px solid var(--warm); }
+.article-main {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; cursor: pointer;
+}
+.article-left { flex: 1; min-width: 0; }
+.article-top { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.cat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.cat-dot.A { background: #6366f1; }
+.cat-dot.B { background: #ec4899; }
+.cat-dot.C { background: #10b981; }
+.cat-dot.D { background: #f59e0b; }
+.cat-dot.E { background: #f97316; }
+.cat-dot.P { background: #8b5cf6; }
+.cat-dot.Q { background: #06b6d4; }
+.cat-dot.S { background: #0ea5e9; }
+.cat-dot.T { background: #f43f5e; }
+.cat-label { font-size: 10px; color: #8a97a6; font-weight: 500; }
+.star { font-size: 11px; color: var(--warm); }
+.article-title { font-size: 13px; font-weight: 500; line-height: 1.4; color: var(--ocean-deep); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.article-keyword { font-size: 11px; color: var(--ocean-light); margin-top: 3px; opacity: .7; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.article-right { flex-shrink: 0; }
+
+/* status pill tap */
+.status-pill {
+  padding: 4px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 600; font-family: var(--font);
+  border: none; cursor: pointer; white-space: nowrap;
+}
+.s-todo { background: #f1f5f9; color: #64748b; }
+.s-wip  { background: #fef3c7; color: #d97706; }
+.s-done { background: #ccfbf1; color: #0e9488; }
+.s-live { background: var(--teal-light); color: var(--ocean-deep); }
+
+/* EXPAND */
+.article-expand { display: none; padding: 0 12px 12px; border-top: 1px solid #f0f4f7; }
+.article-expand.open { display: block; }
+.expand-row { margin-top: 10px; }
+.expand-label { font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #a0aeba; margin-bottom: 4px; }
+.expand-text { font-size: 13px; color: #5a6a7a; }
+.memo-field {
+  width: 100%; padding: 8px 10px;
+  border: 1.5px solid #e4eaf0; border-radius: 8px;
+  font-size: 13px; font-family: var(--font); color: var(--ocean-deep);
+  outline: none; resize: none;
+}
+.memo-field:focus { border-color: var(--teal); }
+.status-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.status-opt {
+  padding: 6px 14px; border-radius: 20px; border: 1.5px solid #e4eaf0;
+  font-size: 12px; font-family: var(--font); font-weight: 600;
+  background: white; cursor: pointer; transition: all .15s;
+}
+.status-opt.sel-todo { background: #f1f5f9; border-color: #64748b; color: #64748b; }
+.status-opt.sel-wip  { background: #fef3c7; border-color: #d97706; color: #d97706; }
+.status-opt.sel-done { background: #ccfbf1; border-color: #0e9488; color: #0e9488; }
+.status-opt.sel-live { background: var(--teal-light); border-color: var(--ocean-mid); color: var(--ocean-mid); }
+.expand-actions { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; }
+.expand-btn {
+  padding: 7px 14px; border-radius: 8px; border: none;
+  font-size: 12px; font-family: var(--font); font-weight: 600;
+  cursor: pointer;
+}
+.btn-delete { background: #fef2f2; color: #ef4444; }
+.btn-save   { background: var(--teal); color: white; }
+
+/* FAB */
+.fab {
+  position: fixed; bottom: 24px; right: 20px;
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--teal); color: white;
+  border: none; font-size: 24px; line-height: 1;
+  box-shadow: 0 4px 16px rgba(46,196,182,.4);
+  cursor: pointer; z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform .15s, background .15s;
+}
+.fab:active { transform: scale(.93); background: #25a99c; }
+
+/* MODAL */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(11,45,69,.5); z-index: 200;
+  align-items: flex-end; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: white; border-radius: 18px 18px 0 0;
+  width: 100%; max-height: 90vh; overflow-y: auto;
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+  animation: slideUp .2s ease;
+}
+@keyframes slideUp { from{opacity:0;transform:translateY(40px)} to{opacity:1;transform:translateY(0)} }
+.modal-handle { width: 36px; height: 4px; background: #dde3ea; border-radius: 2px; margin: 12px auto 4px; }
+.modal-header { padding: 8px 20px 14px; border-bottom: 1px solid #f0f4f7; display: flex; align-items: center; justify-content: space-between; }
+.modal-header h2 { font-size: 15px; font-weight: 600; }
+.modal-close { background: none; border: none; font-size: 18px; color: #b0bec5; padding: 4px 8px; cursor: pointer; }
+.modal-body { padding: 16px 20px; }
+.form-row { margin-bottom: 14px; }
+.form-row label { display: block; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #7a8fa0; margin-bottom: 5px; }
+.form-row input, .form-row select, .form-row textarea {
+  width: 100%; padding: 10px 12px;
+  border: 1.5px solid #dde3ea; border-radius: 8px;
+  font-size: 14px; font-family: var(--font);
+  outline: none; color: var(--ocean-deep);
+  transition: border-color .15s;
+  -webkit-appearance: none;
+}
+.form-row input:focus, .form-row select:focus, .form-row textarea:focus { border-color: var(--teal); }
+.form-row textarea { min-height: 70px; resize: none; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.priority-check { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #5a6a7a; }
+.priority-check input { accent-color: var(--warm); width: 16px; height: 16px; }
+.modal-footer { padding: 10px 20px 16px; display: flex; gap: 10px; }
+.modal-footer .btn-ghost { flex: 1; padding: 12px; background: var(--foam); color: #5a6a7a; border: none; border-radius: 10px; font-size: 14px; font-family: var(--font); font-weight: 600; cursor: pointer; }
+.modal-footer .btn-primary { flex: 2; padding: 12px; background: var(--teal); color: white; border: none; border-radius: 10px; font-size: 14px; font-family: var(--font); font-weight: 600; cursor: pointer; }
+
+/* EMPTY */
+.empty { text-align: center; padding: 48px 16px; color: #b0bec5; font-size: 14px; }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(8px);
+  background: var(--ocean-deep); color: white;
+  padding: 10px 20px; border-radius: 20px; font-size: 13px;
+  z-index: 300; opacity: 0; pointer-events: none;
+  transition: opacity .2s, transform .2s; white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <div class="dot"></div>
+    <span class="header-title">メディア管理</span>
+  </div>
+  <span class="header-sub">Freediving Japan</span>
+</header>
+
+<div class="stats-bar" id="statsBar"></div>
+<div class="progress-bar-wrap" id="progressWrap"></div>
+
+<div class="controls">
+  <div class="search-wrap">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" id="searchInput" placeholder="タイトル・キーワードで検索…" oninput="renderList()">
+  </div>
+  <div class="filter-scroll" id="filterRow"></div>
+</div>
+
+<div class="list-meta">
+  <span id="listCount"></span>
+  <button class="sort-btn" onclick="cycleSort()">並び替え: <span id="sortLabel">番号順</span></button>
+</div>
+
+<div class="article-list" id="articleList"></div>
+
+<button class="fab" onclick="openModal()" title="記事を追加">＋</button>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h2 id="modalTitle">記事を追加</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label>タイトル</label>
+        <input type="text" id="f_title" placeholder="記事タイトルを入力…">
+      </div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label>カテゴリ</label>
+          <select id="f_category">
+            <option value="A">A. 入門・体験</option>
+            <option value="B">B. 身体・科学</option>
+            <option value="C">C. 海・スポット</option>
+            <option value="D">D. 競技・大会</option>
+            <option value="E">E. インタビュー</option>
+            <option value="P">P. 人物メディア</option>
+            <option value="Q">Q. 業界×期待感</option>
+            <option value="S">S. シリーズ連載</option>
+            <option value="T">T. エンタメ</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>ステータス</label>
+          <select id="f_status">
+            <option value="todo">未着手</option>
+            <option value="wip">執筆中</option>
+            <option value="done">完成</option>
+            <option value="live">公開済み</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>キーワード</label>
+        <input type="text" id="f_keyword" placeholder="例：フリーダイビング 始め方">
+      </div>
+      <div class="form-row">
+        <label>ターゲット層</label>
+        <input type="text" id="f_target" placeholder="例：完全初心者">
+      </div>
+      <div class="form-row">
+        <label>メモ</label>
+        <textarea id="f_memo" placeholder="ポイント・進捗メモなど…"></textarea>
+      </div>
+      <div class="form-row">
+        <label class="priority-check">
+          <input type="checkbox" id="f_priority">
+          優先記事（★）
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal()">キャンセル</button>
+      <button class="btn-primary" onclick="saveArticle()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CAT_LABELS = { A:'入門・体験', B:'身体・科学', C:'海・スポット', D:'競技・大会', E:'インタビュー', P:'人物メディア', Q:'業界×期待感', S:'シリーズ連載', T:'エンタメ' };
+const STATUS_LABELS = { todo:'未着手', wip:'執筆中', done:'完成', live:'公開済み' };
+const STATUS_ORDER  = { todo:0, wip:1, done:2, live:3 };
+const SORTS = ['id','status','category'];
+const SORT_LABELS = { id:'番号順', status:'ステータス順', category:'カテゴリ順' };
+
+const DEFAULT_ARTICLES = [
+  // A 入門
+  {id:1, category:'A', title:'フリーダイビングってなに？スキューバとどう違うの？', keyword:'フリーダイビング 違い / とは', target:'完全初心者', status:'todo', memo:'', priority:true},
+  {id:2, category:'A', title:'初めてフリーダイビングを体験するなら何を準備すればいい？', keyword:'フリーダイビング 体験 準備', target:'完全初心者', status:'todo', memo:'', priority:false},
+  {id:3, category:'A', title:'フリーダイビングのライセンス（資格）は必要？AIDA・SSI・PADIの違いを解説', keyword:'フリーダイビング 資格', target:'検討中・初心者', status:'todo', memo:'', priority:false},
+  {id:4, category:'A', title:'息が続かない人必見。フリーダイビングで息を長く止めるための基礎知識', keyword:'息止め コツ / 練習', target:'完全初心者', status:'todo', memo:'', priority:true},
+  {id:5, category:'A', title:'「耳抜きができない」を解決する3つのアプローチ', keyword:'耳抜き できない / コツ', target:'初心者・検索流入', status:'todo', memo:'', priority:true},
+  {id:6, category:'A', title:'フリーダイビングスクール選びで失敗しない5つのポイント', keyword:'フリーダイビング スクール 選び方', target:'スクール検討中', status:'todo', memo:'', priority:false},
+  {id:7, category:'A', title:'フリーダイビングの費用ってどのくらい？体験から資格取得まで料金の目安', keyword:'フリーダイビング 費用 / 値段', target:'完全初心者', status:'todo', memo:'', priority:false},
+  {id:8, category:'A', title:'フリーダイビングは危険？安全に始めるために知っておきたいこと', keyword:'フリーダイビング 危険 / 安全', target:'初心者・保護者', status:'todo', memo:'', priority:false},
+  {id:9, category:'A', title:'泳げなくてもフリーダイビングはできる？よくある疑問に答えます', keyword:'フリーダイビング 泳げない', target:'超初心者', status:'todo', memo:'', priority:false},
+  {id:10, category:'A', title:'フリーダイビングに向いている人・向いていない人の特徴', keyword:'フリーダイビング 向いている人', target:'完全初心者', status:'todo', memo:'', priority:false},
+  // B 身体・科学
+  {id:11, category:'B', title:'息を止めると体の中で何が起きているのか？呼吸の仕組みをざっくり解説', keyword:'フリーダイビング 仕組み / 呼吸', target:'初心者〜中級者', status:'todo', memo:'', priority:false},
+  {id:12, category:'B', title:'「苦しい」の正体はCO2だった。フリーダイビングと二酸化炭素の関係', keyword:'CO2 息苦しい フリーダイビング', target:'中級者', status:'todo', memo:'', priority:false},
+  {id:13, category:'B', title:'人間の体はなぜ深く潜れるのか？哺乳類潜水反射とは', keyword:'哺乳類潜水反射 フリーダイビング', target:'中級者・知識欲', status:'todo', memo:'', priority:false},
+  {id:14, category:'B', title:'フリーダイバーの安静時心拍数が低い理由', keyword:'フリーダイバー 心拍数 低い', target:'競技者・中級者', status:'todo', memo:'', priority:false},
+  {id:15, category:'B', title:'ストレッチがフリーダイビングの深度を変える理由', keyword:'フリーダイビング ストレッチ', target:'中級者', status:'todo', memo:'', priority:false},
+  {id:16, category:'B', title:'深く潜ると肺はどこまで縮む？肺容量の不思議', keyword:'肺容量 フリーダイビング', target:'中級者', status:'todo', memo:'', priority:false},
+  {id:17, category:'B', title:'フリーダイビングのための食事と栄養。潜る前に食べてはいけないものは？', keyword:'フリーダイビング 食事 / 栄養', target:'初心者〜中級者', status:'todo', memo:'', priority:false},
+  {id:18, category:'B', title:'水中での体の使い方——フィンキックの基礎と効率的な推進の考え方', keyword:'フリーダイビング フィンキック', target:'初中級者', status:'todo', memo:'', priority:false},
+  {id:19, category:'B', title:'浮力ってなに？フリーダイバーが知っておきたいウエイトの考え方', keyword:'フリーダイビング ウエイト / 浮力', target:'初中級者', status:'todo', memo:'', priority:false},
+  {id:20, category:'B', title:'「ブラックアウト」とは何か、なぜ起きるか。安全のために知っておくべきこと', keyword:'ブラックアウト フリーダイビング', target:'全層・安全訴求', status:'todo', memo:'有料教材への誘導ポイント', priority:false},
+  // C 海・スポット
+  {id:21, category:'C', title:'日本でフリーダイビングができるおすすめスポット10選', keyword:'フリーダイビング スポット 日本', target:'全層・マッチング送客', status:'todo', memo:'', priority:true},
+  {id:22, category:'C', title:'沖縄でフリーダイビング体験——青の洞窟とスキンダイビングの魅力', keyword:'沖縄 フリーダイビング', target:'旅行×海好き', status:'todo', memo:'', priority:false},
+  {id:23, category:'C', title:'伊豆でフリーダイビング——関東から行けるスキンダイビングの聖地', keyword:'伊豆 フリーダイビング', target:'関東在住・週末派', status:'todo', memo:'', priority:false},
+  {id:24, category:'C', title:'鹿児島・錦江湾の海——桜島を見ながら潜る体験記（Volcano Cup開催地）', keyword:'鹿児島 フリーダイビング / Volcano Cup', target:'競技者・旅行者', status:'todo', memo:'Takuya一次情報', priority:false},
+  {id:25, category:'C', title:'海外フリーダイビングの定番。エジプト・ダハブってどんな場所？', keyword:'フリーダイビング 海外 / ダハブ', target:'中上級者・海外志向', status:'todo', memo:'', priority:false},
+  {id:26, category:'C', title:'フィリピン・アポ島でフリーダイビング——アジア最高の透明度を誇る海', keyword:'フィリピン フリーダイビング', target:'旅行×海好き', status:'todo', memo:'', priority:false},
+  {id:27, category:'C', title:'ギリシャ・カラマタ——世界選手権の舞台で潜るとはどういうことか', keyword:'カラマタ フリーダイビング 世界選手権', target:'競技者・海外志向', status:'todo', memo:'', priority:false},
+  {id:28, category:'C', title:'スキンダイビングとフリーダイビングの違い——どちらが自分に合っている？', keyword:'スキンダイビング フリーダイビング 違い', target:'スキン/ファンダイバー層', status:'todo', memo:'', priority:false},
+  {id:29, category:'C', title:'魚突き（スピアフィッシング）とフリーダイビングの技術的な接点', keyword:'魚突き フリーダイビング', target:'スキン/ファンダイバー層', status:'todo', memo:'', priority:false},
+  {id:30, category:'C', title:'海なし県在住でもフリーダイビングを練習する方法——プールトレーニングのすすめ', keyword:'フリーダイビング プール / 内陸', target:'全国の初心者', status:'todo', memo:'', priority:false},
+  // D 競技・大会
+  {id:31, category:'D', title:'日本国内フリーダイビングランキング——現在のトップ選手と記録一覧', keyword:'フリーダイビング ランキング 日本', target:'現役フリーダイバー', status:'todo', memo:'ランキングページへ送客', priority:false},
+  {id:32, category:'D', title:'AIDAとは何か？国際ルールと認定団体の仕組みを解説', keyword:'AIDA フリーダイビング 資格', target:'競技者・中級者', status:'todo', memo:'', priority:false},
+  {id:33, category:'D', title:'静的アプノエ（STA）——「ただ浮かんでいる」という競技の奥深さ', keyword:'静的アプノエ STA', target:'競技者・中上級者', status:'todo', memo:'Takuya専門分野', priority:false},
+  {id:34, category:'D', title:'日本記録7分54秒——静的アプノエの日本記録更新の裏側', keyword:'フリーダイビング 日本記録 STA', target:'競技者・全層', status:'todo', memo:'Takuya本人記事。最強コンテンツ。最優先', priority:true},
+  {id:35, category:'D', title:'フリーダイビング大会の流れを完全解説——出場から結果発表まで', keyword:'フリーダイビング 大会 出場', target:'初めて大会に興味を持った人', status:'todo', memo:'', priority:false},
+  {id:36, category:'D', title:'Volcano Cup 2026 レポート——鹿児島で開催された国際大会の記録', keyword:'Volcano Cup 2026', target:'競技者・地元', status:'todo', memo:'映像・写真コンテンツと連動', priority:false},
+  {id:37, category:'D', title:'深度競技の種目ごとの違い——CWT / CNF / FIM / VWT をわかりやすく解説', keyword:'フリーダイビング 種目 CWT CNF', target:'中級者以上', status:'todo', memo:'', priority:false},
+  {id:38, category:'D', title:'フリーダイビングのウエイトセッティング——大会前の調整はどうやる？', keyword:'フリーダイビング ウエイト 大会', target:'競技者向け実用記事', status:'todo', memo:'', priority:false},
+  {id:39, category:'D', title:'STA競技における「収縮管理」——苦しさを制する思考法', keyword:'STA 収縮 管理', target:'競技者・有料教材への橋渡し', status:'todo', memo:'有料教材ブリッジ記事', priority:false},
+  {id:40, category:'D', title:'2026年フリーダイビング世界選手権——最新情報と注目選手まとめ', keyword:'フリーダイビング 世界選手権 2026', target:'競技者・中上級者', status:'todo', memo:'定期更新型', priority:false},
+  // E インタビュー
+  {id:41, category:'E', title:'【インタビュー】日本人フリーダイバーが語る「潜ることを仕事にするまで」', keyword:'フリーダイバー キャリア インタビュー', target:'全層・キャリア転換層', status:'todo', memo:'', priority:false},
+  {id:42, category:'E', title:'【インタビュー】世界トップ10のフランス人選手が語る——深さより先にあるもの', keyword:'フリーダイビング トップ選手 インタビュー', target:'競技者・中上級者', status:'todo', memo:'Takuya海外ネットワーク活用', priority:true},
+  {id:43, category:'E', title:'【インタビュー】フリーダイビングインストラクターになるまで——○○先生の話', keyword:'フリーダイビング インストラクター なるには', target:'インストラクター志望', status:'todo', memo:'instructor-welcomeへ誘導', priority:false},
+  {id:44, category:'E', title:'【インタビュー】魚突き×フリーダイビング——○○さんが見ている水中の世界', keyword:'魚突き フリーダイビング インタビュー', target:'スキン/ファンダイバー層', status:'todo', memo:'', priority:false},
+  {id:45, category:'E', title:'【インタビュー】主婦・会社員がフリーダイビングにハマった理由——○○さんの場合', keyword:'フリーダイビング 始めた きっかけ', target:'一般層・自分ごと化', status:'todo', memo:'最も拡散しやすいタイプ', priority:false},
+  {id:46, category:'E', title:'【インタビュー】水中カメラマンとフリーダイビング——○○さんの視点', keyword:'水中写真 フリーダイビング インタビュー', target:'写真・映像好き', status:'todo', memo:'Takuyaビデオグラファー軸と連動', priority:false},
+  {id:47, category:'E', title:'【インタビュー】Volcano Cup を支えるスタッフが語る大会運営の舞台裏', keyword:'Volcano Cup 大会運営', target:'競技者・ローカルSEO', status:'todo', memo:'', priority:false},
+  {id:48, category:'E', title:'【インタビュー】50代からフリーダイビングを始めた——○○さんの挑戦', keyword:'フリーダイビング 年齢 始める', target:'40代〜50代', status:'todo', memo:'', priority:false},
+  {id:49, category:'E', title:'【インタビュー】フリーダイビングで人生が変わった——○○さんの転機', keyword:'フリーダイビング 人生 変わった', target:'非競技層・一般層', status:'todo', memo:'', priority:false},
+  {id:50, category:'E', title:'【インタビュー】Takuya Terajima——日本記録保持者が「Freediving Japan」を作った理由', keyword:'Freediving Japan 創業 インタビュー', target:'全層・プラットフォームの顔', status:'todo', memo:'信頼構築・パートナーへの訴求', priority:false},
+  // P 人物メディア（新）
+  {id:51, category:'P', title:'日本記録を出した日、僕は前日に何を食べたか', keyword:'フリーダイビング 食事 コンディショニング', target:'競技者・中級者・一般層', status:'todo', memo:'Takuya一次情報。記録保持者の実体験', priority:true},
+  {id:52, category:'P', title:'息を7分止めるとき、頭の中で何が起きているか', keyword:'息止め 心理 CO2耐性 STA', target:'競技者・中上級者', status:'todo', memo:'有料教材の匂わせにもなる', priority:false},
+  {id:53, category:'P', title:'耳抜きで3年間詰まっていた僕が、ある日突然できるようになった話', keyword:'耳抜き できない コツ', target:'初心者・検索流入', status:'todo', memo:'一般情報×Takuya体験の掛け算', priority:true},
+  {id:54, category:'P', title:'IBM辞めてフリーダイバーになった話——収入・不安・後悔してるか', keyword:'フリーダイバー 仕事 キャリア転換', target:'全層・キャリア転換層', status:'todo', memo:'拡散力高い。一般層にも刺さる', priority:true},
+  {id:55, category:'P', title:'鹿児島の海で大会を作ってみてわかったこと', keyword:'Volcano Cup 大会運営 フリーダイビング', target:'競技者・イベント関係者', status:'todo', memo:'Takuyaオーガナイザー視点', priority:false},
+  {id:56, category:'P', title:'僕がフリーダイビングスクールを選ぶなら、何を見るか', keyword:'フリーダイビング スクール 選び方', target:'初心者・スクール検討中', status:'todo', memo:'一般情報記事をTakuya主語に変えた版', priority:false},
+  {id:57, category:'P', title:'「最初の1年で僕がやめなかった理由」——世界トップ選手が初心者だった頃の話', keyword:'フリーダイビング 継続 モチベーション', target:'初心者・継続悩み中', status:'todo', memo:'フランス人選手インタビュー', priority:false},
+  {id:58, category:'P', title:'「怖くないのか」と聞いたら、○○はこう答えた', keyword:'フリーダイビング 怖い 安全', target:'初心者・恐怖心あり', status:'todo', memo:'トップ選手の哲学。拡散しやすい', priority:false},
+  {id:59, category:'P', title:'深さより先に何があるか——世界記録に近い選手が「なぜ潜るか」を語った', keyword:'フリーダイビング 魅力 なぜ', target:'全層・本質的な問い', status:'todo', memo:'フランス人選手インタビュー。インバウンドにも使える', priority:false},
+  {id:60, category:'P', title:'フランス人選手が日本の海で感じたこと——ダハブ・カラマタと何が違うか', keyword:'日本 海 フリーダイビング 外国人', target:'競技者・旅行者・インバウンド', status:'todo', memo:'英語版にも転用できる', priority:false},
+  {id:61, category:'P', title:'泳ぎが苦手だった私が、なぜかフリーダイビングだけ続いている', keyword:'フリーダイビング 泳げない 続く', target:'超初心者・一般層', status:'todo', memo:'等身大のリアル。拡散しやすい', priority:false},
+  {id:62, category:'P', title:'子育て中の主婦が週1回だけ潜り続けた3年間', keyword:'フリーダイビング 主婦 子育て 継続', target:'30代〜40代女性', status:'todo', memo:'', priority:false},
+  {id:63, category:'P', title:'50歳で始めて、大会に出るまで——○○さんの2年間', keyword:'フリーダイビング 50代 大会', target:'40代〜50代', status:'todo', memo:'年齢層の幅を広げる', priority:false},
+  {id:64, category:'P', title:'魚突きをやっていた僕がフリーダイビングにハマった理由', keyword:'魚突き フリーダイビング きっかけ', target:'スキン/ファンダイバー層', status:'todo', memo:'スキン層への橋渡し記事', priority:false},
+  {id:65, category:'P', title:'「生徒が一番詰まるのはここです」——インストラクターが本音で語る耳抜きの現実', keyword:'耳抜き インストラクター コツ', target:'初心者・検索流入', status:'todo', memo:'マッチング送客に直結', priority:true},
+  {id:66, category:'P', title:'「この人は伸びる」とインストラクターが思う瞬間', keyword:'フリーダイビング 上達 早い 人', target:'中級者・伸び悩み中', status:'todo', memo:'', priority:false},
+  {id:67, category:'P', title:'体験ダイビングとフリーダイビングコース、何が違うか——インストラクターの視点', keyword:'フリーダイビング 体験 コース 違い', target:'初心者・コース選び', status:'todo', memo:'マッチング送客', priority:false},
+  {id:68, category:'P', title:'「フリーダイビングって結局何がそんなに楽しいの？」に答えます', keyword:'フリーダイビング 楽しい 魅力', target:'完全初心者・検索流入', status:'todo', memo:'Takuya Q&A形式', priority:false},
+  {id:69, category:'P', title:'「ウエットスーツって絶対必要？」フリーダイビング装備の正直なところ', keyword:'フリーダイビング ウエットスーツ 必要', target:'初心者・費用気になる人', status:'todo', memo:'', priority:false},
+  {id:70, category:'P', title:'「怖くて深く潜れない」——その恐怖心、正しいです', keyword:'フリーダイビング 怖い 深く潜れない', target:'初心者・中級者', status:'todo', memo:'安全意識を肯定する記事。差別化できる', priority:false},
+
+  // Q 業界×期待感（ローンチ時に「本気だ」と思わせる記事）
+  {id:71, category:'Q', title:'息を止めて、7分間だけ世界から消えた', keyword:'フリーダイビング 静寂 感覚 STA', target:'全層・一般層', status:'todo', memo:'日本記録の話。入口は「静寂・時間が止まる感覚」。フリーダイビングを知らない人も読める', priority:true},
+  {id:72, category:'Q', title:'安定した仕事を捨てて海に潜り続けることにした、31歳の話', keyword:'フリーダイバー キャリア 転職 人生', target:'全層・キャリア転換層', status:'todo', memo:'IBM辞めた話。入口は「このままでいいのか」という普遍的な感情', priority:true},
+  {id:73, category:'Q', title:'水深40メートルで、人は何を考えるのか', keyword:'フリーダイビング 深度 心理 極限', target:'全層・好奇心層', status:'todo', memo:'世界トップ選手インタビュー。入口は「極限状態の人間の内側」という好奇心', priority:true},
+  {id:74, category:'Q', title:'3年間できなかった耳抜きが、ある日突然できた理由', keyword:'耳抜き できない 突破 コツ', target:'初心者・中級者・スポーツ全般', status:'todo', memo:'入口は「壁が突破できた瞬間」という感情。スポーツやってる人誰でも共感できる', priority:true},
+  {id:75, category:'Q', title:'海に潜ることが、なぜこんなに人を変えるのか', keyword:'フリーダイビング 人生 変わった 理由', target:'全層・一般層', status:'todo', memo:'ビフォーアフターを束ねた記事。「何かが人を変える瞬間」という普遍テーマ', priority:false},
+  {id:76, category:'Q', title:'日本のフリーダイビング業界に、正直足りていないと思うもの', keyword:'フリーダイビング 業界 課題 日本', target:'業界人・競技者・インストラクター', status:'todo', memo:'IBM出身の事業視点で業界課題を言語化。業界人がシェアしてくれる構造', priority:false},
+  {id:77, category:'Q', title:'Volcano Cupをゼロから作った話——国際大会の裏側で起きていたこと', keyword:'Volcano Cup 大会運営 裏側', target:'競技者・イベント関係者', status:'todo', memo:'予算・選手招聘・失敗談を全部出す。オーガナイザー視点は希少', priority:false},
+  {id:78, category:'Q', title:'フリーダイビングを教えている人たちは、今どんな課題を抱えているか', keyword:'フリーダイビング インストラクター 課題 現状', target:'インストラクター・業界関係者', status:'todo', memo:'複数インストラクターへのヒアリングまとめ。「業界を理解している」という信頼構築', priority:false},
+
+  // S シリーズ連載
+  {id:79, category:'S', title:'【連載】水の中の人たち #1——○○さん（職業・背景）', keyword:'フリーダイビング インタビュー 連載', target:'全層', status:'todo', memo:'毎回1人を深掘り。プロ選手・主婦・漁師・カメラマンなど職業バラバラ。被取材者が毎回新フォロワーを連れてくる', priority:true},
+  {id:80, category:'S', title:'【連載】深さの単位 #1——1メートルの世界', keyword:'フリーダイビング 深度 身体 変化', target:'全層・一般層', status:'todo', memo:'1m→5m→10m→30m→競技深度と深さが増すごとに身体・心理・リスクが変わる様子を描く', priority:false},
+  {id:81, category:'S', title:'【連載】この業界で生きる #1——インストラクターの年収と現実', keyword:'フリーダイビング インストラクター 収入 仕事', target:'業界志望・キャリア転換層', status:'todo', memo:'フリーダイビングで生計を立てる人のリアルな経済・キャリア。Takuya自身の話も含める', priority:false},
+
+  // T エンタメ
+  {id:82, category:'T', title:'【企画】素人を3ヶ月で大会に出す', keyword:'フリーダイビング 初心者 大会 挑戦', target:'完全初心者・エンタメ好き', status:'todo', memo:'完全初心者をTakuyaが3ヶ月指導して大会へ。毎回「今週の記録・壁・突破」を記事化。YouTube連動最適。最終回が一番読まれる', priority:true},
+  {id:83, category:'T', title:'【企画】世界記録に一番近い質問をしてみた', keyword:'フリーダイビング トップ選手 本音 インタビュー', target:'競技者・エンタメ好き・一般層', status:'todo', memo:'「失神したことあるか」「死を意識したことは」など普通のインタビューでは聞けない質問だけをぶつける', priority:false},
+  {id:84, category:'T', title:'【エッセイ】フリーダイビングあるある', keyword:'フリーダイビング あるある', target:'競技者・中級者・SNS拡散', status:'todo', memo:'「大会前日に限って眠れない」「プールで止められた」など。短くて軽くてSNSでシェアされやすい。制作コスト低', priority:false},
+  {id:85, category:'T', title:'【連載】私はこうして人生プランが壊れた #1——寺島拓哉の場合', keyword:'フリーダイビング 人生 キャリア 挫折', target:'全層・一般層・キャリア転換層', status:'todo', memo:'フリーダイビングで予定の人生から外れた人たちのシリーズ。「壊れた」で入って読んだら全員楽しそうという落差がエンタメ。Takuya第1話が最高の出だし', priority:true},
+  {id:86, category:'T', title:'【連載】私はこうして人生プランが壊れた #2——○○さんの場合', keyword:'フリーダイビング 人生 変わった', target:'全層・一般層', status:'todo', memo:'就職決まってたのに辞めた・結婚の話が流れた・家買う予定のお金を全部使った、など。毎回被取材者が新フォロワーを連れてくる', priority:false},
+];
+
+let articles = [];
+let nextId   = 87;
+let currentFilter = 'all';
+let priorityOnly  = false;
+let sortIdx  = 0;
+let expandedId = null;
+let editingId  = null;
+
+function load() {
+  const s = localStorage.getItem('fdj_media_v3');
+  if (s) { const p = JSON.parse(s); articles = p.articles; nextId = p.nextId || 87; }
+  else   { articles = DEFAULT_ARTICLES.map(a=>({...a})); save(); }
+}
+function save() {
+  localStorage.setItem('fdj_media_v3', JSON.stringify({articles, nextId}));
+}
+
+function renderStats() {
+  const total = articles.length;
+  const live  = articles.filter(a=>a.status==='live').length;
+  const done  = articles.filter(a=>a.status==='done').length;
+  const wip   = articles.filter(a=>a.status==='wip').length;
+  const pct   = Math.round((live/total)*100);
+  document.getElementById('statsBar').innerHTML = `
+    <div class="stat"><div class="n">${total}</div><div class="l">記事数</div></div>
+    <div class="stat"><div class="n" style="color:#f97316">${wip}</div><div class="l">執筆中</div></div>
+    <div class="stat"><div class="n" style="color:#0e9488">${done}</div><div class="l">完成</div></div>
+    <div class="stat"><div class="n" style="color:#a8ece8">${live}</div><div class="l">公開済み</div></div>
+  `;
+  document.getElementById('progressWrap').innerHTML = `
+    <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="progress-label"><span>公開進捗 ${pct}%</span><span>${live} / ${total} 本</span></div>
+  `;
+}
+
+function renderFilters() {
+  const cats = ['all','A','B','C','D','E','P','Q','S','T'];
+  const labels = {all:'すべて', A:'A 入門', B:'B 身体', C:'C 海', D:'D 競技', E:'E インタビュー', P:'P 人物', Q:'Q 期待感', S:'S 連載', T:'T エンタメ'};
+  document.getElementById('filterRow').innerHTML =
+    cats.map(c=>`<button class="chip ${c==='all'?'':'cat-'+c} ${currentFilter===c?'active':''}" onclick="setFilter('${c}',this)">${labels[c]}</button>`).join('')
+    + `<button class="chip ${priorityOnly?'active':''}" onclick="togglePriority(this)">★ 優先</button>`;
+}
+
+function getFiltered() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  return articles.filter(a=>{
+    if (currentFilter!=='all' && a.category!==currentFilter) return false;
+    if (priorityOnly && !a.priority) return false;
+    if (q && !a.title.toLowerCase().includes(q) && !(a.keyword||'').toLowerCase().includes(q)) return false;
+    return true;
+  }).sort((a,b)=>{
+    const k = SORTS[sortIdx];
+    if (k==='status') return STATUS_ORDER[a.status]-STATUS_ORDER[b.status];
+    if (k==='category') return a.category.localeCompare(b.category);
+    return a.id-b.id;
+  });
+}
+
+function renderList() {
+  const filtered = getFiltered();
+  document.getElementById('listCount').textContent = `${filtered.length} 件`;
+  document.getElementById('sortLabel').textContent = SORT_LABELS[SORTS[sortIdx]];
+
+  if (!filtered.length) {
+    document.getElementById('articleList').innerHTML = '<div class="empty">条件に一致する記事がありません</div>';
+    return;
+  }
+
+  document.getElementById('articleList').innerHTML = filtered.map(a=>{
+    const isOpen = expandedId===a.id;
+    return `
+    <div class="article-item ${a.priority?'priority':''}" id="item-${a.id}">
+      <div class="article-main" onclick="toggleExpand(${a.id})">
+        <div class="article-left">
+          <div class="article-top">
+            <div class="cat-dot ${a.category}"></div>
+            <span class="cat-label">${CAT_LABELS[a.category]||a.category}</span>
+            ${a.priority?'<span class="star">★</span>':''}
+          </div>
+          <div class="article-title">${esc(a.title)}</div>
+          ${a.keyword?`<div class="article-keyword">${esc(a.keyword)}</div>`:''}
+        </div>
+        <div class="article-right">
+          <button class="status-pill s-${a.status}" onclick="quickStatus(event,${a.id})">${STATUS_LABELS[a.status]}</button>
+        </div>
+      </div>
+      <div class="article-expand ${isOpen?'open':''}" id="expand-${a.id}">
+        ${a.target?`<div class="expand-row"><div class="expand-label">ターゲット</div><div class="expand-text">${esc(a.target)}</div></div>`:''}
+        <div class="expand-row">
+          <div class="expand-label">ステータスを変更</div>
+          <div class="status-row">
+            ${['todo','wip','done','live'].map(s=>`<button class="status-opt ${a.status===s?'sel-'+s:''}" onclick="setStatus(${a.id},'${s}')">${STATUS_LABELS[s]}</button>`).join('')}
+          </div>
+        </div>
+        <div class="expand-row">
+          <div class="expand-label">メモ</div>
+          <textarea class="memo-field" id="memo-${a.id}" rows="2">${esc(a.memo)}</textarea>
+        </div>
+        <div class="expand-actions">
+          <button class="expand-btn btn-delete" onclick="deleteArticle(${a.id})">削除</button>
+          <button class="expand-btn btn-save" onclick="openModal(${a.id})">編集</button>
+          <button class="expand-btn btn-save" onclick="saveMemo(${a.id})">メモ保存</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function toggleExpand(id) {
+  expandedId = expandedId===id ? null : id;
+  renderList();
+}
+
+function quickStatus(e, id) {
+  e.stopPropagation();
+  const order = ['todo','wip','done','live'];
+  const a = articles.find(x=>x.id===id);
+  a.status = order[(order.indexOf(a.status)+1)%4];
+  save(); renderStats(); renderList();
+  showToast(STATUS_LABELS[a.status]+'に変更');
+}
+
+function setStatus(id, val) {
+  const a = articles.find(x=>x.id===id);
+  a.status = val; save(); renderStats(); renderList();
+  showToast(STATUS_LABELS[val]+'に変更');
+}
+
+function saveMemo(id) {
+  const a = articles.find(x=>x.id===id);
+  const el = document.getElementById('memo-'+id);
+  if (el) { a.memo = el.value; save(); showToast('メモを保存しました'); }
+}
+
+function deleteArticle(id) {
+  if (!confirm('この記事を削除しますか？')) return;
+  articles = articles.filter(x=>x.id!==id);
+  expandedId = null; save(); renderStats(); renderList();
+  showToast('削除しました');
+}
+
+function setFilter(cat, btn) {
+  currentFilter = cat; renderFilters(); renderList();
+}
+
+function togglePriority() {
+  priorityOnly = !priorityOnly; renderFilters(); renderList();
+}
+
+function cycleSort() {
+  sortIdx = (sortIdx+1)%SORTS.length; renderList();
+}
+
+// MODAL
+function openModal(id) {
+  editingId = id||null;
+  if (id) {
+    const a = articles.find(x=>x.id===id);
+    document.getElementById('modalTitle').textContent = '記事を編集';
+    document.getElementById('f_title').value    = a.title;
+    document.getElementById('f_category').value = a.category;
+    document.getElementById('f_status').value   = a.status;
+    document.getElementById('f_keyword').value  = a.keyword||'';
+    document.getElementById('f_target').value   = a.target||'';
+    document.getElementById('f_memo').value     = a.memo||'';
+    document.getElementById('f_priority').checked = !!a.priority;
+  } else {
+    document.getElementById('modalTitle').textContent = '記事を追加';
+    ['f_title','f_keyword','f_target','f_memo'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('f_category').value = 'P';
+    document.getElementById('f_status').value   = 'todo';
+    document.getElementById('f_priority').checked = false;
+  }
+  document.getElementById('modalOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('f_title').focus(),150);
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  editingId = null;
+}
+
+function handleOverlayClick(e) { if (e.target===e.currentTarget) closeModal(); }
+
+function saveArticle() {
+  const title = document.getElementById('f_title').value.trim();
+  if (!title) { document.getElementById('f_title').focus(); return; }
+  const data = {
+    title,
+    category: document.getElementById('f_category').value,
+    status:   document.getElementById('f_status').value,
+    keyword:  document.getElementById('f_keyword').value.trim(),
+    target:   document.getElementById('f_target').value.trim(),
+    memo:     document.getElementById('f_memo').value.trim(),
+    priority: document.getElementById('f_priority').checked,
+  };
+  if (editingId) {
+    Object.assign(articles.find(x=>x.id===editingId), data);
+    showToast('更新しました');
+  } else {
+    articles.push({id:nextId++, ...data});
+    showToast('追加しました');
+  }
+  save(); closeModal(); renderStats(); renderList();
+}
+
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove('show'), 2000);
+}
+
+document.addEventListener('keydown', e=>{
+  if (e.key==='Escape') closeModal();
+});
+
+load(); renderStats(); renderFilters(); renderList();
+</script>
+</body>
+</html>
