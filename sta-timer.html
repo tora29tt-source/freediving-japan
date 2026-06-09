@@ -1916,6 +1916,7 @@ function tick() {
 
   if (phase === 'rest') {
     updateRestDisplay(phaseMs);
+    updateCamOverlay(); // Surface後録画継続中のオーバーレイ更新
     // テーブルモード: セットリストのRest残り時間をリアルタイム更新
     if (mode !== 'free') {
       // rest中はcurrentSetがインクリメント済みなので1つ前のインデックス
@@ -3215,11 +3216,24 @@ function _startCanvasPreview() {
   function loop() {
     camRafId = requestAnimationFrame(loop);
     if (vid.readyState < 2) return;
+
+    // ビデオの実際のアスペクト比に合わせてCanvasサイズを決定（初回のみ）
+    if (vid.videoWidth > 0 && camCanvas.width !== vid.videoWidth) {
+      camCanvas.width  = vid.videoWidth;
+      camCanvas.height = vid.videoHeight;
+    }
+
     const W = camCanvas.width, H = camCanvas.height;
     camCtx.save();
     // 左右反転（インカメラ用ミラー）
     camCtx.translate(W, 0); camCtx.scale(-1, 1);
-    camCtx.drawImage(vid, 0, 0, W, H);
+    // アスペクト比を保ったままobject-fit:coverと同等に描画
+    const vw = vid.videoWidth  || W;
+    const vh = vid.videoHeight || H;
+    const scale = Math.max(W / vw, H / vh);
+    const dx = (W - vw * scale) / 2;
+    const dy = (H - vh * scale) / 2;
+    camCtx.drawImage(vid, dx, dy, vw * scale, vh * scale);
     camCtx.restore();
     if (isRecording) _drawOverlay(W, H);
   }
@@ -3231,92 +3245,100 @@ function _startCanvasPreview() {
 function _drawOverlay(W, H) {
   const ctx = camCtx;
   const ov  = camOverlay;
+  const BAR = Math.round(H * 0.18); // 下部バーの高さ
 
   if (ov.phase === 'hold') {
-    // ── 前半（Hold中）: ダイブタイム + SpO2 ──────────────
-    // 半透明バー（下部）
-    ctx.fillStyle = 'rgba(6,15,23,0.65)';
-    ctx.fillRect(0, H - 110, W, 110);
+    // ── 前半（Hold中）: ダイブタイム(左) + SpO2(右) ─────
+    ctx.fillStyle = 'rgba(6,15,23,0.70)';
+    ctx.fillRect(0, H - BAR, W, BAR);
+
+    const pad   = W * 0.04;
+    const timeY = H - Math.round(BAR * 0.18); // 下から18%の位置
+    const lblY  = H - Math.round(BAR * 0.72); // 下から72%の位置
 
     // HOLD ラベル
     ctx.fillStyle = '#ef4444';
-    ctx.font = `bold ${Math.round(W*0.022)}px -apple-system, sans-serif`;
-    ctx.letterSpacing = '0.15em';
-    ctx.fillText('HOLD', W * 0.04, H - 74);
-    ctx.letterSpacing = '0';
+    ctx.font = `700 ${Math.round(H * 0.038)}px -apple-system, sans-serif`;
+    ctx.textAlign = 'left';
+    ctx.fillText('HOLD', pad, lblY);
 
     // ダイブタイム（大）
     const holdStr = fmt(ov.holdMs);
-    const msStr   = fmtMs(ov.holdMs);
+    const tSize   = Math.round(H * 0.10);
     ctx.fillStyle = '#e8f4f8';
-    ctx.font = `300 ${Math.round(W*0.072)}px -apple-system, sans-serif`;
-    ctx.fillText(holdStr, W * 0.04, H - 24);
+    ctx.font      = `300 ${tSize}px -apple-system, sans-serif`;
+    ctx.fillText(holdStr, pad, timeY);
 
-    // ms（小、タイム右隣）
-    const mainMetrics = ctx.measureText(holdStr);
+    // ms（タイムの右）
+    const tW = ctx.measureText(holdStr).width;
     ctx.fillStyle = '#5a8ca8';
-    ctx.font = `300 ${Math.round(W*0.032)}px -apple-system, sans-serif`;
-    ctx.fillText(msStr, W * 0.04 + mainMetrics.width + W*0.008, H - 28);
+    ctx.font      = `300 ${Math.round(tSize * 0.44)}px -apple-system, sans-serif`;
+    ctx.fillText(fmtMs(ov.holdMs), pad + tW + W * 0.01, timeY - Math.round(tSize * 0.10));
 
-    // SpO2（右側）
+    // SpO2（右側・ラベルと値が重ならないよう縦に並べる）
     if (ov.spo2 !== null) {
       const spo2Color = ov.spo2 >= 95 ? '#2ec4b6' : ov.spo2 >= 90 ? '#f97316' : '#ef4444';
-      ctx.fillStyle = '#5a8ca8';
-      ctx.font = `700 ${Math.round(W*0.018)}px -apple-system, sans-serif`;
       ctx.textAlign = 'right';
-      ctx.fillText('SpO2', W * 0.96, H - 68);
+      ctx.fillStyle = '#5a8ca8';
+      ctx.font      = `700 ${Math.round(H * 0.032)}px -apple-system, sans-serif`;
+      ctx.fillText('SpO₂', W - pad, lblY);
       ctx.fillStyle = spo2Color;
-      ctx.font = `600 ${Math.round(W*0.06)}px -apple-system, sans-serif`;
-      ctx.fillText(ov.spo2 + '%', W * 0.96, H - 22);
+      ctx.font      = `600 ${Math.round(H * 0.088)}px -apple-system, sans-serif`;
+      ctx.fillText(ov.spo2 + '%', W - pad, timeY);
       ctx.textAlign = 'left';
     }
 
   } else {
-    // ── 後半（Surface中）: SPカウント + SpO2 + 経過秒数 ──
-    const elapsedSec = Math.floor(ov.spElapsed / 1000);
+    // ── 後半（Surface中）: SPカウント(左) + 経過秒数(中央) + SpO2(右) ──
+    const BAR2 = Math.round(H * 0.22);
+    ctx.fillStyle = 'rgba(6,15,23,0.75)';
+    ctx.fillRect(0, H - BAR2, W, BAR2);
 
-    // 全面半透明オーバーレイ（少し暗く）
-    ctx.fillStyle = 'rgba(6,15,23,0.72)';
-    ctx.fillRect(0, H - 150, W, 150);
+    const pad   = W * 0.04;
+    const lblY  = H - Math.round(BAR2 * 0.75);
+    const valY  = H - Math.round(BAR2 * 0.12);
 
     // SURFACE PROTOCOL ラベル
     ctx.fillStyle = '#eab308';
-    ctx.font = `bold ${Math.round(W*0.022)}px -apple-system, sans-serif`;
-    ctx.letterSpacing = '0.12em';
-    ctx.fillText('SURFACE PROTOCOL', W * 0.04, H - 112);
-    ctx.letterSpacing = '0';
+    ctx.font      = `700 ${Math.round(H * 0.034)}px -apple-system, sans-serif`;
+    ctx.textAlign = 'left';
+    ctx.fillText('SURFACE PROTOCOL', pad, lblY);
 
-    // SPカウント（大・中央左）
+    // SPカウント（左・大）
+    const spStr   = String(ov.spCount);
+    const spSize  = Math.round(H * 0.13);
     ctx.fillStyle = '#ffffff';
-    ctx.font = `200 ${Math.round(W*0.11)}px -apple-system, sans-serif`;
-    ctx.fillText(ov.spCount, W * 0.04, H - 24);
-
-    // 「回」ラベル
-    ctx.fillStyle = '#5a8ca8';
-    ctx.font = `700 ${Math.round(W*0.024)}px -apple-system, sans-serif`;
-    ctx.fillText('回', W * 0.04 + ctx.measureText(String(ov.spCount)).width * 0.72 + W*0.005, H - 36);
+    ctx.font      = `200 ${spSize}px -apple-system, sans-serif`;
+    ctx.fillText(spStr, pad, valY);
+    // 「回」小さく右隣
+    const spW = ctx.measureText(spStr).width;
+    ctx.fillStyle = '#a8ece8';
+    ctx.font      = `700 ${Math.round(spSize * 0.36)}px -apple-system, sans-serif`;
+    ctx.fillText('回', pad + spW + W * 0.008, valY - Math.round(spSize * 0.18));
 
     // 経過秒数（中央）
+    const elapsedSec = Math.floor(ov.spElapsed / 1000);
     ctx.fillStyle = '#eab308';
-    ctx.font = `300 ${Math.round(W*0.038)}px -apple-system, sans-serif`;
+    ctx.font      = `300 ${Math.round(H * 0.06)}px -apple-system, sans-serif`;
     ctx.textAlign = 'center';
-    ctx.fillText(elapsedSec + 's', W * 0.5, H - 28);
+    ctx.fillText(elapsedSec + 's', W * 0.5, valY);
     ctx.textAlign = 'left';
 
-    // SpO2（右側・強調）
+    // SpO2（右側・ラベルと値を縦配置）
     if (ov.spo2 !== null) {
       const spo2Color = ov.spo2 >= 95 ? '#2ec4b6' : ov.spo2 >= 90 ? '#f97316' : '#ef4444';
-      ctx.fillStyle = '#5a8ca8';
-      ctx.font = `700 ${Math.round(W*0.018)}px -apple-system, sans-serif`;
       ctx.textAlign = 'right';
-      ctx.fillText('SpO2', W * 0.96, H - 96);
-      // SpO2背景グロー
-      ctx.fillStyle = spo2Color + '22';
-      const spo2TxtW = W * 0.14;
-      ctx.fillRect(W * 0.96 - spo2TxtW - W*0.01, H - 78, spo2TxtW + W*0.02, 64);
+      ctx.fillStyle = '#5a8ca8';
+      ctx.font      = `700 ${Math.round(H * 0.032)}px -apple-system, sans-serif`;
+      ctx.fillText('SpO₂', W - pad, lblY);
+      // グロー背景
+      const sValSize = Math.round(H * 0.10);
+      ctx.fillStyle  = spo2Color + '33';
+      const sW = ctx.measureText(ov.spo2 + '%').width * (sValSize / (H * 0.10));
+      ctx.fillRect(W - pad - sW - W * 0.02, valY - sValSize, sW + W * 0.02, sValSize + H * 0.01);
       ctx.fillStyle = spo2Color;
-      ctx.font = `700 ${Math.round(W*0.075)}px -apple-system, sans-serif`;
-      ctx.fillText(ov.spo2 + '%', W * 0.96, H - 22);
+      ctx.font      = `700 ${sValSize}px -apple-system, sans-serif`;
+      ctx.fillText(ov.spo2 + '%', W - pad, valY);
       ctx.textAlign = 'left';
     }
   }
@@ -3388,6 +3410,8 @@ function onSurfaceStart() {
     camOverlay.phase = 'hold';
     startCamRecording(`Set #${currentSet+1}`);
   }
+  // Surface開始時刻を記録（rest中の継続オーバーレイ用）
+  _camSurfaceStartTime = performance.now();
   // オーバーレイをSurfaceモードに切り替え
   camOverlay.phase = 'surface';
   camOverlay.spCount = 0;
@@ -3415,6 +3439,9 @@ function onHoldStartCamera() {
 function onSessionStartCamera() {}
 
 // ── tick()から毎フレーム呼ぶ：オーバーレイデータ更新 ──────
+// Surface後30秒は phase='rest' になるが録画は継続するため、
+// rest中もsurfaceオーバーレイを表示し続ける。
+let _camSurfaceStartTime = 0; // Surface開始時のperformance.now()
 function updateCamOverlay() {
   if (!cameraEnabled || !isRecording) return;
   if (phase === 'hold') {
@@ -3422,9 +3449,18 @@ function updateCamOverlay() {
     camOverlay.holdMs = phaseMs;
     camOverlay.spo2   = currentSpo2;
   } else if (phase === 'surface') {
+    // Surface中：spCountはsurfaceNum（呼吸回数ではなく経過秒）で代用
     camOverlay.phase     = 'surface';
     camOverlay.spCount   = Math.floor(phaseMs / 1000);
     camOverlay.spElapsed = phaseMs;
+    camOverlay.spo2      = currentSpo2;
+    _camSurfaceStartTime = performance.now() - phaseMs; // Surface開始時刻を記録
+  } else if (phase === 'rest' || phase === 'done') {
+    // Surface終了後もsurfaceオーバーレイを継続表示（録画停止まで）
+    const elapsed = performance.now() - _camSurfaceStartTime;
+    camOverlay.phase     = 'surface';
+    camOverlay.spCount   = Math.floor(elapsed / 1000);
+    camOverlay.spElapsed = elapsed;
     camOverlay.spo2      = currentSpo2;
   }
 }
