@@ -885,7 +885,7 @@ header {
     <div id="cameraClipList" style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;max-height:55vh;overflow-y:auto"></div>
     <div class="sheet-btns">
       <button class="sheet-btn cancel" onclick="closeCameraReview()">閉じる</button>
-      <button class="sheet-btn confirm" onclick="downloadAllClips()">全て保存</button>
+      <button class="sheet-btn confirm" onclick="shareAllClips()">全て保存</button>
     </div>
   </div>
 </div>
@@ -3083,7 +3083,7 @@ function openDetailClip() {
   div.innerHTML = `
     <div style="font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">${clip.label}</div>
     <video src="${url}" controls autoplay playsinline style="width:100%;border-radius:6px;max-height:220px;background:#000"></video>
-    <button onclick="downloadClip(${_detailClipIndex})" style="margin-top:6px;width:100%;height:32px;border-radius:7px;border:1px solid var(--teal);background:var(--teal-dim);color:var(--teal-light);font-size:11px;font-weight:700;cursor:pointer">ダウンロード</button>
+    <button onclick="shareClip(${_detailClipIndex})" style="margin-top:6px;width:100%;height:32px;border-radius:7px;border:1px solid var(--teal);background:var(--teal-dim);color:var(--teal-light);font-size:11px;font-weight:700;cursor:pointer">📤 カメラロールへ保存</button>
   `;
   listEl.appendChild(div);
   document.getElementById('cameraReviewOverlay').classList.add('open');
@@ -3125,8 +3125,8 @@ let camRecordLabel    = '';
 let camOverlay = {
   phase: 'hold',       // 'hold' | 'surface'
   holdMs: 0,           // Hold経過ms（前半表示用）
+  diveMs: 0,           // Hold最終タイム（Surface中の固定表示用）
   spo2: null,          // 現在SpO2値
-  spCount: 0,          // Surface Protocol カウント（秒）
   spElapsed: 0,        // Surface開始からの経過ms
 };
 
@@ -3289,14 +3289,14 @@ function _drawOverlay(W, H) {
     }
 
   } else {
-    // ── 後半（Surface中）: SPカウント(左) + 経過秒数(中央) + SpO2(右) ──
+    // ── 後半（Surface中）: 経過秒数(左・大) + ダイブタイム(左・小) + SpO2(右) ──
     const BAR2 = Math.round(H * 0.22);
     ctx.fillStyle = 'rgba(6,15,23,0.75)';
     ctx.fillRect(0, H - BAR2, W, BAR2);
 
-    const pad   = W * 0.04;
-    const lblY  = H - Math.round(BAR2 * 0.75);
-    const valY  = H - Math.round(BAR2 * 0.12);
+    const pad  = W * 0.04;
+    const lblY = H - Math.round(BAR2 * 0.75);
+    const valY = H - Math.round(BAR2 * 0.12);
 
     // SURFACE PROTOCOL ラベル
     ctx.fillStyle = '#eab308';
@@ -3304,25 +3304,24 @@ function _drawOverlay(W, H) {
     ctx.textAlign = 'left';
     ctx.fillText('SURFACE PROTOCOL', pad, lblY);
 
-    // SPカウント（左・大）
-    const spStr   = String(ov.spCount);
-    const spSize  = Math.round(H * 0.13);
-    ctx.fillStyle = '#ffffff';
-    ctx.font      = `200 ${spSize}px -apple-system, sans-serif`;
-    ctx.fillText(spStr, pad, valY);
-    // 「回」小さく右隣
-    const spW = ctx.measureText(spStr).width;
-    ctx.fillStyle = '#a8ece8';
-    ctx.font      = `700 ${Math.round(spSize * 0.36)}px -apple-system, sans-serif`;
-    ctx.fillText('回', pad + spW + W * 0.008, valY - Math.round(spSize * 0.18));
-
-    // 経過秒数（中央）
+    // 経過秒数（左・大）
     const elapsedSec = Math.floor(ov.spElapsed / 1000);
-    ctx.fillStyle = '#eab308';
-    ctx.font      = `300 ${Math.round(H * 0.06)}px -apple-system, sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.fillText(elapsedSec + 's', W * 0.5, valY);
-    ctx.textAlign = 'left';
+    const elStr  = elapsedSec + 's';
+    const elSize = Math.round(H * 0.13);
+    ctx.fillStyle = '#ffffff';
+    ctx.font      = `200 ${elSize}px -apple-system, sans-serif`;
+    ctx.fillText(elStr, pad, valY);
+
+    // ダイブタイム（経過秒数の右隣・小）
+    const elW     = ctx.measureText(elStr).width;
+    const dtStr   = fmt(ov.diveMs) + fmtMs(ov.diveMs);
+    const dtSize  = Math.round(elSize * 0.38);
+    ctx.fillStyle = '#a8ece8';
+    ctx.font      = `300 ${dtSize}px -apple-system, sans-serif`;
+    ctx.fillText('DIVE', pad + elW + W * 0.025, valY - Math.round(elSize * 0.48));
+    ctx.fillStyle = '#e8f4f8';
+    ctx.font      = `300 ${dtSize}px -apple-system, sans-serif`;
+    ctx.fillText(dtStr, pad + elW + W * 0.025, valY - Math.round(elSize * 0.10));
 
     // SpO2（右側・ラベルと値を縦配置）
     if (ov.spo2 !== null) {
@@ -3331,13 +3330,12 @@ function _drawOverlay(W, H) {
       ctx.fillStyle = '#5a8ca8';
       ctx.font      = `700 ${Math.round(H * 0.032)}px -apple-system, sans-serif`;
       ctx.fillText('SpO₂', W - pad, lblY);
-      // グロー背景
       const sValSize = Math.round(H * 0.10);
       ctx.fillStyle  = spo2Color + '33';
-      const sW = ctx.measureText(ov.spo2 + '%').width * (sValSize / (H * 0.10));
-      ctx.fillRect(W - pad - sW - W * 0.02, valY - sValSize, sW + W * 0.02, sValSize + H * 0.01);
+      ctx.font       = `700 ${sValSize}px -apple-system, sans-serif`;
+      const sW = ctx.measureText(ov.spo2 + '%').width;
+      ctx.fillRect(W - pad - sW - W * 0.02, valY - sValSize, sW + W * 0.025, sValSize + H * 0.01);
       ctx.fillStyle = spo2Color;
-      ctx.font      = `700 ${sValSize}px -apple-system, sans-serif`;
       ctx.fillText(ov.spo2 + '%', W - pad, valY);
       ctx.textAlign = 'left';
     }
@@ -3412,6 +3410,8 @@ function onSurfaceStart() {
   }
   // Surface開始時刻を記録（rest中の継続オーバーレイ用）
   _camSurfaceStartTime = performance.now();
+  // Hold最終タイムを確定保存（Surface中の固定表示用）
+  camOverlay.diveMs = camOverlay.holdMs;
   // オーバーレイをSurfaceモードに切り替え
   camOverlay.phase = 'surface';
   camOverlay.spCount = 0;
@@ -3449,17 +3449,13 @@ function updateCamOverlay() {
     camOverlay.holdMs = phaseMs;
     camOverlay.spo2   = currentSpo2;
   } else if (phase === 'surface') {
-    // Surface中：spCountはsurfaceNum（呼吸回数ではなく経過秒）で代用
     camOverlay.phase     = 'surface';
-    camOverlay.spCount   = Math.floor(phaseMs / 1000);
     camOverlay.spElapsed = phaseMs;
     camOverlay.spo2      = currentSpo2;
-    _camSurfaceStartTime = performance.now() - phaseMs; // Surface開始時刻を記録
+    _camSurfaceStartTime = performance.now() - phaseMs;
   } else if (phase === 'rest' || phase === 'done') {
-    // Surface終了後もsurfaceオーバーレイを継続表示（録画停止まで）
     const elapsed = performance.now() - _camSurfaceStartTime;
     camOverlay.phase     = 'surface';
-    camOverlay.spCount   = Math.floor(elapsed / 1000);
     camOverlay.spElapsed = elapsed;
     camOverlay.spo2      = currentSpo2;
   }
@@ -3479,7 +3475,7 @@ function openCameraReview() {
       div.innerHTML = `
         <div style="font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">${clip.label}</div>
         <video src="${url}" controls playsinline style="width:100%;border-radius:6px;max-height:160px;background:#000"></video>
-        <button onclick="downloadClip(${i})" style="margin-top:6px;width:100%;height:32px;border-radius:7px;border:1px solid var(--teal);background:var(--teal-dim);color:var(--teal-light);font-size:11px;font-weight:700;cursor:pointer">ダウンロード</button>
+        <button onclick="shareClip(${i})" style="margin-top:6px;width:100%;height:32px;border-radius:7px;border:1px solid var(--teal);background:var(--teal-dim);color:var(--teal-light);font-size:11px;font-weight:700;cursor:pointer">📤 カメラロールへ保存</button>
       `;
       listEl.appendChild(div);
     });
@@ -3491,17 +3487,24 @@ function closeCameraReview() {
   document.getElementById('cameraReviewOverlay').classList.remove('open');
 }
 
-function downloadClip(i) {
+async function shareClip(i) {
   const clip = cameraClips[i];
   if (!clip) return;
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(clip.blob);
-  a.download = `sta-${clip.label.replace(/[^\w]/g,'-')}.${clip.ext || 'webm'}`;
-  a.click();
+  const filename = `sta-${clip.label.replace(/[^\w]/g,'-')}.${clip.ext || 'webm'}`;
+  const file = new File([clip.blob], filename, { type: clip.blob.type });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: clip.label }); }
+    catch(e) { if (e.name !== 'AbortError') toast('シェア失敗', true); }
+  } else {
+    // フォールバック: 通常ダウンロード
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(clip.blob);
+    a.download = filename; a.click();
+  }
 }
 
-function downloadAllClips() {
-  cameraClips.forEach((_, i) => downloadClip(i));
+async function shareAllClips() {
+  for (let i = 0; i < cameraClips.length; i++) await shareClip(i);
 }
 
 initSelects();
