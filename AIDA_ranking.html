@@ -496,11 +496,22 @@ function render(){
   const rest=rows.slice(3);
   if(!rest.length){area.innerHTML='';return;}
   if(isOv){
-    area.innerHTML='<div class="listhd">4位以降</div><table><thead><tr><th>順位</th><th>選手</th><th>総合ポイント</th></tr></thead><tbody>'+
-      rest.map(r=>'<tr><td class="rk">'+r.rank+'</td><td><div class="nmcell">'+av(r.name,'savatar')+'<span class="nm" onclick="showAthlete(\''+esc(r.name)+'\',state.disc===\'OVERALL\')">'+r.name+'</span></div></td><td class="pts2">'+r.total+'</td></tr>').join('')+'</tbody></table>';
+    area.innerHTML='<div class="listhd">4位以降</div>'
+      +rest.map(r=>'<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)">'
+        +'<span class="rk" style="width:28px;flex:none">'+r.rank+'</span>'
+        +'<div class="nmcell" style="flex:1;min-width:0">'+av(r.name,'savatar')+'<span class="nm" onclick="showAthlete(\''+esc(r.name)+'\',state.disc===\'OVERALL\')" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+r.name+'</span></div>'
+        +'<span class="pts2" style="flex:none">'+r.total+'</span>'
+        +'</div>').join('');
   }else{
-    area.innerHTML='<div class="listhd">4位以降</div><table><thead><tr><th>順位</th><th>選手</th><th>記録</th><th>pt</th><th>大会</th><th>日付</th></tr></thead><tbody>'+
-      rest.map(r=>'<tr><td class="rk">'+r.rank+'</td><td><div class="nmcell">'+av(r.name,'savatar')+'<span class="nm" onclick="showAthlete(\''+esc(r.name)+'\',state.disc===\'OVERALL\')">'+r.name+'</span></div></td><td class="res2">'+r.result+'</td><td class="pts2">'+(r.points!=null?r.points:'')+'</td><td class="ev2">'+r.event+'</td><td class="dt">'+r.date+'</td></tr>').join('')+'</tbody></table>';
+    area.innerHTML='<div class="listhd">4位以降</div>'
+      +rest.map(r=>'<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)">'
+        +'<span class="rk" style="width:28px;flex:none;font-size:12px">'+r.rank+'</span>'
+        +'<div class="nmcell" style="width:100px;flex:none">'+av(r.name,'savatar')+'<span class="nm" onclick="showAthlete(\''+esc(r.name)+'\',state.disc===\'OVERALL\')" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:68px;display:inline-block">'+r.name+'</span></div>'
+        +'<span class="res2" style="flex:none;font-size:13px">'+cleanRes(r.result)+'</span>'
+        +'<span class="pts2" style="flex:none;font-size:12px;min-width:36px;text-align:right">'+(r.points!=null?r.points:'')+'</span>'
+        +'<span style="flex:1;min-width:0;font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+r.event+'</span>'
+        +'<span style="flex:none;font-size:10px;color:var(--muted);white-space:nowrap">'+r.date.slice(0,7)+'</span>'
+        +'</div>').join('');
   }
 }
 
