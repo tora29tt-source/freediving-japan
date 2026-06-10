@@ -511,16 +511,19 @@ function showAthlete(name,fromOverall){
   function sectionFor(cat,label){
     const list=recs.filter(r=>DCAT[r.discipline]===cat).slice().sort((a,b)=>(b.date||'').localeCompare(a.date||''));
     if(!list.length)return '';
-    const rowsH=list.map(r=>{
+    const col=cat==='pool'?'var(--pool)':'var(--sea)';
+    const rows=list.map(r=>{
       const tag=resTag(r.result);
-      const tagBadge=tag?'<span style="display:inline-block;font-size:11px;font-weight:800;padding:2px 7px;border-radius:6px;margin-left:6px;vertical-align:middle;background:'+(tag==='NR'?'rgba(255,210,74,.2)':'rgba(30,200,166,.2)')+';color:'+(tag==='NR'?'var(--gold)':'var(--accent2)')+'">'+tag+'</span>':'';
-      return '<tr><td style="color:var(--muted);width:60px;font-size:11px;font-weight:700;white-space:nowrap">'+r.discipline+'</td>'
-        +'<td><span class="res2">'+cleanRes(r.result)+'</span>'+tagBadge+'</td>'
-        +'<td class="pts2">'+(r.points!=null?r.points:'')+'</td>'
-        +'<td class="ev2" style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+r.event+'</td>'
-        +'<td class="dt">'+r.date+'</td></tr>';
+      const tagBadge=tag?'<span style="font-size:9px;font-weight:800;padding:1px 6px;border-radius:4px;margin-left:5px;background:'+(tag==='NR'?'rgba(255,210,74,.2)':'rgba(30,200,166,.2)')+';color:'+(tag==='NR'?'var(--gold)':'var(--accent2)')+'">'+tag+'</span>':'';
+      return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)">'
+        +'<span style="font-size:10px;font-weight:700;color:'+col+';width:42px;flex:none">'+r.discipline+'</span>'
+        +'<span style="font-size:15px;font-weight:800;flex:none">'+cleanRes(r.result)+tagBadge+'</span>'
+        +'<span style="font-size:11px;color:var(--accent2);font-weight:700;flex:none">'+(r.points!=null?r.points:'')+'</span>'
+        +'<span style="font-size:10px;color:var(--muted);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+r.event+'</span>'
+        +'<span style="font-size:10px;color:var(--muted);flex:none;white-space:nowrap">'+r.date+'</span>'
+        +'</div>';
     }).join('');
-    return '<div class="athsec '+cat+'"><div class="secthd"><span class="dot"></span>'+label+'</div><table><tbody>'+rowsH+'</tbody></table></div>';
+    return '<div class="athsec '+cat+'"><div class="secthd"><span class="dot"></span>'+label+'</div>'+rows+'</div>';
   }
   function overallBreakdown(){
     if(!fromOverall)return '';
