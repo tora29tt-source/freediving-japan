@@ -113,7 +113,7 @@ let DATA = {records:[], overall:[]};
 // ローディング
 document.getElementById('hero').innerHTML='<p style="color:var(--muted);padding:20px">データ読み込み中...</p>';
 
-fetch('data/all_rankings_data.json')
+fetch('all_rankings_data.json')
   .then(r => r.json())
   .then(json => {
     const evs = json.events || [];
@@ -279,7 +279,6 @@ document.querySelectorAll('#genderSeg button').forEach(b=>b.onclick=()=>{state.g
 function esc(s){return (s||'').replace(/'/g,"\\'");}
 function initials(n){const p=(n||'').trim().split(/\s+/);return ((p[0]||'')[0]||'')+((p[1]||'')[0]||'');}
 function hue(n){let h=0;for(const c of (n||''))h=(h*31+c.charCodeAt(0))%360;return h;}
-// avatar: photo if available, else colored initials; broken photo falls back via onerror
 function av(name,cls){
   const ph=PHOTOS[name];const h=hue(name);
   const fb="this.parentNode.style.background='linear-gradient(135deg,hsl("+h+",55%,60%),hsl("+((h+40)%360)+",55%,45%))';this.parentNode.textContent='"+esc(initials(name))+"';";
@@ -322,7 +321,6 @@ function render(){
   let rows;
   if(isAll){
     if(isOv){
-      // All-time OVERALL: sum each athlete's best per discipline across all years
       const DISCS=['STA','DYN','DYNB','DNF','CWT','CWTB','CNF','FIM'];
       const bestByName={};
       DATA.records.filter(r=>r.gender===state.gender&&r.points!=null).forEach(r=>{
@@ -336,7 +334,6 @@ function render(){
       }).sort((a,b)=>parseFloat(b.total)-parseFloat(a.total));
       rows.forEach((r,i)=>r.rank=i+1);
     } else {
-      // All-time per discipline: best result per athlete
       const best={};
       DATA.records.filter(r=>r.discipline===state.disc&&r.gender===state.gender&&r.points!=null).forEach(r=>{
         if(!best[r.name]||r.points>best[r.name].points) best[r.name]=r;
@@ -370,14 +367,11 @@ function render(){
 function showAthlete(name,fromOverall){
   const recs=DATA.records.filter(r=>r.name===name);
   const card=document.getElementById('card');
-  // personal bests per discipline
   const pbs={};recs.forEach(r=>{if(r.points!=null&&(!pbs[r.discipline]||r.points>pbs[r.discipline].points))pbs[r.discipline]={result:r.result,points:r.points,year:r.year};});
-  // all-time domestic rank helper
   const rankCache={};
   function getDomRank(disc,gender,pts){
     const key=disc+'|'+gender;
     if(!rankCache[key]){
-      // best per athlete only
       const bestMap={};
       DATA.records.filter(x=>x.discipline===disc&&x.gender===gender&&x.points!=null)
         .forEach(x=>{if(!bestMap[x.name]||x.points>bestMap[x.name])bestMap[x.name]=x.points;});
@@ -401,7 +395,6 @@ function showAthlete(name,fromOverall){
     }).join('');
     return '<div class="athsec '+cat+'"><div class="secthd"><span class="dot"></span>'+label+'</div><table><tbody>'+rowsH+'</tbody></table></div>';
   }
-  // OVERALL breakdown panel
   function overallBreakdown(){
     if(!fromOverall)return '';
     const ovRec=state.year==='all'?null:DATA.overall.find(r=>r.name===name&&r.year===state.year);
@@ -429,7 +422,6 @@ function showAthlete(name,fromOverall){
   }
   const genders=[...new Set(recs.map(r=>r.gender))];
   const gtxt=genders.includes('Male')?'男子':genders.includes('Female')?'女子':'';
-  // best record per discipline (across all years)
   function bestPerDisc(){
     const map={};
     recs.forEach(r=>{
