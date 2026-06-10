@@ -134,6 +134,7 @@ fetch('all_rankings_data.json')
         return {year:String(o.year), gender:o.gender, rank:o.rank, name:o.name, total:o.total};
       })
     };
+    buildYearSel();
     renderHero();
     render();
   })
@@ -274,14 +275,18 @@ const DISC=[
 const DJA=Object.fromEntries(DISC.map(d=>[d[0],d[1]]));
 const DCAT=Object.fromEntries(DISC.map(d=>[d[0],d[4]]));
 let state={disc:'OVERALL',gender:'Male',year:'all'};
-const years=[...new Set(DATA.records.map(r=>r.year))].sort().reverse();
-
 const tabs=document.getElementById('tabs');
 DISC.forEach(([k,ja,en,desc,cat])=>{const b=document.createElement('div');b.className='tab '+cat+(k===state.disc?' active':'');b.innerHTML=ja+'<small>'+k+'</small>';b.dataset.k=k;b.onclick=()=>{state.disc=k;render();};tabs.appendChild(b);});
 const yearSel=document.getElementById('yearSel');
-const allOpt=document.createElement('option');allOpt.value='all';allOpt.textContent='全年度（歴代）';yearSel.appendChild(allOpt);
-years.forEach(y=>{const o=document.createElement('option');o.value=y;o.textContent=y+'年';yearSel.appendChild(o);});
-yearSel.value=state.year;yearSel.onchange=()=>{state.year=yearSel.value;render();};
+yearSel.onchange=()=>{state.year=yearSel.value;render();};
+
+function buildYearSel(){
+  yearSel.innerHTML='';
+  const allOpt=document.createElement('option');allOpt.value='all';allOpt.textContent='全年度（歴代）';yearSel.appendChild(allOpt);
+  const years=[...new Set(DATA.records.map(r=>r.year))].sort().reverse();
+  years.forEach(y=>{const o=document.createElement('option');o.value=y;o.textContent=y+'年';yearSel.appendChild(o);});
+  yearSel.value=state.year;
+}
 document.querySelectorAll('#genderSeg button').forEach(b=>b.onclick=()=>{state.gender=b.dataset.g;document.querySelectorAll('#genderSeg button').forEach(x=>x.classList.toggle('active',x===b));render();});
 
 function esc(s){return (s||'').replace(/'/g,"\\'");}
