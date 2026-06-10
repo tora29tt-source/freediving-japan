@@ -118,13 +118,21 @@ fetch('all_rankings_data.json')
   .then(json => {
     const evs = json.events || [];
     DATA = {
-      records: (json.r || []).map(r => ({
-        year:String(r[0]), discipline:r[1], gender:r[2]?'Male':'Female',
-        rank:r[3], name:r[4], result:r[5], points:r[6], date:r[7], event:evs[r[8]]||''
-      })),
-      overall: (json.o || []).map(o => ({
-        year:String(o[0]), gender:o[1]?'Male':'Female', rank:o[2], name:o[3], total:o[4]
-      }))
+      records: (json.records || json.r || []).map(r => {
+        if(Array.isArray(r)){
+          const evs2 = json.events || [];
+          return {year:String(r[0]), discipline:r[1], gender:r[2]?'Male':'Female',
+            rank:r[3], name:r[4], result:r[5], points:r[6], date:r[7], event:evs2[r[8]]||''};
+        }
+        return {year:String(r.year), discipline:r.discipline, gender:r.gender,
+          rank:r.rank, name:r.name, result:r.result, points:r.points, date:r.date, event:r.event||''};
+      }),
+      overall: (json.overall || json.o || []).map(o => {
+        if(Array.isArray(o)){
+          return {year:String(o[0]), gender:o[1]?'Male':'Female', rank:o[2], name:o[3], total:o[4]};
+        }
+        return {year:String(o.year), gender:o.gender, rank:o.rank, name:o.name, total:o.total};
+      })
     };
     renderHero();
     render();
