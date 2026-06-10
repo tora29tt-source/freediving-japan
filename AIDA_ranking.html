@@ -93,7 +93,45 @@ footer{color:var(--muted);font-size:11.5px;text-align:center;padding:24px}
 .rep-tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;letter-spacing:.4px;padding:3px 10px;border-radius:20px;margin-top:6px;margin-right:4px}
 .rep-tag::before{content:'🇯🇵';font-size:13px;margin-right:2px}
 .rep-tag.pool{background:rgba(46,196,160,.18);border:1px solid rgba(46,196,160,.5);color:var(--pool)}
-.rep-tag.sea{background:rgba(42,109,181,.18);border:1px solid rgba(42,109,181,.5);color:var(--sea)}</style></head>
+.rep-tag.sea{background:rgba(42,109,181,.18);border:1px solid rgba(42,109,181,.5);color:var(--sea)}
+
+/* ── 代表選考シミュレーター ── */
+.sel-btn{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:6px 14px;background:linear-gradient(135deg,rgba(255,210,74,.18),rgba(255,180,40,.1));border:1px solid rgba(255,210,74,.5);border-radius:20px;color:var(--gold);font-size:11.5px;font-weight:700;cursor:pointer;letter-spacing:.3px;transition:.15s}
+.sel-btn:hover{background:linear-gradient(135deg,rgba(255,210,74,.28),rgba(255,180,40,.2));border-color:var(--gold)}
+.sel-overlay{position:fixed;inset:0;background:rgba(3,10,18,.88);display:none;align-items:flex-start;justify-content:center;padding:24px 16px 40px;overflow:auto;z-index:60}
+.sel-overlay.show{display:flex}
+.sel-modal{background:var(--panel);border:1px solid var(--line);border-radius:18px;max-width:920px;width:100%;padding:24px 24px 32px}
+.sel-modal-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px}
+.sel-modal-hd h2{font-size:17px;font-weight:700;line-height:1.3}
+.sel-modal-hd h2 span{color:var(--gold)}
+.sel-modal-hd .sclose{cursor:pointer;color:var(--muted);font-size:24px;line-height:1;flex:none;margin-left:12px}
+.sel-period{font-size:11px;color:var(--muted);margin-bottom:16px;line-height:1.6;padding:8px 12px;background:rgba(255,210,74,.06);border-left:3px solid rgba(255,210,74,.4);border-radius:0 6px 6px 0}
+.sel-period b{color:var(--gold)}
+.sel-gtabs{display:flex;gap:6px;margin-bottom:18px}
+.sel-gtab{padding:6px 18px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;transition:.15s}
+.sel-gtab.active{background:var(--accent);border-color:var(--accent);color:#06231c}
+.sel-disc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.sel-disc-block{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.sel-disc-label{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:rgba(46,196,182,.08);border-bottom:1px solid var(--line)}
+.sel-disc-label .dn{font-size:12px;font-weight:700;color:var(--pool)}
+.sel-disc-label .dn.sea{color:var(--sea)}
+.sel-disc-label .dq{font-size:10px;color:var(--muted)}
+.sel-row{display:flex;align-items:center;gap:9px;padding:7px 14px;border-bottom:1px solid rgba(255,255,255,.04)}
+.sel-row:last-child{border-bottom:none}
+.sel-row.selected{background:rgba(46,196,182,.06)}
+.sel-rk{font-size:11px;font-weight:800;width:26px;flex:none;text-align:center}
+.sel-rk.r1{color:var(--gold)}.sel-rk.r2{color:var(--silver)}.sel-rk.r3{color:var(--bronze)}.sel-rk.r4{color:var(--accent2)}
+.sel-name{font-size:12.5px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.sel-name:hover{text-decoration:underline;color:var(--accent)}
+.sel-res{font-size:12px;color:var(--accent2);font-weight:700;white-space:nowrap}
+.sel-date{font-size:10px;color:var(--muted);white-space:nowrap}
+.sel-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;white-space:nowrap;flex:none}
+.sel-badge.ok{background:rgba(74,222,128,.18);color:#4ade80;border:1px solid rgba(74,222,128,.35)}
+.sel-badge.bubble{background:rgba(250,204,21,.12);color:var(--gold);border:1px solid rgba(250,204,21,.3)}
+.sel-badge.out{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--line)}
+.sel-wc-note{margin-top:14px;padding:10px 14px;background:rgba(96,165,250,.07);border:1px solid rgba(96,165,250,.2);border-radius:8px;font-size:11px;color:rgba(255,255,255,.55);line-height:1.6}
+.sel-wc-note b{color:#60a5fa}
+@media(max-width:640px){.sel-disc-grid{grid-template-columns:1fr}}</style></head>
 <body>
 <header><div class="wrap"><h1>AIDA <span>Japan</span> ランキング</h1>
 <p>2000–2026 日本記録データベース · プロトタイプ</p></div></header>
@@ -107,6 +145,30 @@ footer{color:var(--muted);font-size:11.5px;text-align:center;padding:24px}
 </div>
 <footer>データ出典: AIDA International · 顔写真: AIDA選手プロフィール · 社内プロトタイプ</footer>
 <div class="overlay" id="overlay"><div class="card" id="card"></div></div>
+
+<!-- 代表選考シミュレーターモーダル -->
+<div class="sel-overlay" id="selOverlay">
+  <div class="sel-modal">
+    <div class="sel-modal-hd">
+      <h2>🏅 <span>2027年</span> プール世界選手権<br>日本代表選考 現時点見込み</h2>
+      <span class="sclose" onclick="hideSelModal()">×</span>
+    </div>
+    <div class="sel-period">
+      <b>選考対象期間</b>：2025年3月15日（2025年日本選手権初日）〜 2027年日本選手権最終日（未確定）<br>
+      <b>選考基準</b>：各プール種目（STA/DYN/DYNB/DNF）男女別 上位4名。<br>
+      ※ 現在データは2026年5月末時点。名前クリックで選手詳細。
+    </div>
+    <div class="sel-gtabs">
+      <div class="sel-gtab active" onclick="setSelGender('Male',this)">男子</div>
+      <div class="sel-gtab" onclick="setSelGender('Female',this)">女子</div>
+    </div>
+    <div class="sel-disc-grid" id="selGrid"></div>
+    <div class="sel-wc-note">
+      <b>ワイルドカードについて</b>：2026年AIDA種目別世界ランキング1〜10位に入った日本人選手に付与される特別参加権。選考4名は常に固定で、WC保有者のうちポイント上位2名までが別枠として追加（最大計6名）。WC保有者が3名以上の場合、3位以降のWC保有者は通常の選考枠として扱われます。<br>
+      2026年シーズン終了後にAIDA公式サイトで確定 → <a href="https://www.aidainternational.org/Ranking/WildCards" target="_blank" style="color:#60a5fa">AIDA WildCards</a>
+    </div>
+  </div>
+</div>
 <script>
 let DATA = {records:[], overall:[]};
 
@@ -318,7 +380,8 @@ function renderHero(){
   document.getElementById('hero').innerHTML='<h2>現在の<b>日本記録</b></h2>'
     +'<div class="sub">AIDA公式ランキング（日本・全年）の各種目1位＝現在の日本記録 · 更新 '+'2026-05-29'+' · 名前クリックで全記録</div>'
     +group('pool','プール種目','水平距離・時間を競う')
-    +group('sea','海（深度）種目','ロープ沿いに深さを競う');
+    +group('sea','海（深度）種目','ロープ沿いに深さを競う')
+    +'<div style="margin-top:18px"><span class="sel-btn" onclick="showSelModal()">🏅 2027年プール世界選手権 代表選考シミュレーター</span></div>';
 }
 
 function render(){
@@ -479,4 +542,96 @@ function showAthlete(name,fromOverall){
 }
 function hideA(){document.getElementById('overlay').classList.remove('show');}
 document.getElementById('overlay').onclick=e=>{if(e.target.id==='overlay')hideA();};
+
+/* ========== 代表選考シミュレーター ========== */
+// 選考ルール定数（変わらない想定なのでJS内に定義）
+const SEL_RULES = {
+  competition: '2027年プール世界選手権',
+  // 選考対象期間：この期間のデータを使う
+  periodStart: '2025-03-15',
+  periodEnd:   '2027-12-31',   // 選考終了前なので全2025-2026データを対象
+  // 選考対象種目（プールのみ）
+  disciplines: ['STA','DYN','DYNB','DNF'],
+  // 各種目 上位何名を選考
+  quotaPerDisc: 4,
+};
+
+let selGender = 'Male';
+
+function showSelModal(){
+  renderSelGrid();
+  document.getElementById('selOverlay').classList.add('show');
+}
+function hideSelModal(){
+  document.getElementById('selOverlay').classList.remove('show');
+}
+document.getElementById('selOverlay').onclick = e => {
+  if(e.target.id==='selOverlay') hideSelModal();
+};
+
+function setSelGender(g, el){
+  selGender = g;
+  document.querySelectorAll('.sel-gtab').forEach(t=>t.classList.toggle('active',t===el));
+  renderSelGrid();
+}
+
+function renderSelGrid(){
+  const {disciplines, quotaPerDisc, periodStart} = SEL_RULES;
+  // 選考対象期間：2025年3月15日以降のデータ
+  const periodRecs = DATA.records.filter(r =>
+    r.gender === selGender &&
+    disciplines.includes(r.discipline) &&
+    r.date >= periodStart
+  );
+
+  // 種目ごとに選手ベストを集計
+  const html = disciplines.map(disc => {
+    const discRecs = periodRecs.filter(r => r.discipline === disc);
+    // 各選手の当該期間ベスト
+    const bestByName = {};
+    discRecs.forEach(r => {
+      if(!bestByName[r.name] || r.points > bestByName[r.name].points) {
+        bestByName[r.name] = r;
+      }
+    });
+    const sorted = Object.values(bestByName)
+      .filter(r => r.points != null)
+      .sort((a,b) => b.points - a.points);
+
+    const dInfo = DISC.find(d=>d[0]===disc);
+    const dJa = dInfo ? dInfo[1] : disc;
+    const cat = dInfo ? dInfo[4] : 'pool';
+
+    const rows = sorted.slice(0, Math.min(8, sorted.length)).map((r, i) => {
+      const rank = i + 1;
+      const isSelected = rank <= quotaPerDisc;
+      const rkCls = ['','r1','r2','r3','r4'][rank] || '';
+      const badge = isSelected
+        ? '<span class="sel-badge ok">選考圏内</span>'
+        : (rank === quotaPerDisc + 1 ? '<span class="sel-badge bubble">次点</span>' : '<span class="sel-badge out">圏外</span>');
+      const tag = resTag(r.result);
+      const tagBadge = tag ? '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:5px;margin-left:4px;background:'+(tag==='NR'?'rgba(255,210,74,.2)':'rgba(30,200,166,.2)')+';color:'+(tag==='NR'?'var(--gold)':'var(--accent2)')+'">'+tag+'</span>' : '';
+      return '<div class="sel-row'+(isSelected?' selected':'')+'">'+
+        '<span class="sel-rk '+rkCls+'">'+rank+'</span>'+
+        av(r.name,'savatar')+
+        '<span class="sel-name" onclick="hideSelModal();showAthlete(\''+esc(r.name)+'\',false)">'+r.name+'</span>'+
+        '<span class="sel-res">'+cleanRes(r.result)+tagBadge+'</span>'+
+        '<span class="sel-date">'+r.date.slice(0,7)+'</span>'+
+        badge+
+        '</div>';
+    }).join('');
+
+    const emptyMsg = sorted.length === 0
+      ? '<div style="padding:14px;font-size:12px;color:var(--muted)">選考期間中のデータなし</div>'
+      : '';
+
+    return '<div class="sel-disc-block">'+
+      '<div class="sel-disc-label"><span class="dn'+(cat==='sea'?' sea':'')+'">'+dJa+' <span style="font-size:9px;opacity:.7">'+disc+'</span></span>'+
+      '<span class="dq">上位'+quotaPerDisc+'名選考</span></div>'+
+      rows + emptyMsg +
+      '</div>';
+  }).join('');
+
+  document.getElementById('selGrid').innerHTML = html;
+}
 </script></body></html>
