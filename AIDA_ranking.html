@@ -192,6 +192,32 @@ footer{color:var(--muted);font-size:11.5px;text-align:center;padding:24px}
     </div>
   </div>
 </div>
+<!-- 選手比較モーダル -->
+<div class="sel-overlay" id="cmpOverlay">
+  <div class="sel-modal" style="max-width:860px">
+    <div class="sel-modal-hd">
+      <h2>⚖️ 選手比較</h2>
+      <span class="sclose" onclick="hideCmp()">×</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:5px">選手A</div>
+        <input id="cmpInputA" type="text" placeholder="名前を入力…" autocomplete="off"
+          style="width:100%;padding:8px 12px;background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:13px;outline:none"
+          oninput="cmpSuggest('A')" onfocus="cmpSuggest('A')">
+        <div id="cmpSugA" style="position:relative"></div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:5px">選手B</div>
+        <input id="cmpInputB" type="text" placeholder="名前を入力…" autocomplete="off"
+          style="width:100%;padding:8px 12px;background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:13px;outline:none"
+          oninput="cmpSuggest('B')" onfocus="cmpSuggest('B')">
+        <div id="cmpSugB" style="position:relative"></div>
+      </div>
+    </div>
+    <div id="cmpResult"></div>
+  </div>
+</div>
 <script>
 let DATA = {records:[], overall:[]};
 
@@ -404,7 +430,7 @@ function renderHero(){
     +'<div class="sub">AIDA公式ランキング（日本・全年）の各種目1位＝現在の日本記録 · 更新 '+'2026-05-29'+' · 名前クリックで全記録</div>'
     +group('pool','プール種目','水平距離・時間を競う')
     +group('sea','海（深度）種目','ロープ沿いに深さを競う')
-    +'<div style="margin-top:18px;display:flex;flex-wrap:wrap;gap:8px"><span class="sel-btn" onclick="showSelModal()">🏅 2027年プール世界選手権 代表選考シミュレーター</span><span class="sel-btn" onclick="showSelSeaModal()" style="border-color:rgba(42,169,224,.5);background:linear-gradient(135deg,rgba(42,169,224,.15),rgba(26,122,138,.1));color:var(--accent2)">🌊 2027年深度世界選手権 代表選考シミュレーター</span></div>';
+    +'<div style="margin-top:18px;display:flex;flex-wrap:wrap;gap:8px"><span class="sel-btn" onclick="showSelModal()">🏅 2027年プール世界選手権 代表選考シミュレーター</span><span class="sel-btn" onclick="showSelSeaModal()" style="border-color:rgba(42,169,224,.5);background:linear-gradient(135deg,rgba(42,169,224,.15),rgba(26,122,138,.1));color:var(--accent2)">🌊 2027年深度世界選手権 代表選考シミュレーター</span><span class="sel-btn" onclick="showCmp()" style="border-color:rgba(168,236,232,.4);background:linear-gradient(135deg,rgba(168,236,232,.1),rgba(46,196,182,.07));color:var(--accent2)">⚖️ 選手比較</span></div>';
 }
 
 function render(){
@@ -560,11 +586,229 @@ function showAthlete(name,fromOverall){
   card.innerHTML='<span class="close" onclick="hideA()">×</span>'
     +'<div class="top">'+av(name,'bigav')+'<div><h2>'+name+'</h2><div class="meta">'+gtxt+' · 全'+recs.length+'記録（最新順）</div>'+worldTags(name)+'</div></div>'
     +overallBreakdown()
-    +(recs.length?(bestPerDisc()+sectionFor('pool','プール種目記録一覧')+sectionFor('sea','海（深度）種目記録一覧')):'<div class="empty">この選手の詳細記録はデータにありません</div>');
+    +(recs.length?(bestPerDisc()+trendChart()+sectionFor('pool','プール種目記録一覧')+sectionFor('sea','海（深度）種目記録一覧')):'<div class="empty">この選手の詳細記録はデータにありません</div>');
   document.getElementById('overlay').classList.add('show');
+  // グラフ描画はDOM挿入後
+  if(recs.length) drawTrendChart(name);
 }
+  // 年別推移グラフHTML（canvasプレースホルダー）
+  function trendChart(){
+    // 種目ごとに年別ベストを集計
+    const discList = DISC.filter(d=>d[0]!=='OVERALL');
+    const hasData = discList.some(d => recs.some(r=>r.discipline===d[0]&&r.points!=null));
+    if(!hasData) return '';
+    return '<div class="athsec best" style="margin-top:16px">'
+      +'<div class="secthd"><span class="dot"></span>記録推移</div>'
+      +'<canvas id="trendCanvas" style="width:100%;height:200px;display:block;margin-top:8px"></canvas>'
+      +'</div>';
+  }
+
+  function drawTrendChart(name){
+    const canvas = document.getElementById('trendCanvas');
+    if(!canvas) return;
+    canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+    canvas.height = 200 * window.devicePixelRatio;
+    const ctx2 = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio;
+    ctx2.scale(dpr, dpr);
+    const W = canvas.offsetWidth, H = 200;
+
+    // 種目ごとに年別ベストpt集計
+    const allRecs = DATA.records.filter(r=>r.name===name&&r.points!=null);
+    const years = [...new Set(allRecs.map(r=>r.year))].map(Number).sort();
+    if(years.length < 2) return;
+
+    // 各種目の色
+    const discColors = {
+      STA:'#2ec4b6', DYN:'#22d3ee', DYNB:'#6ee7b7', DNF:'#a3e635',
+      CWT:'#60a5fa', CWTB:'#818cf8', CNF:'#f472b6', FIM:'#fb923c'
+    };
+    const discList2 = [...new Set(allRecs.map(r=>r.discipline))];
+
+    // 年ごとの種目ベスト
+    const series = discList2.map(disc => {
+      const pts = years.map(y => {
+        const yr = allRecs.filter(r=>r.discipline===disc&&Number(r.year)===y);
+        return yr.length ? Math.max(...yr.map(r=>r.points)) : null;
+      });
+      return {disc, pts, color: discColors[disc]||'#aaa'};
+    }).filter(s => s.pts.some(p=>p!=null));
+
+    if(!series.length) return;
+
+    const allPts = series.flatMap(s=>s.pts.filter(p=>p!=null));
+    const minPt = Math.max(0, Math.min(...allPts) - 10);
+    const maxPt = Math.max(...allPts) + 10;
+
+    const padL=42, padR=16, padT=14, padB=32;
+    const gW=W-padL-padR, gH=H-padT-padB;
+
+    // 背景
+    ctx2.fillStyle='rgba(255,255,255,0.03)';
+    ctx2.beginPath(); ctx2.roundRect(0,0,W,H,8); ctx2.fill();
+
+    // グリッド横線
+    const gridN=4;
+    ctx2.strokeStyle='rgba(168,236,232,0.1)';
+    ctx2.lineWidth=1;
+    for(let i=0;i<=gridN;i++){
+      const y=padT+gH*(1-i/gridN);
+      ctx2.beginPath(); ctx2.moveTo(padL,y); ctx2.lineTo(padL+gW,y); ctx2.stroke();
+      ctx2.fillStyle='rgba(255,255,255,0.4)';
+      ctx2.font=`${10*1}px -apple-system,sans-serif`;
+      ctx2.textAlign='right';
+      ctx2.fillText(Math.round(minPt+(maxPt-minPt)*i/gridN), padL-5, y+3.5);
+    }
+
+    // X軸ラベル
+    ctx2.fillStyle='rgba(255,255,255,0.4)';
+    ctx2.font=`${10}px -apple-system,sans-serif`;
+    ctx2.textAlign='center';
+    years.forEach((y,i)=>{
+      const x=padL+gW*i/(years.length-1);
+      ctx2.fillText(y, x, H-6);
+    });
+
+    // 各種目の折れ線
+    series.forEach(({disc,pts,color})=>{
+      ctx2.strokeStyle=color;
+      ctx2.lineWidth=2;
+      ctx2.shadowColor=color;
+      ctx2.shadowBlur=4;
+      ctx2.beginPath();
+      let first=true;
+      pts.forEach((p,i)=>{
+        if(p==null) return;
+        const x=padL+gW*i/(years.length-1);
+        const y=padT+gH*(1-(p-minPt)/(maxPt-minPt));
+        if(first){ctx2.moveTo(x,y);first=false;}
+        else ctx2.lineTo(x,y);
+      });
+      ctx2.stroke();
+      // ドット
+      ctx2.shadowBlur=0;
+      pts.forEach((p,i)=>{
+        if(p==null) return;
+        const x=padL+gW*i/(years.length-1);
+        const y=padT+gH*(1-(p-minPt)/(maxPt-minPt));
+        ctx2.beginPath();
+        ctx2.arc(x,y,3,0,Math.PI*2);
+        ctx2.fillStyle=color;
+        ctx2.fill();
+      });
+    });
+
+    // 凡例
+    ctx2.shadowBlur=0;
+    let lx=padL, ly=padT-2;
+    series.forEach(({disc,color})=>{
+      ctx2.fillStyle=color;
+      ctx2.fillRect(lx,ly-7,10,3);
+      ctx2.font=`9px -apple-system,sans-serif`;
+      ctx2.fillStyle='rgba(255,255,255,0.6)';
+      ctx2.textAlign='left';
+      ctx2.fillText(disc, lx+13, ly);
+      lx += ctx2.measureText(disc).width + 28;
+    });
+  }
+
 function hideA(){document.getElementById('overlay').classList.remove('show');}
 document.getElementById('overlay').onclick=e=>{if(e.target.id==='overlay')hideA();};
+
+/* ========== 選手比較 ========== */
+let cmpSelected = {A: null, B: null};
+
+function showCmp(){
+  document.getElementById('cmpResult').innerHTML='';
+  document.getElementById('cmpInputA').value='';
+  document.getElementById('cmpInputB').value='';
+  document.getElementById('cmpSugA').innerHTML='';
+  document.getElementById('cmpSugB').innerHTML='';
+  cmpSelected={A:null,B:null};
+  document.getElementById('cmpOverlay').classList.add('show');
+}
+function hideCmp(){document.getElementById('cmpOverlay').classList.remove('show');}
+document.getElementById('cmpOverlay').onclick=e=>{if(e.target.id==='cmpOverlay')hideCmp();};
+
+function cmpSuggest(side){
+  const input=document.getElementById('cmpInput'+side);
+  const box=document.getElementById('cmpSug'+side);
+  const q=(input.value||'').toLowerCase().trim();
+  if(!q){box.innerHTML='';return;}
+  const names=[...new Set(DATA.records.map(r=>r.name))].filter(n=>n.toLowerCase().includes(q)).slice(0,8);
+  if(!names.length){box.innerHTML='';return;}
+  box.innerHTML='<div style="position:absolute;top:2px;left:0;right:0;background:#0c2738;border:1px solid var(--line);border-radius:8px;z-index:99;overflow:hidden">'
+    +names.map(n=>'<div onclick="cmpSelect(\''+side+'\',\''+esc(n)+'\')" style="padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--line)" onmouseover="this.style.background=\'rgba(46,196,182,.12)\'" onmouseout="this.style.background=\'\'">'+n+'</div>').join('')
+    +'</div>';
+}
+
+function cmpSelect(side, name){
+  cmpSelected[side]=name;
+  document.getElementById('cmpInput'+side).value=name;
+  document.getElementById('cmpSug'+side).innerHTML='';
+  if(cmpSelected.A && cmpSelected.B) renderCmp();
+}
+
+function renderCmp(){
+  const nameA=cmpSelected.A, nameB=cmpSelected.B;
+  const recsA=DATA.records.filter(r=>r.name===nameA);
+  const recsB=DATA.records.filter(r=>r.name===nameB);
+
+  function bestPt(recs,disc){
+    const rs=recs.filter(r=>r.discipline===disc&&r.points!=null);
+    return rs.length?Math.max(...rs.map(r=>r.points)):null;
+  }
+  function bestRec(recs,disc){
+    const rs=recs.filter(r=>r.discipline===disc&&r.points!=null);
+    if(!rs.length)return null;
+    return rs.reduce((a,b)=>b.points>a.points?b:a);
+  }
+
+  const discList=DISC.filter(d=>d[0]!=='OVERALL');
+  const rows=discList.map(([k,ja,,, cat])=>{
+    const pA=bestPt(recsA,k), pB=bestPt(recsB,k);
+    const rA=bestRec(recsA,k), rB=bestRec(recsB,k);
+    if(!pA&&!pB) return '';
+    const col=cat==='pool'?'var(--pool)':'var(--sea)';
+    const winA=pA&&(!pB||pA>pB), winB=pB&&(!pA||pB>pA);
+    function cell(rec,pt,win){
+      if(!rec)return '<div style="color:var(--muted);font-size:12px">—</div>';
+      const tag=resTag(rec.result);
+      const tagBadge=tag?'<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:4px;margin-left:4px;background:'+(tag==='NR'?'rgba(255,210,74,.2)':'rgba(30,200,166,.2)')+';color:'+(tag==='NR'?'var(--gold)':'var(--accent2)')+'">'+tag+'</span>':'';
+      return '<div style="font-size:15px;font-weight:800;color:'+(win?'var(--accent2)':'var(--text)')+'">'+cleanRes(rec.result)+tagBadge+'</div>'
+        +'<div style="font-size:10px;color:var(--muted)">'+pt+' pt · '+rec.date.slice(0,4)+'</div>';
+    }
+    return '<tr style="border-bottom:1px solid var(--line)">'
+      +'<td style="padding:10px 8px;text-align:right;width:40%">'+cell(rA,pA,winA)+'</td>'
+      +'<td style="padding:10px 6px;text-align:center;white-space:nowrap;width:20%"><span style="font-size:11px;font-weight:700;color:'+col+'">'+ja+'</span><br><span style="font-size:9px;color:var(--muted)">'+k+'</span></td>'
+      +'<td style="padding:10px 8px;text-align:left;width:40%">'+cell(rB,pB,winB)+'</td>'
+      +'</tr>';
+  }).join('');
+
+  // 総合ポイント
+  const discs=['STA','DYN','DYNB','DNF','CWT','CWTB','CNF','FIM'];
+  function totalPt(recs){
+    const best={};
+    recs.filter(r=>r.points!=null).forEach(r=>{if(!best[r.discipline]||r.points>best[r.discipline])best[r.discipline]=r.points;});
+    return Object.values(best).reduce((s,v)=>s+v,0).toFixed(1);
+  }
+  const totA=totalPt(recsA), totB=totalPt(recsB);
+
+  document.getElementById('cmpResult').innerHTML=
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;background:rgba(255,255,255,.03);border-radius:12px;padding:12px 8px 4px;margin-bottom:12px">'
+    +'<div style="text-align:center">'
+      +av(nameA,'bigav')
+      +'<div style="font-size:14px;font-weight:700;margin-top:8px">'+nameA+'</div>'
+      +'<div style="font-size:11px;color:var(--muted)">総合 '+totA+' pt</div>'
+    +'</div>'
+    +'<div style="text-align:center">'
+      +av(nameB,'bigav')
+      +'<div style="font-size:14px;font-weight:700;margin-top:8px">'+nameB+'</div>'
+      +'<div style="font-size:11px;color:var(--muted)">総合 '+totB+' pt</div>'
+    +'</div>'
+    +'</div>'
+    +'<table style="width:100%;border-collapse:collapse">'+rows+'</table>';
+}
 
 /* ========== 代表選考シミュレーター ========== */
 // 選考ルール定数（変わらない想定なのでJS内に定義）
