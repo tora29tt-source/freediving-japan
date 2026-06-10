@@ -1204,8 +1204,9 @@ let distDisc = 'STA';
 
 function showDist(){
   renderDistTabs();
-  renderDistChart();
   document.getElementById('distOverlay').classList.add('show');
+  // canvasのoffsetWidthはモーダル表示後に確定するので1フレーム待つ
+  requestAnimationFrame(() => renderDistChart());
 }
 function hideDist(){ document.getElementById('distOverlay').classList.remove('show'); }
 document.getElementById('distOverlay').onclick = e => { if(e.target.id==='distOverlay') hideDist(); };
@@ -1322,8 +1323,8 @@ function renderDistChart(){
       ctx.fill();
       ctx.globalAlpha = 1;
 
-      // 数値ラベル（小さすぎる場合は省略）
-      if(h > 8){
+      // 数値ラベル（Totalバーのみ、幅が十分な場合）
+      if(j===0 && h > 8 && bw > 8){
         ctx.fillStyle = 'rgba(255,255,255,0.85)';
         ctx.font = `bold ${Math.min(9, Math.max(7, Math.floor(bw*0.55)))}px -apple-system,sans-serif`;
         ctx.textAlign = 'center';
