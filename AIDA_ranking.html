@@ -54,7 +54,7 @@ select{padding:7px 10px;background:var(--panel);color:var(--text);border:1px sol
 .discHead .desc{color:var(--muted);font-size:13px;margin-top:5px;line-height:1.5}
 .ctx{font-size:12.5px;color:var(--muted);margin:10px 0 14px}.ctx b{color:var(--accent2)}
 .podium{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:12px;align-items:end;margin:8px 0 22px}
-.pod{background:linear-gradient(180deg,#11324b,#0c2237);border:1px solid var(--line);border-radius:14px;padding:16px 12px;text-align:center;cursor:pointer;transition:.15s}
+.pod{background:linear-gradient(180deg,#11324b,#0c2237);border:1px solid var(--line);border-radius:14px;padding:16px 12px;text-align:center;cursor:pointer;transition:.15s;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:220px}
 .pod:hover{transform:translateY(-3px);border-color:var(--accent)}
 .pod .pav{width:64px;height:64px;border-radius:50%;margin:0 auto 8px;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-weight:700;color:#06231c;font-size:20px;overflow:hidden;border:2px solid var(--line)}
 .pod .pav img{width:100%;height:100%;object-fit:cover}
@@ -231,6 +231,21 @@ footer{color:var(--muted);font-size:11.5px;text-align:center;padding:24px}
       </div>
     </div>
     <div id="cmpResult"></div>
+  </div>
+</div>
+<!-- 記録更新タイムラインモーダル -->
+<div class="sel-overlay" id="tlOverlay">
+  <div class="sel-modal" style="max-width:680px">
+    <div class="sel-modal-hd">
+      <h2>📅 日本記録 更新タイムライン</h2>
+      <span class="sclose" onclick="hideTl()">×</span>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px" id="tlDiscTabs"></div>
+    <div style="display:flex;gap:6px;margin-bottom:16px">
+      <div class="sel-gtab active" onclick="setTlGender('Male',this)">男子</div>
+      <div class="sel-gtab" onclick="setTlGender('Female',this)">女子</div>
+    </div>
+    <div id="tlContent"></div>
   </div>
 </div>
 <script>
@@ -445,7 +460,7 @@ function renderHero(){
     +'<div class="sub">AIDA公式ランキング（日本・全年）の各種目1位＝現在の日本記録 · 更新 '+'2026-05-29'+' · 名前クリックで全記録</div>'
     +group('pool','プール種目','水平距離・時間を競う')
     +group('sea','海（深度）種目','ロープ沿いに深さを競う')
-    +'<div style="margin-top:18px;display:flex;flex-wrap:wrap;gap:8px"><span class="sel-btn" onclick="showSelModal()">🏅 2027年プール世界選手権 代表選考シミュレーター</span><span class="sel-btn" onclick="showSelSeaModal()" style="border-color:rgba(42,169,224,.5);background:linear-gradient(135deg,rgba(42,169,224,.15),rgba(26,122,138,.1));color:var(--accent2)">🌊 2027年深度世界選手権 代表選考シミュレーター</span><span class="sel-btn" onclick="showCmp()" style="border-color:rgba(168,236,232,.4);background:linear-gradient(135deg,rgba(168,236,232,.1),rgba(46,196,182,.07));color:var(--accent2)">⚖️ 選手比較</span></div>';
+    +'<div style="margin-top:18px;display:flex;flex-wrap:wrap;gap:8px"><span class="sel-btn" onclick="showSelModal()">🏅 2027年プール世界選手権 代表選考シミュレーター</span><span class="sel-btn" onclick="showSelSeaModal()" style="border-color:rgba(42,169,224,.5);background:linear-gradient(135deg,rgba(42,169,224,.15),rgba(26,122,138,.1));color:var(--accent2)">🌊 2027年深度世界選手権 代表選考シミュレーター</span><span class="sel-btn" onclick="showCmp()" style="border-color:rgba(168,236,232,.4);background:linear-gradient(135deg,rgba(168,236,232,.1),rgba(46,196,182,.07));color:var(--accent2)">⚖️ 選手比較</span><span class="sel-btn" onclick="showTl()" style="border-color:rgba(255,210,74,.4);background:linear-gradient(135deg,rgba(255,210,74,.12),rgba(255,180,40,.07));color:var(--gold)">📅 日本記録タイムライン</span></div>';
 }
 
 function render(){
@@ -1031,5 +1046,130 @@ function renderSelSeaGrid(){
   }).join('');
 
   document.getElementById('selSeaGrid').innerHTML = html;
+}
+
+/* ========== 日本記録タイムライン ========== */
+let tlDisc = 'STA';
+let tlGender = 'Male';
+
+function showTl(){
+  // 種目タブ生成
+  const tabs = DISC.filter(d=>d[0]!=='OVERALL');
+  document.getElementById('tlDiscTabs').innerHTML = tabs.map(([k,ja,,, cat])=>{
+    const col = cat==='pool'?'var(--pool)':'var(--sea)';
+    const isActive = k===tlDisc;
+    return '<span onclick="setTlDisc(\''+k+'\',this)" style="padding:5px 12px;border-radius:16px;border:1px solid '+(isActive?col:'var(--line)')+';background:'+(isActive?'rgba(46,196,182,.15)':'rgba(255,255,255,.03)')+';color:'+(isActive?col:'var(--muted)')+';cursor:pointer;font-size:12px;font-weight:700">'+k+'</span>';
+  }).join('');
+  renderTl();
+  document.getElementById('tlOverlay').classList.add('show');
+}
+function hideTl(){ document.getElementById('tlOverlay').classList.remove('show'); }
+document.getElementById('tlOverlay').onclick = e => { if(e.target.id==='tlOverlay') hideTl(); };
+
+function setTlDisc(disc, el){
+  tlDisc = disc;
+  // タブ色更新
+  showTl();
+}
+function setTlGender(g, el){
+  tlGender = g;
+  document.querySelectorAll('#tlOverlay .sel-gtab').forEach(t=>t.classList.toggle('active',t===el));
+  renderTl();
+}
+
+function buildTimeline(disc, gender){
+  // 対象の全記録を日付順に並べる
+  const recs = DATA.records
+    .filter(r => r.discipline===disc && r.gender===gender && r.result && r.date)
+    .sort((a,b) => a.date.localeCompare(b.date));
+
+  // 記録を数値に変換
+  function toVal(r){
+    const s = (r.result||'').replace(/\s*(NR|CR)\s*$/,'').trim();
+    if(disc==='STA'){
+      const m = s.match(/^(\d+):(\d+)/);
+      return m ? parseInt(m[1])*60+parseInt(m[2]) : null;
+    } else {
+      const m = s.match(/^([\d.]+)/);
+      return m ? parseFloat(m[1]) : null;
+    }
+  }
+
+  // 日本記録更新履歴を構築
+  let best = -Infinity;
+  const timeline = [];
+  recs.forEach(r => {
+    const v = toVal(r);
+    if(v == null) return;
+    if(v > best){
+      best = v;
+      timeline.push({...r, val: v});
+    }
+  });
+  return timeline;
+}
+
+function formatTlVal(disc, val){
+  if(disc==='STA'){
+    const m=Math.floor(val/60), s=Math.round(val%60);
+    return m+':'+(s<10?'0':'')+s;
+  }
+  return val+'m';
+}
+
+function renderTl(){
+  const timeline = buildTimeline(tlDisc, tlGender);
+  const dInfo = DISC.find(d=>d[0]===tlDisc);
+  const cat = dInfo ? dInfo[4] : 'pool';
+  const col = cat==='pool' ? 'var(--pool)' : 'var(--sea)';
+
+  if(!timeline.length){
+    document.getElementById('tlContent').innerHTML='<div class="empty">データなし</div>';
+    return;
+  }
+
+  // 更新回数集計
+  const countByName = {};
+  timeline.forEach(r=>{ countByName[r.name]=(countByName[r.name]||0)+1; });
+
+  // 上位更新者
+  const topUpdaters = Object.entries(countByName)
+    .sort((a,b)=>b[1]-a[1]).slice(0,3)
+    .map(([name,cnt])=>`<span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;background:rgba(255,255,255,.06);font-size:11px">${av(name,'savatar')}<span style="font-weight:700">${name}</span><span style="color:${col};font-weight:800">${cnt}回</span></span>`).join('');
+
+  // タイムライン本体
+  const items = [...timeline].reverse().map((r, i) => {
+    const isLatest = i === 0;
+    const tag = resTag(r.result);
+    const tagBadge = tag ? `<span style="font-size:9px;font-weight:800;padding:1px 6px;border-radius:4px;margin-left:6px;background:${tag==='NR'?'rgba(255,210,74,.2)':'rgba(30,200,166,.2)'};color:${tag==='NR'?'var(--gold)':'var(--accent2)'}">${tag}</span>` : '';
+
+    return `<div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)">
+      <!-- 左：日付・縦線 -->
+      <div style="display:flex;flex-direction:column;align-items:center;width:36px;flex:none">
+        <div style="width:10px;height:10px;border-radius:50%;background:${isLatest?col:'rgba(255,255,255,.2)'};border:2px solid ${isLatest?col:'rgba(255,255,255,.3)'};flex:none;margin-top:2px"></div>
+        <div style="width:1px;flex:1;background:rgba(255,255,255,.08);margin-top:4px"></div>
+      </div>
+      <!-- 右：内容 -->
+      <div style="flex:1;min-width:0;padding-bottom:4px">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:4px">${r.date}</div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          ${av(r.name,'savatar')}
+          <span style="font-size:13px;font-weight:700;cursor:pointer;color:var(--accent)" onclick="hideTl();showAthlete('${esc(r.name)}',false)">${r.name}</span>
+        </div>
+        <div style="margin-top:5px">
+          <span style="font-size:${isLatest?'22':'18'}px;font-weight:800;color:${isLatest?col:'var(--text)'}">${formatTlVal(tlDisc,r.val)}</span>${tagBadge}
+        </div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.event||''}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('tlContent').innerHTML =
+    `<div style="margin-bottom:14px;padding:10px 12px;background:rgba(255,255,255,.03);border-radius:10px">
+      <div style="font-size:10px;color:var(--muted);margin-bottom:6px;font-weight:700;letter-spacing:.5px">最多更新選手</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">${topUpdaters}</div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:8px">${timeline.length}回の日本記録更新 · 新しい順</div>
+    ${items}`;
 }
 </script></body></html>
