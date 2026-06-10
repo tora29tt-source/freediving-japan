@@ -514,7 +514,7 @@ function showAthlete(name,fromOverall){
     const rowsH=list.map(r=>{
       const tag=resTag(r.result);
       const tagBadge=tag?'<span style="display:inline-block;font-size:11px;font-weight:800;padding:2px 7px;border-radius:6px;margin-left:6px;vertical-align:middle;background:'+(tag==='NR'?'rgba(255,210,74,.2)':'rgba(30,200,166,.2)')+';color:'+(tag==='NR'?'var(--gold)':'var(--accent2)')+'">'+tag+'</span>':'';
-      return '<tr><td style="color:var(--muted);width:130px;font-size:12px">'+DJA[r.discipline]+' <small>'+r.discipline+'</small></td>'
+      return '<tr><td style="color:var(--muted);width:90px;font-size:11px;white-space:nowrap">'+r.discipline+'<br><span style="font-size:9px;opacity:.7">'+DJA[r.discipline]+'</span></td>'
         +'<td><span class="res2">'+cleanRes(r.result)+'</span>'+tagBadge+'</td>'
         +'<td class="pts2">'+(r.points!=null?r.points:'')+'</td>'
         +'<td class="ev2">'+r.event+'</td>'
@@ -684,9 +684,12 @@ function drawTrendChart(name){
     // X軸
     ctx2.fillStyle='rgba(255,255,255,0.4)'; ctx2.font='10px -apple-system,sans-serif'; ctx2.textAlign='center';
     const step = years.length > 1 ? gW/(years.length-1) : 0;
+    // 年数が多い場合は間引き（目安：8年以上は2年おき、15年以上は4年おき）
+    const skipN = years.length >= 15 ? 4 : years.length >= 8 ? 2 : 1;
     years.forEach((y,i)=>{
+      if(i % skipN !== 0 && i !== years.length-1) return; // 最後の年は必ず表示
       const x = years.length > 1 ? padL+step*i : padL+gW/2;
-      ctx2.fillText(y, x, H-6);
+      ctx2.fillText(String(y).slice(2), x, H-6); // 2桁表示
     });
 
     // 折れ線
