@@ -121,13 +121,12 @@ footer{color:var(--muted);font-size:11.5px;text-align:center;padding:24px}
 .sel-row.selected{background:rgba(46,196,182,.06)}
 .sel-rk{font-size:11px;font-weight:800;width:26px;flex:none;text-align:center}
 .sel-rk.r1{color:var(--gold)}.sel-rk.r2{color:var(--silver)}.sel-rk.r3{color:var(--bronze)}.sel-rk.r4{color:var(--accent2)}
-.sel-name{font-size:12.5px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.sel-name{font-size:12.5px;font-weight:600;flex:1;min-width:0;cursor:pointer}
 .sel-name:hover{text-decoration:underline;color:var(--accent)}
 .sel-res{font-size:12px;color:var(--accent2);font-weight:700;white-space:nowrap}
 .sel-date{font-size:10px;color:var(--muted);white-space:nowrap}
 .sel-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;white-space:nowrap;flex:none}
 .sel-badge.ok{background:rgba(74,222,128,.18);color:#4ade80;border:1px solid rgba(74,222,128,.35)}
-.sel-badge.bubble{background:rgba(250,204,21,.12);color:var(--gold);border:1px solid rgba(250,204,21,.3)}
 .sel-badge.out{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--line)}
 .sel-wc-note{margin-top:14px;padding:10px 14px;background:rgba(96,165,250,.07);border:1px solid rgba(96,165,250,.2);border-radius:8px;font-size:11px;color:rgba(255,255,255,.55);line-height:1.6}
 .sel-wc-note b{color:#60a5fa}
@@ -166,6 +165,30 @@ footer{color:var(--muted);font-size:11.5px;text-align:center;padding:24px}
     <div class="sel-wc-note">
       <b>ワイルドカードについて</b>：2026年AIDA種目別世界ランキング1〜10位に入った日本人選手に付与される特別参加権。選考4名は常に固定で、WC保有者のうちポイント上位2名までが別枠として追加（最大計6名）。WC保有者が3名以上の場合、3位以降のWC保有者は通常の選考枠として扱われます。<br>
       2026年シーズン終了後にAIDA公式サイトで確定 → <a href="https://www.aidainternational.org/Ranking/WildCards" target="_blank" style="color:#60a5fa">AIDA WildCards</a>
+    </div>
+  </div>
+</div>
+
+<!-- 海種目 代表選考シミュレーターモーダル -->
+<div class="sel-overlay" id="selSeaOverlay">
+  <div class="sel-modal">
+    <div class="sel-modal-hd">
+      <h2>🌊 <span>2027年</span> 深度世界選手権<br>日本代表選考 現時点見込み</h2>
+      <span class="sclose" onclick="hideSelSeaModal()">×</span>
+    </div>
+    <div class="sel-period">
+      <b>選考対象期間</b>：2024年6月11日 〜 2026年6月10日<br>
+      <b>選考基準</b>：各深度種目（CWT/CWTB/CNF/FIM）男女別 上位4名。<br>
+      ※ 現在データは2026年5月末時点。名前クリックで選手詳細。
+    </div>
+    <div class="sel-gtabs">
+      <div class="sel-gtab active" onclick="setSelSeaGender('Male',this)">男子</div>
+      <div class="sel-gtab" onclick="setSelSeaGender('Female',this)">女子</div>
+    </div>
+    <div class="sel-disc-grid" id="selSeaGrid"></div>
+    <div class="sel-wc-note">
+      <b>ワイルドカードについて</b>：AIDA種目別世界ランキング1〜10位に入った日本人選手に付与される特別参加権。選考4名は常に固定で、WC保有者のうちポイント上位2名までが別枠として追加（最大計6名）。WC保有者が3名以上の場合、3位以降は通常の選考枠として扱われます。<br>
+      シーズン終了後にAIDA公式サイトで確定 → <a href="https://www.aidainternational.org/Ranking/WildCards" target="_blank" style="color:#60a5fa">AIDA WildCards</a>
     </div>
   </div>
 </div>
@@ -381,7 +404,7 @@ function renderHero(){
     +'<div class="sub">AIDA公式ランキング（日本・全年）の各種目1位＝現在の日本記録 · 更新 '+'2026-05-29'+' · 名前クリックで全記録</div>'
     +group('pool','プール種目','水平距離・時間を競う')
     +group('sea','海（深度）種目','ロープ沿いに深さを競う')
-    +'<div style="margin-top:18px"><span class="sel-btn" onclick="showSelModal()">🏅 2027年プール世界選手権 代表選考シミュレーター</span></div>';
+    +'<div style="margin-top:18px;display:flex;flex-wrap:wrap;gap:8px"><span class="sel-btn" onclick="showSelModal()">🏅 2027年プール世界選手権 代表選考シミュレーター</span><span class="sel-btn" onclick="showSelSeaModal()" style="border-color:rgba(42,169,224,.5);background:linear-gradient(135deg,rgba(42,169,224,.15),rgba(26,122,138,.1));color:var(--accent2)">🌊 2027年深度世界選手権 代表選考シミュレーター</span></div>';
 }
 
 function render(){
@@ -608,7 +631,7 @@ function renderSelGrid(){
       const rkCls = ['','r1','r2','r3','r4'][rank] || '';
       const badge = isSelected
         ? '<span class="sel-badge ok">選考圏内</span>'
-        : (rank === quotaPerDisc + 1 ? '<span class="sel-badge bubble">次点</span>' : '<span class="sel-badge out">圏外</span>');
+        : '<span class="sel-badge out">圏外</span>';
       const tag = resTag(r.result);
       const tagBadge = tag ? '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:5px;margin-left:4px;background:'+(tag==='NR'?'rgba(255,210,74,.2)':'rgba(30,200,166,.2)')+';color:'+(tag==='NR'?'var(--gold)':'var(--accent2)')+'">'+tag+'</span>' : '';
       return '<div class="sel-row'+(isSelected?' selected':'')+'">'+
@@ -633,5 +656,88 @@ function renderSelGrid(){
   }).join('');
 
   document.getElementById('selGrid').innerHTML = html;
+}
+
+/* ========== 海種目 代表選考シミュレーター ========== */
+const SEL_SEA_RULES = {
+  competition: '2027年深度世界選手権',
+  periodStart: '2024-06-11',
+  periodEnd:   '2026-06-10',
+  disciplines: ['CWT','CWTB','CNF','FIM'],
+  quotaPerDisc: 4,
+};
+
+let selSeaGender = 'Male';
+
+function showSelSeaModal(){
+  renderSelSeaGrid();
+  document.getElementById('selSeaOverlay').classList.add('show');
+}
+function hideSelSeaModal(){
+  document.getElementById('selSeaOverlay').classList.remove('show');
+}
+document.getElementById('selSeaOverlay').onclick = e => {
+  if(e.target.id==='selSeaOverlay') hideSelSeaModal();
+};
+
+function setSelSeaGender(g, el){
+  selSeaGender = g;
+  document.querySelectorAll('#selSeaOverlay .sel-gtab').forEach(t=>t.classList.toggle('active',t===el));
+  renderSelSeaGrid();
+}
+
+function renderSelSeaGrid(){
+  const {disciplines, quotaPerDisc, periodStart, periodEnd} = SEL_SEA_RULES;
+  const periodRecs = DATA.records.filter(r =>
+    r.gender === selSeaGender &&
+    disciplines.includes(r.discipline) &&
+    r.date >= periodStart &&
+    r.date <= periodEnd
+  );
+
+  const html = disciplines.map(disc => {
+    const bestByName = {};
+    periodRecs.filter(r => r.discipline === disc).forEach(r => {
+      if(!bestByName[r.name] || r.points > bestByName[r.name].points)
+        bestByName[r.name] = r;
+    });
+    const sorted = Object.values(bestByName)
+      .filter(r => r.points != null)
+      .sort((a,b) => b.points - a.points);
+
+    const dInfo = DISC.find(d=>d[0]===disc);
+    const dJa = dInfo ? dInfo[1] : disc;
+
+    const rows = sorted.slice(0, Math.min(8, sorted.length)).map((r, i) => {
+      const rank = i + 1;
+      const isSelected = rank <= quotaPerDisc;
+      const rkCls = ['','r1','r2','r3','r4'][rank] || '';
+      const badge = isSelected
+        ? '<span class="sel-badge ok">選考圏内</span>'
+        : '<span class="sel-badge out">圏外</span>';
+      const tag = resTag(r.result);
+      const tagBadge = tag ? '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:5px;margin-left:4px;background:'+(tag==='NR'?'rgba(255,210,74,.2)':'rgba(30,200,166,.2)')+';color:'+(tag==='NR'?'var(--gold)':'var(--accent2)')+'">'+tag+'</span>' : '';
+      return '<div class="sel-row'+(isSelected?' selected':'')+'">'+
+        '<span class="sel-rk '+rkCls+'">'+rank+'</span>'+
+        av(r.name,'savatar')+
+        '<span class="sel-name" onclick="hideSelSeaModal();showAthlete(\''+esc(r.name)+'\',false)">'+r.name+'</span>'+
+        '<span class="sel-res">'+cleanRes(r.result)+tagBadge+'</span>'+
+        '<span class="sel-date">'+r.date.slice(0,7)+'</span>'+
+        badge+
+        '</div>';
+    }).join('');
+
+    const emptyMsg = sorted.length === 0
+      ? '<div style="padding:14px;font-size:12px;color:var(--muted)">選考期間中のデータなし</div>'
+      : '';
+
+    return '<div class="sel-disc-block">'+
+      '<div class="sel-disc-label"><span class="dn sea">'+dJa+' <span style="font-size:9px;opacity:.7">'+disc+'</span></span>'+
+      '<span class="dq">上位'+quotaPerDisc+'名選考</span></div>'+
+      rows + emptyMsg +
+      '</div>';
+  }).join('');
+
+  document.getElementById('selSeaGrid').innerHTML = html;
 }
 </script></body></html>
