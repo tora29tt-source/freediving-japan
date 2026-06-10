@@ -575,7 +575,7 @@ function showAthlete(name,fromOverall){
           +'</div>';
       }).join('');
       return '<div style="margin-bottom:4px;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.5px;margin-top:14px">'+label+'</div>'
-        +'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">'+cards+'</div>';
+        +'<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px">'+cards+'</div>';
     }
     const poolDiscs=DISC.filter(d=>d[4]==='pool');
     const seaDiscs=DISC.filter(d=>d[4]==='sea');
@@ -593,91 +593,138 @@ function showAthlete(name,fromOverall){
   if(recs.length) drawTrendChart(name);
 
   function trendChartHtml(){
-    const hasData = DISC.filter(d=>d[0]!=='OVERALL').some(d => recs.some(r=>r.discipline===d[0]&&r.points!=null));
-    if(!hasData) return '';
+    const hasPool = ['STA','DYN','DYNB','DNF'].some(d => recs.some(r=>r.discipline===d));
+    const hasSea  = ['CWT','CWTB','CNF','FIM'].some(d => recs.some(r=>r.discipline===d));
+    if(!hasPool && !hasSea) return '';
     return '<div class="athsec best" style="margin-top:16px">'
       +'<div class="secthd"><span class="dot"></span>記録推移</div>'
-      +'<canvas id="trendCanvas" style="width:100%;height:200px;display:block;margin-top:8px"></canvas>'
+      +(hasPool ? '<div style="font-size:10px;color:var(--pool);font-weight:700;letter-spacing:.5px;margin:10px 0 4px">🏊 プール種目</div><canvas id="trendCanvasPool" style="width:100%;height:190px;display:block"></canvas>' : '')
+      +(hasSea  ? '<div style="font-size:10px;color:var(--sea);font-weight:700;letter-spacing:.5px;margin:14px 0 4px">🌊 海・深度種目</div><canvas id="trendCanvasSea" style="width:100%;height:190px;display:block"></canvas>' : '')
       +'</div>';
   }
 }
 
+// result文字列から数値へ変換
+// STA: "07:54" → 474(秒)  DYN/深度: "245 m" → 245
+function parseResult(disc, result){
+  const r = (result||'').replace(/\s*(NR|CR)\s*$/,'').trim();
+  if(disc === 'STA'){
+    const m = r.match(/^(\d+):(\d+)/);
+    return m ? parseInt(m[1])*60 + parseInt(m[2]) : null;
+  } else {
+    const m = r.match(/^([\d.]+)/);
+    return m ? parseFloat(m[1]) : null;
+  }
+}
+
+function formatTrendVal(disc, val){
+  if(val == null) return '';
+  if(disc === 'STA'){
+    const m = Math.floor(val/60), s = Math.round(val%60);
+    return m+':'+(s<10?'0':'')+s;
+  }
+  return Math.round(val)+'m';
+}
+
 function drawTrendChart(name){
-    const canvas = document.getElementById('trendCanvas');
+  const discColors = {STA:'#2ec4b6',DYN:'#22d3ee',DYNB:'#6ee7b7',DNF:'#a3e635',CWT:'#60a5fa',CWTB:'#818cf8',CNF:'#f472b6',FIM:'#fb923c'};
+  const DJA2 = {STA:'STA',DYN:'DYN',DYNB:'DYNB',DNF:'DNF',CWT:'CWT',CWTB:'CWTB',CNF:'CNF',FIM:'FIM'};
+
+  function drawGroup(canvasId, discs){
+    const canvas = document.getElementById(canvasId);
     if(!canvas) return;
-    canvas.width = canvas.offsetWidth * window.devicePixelRatio;
-    canvas.height = 200 * window.devicePixelRatio;
-    const ctx2 = canvas.getContext('2d');
-    const dpr = window.devicePixelRatio;
-    ctx2.scale(dpr, dpr);
-    const W = canvas.offsetWidth, H = 200;
-    const allRecs = DATA.records.filter(r=>r.name===name&&r.points!=null);
+    const allRecs = DATA.records.filter(r=>r.name===name && discs.includes(r.discipline) && r.result);
     const years = [...new Set(allRecs.map(r=>r.year))].map(Number).sort();
-    if(years.length < 2) return;
-    const discColors = {STA:'#2ec4b6',DYN:'#22d3ee',DYNB:'#6ee7b7',DNF:'#a3e635',CWT:'#60a5fa',CWTB:'#818cf8',CNF:'#f472b6',FIM:'#fb923c'};
-    const discList2 = [...new Set(allRecs.map(r=>r.discipline))];
-    const series = discList2.map(disc => {
-      const pts = years.map(y => {
-        const yr = allRecs.filter(r=>r.discipline===disc&&Number(r.year)===y);
-        return yr.length ? Math.max(...yr.map(r=>r.points)) : null;
+    if(years.length < 1) return;
+
+    canvas.width  = canvas.offsetWidth * window.devicePixelRatio;
+    canvas.height = 190 * window.devicePixelRatio;
+    const ctx2 = canvas.getContext('2d');
+    ctx2.scale(window.devicePixelRatio, window.devicePixelRatio);
+    const W = canvas.offsetWidth, H = 190;
+
+    // 種目ごとの年別ベスト（実測値）
+    const activeDiscs = discs.filter(d => allRecs.some(r=>r.discipline===d));
+    const series = activeDiscs.map(disc => {
+      const vals = years.map(y => {
+        const yr = allRecs.filter(r=>r.discipline===disc && Number(r.year)===y);
+        if(!yr.length) return null;
+        const parsed = yr.map(r=>parseResult(disc,r.result)).filter(v=>v!=null);
+        return parsed.length ? Math.max(...parsed) : null;
       });
-      return {disc, pts, color: discColors[disc]||'#aaa'};
-    }).filter(s => s.pts.some(p=>p!=null));
+      return {disc, vals, color: discColors[disc]||'#aaa'};
+    }).filter(s => s.vals.some(v=>v!=null));
+
     if(!series.length) return;
-    const allPts = series.flatMap(s=>s.pts.filter(p=>p!=null));
-    const minPt = Math.max(0, Math.min(...allPts) - 10);
-    const maxPt = Math.max(...allPts) + 10;
-    const padL=42, padR=16, padT=14, padB=32;
+
+    const allVals = series.flatMap(s=>s.vals.filter(v=>v!=null));
+    const minV = Math.max(0, Math.min(...allVals) * 0.92);
+    const maxV = Math.max(...allVals) * 1.05;
+
+    const padL=46, padR=16, padT=18, padB=30;
     const gW=W-padL-padR, gH=H-padT-padB;
+
+    // 背景
     ctx2.fillStyle='rgba(255,255,255,0.03)';
     ctx2.beginPath(); ctx2.roundRect(0,0,W,H,8); ctx2.fill();
+
+    // グリッド
     const gridN=4;
-    ctx2.strokeStyle='rgba(168,236,232,0.1)';
-    ctx2.lineWidth=1;
     for(let i=0;i<=gridN;i++){
-      const y=padT+gH*(1-i/gridN);
-      ctx2.beginPath(); ctx2.moveTo(padL,y); ctx2.lineTo(padL+gW,y); ctx2.stroke();
-      ctx2.fillStyle='rgba(255,255,255,0.4)';
-      ctx2.font=`10px -apple-system,sans-serif`;
-      ctx2.textAlign='right';
-      ctx2.fillText(Math.round(minPt+(maxPt-minPt)*i/gridN), padL-5, y+3.5);
+      const yy=padT+gH*(1-i/gridN);
+      ctx2.strokeStyle='rgba(168,236,232,0.1)'; ctx2.lineWidth=1;
+      ctx2.beginPath(); ctx2.moveTo(padL,yy); ctx2.lineTo(padL+gW,yy); ctx2.stroke();
+      const v = minV+(maxV-minV)*i/gridN;
+      // Y軸ラベル（STA種目が含まれる場合は時間表示）
+      const labelDisc = activeDiscs.includes('STA') ? 'STA' : activeDiscs[0];
+      ctx2.fillStyle='rgba(255,255,255,0.4)'; ctx2.font='10px -apple-system,sans-serif'; ctx2.textAlign='right';
+      ctx2.fillText(formatTrendVal(labelDisc, v), padL-5, yy+3.5);
     }
-    ctx2.fillStyle='rgba(255,255,255,0.4)';
-    ctx2.font=`10px -apple-system,sans-serif`;
-    ctx2.textAlign='center';
+
+    // X軸
+    ctx2.fillStyle='rgba(255,255,255,0.4)'; ctx2.font='10px -apple-system,sans-serif'; ctx2.textAlign='center';
+    const step = years.length > 1 ? gW/(years.length-1) : 0;
     years.forEach((y,i)=>{
-      const x=padL+gW*i/(years.length-1);
+      const x = years.length > 1 ? padL+step*i : padL+gW/2;
       ctx2.fillText(y, x, H-6);
     });
-    series.forEach(({disc,pts,color})=>{
+
+    // 折れ線
+    series.forEach(({disc,vals,color})=>{
       ctx2.strokeStyle=color; ctx2.lineWidth=2; ctx2.shadowColor=color; ctx2.shadowBlur=4;
       ctx2.beginPath();
       let first=true;
-      pts.forEach((p,i)=>{
-        if(p==null) return;
-        const x=padL+gW*i/(years.length-1);
-        const y=padT+gH*(1-(p-minPt)/(maxPt-minPt));
-        if(first){ctx2.moveTo(x,y);first=false;} else ctx2.lineTo(x,y);
+      vals.forEach((v,i)=>{
+        if(v==null) return;
+        const x = years.length > 1 ? padL+step*i : padL+gW/2;
+        const yy=padT+gH*(1-(v-minV)/(maxV-minV));
+        if(first){ctx2.moveTo(x,yy);first=false;} else ctx2.lineTo(x,yy);
       });
       ctx2.stroke();
       ctx2.shadowBlur=0;
-      pts.forEach((p,i)=>{
-        if(p==null) return;
-        const x=padL+gW*i/(years.length-1);
-        const y=padT+gH*(1-(p-minPt)/(maxPt-minPt));
-        ctx2.beginPath(); ctx2.arc(x,y,3,0,Math.PI*2);
+      vals.forEach((v,i)=>{
+        if(v==null) return;
+        const x = years.length > 1 ? padL+step*i : padL+gW/2;
+        const yy=padT+gH*(1-(v-minV)/(maxV-minV));
+        ctx2.beginPath(); ctx2.arc(x,yy,3,0,Math.PI*2);
         ctx2.fillStyle=color; ctx2.fill();
       });
     });
+
+    // 凡例
     ctx2.shadowBlur=0;
-    let lx=padL, ly=padT-2;
+    let lx=padL, ly=padT-4;
     series.forEach(({disc,color})=>{
       ctx2.fillStyle=color; ctx2.fillRect(lx,ly-7,10,3);
-      ctx2.font=`9px -apple-system,sans-serif`;
+      ctx2.font='9px -apple-system,sans-serif';
       ctx2.fillStyle='rgba(255,255,255,0.6)'; ctx2.textAlign='left';
       ctx2.fillText(disc, lx+13, ly);
       lx += ctx2.measureText(disc).width + 28;
     });
+  }
+
+  drawGroup('trendCanvasPool', ['STA','DYN','DYNB','DNF']);
+  drawGroup('trendCanvasSea',  ['CWT','CWTB','CNF','FIM']);
 }
 
 function hideA(){document.getElementById('overlay').classList.remove('show');}
