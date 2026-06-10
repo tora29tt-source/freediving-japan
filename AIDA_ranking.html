@@ -1182,22 +1182,30 @@ function renderTl(){
 }
 /* ========== 分布分析 ========== */
 const DIST_CONF = {
-  STA:  { type:'time',  step:60, start:60, skipStep:1,
+  STA:  { type:'time',  step:60,  start:60,
+          binOf: v => Math.floor(v/60)*60,
           fmtBin: b => { const m=Math.floor(b/60); return m+'-'+(m+1)+'min'; } },
-  DYN:  { type:'dist',  step:25, start:25, skipStep:2,
-          fmtBin: b => b+'m' },
-  DYNB: { type:'dist',  step:25, start:25, skipStep:2,
-          fmtBin: b => b+'m' },
-  DNF:  { type:'dist',  step:25, start:0,  skipStep:2,
-          fmtBin: b => b+'m' },
-  CWT:  { type:'depth', step:10, start:40, skipStep:2,
-          fmtBin: b => b===0?'<40m':b+'m' },
-  CWTB: { type:'depth', step:10, start:40, skipStep:2,
-          fmtBin: b => b===0?'<40m':b+'m' },
-  CNF:  { type:'depth', step:10, start:40, skipStep:2,
-          fmtBin: b => b===0?'<40m':b+'m' },
-  FIM:  { type:'depth', step:10, start:40, skipStep:2,
-          fmtBin: b => b===0?'<40m':b+'m' },
+  DYN:  { type:'dist',  step:50,  start:0,
+          binOf: v => Math.floor(v/50)*50,
+          fmtBin: b => b+'-'+(b+50)+'m' },
+  DYNB: { type:'dist',  step:50,  start:0,
+          binOf: v => Math.floor(v/50)*50,
+          fmtBin: b => b+'-'+(b+50)+'m' },
+  DNF:  { type:'dist',  step:50,  start:0,
+          binOf: v => Math.floor(v/50)*50,
+          fmtBin: b => b+'-'+(b+50)+'m' },
+  CWT:  { type:'depth', step:20,  start:40,
+          binOf: v => v < 40 ? 0 : Math.floor(v/20)*20,
+          fmtBin: b => b===0?'0-40m':b+'-'+(b+20)+'m' },
+  CWTB: { type:'depth', step:20,  start:40,
+          binOf: v => v < 40 ? 0 : Math.floor(v/20)*20,
+          fmtBin: b => b===0?'0-40m':b+'-'+(b+20)+'m' },
+  CNF:  { type:'depth', step:20,  start:40,
+          binOf: v => v < 40 ? 0 : Math.floor(v/20)*20,
+          fmtBin: b => b===0?'0-40m':b+'-'+(b+20)+'m' },
+  FIM:  { type:'depth', step:20,  start:40,
+          binOf: v => v < 40 ? 0 : Math.floor(v/20)*20,
+          fmtBin: b => b===0?'0-40m':b+'-'+(b+20)+'m' },
 };
 const DIST_DISCS = ['STA','DYN','DYNB','DNF','CWT','CWTB','CNF','FIM'];
 let distDisc = 'STA';
@@ -1241,13 +1249,7 @@ function calcBins(disc){
     }
   }
 
-  function binOf(v){
-    if(conf.type==='depth'){
-      return v < conf.start ? 0 : Math.floor(v/conf.step)*conf.step;
-    } else {
-      return Math.floor(v/conf.step)*conf.step;
-    }
-  }
+  function binOf(v){ return conf.binOf(v); }
 
   const total={}, male={}, female={};
   recs.forEach(r => {
@@ -1332,13 +1334,11 @@ function renderDistChart(){
       }
     });
 
-    // X軸ラベル（skipStepに基づいて間引き）
-    if(i % conf.skipStep === 0 || i === n-1){
-      ctx.fillStyle = 'rgba(255,255,255,0.5)';
-      ctx.font = '9px -apple-system,sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(conf.fmtBin(k), padL + groupW*(i+0.5), H-8);
-    }
+    // X軸ラベル（全区間表示）
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.font = '9px -apple-system,sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(conf.fmtBin(k), padL + groupW*(i+0.5), H-8);
   });
 
   // 凡例（右上）
