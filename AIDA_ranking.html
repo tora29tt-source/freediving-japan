@@ -90,7 +90,20 @@ tbody tr:hover{background:rgba(30,155,215,.07)}
 .empty{color:var(--muted);padding:30px;text-align:center}
 footer{color:var(--muted);font-size:11.5px;text-align:center;padding:24px}
 @media(max-width:880px){.hgrid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:560px){.hgrid{grid-template-columns:1fr}.podium{grid-template-columns:1fr}.pod.p1{order:1}.pod.p2{order:2}.pod.p3{order:3}.pod.p1{padding-top:16px}}
+@media(max-width:560px){
+  .hgrid{grid-template-columns:1fr}
+  .pod.p1{order:1}.pod.p2{order:2}.pod.p3{order:3}
+  .pod{padding:10px 6px;border-radius:10px}
+  .pod.p1{padding-top:14px}
+  .pod .pav{width:44px;height:44px;font-size:14px}
+  .pod.p1 .pav{width:52px;height:52px}
+  .pod .name{font-size:11px;margin:4px 0 2px}
+  .pod.p1 .name{font-size:12px}
+  .pod .res{font-size:13px}
+  .pod .pts{font-size:9px}
+  .pod .ev{display:none}
+  .pod .pr{font-size:10px}
+}
 
 .rep-tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;letter-spacing:.4px;padding:3px 10px;border-radius:20px;margin-top:6px;margin-right:4px}
 .rep-tag::before{content:'🇯🇵';font-size:13px;margin-right:2px}
