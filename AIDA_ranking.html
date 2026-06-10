@@ -1182,21 +1182,22 @@ function renderTl(){
 }
 /* ========== 分布分析 ========== */
 const DIST_CONF = {
-  STA:  { type:'time', step:60,  start:60,  label:'Duration', unit:'min',
-          fmtBin: b => { const m=Math.floor(b/60); return m+'-'+(m+1)+'min'; } },  DYN:  { type:'dist', step:25,  start:25,  label:'Distance', unit:'m',
-          fmtBin: b => (b%50===0 ? b+'-'+(b+25)+'m' : '') },
-  DYNB: { type:'dist', step:25,  start:25,  label:'Distance', unit:'m',
-          fmtBin: b => (b%50===0 ? b+'-'+(b+25)+'m' : '') },
-  DNF:  { type:'dist', step:25,  start:0,   label:'Distance', unit:'m',
-          fmtBin: b => (b%50===0 ? b+'-'+(b+25)+'m' : '') },
-  CWT:  { type:'depth', step:10, start:40,  label:'Depth', unit:'m',
-          fmtBin: b => (b===0 ? '0-40m' : b%20===0 ? b+'-'+(b+10)+'m' : '') },
-  CWTB: { type:'depth', step:10, start:40,  label:'Depth', unit:'m',
-          fmtBin: b => (b===0 ? '0-40m' : b%20===0 ? b+'-'+(b+10)+'m' : '') },
-  CNF:  { type:'depth', step:10, start:40,  label:'Depth', unit:'m',
-          fmtBin: b => (b===0 ? '0-40m' : b%20===0 ? b+'-'+(b+10)+'m' : '') },
-  FIM:  { type:'depth', step:10, start:40,  label:'Depth', unit:'m',
-          fmtBin: b => (b===0 ? '0-40m' : b%20===0 ? b+'-'+(b+10)+'m' : '') },
+  STA:  { type:'time',  step:60, start:60, skipStep:1,
+          fmtBin: b => { const m=Math.floor(b/60); return m+'-'+(m+1)+'min'; } },
+  DYN:  { type:'dist',  step:25, start:25, skipStep:2,
+          fmtBin: b => b+'m' },
+  DYNB: { type:'dist',  step:25, start:25, skipStep:2,
+          fmtBin: b => b+'m' },
+  DNF:  { type:'dist',  step:25, start:0,  skipStep:2,
+          fmtBin: b => b+'m' },
+  CWT:  { type:'depth', step:10, start:40, skipStep:2,
+          fmtBin: b => b===0?'<40m':b+'m' },
+  CWTB: { type:'depth', step:10, start:40, skipStep:2,
+          fmtBin: b => b===0?'<40m':b+'m' },
+  CNF:  { type:'depth', step:10, start:40, skipStep:2,
+          fmtBin: b => b===0?'<40m':b+'m' },
+  FIM:  { type:'depth', step:10, start:40, skipStep:2,
+          fmtBin: b => b===0?'<40m':b+'m' },
 };
 const DIST_DISCS = ['STA','DYN','DYNB','DNF','CWT','CWTB','CNF','FIM'];
 let distDisc = 'STA';
@@ -1331,13 +1332,12 @@ function renderDistChart(){
       }
     });
 
-    // X軸ラベル（fmtBinが空文字の場合は描画しない）
-    const lbl = conf.fmtBin(k);
-    if(lbl){
+    // X軸ラベル（skipStepに基づいて間引き）
+    if(i % conf.skipStep === 0 || i === n-1){
       ctx.fillStyle = 'rgba(255,255,255,0.5)';
       ctx.font = '9px -apple-system,sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(lbl, padL + groupW*(i+0.5), H-8);
+      ctx.fillText(conf.fmtBin(k), padL + groupW*(i+0.5), H-8);
     }
   });
 
