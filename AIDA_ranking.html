@@ -54,7 +54,7 @@ select{padding:7px 10px;background:var(--panel);color:var(--text);border:1px sol
 .discHead .desc{color:var(--muted);font-size:13px;margin-top:5px;line-height:1.5}
 .ctx{font-size:12.5px;color:var(--muted);margin:10px 0 14px}.ctx b{color:var(--accent2)}
 .podium{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:12px;align-items:end;margin:8px 0 22px}
-.pod{background:linear-gradient(180deg,#11324b,#0c2237);border:1px solid var(--line);border-radius:14px;padding:16px 12px;text-align:center;cursor:pointer;transition:.15s;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:220px}
+.pod{background:linear-gradient(180deg,#11324b,#0c2237);border:1px solid var(--line);border-radius:14px;padding:16px 12px;text-align:center;cursor:pointer;transition:.15s;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:160px}
 .pod:hover{transform:translateY(-3px);border-color:var(--accent)}
 .pod .pav{width:64px;height:64px;border-radius:50%;margin:0 auto 8px;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-weight:700;color:#06231c;font-size:20px;overflow:hidden;border:2px solid var(--line)}
 .pod .pav img{width:100%;height:100%;object-fit:cover}
@@ -1165,11 +1165,7 @@ function renderTl(){
   }).join('');
 
   document.getElementById('tlContent').innerHTML =
-    `<div style="margin-bottom:14px;padding:10px 12px;background:rgba(255,255,255,.03);border-radius:10px">
-      <div style="font-size:10px;color:var(--muted);margin-bottom:6px;font-weight:700;letter-spacing:.5px">最多更新選手</div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px">${topUpdaters}</div>
-    </div>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:8px">${timeline.length}回の日本記録更新 · 新しい順</div>
+    `<div style="font-size:11px;color:var(--muted);margin-bottom:8px">${timeline.length}回の日本記録更新 · 新しい順</div>
     ${items}`;
 }
 </script></body></html>
