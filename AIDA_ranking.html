@@ -1268,79 +1268,102 @@ function renderDistChart(){
   const { keys, total, male, female, conf } = calcBins(distDisc);
   if(!keys.length) return;
 
-  canvas.width  = canvas.offsetWidth * window.devicePixelRatio;
-  canvas.height = 260 * window.devicePixelRatio;
+  const dpr = window.devicePixelRatio;
+  canvas.width  = canvas.offsetWidth * dpr;
+  canvas.height = 260 * dpr;
   const ctx = canvas.getContext('2d');
-  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  ctx.scale(dpr, dpr);
   const W = canvas.offsetWidth, H = 260;
-  const padL=42, padR=14, padT=24, padB=44;
-  const gW=W-padL-padR, gH=H-padT-padB;
+  const padL=34, padR=10, padT=40, padB=46;
+  const gW = W-padL-padR, gH = H-padT-padB;
   const n = keys.length;
-  const bw = gW/n;
 
-  const maxVal = Math.max(...keys.map(k=>total[k]||0));
+  // 1グループの幅
+  const groupW = gW / n;
+  // 3本 + 隙間
+  const totalBarW = groupW * 0.82;
+  const bw = totalBarW / 3;
+
+  const maxVal = Math.max(...keys.map(k => total[k]||0));
+  if(maxVal === 0) return;
 
   // 背景
-  ctx.fillStyle='rgba(255,255,255,0.03)';
+  ctx.fillStyle = 'rgba(255,255,255,0.03)';
   ctx.beginPath(); ctx.roundRect(0,0,W,H,8); ctx.fill();
 
-  // グリッド
-  const gridN=4;
-  for(let i=0;i<=gridN;i++){
-    const y=padT+gH*(1-i/gridN);
-    ctx.strokeStyle='rgba(168,236,232,0.08)'; ctx.lineWidth=1;
-    ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+gW,y); ctx.stroke();
-    ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='9px -apple-system,sans-serif'; ctx.textAlign='right';
-    ctx.fillText(Math.round(maxVal*i/gridN), padL-4, y+3);
+  // グリッド・Y軸
+  const gridN = 4;
+  for(let i = 0; i <= gridN; i++){
+    const y = padT + gH * (1 - i/gridN);
+    ctx.strokeStyle = 'rgba(168,236,232,0.08)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL+gW, y); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.font = '9px -apple-system,sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(Math.round(maxVal * i / gridN), padL-4, y+3.5);
   }
 
-  // バー（男女積み上げ）
-  const barPad = bw*0.12;
-  keys.forEach((k,i) => {
-    const x = padL + bw*i + barPad;
-    const bwInner = bw - barPad*2;
-    const m = male[k]||0, f = female[k]||0;
-    const hM = m/maxVal*gH, hF = f/maxVal*gH;
+  // バー描画
+  const COLORS = ['#2ec4b6', '#60a5fa', '#f472b6']; // total, male, female
+  keys.forEach((k, i) => {
+    const groupX = padL + groupW * i + groupW * 0.09;
+    const vals = [total[k]||0, male[k]||0, female[k]||0];
 
-    // 女子（下）
-    if(f>0){
-      ctx.fillStyle='rgba(244,114,182,0.75)';
-      ctx.fillRect(x, padT+gH-hF, bwInner, hF);
-    }
-    // 男子（上）
-    if(m>0){
-      ctx.fillStyle='rgba(96,165,250,0.75)';
-      ctx.fillRect(x, padT+gH-hF-hM, bwInner, hM);
-    }
-    // 合計数ラベル
-    const t = total[k]||0;
-    if(t>0){
-      ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.font='8px -apple-system,sans-serif'; ctx.textAlign='center';
-      ctx.fillText(t, x+bwInner/2, padT+gH-hF-hM-4);
+    vals.forEach((v, j) => {
+      if(v === 0) return;
+      const h = v / maxVal * gH;
+      const bx = groupX + bw * j;
+      const by = padT + gH - h;
+
+      ctx.fillStyle = COLORS[j];
+      ctx.globalAlpha = 0.88;
+      ctx.beginPath();
+      ctx.roundRect(bx, by, bw * 0.88, h, [2,2,0,0]);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      // 数値ラベル（小さすぎる場合は省略）
+      if(h > 8){
+        ctx.fillStyle = 'rgba(255,255,255,0.85)';
+        ctx.font = `bold ${Math.min(9, Math.max(7, Math.floor(bw*0.55)))}px -apple-system,sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.fillText(v, bx + bw*0.44, by - 3);
+      }
+    });
+
+    // X軸ラベル
+    const skipN = n > 9 ? 2 : 1;
+    if(i % skipN === 0 || i === n-1){
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      ctx.font = '9px -apple-system,sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(conf.fmtBin(k), padL + groupW*(i+0.5), H-8);
     }
   });
 
-  // X軸ラベル（間引き）
-  const skipN = n>10?2:1;
-  ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.font='9px -apple-system,sans-serif'; ctx.textAlign='center';
-  keys.forEach((k,i) => {
-    if(i%skipN!==0 && i!==n-1) return;
-    const x = padL + bw*i + bw/2;
-    ctx.fillText(conf.fmtBin(k), x, H-6);
+  // 凡例（右上）
+  const totalAll = Object.values(total).reduce((s,v)=>s+v,0);
+  const totalM   = Object.values(male).reduce((s,v)=>s+v,0);
+  const totalF   = Object.values(female).reduce((s,v)=>s+v,0);
+  const legends = [
+    { col: COLORS[0], label: `Total  ${totalAll} records` },
+    { col: COLORS[1], label: `Male   ${totalM} records` },
+    { col: COLORS[2], label: `Female ${totalF} records` },
+  ];
+  ctx.font = '9px -apple-system,sans-serif';
+  // 右上に縦並び
+  legends.forEach(({col, label}, i) => {
+    const lx = padL + gW - 120;
+    const ly = padT - 28 + i * 13;
+    ctx.fillStyle = col; ctx.globalAlpha = 0.88;
+    ctx.fillRect(lx, ly-7, 10, 7);
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = 'rgba(255,255,255,0.65)';
+    ctx.textAlign = 'left';
+    ctx.fillText(label, lx+13, ly);
   });
 
-  // 凡例
-  const lx=padL, ly=padT-8;
-  ctx.fillStyle='rgba(96,165,250,0.8)'; ctx.fillRect(lx,ly-7,10,7);
-  ctx.fillStyle='rgba(244,114,182,0.8)'; ctx.fillRect(lx+50,ly-7,10,7);
-  ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.font='9px -apple-system,sans-serif'; ctx.textAlign='left';
-  const totalM = Object.values(male).reduce((s,v)=>s+v,0);
-  const totalF = Object.values(female).reduce((s,v)=>s+v,0);
-  ctx.fillText(`Male ${totalM}`, lx+13, ly);
-  ctx.fillText(`Female ${totalF}`, lx+63, ly);
-
-  // データ注記
   document.getElementById('distInfo').textContent =
-    `Total ${totalM+totalF} records · Source: AIDA International · Data as of May 2026`;
+    'Source: AIDA International · Data as of May 2026';
 }
 </script></body></html>
