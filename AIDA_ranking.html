@@ -1325,8 +1325,8 @@ function renderDistChart(){
       ctx.fill();
       ctx.globalAlpha = 1;
 
-      // 数値ラベル（Totalバーのみ、幅が十分な場合）
-      if(j===0 && h > 8 && bw > 8){
+      // 数値ラベル（Totalバーのみ、常に表示）
+      if(j===0){
         ctx.fillStyle = 'rgba(255,255,255,0.85)';
         ctx.font = `bold ${Math.min(9, Math.max(7, Math.floor(bw*0.55)))}px -apple-system,sans-serif`;
         ctx.textAlign = 'center';
