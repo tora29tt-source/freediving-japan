@@ -514,10 +514,10 @@ function showAthlete(name,fromOverall){
     const rowsH=list.map(r=>{
       const tag=resTag(r.result);
       const tagBadge=tag?'<span style="display:inline-block;font-size:11px;font-weight:800;padding:2px 7px;border-radius:6px;margin-left:6px;vertical-align:middle;background:'+(tag==='NR'?'rgba(255,210,74,.2)':'rgba(30,200,166,.2)')+';color:'+(tag==='NR'?'var(--gold)':'var(--accent2)')+'">'+tag+'</span>':'';
-      return '<tr><td style="color:var(--muted);width:90px;font-size:11px;white-space:nowrap">'+r.discipline+'<br><span style="font-size:9px;opacity:.7">'+DJA[r.discipline]+'</span></td>'
+      return '<tr><td style="color:var(--muted);width:60px;font-size:11px;font-weight:700;white-space:nowrap">'+r.discipline+'</td>'
         +'<td><span class="res2">'+cleanRes(r.result)+'</span>'+tagBadge+'</td>'
         +'<td class="pts2">'+(r.points!=null?r.points:'')+'</td>'
-        +'<td class="ev2">'+r.event+'</td>'
+        +'<td class="ev2" style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+r.event+'</td>'
         +'<td class="dt">'+r.date+'</td></tr>';
     }).join('');
     return '<div class="athsec '+cat+'"><div class="secthd"><span class="dot"></span>'+label+'</div><table><tbody>'+rowsH+'</tbody></table></div>';
@@ -593,13 +593,15 @@ function showAthlete(name,fromOverall){
   if(recs.length) drawTrendChart(name);
 
   function trendChartHtml(){
-    const hasPool = ['STA','DYN','DYNB','DNF'].some(d => recs.some(r=>r.discipline===d));
+    const hasSta  = recs.some(r=>r.discipline==='STA');
+    const hasDyn  = ['DYN','DYNB','DNF'].some(d => recs.some(r=>r.discipline===d));
     const hasSea  = ['CWT','CWTB','CNF','FIM'].some(d => recs.some(r=>r.discipline===d));
-    if(!hasPool && !hasSea) return '';
+    if(!hasSta && !hasDyn && !hasSea) return '';
     return '<div class="athsec best" style="margin-top:16px">'
       +'<div class="secthd"><span class="dot"></span>記録推移</div>'
-      +(hasPool ? '<div style="font-size:10px;color:var(--pool);font-weight:700;letter-spacing:.5px;margin:10px 0 4px">🏊 プール種目</div><canvas id="trendCanvasPool" style="width:100%;height:190px;display:block"></canvas>' : '')
-      +(hasSea  ? '<div style="font-size:10px;color:var(--sea);font-weight:700;letter-spacing:.5px;margin:14px 0 4px">🌊 海・深度種目</div><canvas id="trendCanvasSea" style="width:100%;height:190px;display:block"></canvas>' : '')
+      +(hasSta ? '<div style="font-size:10px;color:var(--pool);font-weight:700;letter-spacing:.5px;margin:10px 0 4px">🏊 STA</div><canvas id="trendCanvasSta" style="width:100%;height:170px;display:block"></canvas>' : '')
+      +(hasDyn ? '<div style="font-size:10px;color:var(--pool);font-weight:700;letter-spacing:.5px;margin:14px 0 4px">🏊 DYN / DYNB / DNF</div><canvas id="trendCanvasDyn" style="width:100%;height:170px;display:block"></canvas>' : '')
+      +(hasSea ? '<div style="font-size:10px;color:var(--sea);font-weight:700;letter-spacing:.5px;margin:14px 0 4px">🌊 海・深度種目</div><canvas id="trendCanvasSea" style="width:100%;height:170px;display:block"></canvas>' : '')
       +'</div>';
   }
 }
@@ -726,8 +728,9 @@ function drawTrendChart(name){
     });
   }
 
-  drawGroup('trendCanvasPool', ['STA','DYN','DYNB','DNF']);
-  drawGroup('trendCanvasSea',  ['CWT','CWTB','CNF','FIM']);
+  drawGroup('trendCanvasSta', ['STA']);
+  drawGroup('trendCanvasDyn', ['DYN','DYNB','DNF']);
+  drawGroup('trendCanvasSea', ['CWT','CWTB','CNF','FIM']);
 }
 
 function hideA(){document.getElementById('overlay').classList.remove('show');}
