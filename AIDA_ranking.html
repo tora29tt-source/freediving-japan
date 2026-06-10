@@ -610,10 +610,39 @@ function showAthlete(name,fromOverall){
         const tagBadge=tag?'<span style="font-size:12px;font-weight:800;padding:2px 8px;border-radius:6px;margin-left:7px;vertical-align:middle;background:'+(tag==='NR'?'rgba(255,210,74,.25)':'rgba(30,200,166,.25)')+';color:'+(tag==='NR'?'var(--gold)':'var(--accent2)')+'">'+tag+'</span>':'';
         const domRank=getDomRank(k,r.gender,r.points);
         const rankTxt=domRank?'<span style="font-size:10px;color:var(--muted)"> · 国内'+domRank+'位</span>':'';
+
+        // 偏差値計算
+        const allPts = DATA.records
+          .filter(x=>x.discipline===k&&x.gender===r.gender&&x.points!=null)
+          .map(x=>x.points);
+        let hensachiHtml = '';
+        if(allPts.length >= 3 && r.points!=null){
+          const mean = allPts.reduce((s,v)=>s+v,0)/allPts.length;
+          const sd = Math.sqrt(allPts.reduce((s,v)=>s+(v-mean)**2,0)/allPts.length);
+          if(sd > 0){
+            const hensachi = Math.round(50 + 10*(r.points-mean)/sd);
+            const pct = Math.min(100, Math.max(0, (r.points-Math.min(...allPts))/(Math.max(...allPts)-Math.min(...allPts))*100));
+            const hColor = hensachi>=70?'var(--gold)':hensachi>=60?'var(--accent2)':hensachi>=50?'var(--pool)':'var(--muted)';
+            hensachiHtml =
+              '<div style="margin-top:8px">'
+              +'<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px">'
+              +'<span style="font-size:9px;color:var(--muted)">偏差値</span>'
+              +'<span style="font-size:16px;font-weight:800;color:'+hColor+'">'+hensachi+'</span>'
+              +'</div>'
+              +'<div style="height:4px;background:rgba(255,255,255,.1);border-radius:2px;position:relative">'
+              +'<div style="height:100%;width:'+pct+'%;background:'+col+';border-radius:2px"></div>'
+              +'<div style="position:absolute;top:-2px;left:50%;width:1px;height:8px;background:rgba(255,255,255,.2)"></div>'
+              +'</div>'
+              +'<div style="display:flex;justify-content:space-between;font-size:8px;color:rgba(255,255,255,.2);margin-top:1px"><span>MIN</span><span>AVG</span><span>NR</span></div>'
+              +'</div>';
+          }
+        }
+
         return '<div style="background:linear-gradient(180deg,#11324b,#0c2237);border:1px solid var(--line);border-radius:12px;padding:12px;border-top:3px solid '+col+'">'
           +'<div style="font-size:11px;font-weight:700;color:'+col+';margin-bottom:4px">'+ja+' <span style="font-size:9px;opacity:.7">'+k+'</span></div>'
           +'<div style="font-size:20px;font-weight:800;color:var(--text)">'+cleanRes(r.result)+tagBadge+'</div>'
           +'<div style="font-size:11px;color:var(--muted);margin-top:3px">'+(r.points!=null?r.points+' pt · ':'')+r.date.slice(0,4)+rankTxt+'</div>'
+          +hensachiHtml
           +'</div>';
       }).join('');
       return '<div style="margin-bottom:4px;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.5px;margin-top:14px">'+label+'</div>'
@@ -1143,13 +1172,6 @@ function renderTl(){
     const tag = resTag(r.result);
     const tagBadge = tag ? `<span style="font-size:9px;font-weight:800;padding:1px 6px;border-radius:4px;margin-left:6px;background:${tag==='NR'?'rgba(255,210,74,.2)':'rgba(30,200,166,.2)'};color:${tag==='NR'?'var(--gold)':'var(--accent2)'}">${tag}</span>` : '';
 
-    // 国内/海外判定
-    const e = (r.event||'').toLowerCase();
-    const overseasKw = ['vertical blue','kalamata','panglao','belgrade','serbia','dahab','bonaire','dominica','caribbean','xibalba','molchanova','sabang','indonesia','philippines','taiwan','korea','egypt','ciotat','sweden','danish','german','swiss','moldov','hungary','croatia','mabini','cebu','bali','world championship','world cup','euro','pan pacific','pacific rim','asian freediving cup','aida asian','aida panglao','aida mabini','aida sabang','aida caribbean','freedive panglao','andaman','big blue','deja blue','suunto','garmin','only one aida'];
-    const domesticKw = ['japan','tateyama','suzuka','tatsumi','kyoto','okinawa','manazuru','wakayama','inzai','nagoya','hayama','yugawara','painushima','ishigaki','hachijo','volcano cup','truenorth','true north','mugen','yebisu','barracuda','kansai'];
-    const isJp = domesticKw.some(k=>e.includes(k)) ? true : overseasKw.some(k=>e.includes(k)) ? false : null;
-    const locBadge = isJp===true ? '<span style="font-size:10px;margin-left:6px">🇯🇵</span>' : isJp===false ? '<span style="font-size:10px;margin-left:6px">🌍</span>' : '';
-
     return `<div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)">
       <div style="display:flex;flex-direction:column;align-items:center;width:36px;flex:none">
         <div style="width:10px;height:10px;border-radius:50%;background:${isLatest?col:'rgba(255,255,255,.2)'};border:2px solid ${isLatest?col:'rgba(255,255,255,.3)'};flex:none;margin-top:2px"></div>
@@ -1161,8 +1183,8 @@ function renderTl(){
           ${av(r.name,'savatar')}
           <span style="font-size:13px;font-weight:700;cursor:pointer;color:var(--accent)" onclick="hideTl();showAthlete('${esc(r.name)}',false)">${r.name}</span>
         </div>
-        <div style="margin-top:5px;display:flex;align-items:center">
-          <span style="font-size:${isLatest?'22':'18'}px;font-weight:800;color:${isLatest?col:'var(--text)'}">${formatTlVal(tlDisc,r.val)}</span>${tagBadge}${locBadge}
+        <div style="margin-top:5px">
+          <span style="font-size:${isLatest?'22':'18'}px;font-weight:800;color:${isLatest?col:'var(--text)'}">${formatTlVal(tlDisc,r.val)}</span>${tagBadge}
         </div>
         <div style="font-size:10px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.event||''}</div>
       </div>
