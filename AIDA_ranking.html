@@ -125,6 +125,28 @@ footer{color:var(--muted);font-size:11.5px;text-align:center;padding:24px}
 .sel-gtabs{display:flex;gap:6px;margin-bottom:18px}
 .sel-gtab{padding:6px 18px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;transition:.15s}
 .sel-gtab.active{background:var(--accent);border-color:var(--accent);color:#06231c}
+/* ===== 記録推移モーダル: チャート & レース ===== */
+.tl-vtab{padding:5px 12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--muted);cursor:pointer;font-size:11px;font-weight:700;transition:.15s}
+.tl-vtab.active{background:rgba(255,210,74,.15);border-color:rgba(255,210,74,.5);color:var(--gold)}
+.tl-axis{font-size:10px;fill:var(--muted)}
+.tl-grid{stroke:var(--line);stroke-width:1}
+.tl-path{fill:none;stroke-width:2.5;stroke-linejoin:round}
+.tl-dot{fill:var(--panel);stroke-width:2;transform-box:fill-box;transform-origin:center;transform:scale(0)}
+.tl-dot.show{animation:tlpop .45s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes tlpop{to{transform:scale(1)}}
+.tl-lbl{font-size:11px;fill:var(--text);opacity:0;transition:opacity .4s ease}
+.tl-lbl .v{font-weight:800}
+.tl-lbl.show{opacity:1}
+.tl-race-stage{position:relative;height:312px}
+.tl-bar-row{position:absolute;left:0;width:100%;height:34px;transition:top .6s cubic-bezier(.4,0,.2,1),opacity .4s ease}
+.tl-bar{position:relative;height:100%;border-radius:6px;min-width:44px;display:flex;align-items:center;gap:7px;padding-left:4px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.tl-bar .savatar{width:26px;height:26px;font-size:10px}
+.tl-bar-nm{font-size:11.5px;font-weight:700;color:#06231c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl-bar-val{position:absolute;left:calc(100% + 7px);top:50%;transform:translateY(-50%);font-size:11.5px;font-weight:800;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.tl-bar-row.r1 .tl-bar-val{color:var(--gold)}
+.tl-bar-row.r1 .tl-bar{box-shadow:0 0 12px rgba(255,210,74,.25)}
+#tlRaceYear{font-size:34px;font-weight:800;color:var(--text);line-height:1;font-variant-numeric:tabular-nums;letter-spacing:.5px;min-width:2.6em}
+@media (prefers-reduced-motion:reduce){.tl-path{transition:none!important}.tl-dot{transform:scale(1);animation:none}.tl-lbl{opacity:1;transition:none}.tl-bar-row,.tl-bar{transition:none}}
 .sel-disc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
 .sel-disc-block{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;overflow:hidden}
 .sel-disc-label{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:rgba(46,196,182,.08);border-bottom:1px solid var(--line)}
@@ -248,15 +270,35 @@ footer{color:var(--muted);font-size:11.5px;text-align:center;padding:24px}
 
 <!-- 記録更新タイムラインモーダル -->
 <div class="sel-overlay" id="tlOverlay">
-  <div class="sel-modal" style="max-width:680px">
+  <div class="sel-modal" style="max-width:780px">
     <div class="sel-modal-hd">
-      <h2>📅 日本記録 更新タイムライン</h2>
+      <h2>📅 日本記録推移</h2>
       <span class="sclose" onclick="hideTl()">×</span>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px" id="tlDiscTabs"></div>
-    <div style="display:flex;gap:6px;margin-bottom:16px">
+    <div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
       <div class="sel-gtab active" onclick="setTlGender('Male',this)">男子</div>
       <div class="sel-gtab" onclick="setTlGender('Female',this)">女子</div>
+      <div style="flex:1"></div>
+      <div class="tl-vtab active" data-v="chart" onclick="setTlView('chart',this)">📈 チャート</div>
+      <div class="tl-vtab" data-v="race" onclick="setTlView('race',this)">🏁 レース</div>
+      <div class="tl-vtab" data-v="list" onclick="setTlView('list',this)">📋 リスト</div>
+    </div>
+    <div id="tlChartView" style="display:none">
+      <svg id="tlChart" viewBox="0 0 720 360" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;display:block"></svg>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap">
+        <div id="tlChartCaption" style="font-size:11px;color:var(--muted)"></div>
+        <span class="sel-btn" style="margin-top:0" onclick="renderTlChart()">↻ REPLAY</span>
+      </div>
+    </div>
+    <div id="tlRaceView" style="display:none">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap">
+        <div id="tlRaceYear">2000</div>
+        <span class="sel-btn" style="margin-top:0" id="tlPlayBtn" onclick="toggleTlRace()">▶ PLAY</span>
+        <input type="range" id="tlYearSlider" min="2000" max="2026" step="1" value="2000" style="flex:1;min-width:140px;accent-color:var(--gold)">
+      </div>
+      <div class="tl-race-stage" id="tlRaceStage"></div>
+      <div style="font-size:10px;color:var(--muted);margin-top:8px">各年のシーズンベスト TOP8 · 再生で2000年からの順位変動を追う</div>
     </div>
     <div id="tlContent"></div>
   </div>
@@ -1077,7 +1119,7 @@ function showTl(){
   renderTl();
   document.getElementById('tlOverlay').classList.add('show');
 }
-function hideTl(){ document.getElementById('tlOverlay').classList.remove('show'); }
+function hideTl(){ stopTlRace(); document.getElementById('tlOverlay').classList.remove('show'); }
 document.getElementById('tlOverlay').onclick = e => { if(e.target.id==='tlOverlay') hideTl(); };
 
 function setTlDisc(disc, el){
@@ -1091,29 +1133,28 @@ function setTlGender(g, el){
   renderTl();
 }
 
+function tlToVal(disc, result){
+  const s = (result||'').replace(/\s*(NR|CR)\s*$/,'').trim();
+  if(disc==='STA'){
+    const m = s.match(/^(\d+):(\d+)/);
+    return m ? parseInt(m[1])*60+parseInt(m[2]) : null;
+  } else {
+    const m = s.match(/^([\d.]+)/);
+    return m ? parseFloat(m[1]) : null;
+  }
+}
+
 function buildTimeline(disc, gender){
   // 対象の全記録を日付順に並べる
   const recs = DATA.records
     .filter(r => r.discipline===disc && r.gender===gender && r.result && r.date)
     .sort((a,b) => a.date.localeCompare(b.date));
 
-  // 記録を数値に変換
-  function toVal(r){
-    const s = (r.result||'').replace(/\s*(NR|CR)\s*$/,'').trim();
-    if(disc==='STA'){
-      const m = s.match(/^(\d+):(\d+)/);
-      return m ? parseInt(m[1])*60+parseInt(m[2]) : null;
-    } else {
-      const m = s.match(/^([\d.]+)/);
-      return m ? parseFloat(m[1]) : null;
-    }
-  }
-
   // 日本記録更新履歴を構築
   let best = -Infinity;
   const timeline = [];
   recs.forEach(r => {
-    const v = toVal(r);
+    const v = tlToVal(disc, r.result);
     if(v == null) return;
     if(v > best){
       best = v;
@@ -1131,7 +1172,212 @@ function formatTlVal(disc, val){
   return val+'m';
 }
 
+/* ===== ビュー切替 ===== */
+let tlView = 'chart';
+let tlRaceTimer = null;
+function setTlView(v, el){
+  tlView = v;
+  document.querySelectorAll('#tlOverlay .tl-vtab').forEach(t=>t.classList.toggle('active', t.dataset.v===v));
+  renderTl();
+}
 function renderTl(){
+  stopTlRace();
+  document.getElementById('tlChartView').style.display = tlView==='chart'?'block':'none';
+  document.getElementById('tlRaceView').style.display  = tlView==='race'?'block':'none';
+  document.getElementById('tlContent').style.display   = tlView==='list'?'block':'none';
+  if(tlView==='chart') renderTlChart();
+  else if(tlView==='race') renderTlRace();
+  else renderTlList();
+}
+
+/* ===== 1. 記録推移ドローイングチャート ===== */
+let tlChartTimers = [];
+function renderTlChart(){
+  tlChartTimers.forEach(clearTimeout); tlChartTimers = [];
+  const svg = document.getElementById('tlChart');
+  svg.innerHTML = '';
+  const NS = 'http://www.w3.org/2000/svg';
+  const E = (t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;};
+  const tl = buildTimeline(tlDisc, tlGender);
+  const dInfo = DISC.find(d=>d[0]===tlDisc);
+  const cat = dInfo ? dInfo[4] : 'pool';
+  const down = cat === 'sea';            // 深度系は「深いほど下」に反転
+  const col = cat === 'pool' ? '#2ec4b6' : '#2aa9e0';
+  document.getElementById('tlChartCaption').textContent = down
+    ? '深度系: 記録が深くなるほどラインは沈む · 金色 = 現在の日本記録'
+    : '記録更新ごとにドットを打刻 · 金色 = 現在の日本記録';
+  if(!tl.length){
+    const t = E('text',{x:360,y:180,'text-anchor':'middle','class':'tl-axis'});
+    t.textContent = 'データなし'; svg.appendChild(t); return;
+  }
+  const W=720,H=360,pL=58,pR=96,pT=28,pB=34;
+  const yr = d => { const m=(d||'').match(/^(\d{4})-(\d{2})/); return m ? +m[1]+(+m[2]-1)/12 : 2000; };
+  const xs = tl.map(p=>yr(p.date));
+  let x0 = Math.floor(Math.min(...xs)), x1 = Math.ceil(Math.max(...xs)) + 1;
+  if(x1 - x0 < 6) x0 = x1 - 6;
+  const vals = tl.map(p=>p.val);
+  const vMin = Math.min(...vals), vMax = Math.max(...vals);
+  const span = Math.max(vMax - vMin, 1), dMin = vMin - span*.15, dMax = vMax + span*.15;
+  const X = v => pL + (v - x0)/(x1 - x0)*(W - pL - pR);
+  const Y = v => { const f=(v-dMin)/(dMax-dMin); return down ? pT + f*(H-pT-pB) : H - pB - f*(H-pT-pB); };
+
+  // グリッド + 軸ラベル
+  for(let i=0;i<=4;i++){
+    const v = dMin + (dMax-dMin)*i/4, y = Y(v);
+    svg.appendChild(E('line',{x1:pL,y1:y,x2:W-pR,y2:y,'class':'tl-grid'}));
+    const t = E('text',{x:pL-8,y:y+3,'text-anchor':'end','class':'tl-axis'});
+    t.textContent = formatTlVal(tlDisc, v); svg.appendChild(t);
+  }
+  const xstep = Math.max(1, Math.round((x1-x0)/6));
+  for(let y=x0; y<=x1; y+=xstep){
+    const t = E('text',{x:X(y),y:H-10,'text-anchor':'middle','class':'tl-axis'});
+    t.textContent = y; svg.appendChild(t);
+  }
+
+  // ステップパス（記録は更新されるまで横ばい）
+  let d = 'M '+X(xs[0])+' '+Y(tl[0].val), total = 0; const cum = [0];
+  for(let i=1;i<tl.length;i++){
+    const ax=X(xs[i-1]), ay=Y(tl[i-1].val), bx=X(xs[i]), by=Y(tl[i].val);
+    d += ' H '+bx+' V '+by;
+    total += Math.abs(bx-ax) + Math.abs(by-ay); cum.push(total);
+  }
+  const endX = W - pR;
+  total += Math.max(endX - X(xs[xs.length-1]), 0);
+  d += ' H '+endX;
+  const path = E('path',{'class':'tl-path',d:d,stroke:col});
+  path.style.filter = 'drop-shadow(0 0 6px '+col+'66)';
+  svg.appendChild(path);
+
+  // ラベル対象: 上げ幅TOP5 + 最初 + 最後
+  const jumps = tl.map((p,i)=> i===0 ? 1e9 : tl[i].val - tl[i-1].val);
+  const top = jumps.map((j,i)=>[j,i]).sort((a,b)=>b[0]-a[0]).slice(0,6).map(x=>x[1]);
+  const lab = new Set([0, tl.length-1, ...top]);
+  const dur = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 2400;
+
+  tl.forEach((p,i)=>{
+    const x = X(xs[i]), y = Y(p.val), last = i === tl.length-1;
+    const dot = E('circle',{cx:x,cy:y,r:last?5.5:4,'class':'tl-dot',stroke:last?'var(--gold)':col});
+    if(last) dot.setAttribute('fill','var(--gold)');
+    const tip = E('title',{}); tip.textContent = p.date+' '+p.name+' '+formatTlVal(tlDisc,p.val);
+    dot.appendChild(tip); svg.appendChild(dot);
+    let lb = null;
+    if(lab.has(i)){
+      const flip = i % 2 === 1;
+      let dy = down ? (flip?32:19) : (flip?-27:-14), anchor = 'middle', lx = x;
+      if(last){ anchor = 'end'; lx = x - 8; dy = down ? -12 : -14; }
+      lb = E('text',{x:lx,y:y+dy,'text-anchor':anchor,'class':'tl-lbl'});
+      const n = E('tspan',{}); n.textContent = p.name+' ';
+      const v = E('tspan',{'class':'v',fill:last?'var(--gold)':col}); v.textContent = formatTlVal(tlDisc,p.val);
+      lb.appendChild(n); lb.appendChild(v); svg.appendChild(lb);
+    }
+    tlChartTimers.push(setTimeout(()=>{
+      dot.classList.add('show');
+      if(lb) lb.classList.add('show');
+    }, dur * (cum[i] / Math.max(total,1))));
+  });
+
+  // ラインのドロー
+  const L = path.getTotalLength();
+  if(dur){
+    path.style.strokeDasharray = L;
+    path.style.strokeDashoffset = L;
+    path.getBoundingClientRect(); // reflow
+    path.style.transition = 'stroke-dashoffset '+dur+'ms cubic-bezier(.4,0,.2,1)';
+    path.style.strokeDashoffset = '0';
+  }
+}
+
+/* ===== 2. バーチャートレース ===== */
+let tlRaceYearCur = 2000, tlRaceRows = new Map(), tlRaceYears = [], tlRaceData = {};
+function buildTlRace(disc, gender){
+  const byAth = {};
+  DATA.records.forEach(r=>{
+    if(r.discipline!==disc || r.gender!==gender || !r.result) return;
+    const v = tlToVal(disc, r.result); if(v==null) return;
+    const y = +r.year; if(!y) return;
+    const s = byAth[r.name] = byAth[r.name] || {};
+    s[y] = Math.max(s[y]||0, v);
+  });
+  return byAth;
+}
+function renderTlRace(){
+  stopTlRace();
+  const stage = document.getElementById('tlRaceStage');
+  stage.innerHTML = ''; tlRaceRows = new Map();
+  tlRaceData = buildTlRace(tlDisc, tlGender);
+  const ys = new Set();
+  Object.values(tlRaceData).forEach(s=>Object.keys(s).forEach(y=>ys.add(+y)));
+  tlRaceYears = [...ys].sort((a,b)=>a-b);
+  if(!tlRaceYears.length){ stage.innerHTML = '<div class="empty">データなし</div>'; return; }
+  // どこかの年でTOP8入りした選手のみ行を生成
+  const ever = new Set();
+  tlRaceYears.forEach(y=>{
+    Object.entries(tlRaceData).map(([n,s])=>[n,s[y]]).filter(e=>e[1]!=null)
+      .sort((a,b)=>b[1]-a[1]).slice(0,8).forEach(e=>ever.add(e[0]));
+  });
+  ever.forEach(name=>{
+    const row = document.createElement('div');
+    row.className = 'tl-bar-row'; row.style.opacity = '0'; row.style.top = '312px';
+    const h = hue(name);
+    const bar = document.createElement('div');
+    bar.className = 'tl-bar';
+    bar.style.background = 'linear-gradient(135deg,hsl('+h+',55%,62%),hsl('+((h+40)%360)+',55%,46%))';
+    bar.innerHTML = av(name,'savatar')+'<span class="tl-bar-nm">'+name+'</span><span class="tl-bar-val"></span>';
+    row.appendChild(bar); stage.appendChild(row);
+    tlRaceRows.set(name, {row, bar, val: bar.querySelector('.tl-bar-val')});
+  });
+  const sl = document.getElementById('tlYearSlider');
+  sl.min = tlRaceYears[0]; sl.max = tlRaceYears[tlRaceYears.length-1];
+  stepTlRace(tlRaceYears[0]);
+}
+function stepTlRace(year){
+  tlRaceYearCur = year;
+  document.getElementById('tlRaceYear').textContent = year;
+  document.getElementById('tlYearSlider').value = year;
+  const entries = Object.entries(tlRaceData)
+    .map(([n,s])=>({name:n, v:(s[year]!=null?s[year]:null)}))
+    .filter(e=>e.v!=null).sort((a,b)=>b.v-a.v).slice(0,8);
+  const maxV = Math.max.apply(null, entries.map(e=>e.v).concat([1]));
+  const shown = new Set(entries.map(e=>e.name));
+  tlRaceRows.forEach((r,name)=>{
+    if(!shown.has(name)){ r.row.style.opacity='0'; r.row.style.top='312px'; r.row.classList.remove('r1'); }
+  });
+  entries.forEach((e,rank)=>{
+    const r = tlRaceRows.get(e.name); if(!r) return;
+    r.row.style.opacity = '1';
+    r.row.style.top = (rank*39)+'px';
+    r.row.classList.toggle('r1', rank===0);
+    r.bar.style.width = Math.max(e.v/(maxV*1.24)*100, 10)+'%';
+    r.val.textContent = formatTlVal(tlDisc, e.v);
+  });
+}
+function toggleTlRace(){ tlRaceTimer ? stopTlRace() : playTlRace(); }
+function playTlRace(){
+  if(!tlRaceYears.length) return;
+  if(tlRaceYearCur >= tlRaceYears[tlRaceYears.length-1]) stepTlRace(tlRaceYears[0]);
+  document.getElementById('tlPlayBtn').textContent = '❚❚ PAUSE';
+  tlRaceTimer = setInterval(()=>{
+    const i = tlRaceYears.indexOf(tlRaceYearCur);
+    if(i < 0 || i >= tlRaceYears.length-1){ stopTlRace(); return; }
+    stepTlRace(tlRaceYears[i+1]);
+  }, 700);
+}
+function stopTlRace(){
+  if(tlRaceTimer){ clearInterval(tlRaceTimer); tlRaceTimer = null; }
+  const b = document.getElementById('tlPlayBtn'); if(b) b.textContent = '▶ PLAY';
+}
+document.getElementById('tlYearSlider').oninput = function(){
+  stopTlRace();
+  if(!tlRaceYears.length) return;
+  // データのある年にスナップ
+  const target = +this.value;
+  let nearest = tlRaceYears[0];
+  for(const y of tlRaceYears) if(Math.abs(y-target) < Math.abs(nearest-target)) nearest = y;
+  stepTlRace(nearest);
+};
+
+/* ===== 3. リスト（従来のタイムライン表示） ===== */
+function renderTlList(){
   const timeline = buildTimeline(tlDisc, tlGender);
   const dInfo = DISC.find(d=>d[0]===tlDisc);
   const cat = dInfo ? dInfo[4] : 'pool';
