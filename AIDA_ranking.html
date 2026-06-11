@@ -1136,49 +1136,66 @@ function renderTl(){
   const dInfo = DISC.find(d=>d[0]===tlDisc);
   const cat = dInfo ? dInfo[4] : 'pool';
   const col = cat==='pool' ? 'var(--pool)' : 'var(--sea)';
+  const colRgb = cat==='pool' ? '46,196,182' : '26,122,138';
 
   if(!timeline.length){
     document.getElementById('tlContent').innerHTML='<div class="empty">データなし</div>';
     return;
   }
 
-  // 更新回数集計
-  const countByName = {};
-  timeline.forEach(r=>{ countByName[r.name]=(countByName[r.name]||0)+1; });
-
-  // 上位更新者
-  const topUpdaters = Object.entries(countByName)
-    .sort((a,b)=>b[1]-a[1]).slice(0,3)
-    .map(([name,cnt])=>`<span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;background:rgba(255,255,255,.06);font-size:11px">${av(name,'savatar')}<span style="font-weight:700">${name}</span><span style="color:${col};font-weight:800">${cnt}回</span></span>`).join('');
-
-  // タイムライン本体
-  const items = [...timeline].reverse().map((r, i) => {
+  // タイムライン本体（古い順 = 下から上へ積み上がるイメージで逆順表示）
+  const reversed = [...timeline].reverse();
+  const items = reversed.map((r, i) => {
     const isLatest = i === 0;
     const tag = resTag(r.result);
     const tagBadge = tag ? `<span style="font-size:9px;font-weight:800;padding:1px 6px;border-radius:4px;margin-left:6px;background:${tag==='NR'?'rgba(255,210,74,.2)':'rgba(30,200,166,.2)'};color:${tag==='NR'?'var(--gold)':'var(--accent2)'}">${tag}</span>` : '';
 
-    return `<div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)">
+    return `<div class="tl-item" data-val="${r.val}" data-disc="${tlDisc}" data-latest="${isLatest}"
+      style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);
+             opacity:0;transform:translateY(18px);transition:opacity .4s ease, transform .4s ease;
+             transition-delay:${i*60}ms">
       <div style="display:flex;flex-direction:column;align-items:center;width:36px;flex:none">
-        <div style="width:10px;height:10px;border-radius:50%;background:${isLatest?col:'rgba(255,255,255,.2)'};border:2px solid ${isLatest?col:'rgba(255,255,255,.3)'};flex:none;margin-top:2px"></div>
+        <div style="width:${isLatest?12:8}px;height:${isLatest?12:8}px;border-radius:50%;
+             background:${isLatest?col:'rgba(255,255,255,.2)'};
+             border:2px solid ${isLatest?col:'rgba(255,255,255,.3)'};
+             flex:none;margin-top:2px;
+             ${isLatest?`box-shadow:0 0 10px rgba(${colRgb},.7),0 0 20px rgba(${colRgb},.3)`:''}">
+        </div>
         <div style="width:1px;flex:1;background:rgba(255,255,255,.08);margin-top:4px"></div>
       </div>
       <div style="flex:1;min-width:0;padding-bottom:4px">
         <div style="font-size:10px;color:var(--muted);margin-bottom:4px">${r.date}</div>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
           ${av(r.name,'savatar')}
-          <span style="font-size:13px;font-weight:700;cursor:pointer;color:var(--accent)" onclick="hideTl();showAthlete('${esc(r.name)}',false)">${r.name}</span>
+          <span style="font-size:13px;font-weight:700;cursor:pointer;color:var(--accent)"
+            onclick="hideTl();showAthlete('${esc(r.name)}',false)">${r.name}</span>
         </div>
-        <div style="margin-top:5px">
-          <span style="font-size:${isLatest?'22':'18'}px;font-weight:800;color:${isLatest?col:'var(--text)'}">${formatTlVal(tlDisc,r.val)}</span>${tagBadge}
+        <div style="margin-top:5px;display:flex;align-items:baseline;gap:0">
+          <span class="tl-val" style="font-size:${isLatest?24:18}px;font-weight:800;
+            color:${isLatest?col:'var(--text)'};
+            ${isLatest?`text-shadow:0 0 16px rgba(${colRgb},.6)`:''}">
+            ${formatTlVal(tlDisc, r.val)}
+          </span>${tagBadge}
         </div>
         <div style="font-size:10px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.event||''}</div>
       </div>
     </div>`;
   }).join('');
 
-  document.getElementById('tlContent').innerHTML =
+  const container = document.getElementById('tlContent');
+  container.innerHTML =
     `<div style="font-size:11px;color:var(--muted);margin-bottom:8px">${timeline.length}回の日本記録更新 · 新しい順</div>
     ${items}`;
+
+  // アニメーション発火（RAF で1フレーム待ってからクラス付与）
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      container.querySelectorAll('.tl-item').forEach(el => {
+        el.style.opacity = '1';
+        el.style.transform = 'translateY(0)';
+      });
+    });
+  });
 }
 /* ========== 分布分析 ========== */
 const DIST_CONF = {
