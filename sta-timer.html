@@ -204,8 +204,8 @@ header {
   font-size: 10px; font-weight: 700; letter-spacing: .1em;
   text-transform: uppercase; width: 36px; flex-shrink: 0;
 }
-.pm-label.hold { color: var(--teal-light); }
-.pm-label.rest { color: var(--muted); }
+.pm-label.hold { color: var(--danger); }
+.pm-label.rest { color: var(--success); }
 .pm-stepper {
   display: inline-flex; align-items: stretch; flex: 0 0 auto;
   height: 40px; line-height: 1;
@@ -235,9 +235,11 @@ header {
   font-size: 10px; letter-spacing: .22em; text-transform: uppercase;
   font-weight: 700; color: var(--teal); height: 16px; transition: color .4s;
 }
-.phase-label.rest   { color: var(--muted); }
+.phase-label.hold   { color: var(--danger); }
+.phase-label.rest   { color: var(--success); }
+.phase-label.surface{ color: #eab308; }
 .phase-label.danger { color: var(--warm); }
-.phase-label.countdown { color: var(--success); }
+.phase-label.countdown { color: #eab308; }
 
 /* SET PROGRESS */
 .set-list-wrap {
@@ -275,8 +277,8 @@ header {
 .set-phase-lbl {
   font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
 }
-.set-phase-lbl.hold { color: var(--teal-light); }
-.set-phase-lbl.rest { color: var(--muted); }
+.set-phase-lbl.hold { color: var(--danger); }
+.set-phase-lbl.rest { color: var(--success); }
 .set-phase-lbl.surface { color: #eab308; }
 .set-phase-lbl.pending { color: var(--border); }
 .set-sub {
@@ -790,11 +792,22 @@ header {
     <div class="sheet-title">セッション確認</div>
 
     <!-- 環境選択 -->
-    <div style="display:flex;gap:6px;margin-bottom:12px">
+    <div style="display:flex;gap:6px;margin-bottom:10px">
       <button id="save-env-dry"  onclick="setSaveEnv('dry')"
         style="flex:1;height:34px;border-radius:8px;border:1px solid var(--teal);background:var(--teal-dim);color:var(--teal-light);font-size:12px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent">🏠 Dry</button>
       <button id="save-env-pool" onclick="setSaveEnv('pool')"
         style="flex:1;height:34px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent">🏊 Pool</button>
+    </div>
+
+    <!-- 種目選択 -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+      <span style="font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--muted);flex-shrink:0">種目</span>
+      <select id="saveDiscipline"
+        style="flex:1;height:34px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:13px;font-weight:600;padding:0 10px;font-family:inherit">
+        <option value="STA" selected>STA</option>
+        <option value="RV STA">RV STA</option>
+        <option value="FRC STA">FRC STA</option>
+      </select>
     </div>
 
     <!-- サマリー行 -->
@@ -1347,6 +1360,29 @@ function pmFmt(s) {
   return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
 }
 
+// テーブル全体の所要時間（秒）。Hold Manual時はnull（計算不能）
+function planTotalSec() {
+  if (cfg.tblHoldStop === 'manual') return null;
+  if (!sessionPlan.length) return null;
+  var t = cfg.prepSec || 0;
+  for (var i = 0; i < sessionPlan.length; i++) {
+    t += sessionPlan[i].holdSec || 0;
+    if (i < sessionPlan.length - 1) t += sessionPlan[i].restSec || 0; // 最終セット後のRestはなし
+  }
+  return t;
+}
+
+function planTotalHTML() {
+  var t = planTotalSec();
+  if (t == null) return '';
+  return ' &nbsp;·&nbsp; <span style="color:var(--teal)">⏱ ' + pmFmt(t) + '</span>';
+}
+
+function refreshPlanSummary() {
+  var el = document.getElementById('planModalSummary');
+  if (el) el.innerHTML = buildCfgSummaryHTML();
+}
+
 function renderPlanEditor(flashIdx) {
   var list = document.getElementById('planList');
   list.innerHTML = '';
@@ -1390,6 +1426,7 @@ function renderPlanEditor(flashIdx) {
       } else {
         var hStepper = makeStepper(p.holdSec, 15, 15, 600, function(v){
           sessionPlan[i].holdSec = v;
+          refreshPlanSummary();
         });
         hRow.appendChild(hStepper);
       }
@@ -1405,6 +1442,7 @@ function renderPlanEditor(flashIdx) {
         rRow.appendChild(rLbl);
         var rStepper = makeStepper(p.restSec, 15, 0, 600, function(v){
           sessionPlan[i].restSec = v;
+          refreshPlanSummary();
         });
         rRow.appendChild(rStepper);
         card.appendChild(rRow);
@@ -1456,6 +1494,7 @@ function insertPlanRow(afterIdx) {
   var src = sessionPlan[afterIdx];
   sessionPlan.splice(afterIdx+1, 0, { holdSec: src.holdSec, restSec: src.restSec });
   renderPlanEditor(afterIdx+1);
+  refreshPlanSummary();
   setTimeout(function(){
     var card = document.getElementById('planCard'+(afterIdx+1));
     if (card) card.scrollIntoView({ block:'nearest', behavior:'smooth' });
@@ -1535,7 +1574,8 @@ function buildCfgSummaryHTML() {
   var restStop = cfg.tblRestStop==='auto' ? pmFmt(cfg.tblRestMin*60+cfg.tblRestSec) : 'Manual';
   var restLabel = cfg.tblRestStop==='manual' ? pmFmt(cfg.tblRestMin*60+cfg.tblRestSec) : restStop;
   var dec = (tableSub==='co2' && cfg.tblDecrementSec>0) ? ' &nbsp;·&nbsp; <span style="color:var(--warm)">−'+cfg.tblDecrementSec+'s/set</span>' : '';
-  return '<span style="color:var(--teal-light);font-weight:600">'+sub+'</span>&nbsp; Hold '+holdStop+' &nbsp;·&nbsp; Rest '+restLabel+dec+' &nbsp;·&nbsp; '+cfg.tblSets+' sets';
+  var sets = sessionPlan.length || cfg.tblSets;
+  return '<span style="color:var(--teal-light);font-weight:600">'+sub+'</span>&nbsp; Hold '+holdStop+' &nbsp;·&nbsp; Rest '+restLabel+dec+' &nbsp;·&nbsp; '+sets+' sets'+planTotalHTML();
 }
 
 function onCfgSummaryTap() {
@@ -2104,7 +2144,7 @@ function startSurface() {
   setRestRing(0);
   ringRest.style.stroke = '#eab308';
   ringHold.style.stroke = 'transparent';
-  showPhase('rest', 'Surface Protocol');
+  showPhase('surface', 'Surface Protocol');
   document.getElementById('btnPause').style.display = '';
   renderSetDots(); // phase='surface'になった後に再描画（YOU ARE HERE表示のため）
   onSurfaceStart(); // カメラ録画スケジュール
@@ -2186,9 +2226,9 @@ function finishSession() {
   releaseWakeLock(); stopMock();
   renderSetDots(); renderLog(); updateStats();
   document.getElementById('btnSave').disabled = false;
-  // テーブルモードは直接ログ登録へ
+  // テーブルモードも確認モーダルを開く（種目・環境・メモを選んでから登録）
   if (mode === 'o2' || mode === 'co2') {
-    directToLog();
+    openSave();
   }
 }
 
@@ -2435,7 +2475,7 @@ function renderUnifiedList() {
       const isActiveRest = hasRest && ((phase === 'surface' && i === currentSet) || (phase === 'rest' && i === currentSet - 1));
       el.className = 'set-row done';
       el.style.cssText = isActiveRest
-        ? 'flex-direction:column;align-items:stretch;gap:2px;padding:4px 10px;border-color:var(--teal);background:rgba(46,196,182,.04)'
+        ? 'flex-direction:column;align-items:stretch;gap:2px;padding:4px 10px;border-color:var(--success);background:rgba(34,197,94,.05)'
         : 'flex-direction:column;align-items:stretch;gap:2px;padding:4px 10px;opacity:.55;border-color:transparent;background:var(--surface2)';
       const fcTag = d.fc != null
         ? `<span class="fc-tag">1st ${fmt(d.fc)}</span>` : '';
@@ -2453,7 +2493,7 @@ function renderUnifiedList() {
         var restTimeSize = isActiveRest ? '14' : '12';
         restRow = '<div style="display:flex;align-items:center;gap:6px;'+restBg+'">'
           + '<span class="set-n"></span>'
-          + '<span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:'+restColor+';min-width:22px;flex-shrink:0">Rest</span>'
+          + '<span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--success);min-width:22px;flex-shrink:0">Rest</span>'
           + '<span style="flex:1"></span>'
           + '<span style="display:flex;align-items:center;gap:6px">'+youAreHere
           + '<span id="liveRestTime-'+i+'" style="font-size:'+restTimeSize+'px;font-variant-numeric:tabular-nums;color:'+restColor+';font-weight:'+(isActiveRest?'500':'400')+'">'+restLabel+'</span>'
@@ -2482,14 +2522,14 @@ function renderUnifiedList() {
         el.innerHTML = `
           <div style="display:flex;align-items:center;gap:6px">
             <span class="set-n">#${i+1}</span>
-            <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:22px;flex-shrink:0">Hold</span>
+            <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--danger);min-width:22px;flex-shrink:0">Hold</span>
             <span style="flex:1"></span>
             <span style="font-size:13px;font-variant-numeric:tabular-nums;font-weight:400;${holdLabelColor}">${holdLabel}</span>
           </div>
           ${i < n-1 ? `
           <div style="display:flex;align-items:center;gap:6px;padding-left:4px">
             <span class="set-n"></span>
-            <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:22px;flex-shrink:0">Rest</span>
+            <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--success);min-width:22px;flex-shrink:0">Rest</span>
             <span style="flex:1"></span>
             <span style="font-size:12px;font-variant-numeric:tabular-nums;color:var(--muted);font-weight:400">${fmt(restSec*1000)}</span>
           </div>` : ''}`;
@@ -2498,7 +2538,9 @@ function renderUnifiedList() {
       }
 
       el.className = 'set-row current';
-      el.style.cssText = 'flex-direction:column;align-items:stretch;gap:3px;padding:5px 10px;border-color:var(--teal);background:rgba(46,196,182,.04)';
+      const curBorder = isHolding ? 'var(--danger)' : isPrepare ? '#eab308' : 'var(--teal)';
+      const curBg     = isHolding ? 'rgba(239,68,68,.04)' : isPrepare ? 'rgba(234,179,8,.04)' : 'rgba(46,196,182,.04)';
+      el.style.cssText = `flex-direction:column;align-items:stretch;gap:3px;padding:5px 10px;border-color:${curBorder};background:${curBg}`;
 
       const holdLbl   = isPrepare ? 'Prepare' : 'Hold';
       const holdColor = isHolding ? 'var(--danger)' : isPrepare ? '#eab308' : 'var(--teal-light)';
@@ -2537,14 +2579,14 @@ function renderUnifiedList() {
       el.innerHTML = `
         <div style="display:flex;align-items:center;gap:6px">
           <span class="set-n">#${i+1}</span>
-          <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:22px;flex-shrink:0">Hold</span>
+          <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--danger);min-width:22px;flex-shrink:0">Hold</span>
           <span style="flex:1"></span>
           <span style="font-size:13px;font-variant-numeric:tabular-nums;font-weight:400;${holdLabelColor}">${holdLabel}</span>
         </div>
         ${i < n-1 ? `
         <div style="display:flex;align-items:center;gap:6px;padding-left:4px">
           <span class="set-n"></span>
-          <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:22px;flex-shrink:0">Rest</span>
+          <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--success);min-width:22px;flex-shrink:0">Rest</span>
           <span style="flex:1"></span>
           <span style="font-size:12px;font-variant-numeric:tabular-nums;color:var(--muted);font-weight:400">${fmt(restSec*1000)}</span>
         </div>` : ''}`;
@@ -2967,6 +3009,8 @@ function openSave() {
   if (!holdOnly.length) return;
 
   document.getElementById('saveNote').value = '';
+  var discSel = document.getElementById('saveDiscipline');
+  if (discSel) discSel.value = 'STA';
   // 環境ボタンをsessionEnvに合わせて初期化
   setSaveEnv(sessionEnv);
 
@@ -3007,7 +3051,7 @@ function openSave() {
     // Rest時間: sessionPlan[i].restSec（最終セットはなし）
     const restSec = (sessionPlan[i] && i < holdOnly.length - 1) ? sessionPlan[i].restSec : null;
     const restTag = restSec != null
-      ? `<span style="font-size:10px;color:var(--muted);margin-left:4px">R ${fmt(restSec*1000)}</span>` : '';
+      ? `<span style="font-size:10px;color:var(--success);margin-left:4px">R ${fmt(restSec*1000)}</span>` : '';
     const row = document.createElement('div');
     row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--surface2);border-radius:8px';
     row.innerHTML = `
@@ -3036,8 +3080,10 @@ function directToLog() {
 }
 
 async function confirmSave() {
-  // noteを先に取得（closeSave()でDOMが隠れる前に）
+  // note・種目を先に取得（closeSave()でDOMが隠れる前に）
   const noteVal = document.getElementById('saveNote') ? document.getElementById('saveNote').value.trim() : '';
+  const discSel = document.getElementById('saveDiscipline');
+  const disc = (discSel && discSel.value) ? discSel.value : 'STA';
   closeSave();
   const holdOnly = holdDives.filter(d => !d.isRest);
   const best = holdOnly.length ? Math.max(...holdOnly.map(d=>d.ms)) : 0;
@@ -3047,7 +3093,7 @@ async function confirmSave() {
     id:         Date.now().toString(),
     date:       new Date().toISOString().slice(0,10),
     env:        sessionEnv,
-    discipline: 'STA',
+    discipline: disc,
     tableMode:  tableSub || mode,
     presetId:   activePresetId || null,
     sets:       holdOnly.length,
@@ -3057,7 +3103,7 @@ async function confirmSave() {
     note:       noteVal || null,
     diveLog:    holdOnly.map((d,i)=>({
       set:        i+1,
-      disc:       'STA',
+      disc:       disc,
       time:       fmt(d.ms),
       holdTime:   Math.round(d.ms/1000),
       restSec:    (sessionPlan[i] && i < holdOnly.length-1) ? sessionPlan[i].restSec : null,
@@ -3085,7 +3131,7 @@ async function confirmSave() {
     _sb.from('training_logs').insert({
       user_id:    _user.id,
       date:       sessionData.date,
-      discipline: 'STA',
+      discipline: disc,
       performance:sessionData.bestTime,
       notes:      sessionData.note||null,
       is_public:  false,
