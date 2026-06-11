@@ -276,10 +276,11 @@ footer{color:var(--muted);font-size:11.5px;text-align:center;padding:24px}
       <span class="sclose" onclick="hideTl()">×</span>
     </div>
     <div style="display:flex;flex-direction:column;gap:0;margin-bottom:14px" id="tlDiscTabs"></div>
-    <div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+    <div style="display:flex;gap:6px;margin-bottom:10px;align-items:center">
       <div class="sel-gtab active" onclick="setTlGender('Male',this)">男子</div>
       <div class="sel-gtab" onclick="setTlGender('Female',this)">女子</div>
-      <div style="flex:1"></div>
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:16px;align-items:center">
       <div class="tl-vtab active" data-v="list" onclick="setTlView('list',this)">📋 リスト</div>
       <div class="tl-vtab" data-v="race" onclick="setTlView('race',this)">📊 日本ランク推移</div>
       <div class="tl-vtab" data-v="chart" onclick="setTlView('chart',this)">📈 チャート</div>
@@ -570,17 +571,21 @@ function render(){
       +rest.map(r=>'<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)">'
         +'<span class="rk" style="width:28px;flex:none">'+r.rank+'</span>'
         +'<div class="nmcell" style="flex:1;min-width:0">'+av(r.name,'savatar')+'<span class="nm" onclick="showAthlete(\''+esc(r.name)+'\',state.disc===\'OVERALL\')" style="white-space:normal;line-height:1.25;word-break:break-word">'+r.name+'</span></div>'
-        +'<span class="pts2" style="flex:none">'+r.total+'</span>'
         +'</div>').join('');
   }else{
     area.innerHTML='<div class="listhd">4位以降</div>'
       +rest.map(r=>'<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)">'
         +'<span class="rk" style="width:28px;flex:none;font-size:12px">'+r.rank+'</span>'
-        +'<div class="nmcell" style="flex:1;min-width:0">'+av(r.name,'savatar')+'<span class="nm" onclick="showAthlete(\''+esc(r.name)+'\',state.disc===\'OVERALL\')" style="white-space:normal;line-height:1.25;word-break:break-word;font-size:12.5px">'+r.name+'</span></div>'
-        +'<span class="res2" style="flex:none;font-size:13px">'+cleanRes(r.result)+'</span>'
-        +'<span class="pts2" style="flex:none;font-size:12px;min-width:36px;text-align:right">'+(r.points!=null?r.points:'')+'</span>'
-        +'<span style="flex:1;min-width:0;font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+r.event+'</span>'
-        +'<span style="flex:none;font-size:10px;color:var(--muted);white-space:nowrap">'+r.date.slice(0,7)+'</span>'
+        +'<div class="nmcell" style="flex:1;min-width:0;gap:7px">'+av(r.name,'savatar')
+          +'<div style="min-width:0">'
+            +'<div class="nm" onclick="showAthlete(\''+esc(r.name)+'\',state.disc===\'OVERALL\')" style="white-space:normal;line-height:1.25;word-break:break-word;font-size:12.5px">'+r.name+'</div>'
+            +(r.event?'<div style="font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px">'+r.event+'</div>':'')
+          +'</div>'
+        +'</div>'
+        +'<div style="flex:none;text-align:right">'
+          +'<div class="res2" style="font-size:13px">'+cleanRes(r.result)+'</div>'
+          +'<div style="font-size:10px;color:var(--muted);white-space:nowrap">'+r.date.slice(0,7)+'</div>'
+        +'</div>'
         +'</div>').join('');
   }
 }
