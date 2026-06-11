@@ -3007,9 +3007,11 @@ updateDistLabels();
       // ── 2. 日付 ──
       if (d.date) { var dateEl = document.getElementById('f-date'); if (dateEl) dateEl.value = d.date; }
 
-      // ── 3. 種目 STA ──
-      var chip = document.querySelector('#disc-chips .chip[data-disc="STA"]');
-      if (chip) setDisc('STA', chip);  // → showIntervalSection → diveMode='target'
+      // ── 3. 種目（sta-timerの値をtraining-logの内部コードに変換）──
+      var discMap = { 'STA': 'STA', 'RV STA': 'RVSTA', 'FRC STA': 'FRCSTA' };
+      var mappedDisc = discMap[d.discipline] || 'STA';
+      var chip = document.querySelector('#disc-chips .chip[data-disc="' + mappedDisc + '"]');
+      if (chip) setDisc(mappedDisc, chip);
 
       // ── 4. インターバルモードへ ──
       var ivBtn = document.getElementById('mode-interval');
@@ -3057,7 +3059,7 @@ updateDistLabels();
         if (spEl && dive.minSpo2 != null) spEl.value = dive.minSpo2;
         // STA種目セレクト
         var ds = tr.querySelector('.iv-disc');
-        if (ds) ds.value = 'STA';
+        if (ds) ds.value = mappedDisc;
       });
 
       // ── 7b. 表 → ダイブ一覧へ自動展開 ──
@@ -3073,7 +3075,7 @@ updateDistLabels();
         var banner = document.createElement('div');
         banner.id = 'sta-import-banner';
         banner.style.cssText = 'background:var(--accent-dim);border:1px solid var(--accent);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--accent2);margin-bottom:12px';
-        banner.innerHTML = '🏊 <strong>STA Timer</strong> から読み込みました — Best: <strong>' + (d.bestTime||'—') + '</strong> / ' + d.diveLog.length + 'セット' + (d.minSpo2!=null ? ' / Min SpO2 ' + d.minSpo2 + '%' : '');
+        banner.innerHTML = '🏊 <strong>STA Timer</strong> から読み込みました（' + (d.discipline||'STA') + '） — Best: <strong>' + (d.bestTime||'—') + '</strong> / ' + d.diveLog.length + 'セット' + (d.minSpo2!=null ? ' / Min SpO2 ' + d.minSpo2 + '%' : '');
         var ft = document.querySelector('#epanel-input .card-body');
         if (ft) ft.insertBefore(banner, ft.firstChild);
       }
