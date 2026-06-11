@@ -275,14 +275,14 @@ footer{color:var(--muted);font-size:11.5px;text-align:center;padding:24px}
       <h2>📅 日本記録推移</h2>
       <span class="sclose" onclick="hideTl()">×</span>
     </div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px" id="tlDiscTabs"></div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;align-items:center" id="tlDiscTabs"></div>
     <div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
       <div class="sel-gtab active" onclick="setTlGender('Male',this)">男子</div>
       <div class="sel-gtab" onclick="setTlGender('Female',this)">女子</div>
       <div style="flex:1"></div>
-      <div class="tl-vtab" data-v="chart" onclick="setTlView('chart',this)">📈 チャート</div>
-      <div class="tl-vtab" data-v="race" onclick="setTlView('race',this)">🏆 歴代TOP8</div>
       <div class="tl-vtab active" data-v="list" onclick="setTlView('list',this)">📋 リスト</div>
+      <div class="tl-vtab" data-v="race" onclick="setTlView('race',this)">📊 日本ランク推移</div>
+      <div class="tl-vtab" data-v="chart" onclick="setTlView('chart',this)">📈 チャート</div>
     </div>
     <div id="tlChartView" style="display:none">
       <svg id="tlChart" viewBox="0 0 720 360" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;display:block"></svg>
@@ -1109,13 +1109,22 @@ let tlDisc = 'STA';
 let tlGender = 'Male';
 
 function showTl(){
-  // 種目タブ生成
+  // 種目タブ: プール / 海 に分けて生成
   const tabs = DISC.filter(d=>d[0]!=='OVERALL');
-  document.getElementById('tlDiscTabs').innerHTML = tabs.map(([k,ja,,, cat])=>{
+  const poolTabs = tabs.filter(d=>d[4]==='pool');
+  const seaTabs  = tabs.filter(d=>d[4]==='sea');
+  function makeTab([k,ja,,,cat]){
     const col = cat==='pool'?'var(--pool)':'var(--sea)';
+    const bg  = cat==='pool'?'rgba(46,196,182,.15)':'rgba(42,109,181,.15)';
     const isActive = k===tlDisc;
-    return '<span onclick="setTlDisc(\''+k+'\',this)" style="padding:5px 12px;border-radius:16px;border:1px solid '+(isActive?col:'var(--line)')+';background:'+(isActive?'rgba(46,196,182,.15)':'rgba(255,255,255,.03)')+';color:'+(isActive?col:'var(--muted)')+';cursor:pointer;font-size:12px;font-weight:700">'+k+'</span>';
-  }).join('');
+    return '<span onclick="setTlDisc(\''+k+'\',this)" style="padding:5px 12px;border-radius:16px;border:1px solid '+(isActive?col:'var(--line)')+';background:'+(isActive?bg:'rgba(255,255,255,.03)')+';color:'+(isActive?col:'var(--muted)')+';cursor:pointer;font-size:12px;font-weight:700">'+k+'</span>';
+  }
+  const sep = '<span style="align-self:center;font-size:10px;color:var(--sea);opacity:.7;padding:0 2px;letter-spacing:.05em">POOL</span>'
+            + poolTabs.map(makeTab).join('')
+            + '<span style="width:1px;background:var(--line);align-self:stretch;margin:2px 4px;display:inline-block"></span>'
+            + '<span style="align-self:center;font-size:10px;color:var(--sea);opacity:.7;padding:0 2px;letter-spacing:.05em">SEA</span>'
+            + seaTabs.map(makeTab).join('');
+  document.getElementById('tlDiscTabs').innerHTML = sep;
   renderTl();
   document.getElementById('tlOverlay').classList.add('show');
 }
@@ -1325,7 +1334,7 @@ function renderTlRace(){
   // データ最初の年〜最後の年まで連続レンジ(歴代ベストなので空白年も状態を持つ)
   const yMin = Math.min(...ys), yMax = Math.max(...ys);
   tlRaceYears = []; for(let y=yMin; y<=yMax; y++) tlRaceYears.push(y);
-  // どこかの時点で歴代TOP8入りした選手のみ行を生成
+  // どこかの時点で日本ランク推移TOP8入りした選手のみ行を生成
   const ever = new Set();
   tlRaceYears.forEach(y=>tlTop8At(y).forEach(e=>ever.add(e.name)));
   ever.forEach(name=>{
