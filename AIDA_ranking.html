@@ -280,9 +280,9 @@ footer{color:var(--muted);font-size:11.5px;text-align:center;padding:24px}
       <div class="sel-gtab active" onclick="setTlGender('Male',this)">男子</div>
       <div class="sel-gtab" onclick="setTlGender('Female',this)">女子</div>
       <div style="flex:1"></div>
-      <div class="tl-vtab active" data-v="chart" onclick="setTlView('chart',this)">📈 チャート</div>
-      <div class="tl-vtab" data-v="race" onclick="setTlView('race',this)">🏁 レース</div>
-      <div class="tl-vtab" data-v="list" onclick="setTlView('list',this)">📋 リスト</div>
+      <div class="tl-vtab" data-v="chart" onclick="setTlView('chart',this)">📈 チャート</div>
+      <div class="tl-vtab" data-v="race" onclick="setTlView('race',this)">🏆 歴代TOP8</div>
+      <div class="tl-vtab active" data-v="list" onclick="setTlView('list',this)">📋 リスト</div>
     </div>
     <div id="tlChartView" style="display:none">
       <svg id="tlChart" viewBox="0 0 720 360" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;display:block"></svg>
@@ -298,7 +298,7 @@ footer{color:var(--muted);font-size:11.5px;text-align:center;padding:24px}
         <input type="range" id="tlYearSlider" min="2000" max="2026" step="1" value="2000" style="flex:1;min-width:140px;accent-color:var(--gold)">
       </div>
       <div class="tl-race-stage" id="tlRaceStage"></div>
-      <div style="font-size:10px;color:var(--muted);margin-top:8px">各年のシーズンベスト TOP8 · 再生で2000年からの順位変動を追う</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:8px">その年までの全記録から算出した歴代ベスト TOP8 · 再生で変遷を追う</div>
     </div>
     <div id="tlContent"></div>
   </div>
@@ -569,14 +569,14 @@ function render(){
     area.innerHTML='<div class="listhd">4位以降</div>'
       +rest.map(r=>'<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)">'
         +'<span class="rk" style="width:28px;flex:none">'+r.rank+'</span>'
-        +'<div class="nmcell" style="flex:1;min-width:0">'+av(r.name,'savatar')+'<span class="nm" onclick="showAthlete(\''+esc(r.name)+'\',state.disc===\'OVERALL\')" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+r.name+'</span></div>'
+        +'<div class="nmcell" style="flex:1;min-width:0">'+av(r.name,'savatar')+'<span class="nm" onclick="showAthlete(\''+esc(r.name)+'\',state.disc===\'OVERALL\')" style="white-space:normal;line-height:1.25;word-break:break-word">'+r.name+'</span></div>'
         +'<span class="pts2" style="flex:none">'+r.total+'</span>'
         +'</div>').join('');
   }else{
     area.innerHTML='<div class="listhd">4位以降</div>'
       +rest.map(r=>'<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)">'
         +'<span class="rk" style="width:28px;flex:none;font-size:12px">'+r.rank+'</span>'
-        +'<div class="nmcell" style="width:100px;flex:none">'+av(r.name,'savatar')+'<span class="nm" onclick="showAthlete(\''+esc(r.name)+'\',state.disc===\'OVERALL\')" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:68px;display:inline-block">'+r.name+'</span></div>'
+        +'<div class="nmcell" style="flex:1;min-width:0">'+av(r.name,'savatar')+'<span class="nm" onclick="showAthlete(\''+esc(r.name)+'\',state.disc===\'OVERALL\')" style="white-space:normal;line-height:1.25;word-break:break-word;font-size:12.5px">'+r.name+'</span></div>'
         +'<span class="res2" style="flex:none;font-size:13px">'+cleanRes(r.result)+'</span>'
         +'<span class="pts2" style="flex:none;font-size:12px;min-width:36px;text-align:right">'+(r.points!=null?r.points:'')+'</span>'
         +'<span style="flex:1;min-width:0;font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+r.event+'</span>'
@@ -1169,11 +1169,11 @@ function formatTlVal(disc, val){
     const m=Math.floor(val/60), s=Math.round(val%60);
     return m+':'+(s<10?'0':'')+s;
   }
-  return val+'m';
+  return (Math.round(val*10)/10)+'m';
 }
 
 /* ===== ビュー切替 ===== */
-let tlView = 'chart';
+let tlView = 'list';
 let tlRaceTimer = null;
 function setTlView(v, el){
   tlView = v;
@@ -1262,10 +1262,12 @@ function renderTlChart(){
     dot.appendChild(tip); svg.appendChild(dot);
     let lb = null;
     if(lab.has(i)){
-      const flip = i % 2 === 1;
-      let dy = down ? (flip?32:19) : (flip?-27:-14), anchor = 'middle', lx = x;
-      if(last){ anchor = 'end'; lx = x - 8; dy = down ? -12 : -14; }
-      lb = E('text',{x:lx,y:y+dy,'text-anchor':anchor,'class':'tl-lbl'});
+      // ラベルは階段ラインと重ならない空きスペースへ:
+      // 右寄りの点はドット左横、左寄りの点はドット右上
+      let anchor, lx, ly;
+      if(x > W * 0.4){ anchor='end';   lx = x - 9; ly = y + 4; }
+      else           { anchor='start'; lx = x + 9; ly = y - 9; }
+      lb = E('text',{x:lx,y:ly,'text-anchor':anchor,'class':'tl-lbl'});
       const n = E('tspan',{}); n.textContent = p.name+' ';
       const v = E('tspan',{'class':'v',fill:last?'var(--gold)':col}); v.textContent = formatTlVal(tlDisc,p.val);
       lb.appendChild(n); lb.appendChild(v); svg.appendChild(lb);
@@ -1300,6 +1302,18 @@ function buildTlRace(disc, gender){
   });
   return byAth;
 }
+function tlBestUpTo(seasons, year){
+  let best = null;
+  for(const yy in seasons){
+    if(+yy <= year && (best === null || seasons[yy] > best)) best = seasons[yy];
+  }
+  return best;
+}
+function tlTop8At(year){
+  return Object.entries(tlRaceData)
+    .map(([n,s])=>({name:n, v:tlBestUpTo(s, year)}))
+    .filter(e=>e.v!=null).sort((a,b)=>b.v-a.v).slice(0,8);
+}
 function renderTlRace(){
   stopTlRace();
   const stage = document.getElementById('tlRaceStage');
@@ -1307,14 +1321,13 @@ function renderTlRace(){
   tlRaceData = buildTlRace(tlDisc, tlGender);
   const ys = new Set();
   Object.values(tlRaceData).forEach(s=>Object.keys(s).forEach(y=>ys.add(+y)));
-  tlRaceYears = [...ys].sort((a,b)=>a-b);
-  if(!tlRaceYears.length){ stage.innerHTML = '<div class="empty">データなし</div>'; return; }
-  // どこかの年でTOP8入りした選手のみ行を生成
+  if(!ys.size){ stage.innerHTML = '<div class="empty">データなし</div>'; tlRaceYears = []; return; }
+  // データ最初の年〜最後の年まで連続レンジ(歴代ベストなので空白年も状態を持つ)
+  const yMin = Math.min(...ys), yMax = Math.max(...ys);
+  tlRaceYears = []; for(let y=yMin; y<=yMax; y++) tlRaceYears.push(y);
+  // どこかの時点で歴代TOP8入りした選手のみ行を生成
   const ever = new Set();
-  tlRaceYears.forEach(y=>{
-    Object.entries(tlRaceData).map(([n,s])=>[n,s[y]]).filter(e=>e[1]!=null)
-      .sort((a,b)=>b[1]-a[1]).slice(0,8).forEach(e=>ever.add(e[0]));
-  });
+  tlRaceYears.forEach(y=>tlTop8At(y).forEach(e=>ever.add(e.name)));
   ever.forEach(name=>{
     const row = document.createElement('div');
     row.className = 'tl-bar-row'; row.style.opacity = '0'; row.style.top = '312px';
@@ -1327,16 +1340,15 @@ function renderTlRace(){
     tlRaceRows.set(name, {row, bar, val: bar.querySelector('.tl-bar-val')});
   });
   const sl = document.getElementById('tlYearSlider');
-  sl.min = tlRaceYears[0]; sl.max = tlRaceYears[tlRaceYears.length-1];
-  stepTlRace(tlRaceYears[0]);
+  sl.min = yMin; sl.max = yMax;
+  stepTlRace(yMin);
 }
 function stepTlRace(year){
   tlRaceYearCur = year;
   document.getElementById('tlRaceYear').textContent = year;
   document.getElementById('tlYearSlider').value = year;
-  const entries = Object.entries(tlRaceData)
-    .map(([n,s])=>({name:n, v:(s[year]!=null?s[year]:null)}))
-    .filter(e=>e.v!=null).sort((a,b)=>b.v-a.v).slice(0,8);
+  // その年までの全記録から歴代ベストTOP8を算出
+  const entries = tlTop8At(year);
   const maxV = Math.max.apply(null, entries.map(e=>e.v).concat([1]));
   const shown = new Set(entries.map(e=>e.name));
   tlRaceRows.forEach((r,name)=>{
@@ -1368,12 +1380,7 @@ function stopTlRace(){
 }
 document.getElementById('tlYearSlider').oninput = function(){
   stopTlRace();
-  if(!tlRaceYears.length) return;
-  // データのある年にスナップ
-  const target = +this.value;
-  let nearest = tlRaceYears[0];
-  for(const y of tlRaceYears) if(Math.abs(y-target) < Math.abs(nearest-target)) nearest = y;
-  stepTlRace(nearest);
+  if(tlRaceYears.length) stepTlRace(+this.value);
 };
 
 /* ===== 3. リスト（従来のタイムライン表示） ===== */
