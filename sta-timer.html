@@ -409,12 +409,19 @@ header {
 .ring-countdown {
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
   pointer-events: none; opacity: 0; transition: opacity .2s;
+  background: rgba(6,15,23,.72); border-radius: 50%;
 }
 .ring-countdown.visible { opacity: 1; }
 .ring-countdown-num {
   font-size: clamp(44px, 13vw, 64px); font-variant-numeric: tabular-nums;
   font-weight: 200; color: #fff; letter-spacing: -.02em;
   text-shadow: 0 0 30px rgba(255,255,255,.3);
+}
+.ring-countdown-label {
+  position: absolute; top: 22%; left: 0; right: 0; text-align: center;
+  font-size: clamp(10px, 2.8vw, 13px); letter-spacing: .28em; text-transform: uppercase;
+  font-weight: 900; color: #eab308;
+  text-shadow: 0 0 24px rgba(234,179,8,.8), 0 1px 3px rgba(0,0,0,.6);
 }
 
 /* SPO2 MINI CHART */
@@ -662,7 +669,7 @@ header {
         <select class="cfg-sel" id="sel-tblSets" onchange="onTblSelChange('sets',this.value)"></select>
       </div>
       <div class="cfg-item">
-        <span class="cfg-lbl">ブリーズアップ <span onclick="togglePrepHelp()" style="cursor:pointer;font-size:11px;color:var(--teal);font-weight:600;letter-spacing:0;text-transform:none;background:var(--teal-dim);border-radius:50%;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center">?</span></span>
+        <span class="cfg-lbl">Breath Up <span onclick="togglePrepHelp()" style="cursor:pointer;font-size:11px;color:var(--teal);font-weight:600;letter-spacing:0;text-transform:none;background:var(--teal-dim);border-radius:50%;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center">?</span></span>
         <select class="cfg-sel" id="sel-tblPrep" onchange="cfg.prepSec=parseInt(this.value)"></select>
       </div>
     </div>
@@ -726,6 +733,7 @@ header {
     </div>
     <!-- countdown overlay -->
     <div class="ring-countdown" id="ringCountdown">
+      <span class="ring-countdown-label">Breath Up</span>
       <span class="ring-countdown-num" id="countdownNum"></span>
     </div>
     <!-- surface protocol overlay -->
@@ -802,7 +810,7 @@ header {
     <!-- 種目選択 -->
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
       <span style="font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--muted);flex-shrink:0">種目</span>
-      <select id="saveDiscipline"
+      <select id="saveDiscipline" onchange="applyDisciplineToAll(this.value)"
         style="flex:1;height:34px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:13px;font-weight:600;padding:0 10px;font-family:inherit">
         <option value="STA" selected>STA</option>
         <option value="RV STA">RV STA</option>
@@ -2016,7 +2024,7 @@ function beginCountdownOrHold() {
     phaseStart = performance.now();
     ringHold.style.strokeDashoffset = C; // clear
     setRestRing(0);
-    showPhase('countdown', `Set ${currentSet+1} — Prepare`);
+    showPhase('countdown', 'Breath Up');
     document.getElementById('ringCountdown').classList.add('visible');
     cancelAnimationFrame(rafId);
     rafId = requestAnimationFrame(tick);
@@ -2033,8 +2041,8 @@ function setDisplayCountdown(s) {
   } else {
     el.textContent = 'GO';
   }
-  document.getElementById('timeMain').textContent = fmt(0);
-  document.getElementById('timeMs').textContent = '.00';
+  document.getElementById('timeMain').style.visibility = 'hidden';
+  document.getElementById('timeMs').style.visibility = 'hidden';
 }
 
 function startHold() {
@@ -2044,6 +2052,7 @@ function startHold() {
   document.getElementById('btnEnd').style.display = 'none';
   ringHold.classList.remove('danger');
   ringHold.style.stroke = 'var(--danger)';
+  document.getElementById('timeMain').style.visibility = '';
   document.getElementById('timeMs').style.visibility = '';
   stopRestTimer();
   showPhaseRingLabel('Hold', 'hold');
@@ -2315,6 +2324,7 @@ function onReset() {
   stopMock();
   setHoldRing(0); setRestRing(0); setSpo2Ring(null);
   document.getElementById('timeMain').textContent = '00:00';
+  document.getElementById('timeMain').style.visibility = '';
   document.getElementById('timeMs').textContent   = '.00';
   document.getElementById('timeMs').style.visibility = 'hidden';
   document.getElementById('timeMain').classList.remove('danger');
@@ -2453,6 +2463,21 @@ function renderUnifiedList() {
   const n = totalSets();
   const holdOnly = holdDives.filter(d => !d.isRest);
 
+  // ── ブリーズアップ行（一番上）────────────────────────────
+  if (cfg.prepSec > 0) {
+    const prepEl = document.createElement('div');
+    prepEl.className = 'set-row pending';
+    prepEl.style.cssText = 'flex-direction:column;align-items:stretch;gap:2px;padding:4px 10px;opacity:.7';
+    prepEl.innerHTML = `
+      <div style="display:flex;align-items:center;gap:6px">
+        <span class="set-n"></span>
+        <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#eab308;min-width:22px;flex-shrink:0">Breath Up</span>
+        <span style="flex:1"></span>
+        <span style="font-size:13px;font-variant-numeric:tabular-nums;font-weight:400;color:#eab308">${fmt(cfg.prepSec*1000)}</span>
+      </div>`;
+    list.appendChild(prepEl);
+  }
+
   for (let i = 0; i < n; i++) {
     const d = holdOnly[i];
     const isCurrent = !d && i === currentSet && phase !== 'idle' && phase !== 'done';
@@ -2542,7 +2567,7 @@ function renderUnifiedList() {
       const curBg     = isHolding ? 'rgba(239,68,68,.04)' : isPrepare ? 'rgba(234,179,8,.04)' : 'rgba(46,196,182,.04)';
       el.style.cssText = `flex-direction:column;align-items:stretch;gap:3px;padding:5px 10px;border-color:${curBorder};background:${curBg}`;
 
-      const holdLbl   = isPrepare ? 'Prepare' : 'Hold';
+      const holdLbl   = isPrepare ? 'Breath Up' : 'Hold';
       const holdColor = isHolding ? 'var(--danger)' : isPrepare ? '#eab308' : 'var(--teal-light)';
       const holdBg    = isHolding ? 'background:rgba(239,68,68,.12);border-radius:6px;padding:3px 6px;margin:0 -2px'
                       : isPrepare ? 'background:rgba(234,179,8,.08);border-radius:6px;padding:3px 6px;margin:0 -2px' : '';
@@ -2994,6 +3019,10 @@ function updateLiveChart() {
 // ── SAVE MODAL ────────────────────────────────────────────
 let saveHypoxia=0, saveSpo2Snap=[];
 
+function applyDisciplineToAll(val) {
+  document.querySelectorAll('#saveDiveList .row-discipline').forEach(sel => { sel.value = val; });
+}
+
 function setSaveEnv(env) {
   sessionEnv = env;
   const dryBtn  = document.getElementById('save-env-dry');
@@ -3052,12 +3081,19 @@ function openSave() {
     const restSec = (sessionPlan[i] && i < holdOnly.length - 1) ? sessionPlan[i].restSec : null;
     const restTag = restSec != null
       ? `<span style="font-size:10px;color:var(--success);margin-left:4px">R ${fmt(restSec*1000)}</span>` : '';
+    const topDisc = (document.getElementById('saveDiscipline') && document.getElementById('saveDiscipline').value) || 'STA';
+    const discOpts = ['STA','RV STA','FRC STA'].map(v =>
+      `<option value="${v}"${v===topDisc?' selected':''}>${v}</option>`).join('');
     const row = document.createElement('div');
-    row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--surface2);border-radius:8px';
+    row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--surface2);border-radius:8px;flex-wrap:wrap';
     row.innerHTML = `
       <span style="font-size:10px;font-weight:700;color:var(--muted);min-width:22px">#${i+1}</span>
-      <span style="font-size:15px;font-variant-numeric:tabular-nums;font-weight:500;color:var(--text);flex:1">${fmt(d.ms)}</span>
-      ${fc}${spo2}${restTag}`;
+      <span style="font-size:15px;font-variant-numeric:tabular-nums;font-weight:500;color:var(--text)">${fmt(d.ms)}</span>
+      <select class="row-discipline" data-idx="${i}"
+        style="margin-left:auto;height:26px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--teal-light);font-size:10px;font-weight:700;padding:0 6px;font-family:inherit">
+        ${discOpts}
+      </select>
+      <div style="width:100%;display:flex;justify-content:flex-end;gap:4px">${fc}${spo2}${restTag}</div>`;
     listEl.appendChild(row);
   });
 
@@ -3084,6 +3120,8 @@ async function confirmSave() {
   const noteVal = document.getElementById('saveNote') ? document.getElementById('saveNote').value.trim() : '';
   const discSel = document.getElementById('saveDiscipline');
   const disc = (discSel && discSel.value) ? discSel.value : 'STA';
+  const rowDiscs = Array.from(document.querySelectorAll('#saveDiveList .row-discipline'))
+    .map(sel => sel.value || disc);
   closeSave();
   const holdOnly = holdDives.filter(d => !d.isRest);
   const best = holdOnly.length ? Math.max(...holdOnly.map(d=>d.ms)) : 0;
@@ -3103,7 +3141,7 @@ async function confirmSave() {
     note:       noteVal || null,
     diveLog:    holdOnly.map((d,i)=>({
       set:        i+1,
-      disc:       disc,
+      disc:       rowDiscs[i] || disc,
       time:       fmt(d.ms),
       holdTime:   Math.round(d.ms/1000),
       restSec:    (sessionPlan[i] && i < holdOnly.length-1) ? sessionPlan[i].restSec : null,
