@@ -619,6 +619,7 @@ header {
         <span id="bleLabel">SpO2</span>
       </button>
       <button class="lang-btn" id="langBtn" onclick="toggleLang()">EN</button>
+      <button class="lang-btn" id="timeCallBtn" onclick="openTimeCallSettings()">⏱</button>
       <a href="training-log.html" class="nav-back">← Log</a>
     </div>
   </header>
@@ -637,11 +638,6 @@ header {
       <span id="cfgToggleArrow">▲</span>
     </button>
     <div id="cfgBody">
-    <!-- O2/CO2 切り替えセグメント -->
-    <div style="display:flex;gap:4px;margin-bottom:10px">
-      <button class="stop-btn active" id="tbl-seg-o2"  onclick="setTableSub('o2')">O2</button>
-      <button class="stop-btn"        id="tbl-seg-co2" onclick="setTableSub('co2')">CO2</button>
-    </div>
 
     <!-- 統合設定グリッド -->
     <div class="cfg-grid">
@@ -652,21 +648,25 @@ header {
           <button class="stop-btn"        id="tbl-stop-hold-auto"   onclick="setCfgStop('tbl','holdAuto')">Auto</button>
         </div>
       </div>
+      <div class="cfg-item">
+        <span class="cfg-lbl">Sets</span>
+        <select class="cfg-sel" id="sel-tblSets" onchange="onTblSelChange('sets',this.value)"></select>
+      </div>
       <div class="cfg-item" id="tbl-hold-time-row" style="opacity:.35;pointer-events:none">
         <span class="cfg-lbl">Hold Time</span>
         <select class="cfg-sel" id="sel-tblHold" onchange="onTblSelChange('hold',this.value)"></select>
+      </div>
+      <div class="cfg-item" id="tbl-hold-delta-row" style="opacity:.35;pointer-events:none">
+        <span class="cfg-lbl">Hold 増減 <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)">(1セットごと)</span></span>
+        <select class="cfg-sel" id="sel-tblHoldDelta" onchange="onTblSelChange('holdDelta',this.value)"></select>
       </div>
       <div class="cfg-item">
         <span class="cfg-lbl">Rest Time</span>
         <select class="cfg-sel" id="sel-tblRest" onchange="onTblSelChange('rest',this.value)"></select>
       </div>
-      <div class="cfg-item" id="tbl-decrement-row" style="visibility:hidden">
-        <span class="cfg-lbl">Decrement</span>
+      <div class="cfg-item" id="tbl-decrement-row">
+        <span class="cfg-lbl">Rest 増減 <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)">(1セットごと)</span></span>
         <select class="cfg-sel" id="sel-tblDecrement" onchange="onTblSelChange('decrement',this.value)"></select>
-      </div>
-      <div class="cfg-item">
-        <span class="cfg-lbl">Sets</span>
-        <select class="cfg-sel" id="sel-tblSets" onchange="onTblSelChange('sets',this.value)"></select>
       </div>
       <div class="cfg-item">
         <span class="cfg-lbl">Breath Up <span onclick="togglePrepHelp()" style="cursor:pointer;font-size:11px;color:var(--teal);font-weight:600;letter-spacing:0;text-transform:none;background:var(--teal-dim);border-radius:50%;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center">?</span></span>
@@ -678,7 +678,6 @@ header {
     </div>
     <div style="margin-top:8px;display:flex;gap:6px;align-items:center">
       <button class="btn-sub" id="btnCameraToggle" onclick="onCameraToggle()" style="flex:1;height:30px;font-size:10px;color:var(--muted)">📹 録画：OFF</button>
-      <button class="btn-sub" id="btnCameraReview" onclick="openCameraReview()" style="display:none;flex:1;height:30px;font-size:10px;color:var(--teal-light);border-color:var(--teal)">クリップ確認</button>
     </div>
     <button onclick="onCfgStart()" style="margin-top:10px;width:100%;height:40px;border-radius:10px;border:none;background:var(--teal);color:#0b2d45;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;-webkit-tap-highlight-color:transparent">作成</button>
 
@@ -775,7 +774,6 @@ header {
     <div class="btn-row">
       <button class="btn-sub"      onclick="onReset()">Reset</button>
       <button class="btn-sub" id="btnCameraToggleFree" onclick="onCameraToggle()" style="display:none;color:var(--muted)">📹 録画：OFF</button>
-      <button class="btn-sub" id="btnCameraReviewFree" onclick="openCameraReview()" style="display:none;color:var(--teal-light);border-color:var(--teal)">クリップ確認</button>
       <button class="btn-sub end" id="btnEnd" onclick="onEndSession()" style="display:none">終了</button>
       <button class="btn-sub" id="btnPause" onclick="onPause()" style="display:none">⏸ 一時中断</button>
       <button class="btn-sub save" id="btnSave" disabled onclick="openSave()">ログ登録へ</button>
@@ -882,6 +880,44 @@ header {
     <div class="sheet-btns">
       <button class="sheet-btn cancel" onclick="closePlanModal()">キャンセル</button>
       <button class="sheet-btn confirm" onclick="onPlanDone()">完了</button>
+    </div>
+  </div>
+</div>
+
+<!-- TIME CALL SETTINGS -->
+<div class="overlay" id="timeCallOverlay" onclick="if(event.target===this)closeTimeCallSettings()">
+  <div class="sheet">
+    <div class="sheet-title">⏱ Time Call</div>
+    <div class="cfg-item" style="margin-bottom:10px">
+      <span class="cfg-lbl">有効化</span>
+      <div class="cfg-stop-row">
+        <button class="stop-btn" id="tc-off" onclick="setTimeCallEnabled(false)">OFF</button>
+        <button class="stop-btn" id="tc-on"  onclick="setTimeCallEnabled(true)">ON</button>
+      </div>
+    </div>
+    <div class="cfg-grid">
+      <div class="cfg-item">
+        <span class="cfg-lbl">開始</span>
+        <select class="cfg-sel" id="sel-tcStart" onchange="cfg.timeCallStartSec=parseInt(this.value)"></select>
+      </div>
+      <div class="cfg-item">
+        <span class="cfg-lbl">間隔</span>
+        <select class="cfg-sel" id="sel-tcInterval" onchange="cfg.timeCallIntervalSec=parseInt(this.value)"></select>
+      </div>
+    </div>
+    <div class="cfg-item" style="margin-top:10px">
+      <span class="cfg-lbl">カウントダウン <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)">(目標15秒前〜)</span></span>
+      <div class="cfg-stop-row">
+        <button class="stop-btn" id="tc-cd-off" onclick="setTimeCallCountdownEnabled(false)">OFF</button>
+        <button class="stop-btn" id="tc-cd-on"  onclick="setTimeCallCountdownEnabled(true)">ON</button>
+      </div>
+    </div>
+    <div style="margin-top:10px;padding:7px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-size:10px;color:var(--muted);line-height:1.6">
+      ⓘ Hold中のみ動作します。開始時間から間隔ごとに経過時間をアナウンス（例: 開始3:00・間隔30秒 → 3:00, 3分半, 4:00...）。<br>
+      Hold Stop が Auto の場合、カウントダウンをONにすると目標タイムに向けて15秒前・10秒前・5→1のアナウンスが自動で追加されます。
+    </div>
+    <div class="sheet-btns" style="margin-top:12px">
+      <button class="sheet-btn confirm" onclick="closeTimeCallSettings()">閉じる</button>
     </div>
   </div>
 </div>
@@ -1007,6 +1043,66 @@ function checkAnnouncements(remainingSec) {
   }
 }
 
+// ── TIME CALL（Hold中の経過時間アナウンス）──────────────
+let _tcFired = new Set();
+function resetTimeCall() { _tcFired = new Set(); }
+
+// Hold Stop=Autoの場合の目標Hold秒数（プラン上の現セット値を優先）
+function timeCallTargetSec() {
+  if (mode === 'free') return null;
+  if (cfg.tblHoldStop !== 'auto') return null;
+  return holdAutoSec() || holdFixedSec() || null;
+}
+
+// 経過秒数 → アナウンス文言（分＋秒、30秒は「半」表記）
+function timeCallText(sec) {
+  const m = Math.floor(sec / 60), s = sec % 60;
+  if (_announcerLang === 'ja') {
+    if (s === 0)  return `${m}分`;
+    if (s === 30) return `${m}分半`;
+    return `${m}分${s}秒`;
+  } else {
+    if (s === 0)  return `${m} minute${m===1?'':'s'}`;
+    if (s === 30) return `${m} minutes thirty`;
+    return `${m} minutes ${s} seconds`;
+  }
+}
+
+function checkTimeCallAnnouncements(elapsedSec) {
+  if (!cfg.timeCallEnabled || !_announcerEnabled) return;
+  const target = timeCallTargetSec();
+
+  if (target != null && cfg.timeCallCountdownEnabled) {
+    const remain = target - elapsedSec;
+    if (remain === 15 && !_tcFired.has('w15')) {
+      _tcFired.add('w15');
+      announce(_announcerLang === 'ja' ? '残り15秒' : '15 seconds');
+      return;
+    }
+    if (remain === 10 && !_tcFired.has('w10')) {
+      _tcFired.add('w10');
+      announce(_announcerLang === 'ja' ? '残り10秒' : '10 seconds');
+      return;
+    }
+    if (remain >= 1 && remain <= 5 && !_tcFired.has('c'+remain)) {
+      _tcFired.add('c'+remain);
+      announce(String(remain));
+      return;
+    }
+    // 目標15秒前以降は通常インターバルコールを止める
+    if (remain <= 15) return;
+  }
+
+  // 通常インターバルコール（開始時間から間隔ごと）
+  if (elapsedSec < cfg.timeCallStartSec) return;
+  const interval = cfg.timeCallIntervalSec || 30;
+  if ((elapsedSec - cfg.timeCallStartSec) % interval !== 0) return;
+  const key = 'i'+elapsedSec;
+  if (_tcFired.has(key)) return;
+  _tcFired.add(key);
+  announce(timeCallText(elapsedSec));
+}
+
 // ── Supabase 軽量fetch実装（CDN不要）──
 const _SB_URL = 'https://bbhqvbpsuccbdcnhnobm.supabase.co';
 const _SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJiaHF2YnBzdWNjYmRjbmhub2JtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyODQwMzksImV4cCI6MjA5NTg2MDAzOX0.MexR8_hY56m3XRff0EJOQM3uQShXr2L9kGyYXLSzKbs';
@@ -1128,7 +1224,7 @@ const PRESETS = [
       cfg.tblHoldStop     = 'auto';
       cfg.tblHoldMin      = 2; cfg.tblHoldSec = 0;
       cfg.tblRestMin      = 2; cfg.tblRestSec = 0;
-      cfg.tblDecrementSec = 10;
+      cfg.tblDecrementSec = -10;
       cfg.tblSets         = 8;
       cfg.prepSec         = 0;
     },
@@ -1157,12 +1253,14 @@ let userPresets = [];
 
 function saveAsPreset() {
   // 名前を入力（promptの代わりにtoastとインプット）
-  const sub = tableSub.toUpperCase();
   const holdStr = cfg.tblHoldStop === 'manual' ? 'Manual' : pmFmt(cfg.tblHoldMin*60+cfg.tblHoldSec);
   const restStr = pmFmt(cfg.tblRestMin*60+cfg.tblRestSec);
-  const dec = cfg.tblDecrementSec;
+  const delta = cfg.tblDecrementSec || 0;
+  const holdDelta = (cfg.tblHoldStop==='auto') ? (cfg.tblHoldDeltaSec || 0) : 0;
+  const deltaStr = delta!==0 ? (delta>0?' +'+delta+'s':' −'+Math.abs(delta)+'s') : '';
+  const holdDeltaStr = holdDelta!==0 ? (holdDelta>0?' +'+holdDelta+'s':' −'+Math.abs(holdDelta)+'s') : '';
   const sets = cfg.tblSets;
-  const autoName = sub + ' ' + holdStr + ' / Rest ' + restStr + (dec>0?' −'+dec+'s':'') + ' × '+sets;
+  const autoName = 'Table ' + holdStr + holdDeltaStr + ' / Rest ' + restStr + deltaStr + ' × '+sets;
 
   // 名前入力シートを表示
   showNameInput(autoName, function(name) {
@@ -1172,23 +1270,27 @@ function saveAsPreset() {
       tblRestMin: cfg.tblRestMin, tblRestSec: cfg.tblRestSec,
       tblHoldStop: cfg.tblHoldStop, tblRestStop: cfg.tblRestStop,
       tblSets: cfg.tblSets, tblDecrementSec: cfg.tblDecrementSec,
+      tblHoldDeltaSec: cfg.tblHoldDeltaSec,
       prepSec: cfg.prepSec,
+      timeCallEnabled: cfg.timeCallEnabled,
+      timeCallStartSec: cfg.timeCallStartSec,
+      timeCallIntervalSec: cfg.timeCallIntervalSec,
+      timeCallCountdownEnabled: cfg.timeCallCountdownEnabled,
     };
-    const sub_ = tableSub;
     userPresets.push({
       id: 'user-' + Date.now(),
       name: name,
-      icon: sub_ === 'co2' ? '💨' : '🫁',
-      desc: sub_.toUpperCase() + ' / Hold ' + holdStr + ' / Rest ' + restStr + (dec>0?' −'+dec+'s/set':'') + ' / '+sets+' sets',
+      icon: delta>0 ? '📈' : (delta<0 ? '💨' : '🫁'),
+      desc: 'Hold ' + holdStr + holdDeltaStr + ' / Rest ' + restStr + (deltaStr?deltaStr+'/set':'') + ' / '+sets+' sets',
       tags: [
-        { label: sub_.toUpperCase(), cls: sub_ },
+        { label: 'TABLE', cls: 'o2' },
         { label: sets+' sets', cls: 'info' },
       ],
-      apply: (function(s, m){ return function() {
+      apply: (function(s){ return function() {
         Object.assign(cfg, s);
         syncTableUI();
-      }; })(snap, sub_),
-      mode: sub_,
+      }; })(snap),
+      mode: tableSub,
       userAdded: true,
     });
     toast('✓ プリセット「' + name + '」を保存しました');
@@ -1345,9 +1447,11 @@ function buildDefaultPlan() {
   var isManualHold = cfg.tblHoldStop === 'manual';
   var baseHold = isManualHold ? 0 : (cfg.tblHoldMin*60+cfg.tblHoldSec);
   var baseRest = cfg.tblRestMin*60+cfg.tblRestSec;
-  var dec = (tableSub==='co2') ? (cfg.tblDecrementSec||0) : 0;
+  var restDelta = cfg.tblDecrementSec || 0;  // 正=増加, 負=減少 (Rest Δ/set)
+  var holdDelta = isManualHold ? 0 : (cfg.tblHoldDeltaSec || 0); // 正=増加, 負=減少 (Hold Δ/set, Auto時のみ)
   for (var i = 0; i < n; i++) {
-    sessionPlan.push({ holdSec: baseHold, restSec: Math.max(0, baseRest - dec*i) });
+    var holdSec = isManualHold ? 0 : Math.max(0, baseHold + holdDelta*i);
+    sessionPlan.push({ holdSec: holdSec, restSec: Math.max(0, baseRest + restDelta*i) });
   }
 }
 function planHoldSec() {
@@ -1512,8 +1616,7 @@ function insertPlanRow(afterIdx) {
 function onCfgStart() {
   planConfirmed = false;
   buildDefaultPlan();
-  var sub = (tableSub || 'o2').toUpperCase();
-  document.getElementById('planModalTitle').textContent = sub + ' Table — セッション作成';
+  document.getElementById('planModalTitle').textContent = 'Table — セッション作成';
   document.getElementById('planModalSummary').innerHTML = buildCfgSummaryHTML();
   renderPlanEditor();
   // プリセット保存ボタン: TABLEタブ経由の時のみ表示
@@ -1577,13 +1680,22 @@ function onPlanDone() {
 }
 
 function buildCfgSummaryHTML() {
-  var sub = tableSub.toUpperCase();
   var holdStop = cfg.tblHoldStop==='auto' ? pmFmt(cfg.tblHoldMin*60+cfg.tblHoldSec) : 'Manual';
   var restStop = cfg.tblRestStop==='auto' ? pmFmt(cfg.tblRestMin*60+cfg.tblRestSec) : 'Manual';
   var restLabel = cfg.tblRestStop==='manual' ? pmFmt(cfg.tblRestMin*60+cfg.tblRestSec) : restStop;
-  var dec = (tableSub==='co2' && cfg.tblDecrementSec>0) ? ' &nbsp;·&nbsp; <span style="color:var(--warm)">−'+cfg.tblDecrementSec+'s/set</span>' : '';
+  function deltaLabel(sec) {
+    if (!sec) return '';
+    var a = Math.abs(sec), m = Math.floor(a/60), s = a%60;
+    var t = m>0 ? (m+':'+String(s).padStart(2,'0')) : (s+'s');
+    return (sec>0?'+':'−')+t+'/set';
+  }
+  var restDeltaStr = deltaLabel(cfg.tblDecrementSec || 0);
+  var holdDeltaStr = (cfg.tblHoldStop==='auto') ? deltaLabel(cfg.tblHoldDeltaSec || 0) : '';
+  var dec = '';
+  if (holdDeltaStr) dec += ' &nbsp;·&nbsp; <span style="color:var(--teal-light)">Hold '+holdDeltaStr+'</span>';
+  if (restDeltaStr) dec += ' &nbsp;·&nbsp; <span style="color:var(--warm)">Rest '+restDeltaStr+'</span>';
   var sets = sessionPlan.length || cfg.tblSets;
-  return '<span style="color:var(--teal-light);font-weight:600">'+sub+'</span>&nbsp; Hold '+holdStop+' &nbsp;·&nbsp; Rest '+restLabel+dec+' &nbsp;·&nbsp; '+sets+' sets'+planTotalHTML();
+  return '<span style="color:var(--teal-light);font-weight:600">TABLE</span>&nbsp; Hold '+holdStop+' &nbsp;·&nbsp; Rest '+restLabel+dec+' &nbsp;·&nbsp; '+sets+' sets'+planTotalHTML();
 }
 
 function onCfgSummaryTap() {
@@ -1610,7 +1722,12 @@ const cfg = {
   tblHoldStop: 'manual',           // 'manual' | 'auto'
   tblRestStop: 'manual',           // 'manual' | 'auto'
   tblSets: 8,
-  tblDecrementSec: 0,
+  tblDecrementSec: 0,   // Rest Δ/set（正=増加, 負=減少, 30秒刻み）
+  tblHoldDeltaSec: 0,   // Hold Δ/set（Hold Stop=Auto時のみ有効, 30秒刻み）
+  timeCallEnabled: false,
+  timeCallStartSec: 180,    // Time Call 開始（経過秒）
+  timeCallIntervalSec: 30,  // Time Call 間隔（秒）
+  timeCallCountdownEnabled: true, // 目標タイム15秒前〜のカウントダウン
   // 後方互換エイリアス（presetのapply等で参照されるため残す）
   get o2Stop()  { return cfg.tblHoldStop; }, set o2Stop(v)  { cfg.tblHoldStop = v; },
   get co2Stop() { return cfg.tblRestStop; }, set co2Stop(v) { cfg.tblRestStop = v; },
@@ -1694,7 +1811,6 @@ function setMode(m) {
   const isSW = m === 'free';
   const _bl = document.getElementById('btnLap'); if(_bl) _bl.style.display = isSW ? '' : 'none';
   const _bct = document.getElementById('btnCameraToggleFree'); if(_bct) _bct.style.display = isSW ? '' : 'none';
-  const _bcr = document.getElementById('btnCameraReviewFree'); if(_bcr) _bcr.style.display = 'none';
   document.getElementById('btnNext').style.display = 'none';
   document.getElementById('btnFC').style.display = 'none';
   swLocked = false;
@@ -1708,23 +1824,8 @@ function setMode(m) {
 }
 
 // セレクトの選択肢を生成してセット
-// ── TABLE SUB MODE (o2/co2) ──────────────────────────────
-let tableSub = 'o2'; // 'o2' | 'co2'
-
-function setTableSub(sub) {
-  tableSub = sub;
-  mode = sub; // modeもo2/co2に同期（既存ロジックとの互換）
-  document.getElementById('tbl-seg-o2').classList.toggle('active',  sub==='o2');
-  document.getElementById('tbl-seg-co2').classList.toggle('active', sub==='co2');
-  // CO2のみDecrement行を表示
-  document.getElementById('tbl-decrement-row').style.visibility = sub==='co2' ? 'visible' : 'hidden';
-  // Rest Stopをco2のみManualデフォルト
-  updateTblRestStopRow();
-}
-
-function updateTblRestStopRow() {
-  // Rest Stopのラベル更新（どちらも同じUIで使える）
-}
+// ── TABLE MODE ────────────────────────────────────────────
+let tableSub = 'o2'; // 内部識別用（固定値、UI上の区別は廃止）
 
 function selSafeSet(sel, val) {
   if (!sel) return;
@@ -1734,28 +1835,27 @@ function selSafeSet(sel, val) {
   }
 }
 function syncTableUI() {
-  // セグメントボタン
-  document.getElementById('tbl-seg-o2').classList.toggle('active',  tableSub==='o2');
-  document.getElementById('tbl-seg-co2').classList.toggle('active', tableSub==='co2');
   mode = tableSub;
-  // Decrement行
-  document.getElementById('tbl-decrement-row').style.visibility = tableSub==='co2' ? 'visible' : 'hidden';
   // Hold Stop ボタン
   const hm = cfg.tblHoldStop === 'manual';
   document.getElementById('tbl-stop-hold-manual').classList.toggle('active', hm);
   document.getElementById('tbl-stop-hold-auto').classList.toggle('active', !hm);
   const htr = document.getElementById('tbl-hold-time-row');
   if (htr) { htr.style.opacity = hm ? '.35' : '1'; htr.style.pointerEvents = hm ? 'none' : 'auto'; }
+  const hdr = document.getElementById('tbl-hold-delta-row');
+  if (hdr) { hdr.style.opacity = hm ? '.35' : '1'; hdr.style.pointerEvents = hm ? 'none' : 'auto'; }
   // Rest Stop 廃止 — Rest Timeは常に有効
   // select値
   const sh = document.getElementById('sel-tblHold');
   const sr = document.getElementById('sel-tblRest');
   const sd = document.getElementById('sel-tblDecrement');
+  const shd = document.getElementById('sel-tblHoldDelta');
   const ss = document.getElementById('sel-tblSets');
   const sp = document.getElementById('sel-tblPrep');
   selSafeSet(sh, cfg.tblHoldMin*60+cfg.tblHoldSec);
   selSafeSet(sr, cfg.tblRestMin*60+cfg.tblRestSec);
   selSafeSet(sd, cfg.tblDecrementSec);
+  selSafeSet(shd, cfg.tblHoldDeltaSec);
   selSafeSet(ss, cfg.tblSets);
   selSafeSet(sp, cfg.prepSec);
 }
@@ -1777,6 +1877,7 @@ function onTblSelChange(key, val) {
   if (key === 'hold')      { cfg.tblHoldMin = Math.floor(s/60); cfg.tblHoldSec = s%60; }
   if (key === 'rest')      { cfg.tblRestMin = Math.floor(s/60); cfg.tblRestSec = s%60; }
   if (key === 'decrement') { cfg.tblDecrementSec = s; }
+  if (key === 'holdDelta') { cfg.tblHoldDeltaSec = s; }
   if (key === 'sets')      { cfg.tblSets = s; renderSetDots(); }
 }
 
@@ -1832,13 +1933,12 @@ function buildDecrementOptions(selId, defaultSec) {
   const sel = document.getElementById(selId);
   if (!sel) return;
   sel.innerHTML = '';
-  const none = document.createElement('option');
-  none.value = 0; none.textContent = 'なし';
-  if (defaultSec === 0) none.selected = true;
-  sel.appendChild(none);
-  for (let s = 5; s <= 60; s += 5) {
+  for (let s = -120; s <= 120; s += 10) {
     const opt = document.createElement('option');
-    opt.value = s; opt.textContent = `−${s}秒`;
+    const m = Math.floor(Math.abs(s)/60), sc = Math.abs(s)%60;
+    const tStr = m>0 ? `${m}:${String(sc).padStart(2,'0')}` : `${sc}秒`;
+    opt.value = s;
+    opt.textContent = s === 0 ? 'なし' : (s > 0 ? `+${tStr}` : `−${tStr}`);
     if (s === defaultSec) opt.selected = true;
     sel.appendChild(opt);
   }
@@ -1848,8 +1948,58 @@ function initSelects() {
   buildTimeOptions('sel-tblHold', cfg.tblHoldMin*60+cfg.tblHoldSec);
   buildTimeOptions('sel-tblRest', cfg.tblRestMin*60+cfg.tblRestSec);
   buildDecrementOptions('sel-tblDecrement', cfg.tblDecrementSec);
+  buildDecrementOptions('sel-tblHoldDelta', cfg.tblHoldDeltaSec);
   buildSetsOptions('sel-tblSets', cfg.tblSets);
   buildPrepOptions('sel-tblPrep', 0);
+  initTimeCallSelects();
+}
+
+// ── TIME CALL（経過時間アナウンス）設定 ──────────────────
+function buildTimeCallStartOptions(selId, defaultSec) {
+  const sel = document.getElementById(selId);
+  if (!sel) return;
+  sel.innerHTML = '';
+  for (let s = 15; s <= 480; s += 15) {
+    const m = Math.floor(s/60), sec = s%60;
+    const opt = document.createElement('option');
+    opt.value = s; opt.textContent = `${m}:${String(sec).padStart(2,'0')}`;
+    if (s === defaultSec) opt.selected = true;
+    sel.appendChild(opt);
+  }
+}
+function buildTimeCallIntervalOptions(selId, defaultSec) {
+  const sel = document.getElementById(selId);
+  if (!sel) return;
+  sel.innerHTML = '';
+  for (let s = 15; s <= 120; s += 15) {
+    const opt = document.createElement('option');
+    opt.value = s; opt.textContent = s < 60 ? `${s}秒` : `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+    if (s === defaultSec) opt.selected = true;
+    sel.appendChild(opt);
+  }
+}
+function initTimeCallSelects() {
+  buildTimeCallStartOptions('sel-tcStart', cfg.timeCallStartSec);
+  buildTimeCallIntervalOptions('sel-tcInterval', cfg.timeCallIntervalSec);
+}
+function setTimeCallEnabled(on) {
+  cfg.timeCallEnabled = on;
+  document.getElementById('tc-on').classList.toggle('active', on);
+  document.getElementById('tc-off').classList.toggle('active', !on);
+}
+function setTimeCallCountdownEnabled(on) {
+  cfg.timeCallCountdownEnabled = on;
+  document.getElementById('tc-cd-on').classList.toggle('active', on);
+  document.getElementById('tc-cd-off').classList.toggle('active', !on);
+}
+function openTimeCallSettings() {
+  initTimeCallSelects();
+  setTimeCallEnabled(cfg.timeCallEnabled);
+  setTimeCallCountdownEnabled(cfg.timeCallCountdownEnabled);
+  document.getElementById('timeCallOverlay').classList.add('open');
+}
+function closeTimeCallSettings() {
+  document.getElementById('timeCallOverlay').classList.remove('open');
 }
 function onSelChange(key, val) {
   const sec = parseInt(val);
@@ -1932,6 +2082,8 @@ function tick() {
     // セットリストのHold時間をリアルタイム更新（全モード共通）
     const lht = document.getElementById('liveHoldTime');
     if (lht) lht.textContent = fmt(phaseMs);
+    // Time Call: 経過時間アナウンス
+    checkTimeCallAnnouncements(Math.floor(phaseMs / 1000));
     // 自動停止（O2オート or CO2固定）
     const autoSec = holdAutoSec() || holdFixedSec();
     if (autoSec && phaseMs >= autoSec * 1000) {
@@ -2048,6 +2200,7 @@ function setDisplayCountdown(s) {
 function startHold() {
   phase = 'hold'; phaseStart = performance.now(); phaseMs = 0;
   spo2Buf = [];
+  resetTimeCall();
   document.getElementById('ringCountdown').classList.remove('visible');
   document.getElementById('btnEnd').style.display = 'none';
   ringHold.classList.remove('danger');
@@ -2321,6 +2474,7 @@ function onReset() {
   cancelAnimationFrame(rafId); rafId=null;
   phase = 'idle'; phaseMs = 0; currentSet = 0;
   holdDives = []; laps = []; spo2Buf = []; currentSpo2 = null;
+  resetTimeCall();
   stopMock();
   setHoldRing(0); setRestRing(0); setSpo2Ring(null);
   document.getElementById('timeMain').textContent = '00:00';
@@ -2333,7 +2487,7 @@ function onReset() {
   document.getElementById('setListWrap').style.display = 'none';
   document.getElementById('spo2Row').classList.add('hidden');
   document.getElementById('spo2ChartArea').classList.remove('visible');
-  showPhase('', (mode==='o2'||mode==='co2') ? (tableSub.toUpperCase()+' Table') : 'Stopwatch');
+  showPhase('', (mode==='o2'||mode==='co2') ? 'Table' : 'Stopwatch');
   sessionPlan = []; // モード切替時は常にリセット
   if (mode === 'o2' || mode === 'co2') {
     cfgOpen = true; toggleCfgPanel(false);
@@ -2357,7 +2511,6 @@ function onReset() {
   document.getElementById('btnPause').style.borderColor = '';
   document.getElementById('btnPause').style.color = '';
   stopAllCameraActivity();
-  const _bcrF = document.getElementById('btnCameraReviewFree'); if(_bcrF) _bcrF.style.display = 'none';
   swDive = 0; swLocked = false; currentFC = null;
   stopRestTimer();
   hidePhaseRingLabel();
@@ -3084,11 +3237,17 @@ function openSave() {
     const topDisc = (document.getElementById('saveDiscipline') && document.getElementById('saveDiscipline').value) || 'STA';
     const discOpts = ['STA','RV STA','FRC STA'].map(v =>
       `<option value="${v}"${v===topDisc?' selected':''}>${v}</option>`).join('');
+    const clipLabel = mode === 'free' ? `Dive #${i+1}` : `Set #${i+1}`;
+    const clipIdx = cameraClips.findIndex(c => c.label === clipLabel);
+    const clipBtn = clipIdx >= 0
+      ? `<button onclick="showClipInReview(${clipIdx})" style="height:26px;width:26px;border-radius:6px;border:1px solid var(--danger);background:rgba(239,68,68,.1);color:#ff8080;font-size:12px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">📹</button>`
+      : '';
     const row = document.createElement('div');
     row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--surface2);border-radius:8px;flex-wrap:wrap';
     row.innerHTML = `
       <span style="font-size:10px;font-weight:700;color:var(--muted);min-width:22px">#${i+1}</span>
       <span style="font-size:15px;font-variant-numeric:tabular-nums;font-weight:500;color:var(--text)">${fmt(d.ms)}</span>
+      ${clipBtn}
       <select class="row-discipline" data-idx="${i}"
         style="margin-left:auto;height:26px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--teal-light);font-size:10px;font-weight:700;padding:0 6px;font-family:inherit">
         ${discOpts}
@@ -3205,7 +3364,11 @@ function openDetail(d) {
 function openDetailClip() {
   if (_detailClipIndex < 0) return;
   closeDetail();
-  const clip = cameraClips[_detailClipIndex];
+  showClipInReview(_detailClipIndex);
+}
+function showClipInReview(idx) {
+  if (idx < 0 || !cameraClips[idx]) return;
+  const clip = cameraClips[idx];
   const url = URL.createObjectURL(clip.blob);
   const listEl = document.getElementById('cameraClipList');
   listEl.innerHTML = '';
@@ -3214,7 +3377,7 @@ function openDetailClip() {
   div.innerHTML = `
     <div style="font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">${clip.label}</div>
     <video src="${url}" controls autoplay playsinline style="width:100%;border-radius:6px;max-height:220px;background:#000"></video>
-    <button onclick="shareClip(${_detailClipIndex})" style="margin-top:6px;width:100%;height:32px;border-radius:7px;border:1px solid var(--teal);background:var(--teal-dim);color:var(--teal-light);font-size:11px;font-weight:700;cursor:pointer">📤 カメラロールへ保存</button>
+    <button onclick="shareClip(${idx})" style="margin-top:6px;width:100%;height:32px;border-radius:7px;border:1px solid var(--teal);background:var(--teal-dim);color:var(--teal-light);font-size:11px;font-weight:700;cursor:pointer">📤 カメラロールへ保存</button>
   `;
   listEl.appendChild(div);
   document.getElementById('cameraReviewOverlay').classList.add('open');
@@ -3268,12 +3431,6 @@ function _syncCameraButtons() {
     b.textContent = on ? '📹 録画：ON' : '📹 録画：OFF';
     b.style.color = on ? 'var(--danger)' : 'var(--muted)';
     b.style.borderColor = on ? 'var(--danger)' : '';
-  });
-}
-function _syncCameraReviewButtons(show) {
-  ['btnCameraReview','btnCameraReviewCo2','btnCameraReviewFree'].forEach(id => {
-    const b = document.getElementById(id); if (!b) return;
-    b.style.display = show ? '' : 'none';
   });
 }
 
@@ -3580,7 +3737,6 @@ function startCamRecording(label) {
       if (camChunks.length === 0) { toast('録画データなし', true); return; }
       const blob = new Blob(camChunks, { type: mimeType || 'video/webm' });
       cameraClips.push({ label: camRecordLabel, blob, ext });
-      _syncCameraReviewButtons(true);
       toast(`📹 ${camRecordLabel} 保存`);
     };
     // timeslice=1000ms でiOS安定化（ondataavailableを定期発火させてメモリ蓄積を防ぐ）
@@ -3730,6 +3886,8 @@ async function shareAllClips() {
 
 initSelects();
 initLiveChart();
+setTimeCallEnabled(cfg.timeCallEnabled);
+setTimeCallCountdownEnabled(cfg.timeCallCountdownEnabled);
 // 初期モード設定（UIを確実に初期化）
 tableSub = 'o2'; setMode('free');
 </script>
