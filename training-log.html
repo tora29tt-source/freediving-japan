@@ -2188,6 +2188,11 @@ function resetForm() {
 
 // ===== SAVE =====
 async function saveSession() {
+  // インターバルモードで「このダイブを追加」未クリックの場合、自動適用
+  if (diveMode === 'interval' && !sessionDives.some(d => d.source === 'interval')) {
+    const tableRows = [...document.querySelectorAll('#iv-sets-table tbody tr')];
+    if (tableRows.length > 0) applyIntervalToDives();
+  }
   const isPool = state.env === 'pool';
   // Derive best results from sessionDives
   const seaDives  = sessionDives.filter(d=>d.depth!=null);
