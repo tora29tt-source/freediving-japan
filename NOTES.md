@@ -1,26 +1,13 @@
 # Freediving Japan — 作業メモ
 
-*最終更新：2026-06-16*
+*最終更新：2026-06-17*
 
 -----
 
 ## 📋 残タスク（優先順）
 
-### 🔥 最優先
-1. **training-log.html の Supabase 接続有効化**
-   - `initAuth()` を実装 → 未ログインなら `auth.html` にリダイレクト
-   - `saveSession()` を `training_sessions` + `training_dives` テーブルへの INSERT に切り替え
-   - `loadSessionsFromDB()` を SELECT に切り替え
-   - URLシェア機能（`share_token` を使った公開URL表示）
-
 ### 通常優先
-2. **auth.html に Google/Apple ログイン追加**
-   - コード側：既存 auth.html にソーシャルログインボタンを追加
-   - Supabase側（Takuya作業）：Authentication → Providers → Google/Apple を有効化
-   - Google：Google Cloud Console で OAuth 設定 → Client ID/Secret を Supabase に貼る
-   - Apple：Apple Developer で Sign in with Apple 設定
-
-3. **インストラクター営業資料の骨格ファイル作成**（`docs/instructor/sales.md`）
+1. **インストラクター営業資料の骨格ファイル作成**（`docs/instructor/sales.md`）
    - 骨格は NOTES 旧版に記録済み。ファイル化するだけ
 
 4. **インストラクター使い方マニュアルの骨格ファイル作成**（`docs/instructor/manual.md`）
@@ -41,9 +28,11 @@
 
 ## 🔐 認証画面（auth.html）現状
 
-- メール/パスワード認証のみ実装済み
-- ロール選択（選手・インストラクター）あり
-- Google/Apple は未対応（↑残タスク参照）
+- メール/パスワード認証：実装済み
+- ロール選択（選手・インストラクター）：実装済み
+- Googleログイン：✅ 2026-06-16 実装済み（Supabase OAuth + Google Cloud Console 設定）
+- Appleログイン：未対応（Apple Developer 設定が必要）
+- mypage.html に Supabase 初期化追加：✅ 2026-06-16（OAuth コールバック処理のため）
 
 -----
 
