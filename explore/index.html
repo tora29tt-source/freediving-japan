@@ -121,6 +121,117 @@ body {
 .nav-item .icon { width: 20px; height: 20px; }
 .nav-label { font-size: 10px; letter-spacing: 0.05em; }
 @media (max-width: 480px) { .search-title { font-size: 19px; } .listing-thumb { width: 90px; } .listing-name { font-size: 13px; } }
+
+/* ── インストラクター モーダル ── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(4,22,31,0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal-sheet {
+  position: fixed; bottom: 0; left: 50%; z-index: 201;
+  transform: translateX(-50%) translateY(100%);
+  width: 100%; max-width: 640px;
+  background: linear-gradient(180deg, #0d3348 0%, #091f2e 100%);
+  border-top: 1px solid var(--hairline);
+  border-radius: 22px 22px 0 0;
+  transition: transform 0.32s cubic-bezier(0.32,0.72,0,1);
+  max-height: 92dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.modal-sheet.open { transform: translateX(-50%) translateY(0); }
+.modal-drag { width: 40px; height: 4px; border-radius: 2px; background: rgba(168,236,232,0.25); margin: 12px auto 0; }
+.modal-close {
+  position: absolute; top: 14px; right: 16px;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(255,255,255,0.08); border: 1px solid var(--hairline);
+  color: var(--on-dark-mid); display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+.modal-close .icon { width: 16px; height: 16px; }
+.modal-body { padding: 8px 20px 40px; }
+
+/* プロフィールヘッダー */
+.m-profile { display: flex; align-items: center; gap: 16px; padding: 16px 0 20px; border-bottom: 1px solid var(--hairline); }
+.m-avatar {
+  width: 72px; height: 72px; border-radius: 50%; flex-shrink: 0;
+  object-fit: cover; border: 2px solid var(--hairline);
+  background: var(--ocean-mid);
+}
+.m-avatar-ph {
+  width: 72px; height: 72px; border-radius: 50%; flex-shrink: 0;
+  background: var(--ocean-mid); border: 2px solid var(--hairline);
+  display: flex; align-items: center; justify-content: center; color: var(--teal);
+}
+.m-avatar-ph .icon { width: 30px; height: 30px; }
+.m-info { flex: 1; min-width: 0; }
+.m-name {
+  font-size: 18px; font-weight: 600; color: var(--on-dark);
+  display: flex; align-items: center; gap: 7px; margin-bottom: 4px;
+}
+.m-verified { display: inline-flex; align-items: center; gap: 3px; background: rgba(46,196,182,0.12); border: 1px solid rgba(46,196,182,0.3); border-radius: 100px; padding: 2px 8px; font-size: 10px; color: var(--teal); font-weight: 500; letter-spacing: 0.05em; flex-shrink: 0; }
+.m-verified svg { width: 10px; height: 10px; fill: var(--teal); stroke: none; }
+.m-location { font-size: 12px; color: var(--on-dark-mid); display: flex; align-items: center; gap: 5px; }
+.m-location .icon { width: 12px; height: 12px; color: var(--teal); }
+
+/* スタッツ */
+.m-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 18px 0; border-bottom: 1px solid var(--hairline); }
+.m-stat { text-align: center; }
+.m-stat-val { font-size: 20px; font-weight: 700; color: var(--teal-light); font-family: ui-monospace, monospace; line-height: 1; margin-bottom: 4px; }
+.m-stat-label { font-size: 10px; color: var(--on-dark-soft); letter-spacing: 0.08em; }
+
+/* セクション共通 */
+.m-section { padding: 18px 0; border-bottom: 1px solid var(--hairline); }
+.m-section:last-of-type { border-bottom: none; }
+.m-sec-title { font-size: 10px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--teal); margin-bottom: 12px; }
+
+/* チップ */
+.m-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.m-chip { display: inline-block; padding: 5px 12px; border-radius: 100px; border: 1px solid var(--hairline); font-size: 11px; color: var(--on-dark-mid); background: rgba(255,255,255,0.04); }
+.m-chip.cert { border-color: rgba(46,196,182,0.25); color: var(--teal-light); background: rgba(46,196,182,0.07); }
+
+/* エリア */
+.m-areas { display: flex; flex-wrap: wrap; gap: 7px; }
+.m-area-badge { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 100px; border: 1px solid var(--hairline); font-size: 11px; color: var(--on-dark-mid); }
+.m-area-badge .icon { width: 11px; height: 11px; color: var(--teal); }
+
+/* bio */
+.m-bio { font-size: 13px; color: var(--on-dark-mid); line-height: 1.85; }
+
+/* SNS */
+.m-sns { display: flex; gap: 10px; }
+.m-sns-btn { display: flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 100px; border: 1px solid var(--hairline); font-size: 11px; color: var(--on-dark-mid); background: transparent; text-decoration: none; transition: border-color 0.2s; }
+.m-sns-btn:hover { border-color: rgba(46,196,182,0.4); color: var(--on-dark); }
+.m-sns-btn .icon { width: 14px; height: 14px; }
+
+/* CTA */
+.m-cta {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 15px;
+  background: var(--teal); color: var(--ocean-deep);
+  font-size: 14px; font-weight: 700; letter-spacing: 0.04em;
+  border-radius: 14px; text-decoration: none;
+  margin-top: 20px; border: none; cursor: pointer;
+  transition: background 0.2s;
+}
+.m-cta:hover { background: var(--teal-light); }
+.m-cta .icon { width: 16px; height: 16px; }
+
+/* インストラクター名ボタン */
+.instructor-btn {
+  font-size: 11px; color: var(--on-dark-mid);
+  display: inline-flex; align-items: center; gap: 3px;
+  background: none; border: none; padding: 4px 0; cursor: pointer;
+  text-decoration: underline dotted rgba(168,236,232,0.3);
+  text-underline-offset: 2px;
+  transition: color 0.15s;
+}
+.instructor-btn:hover { color: var(--teal-light); }
 </style>
 </head>
 <body>
@@ -222,6 +333,18 @@ body {
   <a href="../2026_competitions.html" class="nav-item"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="nav-label">大会</span></a>
   <a href="../mypage.html" class="nav-item"><svg class="icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="nav-label">マイページ</span></a>
 </nav>
+<!-- インストラクター詳細モーダル -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
+<div class="modal-sheet" id="modalSheet">
+  <div class="modal-drag"></div>
+  <button class="modal-close" onclick="closeModal()">
+    <svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+  <div class="modal-body" id="modalBody">
+    <!-- JS で動的に描画 -->
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../js/supabase-config.js"></script>
 <script>
@@ -232,6 +355,118 @@ let activeTags = new Set();
 const intentLabels = { all: 'すべての体験・スクール', try: 'やってみたい — 体験・ツアー', learn: 'ちゃんと学びたい — スクール・資格', dive: 'もっと潜りたい — ファンダイブ・アスリート' };
 const badgeLabel = { try: '体験', learn: '資格', dive: 'ダイブ' };
 const badgeClass = { try: 'badge-try', learn: 'badge-learn', dive: 'badge-dive' };
+const instructorCache = {};
+
+/* ── モーダル ── */
+async function openInstructorModal(instructorId, e) {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('modalSheet').classList.add('open');
+  document.getElementById('modalBody').innerHTML = `<div style="padding:40px 0;text-align:center;color:var(--on-dark-soft);font-size:13px">読み込み中…</div>`;
+  document.body.style.overflow = 'hidden';
+
+  try {
+    if (!instructorCache[instructorId]) {
+      const { data, error } = await _sb.from('instructors').select('*').eq('id', instructorId).single();
+      if (error) throw error;
+      instructorCache[instructorId] = data;
+    }
+    renderModal(instructorCache[instructorId]);
+  } catch (err) {
+    document.getElementById('modalBody').innerHTML = `<div style="padding:40px 0;text-align:center;color:var(--on-dark-soft);font-size:13px">情報を取得できませんでした</div>`;
+  }
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.getElementById('modalSheet').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+function renderModal(inst) {
+  const areas = (inst.areas || []);
+  const certs = (inst.certifications || []);
+  const specs = (inst.specialties || []);
+  const listingCount = allListings.filter(l => l.instructor_id === inst.id).length;
+
+  const avatarHtml = inst.photo_url
+    ? `<img class="m-avatar" src="${inst.photo_url}" alt="${inst.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+      + `<div class="m-avatar-ph" style="display:none"><svg class="icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>`
+    : `<div class="m-avatar-ph"><svg class="icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>`;
+
+  const verifiedBadge = inst.is_verified
+    ? `<span class="m-verified"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>認定済み</span>` : '';
+
+  const locationParts = [inst.prefecture, inst.city].filter(Boolean).join(' ');
+
+  const snsHtml = [
+    inst.instagram_url ? `<a class="m-sns-btn" href="${inst.instagram_url}" target="_blank" rel="noopener"><svg class="icon" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>Instagram</a>` : '',
+    inst.youtube_url  ? `<a class="m-sns-btn" href="${inst.youtube_url}" target="_blank" rel="noopener"><svg class="icon" viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>YouTube</a>` : '',
+    inst.website_url  ? `<a class="m-sns-btn" href="${inst.website_url}" target="_blank" rel="noopener"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>ウェブサイト</a>` : '',
+  ].filter(Boolean).join('');
+
+  document.getElementById('modalBody').innerHTML = `
+    <div class="m-profile">
+      ${avatarHtml}
+      <div class="m-info">
+        <div class="m-name">${inst.name}${verifiedBadge}</div>
+        ${locationParts ? `<div class="m-location"><svg class="icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${locationParts}</div>` : ''}
+      </div>
+    </div>
+
+    <div class="m-stats">
+      <div class="m-stat">
+        <div class="m-stat-val">${inst.experience_years != null ? inst.experience_years : '—'}<span style="font-size:12px;font-weight:400;color:var(--on-dark-soft)"> 年</span></div>
+        <div class="m-stat-label">指導歴</div>
+      </div>
+      <div class="m-stat">
+        <div class="m-stat-val">${listingCount}</div>
+        <div class="m-stat-label">プラン数</div>
+      </div>
+      <div class="m-stat">
+        <div class="m-stat-val">${certs.length || '—'}</div>
+        <div class="m-stat-label">保有資格</div>
+      </div>
+    </div>
+
+    ${certs.length ? `
+    <div class="m-section">
+      <p class="m-sec-title">保有資格</p>
+      <div class="m-chips">${certs.map(c => `<span class="m-chip cert">${c}</span>`).join('')}</div>
+    </div>` : ''}
+
+    ${specs.length ? `
+    <div class="m-section">
+      <p class="m-sec-title">専門・得意分野</p>
+      <div class="m-chips">${specs.map(s => `<span class="m-chip">${s}</span>`).join('')}</div>
+    </div>` : ''}
+
+    ${areas.length ? `
+    <div class="m-section">
+      <p class="m-sec-title">活動エリア</p>
+      <div class="m-areas">${areas.map(a => `<span class="m-area-badge"><svg class="icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${a}</span>`).join('')}</div>
+    </div>` : ''}
+
+    ${inst.bio ? `
+    <div class="m-section">
+      <p class="m-sec-title">自己紹介</p>
+      <p class="m-bio">${inst.bio}</p>
+    </div>` : ''}
+
+    ${snsHtml ? `
+    <div class="m-section">
+      <p class="m-sec-title">リンク</p>
+      <div class="m-sns">${snsHtml}</div>
+    </div>` : ''}
+
+    <a class="m-cta" href="instructor.html?id=${inst.id}" onclick="closeModal()">
+      このインストラクターのプランを見る
+      <svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </a>
+  `;
+}
 
 async function loadListings() {
   try {
@@ -306,7 +541,7 @@ function renderListings() {
         </div>
         <div class="listing-footer">
           <p class="listing-price">${l.price ? '¥' + l.price.toLocaleString() : '要相談'}<span>${l.price ? (l.price_unit || '') : ''}</span></p>
-          <p class="instructor-name">${verified}${inst?.name || ''}</p>
+          <button class="instructor-btn" onclick="openInstructorModal('${l.instructor_id}', event)">${verified}${inst?.name || ''}</button>
         </div>
       </div>
     </a>`;
