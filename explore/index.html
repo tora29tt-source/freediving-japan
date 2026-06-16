@@ -3,14 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>探す — FreeDive Japan</title>
+<title>探す — Freediving Japan</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
   --ocean-deep:  #0b2d45;
   --ocean-mid:   #0e3d5c;
   --ocean-light: #1a5f82;
-  --ocean-teal:  #1a7a8a;
   --abyss:       #04161f;
   --teal:        #2ec4b6;
   --teal-light:  #a8ece8;
@@ -25,450 +24,114 @@
 html { background: var(--abyss); }
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
-  background: linear-gradient(180deg,
-    var(--ocean-mid) 0%,
-    var(--ocean-deep) 22%,
-    #06283a 55%,
-    var(--abyss) 100%);
+  background: linear-gradient(180deg, var(--ocean-mid) 0%, var(--ocean-deep) 22%, #06283a 55%, var(--abyss) 100%);
   background-attachment: fixed;
   color: var(--on-dark);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
 .icon { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; display: block; }
-
-/* ── header ── */
 .header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: rgba(6,32,46,0.55);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(6,32,46,0.55); backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--hairline);
-  padding: 0 20px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  padding: 0 20px; height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
 }
-.logo {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--on-dark);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  text-decoration: none;
-}
+.logo { font-size: 16px; font-weight: 600; color: var(--on-dark); letter-spacing: 0.18em; text-transform: uppercase; text-decoration: none; }
 .logo span { color: var(--teal); }
 .header-icons { display: flex; align-items: center; gap: 16px; }
-.icon-btn {
-  width: 38px; height: 38px;
-  border-radius: 50%;
-  background: transparent;
-  border: 1px solid var(--hairline);
-  color: var(--on-dark-mid);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  text-decoration: none;
-}
+.icon-btn { width: 38px; height: 38px; border-radius: 50%; background: transparent; border: 1px solid var(--hairline); color: var(--on-dark-mid); display: flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; }
 .icon-btn .icon { width: 18px; height: 18px; }
-
-/* ── search hero ── */
-.search-hero {
-  padding: 36px 20px 28px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-.search-hero-glow {
-  position: absolute;
-  top: -60%; left: 50%;
-  width: 120%; height: 100%;
-  transform: translateX(-50%);
-  background: radial-gradient(ellipse at center, rgba(168,236,232,0.16) 0%, transparent 65%);
-  pointer-events: none;
-}
+.search-hero { padding: 36px 20px 28px; text-align: center; position: relative; overflow: hidden; }
+.search-hero-glow { position: absolute; top: -60%; left: 50%; width: 120%; height: 100%; transform: translateX(-50%); background: radial-gradient(ellipse at center, rgba(168,236,232,0.16) 0%, transparent 65%); pointer-events: none; }
 .search-hero-inner { position: relative; z-index: 2; }
-.search-eyebrow {
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: var(--teal-light);
-  margin-bottom: 12px;
-}
-.search-title {
-  font-size: 22px;
-  font-weight: 300;
-  line-height: 1.5;
-  letter-spacing: 0.04em;
-  margin-bottom: 24px;
-}
+.search-eyebrow { font-size: 10px; font-weight: 500; letter-spacing: 0.25em; text-transform: uppercase; color: var(--teal-light); margin-bottom: 12px; }
+.search-title { font-size: 22px; font-weight: 300; line-height: 1.5; letter-spacing: 0.04em; margin-bottom: 24px; }
 .search-title em { font-style: normal; font-weight: 500; color: var(--teal-light); }
-
-/* ── search bar ── */
-.search-bar-wrap {
-  position: relative;
-  max-width: 480px;
-  margin: 0 auto;
-}
-.search-bar {
-  width: 100%;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid var(--hairline);
-  border-radius: 100px;
-  padding: 14px 52px 14px 48px;
-  font-size: 14px;
-  color: var(--on-dark);
-  outline: none;
-  backdrop-filter: blur(8px);
-  transition: border-color 0.2s, background 0.2s;
-}
+.search-bar-wrap { position: relative; max-width: 480px; margin: 0 auto; }
+.search-bar { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid var(--hairline); border-radius: 100px; padding: 14px 52px 14px 48px; font-size: 14px; color: var(--on-dark); outline: none; backdrop-filter: blur(8px); transition: border-color 0.2s, background 0.2s; }
 .search-bar::placeholder { color: var(--on-dark-soft); }
 .search-bar:focus { border-color: rgba(46,196,182,0.5); background: rgba(255,255,255,0.10); }
-.search-icon-left {
-  position: absolute;
-  left: 16px; top: 50%;
-  transform: translateY(-50%);
-  color: var(--teal);
-  pointer-events: none;
-}
+.search-icon-left { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--teal); pointer-events: none; }
 .search-icon-left .icon { width: 18px; height: 18px; }
-.search-btn {
-  position: absolute;
-  right: 6px; top: 50%;
-  transform: translateY(-50%);
-  background: var(--teal);
-  border: none;
-  border-radius: 100px;
-  width: 36px; height: 36px;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  color: var(--ocean-deep);
-  transition: background 0.2s;
-}
+.search-btn { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: var(--teal); border: none; border-radius: 100px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--ocean-deep); transition: background 0.2s; }
 .search-btn:hover { background: var(--teal-light); }
 .search-btn .icon { width: 16px; height: 16px; stroke-width: 2; }
-
-/* ── main ── */
-.main {
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 0 16px 80px;
-}
-
-/* ── intent tabs ── */
-.intent-tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 20px;
-  overflow-x: auto;
-  padding-bottom: 2px;
-  scrollbar-width: none;
-}
+.main { max-width: 640px; margin: 0 auto; padding: 0 16px 80px; }
+.intent-tabs { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
 .intent-tabs::-webkit-scrollbar { display: none; }
-.intent-tab {
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  padding: 12px 16px;
-  border-radius: 14px;
-  border: 1px solid var(--hairline);
-  background: var(--glass);
-  cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
-  min-width: 100px;
-}
-.intent-tab.active {
-  border-color: var(--teal);
-  background: rgba(46,196,182,0.10);
-}
-.intent-tab-icon {
-  width: 32px; height: 32px;
-  border-radius: 50%;
-  background: rgba(46,196,182,0.12);
-  display: flex; align-items: center; justify-content: center;
-  color: var(--teal-light);
-}
-.intent-tab.active .intent-tab-icon {
-  background: rgba(46,196,182,0.22);
-  color: var(--teal);
-}
+.intent-tab { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 12px 16px; border-radius: 14px; border: 1px solid var(--hairline); background: var(--glass); cursor: pointer; transition: border-color 0.2s, background 0.2s; min-width: 100px; }
+.intent-tab.active { border-color: var(--teal); background: rgba(46,196,182,0.10); }
+.intent-tab-icon { width: 32px; height: 32px; border-radius: 50%; background: rgba(46,196,182,0.12); display: flex; align-items: center; justify-content: center; color: var(--teal-light); }
+.intent-tab.active .intent-tab-icon { background: rgba(46,196,182,0.22); color: var(--teal); }
 .intent-tab-icon .icon { width: 16px; height: 16px; }
-.intent-tab-label {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--on-dark-mid);
-  letter-spacing: 0.03em;
-  text-align: center;
-  line-height: 1.4;
-  white-space: nowrap;
-}
+.intent-tab-label { font-size: 11px; font-weight: 500; color: var(--on-dark-mid); letter-spacing: 0.03em; text-align: center; line-height: 1.4; white-space: nowrap; }
 .intent-tab.active .intent-tab-label { color: var(--on-dark); }
-.intent-tab-count {
-  font-size: 10px;
-  color: var(--on-dark-soft);
-  font-family: ui-monospace, 'SF Mono', monospace;
-}
+.intent-tab-count { font-size: 10px; color: var(--on-dark-soft); font-family: ui-monospace, monospace; }
 .intent-tab.active .intent-tab-count { color: var(--teal-light); }
-
-/* ── filter row ── */
 .filter-section { margin-bottom: 20px; }
-.filter-label {
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--on-dark-soft);
-  margin-bottom: 10px;
-}
-.chip-row {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 2px;
-  scrollbar-width: none;
-}
+.filter-label { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--on-dark-soft); margin-bottom: 10px; }
+.chip-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
 .chip-row::-webkit-scrollbar { display: none; }
-.chip {
-  flex-shrink: 0;
-  padding: 7px 14px;
-  border-radius: 100px;
-  border: 1px solid var(--hairline);
-  background: transparent;
-  font-size: 12px;
-  color: var(--on-dark-mid);
-  cursor: pointer;
-  transition: border-color 0.2s, background 0.2s, color 0.2s;
-  white-space: nowrap;
-}
+.chip { flex-shrink: 0; padding: 7px 14px; border-radius: 100px; border: 1px solid var(--hairline); background: transparent; font-size: 12px; color: var(--on-dark-mid); cursor: pointer; transition: border-color 0.2s, background 0.2s, color 0.2s; white-space: nowrap; }
 .chip:hover { border-color: rgba(46,196,182,0.35); color: var(--on-dark); }
-.chip.active {
-  border-color: var(--teal);
-  background: rgba(46,196,182,0.12);
-  color: var(--on-dark);
-}
-
-/* ── divider ── */
-.divider {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 18px;
-}
+.chip.active { border-color: var(--teal); background: rgba(46,196,182,0.12); color: var(--on-dark); }
+.divider { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
 .divider-line { flex: 1; height: 1px; background: var(--hairline); }
-.divider-label {
-  font-size: 11px;
-  color: var(--on-dark-soft);
-  letter-spacing: 0.08em;
-}
-
-/* ── result header ── */
-.result-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
-}
-.result-count {
-  font-size: 12px;
-  color: var(--on-dark-soft);
-}
+.divider-label { font-size: 11px; color: var(--on-dark-soft); letter-spacing: 0.08em; }
+.result-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.result-count { font-size: 12px; color: var(--on-dark-soft); }
 .result-count span { color: var(--teal-light); font-weight: 600; }
-.sort-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--on-dark-mid);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 6px 12px;
-  border-radius: 100px;
-  border: 1px solid var(--hairline);
-}
+.sort-btn { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--on-dark-mid); background: none; border: 1px solid var(--hairline); cursor: pointer; padding: 6px 12px; border-radius: 100px; }
 .sort-btn .icon { width: 14px; height: 14px; }
-
-/* ── listing cards ── */
 .listings { display: flex; flex-direction: column; gap: 12px; }
-
-.listing-card {
-  border-radius: 16px;
-  border: 1px solid var(--hairline);
-  background: var(--glass);
-  overflow: hidden;
-  display: flex;
-  gap: 0;
-  cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
-  text-decoration: none;
-  color: inherit;
-}
-.listing-card:hover {
-  border-color: rgba(46,196,182,0.3);
-  background: rgba(255,255,255,0.06);
-}
-.listing-thumb {
-  width: 110px;
-  flex-shrink: 0;
-  position: relative;
-  overflow: hidden;
-}
-.listing-thumb img {
-  width: 100%; height: 100%;
-  object-fit: cover;
-  filter: saturate(0.9) brightness(0.85);
-}
-.listing-badge {
-  position: absolute;
-  top: 8px; left: 8px;
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 3px 8px;
-  border-radius: 100px;
-  backdrop-filter: blur(8px);
-}
+.listing-card { border-radius: 16px; border: 1px solid var(--hairline); background: var(--glass); overflow: hidden; display: flex; cursor: pointer; transition: border-color 0.2s, background 0.2s; text-decoration: none; color: inherit; }
+.listing-card:hover { border-color: rgba(46,196,182,0.3); background: rgba(255,255,255,0.06); }
+.listing-thumb { width: 110px; flex-shrink: 0; position: relative; overflow: hidden; }
+.listing-thumb img { width: 100%; height: 100%; object-fit: cover; filter: saturate(0.9) brightness(0.85); }
+.listing-thumb-ph { width: 100%; min-height: 110px; background: var(--ocean-mid); display: flex; align-items: center; justify-content: center; color: var(--on-dark-soft); }
+.listing-badge { position: absolute; top: 8px; left: 8px; font-size: 9px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; padding: 3px 8px; border-radius: 100px; backdrop-filter: blur(8px); }
 .badge-try { background: rgba(249,115,22,0.75); color: #fff; }
 .badge-learn { background: rgba(46,196,182,0.75); color: var(--ocean-deep); }
 .badge-dive { background: rgba(26,95,130,0.85); color: #fff; }
-.badge-athlete { background: rgba(168,236,232,0.2); border: 1px solid rgba(168,236,232,0.4); color: var(--teal-light); }
-
-.listing-body {
-  flex: 1;
-  padding: 14px 14px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
-}
-.listing-category {
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--teal);
-  font-weight: 500;
-}
-.listing-name {
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.4;
-  color: var(--on-dark);
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-.listing-meta {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-.meta-item {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  color: var(--on-dark-soft);
-}
+.listing-body { flex: 1; padding: 14px 14px 12px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.listing-category { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--teal); font-weight: 500; }
+.listing-name { font-size: 14px; font-weight: 500; line-height: 1.4; color: var(--on-dark); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.listing-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.meta-item { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--on-dark-soft); }
 .meta-item .icon { width: 12px; height: 12px; }
-.listing-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: auto;
-}
-.listing-price {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--on-dark);
-}
+.listing-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
+.listing-price { font-size: 13px; font-weight: 600; color: var(--on-dark); }
 .listing-price span { font-size: 11px; font-weight: 400; color: var(--on-dark-soft); }
-.listing-rating {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  color: var(--on-dark-mid);
-}
-.star-icon { color: #fbbf24; font-size: 12px; }
-
-/* ── empty state ── */
-.empty-state {
-  text-align: center;
-  padding: 60px 24px;
-}
-.empty-icon {
-  width: 56px; height: 56px;
-  border-radius: 50%;
-  background: rgba(46,196,182,0.08);
-  border: 1px solid var(--hairline);
-  display: flex; align-items: center; justify-content: center;
-  color: var(--teal);
-  margin: 0 auto 18px;
-}
+.instructor-name { font-size: 11px; color: var(--on-dark-mid); display: flex; align-items: center; gap: 3px; }
+.skeleton { border-radius: 16px; border: 1px solid var(--hairline); background: var(--glass); overflow: hidden; display: flex; height: 110px; }
+.skeleton-thumb { width: 110px; background: rgba(255,255,255,0.04); flex-shrink: 0; }
+.skeleton-body { flex: 1; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+.skeleton-line { height: 12px; border-radius: 6px; background: linear-gradient(90deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 100%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+@keyframes shimmer { 0%{ background-position: -200% 0 } 100%{ background-position: 200% 0 } }
+.empty-state { text-align: center; padding: 60px 24px; }
+.empty-icon { width: 56px; height: 56px; border-radius: 50%; background: rgba(46,196,182,0.08); border: 1px solid var(--hairline); display: flex; align-items: center; justify-content: center; color: var(--teal); margin: 0 auto 18px; }
 .empty-icon .icon { width: 24px; height: 24px; }
 .empty-title { font-size: 14px; font-weight: 500; margin-bottom: 8px; }
 .empty-desc { font-size: 12px; color: var(--on-dark-soft); line-height: 1.8; }
-
-/* ── bottom nav ── */
-.bottom-nav {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  z-index: 90;
-  background: rgba(6,32,46,0.85);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border-top: 1px solid var(--hairline);
-  display: flex;
-  padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
-}
-.nav-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  text-decoration: none;
-  color: var(--on-dark-soft);
-  cursor: pointer;
-  background: none;
-  border: none;
-  transition: color 0.2s;
-}
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 90; background: rgba(6,32,46,0.85); backdrop-filter: blur(18px); border-top: 1px solid var(--hairline); display: flex; padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); }
+.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: var(--on-dark-soft); cursor: pointer; background: none; border: none; transition: color 0.2s; }
 .nav-item.active { color: var(--teal); }
 .nav-item .icon { width: 20px; height: 20px; }
 .nav-label { font-size: 10px; letter-spacing: 0.05em; }
-
-/* ── responsive ── */
-@media (max-width: 480px) {
-  .search-title { font-size: 19px; }
-  .listing-thumb { width: 90px; }
-  .listing-name { font-size: 13px; }
-}
+@media (max-width: 480px) { .search-title { font-size: 19px; } .listing-thumb { width: 90px; } .listing-name { font-size: 13px; } }
 </style>
 </head>
 <body>
-
-<!-- ── header ── -->
 <header class="header">
   <a href="../index.html" class="logo">Free<span>Dive</span> Japan</a>
   <div class="header-icons">
-    <button class="icon-btn" aria-label="お気に入り">
-      <svg class="icon" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-    </button>
-    <button class="icon-btn" aria-label="マイページ">
+    <a href="../mypage.html" class="icon-btn" aria-label="マイページ">
       <svg class="icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    </button>
+    </a>
   </div>
 </header>
-
-<!-- ── search hero ── -->
 <div class="search-hero">
   <div class="search-hero-glow"></div>
   <div class="search-hero-inner">
@@ -479,296 +142,180 @@ body {
         <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       </div>
       <input class="search-bar" type="search" placeholder="エリア・スクール・インストラクターを検索" id="searchInput">
-      <button class="search-btn" onclick="doSearch()">
+      <button class="search-btn" onclick="applyFilters()">
         <svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </button>
     </div>
   </div>
 </div>
-
-<!-- ── main ── -->
 <main class="main">
-
-  <!-- intent tabs -->
   <div class="intent-tabs" id="intentTabs">
     <button class="intent-tab active" data-intent="all" onclick="setIntent(this,'all')">
-      <div class="intent-tab-icon">
-        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-      </div>
+      <div class="intent-tab-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
       <span class="intent-tab-label">すべて</span>
-      <span class="intent-tab-count">42</span>
+      <span class="intent-tab-count" id="count-all">—</span>
     </button>
     <button class="intent-tab" data-intent="try" onclick="setIntent(this,'try')">
-      <div class="intent-tab-icon">
-        <svg class="icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      </div>
+      <div class="intent-tab-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
       <span class="intent-tab-label">やってみたい</span>
-      <span class="intent-tab-count">18</span>
+      <span class="intent-tab-count" id="count-try">—</span>
     </button>
     <button class="intent-tab" data-intent="learn" onclick="setIntent(this,'learn')">
-      <div class="intent-tab-icon">
-        <svg class="icon" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-      </div>
+      <div class="intent-tab-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></div>
       <span class="intent-tab-label">ちゃんと学びたい</span>
-      <span class="intent-tab-count">16</span>
+      <span class="intent-tab-count" id="count-learn">—</span>
     </button>
     <button class="intent-tab" data-intent="dive" onclick="setIntent(this,'dive')">
-      <div class="intent-tab-icon">
-        <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-      </div>
+      <div class="intent-tab-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M12 22V2m0 0l-4 4m4-4l4 4"/></svg></div>
       <span class="intent-tab-label">もっと潜りたい</span>
-      <span class="intent-tab-count">8</span>
+      <span class="intent-tab-count" id="count-dive">—</span>
     </button>
   </div>
-
-  <!-- area filter -->
   <div class="filter-section">
     <p class="filter-label">エリア</p>
     <div class="chip-row" id="areaChips">
-      <button class="chip active" onclick="toggleChip(this,'area')">全国</button>
-      <button class="chip" onclick="toggleChip(this,'area')">沖縄</button>
-      <button class="chip" onclick="toggleChip(this,'area')">石垣島</button>
-      <button class="chip" onclick="toggleChip(this,'area')">宮古島</button>
-      <button class="chip" onclick="toggleChip(this,'area')">伊豆</button>
-      <button class="chip" onclick="toggleChip(this,'area')">東京湾</button>
-      <button class="chip" onclick="toggleChip(this,'area')">紀伊半島</button>
-      <button class="chip" onclick="toggleChip(this,'area')">瀬戸内</button>
-      <button class="chip" onclick="toggleChip(this,'area')">北海道</button>
+      <button class="chip active" data-area="" onclick="toggleArea(this)">全国</button>
+      <button class="chip" data-area="沖縄" onclick="toggleArea(this)">沖縄</button>
+      <button class="chip" data-area="石垣島" onclick="toggleArea(this)">石垣島</button>
+      <button class="chip" data-area="宮古島" onclick="toggleArea(this)">宮古島</button>
+      <button class="chip" data-area="伊豆" onclick="toggleArea(this)">伊豆</button>
+      <button class="chip" data-area="東京" onclick="toggleArea(this)">東京</button>
+      <button class="chip" data-area="紀伊半島" onclick="toggleArea(this)">紀伊半島</button>
+      <button class="chip" data-area="瀬戸内" onclick="toggleArea(this)">瀬戸内</button>
+      <button class="chip" data-area="北海道" onclick="toggleArea(this)">北海道</button>
     </div>
   </div>
-
-  <!-- condition filter -->
   <div class="filter-section">
     <p class="filter-label">条件</p>
     <div class="chip-row" id="conditionChips">
-      <button class="chip" onclick="toggleChip(this,'condition')">当日予約OK</button>
-      <button class="chip" onclick="toggleChip(this,'condition')">初心者OK</button>
-      <button class="chip" onclick="toggleChip(this,'condition')">資格取得コース</button>
-      <button class="chip" onclick="toggleChip(this,'condition')">貸切可</button>
-      <button class="chip" onclick="toggleChip(this,'condition')">英語対応</button>
-      <button class="chip" onclick="toggleChip(this,'condition')">女性インストラクター</button>
-      <button class="chip" onclick="toggleChip(this,'condition')">子ども参加OK</button>
+      <button class="chip" data-tag="当日予約OK" onclick="toggleTag(this)">当日予約OK</button>
+      <button class="chip" data-tag="初心者OK" onclick="toggleTag(this)">初心者OK</button>
+      <button class="chip" data-tag="資格取得コース" onclick="toggleTag(this)">資格取得コース</button>
+      <button class="chip" data-tag="貸切可" onclick="toggleTag(this)">貸切可</button>
+      <button class="chip" data-tag="英語対応" onclick="toggleTag(this)">英語対応</button>
+      <button class="chip" data-tag="女性インストラクター" onclick="toggleTag(this)">女性インストラクター</button>
+      <button class="chip" data-tag="子ども参加OK" onclick="toggleTag(this)">子ども参加OK</button>
     </div>
   </div>
-
   <div class="divider">
     <div class="divider-line"></div>
     <span class="divider-label" id="intentLabel">すべての体験・スクール</span>
     <div class="divider-line"></div>
   </div>
-
-  <!-- result header -->
   <div class="result-header">
-    <p class="result-count"><span id="countNum">42</span> 件</p>
+    <p class="result-count"><span id="countNum">—</span> 件</p>
     <button class="sort-btn">
       <svg class="icon" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="9" y1="18" x2="15" y2="18"/></svg>
       おすすめ順
     </button>
   </div>
-
-  <!-- listings -->
-  <div class="listings" id="listings"></div>
-
+  <div class="listings" id="listings">
+    <div class="skeleton"><div class="skeleton-thumb"></div><div class="skeleton-body"><div class="skeleton-line" style="width:40%"></div><div class="skeleton-line" style="width:80%"></div><div class="skeleton-line" style="width:60%"></div></div></div>
+    <div class="skeleton"><div class="skeleton-thumb"></div><div class="skeleton-body"><div class="skeleton-line" style="width:35%"></div><div class="skeleton-line" style="width:90%"></div><div class="skeleton-line" style="width:50%"></div></div></div>
+    <div class="skeleton"><div class="skeleton-thumb"></div><div class="skeleton-body"><div class="skeleton-line" style="width:45%"></div><div class="skeleton-line" style="width:70%"></div><div class="skeleton-line" style="width:55%"></div></div></div>
+  </div>
 </main>
-
-<!-- ── bottom nav ── -->
 <nav class="bottom-nav">
-  <a href="../index.html" class="nav-item">
-    <svg class="icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    <span class="nav-label">ホーム</span>
-  </a>
-  <button class="nav-item active">
-    <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <span class="nav-label">探す</span>
-  </button>
-  <a href="../site/index.html" class="nav-item">
-    <svg class="icon" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-    <span class="nav-label">ランキング</span>
-  </a>
-  <a href="../2026_competitions.html" class="nav-item">
-    <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-    <span class="nav-label">大会</span>
-  </a>
-  <a href="../mypage.html" class="nav-item">
-    <svg class="icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    <span class="nav-label">マイページ</span>
-  </a>
+  <a href="../index.html" class="nav-item"><svg class="icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-label">ホーム</span></a>
+  <button class="nav-item active"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="nav-label">探す</span></button>
+  <a href="../site/index.html" class="nav-item"><svg class="icon" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span class="nav-label">ランキング</span></a>
+  <a href="../2026_competitions.html" class="nav-item"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span class="nav-label">大会</span></a>
+  <a href="../mypage.html" class="nav-item"><svg class="icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="nav-label">マイページ</span></a>
 </nav>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
 <script>
-// ── mock data ──────────────────────────────────────────────
-const LISTINGS = [
-  {
-    id: 1, intent: 'try',
-    category: 'フリーダイビング体験',
-    name: '沖縄・青の洞窟フリーダイビング体験 — 素潜りで別世界へ',
-    area: '沖縄', location: '恩納村',
-    price: 8800, unit: '〜/人',
-    rating: 4.9, reviews: 124,
-    tags: ['初心者OK', '当日予約OK'],
-    image: '../images/light_rays.jpg',
-    badge: 'try', badgeLabel: '体験',
-  },
-  {
-    id: 2, intent: 'learn',
-    category: 'スクール・資格取得',
-    name: 'AIDA2 フリーダイビングコース — 東京・伊豆で資格取得',
-    area: '伊豆', location: '下田',
-    price: 52000, unit: '〜/コース',
-    rating: 4.8, reviews: 56,
-    tags: ['資格取得コース', '英語対応'],
-    image: '../images/dive_deep_rope.jpg',
-    badge: 'learn', badgeLabel: '資格',
-  },
-  {
-    id: 3, intent: 'try',
-    category: 'スキンダイビング体験',
-    name: '石垣島・幻の島シュノーケリング＆スキンダイビングツアー',
-    area: '石垣島', location: '石垣市',
-    price: 6500, unit: '〜/人',
-    rating: 4.7, reviews: 89,
-    tags: ['初心者OK', '子ども参加OK'],
-    image: '../images/surface_boat_view.jpg',
-    badge: 'try', badgeLabel: '体験',
-  },
-  {
-    id: 4, intent: 'dive',
-    category: 'ファンダイビング・ダイビング船',
-    name: '慶良間諸島 ファンダイビング船 — 透明度30m超の海',
-    area: '沖縄', location: '那覇発',
-    price: 14000, unit: '〜/人',
-    rating: 4.9, reviews: 203,
-    tags: ['貸切可', '英語対応'],
-    image: '../images/hero_cnf_dive.jpg',
-    badge: 'dive', badgeLabel: 'ダイビング',
-  },
-  {
-    id: 5, intent: 'learn',
-    category: 'スクール・資格取得',
-    name: 'Freediving Japan 認定 CMAS スキンダイビングインストラクターコース',
-    area: '東京', location: '江東区',
-    price: 88000, unit: '〜/コース',
-    rating: 5.0, reviews: 18,
-    tags: ['資格取得コース', '女性インストラクター'],
-    image: '../images/pool_dynb.jpg',
-    badge: 'learn', badgeLabel: '資格',
-  },
-  {
-    id: 6, intent: 'dive',
-    category: 'トレーニング・アスリート向け',
-    name: '宮古島・透明度抜群ディープダイブスポット — 最大水深40m',
-    area: '宮古島', location: '下地島沖',
-    price: 18000, unit: '〜/人',
-    rating: 4.8, reviews: 31,
-    tags: ['貸切可'],
-    image: '../images/gear_fins_beach.jpg',
-    badge: 'athlete', badgeLabel: 'アスリート',
-  },
-  {
-    id: 7, intent: 'try',
-    category: 'フリーダイビング体験',
-    name: '伊豆・城ヶ崎海岸 フリーダイビング体験 — 溶岩地形と透き通る海',
-    area: '伊豆', location: '伊東市',
-    price: 7200, unit: '〜/人',
-    rating: 4.6, reviews: 47,
-    tags: ['初心者OK', '当日予約OK', '貸切可'],
-    image: '../images/beginner_pair.jpg',
-    badge: 'try', badgeLabel: '体験',
-  },
-  {
-    id: 8, intent: 'learn',
-    category: 'スクール・資格取得',
-    name: 'SSI フリーダイビング レベル1 — 大阪・神戸エリア',
-    area: '大阪', location: '大阪市',
-    price: 38000, unit: '〜/コース',
-    rating: 4.7, reviews: 39,
-    tags: ['資格取得コース', '初心者OK'],
-    image: '../images/pool_portrait.jpg',
-    badge: 'learn', badgeLabel: '資格',
-  },
-];
-
-const intentLabels = {
-  all: 'すべての体験・スクール',
-  try: 'やってみたい — 体験・ツアー',
-  learn: 'ちゃんと学びたい — スクール・資格',
-  dive: 'もっと潜りたい — ファンダイブ・アスリート',
-};
-const intentCounts = { all: 42, try: 18, learn: 16, dive: 8 };
-
+let allListings = [];
 let currentIntent = 'all';
+let currentArea = '';
+let activeTags = new Set();
+const intentLabels = { all: 'すべての体験・スクール', try: 'やってみたい — 体験・ツアー', learn: 'ちゃんと学びたい — スクール・資格', dive: 'もっと潜りたい — ファンダイブ・アスリート' };
+const badgeLabel = { try: '体験', learn: '資格', dive: 'ダイブ' };
+const badgeClass = { try: 'badge-try', learn: 'badge-learn', dive: 'badge-dive' };
+
+async function loadListings() {
+  try {
+    const { data, error } = await _sb.from('listings').select('id, title, category, intent, area, location_detail, price, price_unit, tags, image_url, instructor_id, instructors ( id, name, is_verified )').eq('is_public', true).order('sort_order', { ascending: true });
+    if (error) throw error;
+    allListings = data || [];
+    updateCounts();
+    renderListings();
+  } catch (err) {
+    console.error(err);
+    document.getElementById('listings').innerHTML = '<div class="empty-state"><div class="empty-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><p class="empty-title">データを読み込めませんでした</p><p class="empty-desc">しばらく経ってから再度お試しください</p></div>';
+  }
+}
+
+function updateCounts() {
+  const counts = { all: allListings.length, try: 0, learn: 0, dive: 0 };
+  allListings.forEach(l => { if (counts[l.intent] !== undefined) counts[l.intent]++; });
+  document.getElementById('count-all').textContent   = counts.all;
+  document.getElementById('count-try').textContent   = counts.try;
+  document.getElementById('count-learn').textContent = counts.learn;
+  document.getElementById('count-dive').textContent  = counts.dive;
+}
 
 function setIntent(el, intent) {
   document.querySelectorAll('.intent-tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
   currentIntent = intent;
   document.getElementById('intentLabel').textContent = intentLabels[intent];
-  document.getElementById('countNum').textContent = intentCounts[intent];
   renderListings();
 }
-
-function toggleChip(el, group) {
-  if (group === 'area') {
-    document.querySelectorAll('#areaChips .chip').forEach(c => c.classList.remove('active'));
-    el.classList.add('active');
-  } else {
-    el.classList.toggle('active');
-  }
+function toggleArea(el) {
+  document.querySelectorAll('#areaChips .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  currentArea = el.dataset.area || '';
   renderListings();
 }
-
-function doSearch() {
+function toggleTag(el) {
+  const tag = el.dataset.tag;
+  if (activeTags.has(tag)) { activeTags.delete(tag); el.classList.remove('active'); }
+  else { activeTags.add(tag); el.classList.add('active'); }
   renderListings();
 }
-
-const badgeClass = { try: 'badge-try', learn: 'badge-learn', dive: 'badge-dive', athlete: 'badge-athlete' };
+function applyFilters() { renderListings(); }
 
 function renderListings() {
   const q = document.getElementById('searchInput').value.toLowerCase();
-  const filtered = LISTINGS.filter(l => {
+  const filtered = allListings.filter(l => {
     if (currentIntent !== 'all' && l.intent !== currentIntent) return false;
-    if (q && !l.name.toLowerCase().includes(q) && !l.area.toLowerCase().includes(q) && !l.category.toLowerCase().includes(q)) return false;
+    if (currentArea && l.area !== currentArea) return false;
+    if (activeTags.size > 0 && !([...(l.tags || [])].some(t => activeTags.has(t)))) return false;
+    if (q && !`${l.title} ${l.area} ${l.location_detail} ${l.category}`.toLowerCase().includes(q)) return false;
     return true;
   });
-
+  document.getElementById('countNum').textContent = filtered.length;
   const container = document.getElementById('listings');
   if (filtered.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
-        <p class="empty-title">該当する結果がありません</p>
-        <p class="empty-desc">条件を変えて<br>もう一度お試しください</p>
-      </div>`;
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><p class="empty-title">該当する結果がありません</p><p class="empty-desc">条件を変えてもう一度お試しください</p></div>';
     return;
   }
-
-  container.innerHTML = filtered.map(l => `
-    <a class="listing-card" href="#">
-      <div class="listing-thumb">
-        <img src="${l.image}" alt="${l.name}" loading="lazy">
-        <span class="listing-badge ${badgeClass[l.badge]}">${l.badgeLabel}</span>
-      </div>
+  container.innerHTML = filtered.map(l => {
+    const inst = l.instructors;
+    const verified = inst?.is_verified ? '<svg viewBox="0 0 24 24" style="width:10px;height:10px;fill:var(--teal);stroke:none;flex-shrink:0"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' : '';
+    const thumb = l.image_url ? `<img src="${l.image_url}" alt="${l.title}" loading="lazy">` : '<div class="listing-thumb-ph"><svg class="icon" viewBox="0 0 24 24" style="width:26px;height:26px"><path d="M3 9a2 2 0 0 1 2-2h.93a2 2 0 0 0 1.664-.89l.812-1.22A2 2 0 0 1 10.07 4h3.86a2 2 0 0 1 1.664.89l.812 1.22A2 2 0 0 0 18.07 7H19a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3"/></svg></div>';
+    return `<a class="listing-card" href="instructor.html?id=${l.instructor_id}&listing=${l.id}">
+      <div class="listing-thumb">${thumb}<span class="listing-badge ${badgeClass[l.intent]}">${badgeLabel[l.intent]}</span></div>
       <div class="listing-body">
         <span class="listing-category">${l.category}</span>
-        <p class="listing-name">${l.name}</p>
+        <p class="listing-name">${l.title}</p>
         <div class="listing-meta">
-          <span class="meta-item">
-            <svg class="icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            ${l.area}・${l.location}
-          </span>
-          ${l.tags.slice(0,2).map(t => `<span class="meta-item">${t}</span>`).join('')}
+          <span class="meta-item"><svg class="icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${l.area}${l.location_detail ? '・' + l.location_detail : ''}</span>
+          ${(l.tags || []).slice(0,2).map(t => `<span class="meta-item">${t}</span>`).join('')}
         </div>
         <div class="listing-footer">
-          <p class="listing-price">¥${l.price.toLocaleString()}<span>${l.unit}</span></p>
-          <p class="listing-rating"><span class="star-icon">★</span> ${l.rating} <span style="color:var(--on-dark-soft)">(${l.reviews})</span></p>
+          <p class="listing-price">${l.price ? '¥' + l.price.toLocaleString() : '要相談'}<span>${l.price ? (l.price_unit || '') : ''}</span></p>
+          <p class="instructor-name">${verified}${inst?.name || ''}</p>
         </div>
       </div>
-    </a>
-  `).join('');
+    </a>`;
+  }).join('');
 }
 
-// init
-renderListings();
+document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') applyFilters(); });
+document.getElementById('searchInput').addEventListener('input', () => { if (!document.getElementById('searchInput').value) applyFilters(); });
+loadListings();
 </script>
 </body>
 </html>

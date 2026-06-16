@@ -71,15 +71,27 @@ CREATE TABLE listings (
   -- タグ・条件
   tags            TEXT[],                       -- 例: ['初心者OK', '当日予約OK', '英語対応']
 
+  -- 詳細情報（Activity Japan 参考）
+  duration_minutes  SMALLINT,                  -- 所要時間（分）
+  min_participants  SMALLINT DEFAULT 1,        -- 最少催行人数
+  max_participants  SMALLINT,                  -- 最大参加人数
+  min_age           SMALLINT,                  -- 参加可能最低年齢
+  flow_steps        JSONB,                     -- 当日の流れ [{step:1, title:'集合', desc:'〇〇で集合'}]
+  meeting_location  TEXT,                      -- 集合場所
+  required_items    TEXT[],                    -- 持ち物・服装
+  cancellation_policy TEXT,                   -- キャンセルポリシー
+  notes             TEXT,                      -- 注意事項
+
   -- メディア
-  image_url       TEXT,
+  image_url         TEXT,
+  gallery_urls      TEXT[],                    -- 複数写真ギャラリー
 
   -- 管理
-  is_public       BOOLEAN DEFAULT TRUE,
-  sort_order      SMALLINT DEFAULT 0,
+  is_public         BOOLEAN DEFAULT TRUE,
+  sort_order        SMALLINT DEFAULT 0,
 
-  created_at      TIMESTAMPTZ DEFAULT NOW(),
-  updated_at      TIMESTAMPTZ DEFAULT NOW()
+  created_at        TIMESTAMPTZ DEFAULT NOW(),
+  updated_at        TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- ③ 問い合わせテーブル（マッチングの核心）
