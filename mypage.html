@@ -950,9 +950,19 @@ function createEvent() {
 // ログアウト
 async function handleLogout() {
   if (!confirm('ログアウトしますか？')) return;
-  // Supabase接続後: await _sb.auth.signOut();
+  await _sb.auth.signOut();
   window.location.href = 'auth.html';
 }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const { createClient } = window.supabase;
+const _sb = createClient(
+  'https://bbhqvbpsuccbdcnhnobm.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJiaHF2YnBzdWNjYmRjbmhub2JtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyODQwMzksImV4cCI6MjA5NTg2MDAzOX0.MexR8_hY56m3XRff0EJOQM3uQShXr2L9kGyYXLSzKbs'
+);
+// OAuth コールバック処理（URLハッシュのトークンをlocalStorageに保存）
+_sb.auth.getSession();
 </script>
 </body>
 </html>
