@@ -3000,7 +3000,8 @@ updateDistLabels();
 
     function applyData() {
       // ── 1. 環境 ──
-      var envVal = (d.env === 'pool') ? 'pool' : 'dry';
+      // sta-timerはpool/dryのみ。seaは来ないが念のため対応
+      var envVal = (d.env === 'pool') ? 'pool' : (d.env === 'sea') ? 'sea' : 'dry';
       var envBtn = document.querySelector('#env-main-btns .env-btn[onclick*="\'' + envVal + '\'"]');
       if (envBtn) setEnv(envVal, envBtn);
 
@@ -3008,10 +3009,15 @@ updateDistLabels();
       if (d.date) { var dateEl = document.getElementById('f-date'); if (dateEl) dateEl.value = d.date; }
 
       // ── 3. 種目（sta-timerの値をtraining-logの内部コードに変換）──
+      // setEnv()がdisc chipの表示/非表示を切り替えるため、setEnv後にchipを取得する
       var discMap = { 'STA': 'STA', 'RV STA': 'RVSTA', 'FRC STA': 'FRCSTA' };
       var mappedDisc = discMap[d.discipline] || 'STA';
+      // display:noneのchipも取得できるよう、表示状態に関わらず探す
       var chip = document.querySelector('#disc-chips .chip[data-disc="' + mappedDisc + '"]');
-      if (chip) setDisc(mappedDisc, chip);
+      if (chip) {
+        chip.style.display = '';  // 非表示になっていても強制表示
+        setDisc(mappedDisc, chip);
+      }
 
       // ── 4. インターバルモードへ ──
       var ivBtn = document.getElementById('mode-interval');

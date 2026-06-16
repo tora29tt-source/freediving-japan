@@ -3315,15 +3315,22 @@ async function confirmSave() {
     source:'sta-timer',
   };
 
-  // データをURLパラメータとstorageの両方で渡す（確実性のため）
-  const dataStr = JSON.stringify(sessionData);
+  // spo2Profile（時系列データ）を除いたコンパクト版を転送用に作成
+  // spo2Profileは数百KBになることがあり、URLやstorageの上限を超えて転送失敗する原因になる
+  const transferData = {
+    ...sessionData,
+    diveLog: sessionData.diveLog.map(function(dv) {
+      var { spo2Profile, ...rest } = dv;
+      return rest;
+    })
+  };
+  const dataStr = JSON.stringify(transferData);
+
+  // sessionStorageを一次転送手段、localStorageをフォールバックとして保存
   try { sessionStorage.setItem('sta_pending_session', dataStr); } catch(e) {}
   try { localStorage.setItem('sta_pending_session', dataStr); } catch(e) {}
 
-  // URLパラメータにも埋め込む（storageが使えない環境のフォールバック）
-  const encoded = encodeURIComponent(dataStr);
-  
-  // DB保存はバックグラウンドで
+  // DB保存はバックグラウンドで（training_logsには完全データを保存）
   if (_user) {
     _sb.from('training_logs').insert({
       user_id:    _user.id,
@@ -3338,7 +3345,8 @@ async function confirmSave() {
     }).catch(function(e) { console.warn('DB save error:', e); });
   }
 
-  // URLパラメータ経由で遷移
+  // URLパラメータ経由で遷移（コンパクト版を使用）
+  const encoded = encodeURIComponent(dataStr);
   window.location.href = 'training-log.html?from=sta-timer&d=' + encoded;
 }
 
