@@ -969,14 +969,88 @@ const _sb = createClient(
 )
 let _currentUser = null
 
-// 認証チェック（無効化）
+// ── 時刻ユーティリティ ──
+function secToFmt(sec) {
+  sec = parseInt(sec) || 0
+  return Math.floor(sec/60) + ':' + String(sec%60).padStart(2,'0')
+}
+
+// 認証チェック（未ログインでも画面は表示する・DBだけスキップ）
 async function initAuth() {
+  try {
+    const { data: { session } } = await _sb.auth.getSession()
+    _currentUser = session?.user || null
+    _sb.auth.onAuthStateChange((_event, s) => { _currentUser = s?.user || null })
+  } catch(e) {
+    console.warn('auth check failed:', e)
+  }
   return true
 }
 
-// Supabaseからログ読み込み（無効化）
+// Supabaseからセッション読み込み（training_sessions + training_dives）
 async function loadSessionsFromDB() {
-  return []
+  if (!_currentUser) return []
+  try {
+    const { data, error } = await _sb
+      .from('training_sessions')
+      .select(`
+        id, date, env, location, condition, rhr, note, is_public, share_token, created_at,
+        training_dives ( id, dive_number, discipline,
+          result_depth, result_time, target_depth, target_time,
+          hold_time, interval_rest, interval_sets,
+          hypoxia, squeeze, dcs, narcosis, note )
+      `)
+      .eq('user_id', _currentUser.id)
+      .order('date', { ascending: false })
+      .order('created_at', { ascending: false })
+    if (error) { console.warn('DB load error:', error); return [] }
+
+    const SEA  = ['CWT','CWTB','CNF','FIM']
+    const POOL = ['DYN','DNF','DYNB']
+
+    return data.map(s => {
+      const dives = (s.training_dives || []).sort((a,b) => a.dive_number - b.dive_number)
+      const seaDives  = dives.filter(d => SEA.includes(d.discipline))
+      const allTimes  = dives.filter(d => d.result_time).map(d => d.result_time)
+      const bestDepth = seaDives.length ? Math.max(...seaDives.map(d => d.result_depth||0)) : null
+      const bestTimeSec = allTimes.length ? Math.max(...allTimes) : null
+      return {
+        id:          s.id,
+        _fromDB:     true,
+        share_token: s.share_token,
+        date:        s.date,
+        env:         s.env,
+        location:    s.location || null,
+        condition:   s.condition,
+        rhr:         s.rhr,
+        note:        s.note,
+        is_public:   s.is_public,
+        dives:       dives.length,
+        discipline:  dives[0]?.discipline || null,
+        bestDepth:   bestDepth || null,
+        bestTime:    bestTimeSec ? secToFmt(bestTimeSec) : null,
+        diveLog: dives.map(d => ({
+          id:         d.id,
+          disc:       d.discipline,
+          depth:      SEA.includes(d.discipline)  ? d.result_depth : null,
+          dist:       POOL.includes(d.discipline) ? d.result_depth : null,
+          time:       d.result_time  ? secToFmt(d.result_time)  : null,
+          holdTime:   d.hold_time    || null,
+          target:     d.target_depth || null,
+          targetTime: d.target_time  ? secToFmt(d.target_time) : null,
+          hypoxia:    d.hypoxia  || 0,
+          squeeze:    d.squeeze  || 0,
+          dcs:        d.dcs      || 0,
+          narcosis:   d.narcosis || 0,
+          note:       d.note     || null,
+        })),
+        source: 'db',
+      }
+    })
+  } catch(e) {
+    console.warn('loadSessionsFromDB error:', e)
+    return []
+  }
 }
 
 // ===== STATE =====
@@ -2148,12 +2222,69 @@ async function saveSession() {
     source: uddfDives.length ? 'uddf' : 'manual'
   };
   sessions.unshift(s);
-  // localStorage保存（両方に保存）
+  // localStorage保存（ログイン有無に関わらず保存）
   const saveStr = JSON.stringify(sessions);
   try { localStorage.setItem('fj_v2', saveStr); } catch(e) {}
   try { sessionStorage.setItem('fj_v2', saveStr); } catch(e) {}
-  // Supabase保存は無効化中
-  showToast('✅ セッションを保存しました');
+
+  // Supabase保存（ログイン時のみ）
+  if (_currentUser) {
+    try {
+      // 1. training_sessions に保存
+      const { data: sessionRow, error: sessErr } = await _sb
+        .from('training_sessions')
+        .insert({
+          user_id:   _currentUser.id,
+          date:      s.date,
+          env:       s.env,
+          location:  s.location || null,
+          condition: s.condition || null,
+          rhr:       s.rhr || null,
+          note:      s.note || null,
+          is_public: false,
+        })
+        .select('id, share_token')
+        .single()
+      if (sessErr) throw sessErr
+
+      // 2. training_dives に保存（1ダイブ1行）
+      if (sessionDives.length > 0) {
+        const diveRows = sessionDives.map((d, i) => ({
+          session_id:    sessionRow.id,
+          user_id:       _currentUser.id,
+          dive_number:   i + 1,
+          discipline:    d.disc,
+          target_depth:  d.target || null,
+          target_time:   d.targetTime ? t2s(d.targetTime) : null,
+          result_depth:  d.depth ?? d.dist ?? null,
+          result_time:   d.time ? t2s(d.time) : null,
+          hold_time:     d.holdTime || null,
+          interval_rest: d.restSec || null,
+          hypoxia:       d.hypoxia  || 0,
+          squeeze:       d.squeeze  || null,
+          dcs:           d.dcs      || null,
+          narcosis:      d.narcosis || null,
+          uddf_profile:  d.profile  || null,
+          uddf_speed:    d.speed    || null,
+          note:          d.note     || null,
+        }))
+        const { error: diveErr } = await _sb.from('training_dives').insert(diveRows)
+        if (diveErr) console.warn('dives insert error:', diveErr)
+      }
+
+      // ローカルのセッションIDをDB UUIDで更新
+      s.id          = sessionRow.id
+      s._fromDB     = true
+      s.share_token = sessionRow.share_token
+      showToast('✅ 保存しました（DB同期済み）')
+    } catch(e) {
+      console.warn('DB save error:', e)
+      showToast('✅ 保存しました（ローカルのみ）')
+    }
+  } else {
+    showToast('✅ セッションを保存しました')
+  }
+
   resetForm();
 }
 
@@ -2958,14 +3089,33 @@ updateDistLabels();
 
 // 認証＋データ読み込み（localStorageから直接読み込み）
 ;(async () => {
+  // 1. 認証チェック
+  await initAuth()
+
+  // 2. ローカルセッションを読み込む
+  let localSessions = []
   try {
-    const raw = localStorage.getItem('fj_v2') || sessionStorage.getItem('fj_v2') || '[]';
-    sessions = JSON.parse(raw);
-  } catch(e) {
-    sessions = [];
+    const raw = localStorage.getItem('fj_v2') || sessionStorage.getItem('fj_v2') || '[]'
+    localSessions = JSON.parse(raw)
+  } catch(e) { localSessions = [] }
+
+  // 3. ログイン済みならDBからも読み込み、マージ
+  if (_currentUser) {
+    const dbSessions = await loadSessionsFromDB()
+    if (dbSessions.length > 0) {
+      // DBのIDセットを作成して、ローカルにしかないセッション（未同期）を残す
+      const dbIds = new Set(dbSessions.map(s => s.id))
+      const localOnly = localSessions.filter(s => !dbIds.has(s.id) && !s._fromDB)
+      sessions = [...dbSessions, ...localOnly].sort((a,b) => b.date.localeCompare(a.date))
+    } else {
+      sessions = localSessions
+    }
+  } else {
+    sessions = localSessions
   }
-  renderList();
-  renderDash();
+
+  renderList()
+  renderDash()
 })();
 
 // sta-timerからのデータ受け取り

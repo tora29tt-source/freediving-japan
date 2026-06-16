@@ -1,0 +1,148 @@
+# Freediving Japan — 作業メモ
+
+*最終更新：2026-06-16*
+
+-----
+
+## 📋 残タスク（優先順）
+
+### 🔥 最優先
+1. **training-log.html の Supabase 接続有効化**
+   - `initAuth()` を実装 → 未ログインなら `auth.html` にリダイレクト
+   - `saveSession()` を `training_sessions` + `training_dives` テーブルへの INSERT に切り替え
+   - `loadSessionsFromDB()` を SELECT に切り替え
+   - URLシェア機能（`share_token` を使った公開URL表示）
+
+### 通常優先
+2. **auth.html に Google/Apple ログイン追加**
+   - コード側：既存 auth.html にソーシャルログインボタンを追加
+   - Supabase側（Takuya作業）：Authentication → Providers → Google/Apple を有効化
+   - Google：Google Cloud Console で OAuth 設定 → Client ID/Secret を Supabase に貼る
+   - Apple：Apple Developer で Sign in with Apple 設定
+
+3. **インストラクター営業資料の骨格ファイル作成**（`docs/instructor/sales.md`）
+   - 骨格は NOTES 旧版に記録済み。ファイル化するだけ
+
+4. **インストラクター使い方マニュアルの骨格ファイル作成**（`docs/instructor/manual.md`）
+   - 「こう使うと効果的」という運用ノウハウ集。会話の中で随時追加
+
+5. **event-athlete.html を Supabase に接続**
+   - `events` / `event_entries` テーブルへの接続
+   - AP登録・スタートリスト・結果表示
+
+6. **competition-countdown.html の再構築**
+   - チャット消失のため内容不明、一から再構築
+   - `js/aida-rules.js` を使ってアナウンスを統一
+
+7. **js/aida-rules.js をリポジトリに追加**
+   - sta-timer.html に現在インライン実装されているアナウンスロジックを切り出す
+
+-----
+
+## 🔐 認証画面（auth.html）現状
+
+- メール/パスワード認証のみ実装済み
+- ロール選択（選手・インストラクター）あり
+- Google/Apple は未対応（↑残タスク参照）
+
+-----
+
+## 🏆 大会機能（competition feature）設計
+
+### 全体フロー
+
+1. **AP収集**：選手がURLだけでアクセスできる大会選手画面からAPを登録（Googleフォーム不要）
+2. **スタートリスト生成**：スタッフがAP一覧からスタートリストを生成・確認
+3. **スタートリスト公開**：スタッフが「公開」ボタンを押すと選手画面に表示される（`is_published`フラグで管理）
+4. **カウントダウン実行**：competition-countdown.htmlでスタートリストを読み込み当日運用
+5. **結果入力**：ジャッジが結果を入力（深度・タイム・White/Red card・ペナルティ）
+6. **結果公開・Protest**：選手が結果確認・15分以内にProtest申請可能
+
+### 大会選手画面（event-athlete.html）
+
+- URL：`/events/{id}/athlete/`
+- アカウント不要・URLだけでアクセス可能
+- 日英切り替え対応（i18n）
+- 3タブ構成：
+  - **AP Entry**：名前・国籍・性別・種目・深度・ダイブタイム・備考
+  - **Start List**：スタッフが公開するまで非表示
+  - **Results**：大会後に結果・Protestボタン表示
+
+### 大会データ取得
+
+- AIDA公認大会のみ対象
+- AIDAサイトから日付・場所・カテゴリーをスクレイピングして自動入力（fetch_all.pyと同じ仕組み）
+- マイページの「大会を作成」ボタンからAIDAデータを引っ張って大会ページ生成
+
+### Supabaseテーブル（✅ 2026-06-16 作成済み）
+
+- `events` / `event_entries` / `event_results`
+
+-----
+
+## 🎓 フリーダイビングを学ぶ（`/learn/`）
+
+### 方針
+
+- Freediving Japan内のコーナーとして展開
+- ナビ表示：「学ぶ」／ページ内ブランド名：「フリーダイビングを学ぶ」
+- URL：`/learn/`
+
+### 技術スタック
+
+- 決済：Stripe
+- 会員管理・認証：Supabase
+- 動画配信：Vimeo Pro
+
+### スケジュール
+
+- 撮影開始：来月末〜
+- `/learn/` 枠組みページ：撮影開始前に完成させる（Week 2終了後に差し込む）
+
+### Phase 1 教材（優先2本）
+
+|講座名|講師|ターゲット|価格|
+|---|---|---|---|
+|耳抜き入門・基礎完全講座|こうようさん（依頼済み）|初心者〜20m|¥5,000|
+|息止め入門講座|寺嶋（Takuya）|完全初心者・魚突き・スキンダイビング層|¥5,000|
+|息止め中級講座|寺嶋（Takuya）|2〜3分できる・ファンダイバー|¥8,000（仮）|
+|STA競技者向け講座|寺嶋（Takuya）|既存フリーダイバー・競技者|¥12,000|
+
+講座構成ファイル：`docs/lab/` 配下に保存済み。
+
+-----
+
+## 👨‍🏫 インストラクター向けドキュメント（2種類・未作成）
+
+### ① 営業資料（`docs/instructor/sales.md`）
+
+骨格：
+
+1. **現状の課題**：技術はある、集客が苦手。SNSだけでは限界。ホームページ作っても誰にも見つからない
+2. **Freediving Japanが解決すること**：業界全体をマーケティングして初心者を集める。インストラクターは技術に集中できる
+3. **ターゲット2層**：集客できていない層（登録するだけで検索に出る）／すでに集客できている層（新チャンネル追加・CRMで業務効率化）
+4. **具体的に使える機能**：CRM・生徒管理・予約管理・プロフィールページ・マッチング
+5. **収益モデル**：基本無料・フル機能はサブスク
+
+### ② 使い方マニュアル（`docs/instructor/manual.md`）
+
+- 「こう使うと効果的」という運用ノウハウ集
+- 会話の中で出てきた知見を随時追加していく
+
+-----
+
+## 📅 STAタイマー関連・残作業メモ
+
+- `js/aida-rules.js` をリポジトリに追加（sta-timer.htmlには現在インライン実装）
+- competition-countdown.htmlのアナウンスをaida-rules.jsに統一
+- BLE実機テスト（機種決定後にServiceUUIDを調整）
+- sta-timer → training-log データ引き継ぎ：✅ 2026-06-16 修正済み（spo2Profile除外で解決）
+
+-----
+
+## 📁 ドキュメント構成方針
+
+- **PROJECT.md** → フェーズ仕様・スコープなど変わらない大枠（重くしない）
+- **NOTES.md**（このファイル）→ 残タスク・設計メモ
+- **docs/lab/** → フリーダイビングを学ぶ 講座の構成ファイル群
+- **docs/instructor/** → インストラクター向けドキュメント（未作成）
