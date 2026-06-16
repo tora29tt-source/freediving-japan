@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>マイページ | Freediving Japan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
 <style>
 :root {
   --ocean-deep:  #0b2d45;
@@ -432,15 +434,14 @@ body {
 
   <div class="hero-inner">
     <div class="avatar-wrap">
-      <div class="avatar">TT</div>
+      <div class="avatar" id="heroAvatar">…</div>
       <div class="avatar-badge">🤿</div>
     </div>
     <div class="hero-info">
-      <div class="hero-name">Takuya Terajima</div>
-      <div class="hero-email">tora29tt@gmail.com</div>
+      <div class="hero-name" id="heroName">読み込み中...</div>
+      <div class="hero-email" id="heroEmail"></div>
       <div class="hero-badges">
-        <span class="badge badge-teal">AIDA 3★</span>
-        <span class="badge badge-gold">日本記録保持者</span>
+        <span class="badge badge-teal" id="heroRole"></span>
       </div>
     </div>
   </div>
@@ -954,15 +955,39 @@ async function handleLogout() {
   window.location.href = 'auth.html';
 }
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Supabase: CDN + 初期化は <head> の supabase-config.js に集約済み -->
 <script>
-const { createClient } = window.supabase;
-const _sb = createClient(
-  'https://bbhqvbpsuccbdcnhnobm.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJiaHF2YnBzdWNjYmRjbmhub2JtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyODQwMzksImV4cCI6MjA5NTg2MDAzOX0.MexR8_hY56m3XRff0EJOQM3uQShXr2L9kGyYXLSzKbs'
-);
-// OAuth コールバック処理（URLハッシュのトークンをlocalStorageに保存）
-_sb.auth.getSession();
+// ── 認証ガード＋ユーザーデータ表示 ──
+(async () => {
+  // OAuth コールバック（URLハッシュのトークンをセッションに保存）
+  const { data: { session } } = await _sb.auth.getSession();
+
+  if (!session) {
+    // 未ログイン → ログイン画面へ
+    window.location.replace('auth.html');
+    return;
+  }
+
+  const user = session.user;
+  const meta = user.user_metadata || {};
+
+  // 名前：メタデータ優先、なければメールのローカル部
+  const name = meta.name || meta.full_name || user.email.split('@')[0];
+  // アバター：名前の最初の2文字（または1文字）
+  const initials = name.replace(/\s+/g, '').slice(0, 2).toUpperCase();
+  // ロール
+  const role = meta.role === 'instructor' ? 'インストラクター' : '選手・愛好家';
+
+  document.getElementById('heroAvatar').textContent = initials;
+  document.getElementById('heroName').textContent    = name;
+  document.getElementById('heroEmail').textContent   = user.email;
+  document.getElementById('heroRole').textContent    = role;
+
+  // 認証状態の変化を監視（ログアウト検知）
+  _sb.auth.onAuthStateChange((_event, s) => {
+    if (!s) window.location.replace('auth.html');
+  });
+})();
 </script>
 </body>
 </html>
