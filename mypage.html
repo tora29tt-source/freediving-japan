@@ -1149,12 +1149,23 @@ async function saveProfile() {
   }
   document.getElementById('heroName').textContent = name;
 
+  _isDirty = false;
   showMypageToast('プロフィールを保存しました', 'success');
   closeProfileModal();
 }
 
 document.getElementById('profile-modal').addEventListener('click', function(e) {
   if (e.target === this) closeProfileModal();
+});
+
+// ── 未保存警告 ────────────────────────────────────────
+let _isDirty = false;
+document.addEventListener('input',  () => { _isDirty = true; });
+document.addEventListener('change', () => { _isDirty = true; });
+window.addEventListener('beforeunload', e => {
+  if (!_isDirty) return;
+  e.preventDefault();
+  e.returnValue = '';
 });
 
 function showMypageToast(msg, type = 'success') {

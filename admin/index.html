@@ -1590,6 +1590,7 @@ async function saveArticle() {
   }
 
   if (error) { showToast('保存に失敗しました: ' + error.message, 'error'); return; }
+  _isDirty = false;
   showToast(editingArticleId ? '記事を更新しました' : '記事を追加しました', 'success');
   closeArticleModal();
   loadArticles();
@@ -1716,6 +1717,16 @@ document.getElementById('article-modal').addEventListener('click', function(e) {
 // Init
 // ============================================================
 boot();
+
+// ── 未保存警告 ────────────────────────────────────────
+let _isDirty = false;
+document.addEventListener('input',  () => { _isDirty = true; });
+document.addEventListener('change', () => { _isDirty = true; });
+window.addEventListener('beforeunload', e => {
+  if (!_isDirty) return;
+  e.preventDefault();
+  e.returnValue = '';
+});
 </script>
 </body>
 </html>

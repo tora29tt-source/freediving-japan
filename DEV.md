@@ -250,4 +250,41 @@ TOP (index.html)
 
 -----
 
-*最終更新：2026-06-17（管理画面実装完了）*
+## フロントエンド共通パターン
+
+### 未保存警告（beforeunload）
+
+編集フォームを持つページには以下の仕組みを統一実装する。
+
+```javascript
+// スクリプト末尾に追加
+let _isDirty = false;
+document.addEventListener('input',  () => { _isDirty = true; });
+document.addEventListener('change', () => { _isDirty = true; });
+window.addEventListener('beforeunload', e => {
+  if (!_isDirty) return;
+  e.preventDefault();
+  e.returnValue = '';
+});
+```
+
+保存成功後は必ず `_isDirty = false;` をセットする。
+
+**対象ページ**：`pro/index.html`・`mypage.html`・`admin/index.html`
+
+-----
+
+### Supabase Storage（avatarsバケット）
+
+ユーザー写真を管理するパブリックバケット。
+
+| 用途 | パス | 保存先 |
+|---|---|---|
+| マイページ写真 | `{user_id}/mypage.{ext}` | `user_metadata.avatar_url` |
+| プロ写真 | `{user_id}/instructor.{ext}` | `instructors.photo_url` |
+
+RLSポリシー（`storage.objects`）：INSERT/UPDATE/DELETE は `auth.uid()::text = split_part(name, '/', 1)` で本人のみ。SELECT は public。
+
+-----
+
+*最終更新：2026-06-17（未保存警告・Storage実装完了）*

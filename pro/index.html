@@ -853,6 +853,7 @@ async function saveProfile() {
 
   myInstructor = { ...myInstructor, ...payload };
   _newInstructorPhotoUrl = null;
+  _isDirty = false;
   showToast('プロフィールを保存しました', 'success');
   renderProfileForm();
 }
@@ -1058,6 +1059,7 @@ async function saveShopProfile() {
   const { error } = await _sb.from('shops').update(payload).eq('id', myShop.id);
   if (error) { showToast('保存に失敗しました: ' + error.message, 'error'); return; }
   myShop = { ...myShop, ...payload };
+  _isDirty = false;
   showToast('プロフィールを保存しました', 'success');
   renderShopProfileForm();
 }
@@ -1252,6 +1254,7 @@ async function saveListing() {
     ({ error } = await _sb.from('listings').insert(payload));
   }
   if (error) { showToast('保存に失敗しました: ' + error.message, 'error'); return; }
+  _isDirty = false;
   showToast(editListingId ? 'コースを更新しました' : 'コースを追加しました', 'success');
   closeListingModal();
   loadListings();
@@ -1416,6 +1419,7 @@ async function saveSlot() {
     ({ error } = await _sb.from('availability_slots').insert(payload));
   }
   if (error) { showToast('保存に失敗しました: ' + error.message, 'error'); return; }
+  _isDirty = false;
   showToast(editSlotId ? '空き枠を更新しました' : '空き枠を追加しました', 'success');
   closeSlotModal();
   loadSlots();
@@ -1682,6 +1686,16 @@ function showToast(msg, type = 'success') {
 });
 
 boot();
+
+// ── 未保存警告 ────────────────────────────────────────
+let _isDirty = false;
+document.addEventListener('input',  () => { _isDirty = true; });
+document.addEventListener('change', () => { _isDirty = true; });
+window.addEventListener('beforeunload', e => {
+  if (!_isDirty) return;
+  e.preventDefault();
+  e.returnValue = '';
+});
 </script>
 </body>
 </html>
