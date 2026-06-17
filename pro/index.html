@@ -410,6 +410,12 @@ td.primary { color: var(--on-dark); font-weight: 500; }
         <input type="number" id="l-min-pax" placeholder="例：1" min="1">
       </div>
       <div class="form-group">
+        <label>最大参加人数</label>
+        <input type="number" id="l-max-pax" placeholder="例：6" min="1">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
         <label>参加年齢</label>
         <div style="display:flex;gap:8px;align-items:center;">
           <input type="number" id="l-age-min" placeholder="例：6" min="0" style="flex:1;">
@@ -418,6 +424,7 @@ td.primary { color: var(--on-dark); font-weight: 500; }
           <span style="color:var(--on-dark-soft);font-size:13px;">歳</span>
         </div>
       </div>
+      <div class="form-group"></div>
     </div>
     <div class="form-row">
       <div class="form-group">
@@ -479,8 +486,27 @@ td.primary { color: var(--on-dark); font-weight: 500; }
     </div>
 
     <div class="form-group">
-      <label>画像URL</label>
+      <label>メイン画像URL</label>
       <input type="url" id="l-image" placeholder="https://...">
+    </div>
+    <div class="form-group">
+      <label>ギャラリー画像 <span style="color:var(--on-dark-soft);font-weight:400;">（複数可）</span></label>
+      <div id="l-gallery-rows" style="display:flex;flex-direction:column;gap:8px;"></div>
+      <button type="button" class="btn-secondary" style="margin-top:8px;font-size:13px;padding:6px 14px;" onclick="addGalleryRow()">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+        画像URLを追加
+      </button>
+      <p class="form-hint">サブ画像のURLをまとめて登録できます</p>
+    </div>
+
+    <p class="form-section-title" style="margin-top:20px;">当日の流れ</p>
+    <div class="form-group">
+      <p class="form-hint" style="margin-bottom:10px;">ステップごとにタイトルと説明を入力してください</p>
+      <div id="l-flow-rows" style="display:flex;flex-direction:column;gap:12px;"></div>
+      <button type="button" class="btn-secondary" style="margin-top:8px;font-size:13px;padding:6px 14px;" onclick="addFlowStep()">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+        ステップを追加
+      </button>
     </div>
 
     <div class="form-group">
@@ -1124,6 +1150,7 @@ function openListingModal(listingId = null) {
   document.getElementById('l-price').value       = '';
   document.getElementById('l-price-unit').value  = '〜/人';
   document.getElementById('l-min-pax').value     = '';
+  document.getElementById('l-max-pax').value     = '';
   document.getElementById('l-age-min').value     = '';
   document.getElementById('l-age-max').value     = '';
   document.getElementById('l-shuttle').checked   = false;
@@ -1131,7 +1158,9 @@ function openListingModal(listingId = null) {
   document.getElementById('l-category').value    = 'フリーダイビング体験';
   document.getElementById('l-intent').value      = 'try';
   document.querySelectorAll('#l-facilities input[type="checkbox"]').forEach(cb => cb.checked = false);
-  document.getElementById('l-rental-rows').innerHTML = '';
+  document.getElementById('l-rental-rows').innerHTML  = '';
+  document.getElementById('l-gallery-rows').innerHTML = '';
+  document.getElementById('l-flow-rows').innerHTML    = '';
 
   // ショップモード: インストラクター選択を表示
   const instrWrap = document.getElementById('l-instructor-wrap');
@@ -1164,9 +1193,10 @@ function openListingModal(listingId = null) {
       document.getElementById('l-duration').value    = l.duration        || '';
       document.getElementById('l-season').value      = l.season          || '';
       document.getElementById('l-min-pax').value     = l.min_participants || '';
+      document.getElementById('l-max-pax').value     = l.max_participants || '';
       document.getElementById('l-age-min').value     = l.age_min         || '';
       document.getElementById('l-age-max').value     = l.age_max         || '';
-      document.getElementById('l-meeting').value     = l.meeting_point   || '';
+      document.getElementById('l-meeting').value     = l.meeting_point   || l.meeting_location || '';
       document.getElementById('l-deadline').value    = l.booking_deadline|| '';
       document.getElementById('l-shuttle').checked   = l.has_shuttle     || false;
       document.getElementById('l-cancel').value      = l.cancellation_policy || '';
@@ -1180,6 +1210,12 @@ function openListingModal(listingId = null) {
       // レンタル機材行を復元
       document.getElementById('l-rental-rows').innerHTML = '';
       (l.rental_gear || []).forEach(item => addRentalRow(item.name, item.price));
+      // ギャラリー画像を復元
+      document.getElementById('l-gallery-rows').innerHTML = '';
+      (l.gallery_urls || []).forEach(url => addGalleryRow(url));
+      // 当日の流れを復元
+      document.getElementById('l-flow-rows').innerHTML = '';
+      (l.flow_steps || []).forEach(step => addFlowStep(step.title, step.desc));
       // ショップモード: 担当インストラクターを復元
       if (myRole === 'shop') setTimeout(() => { document.getElementById('l-instructor').value = l.instructor_id || ''; }, 50);
     });
@@ -1219,6 +1255,7 @@ async function saveListing() {
     duration:            document.getElementById('l-duration').value.trim()       || null,
     season:              document.getElementById('l-season').value.trim()         || null,
     min_participants:    parseInt(document.getElementById('l-min-pax').value)     || null,
+    max_participants:    parseInt(document.getElementById('l-max-pax').value)     || null,
     age_min:             parseInt(document.getElementById('l-age-min').value)     || null,
     age_max:             parseInt(document.getElementById('l-age-max').value)     || null,
     meeting_point:       document.getElementById('l-meeting').value.trim()        || null,
@@ -1231,6 +1268,8 @@ async function saveListing() {
     facilities:          collectChecked('l-facilities'),
     rental_gear:         collectRentalGear(),
     image_url:           document.getElementById('l-image').value.trim()          || null,
+    gallery_urls:        collectGalleryUrls(),
+    flow_steps:          collectFlowSteps(),
     is_public:           document.getElementById('l-public').checked,
     updated_at:          new Date().toISOString(),
   };
@@ -1646,6 +1685,55 @@ function collectRentalGear() {
     name:  row.querySelector('.rental-name').value.trim(),
     price: parseInt(row.querySelector('.rental-price').value) || 0,
   })).filter(item => item.name);
+}
+
+function addGalleryRow(url = '') {
+  const container = document.getElementById('l-gallery-rows');
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex;gap:8px;align-items:center;';
+  row.innerHTML = `
+    <input type="url" class="gallery-url" placeholder="https://..." value="${escHtml(url)}"
+      style="flex:1;padding:8px 10px;background:var(--ocean-deep);border:1px solid var(--hairline);border-radius:6px;color:var(--on-dark);font-size:14px;">
+    <button type="button" onclick="this.closest('div').remove()" style="background:none;border:none;color:var(--on-dark-soft);cursor:pointer;font-size:18px;line-height:1;padding:4px;">×</button>
+  `;
+  container.appendChild(row);
+}
+
+function collectGalleryUrls() {
+  return Array.from(document.querySelectorAll('#l-gallery-rows .gallery-url'))
+    .map(el => el.value.trim()).filter(Boolean);
+}
+
+function addFlowStep(title = '', desc = '') {
+  const container = document.getElementById('l-flow-rows');
+  const idx = container.children.length + 1;
+  const row = document.createElement('div');
+  row.style.cssText = 'background:var(--ocean-deep);border:1px solid var(--hairline);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px;';
+  row.innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="background:var(--teal);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">${idx}</span>
+      <input type="text" class="flow-title" placeholder="タイトル（例：受付・オリエンテーション）" value="${escHtml(title)}"
+        style="flex:1;padding:7px 10px;background:var(--ocean-mid);border:1px solid var(--hairline);border-radius:6px;color:var(--on-dark);font-size:14px;">
+      <button type="button" onclick="this.closest('div').parentElement.remove();reindexFlowSteps()" style="background:none;border:none;color:var(--on-dark-soft);cursor:pointer;font-size:18px;line-height:1;padding:4px;">×</button>
+    </div>
+    <textarea class="flow-desc" placeholder="説明（例：シュノーケリングの使い方・安全説明）" rows="2"
+      style="padding:7px 10px;background:var(--ocean-mid);border:1px solid var(--hairline);border-radius:6px;color:var(--on-dark);font-size:14px;resize:vertical;">${escHtml(desc)}</textarea>
+  `;
+  container.appendChild(row);
+}
+
+function reindexFlowSteps() {
+  document.querySelectorAll('#l-flow-rows > div').forEach((row, i) => {
+    const badge = row.querySelector('span');
+    if (badge) badge.textContent = i + 1;
+  });
+}
+
+function collectFlowSteps() {
+  return Array.from(document.querySelectorAll('#l-flow-rows > div')).map(row => ({
+    title: row.querySelector('.flow-title')?.value.trim() || '',
+    desc:  row.querySelector('.flow-desc')?.value.trim()  || '',
+  })).filter(s => s.title || s.desc);
 }
 
 // ============================================================

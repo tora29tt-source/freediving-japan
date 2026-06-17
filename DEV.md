@@ -74,10 +74,10 @@
 ### DBテーブル一覧
 
 ```
-instructors        — インストラクターマスタ（id, name, ...）
-listings           — 体験・コース（id, title, instructor_id, price, ...）
+instructors        — インストラクターマスタ（id, name, bio, photo_url, certifications, areas, prefecture, city, experience_years, languages, ...）
+listings           — 体験・コース（id, title, instructor_id, category, intent, prefecture, area, price, price_unit, price_includes, price_excludes, duration, season, min_participants, max_participants, age_min, age_max, meeting_point, booking_deadline, has_shuttle, cancellation_policy, what_to_bring, notes, tags, facilities, rental_gear, flow_steps, image_url, gallery_urls, is_public, ...）
 availability_slots — 空き枠（id, instructor_id, listing_id, slot_date, start_time, end_time, max_participants, booked_count, is_active）
-bookings           — 予約（id, slot_id, instructor_id, listing_id, guest_name, guest_email, participant_count, total_amount, status, stripe_session_id, ...）
+bookings           — 予約（id, slot_id, instructor_id, listing_id, guest_name, guest_email, guest_phone, participant_count, unit_price, total_amount, platform_fee, instructor_payout, status, stripe_session_id, stripe_payment_intent_id, rental_requests, ...）
 training_sessions  — トレーニングセッション
 dives              — ダイブ記録
 events             — 大会・イベント
@@ -237,12 +237,14 @@ TOP (index.html)
 |Supabase DB                                        |✅ テーブル作成済み（training_sessions/dives/events/shops/instructors/listings/reviews）|
 |Supabase 認証接続                                      |✅ メール/パスワード・Google OAuth 接続済み|
 |マッチング（/explore/）                                    |🔄 先行実装中（Supabase: shops/instructors/listings/reviews スキーマ投入済み。explore/index.html・instructor.html 動作確認済み。本格公開は Phase 2）|
-|予約・決済フロー（/explore/instructor.html + /api/）           |✅ 完成・動作確認済み（カレンダーUI → Stripe Checkout → 予約完了ページのフルフロー）|
+|listings 全フィールド対応                                    |✅ pro/index.html に max_participants・flow_steps・gallery_urls 追加。instructor.html でギャラリー複数表示・price_includes/excludes・meeting_point・what_to_bring・season・booking_deadline・has_shuttle を表示対応|
+|予約・決済フロー（/explore/instructor.html + /api/）           |✅ 完成・動作確認済み（カレンダーUI → Stripe Checkout → 予約完了ページのフルフロー。E2Eテスト: status=paid 確認済み）|
 |Supabase: availability_slots / bookings テーブル          |✅ 作成済み・RLS設定済み|
 |Vercel API: /api/create-checkout-session.js            |✅ 実装済み・デプロイ済み|
 |Vercel API: /api/stripe-webhook.js                     |✅ 実装済み・Stripe Webhook登録済み|
 |booking/success.html                                   |✅ 実装済み（予約番号・日時・金額・プラン表示）|
 |管理画面（/admin/index.html）                              |✅ 実装済み（空き枠管理・予約一覧・ステータス変更）|
+|プロダッシュボード（pro/index.html）予約管理タブ                      |✅ 実装済み・テストデータ投入済み（全ステータス確認可）|
 |CRM                                                    |❌ 未着手（Phase 1 Week 3-4）|
 |/learn/ 有料講座ページ                                      |❌ 未着手（Week 2後に差し込み）|
 |メディア（/media/）                                        |❌ 未着手（Phase 2）|
@@ -287,4 +289,4 @@ RLSポリシー（`storage.objects`）：INSERT/UPDATE/DELETE は `auth.uid()::t
 
 -----
 
-*最終更新：2026-06-17（未保存警告・Storage実装完了）*
+*最終更新：2026-06-17（listings 全フィールド対応・gallery_urls/flow_steps/max_participants 追加・E2E決済テスト完了確認）*

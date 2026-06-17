@@ -33,9 +33,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sa
 
 /* gallery */
 .gallery { position: relative; width: 100%; height: 260px; overflow: hidden; background: var(--ocean-mid); }
-.gallery img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.8); }
+.gallery img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(0.8); }
 .gallery-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--on-dark-soft); }
-.gallery-grad { position: absolute; bottom: 0; left: 0; right: 0; height: 80px; background: linear-gradient(transparent, rgba(4,22,31,0.8)); }
+.gallery-grad { position: absolute; bottom: 0; left: 0; right: 0; height: 80px; background: linear-gradient(transparent, rgba(4,22,31,0.8)); pointer-events: none; }
+.gallery-dots { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; z-index: 2; }
+.gallery-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.4); cursor: pointer; transition: background 0.2s; }
+.gallery-dot.active { background: #fff; }
 .badge-intent { position: absolute; top: 16px; left: 16px; font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; padding: 4px 10px; border-radius: 100px; backdrop-filter: blur(8px); }
 .badge-try { background: rgba(249,115,22,0.85); color: #fff; }
 .badge-learn { background: rgba(46,196,182,0.85); color: var(--ocean-deep); }
@@ -369,7 +372,10 @@ async function initPage() {
     window._activeListing = activeListing || null;
     renderPage(instructor, activeListing, otherListings, reviews);
     // カレンダー初期化（DOMレンダリング後）
-    setTimeout(() => initCalendar(activeListing?.id || null), 0);
+    setTimeout(() => {
+      initCalendar(activeListing?.id || null);
+      initGallery();
+    }, 0);
   } catch (err) {
     console.error(err);
     document.getElementById('pageContent').innerHTML = '<div class="main" style="padding-top:40px;text-align:center;color:var(--on-dark-soft)">読み込みに失敗しました。<br><a href="index.html" style="color:var(--teal)">一覧に戻る</a></div>';
@@ -380,19 +386,32 @@ function renderPage(inst, listing, otherListings, reviews = []) {
   const badgeClass = { try: 'badge-try', learn: 'badge-learn', dive: 'badge-dive' };
   const badgeLabel = { try: '体験', learn: '資格', dive: 'ダイブ' };
 
-  // gallery
-  const galleryHtml = listing?.image_url
-    ? `<img src="${listing.image_url}" alt="${listing.title}">`
+  // gallery（メイン画像 + gallery_urls を合成）
+  const allImages = [
+    ...(listing?.image_url ? [listing.image_url] : []),
+    ...(listing?.gallery_urls || []),
+  ];
+  const galleryHtml = allImages.length > 0
+    ? allImages.map((url, i) => `<img src="${url}" alt="${listing?.title || ''}${i > 0 ? ' ' + (i + 1) : ''}"${i > 0 ? ' style="display:none;"' : ''} class="gallery-img" data-idx="${i}">`).join('') +
+      (allImages.length > 1 ? `<div class="gallery-dots">${allImages.map((_, i) => `<span class="gallery-dot${i === 0 ? ' active' : ''}" data-idx="${i}"></span>`).join('')}</div>` : '')
     : `<div class="gallery-placeholder"><svg style="width:48px;height:48px;stroke:currentColor;fill:none;stroke-width:1.2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>`;
   const badgeCls = listing ? badgeClass[listing.intent] : '';
   const badgeLbl = listing ? badgeLabel[listing.intent] : '';
 
   // basic info cards
+  const ageMin = listing?.age_min ?? listing?.min_age ?? null;
+  const ageMax = listing?.age_max ?? null;
+  const ageStr = ageMin != null
+    ? (ageMax != null ? `${ageMin}〜${ageMax}歳` : `${ageMin}歳〜`)
+    : null;
   const infoCards = [
-    listing?.min_age != null ? { label: '参加可能年齢', value: `${listing.min_age}歳〜` } : null,
+    listing?.duration ? { label: '所要時間', value: listing.duration } : (listing?.duration_minutes ? { label: '所要時間', value: formatDuration(listing.duration_minutes) } : null),
+    listing?.season   ? { label: '開催時期', value: listing.season } : null,
+    listing?.min_participants ? { label: '最少催行', value: `${listing.min_participants}名〜` } : null,
     listing?.max_participants ? { label: '最大人数', value: `${listing.max_participants}名` } : null,
-    listing?.duration_minutes ? { label: '所要時間', value: formatDuration(listing.duration_minutes) } : null,
-    listing?.min_participants ? { label: '最少催行人数', value: `${listing.min_participants}名` } : null,
+    ageStr ? { label: '参加年齢', value: ageStr } : null,
+    listing?.has_shuttle ? { label: '送迎', value: 'あり' } : null,
+    listing?.booking_deadline ? { label: '予約締切', value: listing.booking_deadline } : null,
     { label: 'エリア', value: listing?.area || inst.prefecture || '—' },
     { label: '指導歴', value: inst.experience_years ? `${inst.experience_years}年` : '—' },
   ].filter(Boolean);
@@ -413,10 +432,14 @@ function renderPage(inst, listing, otherListings, reviews = []) {
         </div>`).join('')}</div>`
     : '';
 
-  // required items
-  const itemsHtml = (listing?.required_items || []).length > 0
-    ? `<ul class="items-list">${(listing.required_items).map(i => `<li>${i}</li>`).join('')}</ul>`
-    : '<p class="section-text" style="color:var(--on-dark-soft)">情報なし</p>';
+  // required items / what_to_bring
+  const bringText = listing?.what_to_bring || null;
+  const bringList = listing?.required_items || [];
+  const itemsHtml = bringList.length > 0
+    ? `<ul class="items-list">${bringList.map(i => `<li>${i}</li>`).join('')}</ul>`
+    : (bringText
+        ? `<p class="section-text">${bringText.replace(/\n/g, '<br>')}</p>`
+        : '<p class="section-text" style="color:var(--on-dark-soft)">情報なし</p>');
 
   // cancellation
   const cancelHtml = listing?.cancellation_policy
@@ -480,15 +503,23 @@ function renderPage(inst, listing, otherListings, reviews = []) {
       </div>` : ''}
 
       <!-- meeting location -->
-      ${listing?.meeting_location ? `
+      ${(listing?.meeting_point || listing?.meeting_location) ? `
       <div class="section">
         <p class="section-title">集合場所</p>
+        <p class="section-text">${listing.meeting_point || listing.meeting_location}</p>
+      </div>` : ''}
+
+      <!-- price includes / excludes -->
+      ${(listing?.price_includes || listing?.price_excludes) ? `
+      <div class="section">
+        <p class="section-title">料金について</p>
         <table class="info-table">
-          <tr><td>集合場所</td><td>${listing.meeting_location}</td></tr>
+          ${listing.price_includes ? `<tr><td style="white-space:nowrap;">含まれるもの</td><td>${listing.price_includes.replace(/\n/g, '<br>')}</td></tr>` : ''}
+          ${listing.price_excludes ? `<tr><td style="white-space:nowrap;">含まれないもの</td><td>${listing.price_excludes.replace(/\n/g, '<br>')}</td></tr>` : ''}
         </table>
       </div>` : ''}
 
-      <!-- required items -->
+      <!-- required items / what_to_bring -->
       <div class="section">
         <p class="section-title">持ち物・服装</p>
         ${itemsHtml}
@@ -693,6 +724,29 @@ let _slotsMap = {};            // { 'YYYY-MM-DD': [slot, ...] }
 let _selectedDate = null;
 let _selectedSlot = null;
 let _paxCount = 1;
+
+function initGallery() {
+  const imgs = document.querySelectorAll('.gallery-img');
+  const dots = document.querySelectorAll('.gallery-dot');
+  if (imgs.length <= 1) return;
+  let current = 0;
+  function showImg(idx) {
+    imgs.forEach((img, i) => { img.style.display = i === idx ? '' : 'none'; });
+    dots.forEach((d, i) => { d.classList.toggle('active', i === idx); });
+    current = idx;
+  }
+  dots.forEach((dot, i) => { dot.addEventListener('click', () => showImg(i)); });
+  // タッチスワイプ
+  const gallery = document.querySelector('.gallery');
+  if (gallery) {
+    let startX = 0;
+    gallery.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+    gallery.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) > 40) showImg((current + (dx < 0 ? 1 : -1) + imgs.length) % imgs.length);
+    }, { passive: true });
+  }
+}
 
 async function initCalendar(listingId) {
   const now = new Date();
