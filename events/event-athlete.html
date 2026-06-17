@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Volcano Cup 2026 — Athlete Portal</title>
+<title>Athlete Portal — Freediving Japan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
 <style>
 :root {
   --bg:       #04161f;
@@ -445,15 +447,15 @@ select.fi option { background: var(--surface2); }
 
   <div class="hero-inner">
     <div class="event-badge">🤿 AIDA Japan</div>
-    <div class="event-title">Volcano Cup 2026</div>
+    <div class="event-title" id="eventTitle">読み込み中...</div>
     <div class="event-meta">
-      <div class="meta-chip">📅 <span>June 15, 2026</span></div>
-      <div class="meta-chip">📍 <span>Izu Peninsula, Shizuoka</span></div>
-      <div class="meta-chip">🌊 <span>CWT · CWTB · CNF · FIM</span></div>
+      <div class="meta-chip">📅 <span id="eventDate">—</span></div>
+      <div class="meta-chip">📍 <span id="eventLocation">—</span></div>
+      <div class="meta-chip">🌊 <span id="eventDiscs">—</span></div>
     </div>
     <div class="deadline-bar">
       <span class="deadline-label" id="deadlineLabel">AP Submission Deadline</span>
-      <span class="deadline-val">June 13, 23:59 JST</span>
+      <span class="deadline-val" id="deadlineVal">—</span>
     </div>
   </div>
 </div>
@@ -573,55 +575,8 @@ select.fi option { background: var(--surface2); }
       <span class="list-status draft" id="slStatus">Draft</span>
     </div>
 
-    <div class="start-list-card">
-      <div class="sl-row me">
-        <span class="sl-no">1</span>
-        <div class="sl-info">
-          <div class="sl-name sl-name-you">Your Name ← You</div>
-          <div class="sl-detail">CWT · 80m · 02:30</div>
-        </div>
-        <span class="sl-disc">CWT</span>
-        <div class="sl-ot">
-          <div class="sl-ot-time">9:00</div>
-          <div class="sl-ot-label">OT</div>
-        </div>
-      </div>
-      <div class="sl-row">
-        <span class="sl-no">2</span>
-        <div class="sl-info">
-          <div class="sl-name">Tetsuo Hara</div>
-          <div class="sl-detail">CWT · 101m · 02:45</div>
-        </div>
-        <span class="sl-disc">CWT</span>
-        <div class="sl-ot">
-          <div class="sl-ot-time">9:13</div>
-          <div class="sl-ot-label">OT</div>
-        </div>
-      </div>
-      <div class="sl-row">
-        <span class="sl-no">3</span>
-        <div class="sl-info">
-          <div class="sl-name">Shunsaku Kobayashi</div>
-          <div class="sl-detail">CWT · 80m · 02:30</div>
-        </div>
-        <span class="sl-disc">CWT</span>
-        <div class="sl-ot">
-          <div class="sl-ot-time">9:24</div>
-          <div class="sl-ot-label">OT</div>
-        </div>
-      </div>
-      <div class="sl-row">
-        <span class="sl-no">4</span>
-        <div class="sl-info">
-          <div class="sl-name">Kayo Oda</div>
-          <div class="sl-detail">CWT · 73m · 02:18</div>
-        </div>
-        <span class="sl-disc">CWT</span>
-        <div class="sl-ot">
-          <div class="sl-ot-time">9:33</div>
-          <div class="sl-ot-label">OT</div>
-        </div>
-      </div>
+    <div class="start-list-card" id="startListCard">
+      <div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">読み込み中...</div>
     </div>
 
     <div style="margin-top:14px;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);font-size:12px;color:var(--muted);text-align:center;" id="slNote">
@@ -678,6 +633,8 @@ select.fi option { background: var(--surface2); }
 <script>
 var currentLang = 'en';
 var selectedDisc = '';
+var currentEventId = null;
+var myEntryId = null;
 
 var i18n = {
   en: {
@@ -754,32 +711,214 @@ function showAPForm() {
   document.getElementById('apForm').style.display = 'block';
 }
 
-function submitAP() {
+async function submitAP() {
   var name = document.getElementById('inputName').value.trim();
-  var nat = document.getElementById('inputNat').value.trim();
+  var nat  = document.getElementById('inputNat').value.trim().toUpperCase();
   var gender = document.getElementById('inputGender').value;
-  var depth = document.getElementById('inputDepth').value;
+  var depth  = parseInt(document.getElementById('inputDepth').value, 10);
   var dtM = document.getElementById('inputDTm').value;
   var dtS = document.getElementById('inputDTs').value;
+  var remarks = document.getElementById('inputRemarks').value;
 
-  if (!name) { alert('Please enter your name.'); return; }
-  if (!selectedDisc) { alert('Please select a discipline.'); return; }
-  if (!depth) { alert('Please select your depth.'); return; }
+  if (!name) { alert(currentLang === 'ja' ? '氏名を入力してください' : 'Please enter your name.'); return; }
+  if (!selectedDisc) { alert(currentLang === 'ja' ? '種目を選んでください' : 'Please select a discipline.'); return; }
 
-  var dt = (dtM && dtS) ? dtM + ':' + dtS : '';
+  var apTimeSec = (dtM && dtS) ? parseInt(dtM,10)*60 + parseInt(dtS,10) : null;
 
-  document.getElementById('apSummary').innerHTML =
-    '<div class="ap-summary-row"><span class="ap-summary-lbl">Name</span><span class="ap-summary-val">' + name + '</span></div>' +
-    '<div class="ap-summary-row"><span class="ap-summary-lbl">Nationality</span><span class="ap-summary-val">' + (nat||'—') + '</span></div>' +
-    '<div class="ap-summary-row"><span class="ap-summary-lbl">Discipline</span><span class="ap-summary-val">' + selectedDisc + '</span></div>' +
-    '<div class="ap-summary-row"><span class="ap-summary-lbl">AP</span><span class="ap-summary-val">' + depth + 'm' + (dt?' / '+dt:'') + '</span></div>';
+  var btn = document.getElementById('btnSubmitAP');
+  btn.disabled = true;
+  btn.textContent = currentLang === 'ja' ? '送信中...' : 'Submitting...';
 
-  document.getElementById('apForm').style.display = 'none';
-  document.getElementById('apSuccess').style.display = 'block';
+  try {
+    var entry = {
+      event_id:    currentEventId,
+      name:        name,
+      nationality: nat || null,
+      gender:      gender || null,
+      discipline:  selectedDisc,
+      ap_m:        depth || null,
+      ap_time:     apTimeSec,
+      remarks:     remarks || null,
+    };
+
+    var res;
+    if (myEntryId) {
+      // 既存エントリーを更新
+      res = await _sb.from('event_entries').update(entry).eq('id', myEntryId).select().single();
+    } else {
+      res = await _sb.from('event_entries').insert(entry).select().single();
+    }
+
+    if (res.error) throw res.error;
+    myEntryId = res.data.id;
+
+    var dt = (dtM && dtS) ? dtM + ':' + dtS : '';
+    document.getElementById('apSummary').innerHTML =
+      '<div class="ap-summary-row"><span class="ap-summary-lbl">Name</span><span class="ap-summary-val">' + name + '</span></div>' +
+      '<div class="ap-summary-row"><span class="ap-summary-lbl">Nationality</span><span class="ap-summary-val">' + (nat||'—') + '</span></div>' +
+      '<div class="ap-summary-row"><span class="ap-summary-lbl">Discipline</span><span class="ap-summary-val">' + selectedDisc + '</span></div>' +
+      '<div class="ap-summary-row"><span class="ap-summary-lbl">AP</span><span class="ap-summary-val">' + (depth||'—') + 'm' + (dt?' / '+dt:'') + '</span></div>';
+
+    document.getElementById('apForm').style.display = 'none';
+    document.getElementById('apSuccess').style.display = 'block';
+
+    // スタートリストも更新
+    await loadStartList();
+  } catch(err) {
+    alert((currentLang === 'ja' ? '登録に失敗しました: ' : 'Submission failed: ') + (err.message || err));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = currentLang === 'ja' ? 'APを登録する' : 'Submit AP';
+  }
 }
 
 function showProtest() {
-  alert('Protest form - to be implemented with Supabase');
+  alert('Protest form - to be implemented');
+}
+
+// ── イベント詳細ロード ──
+async function loadEventData() {
+  var params = new URLSearchParams(window.location.search);
+  currentEventId = params.get('id');
+
+  if (!currentEventId) {
+    document.getElementById('eventTitle').textContent = 'イベントが見つかりません';
+    return;
+  }
+
+  var { data: ev, error } = await _sb
+    .from('events')
+    .select('*')
+    .eq('id', currentEventId)
+    .single();
+
+  if (error || !ev) {
+    document.getElementById('eventTitle').textContent = 'イベントを読み込めませんでした';
+    return;
+  }
+
+  // タイトル更新
+  document.getElementById('eventTitle').textContent = ev.name;
+  document.title = ev.name + ' — Athlete Portal';
+
+  // 日付
+  var d = new Date(ev.date);
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('eventDate').textContent = months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+
+  // 場所
+  document.getElementById('eventLocation').textContent = ev.location || '—';
+
+  // 種目
+  var discs = ev.disciplines || [];
+  document.getElementById('eventDiscs').textContent = discs.join(' · ') || '—';
+
+  // 締切（大会の2日前）
+  var deadline = new Date(d);
+  deadline.setDate(deadline.getDate() - 2);
+  document.getElementById('deadlineVal').textContent =
+    months[deadline.getMonth()] + ' ' + deadline.getDate() + ', 23:59 JST';
+
+  // i18n の apNote も更新
+  var evName = ev.name;
+  i18n.en.apNote = 'Enter your Announced Performance for ' + evName + '. You may update your AP until the deadline.';
+  i18n.ja.apNote = evName + ' の AP を入力してください。締め切りまで変更可能です。';
+  document.getElementById('apNote').textContent = i18n[currentLang].apNote;
+
+  // 種目ボタンを動的生成
+  if (discs.length) {
+    document.getElementById('discGrid').innerHTML = discs.map(function(disc) {
+      return '<button class="disc-btn" onclick="selectDisc(\'' + disc + '\')">' + disc + '</button>';
+    }).join('');
+  }
+
+  // スタートリスト＆リザルト読み込み
+  await loadStartList();
+  await loadResults();
+}
+
+// ── スタートリスト ──
+async function loadStartList() {
+  if (!currentEventId) return;
+  var el = document.getElementById('startListCard');
+
+  var { data: entries } = await _sb
+    .from('event_entries')
+    .select('id, name, nationality, gender, discipline, ap_m, ap_time')
+    .eq('event_id', currentEventId)
+    .order('discipline').order('ap_m', { ascending: false });
+
+  if (!entries || !entries.length) {
+    el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">エントリーはまだありません</div>';
+    document.getElementById('slStatus').textContent = '0 entries';
+    return;
+  }
+
+  document.getElementById('slStatus').textContent = entries.length + ' entries';
+
+  el.innerHTML = entries.map(function(e, i) {
+    var apStr = e.ap_m ? e.ap_m + 'm' : '';
+    if (e.ap_time) {
+      var min = Math.floor(e.ap_time / 60);
+      var sec = e.ap_time % 60;
+      apStr += (apStr ? ' · ' : '') + String(min).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
+    }
+    var isMe = (e.id === myEntryId);
+    return '<div class="sl-row' + (isMe ? ' me' : '') + '">' +
+      '<span class="sl-no">' + (i+1) + '</span>' +
+      '<div class="sl-info">' +
+        '<div class="sl-name' + (isMe ? ' sl-name-you' : '') + '">' + e.name + (isMe ? ' ← You' : '') + '</div>' +
+        '<div class="sl-detail">' + (e.discipline||'') + (apStr ? ' · ' + apStr : '') + '</div>' +
+      '</div>' +
+      '<span class="sl-disc">' + (e.discipline||'') + '</span>' +
+      '<div class="sl-ot"><div class="sl-ot-time">—</div><div class="sl-ot-label">OT</div></div>' +
+    '</div>';
+  }).join('');
+}
+
+// ── リザルト ──
+async function loadResults() {
+  if (!currentEventId) return;
+
+  var { data: results } = await _sb
+    .from('event_results')
+    .select('*, entry:event_entries(name, discipline, nationality)')
+    .eq('event_entries.event_id', currentEventId)
+    .order('points', { ascending: false });
+
+  var notReady = document.getElementById('resultsNotReady');
+  var list     = document.getElementById('resultsList');
+
+  if (!results || !results.length) {
+    notReady.style.display = '';
+    list.style.display = 'none';
+    return;
+  }
+
+  notReady.style.display = 'none';
+  list.style.display = '';
+
+  var cardMap = { W:'🟡', R:'🔴', B:'🟡', '':'🟢' };
+  list.innerHTML = results.map(function(r, i) {
+    var entry = r.entry || {};
+    var resStr = r.result_m ? r.result_m + 'm' : '';
+    if (r.result_time) {
+      var min = Math.floor(r.result_time/60), sec = r.result_time%60;
+      resStr += (resStr?'/':'') + min + ':' + String(sec).padStart(2,'0');
+    }
+    var cardIcon = cardMap[r.card||''] || '🟢';
+    return '<div class="result-card">' +
+      '<div class="result-header"><span class="result-no">#' + (i+1) + '</span><span class="result-name">' + (entry.name||'') + '</span><span class="result-card-badge">' + cardIcon + '</span></div>' +
+      '<div class="result-body">' +
+        '<div class="result-grid">' +
+          '<div class="result-item"><div class="result-lbl">Discipline</div><div class="result-val">' + (entry.discipline||'') + '</div></div>' +
+          (r.result_m ? '<div class="result-item"><div class="result-lbl">Depth</div><div class="result-val">' + r.result_m + 'm</div></div>' : '') +
+          (r.result_time ? '<div class="result-item"><div class="result-lbl">Dive Time</div><div class="result-val">' + resStr + '</div></div>' : '') +
+        '</div>' +
+        (r.points != null ? '<div class="result-points"><span class="result-points-label">AIDA Points</span><span class="result-points-val">' + parseFloat(r.points).toFixed(1) + '</span></div>' : '') +
+      '</div>' +
+    '</div>';
+  }).join('');
 }
 
 // 深度プルダウン初期化
@@ -806,6 +945,9 @@ for (var s = 0; s <= 59; s++) {
   opt3.textContent = String(s).padStart(2,'0');
   dtSSel.appendChild(opt3);
 }
+
+// ── ページロード時にイベントデータ取得 ──
+loadEventData();
 </script>
 </body>
 </html>

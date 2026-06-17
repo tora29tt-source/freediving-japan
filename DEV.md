@@ -54,8 +54,16 @@
 
 **Takuyaがやること**
 
-- Claude が git push できなかった場合のみ GitHub Desktop で commit → push（Claude がコミットメッセージをチャットで提示する）
+- Claude が git push できなかった場合のみターミナルで commit → push
 - 動作確認・フィードバック
+
+**ターミナル指示のルール**
+
+- Claude がターミナルへの指示を出す際は必ずコードブロック形式で提示する：
+
+```
+git push origin main
+```
 
 **セキュリティルール**
 
@@ -117,33 +125,49 @@ reviews            — レビュー
 /auth.html                # 認証画面（メール/パスワード・Googleログイン）
 /mypage.html              # ログイン後＝プロ・選手の世界
 /admin/index.html         # 管理画面（空き枠・予約管理）
-/AIDA_ranking_prototype.html
-/2026_competitions.html
-/training-log.html
-/sta-timer.html
-/mouthfill-calculator.html
-/freediving-learn.html
-/instructor-welcome.html
-/ranking_data.js
-/athlete_photos.json
 /js/supabase-config.js    # Supabase接続設定（anon key格納）
+/data/                    # JSONデータファイル
+  all_rankings_data.json
+  athlete_photos.json
+  jp_official_records.json
+/scripts/                 # Pythonスクリプト
+  fetch_all_rankings.py
+  fetch_jp_records.py
+  fetch_overall_fix.py
 /api/                     # Vercel Serverless Functions
   create-checkout-session.js
   stripe-webhook.js
 /explore/                 # マッチング（先行実装中）
   index.html
-  instructor.html
-  success.html
+  listing.html            # リスティング詳細（旧instructor.html）
 /booking/
   success.html
-/media/                   # メディア（Phase 2〜）
-/site/
+/articles/                # 記事
   index.html
-  data/
-    rankings.json
-    athlete_photos.json
-    jp_official_records.json
-  fetch_all.py
+  article.html
+  article-what-is-freediving.html
+/media/                   # メディア（Phase 2〜）
+  index.html
+  admin-mobile.html
+/tools/                   # ツール類
+  mouthfill-calculator.html
+  session-planner.html
+  sta-timer.html
+  training-log.html
+/events/                  # 大会・イベント
+  2026_competitions.html
+  competition-countdown.html
+  event-athlete.html
+  event-staff.html
+/rankings/                # ランキング
+  AIDA_ranking.html
+/learn/                   # 学ぶ（Phase 1.5〜）
+  freediving-learn.html
+/pro/                     # インストラクター向け
+  index.html
+  instructor-welcome.html
+/sql/                     # DBスキーマ・テストデータ
+/old/                     # 旧ファイル保管庫（参照のみ）
 ```
 
 ## サイトマップ（二層構造）
@@ -241,8 +265,8 @@ TOP (index.html)
 |Mouthfill Calculator（mouthfill-calculator.html）     |✅ 完成・push済み                  |
 |インストラクターウェルカム（instructor-welcome.html）              |✅ 作成完了                      |
 |フリーダイビングを学ぶ（freediving-learn.html）                 |🔄 管理ツール完成・/learn/枠組みは未着手    |
-|大会機能（event-athlete.html）                            |✅ 作成完了・Supabase接続は未着手        |
-|大会カウントダウン（competition-countdown.html）               |⚠️ チャット消失・要再構築               |
+|大会機能（events/event-athlete.html）                      |✅ Supabase接続完了（?id= でイベント取得・AP登録→event_entries INSERT・スタートリスト・リザルト表示）|
+|大会カウントダウン（events/competition-countdown.html）         |✅ 完成（スタンドアロン・Supabase不要）        |
 |認証画面（auth.html）                                     |✅ メール/パスワード・Googleログイン実装済み（Apple は Developer 登録待ち）|
 |Supabase DB                                        |✅ テーブル作成済み（training_sessions/dives/events/shops/instructors/listings/reviews）|
 |Supabase 認証接続                                      |✅ メール/パスワード・Google OAuth 接続済み|
