@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>プロダッシュボード — Freediving Japan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ocean-deep:  #0b2d45;
+  --ocean-mid:   #0e3d5c;
+  --ocean-light: #1a5f82;
+  --abyss:       #04161f;
+  --teal:        #2ec4b6;
+  --teal-light:  #a8ece8;
+  --warm:        #f97316;
+  --red:         #ef4444;
+  --green:       #22c55e;
+  --yellow:      #eab308;
+  --on-dark:         rgba(255,255,255,0.92);
+  --on-dark-mid:     rgba(255,255,255,0.62);
+  --on-dark-soft:    rgba(255,255,255,0.38);
+  --hairline:        rgba(168,236,232,0.14);
+  --glass:           rgba(255,255,255,0.045);
+}
+html { background: var(--abyss); }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  background: linear-gradient(180deg, var(--ocean-mid) 0%, var(--ocean-deep) 22%, #06283a 55%, var(--abyss) 100%);
+  background-attachment: fixed;
+  color: var(--on-dark);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Header ── */
+.header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(6,32,46,0.7); backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--hairline);
+  padding: 0 20px; height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo { font-size: 15px; font-weight: 600; color: var(--on-dark); letter-spacing: 0.18em; text-transform: uppercase; text-decoration: none; }
+.logo span { color: var(--teal); }
+.pro-badge { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; padding: 3px 8px; border-radius: 100px; background: rgba(46,196,182,0.15); border: 1px solid rgba(46,196,182,0.35); color: var(--teal); margin-left: 10px; }
+.header-right { display: flex; align-items: center; gap: 12px; }
+.user-email { font-size: 12px; color: var(--on-dark-soft); }
+.logout-btn { font-size: 12px; color: var(--on-dark-mid); background: none; border: 1px solid var(--hairline); border-radius: 8px; padding: 6px 12px; cursor: pointer; transition: border-color 0.2s; font-family: inherit; }
+.logout-btn:hover { border-color: var(--red); color: var(--red); }
+
+/* ── Tabs ── */
+.tabs-wrap { max-width: 860px; margin: 0 auto; padding: 24px 20px 0; }
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--hairline); margin-bottom: 28px; overflow-x: auto; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  flex-shrink: 0; padding: 10px 18px; font-size: 13px; font-weight: 500;
+  color: var(--on-dark-soft); border-bottom: 2px solid transparent;
+  cursor: pointer; transition: all 0.2s; margin-bottom: -1px;
+  background: none; border-left: none; border-right: none; border-top: none;
+  font-family: inherit;
+}
+.tab:hover { color: var(--on-dark-mid); }
+.tab.active { color: var(--teal); border-bottom-color: var(--teal); }
+
+/* ── Main ── */
+.main { max-width: 860px; margin: 0 auto; padding: 0 20px 80px; }
+
+/* ── Section header ── */
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
+.section-title { font-size: 12px; font-weight: 600; color: var(--on-dark-soft); letter-spacing: 0.12em; text-transform: uppercase; }
+
+/* ── Buttons ── */
+.btn-primary { display: flex; align-items: center; gap: 6px; background: var(--teal); color: var(--ocean-deep); border: none; border-radius: 10px; padding: 9px 16px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: background 0.2s; white-space: nowrap; }
+.btn-primary:hover { background: var(--teal-light); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-edit { background: rgba(46,196,182,0.12); color: var(--teal); border: 1px solid rgba(46,196,182,0.3); border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+.btn-edit:hover { background: rgba(46,196,182,0.22); }
+.btn-danger { background: rgba(239,68,68,0.12); color: var(--red); border: 1px solid rgba(239,68,68,0.25); border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+.btn-danger:hover { background: rgba(239,68,68,0.22); }
+.btn-cancel { flex: 1; padding: 11px 16px; background: transparent; border: 1px solid var(--hairline); border-radius: 10px; color: var(--on-dark-mid); font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+.btn-cancel:hover { border-color: rgba(255,255,255,0.3); color: var(--on-dark); }
+
+/* ── Cards ── */
+.card { background: var(--glass); border: 1px solid var(--hairline); border-radius: 16px; padding: 22px 20px; margin-bottom: 14px; }
+
+/* ── Form ── */
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--on-dark-mid); letter-spacing: 0.05em; margin-bottom: 6px; }
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%; padding: 11px 13px;
+  background: rgba(255,255,255,0.07); border: 1px solid var(--hairline);
+  border-radius: 10px; color: var(--on-dark); font-size: 14px;
+  font-family: inherit; outline: none; transition: border-color 0.2s;
+  -webkit-appearance: none;
+}
+.form-group textarea { resize: vertical; min-height: 88px; line-height: 1.6; }
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus { border-color: var(--teal); background: rgba(255,255,255,0.10); }
+.form-group select option { background: var(--ocean-mid); }
+.form-hint { font-size: 11px; color: var(--on-dark-soft); margin-top: 5px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-section-title { font-size: 11px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--teal); margin: 24px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--hairline); }
+.save-row { display: flex; justify-content: flex-end; margin-top: 24px; }
+
+/* ── Table ── */
+.table-wrap { overflow-x: auto; border-radius: 14px; border: 1px solid var(--hairline); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead { background: rgba(255,255,255,0.04); }
+th { padding: 11px 14px; text-align: left; font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--on-dark-soft); white-space: nowrap; }
+td { padding: 12px 14px; border-top: 1px solid var(--hairline); color: var(--on-dark-mid); vertical-align: middle; }
+tr:hover td { background: rgba(255,255,255,0.025); }
+td.primary { color: var(--on-dark); font-weight: 500; }
+.actions { display: flex; gap: 6px; }
+
+/* ── Badges ── */
+.badge { display: inline-block; padding: 3px 9px; border-radius: 100px; font-size: 11px; font-weight: 600; letter-spacing: 0.05em; white-space: nowrap; }
+.badge-public   { background: rgba(34,197,94,0.12);  color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+.badge-private  { background: rgba(148,163,184,0.12); color: #94a3b8;     border: 1px solid rgba(148,163,184,0.2); }
+.badge-new      { background: rgba(249,115,22,0.15); color: var(--warm);  border: 1px solid rgba(249,115,22,0.3); }
+.badge-replied  { background: rgba(46,196,182,0.12); color: var(--teal);  border: 1px solid rgba(46,196,182,0.25); }
+.badge-closed   { background: rgba(148,163,184,0.12); color: #94a3b8;     border: 1px solid rgba(148,163,184,0.2); }
+.badge-active   { background: rgba(34,197,94,0.12);  color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+.badge-inactive { background: rgba(148,163,184,0.12); color: #94a3b8;     border: 1px solid rgba(148,163,184,0.2); }
+
+/* ── Modal ── */
+.modal-backdrop { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.72); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
+.modal-backdrop.open { display: flex; }
+.modal { background: var(--ocean-mid); border: 1px solid var(--hairline); border-radius: 20px; padding: 28px 24px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 80px rgba(0,0,0,0.6); }
+.modal-title { font-size: 17px; font-weight: 700; margin-bottom: 22px; }
+.modal-actions { display: flex; gap: 10px; margin-top: 24px; }
+.modal-actions .btn-primary { flex: 1; justify-content: center; }
+
+/* ── Toggle ── */
+.toggle-wrap { display: flex; align-items: center; gap: 8px; }
+.toggle { position: relative; width: 40px; height: 22px; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-track { position: absolute; inset: 0; cursor: pointer; background: rgba(255,255,255,0.12); border-radius: 100px; transition: background 0.2s; }
+.toggle input:checked + .toggle-track { background: var(--teal); }
+.toggle-track::after { content: ''; position: absolute; width: 16px; height: 16px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: transform 0.2s; }
+.toggle input:checked + .toggle-track::after { transform: translateX(18px); }
+.toggle-label { font-size: 13px; color: var(--on-dark-mid); }
+
+/* ── Empty / Spinner ── */
+.empty { text-align: center; padding: 48px 20px; color: var(--on-dark-soft); font-size: 13px; }
+.spinner-wrap { display: flex; align-items: center; justify-content: center; padding: 48px; }
+.spinner { width: 28px; height: 28px; border: 2px solid var(--hairline); border-top-color: var(--teal); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Toast ── */
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--ocean-mid); border: 1px solid var(--hairline); border-radius: 100px; padding: 12px 20px; font-size: 13px; color: var(--on-dark); box-shadow: 0 8px 32px rgba(0,0,0,0.4); z-index: 300; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
+.toast.success { border-color: rgba(46,196,182,0.4); }
+.toast.error   { border-color: rgba(239,68,68,0.4); }
+.toast.hidden  { opacity: 0; }
+
+/* ── Profile hero ── */
+.profile-hero { display: flex; align-items: center; gap: 18px; margin-bottom: 24px; }
+.profile-avatar { width: 64px; height: 64px; border-radius: 50%; background: rgba(46,196,182,0.15); border: 2px solid rgba(46,196,182,0.3); object-fit: cover; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: var(--teal); font-size: 22px; font-weight: 700; }
+.profile-avatar img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; }
+.profile-meta h2 { font-size: 18px; font-weight: 700; }
+.profile-meta p { font-size: 12px; color: var(--on-dark-soft); margin-top: 3px; }
+
+/* ── Setup prompt (no instructor record yet) ── */
+.setup-card { text-align: center; padding: 60px 24px; }
+.setup-card h2 { font-size: 20px; font-weight: 700; margin-bottom: 10px; }
+.setup-card p { color: var(--on-dark-soft); font-size: 13px; line-height: 1.8; margin-bottom: 28px; max-width: 360px; margin-left: auto; margin-right: auto; }
+
+/* ── Inquiry detail ── */
+.inq-body { font-size: 13px; line-height: 1.8; color: var(--on-dark-mid); background: rgba(255,255,255,0.04); border-radius: 10px; padding: 12px 14px; margin-top: 8px; white-space: pre-wrap; }
+.status-select { background: rgba(255,255,255,0.06); border: 1px solid var(--hairline); border-radius: 8px; color: var(--on-dark); font-size: 12px; padding: 5px 8px; cursor: pointer; font-family: inherit; outline: none; }
+.status-select option { background: #0e3d5c; }
+
+@media (max-width: 640px) {
+  .form-row { grid-template-columns: 1fr; }
+  th, td { padding: 10px 10px; }
+  .pro-badge, .user-email { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div style="display:flex;align-items:center;">
+    <a href="../index.html" class="logo">Free<span>Dive</span> Japan</a>
+    <span class="pro-badge">PRO</span>
+  </div>
+  <div class="header-right">
+    <span class="user-email" id="user-email"></span>
+    <button class="logout-btn" onclick="handleLogout()">ログアウト</button>
+  </div>
+</header>
+
+<!-- 未ログイン -->
+<div id="auth-guard" style="display:none; align-items:center; justify-content:center; min-height:80vh;">
+  <div style="text-align:center;">
+    <h2 style="margin-bottom:10px;">ログインが必要です</h2>
+    <p style="color:var(--on-dark-soft);font-size:13px;margin-bottom:20px;">プロダッシュボードはログイン後にご利用いただけます。</p>
+    <a href="../auth.html" class="btn-primary" style="display:inline-flex;text-decoration:none;">ログインへ</a>
+  </div>
+</div>
+
+<!-- インストラクター未登録 -->
+<div id="setup-guard" style="display:none;">
+  <div class="main" style="padding-top:40px;">
+    <div class="card setup-card">
+      <h2>プロフィールをまだ作成していません</h2>
+      <p>インストラクター・ショップのプロフィールを作成すると、コース登録・空き枠管理・問い合わせ受付ができるようになります。</p>
+      <button class="btn-primary" style="margin:0 auto;" onclick="showCreateProfile()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg>
+        プロフィールを作成する
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- メイン -->
+<div id="app" style="display:none;">
+  <div class="tabs-wrap">
+    <div class="tabs">
+      <button class="tab active"  data-tab="profile"   onclick="switchTab('profile')">プロフィール</button>
+      <button class="tab"         data-tab="listings"  onclick="switchTab('listings')">コース管理</button>
+      <button class="tab"         data-tab="slots"     onclick="switchTab('slots')">空き枠管理</button>
+      <button class="tab"         data-tab="inquiries" onclick="switchTab('inquiries')">
+        問い合わせ
+        <span id="inq-badge" style="display:none;margin-left:5px;background:var(--warm);color:white;border-radius:100px;padding:1px 6px;font-size:10px;font-weight:700;"></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- ── プロフィール ── -->
+    <div id="tab-profile">
+      <div id="profile-form-wrap"></div>
+    </div>
+
+    <!-- ── コース管理 ── -->
+    <div id="tab-listings" style="display:none;">
+      <div class="section-header">
+        <span class="section-title">コース・体験メニュー</span>
+        <button class="btn-primary" onclick="openListingModal()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg>
+          コースを追加
+        </button>
+      </div>
+      <div id="listings-content"><div class="spinner-wrap"><div class="spinner"></div></div></div>
+    </div>
+
+    <!-- ── 空き枠管理 ── -->
+    <div id="tab-slots" style="display:none;">
+      <div class="section-header">
+        <span class="section-title">空き枠一覧</span>
+        <button class="btn-primary" onclick="openSlotModal()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg>
+          空き枠を追加
+        </button>
+      </div>
+      <div id="slots-content"><div class="spinner-wrap"><div class="spinner"></div></div></div>
+    </div>
+
+    <!-- ── 問い合わせ ── -->
+    <div id="tab-inquiries" style="display:none;">
+      <div class="section-header">
+        <span class="section-title">問い合わせ一覧</span>
+        <select class="btn-edit" id="inq-filter" onchange="loadInquiries()" style="padding:8px 12px;border-radius:10px;">
+          <option value="">すべて</option>
+          <option value="new">未返信</option>
+          <option value="replied">返信済み</option>
+          <option value="closed">クローズ</option>
+        </select>
+      </div>
+      <div id="inquiries-content"><div class="spinner-wrap"><div class="spinner"></div></div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── コース モーダル ── -->
+<div class="modal-backdrop" id="listing-modal">
+  <div class="modal">
+    <div class="modal-title" id="listing-modal-title">コースを追加</div>
+
+    <div class="form-group">
+      <label>タイトル</label>
+      <input type="text" id="l-title" placeholder="例：沖縄フリーダイビング体験">
+    </div>
+    <div class="form-group">
+      <label>説明</label>
+      <textarea id="l-desc" placeholder="コースの詳細説明..."></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>カテゴリ</label>
+        <select id="l-category">
+          <option value="フリーダイビング体験">フリーダイビング体験</option>
+          <option value="スキンダイビング体験">スキンダイビング体験</option>
+          <option value="スクール・資格取得">スクール・資格取得</option>
+          <option value="トレーニング・アスリート向け">トレーニング・アスリート向け</option>
+          <option value="ツアー・ガイド">ツアー・ガイド</option>
+          <option value="その他">その他</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>検索タブ分類</label>
+        <select id="l-intent">
+          <option value="try">やってみたい（try）</option>
+          <option value="learn">ちゃんと学びたい（learn）</option>
+          <option value="dive">もっと潜りたい（dive）</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>都道府県</label>
+        <input type="text" id="l-pref" placeholder="例：沖縄県">
+      </div>
+      <div class="form-group">
+        <label>エリア</label>
+        <input type="text" id="l-area" placeholder="例：沖縄、伊豆">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>料金（円）</label>
+        <input type="number" id="l-price" placeholder="例：8800">
+      </div>
+      <div class="form-group">
+        <label>料金単位</label>
+        <input type="text" id="l-price-unit" placeholder="例：〜/人" value="〜/人">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>タグ（カンマ区切り）</label>
+      <input type="text" id="l-tags" placeholder="例：初心者OK, 当日予約OK, 英語対応">
+      <p class="form-hint">カンマで区切って複数入力できます</p>
+    </div>
+
+    <div class="form-group">
+      <label>画像URL</label>
+      <input type="url" id="l-image" placeholder="https://...">
+    </div>
+
+    <div class="form-group">
+      <div class="toggle-wrap">
+        <label class="toggle"><input type="checkbox" id="l-public" checked><span class="toggle-track"></span></label>
+        <span class="toggle-label">一覧に公開する</span>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeListingModal()">キャンセル</button>
+      <button class="btn-primary" onclick="saveListing()"><span id="l-save-label">保存する</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 空き枠 モーダル ── -->
+<div class="modal-backdrop" id="slot-modal">
+  <div class="modal">
+    <div class="modal-title" id="slot-modal-title">空き枠を追加</div>
+
+    <div class="form-group">
+      <label>コース</label>
+      <select id="s-listing">
+        <option value="">指定なし（全コース共通）</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>日付</label>
+        <input type="date" id="s-date">
+      </div>
+      <div class="form-group">
+        <label>開始時刻</label>
+        <input type="time" id="s-start">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>終了時刻</label>
+        <input type="time" id="s-end">
+      </div>
+      <div class="form-group">
+        <label>最大参加人数</label>
+        <input type="number" id="s-max" min="1" value="4">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="toggle-wrap">
+        <label class="toggle"><input type="checkbox" id="s-active" checked><span class="toggle-track"></span></label>
+        <span class="toggle-label">有効（予約受付中）</span>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeSlotModal()">キャンセル</button>
+      <button class="btn-primary" onclick="saveSlot()"><span id="s-save-label">保存する</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ── プロフィール作成 モーダル ── -->
+<div class="modal-backdrop" id="create-profile-modal">
+  <div class="modal">
+    <div class="modal-title">プロフィールを作成</div>
+    <div class="form-group">
+      <label>氏名 / 屋号 <span style="color:var(--warm);">*</span></label>
+      <input type="text" id="cp-name" placeholder="例：山田 海斗">
+    </div>
+    <div class="form-group">
+      <label>自己紹介</label>
+      <textarea id="cp-bio" placeholder="経歴・スタイル・得意なことなど..."></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>都道府県</label>
+        <input type="text" id="cp-pref" placeholder="例：沖縄県">
+      </div>
+      <div class="form-group">
+        <label>市区町村</label>
+        <input type="text" id="cp-city" placeholder="例：恩納村">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>資格（カンマ区切り）</label>
+      <input type="text" id="cp-certs" placeholder="例：AIDA インストラクター, SSI フリーダイビング">
+    </div>
+    <div class="form-group">
+      <label>指導歴（年）</label>
+      <input type="number" id="cp-exp" min="0" placeholder="例：5">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeCreateProfile()">キャンセル</button>
+      <button class="btn-primary" onclick="createProfile()">作成する</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast hidden" id="toast"></div>
+
+<script>
+// ============================================================
+// State
+// ============================================================
+let currentUser    = null;
+let myInstructor   = null; // instructors レコード
+let editListingId  = null;
+let editSlotId     = null;
+
+// ============================================================
+// Boot
+// ============================================================
+async function boot() {
+  const { data: { session } } = await _sb.auth.getSession();
+  if (!session) {
+    document.getElementById('auth-guard').style.display = 'flex';
+    return;
+  }
+  currentUser = session.user;
+  document.getElementById('user-email').textContent = currentUser.email;
+
+  // 自分の instructor レコードを取得
+  const { data: inst } = await _sb
+    .from('instructors')
+    .select('*')
+    .eq('user_id', currentUser.id)
+    .maybeSingle();
+
+  myInstructor = inst;
+
+  if (!myInstructor) {
+    document.getElementById('setup-guard').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('app').style.display = 'block';
+  renderProfileForm();
+  checkNewInquiries();
+}
+
+async function handleLogout() {
+  await _sb.auth.signOut();
+  location.href = '../auth.html';
+}
+
+// ============================================================
+// Tabs
+// ============================================================
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  ['profile','listings','slots','inquiries'].forEach(t => {
+    document.getElementById(`tab-${t}`).style.display = t === name ? '' : 'none';
+  });
+  if (name === 'listings')  loadListings();
+  if (name === 'slots')     loadSlots();
+  if (name === 'inquiries') loadInquiries();
+}
+
+// ============================================================
+// プロフィール
+// ============================================================
+function renderProfileForm() {
+  const i = myInstructor;
+  const certsStr = (i.certifications || []).join(', ');
+  const specsStr = (i.specialties    || []).join(', ');
+  const areasStr = (i.areas          || []).join(', ');
+
+  document.getElementById('profile-form-wrap').innerHTML = `
+    <div class="profile-hero">
+      <div class="profile-avatar">
+        ${i.photo_url
+          ? `<img src="${escHtml(i.photo_url)}" alt="${escHtml(i.name)}">`
+          : escHtml((i.name || '?').charAt(0))}
+      </div>
+      <div class="profile-meta">
+        <h2>${escHtml(i.name)}</h2>
+        <p>${escHtml(i.prefecture || '')} ${escHtml(i.city || '')}</p>
+      </div>
+    </div>
+
+    <div class="form-section-title">基本情報</div>
+    <div class="form-row">
+      <div class="form-group"><label>氏名 / 屋号</label><input type="text" id="p-name" value="${escHtml(i.name || '')}"></div>
+      <div class="form-group"><label>英語名</label><input type="text" id="p-name-en" value="${escHtml(i.name_en || '')}" placeholder="Kaito Yamada"></div>
+    </div>
+    <div class="form-group"><label>自己紹介（日本語）</label><textarea id="p-bio">${escHtml(i.bio || '')}</textarea></div>
+    <div class="form-group"><label>自己紹介（英語）</label><textarea id="p-bio-en">${escHtml(i.bio_en || '')}</textarea></div>
+
+    <div class="form-section-title">エリア</div>
+    <div class="form-row">
+      <div class="form-group"><label>都道府県</label><input type="text" id="p-pref" value="${escHtml(i.prefecture || '')}"></div>
+      <div class="form-group"><label>市区町村</label><input type="text" id="p-city" value="${escHtml(i.city || '')}"></div>
+    </div>
+    <div class="form-group">
+      <label>活動エリア（カンマ区切り）</label>
+      <input type="text" id="p-areas" value="${escHtml(areasStr)}" placeholder="例：沖縄, 石垣島">
+    </div>
+
+    <div class="form-section-title">資格・専門</div>
+    <div class="form-group">
+      <label>資格（カンマ区切り）</label>
+      <input type="text" id="p-certs" value="${escHtml(certsStr)}" placeholder="例：AIDA インストラクター, SSI">
+    </div>
+    <div class="form-group">
+      <label>専門・得意分野（カンマ区切り）</label>
+      <input type="text" id="p-specs" value="${escHtml(specsStr)}" placeholder="例：初心者指導, 競技トレーニング">
+    </div>
+    <div class="form-group">
+      <label>指導歴（年）</label>
+      <input type="number" id="p-exp" value="${i.experience_years || ''}" min="0">
+    </div>
+
+    <div class="form-section-title">メディア・SNS</div>
+    <div class="form-group"><label>プロフィール写真URL</label><input type="url" id="p-photo" value="${escHtml(i.photo_url || '')}" placeholder="https://..."></div>
+    <div class="form-group"><label>紹介動画URL（YouTube / Vimeo）</label><input type="url" id="p-video" value="${escHtml(i.intro_video_url || '')}" placeholder="https://..."></div>
+    <div class="form-row">
+      <div class="form-group"><label>Webサイト</label><input type="url" id="p-web" value="${escHtml(i.website_url || '')}" placeholder="https://..."></div>
+      <div class="form-group"><label>Instagram</label><input type="url" id="p-ig" value="${escHtml(i.instagram_url || '')}" placeholder="https://instagram.com/..."></div>
+    </div>
+    <div class="form-group"><label>YouTube</label><input type="url" id="p-yt" value="${escHtml(i.youtube_url || '')}" placeholder="https://youtube.com/..."></div>
+
+    <div class="form-section-title">公開設定</div>
+    <div class="form-group">
+      <div class="toggle-wrap">
+        <label class="toggle"><input type="checkbox" id="p-public" ${i.is_public ? 'checked' : ''}><span class="toggle-track"></span></label>
+        <span class="toggle-label">インストラクター一覧に表示する</span>
+      </div>
+    </div>
+
+    <div class="save-row">
+      <button class="btn-primary" onclick="saveProfile()">プロフィールを保存</button>
+    </div>
+  `;
+}
+
+async function saveProfile() {
+  const toArr = v => v.split(',').map(s => s.trim()).filter(Boolean);
+  const payload = {
+    name:             document.getElementById('p-name').value.trim(),
+    name_en:          document.getElementById('p-name-en').value.trim() || null,
+    bio:              document.getElementById('p-bio').value.trim()     || null,
+    bio_en:           document.getElementById('p-bio-en').value.trim() || null,
+    prefecture:       document.getElementById('p-pref').value.trim()   || null,
+    city:             document.getElementById('p-city').value.trim()   || null,
+    areas:            toArr(document.getElementById('p-areas').value),
+    certifications:   toArr(document.getElementById('p-certs').value),
+    specialties:      toArr(document.getElementById('p-specs').value),
+    experience_years: parseInt(document.getElementById('p-exp').value) || null,
+    photo_url:        document.getElementById('p-photo').value.trim()  || null,
+    intro_video_url:  document.getElementById('p-video').value.trim()  || null,
+    website_url:      document.getElementById('p-web').value.trim()    || null,
+    instagram_url:    document.getElementById('p-ig').value.trim()     || null,
+    youtube_url:      document.getElementById('p-yt').value.trim()     || null,
+    is_public:        document.getElementById('p-public').checked,
+    updated_at:       new Date().toISOString(),
+  };
+
+  if (!payload.name) { showToast('氏名は必須です', 'error'); return; }
+
+  const { error } = await _sb.from('instructors').update(payload).eq('id', myInstructor.id);
+  if (error) { showToast('保存に失敗しました: ' + error.message, 'error'); return; }
+
+  myInstructor = { ...myInstructor, ...payload };
+  showToast('プロフィールを保存しました', 'success');
+  renderProfileForm();
+}
+
+// ── プロフィール新規作成 ──
+function showCreateProfile() {
+  document.getElementById('create-profile-modal').classList.add('open');
+}
+function closeCreateProfile() {
+  document.getElementById('create-profile-modal').classList.remove('open');
+}
+async function createProfile() {
+  const toArr = v => v.split(',').map(s => s.trim()).filter(Boolean);
+  const name = document.getElementById('cp-name').value.trim();
+  if (!name) { showToast('氏名は必須です', 'error'); return; }
+
+  const { data: inst, error } = await _sb.from('instructors').insert({
+    user_id:          currentUser.id,
+    name,
+    bio:              document.getElementById('cp-bio').value.trim()   || null,
+    prefecture:       document.getElementById('cp-pref').value.trim() || null,
+    city:             document.getElementById('cp-city').value.trim() || null,
+    certifications:   toArr(document.getElementById('cp-certs').value),
+    experience_years: parseInt(document.getElementById('cp-exp').value) || null,
+    is_public:        false,
+  }).select().single();
+
+  if (error) { showToast('作成に失敗しました: ' + error.message, 'error'); return; }
+
+  myInstructor = inst;
+  closeCreateProfile();
+  document.getElementById('setup-guard').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  renderProfileForm();
+  showToast('プロフィールを作成しました', 'success');
+}
+
+// ============================================================
+// コース管理
+// ============================================================
+async function loadListings() {
+  const el = document.getElementById('listings-content');
+  el.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
+
+  const { data: listings, error } = await _sb
+    .from('listings')
+    .select('*')
+    .eq('instructor_id', myInstructor.id)
+    .order('sort_order', { ascending: true });
+
+  if (error) { el.innerHTML = `<div class="empty">取得エラー: ${error.message}</div>`; return; }
+  if (!listings || !listings.length) {
+    el.innerHTML = '<div class="empty">コースがまだありません。追加してみましょう。</div>';
+    return;
+  }
+
+  el.innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>タイトル</th><th>カテゴリ</th><th>エリア</th><th>料金</th><th>公開</th><th>操作</th></tr>
+        </thead>
+        <tbody>${listings.map(listingRow).join('')}</tbody>
+      </table>
+    </div>`;
+}
+
+function listingRow(l) {
+  const price = l.price ? `¥${l.price.toLocaleString()} ${l.price_unit || ''}` : '—';
+  const pub   = l.is_public
+    ? '<span class="badge badge-public">公開</span>'
+    : '<span class="badge badge-private">非公開</span>';
+  return `
+    <tr>
+      <td class="primary" style="max-width:200px;">${escHtml(l.title)}</td>
+      <td>${escHtml(l.category || '—')}</td>
+      <td>${escHtml(l.area || '—')}</td>
+      <td style="white-space:nowrap;">${escHtml(price)}</td>
+      <td>${pub}</td>
+      <td><div class="actions">
+        <button class="btn-edit"   onclick="openListingModal('${l.id}')">編集</button>
+        <button class="btn-danger" onclick="deleteListing('${l.id}')">削除</button>
+      </div></td>
+    </tr>`;
+}
+
+function openListingModal(listingId = null) {
+  editListingId = listingId;
+  document.getElementById('listing-modal-title').textContent = listingId ? 'コースを編集' : 'コースを追加';
+  document.getElementById('l-save-label').textContent        = listingId ? '更新する' : '保存する';
+  ['l-title','l-desc','l-pref','l-area','l-tags','l-image'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('l-price').value      = '';
+  document.getElementById('l-price-unit').value = '〜/人';
+  document.getElementById('l-public').checked   = true;
+  document.getElementById('l-category').value   = 'フリーダイビング体験';
+  document.getElementById('l-intent').value     = 'try';
+
+  if (listingId) {
+    _sb.from('listings').select('*').eq('id', listingId).single().then(({ data: l }) => {
+      if (!l) return;
+      document.getElementById('l-title').value      = l.title      || '';
+      document.getElementById('l-desc').value       = l.description|| '';
+      document.getElementById('l-category').value   = l.category   || 'フリーダイビング体験';
+      document.getElementById('l-intent').value     = l.intent     || 'try';
+      document.getElementById('l-pref').value       = l.prefecture || '';
+      document.getElementById('l-area').value       = l.area       || '';
+      document.getElementById('l-price').value      = l.price      || '';
+      document.getElementById('l-price-unit').value = l.price_unit || '〜/人';
+      document.getElementById('l-tags').value       = (l.tags || []).join(', ');
+      document.getElementById('l-image').value      = l.image_url  || '';
+      document.getElementById('l-public').checked   = l.is_public  !== false;
+    });
+  }
+  document.getElementById('listing-modal').classList.add('open');
+}
+
+function closeListingModal() {
+  document.getElementById('listing-modal').classList.remove('open');
+  editListingId = null;
+}
+
+async function saveListing() {
+  const title = document.getElementById('l-title').value.trim();
+  if (!title) { showToast('タイトルは必須です', 'error'); return; }
+
+  const tagsRaw = document.getElementById('l-tags').value;
+  const tags    = tagsRaw.split(',').map(s => s.trim()).filter(Boolean);
+
+  const payload = {
+    instructor_id: myInstructor.id,
+    title,
+    description:   document.getElementById('l-desc').value.trim()       || null,
+    category:      document.getElementById('l-category').value,
+    intent:        document.getElementById('l-intent').value,
+    prefecture:    document.getElementById('l-pref').value.trim()        || null,
+    area:          document.getElementById('l-area').value.trim()        || null,
+    price:         parseInt(document.getElementById('l-price').value)    || null,
+    price_unit:    document.getElementById('l-price-unit').value.trim()  || '〜/人',
+    tags,
+    image_url:     document.getElementById('l-image').value.trim()       || null,
+    is_public:     document.getElementById('l-public').checked,
+    updated_at:    new Date().toISOString(),
+  };
+
+  let error;
+  if (editListingId) {
+    ({ error } = await _sb.from('listings').update(payload).eq('id', editListingId));
+  } else {
+    ({ error } = await _sb.from('listings').insert(payload));
+  }
+  if (error) { showToast('保存に失敗しました: ' + error.message, 'error'); return; }
+  showToast(editListingId ? 'コースを更新しました' : 'コースを追加しました', 'success');
+  closeListingModal();
+  loadListings();
+  populateSlotListings(); // 空き枠モーダルのリストも更新
+}
+
+async function deleteListing(id) {
+  if (!confirm('このコースを削除しますか？\n空き枠・予約が紐づいている場合は削除できません。')) return;
+  const { error } = await _sb.from('listings').delete().eq('id', id);
+  if (error) { showToast('削除できませんでした: ' + error.message, 'error'); return; }
+  showToast('コースを削除しました', 'success');
+  loadListings();
+}
+
+// ============================================================
+// 空き枠管理
+// ============================================================
+async function populateSlotListings() {
+  const { data: listings } = await _sb
+    .from('listings')
+    .select('id, title')
+    .eq('instructor_id', myInstructor.id)
+    .order('sort_order');
+  const sel = document.getElementById('s-listing');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">指定なし（全コース共通）</option>';
+  (listings || []).forEach(l => {
+    const opt = document.createElement('option');
+    opt.value = l.id; opt.textContent = l.title;
+    sel.appendChild(opt);
+  });
+  sel.value = cur;
+}
+
+async function loadSlots() {
+  const el = document.getElementById('slots-content');
+  el.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
+
+  const { data: slots, error } = await _sb
+    .from('availability_slots')
+    .select('*, listings(title)')
+    .eq('instructor_id', myInstructor.id)
+    .order('slot_date', { ascending: false });
+
+  if (error) { el.innerHTML = `<div class="empty">取得エラー: ${error.message}</div>`; return; }
+  if (!slots || !slots.length) { el.innerHTML = '<div class="empty">空き枠がありません</div>'; return; }
+
+  el.innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>日付</th><th>時間</th><th>コース</th><th>枠</th><th>状態</th><th>操作</th></tr>
+        </thead>
+        <tbody>${slots.map(slotRow).join('')}</tbody>
+      </table>
+    </div>`;
+}
+
+function slotRow(s) {
+  const date  = s.slot_date ? fmtDate(s.slot_date) : '—';
+  const time  = `${(s.start_time||'').slice(0,5)}〜${(s.end_time||'').slice(0,5)}`;
+  const title = s.listings?.title || '（全コース）';
+  const seats = `${s.booked_count||0} / ${s.max_participants}`;
+  const badge = s.is_active
+    ? '<span class="badge badge-active">有効</span>'
+    : '<span class="badge badge-inactive">無効</span>';
+  return `
+    <tr>
+      <td class="primary">${date}</td>
+      <td>${time}</td>
+      <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(title)}</td>
+      <td>${seats}</td>
+      <td>${badge}</td>
+      <td><div class="actions">
+        <button class="btn-edit"   onclick="openSlotModal('${s.id}')">編集</button>
+        <button class="btn-danger" onclick="deleteSlot('${s.id}')">削除</button>
+      </div></td>
+    </tr>`;
+}
+
+function openSlotModal(slotId = null) {
+  editSlotId = slotId;
+  document.getElementById('slot-modal-title').textContent = slotId ? '空き枠を編集' : '空き枠を追加';
+  document.getElementById('s-save-label').textContent     = slotId ? '更新する' : '保存する';
+  ['s-date','s-start','s-end'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('s-max').value    = 4;
+  document.getElementById('s-active').checked = true;
+  populateSlotListings();
+
+  if (slotId) {
+    _sb.from('availability_slots').select('*').eq('id', slotId).single().then(({ data: s }) => {
+      if (!s) return;
+      setTimeout(() => { document.getElementById('s-listing').value = s.listing_id || ''; }, 50);
+      document.getElementById('s-date').value  = s.slot_date || '';
+      document.getElementById('s-start').value = (s.start_time||'').slice(0,5);
+      document.getElementById('s-end').value   = (s.end_time||'').slice(0,5);
+      document.getElementById('s-max').value   = s.max_participants || 4;
+      document.getElementById('s-active').checked = s.is_active !== false;
+    });
+  }
+  document.getElementById('slot-modal').classList.add('open');
+}
+
+function closeSlotModal() {
+  document.getElementById('slot-modal').classList.remove('open');
+  editSlotId = null;
+}
+
+async function saveSlot() {
+  const slotDate = document.getElementById('s-date').value;
+  const start    = document.getElementById('s-start').value;
+  const end      = document.getElementById('s-end').value;
+  if (!slotDate || !start || !end) { showToast('日付・時間は必須です', 'error'); return; }
+  if (start >= end) { showToast('開始時刻は終了時刻より前にしてください', 'error'); return; }
+
+  const payload = {
+    instructor_id:    myInstructor.id,
+    listing_id:       document.getElementById('s-listing').value || null,
+    slot_date:        slotDate,
+    start_time:       start,
+    end_time:         end,
+    max_participants: parseInt(document.getElementById('s-max').value) || 1,
+    is_active:        document.getElementById('s-active').checked,
+  };
+
+  let error;
+  if (editSlotId) {
+    ({ error } = await _sb.from('availability_slots').update(payload).eq('id', editSlotId));
+  } else {
+    payload.booked_count = 0;
+    ({ error } = await _sb.from('availability_slots').insert(payload));
+  }
+  if (error) { showToast('保存に失敗しました: ' + error.message, 'error'); return; }
+  showToast(editSlotId ? '空き枠を更新しました' : '空き枠を追加しました', 'success');
+  closeSlotModal();
+  loadSlots();
+}
+
+async function deleteSlot(id) {
+  if (!confirm('この空き枠を削除しますか？')) return;
+  const { error } = await _sb.from('availability_slots').delete().eq('id', id);
+  if (error) { showToast('削除できませんでした: ' + error.message, 'error'); return; }
+  showToast('空き枠を削除しました', 'success');
+  loadSlots();
+}
+
+// ============================================================
+// 問い合わせ
+// ============================================================
+async function checkNewInquiries() {
+  const { count } = await _sb
+    .from('inquiries')
+    .select('id', { count: 'exact', head: true })
+    .eq('instructor_id', myInstructor.id)
+    .eq('status', 'new');
+  if (count > 0) {
+    const badge = document.getElementById('inq-badge');
+    badge.textContent = count;
+    badge.style.display = 'inline';
+  }
+}
+
+async function loadInquiries() {
+  const el     = document.getElementById('inquiries-content');
+  el.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
+  const status = document.getElementById('inq-filter').value;
+
+  let query = _sb
+    .from('inquiries')
+    .select('*, listings(title)')
+    .eq('instructor_id', myInstructor.id)
+    .order('created_at', { ascending: false });
+  if (status) query = query.eq('status', status);
+
+  const { data: inqs, error } = await query;
+  if (error) { el.innerHTML = `<div class="empty">取得エラー: ${error.message}</div>`; return; }
+  if (!inqs || !inqs.length) { el.innerHTML = '<div class="empty">問い合わせはありません</div>'; return; }
+
+  el.innerHTML = inqs.map(inqCard).join('');
+}
+
+function inqCard(inq) {
+  const date    = inq.created_at ? new Date(inq.created_at).toLocaleDateString('ja-JP') : '—';
+  const listing = inq.listings?.title || '（コース指定なし）';
+  const statusOpts = ['new','replied','closed'].map(s =>
+    `<option value="${s}"${inq.status===s?' selected':''}>${s}</option>`
+  ).join('');
+  return `
+    <div class="card" style="margin-bottom:12px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:15px;font-weight:600;color:var(--on-dark);margin-bottom:3px;">${escHtml(inq.name)}</div>
+          <div style="font-size:12px;color:var(--on-dark-soft);">${escHtml(inq.email)}${inq.phone ? ' · ' + escHtml(inq.phone) : ''}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+          <span class="badge badge-${inq.status}">${inq.status}</span>
+          <select class="status-select" onchange="updateInqStatus('${inq.id}', this.value, this)">
+            ${statusOpts}
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:10px;font-size:12px;color:var(--on-dark-soft);">
+        ${escHtml(listing)} · ${date}${inq.preferred_date ? ' · 希望日: ' + escHtml(inq.preferred_date) : ''}${inq.participant_count ? ' · ' + inq.participant_count + '名' : ''}
+      </div>
+      <div class="inq-body">${escHtml(inq.message || '')}</div>
+    </div>`;
+}
+
+async function updateInqStatus(id, newStatus, selectEl) {
+  const { error } = await _sb.from('inquiries').update({ status: newStatus }).eq('id', id);
+  if (error) { showToast('更新に失敗しました', 'error'); return; }
+  const badge = selectEl.closest('.card').querySelector('.badge');
+  if (badge) { badge.className = `badge badge-${newStatus}`; badge.textContent = newStatus; }
+  showToast('ステータスを更新しました', 'success');
+  checkNewInquiries();
+}
+
+// ============================================================
+// Helpers
+// ============================================================
+function fmtDate(iso) {
+  const d = new Date(iso + 'T00:00:00');
+  return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+}
+function escHtml(str) {
+  return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function showToast(msg, type = 'success') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className   = `toast ${type}`;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.add('hidden'), 2800);
+}
+
+// モーダル外クリックで閉じる
+['listing-modal','slot-modal','create-profile-modal'].forEach(id => {
+  document.getElementById(id).addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
+});
+
+boot();
+</script>
+</body>
+</html>
