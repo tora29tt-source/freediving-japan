@@ -249,6 +249,10 @@ td.primary { color: var(--on-dark); font-weight: 500; }
         問い合わせ
         <span id="inq-badge" style="display:none;margin-left:5px;background:var(--warm);color:white;border-radius:100px;padding:1px 6px;font-size:10px;font-weight:700;"></span>
       </button>
+      <button class="tab"         data-tab="bookings"  onclick="switchTab('bookings')">
+        予約管理
+        <span id="booking-badge" style="display:none;margin-left:5px;background:var(--teal);color:var(--ocean-deep);border-radius:100px;padding:1px 6px;font-size:10px;font-weight:700;"></span>
+      </button>
     </div>
   </div>
 
@@ -281,6 +285,21 @@ td.primary { color: var(--on-dark); font-weight: 500; }
         </button>
       </div>
       <div id="slots-content"><div class="spinner-wrap"><div class="spinner"></div></div></div>
+    </div>
+
+    <!-- ── 予約管理 ── -->
+    <div id="tab-bookings" style="display:none;">
+      <div class="section-header">
+        <span class="section-title">予約一覧</span>
+        <select class="btn-edit" id="booking-filter" onchange="loadBookings()" style="padding:8px 12px;border-radius:10px;">
+          <option value="">すべて</option>
+          <option value="paid">支払済</option>
+          <option value="confirmed">確認済</option>
+          <option value="pending">保留中</option>
+          <option value="cancelled">キャンセル</option>
+        </select>
+      </div>
+      <div id="bookings-content"><div class="spinner-wrap"><div class="spinner"></div></div></div>
     </div>
 
     <!-- ── 問い合わせ ── -->
@@ -695,12 +714,13 @@ async function handleLogout() {
 // ============================================================
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
-  ['profile','listings','slots','inquiries'].forEach(t => {
+  ['profile','listings','slots','inquiries','bookings'].forEach(t => {
     document.getElementById(`tab-${t}`).style.display = t === name ? '' : 'none';
   });
   if (name === 'listings')  loadListings();
   if (name === 'slots')     loadSlots();
   if (name === 'inquiries') loadInquiries();
+  if (name === 'bookings')  loadBookings();
 }
 
 // ============================================================
@@ -1405,6 +1425,89 @@ async function deleteSlot(id) {
   if (error) { showToast('削除できませんでした: ' + error.message, 'error'); return; }
   showToast('空き枠を削除しました', 'success');
   loadSlots();
+}
+
+// ============================================================
+// 予約管理
+// ============================================================
+async function loadBookings() {
+  const el = document.getElementById('bookings-content');
+  el.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
+
+  const statusFilter = document.getElementById('booking-filter').value;
+
+  let ids;
+  if (myRole === 'shop') {
+    if (!myShopInstructors.length) { el.innerHTML = '<p style="color:var(--on-dark-soft);text-align:center;padding:40px;">担当インストラクターがいません</p>'; return; }
+    ids = myShopInstructors.map(i => i.id);
+  } else {
+    ids = [myInstructor.id];
+  }
+
+  let query = _sb.from('bookings')
+    .select('*, listings(title), availability_slots(slot_date, start_time, end_time)')
+    .in('instructor_id', ids)
+    .order('created_at', { ascending: false })
+    .limit(100);
+
+  if (statusFilter) query = query.eq('status', statusFilter);
+
+  const { data, error } = await query;
+  if (error) { el.innerHTML = `<p style="color:var(--warm);">読み込みエラー: ${error.message}</p>`; return; }
+  if (!data?.length) { el.innerHTML = '<p style="color:var(--on-dark-soft);text-align:center;padding:40px;">予約はまだありません</p>'; return; }
+
+  // バッジ更新（支払済・確認待ち）
+  const newCount = data.filter(b => b.status === 'paid').length;
+  const badge = document.getElementById('booking-badge');
+  badge.style.display = newCount > 0 ? '' : 'none';
+  badge.textContent   = newCount;
+
+  const statusLabel = { pending:'保留中', paid:'支払済', confirmed:'確認済', cancelled:'キャンセル', refunded:'返金済' };
+  const statusColor  = { pending:'var(--on-dark-soft)', paid:'var(--teal)', confirmed:'#4ade80', cancelled:'var(--on-dark-soft)', refunded:'var(--warm)' };
+
+  el.innerHTML = `<div style="overflow-x:auto;"><table class="data-table">
+    <thead><tr>
+      <th>日程</th><th>コース</th><th>予約者</th><th>人数</th><th>金額</th><th>ステータス</th><th>操作</th>
+    </tr></thead>
+    <tbody>
+      ${data.map(b => {
+        const slot    = b.availability_slots;
+        const dateStr = slot ? `${slot.slot_date}<br><span style="font-size:11px;color:var(--on-dark-soft);">${slot.start_time?.slice(0,5)}〜${slot.end_time?.slice(0,5)}</span>` : '—';
+        const course  = escHtml(b.listings?.title || '—');
+        const guest   = `${escHtml(b.guest_name)}<br><span style="font-size:11px;color:var(--on-dark-soft);">${escHtml(b.guest_email)}</span>`;
+        const rental  = b.rental_requests?.length ? `<br><button class="btn-edit" style="font-size:11px;padding:2px 8px;margin-top:4px;" onclick='showRentalRequests(${JSON.stringify(JSON.stringify(b.rental_requests))})'>機材サイズ確認</button>` : '';
+        return `<tr>
+          <td>${dateStr}</td>
+          <td>${course}</td>
+          <td>${guest}${rental}</td>
+          <td style="text-align:center;">${b.participant_count}名</td>
+          <td style="text-align:right;">¥${(b.total_amount||0).toLocaleString()}</td>
+          <td><span style="color:${statusColor[b.status]};font-weight:600;font-size:13px;">${statusLabel[b.status]||b.status}</span></td>
+          <td><div class="actions">
+            ${b.status === 'paid' ? `<button class="btn-edit" onclick="updateBookingStatus('${b.id}','confirmed')">確認</button>` : ''}
+            ${['paid','confirmed'].includes(b.status) ? `<button class="btn-danger" onclick="updateBookingStatus('${b.id}','cancelled')">取消</button>` : ''}
+          </div></td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table></div>`;
+}
+
+function showRentalRequests(jsonStr) {
+  const requests = JSON.parse(jsonStr);
+  const lines = requests.map(r =>
+    `参加者${r.participant}: ` + (r.items||[]).map(i => `${i.gear} → ${i.size}`).join('、')
+  ).join('\n');
+  alert('レンタル機材サイズ\n\n' + lines);
+}
+
+async function updateBookingStatus(id, status) {
+  const label = { confirmed:'確認済みに', cancelled:'キャンセルに' }[status];
+  if (!confirm(`この予約を${label}変更しますか？`)) return;
+  const { error } = await _sb.from('bookings').update({ status, updated_at: new Date().toISOString() }).eq('id', id);
+  if (error) { showToast('更新に失敗: ' + error.message, 'error'); return; }
+  showToast('ステータスを更新しました', 'success');
+  loadBookings();
 }
 
 // ============================================================
