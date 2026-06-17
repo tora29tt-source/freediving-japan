@@ -118,26 +118,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sa
 .other-card-arrow { color: var(--on-dark-soft); flex-shrink: 0; }
 .other-card-arrow .icon { width: 16px; height: 16px; }
 
-/* inquiry form */
-.inquiry-section { background: rgba(46,196,182,0.06); border: 1px solid rgba(46,196,182,0.2); border-radius: 20px; padding: 24px 20px; margin-bottom: 20px; }
-.inquiry-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
-.inquiry-subtitle { font-size: 12px; color: var(--on-dark-soft); margin-bottom: 20px; line-height: 1.6; }
-.form-group { margin-bottom: 14px; }
-.form-label { font-size: 11px; letter-spacing: 0.1em; color: var(--on-dark-soft); margin-bottom: 6px; display: flex; align-items: center; gap: 4px; }
-.form-label .req { color: var(--warm); font-size: 10px; }
-.form-input, .form-textarea, .form-select { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid var(--hairline); border-radius: 10px; padding: 12px 14px; font-size: 14px; color: var(--on-dark); outline: none; transition: border-color 0.2s, background 0.2s; font-family: inherit; }
-.form-input::placeholder, .form-textarea::placeholder { color: var(--on-dark-soft); }
-.form-input:focus, .form-textarea:focus, .form-select:focus { border-color: rgba(46,196,182,0.5); background: rgba(255,255,255,0.10); }
-.form-textarea { resize: vertical; min-height: 100px; }
-.form-select option { background: #0e3d5c; color: var(--on-dark); }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.submit-btn { width: 100%; padding: 16px; background: var(--teal); border: none; border-radius: 12px; font-size: 15px; font-weight: 600; color: var(--ocean-deep); cursor: pointer; transition: background 0.2s, transform 0.1s; letter-spacing: 0.02em; margin-top: 6px; }
-.submit-btn:hover { background: var(--teal-light); }
-.submit-btn:active { transform: scale(0.98); }
-.submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.form-msg { text-align: center; font-size: 13px; margin-top: 12px; padding: 12px; border-radius: 10px; display: none; }
-.form-msg.success { background: rgba(46,196,182,0.1); color: var(--teal-light); border: 1px solid rgba(46,196,182,0.2); }
-.form-msg.error { background: rgba(249,115,22,0.1); color: var(--warm); border: 1px solid rgba(249,115,22,0.2); }
+/* booking CTA */
+.booking-section { background: linear-gradient(135deg, rgba(46,196,182,0.10) 0%, rgba(26,95,130,0.14) 100%); border: 1px solid rgba(46,196,182,0.25); border-radius: 20px; padding: 28px 20px; margin-bottom: 20px; text-align: center; }
+.booking-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.booking-subtitle { font-size: 13px; color: var(--on-dark-mid); margin-bottom: 24px; line-height: 1.7; }
+.booking-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 17px; background: var(--teal); border: none; border-radius: 14px; font-size: 16px; font-weight: 700; color: var(--ocean-deep); cursor: pointer; transition: background 0.2s, transform 0.1s; letter-spacing: 0.04em; text-decoration: none; }
+.booking-btn:hover { background: var(--teal-light); }
+.booking-btn:active { transform: scale(0.98); }
+.booking-coming { margin-top: 12px; font-size: 11px; color: var(--on-dark-soft); letter-spacing: 0.05em; }
 
 /* bottom nav */
 .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: var(--on-dark-soft); cursor: pointer; background: none; border: none; transition: color 0.2s; }
@@ -439,50 +427,20 @@ function renderPage(inst, listing, otherListings, reviews = []) {
           : `<p style="font-size:13px;color:var(--on-dark-soft)">まだレビューがありません</p>`}
       </div>
 
-      <!-- inquiry form -->
-      <div class="inquiry-section">
-        <p class="inquiry-title">✉️ ${inst.name} に問い合わせる</p>
-        <p class="inquiry-subtitle">気になることがあれば、気軽にメッセージを送ってください。<br>通常2〜3営業日以内にご返信します。</p>
-        <form id="inquiryForm" onsubmit="submitInquiry(event)">
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">お名前 <span class="req">*</span></label>
-              <input class="form-input" type="text" id="inp-name" placeholder="山田 太郎" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">参加人数</label>
-              <select class="form-select" id="inp-count">
-                ${[1,2,3,4,5,6,7,8,9,10].map(n => `<option value="${n}">${n}名</option>`).join('')}
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">メールアドレス <span class="req">*</span></label>
-            <input class="form-input" type="email" id="inp-email" placeholder="your@email.com" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">電話番号（任意）</label>
-            <input class="form-input" type="tel" id="inp-phone" placeholder="090-1234-5678">
-          </div>
-          <div class="form-group">
-            <label class="form-label">ご希望の日程（任意）</label>
-            <input class="form-input" type="text" id="inp-date" placeholder="例：7月下旬〜8月上旬、週末希望 など">
-          </div>
-          <div class="form-group">
-            <label class="form-label">メッセージ <span class="req">*</span></label>
-            <textarea class="form-textarea" id="inp-message" placeholder="質問・希望など自由にお書きください" required></textarea>
-          </div>
-          <button type="submit" class="submit-btn" id="submitBtn">送信する</button>
-          <div class="form-msg" id="formMsg"></div>
-        </form>
+      <!-- booking CTA -->
+      <div class="booking-section" id="bookingSection">
+        <p class="booking-title">🤿 体験を予約する</p>
+        <p class="booking-subtitle">${listing ? listing.title + ' を' : 'このプランを'}オンラインで予約・決済できます。<br>日程・人数を選んでそのまま申し込みが完結します。</p>
+        <button class="booking-btn" onclick="alert('予約機能は準備中です。もうしばらくお待ちください！')">
+          予約・申し込みへ進む
+          <svg style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+        <p class="booking-coming">※ オンライン予約機能は準備中です</p>
       </div>
 
     </div><!-- /main -->
   `;
 
-  // form submit handler（render後に定義）
-  window._currentInstructorId = instructorId;
-  window._currentListingId    = listing?.id || null;
 }
 
 /* ── インストラクター モーダル ── */
@@ -553,48 +511,13 @@ function renderModal(inst) {
     ${areas.length ? `<div class="m-section"><p class="m-sec-title">活動エリア</p><div class="m-areas">${areas.map(a => `<span class="m-area-badge"><svg class="icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${a}</span>`).join('')}</div></div>` : ''}
     ${inst.bio ? `<div class="m-section"><p class="m-sec-title">自己紹介</p><p class="m-bio">${inst.bio}</p></div>` : ''}
     ${snsHtml ? `<div class="m-section"><p class="m-sec-title">リンク</p><div class="m-sns">${snsHtml}</div></div>` : ''}
-    <button class="m-cta" onclick="closeModal(); document.querySelector('.inquiry-section').scrollIntoView({behavior:'smooth'})">
-      問い合わせる
+    <button class="m-cta" onclick="closeModal(); document.getElementById('bookingSection').scrollIntoView({behavior:'smooth'})">
+      体験を予約する
       <svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
     </button>
   `;
 }
 
-async function submitInquiry(e) {
-  e.preventDefault();
-  const btn = document.getElementById('submitBtn');
-  const msg = document.getElementById('formMsg');
-  btn.disabled = true;
-  btn.textContent = '送信中...';
-
-  const payload = {
-    instructor_id:     window._currentInstructorId,
-    listing_id:        window._currentListingId || null,
-    name:              document.getElementById('inp-name').value.trim(),
-    email:             document.getElementById('inp-email').value.trim(),
-    phone:             document.getElementById('inp-phone').value.trim() || null,
-    preferred_date:    document.getElementById('inp-date').value.trim() || null,
-    participant_count: parseInt(document.getElementById('inp-count').value, 10),
-    message:           document.getElementById('inp-message').value.trim(),
-  };
-
-  try {
-    const { error } = await _sb.from('inquiries').insert(payload);
-    if (error) throw error;
-    msg.textContent  = '送信しました！インストラクターからのご返信をお待ちください。';
-    msg.className    = 'form-msg success';
-    msg.style.display = 'block';
-    document.getElementById('inquiryForm').reset();
-    btn.textContent  = '送信済み';
-  } catch (err) {
-    console.error(err);
-    msg.textContent   = '送信に失敗しました。時間をおいて再度お試しください。';
-    msg.className     = 'form-msg error';
-    msg.style.display = 'block';
-    btn.disabled      = false;
-    btn.textContent   = '送信する';
-  }
-}
 
 function formatDuration(minutes) {
   if (minutes < 60) return `${minutes}分`;
