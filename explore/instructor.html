@@ -815,7 +815,8 @@ async function fetchMonthSlots(year, month) {
 
   const { data } = await query;
   (data || []).forEach(s => {
-    (_slotsMap[s.slot_date] = _slotsMap[s.slot_date] || []).push(s);
+    const arr = _slotsMap[s.slot_date] = _slotsMap[s.slot_date] || [];
+    if (!arr.find(x => x.id === s.id)) arr.push(s); // 重複防止
   });
   renderCal();
 }

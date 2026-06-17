@@ -805,11 +805,7 @@ function renderProfileForm() {
 
     <div class="form-section-title">メディア・SNS</div>
     <div class="form-group"><label>紹介動画URL（YouTube / Vimeo）</label><input type="url" id="p-video" value="${escHtml(i.intro_video_url || '')}" placeholder="https://..."></div>
-    <div class="form-row">
-      <div class="form-group"><label>Instagram</label><input type="url" id="p-ig" value="${escHtml(i.instagram_url || '')}" placeholder="https://instagram.com/..."></div>
-      <div class="form-group"><label>YouTube</label><input type="url" id="p-yt" value="${escHtml(i.youtube_url || '')}" placeholder="https://youtube.com/..."></div>
-    </div>
-    <div class="form-group"><label>Webサイト</label><input type="url" id="p-web" value="${escHtml(i.website_url || '')}" placeholder="https://..."></div>
+    <div class="form-group"><label>YouTube</label><input type="url" id="p-yt" value="${escHtml(i.youtube_url || '')}" placeholder="https://youtube.com/..."></div>
 
     <div class="form-section-title">公開設定</div>
     <div class="form-group">
@@ -839,8 +835,6 @@ async function saveProfile() {
     languages:       collectLanguages('p'),
     photo_url:       _newInstructorPhotoUrl || myInstructor.photo_url || null,
     intro_video_url: document.getElementById('p-video').value.trim()  || null,
-    website_url:     document.getElementById('p-web').value.trim()    || null,
-    instagram_url:   document.getElementById('p-ig').value.trim()     || null,
     youtube_url:     document.getElementById('p-yt').value.trim()     || null,
     is_public:       document.getElementById('p-public').checked,
     updated_at:      new Date().toISOString(),
@@ -1023,11 +1017,7 @@ function renderShopProfileForm() {
     <div class="form-section-title">メディア・SNS</div>
     <div class="form-group"><label>ロゴ画像URL</label><input type="url" id="sp-logo"  value="${escHtml(s.logo_url||'')}"      placeholder="https://..."></div>
     <div class="form-group"><label>カバー画像URL</label><input type="url" id="sp-cover" value="${escHtml(s.cover_url||'')}"     placeholder="https://..."></div>
-    <div class="form-row">
-      <div class="form-group"><label>Instagram</label><input type="url" id="sp-ig" value="${escHtml(s.instagram_url||'')}" placeholder="https://instagram.com/..."></div>
-      <div class="form-group"><label>YouTube</label>  <input type="url" id="sp-yt" value="${escHtml(s.youtube_url||'')}"   placeholder="https://youtube.com/..."></div>
-    </div>
-    <div class="form-group"><label>Webサイト</label><input type="url" id="sp-web" value="${escHtml(s.website_url||'')}" placeholder="https://..."></div>
+    <div class="form-group"><label>YouTube</label><input type="url" id="sp-yt" value="${escHtml(s.youtube_url||'')}" placeholder="https://youtube.com/..."></div>
 
     <div class="form-section-title">公開設定</div>
     <div class="form-group">
@@ -1049,8 +1039,6 @@ async function saveShopProfile() {
     languages:     collectLanguages('sp'),
     logo_url:      document.getElementById('sp-logo').value.trim()   || null,
     cover_url:     document.getElementById('sp-cover').value.trim()  || null,
-    website_url:   document.getElementById('sp-web').value.trim()    || null,
-    instagram_url: document.getElementById('sp-ig').value.trim()     || null,
     youtube_url:   document.getElementById('sp-yt').value.trim()     || null,
     is_public:     document.getElementById('sp-public').checked,
     updated_at:    new Date().toISOString(),
