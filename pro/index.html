@@ -358,6 +358,30 @@ td.primary { color: var(--on-dark); font-weight: 500; }
       <p class="form-hint">カンマで区切って複数入力できます</p>
     </div>
 
+    <p class="form-section-title" style="margin-top:20px;">設備・機材</p>
+    <div class="form-group">
+      <label>利用可能な設備</label>
+      <div class="check-group" id="l-facilities">
+        <label class="check-item"><input type="checkbox" value="プール（屋内）"> プール（屋内）</label>
+        <label class="check-item"><input type="checkbox" value="プール（屋外）"> プール（屋外）</label>
+        <label class="check-item"><input type="checkbox" value="ボート・船"> ボート・船</label>
+        <label class="check-item"><input type="checkbox" value="更衣室"> 更衣室</label>
+        <label class="check-item"><input type="checkbox" value="シャワー"> シャワー</label>
+        <label class="check-item"><input type="checkbox" value="駐車場"> 駐車場</label>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>レンタル機材</label>
+      <div class="check-group" id="l-rental">
+        <label class="check-item"><input type="checkbox" value="ウェットスーツ"> ウェットスーツ</label>
+        <label class="check-item"><input type="checkbox" value="マスク・フィン"> マスク・フィン</label>
+        <label class="check-item"><input type="checkbox" value="ウェイト・ベルト"> ウェイト・ベルト</label>
+        <label class="check-item"><input type="checkbox" value="ラニヤード"> ラニヤード</label>
+        <label class="check-item"><input type="checkbox" value="ブイ・ライン"> ブイ・ライン</label>
+        <label class="check-item"><input type="checkbox" value="水中カメラ"> 水中カメラ</label>
+      </div>
+    </div>
+
     <div class="form-group">
       <label>画像URL</label>
       <input type="url" id="l-image" placeholder="https://...">
@@ -768,6 +792,9 @@ function openListingModal(listingId = null) {
   document.getElementById('l-public').checked   = true;
   document.getElementById('l-category').value   = 'フリーダイビング体験';
   document.getElementById('l-intent').value     = 'try';
+  ['l-facilities','l-rental'].forEach(id => {
+    document.querySelectorAll(`#${id} input[type="checkbox"]`).forEach(cb => cb.checked = false);
+  });
 
   if (listingId) {
     _sb.from('listings').select('*').eq('id', listingId).single().then(({ data: l }) => {
@@ -783,6 +810,9 @@ function openListingModal(listingId = null) {
       document.getElementById('l-tags').value       = (l.tags || []).join(', ');
       document.getElementById('l-image').value      = l.image_url  || '';
       document.getElementById('l-public').checked   = l.is_public  !== false;
+      // 設備・機材チェックボックスを復元
+      (l.facilities  || []).forEach(v => { const cb = document.querySelector(`#l-facilities input[value="${v}"]`); if (cb) cb.checked = true; });
+      (l.rental_gear || []).forEach(v => { const cb = document.querySelector(`#l-rental input[value="${v}"]`);     if (cb) cb.checked = true; });
     });
   }
   document.getElementById('listing-modal').classList.add('open');
@@ -811,6 +841,8 @@ async function saveListing() {
     price:         parseInt(document.getElementById('l-price').value)    || null,
     price_unit:    document.getElementById('l-price-unit').value.trim()  || '〜/人',
     tags,
+    facilities:    collectChecked('l-facilities'),
+    rental_gear:   collectChecked('l-rental'),
     image_url:     document.getElementById('l-image').value.trim()       || null,
     is_public:     document.getElementById('l-public').checked,
     updated_at:    new Date().toISOString(),
