@@ -506,16 +506,6 @@ td.primary { color: var(--on-dark); font-weight: 500; }
       </div>
     </div>
 
-    <div class="form-group">
-      <label>レッスン形態</label>
-      <div class="check-group" id="cp-styles">
-        <label class="check-item"><input type="checkbox" value="個人レッスン"> 個人レッスン</label>
-        <label class="check-item"><input type="checkbox" value="グループ"> グループ</label>
-        <label class="check-item"><input type="checkbox" value="合宿"> 合宿</label>
-        <label class="check-item"><input type="checkbox" value="オンライン"> オンライン</label>
-      </div>
-    </div>
-
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeCreateProfile()">キャンセル</button>
       <button class="btn-primary" onclick="createProfile()">作成する</button>
@@ -652,8 +642,7 @@ function renderProfileForm() {
   const i = myInstructor;
   const certsStr  = (i.certifications || []).join(', ');
   const specsStr  = (i.specialties    || []).join(', ');
-  const langs     = i.languages     || [];
-  const styles    = i.lesson_styles  || [];
+  const langs     = i.languages || [];
 
   // areas: ["沖縄（4月〜10月）","伊豆（通年）"] → rows
   const areaRows = (i.areas || []).map(a => {
@@ -669,8 +658,7 @@ function renderProfileForm() {
       ${idx > 0 ? `<button type="button" class="area-remove" onclick="removeAreaRow(this)">×</button>` : '<span style="width:24px;"></span>'}
     </div>`).join('');
 
-  const langOpts   = ['日本語','英語','中国語','フランス語','スペイン語'];
-  const styleOpts  = ['個人レッスン','グループ','合宿','オンライン'];
+  const langOpts   = ['日本語','英語','中国語'];
 
   document.getElementById('profile-form-wrap').innerHTML = `
     <div class="profile-hero">
@@ -717,13 +705,6 @@ function renderProfileForm() {
       </div>
     </div>
 
-    <div class="form-section-title">レッスン形態</div>
-    <div class="form-group">
-      <div class="check-group" id="p-styles">
-        ${styleOpts.map(s => `<label class="check-item"><input type="checkbox" value="${s}"${styles.includes(s)?' checked':''}> ${s}</label>`).join('')}
-      </div>
-    </div>
-
     <div class="form-section-title">メディア・SNS</div>
     <div class="form-group"><label>プロフィール写真URL</label><input type="url" id="p-photo" value="${escHtml(i.photo_url || '')}" placeholder="https://..."></div>
     <div class="form-group"><label>紹介動画URL（YouTube / Vimeo）</label><input type="url" id="p-video" value="${escHtml(i.intro_video_url || '')}" placeholder="https://..."></div>
@@ -759,7 +740,6 @@ async function saveProfile() {
     certifications:  toArr(document.getElementById('p-certs').value),
     specialties:     toArr(document.getElementById('p-specs').value),
     languages:       collectChecked('p-langs'),
-    lesson_styles:   collectChecked('p-styles'),
     photo_url:       document.getElementById('p-photo').value.trim()  || null,
     intro_video_url: document.getElementById('p-video').value.trim()  || null,
     website_url:     document.getElementById('p-web').value.trim()    || null,
@@ -805,7 +785,6 @@ async function createProfile() {
     areas:          collectAreaRows('cp-area-rows'),
     certifications: toArr(document.getElementById('cp-certs').value),
     languages:      collectChecked('cp-langs'),
-    lesson_styles:  collectChecked('cp-styles'),
     is_public:      false,
   }).select().single();
 
