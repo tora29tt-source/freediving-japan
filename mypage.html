@@ -631,22 +631,7 @@ body {
     </a>
   </div>
 
-  <!-- 管理画面（admin/staff のみ表示） -->
-  <div class="section" id="admin-section" style="display:none;">
-    <div class="sec-head">
-      <div class="sec-title">管理</div>
-    </div>
-    <a class="menu-card wide" href="admin/">
-      <span class="menu-icon">⚙️</span>
-      <div class="menu-body">
-        <div class="menu-title">管理画面</div>
-        <div class="menu-sub">予約・空き枠・ユーザー管理</div>
-      </div>
-      <span class="menu-arrow">›</span>
-    </a>
-  </div>
-
-  <!-- 近日のイベント -->
+<!-- 近日のイベント -->
   <div class="section">
     <div class="sec-head">
       <div class="sec-title">近日のスケジュール</div>
@@ -733,18 +718,20 @@ body {
       <input type="text" id="pf-name" placeholder="山田 海斗">
     </div>
     <div class="modal-form-group">
-      <label>プロフィール写真URL</label>
-      <input type="url" id="pf-photo" placeholder="https://...">
-      <div id="pf-preview" style="margin-top:10px;display:none;">
-        <img id="pf-preview-img" src="" alt="" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid rgba(46,196,182,0.3);">
+      <label>プロフィール写真</label>
+      <div style="display:flex;align-items:center;gap:16px;margin-top:4px;">
+        <div id="pf-avatar-circle" onclick="document.getElementById('pf-file').click()"
+          style="width:72px;height:72px;border-radius:50%;overflow:hidden;border:2px solid rgba(46,196,182,0.3);cursor:pointer;background:rgba(46,196,182,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <img id="pf-preview-img" src="" alt="" style="width:72px;height:72px;object-fit:cover;display:none;">
+          <span id="pf-avatar-placeholder" style="font-size:26px;">📷</span>
+        </div>
+        <div>
+          <div style="font-size:13px;color:var(--sub);">タップして写真を変更</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px;">JPG / PNG / WEBP（5MB以下）</div>
+          <div id="pf-upload-status" style="font-size:11px;color:var(--teal);margin-top:4px;"></div>
+        </div>
       </div>
-    </div>
-    <div class="modal-form-group">
-      <label>ロール</label>
-      <select id="pf-role">
-        <option value="athlete">選手・愛好家</option>
-        <option value="instructor">インストラクター</option>
-      </select>
+      <input type="file" id="pf-file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="handleAvatarFile(this)">
     </div>
     <div class="modal-actions">
       <button class="modal-btn-cancel" onclick="closeProfileModal()">キャンセル</button>
@@ -1057,8 +1044,7 @@ async function handleLogout() {
     .select('role')
     .eq('user_id', user.id);
   if (roles && roles.length > 0) {
-    document.getElementById('admin-section').style.display = '';
-    document.getElementById('admin-header-btn').style.display = '';
+document.getElementById('admin-header-btn').style.display = '';
   }
 
   // 認証状態の変化を監視（ログアウト検知）
@@ -1070,9 +1056,9 @@ async function handleLogout() {
 
 <script>
 // ── プロフィール編集 ──
-let _currentUser = null;
+let _currentUser   = null;
+let _newAvatarUrl  = null; // アップロード済みの新しい写真URL
 
-// 認証スクリプトと共有するためにユーザー情報を保持
 (async () => {
   const { data: { session } } = await _sb.auth.getSession();
   if (session) _currentUser = session.user;
@@ -1081,45 +1067,72 @@ let _currentUser = null;
 function openProfileModal() {
   if (!_currentUser) return;
   const meta = _currentUser.user_metadata || {};
-  document.getElementById('pf-name').value  = meta.name || meta.full_name || '';
-  document.getElementById('pf-photo').value = meta.avatar_url || meta.picture || '';
-  document.getElementById('pf-role').value  = meta.role || 'athlete';
-  updatePhotoPreview(meta.avatar_url || '');
+  _newAvatarUrl = null;
+  document.getElementById('pf-name').value = meta.name || meta.full_name || '';
+  document.getElementById('pf-upload-status').textContent = '';
+
+  const existingUrl = meta.avatar_url || meta.picture || null;
+  setAvatarPreview(existingUrl);
   document.getElementById('profile-modal').classList.add('open');
 }
 
 function closeProfileModal() {
   document.getElementById('profile-modal').classList.remove('open');
+  _newAvatarUrl = null;
 }
 
-document.getElementById('pf-photo').addEventListener('input', function() {
-  updatePhotoPreview(this.value.trim());
-});
-
-function updatePhotoPreview(url) {
-  const wrap = document.getElementById('pf-preview');
-  const img  = document.getElementById('pf-preview-img');
+function setAvatarPreview(url) {
+  const img         = document.getElementById('pf-preview-img');
+  const placeholder = document.getElementById('pf-avatar-placeholder');
   if (url) {
     img.src = url;
-    wrap.style.display = 'block';
+    img.style.display = 'block';
+    placeholder.style.display = 'none';
   } else {
-    wrap.style.display = 'none';
+    img.style.display = 'none';
+    placeholder.style.display = '';
   }
 }
 
-async function saveProfile() {
-  const name      = document.getElementById('pf-name').value.trim();
-  const avatarUrl = document.getElementById('pf-photo').value.trim();
-  const role      = document.getElementById('pf-role').value;
+async function handleAvatarFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    showMypageToast('5MB以下の画像を選択してください', 'error'); return;
+  }
 
+  // ローカルプレビュー
+  setAvatarPreview(URL.createObjectURL(file));
+  document.getElementById('pf-upload-status').textContent = 'アップロード中...';
+
+  const ext  = file.name.split('.').pop().toLowerCase();
+  const path = `${_currentUser.id}/mypage.${ext}`;
+
+  const { error } = await _sb.storage.from('avatars').upload(path, file, { upsert: true });
+  if (error) {
+    document.getElementById('pf-upload-status').textContent = 'アップロード失敗';
+    showMypageToast('アップロードに失敗しました: ' + error.message, 'error');
+    return;
+  }
+
+  const { data } = _sb.storage.from('avatars').getPublicUrl(path);
+  _newAvatarUrl = data.publicUrl;
+  document.getElementById('pf-upload-status').textContent = '✓ アップロード完了';
+}
+
+async function saveProfile() {
+  const name = document.getElementById('pf-name').value.trim();
   if (!name) { showMypageToast('表示名を入力してください', 'error'); return; }
+
+  const meta       = _currentUser.user_metadata || {};
+  const avatarUrl  = _newAvatarUrl || meta.avatar_url || meta.picture || null;
 
   const btn = document.getElementById('pf-save-btn');
   btn.disabled = true;
   btn.textContent = '保存中...';
 
   const { data, error } = await _sb.auth.updateUser({
-    data: { name, avatar_url: avatarUrl || null, role }
+    data: { name, avatar_url: avatarUrl }
   });
 
   btn.disabled = false;
@@ -1127,17 +1140,14 @@ async function saveProfile() {
 
   if (error) { showMypageToast('保存に失敗しました: ' + error.message, 'error'); return; }
 
-  // ページのヒーローを即時更新
   _currentUser = data.user;
-  const initials = name.replace(/\s+/g, '').slice(0, 2).toUpperCase();
   const heroAvatar = document.getElementById('heroAvatar');
   if (avatarUrl) {
     heroAvatar.innerHTML = `<img src="${avatarUrl}" alt="${name}" style="width:72px;height:72px;border-radius:50%;object-fit:cover;">`;
   } else {
-    heroAvatar.textContent = initials;
+    heroAvatar.textContent = name.replace(/\s+/g,'').slice(0,2).toUpperCase();
   }
   document.getElementById('heroName').textContent = name;
-  document.getElementById('heroRole').textContent = role === 'instructor' ? 'インストラクター' : '選手・愛好家';
 
   showMypageToast('プロフィールを保存しました', 'success');
   closeProfileModal();

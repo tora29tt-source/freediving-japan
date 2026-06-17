@@ -9,7 +9,10 @@ ALTER TABLE instructors
 -- listings: 設備・レンタル機材（コース単位で管理）
 ALTER TABLE listings
   ADD COLUMN IF NOT EXISTS facilities  TEXT[] DEFAULT '{}',
-  ADD COLUMN IF NOT EXISTS rental_gear TEXT[] DEFAULT '{}';
+  ADD COLUMN IF NOT EXISTS rental_gear JSONB   DEFAULT '[]'; -- [{name, price}] 形式
+
+-- rental_gear を TEXT[] から JSONB に変更（既に TEXT[] で追加済みの場合）
+-- ALTER TABLE listings ALTER COLUMN rental_gear TYPE JSONB USING '[]'::jsonb;
 
 -- listings: コース詳細情報
 ALTER TABLE listings

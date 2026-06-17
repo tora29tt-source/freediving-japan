@@ -451,14 +451,12 @@ td.primary { color: var(--on-dark); font-weight: 500; }
     </div>
     <div class="form-group">
       <label>レンタル機材</label>
-      <div class="check-group" id="l-rental">
-        <label class="check-item"><input type="checkbox" value="ウェットスーツ"> ウェットスーツ</label>
-        <label class="check-item"><input type="checkbox" value="マスク・フィン"> マスク・フィン</label>
-        <label class="check-item"><input type="checkbox" value="ウェイト・ベルト"> ウェイト・ベルト</label>
-        <label class="check-item"><input type="checkbox" value="ラニヤード"> ラニヤード</label>
-        <label class="check-item"><input type="checkbox" value="ブイ・ライン"> ブイ・ライン</label>
-        <label class="check-item"><input type="checkbox" value="水中カメラ"> 水中カメラ</label>
-      </div>
+      <div id="l-rental-rows" style="display:flex;flex-direction:column;gap:8px;"></div>
+      <button type="button" class="btn-secondary" style="margin-top:8px;font-size:13px;padding:6px 14px;" onclick="addRentalRow()">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+        機材を追加
+      </button>
+      <p class="form-hint">機材名と料金（無料の場合は0）を入力してください</p>
     </div>
 
     <div class="form-group">
@@ -639,13 +637,14 @@ td.primary { color: var(--on-dark); font-weight: 500; }
 // ============================================================
 // State
 // ============================================================
-let currentUser       = null;
-let myInstructor      = null; // instructors レコード（インストラクターモード）
-let myShop            = null; // shops レコード（ショップモード）
-let myRole            = null; // 'instructor' | 'shop'
-let myShopInstructors = []; // ショップ傘下のインストラクター一覧
-let editListingId     = null;
-let editSlotId        = null;
+let currentUser           = null;
+let myInstructor          = null;
+let myShop                = null;
+let myRole                = null;
+let myShopInstructors     = [];
+let editListingId         = null;
+let editSlotId            = null;
+let _newInstructorPhotoUrl = null; // アップロード済みの新しい写真URL
 
 // ============================================================
 // Boot
@@ -781,7 +780,23 @@ function renderProfileForm() {
     </div>
 
     <div class="form-section-title">メディア・SNS</div>
-    <div class="form-group"><label>プロフィール写真URL</label><input type="url" id="p-photo" value="${escHtml(i.photo_url || '')}" placeholder="https://..."></div>
+    <div class="form-group">
+      <label>プロフィール写真</label>
+      <div style="display:flex;align-items:center;gap:16px;margin-top:4px;">
+        <div onclick="document.getElementById('p-photo-file').click()"
+          style="width:72px;height:72px;border-radius:50%;overflow:hidden;border:2px solid rgba(46,196,182,0.3);cursor:pointer;background:rgba(46,196,182,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          ${i.photo_url
+            ? `<img id="p-photo-preview" src="${escHtml(i.photo_url)}" style="width:72px;height:72px;object-fit:cover;">`
+            : `<span id="p-photo-preview" style="font-size:26px;">📷</span>`}
+        </div>
+        <div>
+          <div style="font-size:13px;color:var(--on-dark-mid);">タップして写真を変更</div>
+          <div style="font-size:11px;color:var(--on-dark-soft);margin-top:3px;">JPG / PNG / WEBP（5MB以下）</div>
+          <div id="p-photo-status" style="font-size:11px;color:var(--teal);margin-top:4px;"></div>
+        </div>
+      </div>
+      <input type="file" id="p-photo-file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="handleInstructorPhotoFile(this)">
+    </div>
     <div class="form-group"><label>紹介動画URL（YouTube / Vimeo）</label><input type="url" id="p-video" value="${escHtml(i.intro_video_url || '')}" placeholder="https://..."></div>
     <div class="form-row">
       <div class="form-group"><label>Instagram</label><input type="url" id="p-ig" value="${escHtml(i.instagram_url || '')}" placeholder="https://instagram.com/..."></div>
@@ -815,7 +830,7 @@ async function saveProfile() {
     certifications:  toArr(document.getElementById('p-certs').value),
     specialties:     toArr(document.getElementById('p-specs').value),
     languages:       collectLanguages('p'),
-    photo_url:       document.getElementById('p-photo').value.trim()  || null,
+    photo_url:       _newInstructorPhotoUrl || myInstructor.photo_url || null,
     intro_video_url: document.getElementById('p-video').value.trim()  || null,
     website_url:     document.getElementById('p-web').value.trim()    || null,
     instagram_url:   document.getElementById('p-ig').value.trim()     || null,
@@ -830,8 +845,39 @@ async function saveProfile() {
   if (error) { showToast('保存に失敗しました: ' + error.message, 'error'); return; }
 
   myInstructor = { ...myInstructor, ...payload };
+  _newInstructorPhotoUrl = null;
   showToast('プロフィールを保存しました', 'success');
   renderProfileForm();
+}
+
+async function handleInstructorPhotoFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('5MB以下の画像を選択してください', 'error'); return;
+  }
+
+  // ローカルプレビュー
+  const previewEl = document.getElementById('p-photo-preview');
+  if (previewEl) {
+    previewEl.outerHTML = `<img id="p-photo-preview" src="${URL.createObjectURL(file)}" style="width:72px;height:72px;object-fit:cover;">`;
+  }
+  const statusEl = document.getElementById('p-photo-status');
+  if (statusEl) statusEl.textContent = 'アップロード中...';
+
+  const ext  = file.name.split('.').pop().toLowerCase();
+  const path = `${currentUser.id}/instructor.${ext}`;
+
+  const { error } = await _sb.storage.from('avatars').upload(path, file, { upsert: true });
+  if (error) {
+    if (statusEl) statusEl.textContent = 'アップロード失敗';
+    showToast('アップロードに失敗しました: ' + error.message, 'error');
+    return;
+  }
+
+  const { data } = _sb.storage.from('avatars').getPublicUrl(path);
+  _newInstructorPhotoUrl = data.publicUrl;
+  if (statusEl) statusEl.textContent = '✓ アップロード完了';
 }
 
 // ── プロフィール新規作成 ──
@@ -1085,9 +1131,8 @@ function openListingModal(listingId = null) {
   document.getElementById('l-public').checked    = true;
   document.getElementById('l-category').value    = 'フリーダイビング体験';
   document.getElementById('l-intent').value      = 'try';
-  ['l-facilities','l-rental'].forEach(id => {
-    document.querySelectorAll(`#${id} input[type="checkbox"]`).forEach(cb => cb.checked = false);
-  });
+  document.querySelectorAll('#l-facilities input[type="checkbox"]').forEach(cb => cb.checked = false);
+  document.getElementById('l-rental-rows').innerHTML = '';
 
   // ショップモード: インストラクター選択を表示
   const instrWrap = document.getElementById('l-instructor-wrap');
@@ -1131,9 +1176,11 @@ function openListingModal(listingId = null) {
       document.getElementById('l-tags').value        = (l.tags || []).join(', ');
       document.getElementById('l-image').value       = l.image_url       || '';
       document.getElementById('l-public').checked    = l.is_public !== false;
-      // 設備・機材チェックボックスを復元
-      (l.facilities  || []).forEach(v => { const cb = document.querySelector(`#l-facilities input[value="${v}"]`); if (cb) cb.checked = true; });
-      (l.rental_gear || []).forEach(v => { const cb = document.querySelector(`#l-rental input[value="${v}"]`);     if (cb) cb.checked = true; });
+      // 設備チェックボックスを復元
+      (l.facilities || []).forEach(v => { const cb = document.querySelector(`#l-facilities input[value="${v}"]`); if (cb) cb.checked = true; });
+      // レンタル機材行を復元
+      document.getElementById('l-rental-rows').innerHTML = '';
+      (l.rental_gear || []).forEach(item => addRentalRow(item.name, item.price));
       // ショップモード: 担当インストラクターを復元
       if (myRole === 'shop') setTimeout(() => { document.getElementById('l-instructor').value = l.instructor_id || ''; }, 50);
     });
@@ -1183,7 +1230,7 @@ async function saveListing() {
     notes:               document.getElementById('l-notes').value.trim()          || null,
     tags,
     facilities:          collectChecked('l-facilities'),
-    rental_gear:         collectChecked('l-rental'),
+    rental_gear:         collectRentalGear(),
     image_url:           document.getElementById('l-image').value.trim()          || null,
     is_public:           document.getElementById('l-public').checked,
     updated_at:          new Date().toISOString(),
@@ -1495,6 +1542,26 @@ function collectChecked(containerId) {
   return Array.from(
     document.querySelectorAll(`#${containerId} input[type="checkbox"]:checked`)
   ).map(el => el.value);
+}
+
+function addRentalRow(name = '', price = '') {
+  const container = document.getElementById('l-rental-rows');
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex;gap:8px;align-items:center;';
+  row.innerHTML = `
+    <input type="text"   class="rental-name"  placeholder="機材名（例：ウェットスーツ）" value="${escHtml(String(name))}"  style="flex:2;padding:8px 10px;background:var(--ocean-deep);border:1px solid var(--hairline);border-radius:6px;color:var(--on-dark);font-size:14px;">
+    <input type="number" class="rental-price" placeholder="料金（円）"                  value="${price !== '' ? price : ''}" style="flex:1;padding:8px 10px;background:var(--ocean-deep);border:1px solid var(--hairline);border-radius:6px;color:var(--on-dark);font-size:14px;" min="0">
+    <span style="color:var(--on-dark-soft);font-size:13px;white-space:nowrap;">円/回</span>
+    <button type="button" onclick="this.closest('div').remove()" style="background:none;border:none;color:var(--on-dark-soft);cursor:pointer;font-size:18px;line-height:1;padding:4px;">×</button>
+  `;
+  container.appendChild(row);
+}
+
+function collectRentalGear() {
+  return Array.from(document.querySelectorAll('#l-rental-rows > div')).map(row => ({
+    name:  row.querySelector('.rental-name').value.trim(),
+    price: parseInt(row.querySelector('.rental-price').value) || 0,
+  })).filter(item => item.name);
 }
 
 // ============================================================
