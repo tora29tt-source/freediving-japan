@@ -33,7 +33,8 @@ body {
   padding: 0 20px; height: 52px;
   display: flex; align-items: center; justify-content: space-between;
 }
-.logo { font-size: 14px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+.logo { font-size: 14px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;   text-decoration: none;
+}
 .logo span { color: var(--teal); }
 .header-right { display: flex; align-items: center; gap: 14px; }
 .status-dot {
@@ -298,7 +299,7 @@ select.fi option { background:var(--surface2); color:var(--text); }
 
 <!-- HEADER -->
 <header class="header">
-  <div class="logo">FreeDive<span>Japan</span> — Competition</div>
+  <a class="logo" href="index.html">FreeDive<span>Japan</span> — Competition</a>
   <div class="header-right">
     <div class="venue-selector">
       <button class="venue-btn active" id="btnSea"  onclick="setVenue('sea')">🌊 Sea</button>
