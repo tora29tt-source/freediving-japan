@@ -10,3 +10,12 @@ ALTER TABLE instructors
 ALTER TABLE listings
   ADD COLUMN IF NOT EXISTS facilities  TEXT[] DEFAULT '{}',
   ADD COLUMN IF NOT EXISTS rental_gear TEXT[] DEFAULT '{}';
+
+-- shops: プロフィール拡張（ショップ登録機能向け）
+ALTER TABLE shops
+  ADD COLUMN IF NOT EXISTS bio           TEXT,
+  ADD COLUMN IF NOT EXISTS languages     TEXT[] DEFAULT '{}',
+  ADD COLUMN IF NOT EXISTS website_url   TEXT,
+  ADD COLUMN IF NOT EXISTS instagram_url TEXT,
+  ADD COLUMN IF NOT EXISTS youtube_url   TEXT,
+  ADD COLUMN IF NOT EXISTS is_public     BOOLEAN DEFAULT false;

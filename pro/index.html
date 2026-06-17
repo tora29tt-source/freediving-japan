@@ -1284,11 +1284,14 @@ async function deleteSlot(id) {
 // 問い合わせ
 // ============================================================
 async function checkNewInquiries() {
-  const { count } = await _sb
-    .from('inquiries')
-    .select('id', { count: 'exact', head: true })
-    .eq('instructor_id', myInstructor.id)
-    .eq('status', 'new');
+  let query = _sb.from('inquiries').select('id', { count: 'exact', head: true }).eq('status', 'new');
+  if (myRole === 'shop') {
+    if (!myShopInstructors.length) return;
+    query = query.in('instructor_id', myShopInstructors.map(i => i.id));
+  } else {
+    query = query.eq('instructor_id', myInstructor.id);
+  }
+  const { count } = await query;
   if (count > 0) {
     const badge = document.getElementById('inq-badge');
     badge.textContent = count;
@@ -1301,11 +1304,13 @@ async function loadInquiries() {
   el.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
   const status = document.getElementById('inq-filter').value;
 
-  let query = _sb
-    .from('inquiries')
-    .select('*, listings(title)')
-    .eq('instructor_id', myInstructor.id)
-    .order('created_at', { ascending: false });
+  let query = _sb.from('inquiries').select('*, listings(title)').order('created_at', { ascending: false });
+  if (myRole === 'shop') {
+    if (!myShopInstructors.length) { el.innerHTML = '<div class="empty">まだインストラクターが紐づいていません。</div>'; return; }
+    query = query.in('instructor_id', myShopInstructors.map(i => i.id));
+  } else {
+    query = query.eq('instructor_id', myInstructor.id);
+  }
   if (status) query = query.eq('status', status);
 
   const { data: inqs, error } = await query;
@@ -1404,7 +1409,7 @@ function showToast(msg, type = 'success') {
 }
 
 // モーダル外クリックで閉じる
-['listing-modal','slot-modal','create-profile-modal'].forEach(id => {
+['listing-modal','slot-modal','create-profile-modal','create-shop-modal'].forEach(id => {
   document.getElementById(id).addEventListener('click', function(e) {
     if (e.target === this) this.classList.remove('open');
   });

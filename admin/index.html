@@ -797,6 +797,7 @@ async function loadSlots() {
       <table>
         <thead>
           <tr>
+            <th>ID</th>
             <th>日付</th>
             <th>時間</th>
             <th>インストラクター</th>
@@ -824,6 +825,7 @@ function slotRow(s) {
     : '<span class="badge badge-inactive">無効</span>';
   return `
     <tr>
+      <td><span title="${s.id}" style="font-family:monospace;font-size:11px;color:var(--on-dark-soft);cursor:default;">${s.id.slice(0,8)}</span></td>
       <td class="name">${date}</td>
       <td>${time}</td>
       <td>${inst}</td>
@@ -956,6 +958,7 @@ async function loadBookings() {
       <table>
         <thead>
           <tr>
+            <th>ID</th>
             <th>日時</th>
             <th>ゲスト</th>
             <th>コース</th>
@@ -986,6 +989,7 @@ function bookingRow(b) {
 
   return `
     <tr>
+      <td><span title="${b.id}" style="font-family:monospace;font-size:11px;color:var(--on-dark-soft);cursor:default;">${b.id.slice(0,8)}</span></td>
       <td>
         <div class="name">${date}</div>
         <div style="font-size:11px;color:var(--on-dark-soft);">${time}</div>
@@ -1047,6 +1051,7 @@ async function loadInstructors() {
       <table>
         <thead>
           <tr>
+            <th>ID</th>
             <th>名前</th>
             <th>エリア</th>
             <th>指導歴</th>
@@ -1058,6 +1063,7 @@ async function loadInstructors() {
         <tbody>
           ${data.map(inst => `
             <tr>
+              <td><span title="${inst.id}" style="font-family:monospace;font-size:11px;color:var(--on-dark-soft);cursor:default;">${inst.id.slice(0,8)}</span></td>
               <td class="name">${escHtml(inst.name)}</td>
               <td>${escHtml([inst.prefecture, inst.city].filter(Boolean).join(' ') || '—')}</td>
               <td>${inst.experience_years ? inst.experience_years + '年' : '—'}</td>
@@ -1196,6 +1202,7 @@ async function loadListings() {
       <table>
         <thead>
           <tr>
+            <th>ID</th>
             <th>タイトル</th>
             <th>インストラクター</th>
             <th>カテゴリ</th>
@@ -1208,6 +1215,7 @@ async function loadListings() {
         <tbody>
           ${data.map(l => `
             <tr>
+              <td><span title="${l.id}" style="font-family:monospace;font-size:11px;color:var(--on-dark-soft);cursor:default;">${l.id.slice(0,8)}</span></td>
               <td class="name" style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(l.title)}</td>
               <td>${escHtml(l.instructors?.name || '—')}</td>
               <td><span class="badge badge-${l.intent === 'try' ? 'pending' : l.intent === 'learn' ? 'paid' : 'confirmed'}">${intentLabel[l.intent] || l.intent}</span></td>
