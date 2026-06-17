@@ -30,6 +30,11 @@ ALTER TABLE listings
   ADD COLUMN IF NOT EXISTS what_to_bring       TEXT,        -- 服装・持ち物
   ADD COLUMN IF NOT EXISTS notes               TEXT;        -- 注意事項
 
+-- bookings: レンタル機材サイズ情報
+-- 例: [{"participant":1,"items":[{"gear":"ウェットスーツ","size":"M"}]}]
+ALTER TABLE bookings
+  ADD COLUMN IF NOT EXISTS rental_requests JSONB DEFAULT NULL;
+
 -- shops: プロフィール拡張（ショップ登録機能向け）
 ALTER TABLE shops
   ADD COLUMN IF NOT EXISTS bio           TEXT,

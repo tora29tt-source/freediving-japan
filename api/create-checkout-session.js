@@ -31,6 +31,7 @@ export default async function handler(req, res) {
     guestPhone,
     notes,
     participantCount,
+    rentalRequests,
   } = req.body;
 
   // バリデーション
@@ -79,6 +80,7 @@ export default async function handler(req, res) {
         guest_email:       guestEmail,
         guest_phone:       guestPhone || null,
         notes:             notes || null,
+        rental_requests:   rentalRequests || null,
         participant_count: participantCount,
         unit_price:        unitPrice,
         total_amount:      totalAmount,

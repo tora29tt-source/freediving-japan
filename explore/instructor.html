@@ -306,6 +306,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sa
         <label class="bform-label">電話番号（任意）</label>
         <input class="bform-input" type="tel" id="bf-phone" placeholder="090-1234-5678">
       </div>
+      <!-- レンタル機材サイズ（listing に rental_gear がある場合のみ表示） -->
+      <div id="bf-rental-section" style="display:none;margin-bottom:14px;">
+        <p style="font-size:11px;letter-spacing:0.1em;color:var(--teal);margin-bottom:10px;">レンタル機材のサイズ</p>
+        <div id="bf-rental-rows"></div>
+      </div>
+
       <div class="bform-group">
         <label class="bform-label">備考（任意）</label>
         <input class="bform-input" type="text" id="bf-notes" placeholder="アレルギー・その他ご要望など">
@@ -872,6 +878,37 @@ function openBookingForm() {
   document.getElementById('bformPriceVal').textContent =
     total > 0 ? `¥${total.toLocaleString()}` : '要相談';
 
+  // レンタル機材サイズ欄を生成
+  const rentalGear = listing?.rental_gear || [];
+  const rentalSection = document.getElementById('bf-rental-section');
+  const rentalRows    = document.getElementById('bf-rental-rows');
+  if (rentalGear.length > 0) {
+    rentalRows.innerHTML = '';
+    for (let p = 1; p <= _paxCount; p++) {
+      const block = document.createElement('div');
+      block.style.cssText = 'margin-bottom:12px;padding:12px;background:rgba(255,255,255,0.04);border:1px solid var(--hairline);border-radius:10px;';
+      block.innerHTML = `<p style="font-size:12px;font-weight:600;color:var(--on-dark-mid);margin-bottom:8px;">参加者 ${p}</p>
+        ${rentalGear.map(g => `
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span style="font-size:13px;color:var(--on-dark-soft);flex:1;">${g.name}${g.price > 0 ? ` <span style="color:var(--teal-light);font-size:11px;">¥${g.price.toLocaleString()}</span>` : ' <span style="color:var(--teal-light);font-size:11px;">無料</span>'}</span>
+            <select class="bform-input" data-pax="${p}" data-gear="${g.name}" style="flex:0 0 auto;width:auto;padding:6px 10px;font-size:13px;">
+              <option value="">不要</option>
+              <option value="XS">XS</option>
+              <option value="S">S</option>
+              <option value="M">M</option>
+              <option value="L">L</option>
+              <option value="XL">XL</option>
+              <option value="XXL">XXL</option>
+              <option value="その他">その他</option>
+            </select>
+          </div>`).join('')}`;
+      rentalRows.appendChild(block);
+    }
+    rentalSection.style.display = '';
+  } else {
+    rentalSection.style.display = 'none';
+  }
+
   document.getElementById('bformOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -893,6 +930,19 @@ async function proceedToCheckout() {
   btn.disabled = true;
   btn.textContent = '処理中...';
 
+  // レンタル機材サイズを収集
+  const rentalSelects = document.querySelectorAll('#bf-rental-rows [data-pax]');
+  const rentalMap = {};
+  rentalSelects.forEach(sel => {
+    if (!sel.value) return;
+    const pax = sel.dataset.pax;
+    if (!rentalMap[pax]) rentalMap[pax] = [];
+    rentalMap[pax].push({ gear: sel.dataset.gear, size: sel.value });
+  });
+  const rentalRequests = Object.entries(rentalMap).map(([p, items]) => ({
+    participant: parseInt(p), items,
+  }));
+
   try {
     const res = await fetch('/api/create-checkout-session', {
       method: 'POST',
@@ -906,6 +956,7 @@ async function proceedToCheckout() {
         guestPhone:       document.getElementById('bf-phone').value.trim() || null,
         notes:            document.getElementById('bf-notes').value.trim() || null,
         participantCount: _paxCount,
+        rentalRequests:   rentalRequests.length > 0 ? rentalRequests : null,
       }),
     });
     const { url, error } = await res.json();
