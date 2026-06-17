@@ -60,9 +60,22 @@ export default async function handler(req, res) {
     .replace(/&nbsp;/g, ' ')
     .replace(/\s{2,}/g, ' ');
 
-  function extract(label) {
-    // "Label: value" の形式でパース（改行・スペースを許容）
-    const re = new RegExp(label + ':\\s*([^\\n\\r<|]+)', 'i');
+  /**
+   * "Label: value" を抽出。HTMLタグ除去後はすべて1行になるため、
+   * stopBefore に次のフィールド名を渡して早期終了させる。
+   */
+  function extract(label, stopBefore) {
+    const escLabel = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    let pattern;
+    if (stopBefore && stopBefore.length) {
+      const stops = stopBefore
+        .map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ':')
+        .join('|');
+      pattern = escLabel + ':\\s*(.+?)\\s*(?:' + stops + ')';
+    } else {
+      pattern = escLabel + ':\\s*([^\\n\\r<|]+)';
+    }
+    const re = new RegExp(pattern, 'i');
     const m = text.match(re);
     return m ? m[1].trim().replace(/\s+/g, ' ') : null;
   }
@@ -75,16 +88,14 @@ export default async function handler(req, res) {
     ? ogTitleMatch[1].replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim()
     : extract('Event Details');
 
-  // og:title が全大文字の場合、Title Case に変換せずそのまま使う
-  // （日本語・韓国語が混在する場合は変換不可）
-
-  const date_start    = extract('Start date');
-  const date_end      = extract('End date');
-  const location      = extract('Location');
-  const event_type    = extract('Event Type');
-  const disciplinesRaw = extract('Disciplines');
+  // 各フィールドは「次のラベル」の直前で止める
+  const date_start    = extract('Start date',  ['End date', 'Location', 'Event Type', 'Organizer']);
+  const date_end      = extract('End date',     ['Location', 'Event Type', 'Organizer', 'Additional']);
+  const location      = extract('Location',     ['Event Type', 'Organizer', 'Additional', 'Disciplines']);
+  const event_type    = extract('Event Type',   ['Organizer', 'Additional', 'Disciplines', 'Safety']);
+  const disciplinesRaw = extract('Disciplines', ['Safety', 'Pool size', 'Minimum', 'Maximum', 'Main Judge', 'Performance']);
   const disciplines   = disciplinesRaw
-    ? disciplinesRaw.split(/\s+/).filter(d => /^[A-Z]{2,5}[B]?$/.test(d))
+    ? disciplinesRaw.split(/\s+/).filter(d => /^[A-Z]{2,5}B?$/.test(d))
     : [];
 
   // 最低限必要なフィールドが取れなかった場合はエラー
