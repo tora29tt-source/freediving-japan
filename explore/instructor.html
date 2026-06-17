@@ -244,14 +244,16 @@ if (!instructorId) {
 
 async function initPage() {
   try {
-    // インストラクター + 全リスティングを並列取得
-    const [instRes, listRes] = await Promise.all([
-      _sb.from('instructors').select('*').eq('id', instructorId).single(),
-      _sb.from('listings').select('*').eq('instructor_id', instructorId).eq('is_public', true).order('sort_order')
+    // インストラクター + 全リスティング + レビューを並列取得
+    const [instRes, listRes, reviewRes] = await Promise.all([
+      _sb.from('instructors').select('*, shops ( id, avg_rating, review_count, shop_type )').eq('id', instructorId).single(),
+      _sb.from('listings').select('*').eq('instructor_id', instructorId).eq('is_public', true).order('sort_order'),
+      _sb.from('reviews').select('id, rating, body, reviewer_name, created_at').eq('instructor_id', instructorId).eq('is_public', true).order('created_at', { ascending: false }).limit(10)
     ]);
     if (instRes.error) throw instRes.error;
     const instructor = instRes.data;
     const listings   = listRes.data || [];
+    const reviews    = reviewRes.data || [];
 
     // 表示するリスティングを決定
     const activeListing = listingId
@@ -261,14 +263,14 @@ async function initPage() {
 
     window._pageInstructor = instructor;
     window._pageListingsCount = listings.length;
-    renderPage(instructor, activeListing, otherListings);
+    renderPage(instructor, activeListing, otherListings, reviews);
   } catch (err) {
     console.error(err);
     document.getElementById('pageContent').innerHTML = '<div class="main" style="padding-top:40px;text-align:center;color:var(--on-dark-soft)">読み込みに失敗しました。<br><a href="index.html" style="color:var(--teal)">一覧に戻る</a></div>';
   }
 }
 
-function renderPage(inst, listing, otherListings) {
+function renderPage(inst, listing, otherListings, reviews = []) {
   const badgeClass = { try: 'badge-try', learn: 'badge-learn', dive: 'badge-dive' };
   const badgeLabel = { try: '体験', learn: '資格', dive: 'ダイブ' };
 
@@ -426,6 +428,24 @@ function renderPage(inst, listing, otherListings) {
         <p class="section-title">${inst.name} の他のプラン</p>
         ${otherHtml}
       </div>` : ''}
+
+      <!-- reviews -->
+      <div class="section" id="reviewsSection">
+        <p class="section-title">レビュー${inst.shops?.avg_rating ? ` ★ ${parseFloat(inst.shops.avg_rating).toFixed(1)}（${inst.shops.review_count}件）` : ''}</p>
+        ${reviews.length > 0
+          ? `<div style="display:flex;flex-direction:column;gap:12px">
+              ${reviews.map(r => `
+                <div style="background:var(--glass);border:1px solid var(--hairline);border-radius:12px;padding:14px">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                    <span style="color:var(--warm);font-size:14px">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span>
+                    <span style="font-size:11px;color:var(--on-dark-soft)">${r.reviewer_name || '匿名'}</span>
+                    <span style="font-size:11px;color:var(--on-dark-soft);margin-left:auto">${new Date(r.created_at).toLocaleDateString('ja-JP')}</span>
+                  </div>
+                  ${r.body ? `<p style="font-size:13px;color:var(--on-dark-mid);line-height:1.7">${r.body}</p>` : ''}
+                </div>`).join('')}
+            </div>`
+          : `<p style="font-size:13px;color:var(--on-dark-soft)">まだレビューがありません</p>`}
+      </div>
 
       <!-- inquiry form -->
       <div class="inquiry-section">

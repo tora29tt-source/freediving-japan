@@ -470,7 +470,7 @@ function renderModal(inst) {
 
 async function loadListings() {
   try {
-    const { data, error } = await _sb.from('listings').select('id, title, category, intent, area, location_detail, price, price_unit, tags, image_url, instructor_id, instructors ( id, name, is_verified )').eq('is_public', true).order('sort_order', { ascending: true });
+    const { data, error } = await _sb.from('listings').select('id, title, category, intent, area, location_detail, price, price_unit, tags, image_url, instructor_id, instructors ( id, name, is_verified, shops ( avg_rating, review_count ) )').eq('is_public', true).order('sort_order', { ascending: true });
     if (error) throw error;
     allListings = data || [];
     updateCounts();
@@ -528,8 +528,12 @@ function renderListings() {
   }
   container.innerHTML = filtered.map(l => {
     const inst = l.instructors;
+    const shop = inst?.shops;
     const verified = inst?.is_verified ? '<svg viewBox="0 0 24 24" style="width:10px;height:10px;fill:var(--teal);stroke:none;flex-shrink:0"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' : '';
     const thumb = l.image_url ? `<img src="${l.image_url}" alt="${l.title}" loading="lazy">` : '<div class="listing-thumb-ph"><svg class="icon" viewBox="0 0 24 24" style="width:26px;height:26px"><path d="M3 9a2 2 0 0 1 2-2h.93a2 2 0 0 0 1.664-.89l.812-1.22A2 2 0 0 1 10.07 4h3.86a2 2 0 0 1 1.664.89l.812 1.22A2 2 0 0 0 18.07 7H19a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3"/></svg></div>';
+    const ratingHtml = shop?.avg_rating
+      ? `<span class="meta-item" style="color:var(--warm)">★ ${parseFloat(shop.avg_rating).toFixed(1)}<span style="color:var(--on-dark-soft);margin-left:2px">(${shop.review_count})</span></span>`
+      : '';
     return `<a class="listing-card" href="instructor.html?id=${l.instructor_id}&listing=${l.id}">
       <div class="listing-thumb">${thumb}<span class="listing-badge ${badgeClass[l.intent]}">${badgeLabel[l.intent]}</span></div>
       <div class="listing-body">
@@ -537,6 +541,7 @@ function renderListings() {
         <p class="listing-name">${l.title}</p>
         <div class="listing-meta">
           <span class="meta-item"><svg class="icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${l.area}${l.location_detail ? '・' + l.location_detail : ''}</span>
+          ${ratingHtml}
           ${(l.tags || []).slice(0,2).map(t => `<span class="meta-item">${t}</span>`).join('')}
         </div>
         <div class="listing-footer">

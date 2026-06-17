@@ -1,12 +1,53 @@
 -- =============================================
 -- Freediving Japan — Matching Schema
--- instructors / listings / inquiries
+-- shops / instructors / listings / inquiries / reviews
 -- =============================================
 
--- ① インストラクター・スクールテーブル
+-- ① ショップ・スクールテーブル（個人インストラクターの場合は自分がショップ）
+CREATE TABLE shops (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id         UUID REFERENCES auth.users(id) ON DELETE SET NULL, -- オーナーアカウント
+
+  -- 基本情報
+  name            TEXT NOT NULL,
+  name_en         TEXT,
+  bio             TEXT,
+  bio_en          TEXT,
+
+  -- エリア情報
+  prefecture      TEXT,
+  city            TEXT,
+  areas           TEXT[],
+
+  -- メディア
+  logo_url        TEXT,
+  cover_url       TEXT,
+  website_url     TEXT,
+  instagram_url   TEXT,
+  youtube_url     TEXT,
+
+  -- タイプ（個人 or 法人）
+  shop_type       TEXT DEFAULT 'individual'
+    CHECK (shop_type IN ('individual', 'school', 'operator')),
+
+  -- 集計（reviews から定期更新 or トリガー）
+  avg_rating      NUMERIC(3,2),
+  review_count    INTEGER DEFAULT 0,
+
+  -- 管理
+  is_verified     BOOLEAN DEFAULT FALSE,
+  is_public       BOOLEAN DEFAULT TRUE,
+  sort_priority   SMALLINT DEFAULT 0,
+
+  created_at      TIMESTAMPTZ DEFAULT NOW(),
+  updated_at      TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ③ インストラクターテーブル
 CREATE TABLE instructors (
   id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id         UUID REFERENCES auth.users(id) ON DELETE SET NULL, -- プラットフォームアカウントと紐付け（任意）
+  user_id         UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  shop_id         UUID REFERENCES shops(id) ON DELETE SET NULL,       -- 所属ショップ（個人なら自分のショップ）
 
   -- 基本プロフィール
   name            TEXT NOT NULL,
@@ -42,7 +83,7 @@ CREATE TABLE instructors (
   updated_at      TIMESTAMPTZ DEFAULT NOW()
 );
 
--- ② リスティングテーブル（体験コース・スクール・ツアーなど）
+-- ④ リスティングテーブル（体験コース・スクール・ツアーなど）
 -- 1インストラクターが複数のリスティングを持てる
 CREATE TABLE listings (
   id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -94,7 +135,7 @@ CREATE TABLE listings (
   updated_at        TIMESTAMPTZ DEFAULT NOW()
 );
 
--- ③ 問い合わせテーブル（マッチングの核心）
+-- ⑤ 問い合わせテーブル（マッチングの核心）
 CREATE TABLE inquiries (
   id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   listing_id      UUID REFERENCES listings(id) ON DELETE SET NULL,
@@ -118,9 +159,32 @@ CREATE TABLE inquiries (
   created_at      TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- ⑥ レビューテーブル
+CREATE TABLE reviews (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  listing_id      UUID NOT NULL REFERENCES listings(id) ON DELETE CASCADE,
+  instructor_id   UUID NOT NULL REFERENCES instructors(id) ON DELETE CASCADE,
+  shop_id         UUID REFERENCES shops(id) ON DELETE SET NULL,
+
+  -- 投稿者（ログインユーザーのみ）
+  user_id         UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  reviewer_name   TEXT,                         -- 表示名（匿名可）
+
+  -- 評価
+  rating          SMALLINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+  body            TEXT,
+
+  -- 管理
+  is_public       BOOLEAN DEFAULT TRUE,
+  created_at      TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- =============================================
 -- インデックス
 -- =============================================
+CREATE INDEX idx_shops_prefecture        ON shops(prefecture);
+CREATE INDEX idx_shops_public            ON shops(is_public, sort_priority DESC);
+CREATE INDEX idx_instructors_shop        ON instructors(shop_id);
 CREATE INDEX idx_instructors_prefecture  ON instructors(prefecture);
 CREATE INDEX idx_instructors_public      ON instructors(is_public, sort_priority DESC);
 CREATE INDEX idx_listings_instructor     ON listings(instructor_id);
@@ -134,6 +198,21 @@ CREATE INDEX idx_inquiries_status        ON inquiries(instructor_id, status);
 -- =============================================
 -- RLS（Row Level Security）
 -- =============================================
+
+-- shops: 公開ショップは誰でも読める。オーナーのみ編集。
+ALTER TABLE shops ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "shops_select_public" ON shops
+  FOR SELECT USING (is_public = TRUE OR auth.uid() = user_id);
+
+CREATE POLICY "shops_insert_own" ON shops
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "shops_update_own" ON shops
+  FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "shops_delete_own" ON shops
+  FOR DELETE USING (auth.uid() = user_id);
 
 -- instructors: 公開プロフィールは誰でも読める。本人のみ編集。
 ALTER TABLE instructors ENABLE ROW LEVEL SECURITY;
@@ -186,6 +265,18 @@ CREATE POLICY "listings_delete_own" ON listings
     )
   );
 
+-- reviews: ログインユーザーのみ投稿。公開レビューは誰でも読める。本人のみ削除。
+ALTER TABLE reviews ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "reviews_select_public" ON reviews
+  FOR SELECT USING (is_public = TRUE OR auth.uid() = user_id);
+
+CREATE POLICY "reviews_insert_auth" ON reviews
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "reviews_delete_own" ON reviews
+  FOR DELETE USING (auth.uid() = user_id);
+
 -- inquiries: 誰でも送信可（未ログインOK）。インストラクター本人のみ閲覧。
 ALTER TABLE inquiries ENABLE ROW LEVEL SECURITY;
 
@@ -212,13 +303,22 @@ CREATE POLICY "inquiries_update_own_instructor" ON inquiries
 -- サンプルデータ（開発用・本番では削除）
 -- =============================================
 
--- インストラクターサンプル
+-- ショップサンプル（個人インストラクターはshop_type='individual'）
+INSERT INTO shops (name, bio, prefecture, city, areas, shop_type, is_verified, is_public)
+VALUES
+  ('山田 海斗', '沖縄を拠点に10年以上フリーダイビングを指導。', '沖縄県', '恩納村', ARRAY['沖縄', '石垣島'], 'individual', TRUE, TRUE),
+  ('田中 美咲', '伊豆・下田を中心に活動するインストラクター。', '静岡県', '下田市', ARRAY['伊豆', '東京'], 'individual', TRUE, TRUE),
+  ('佐藤 龍一', '宮古島・下地島を拠点にアスリート向けトレーニングを提供。', '沖縄県', '宮古島市', ARRAY['宮古島', '沖縄'], 'individual', FALSE, TRUE);
+
+-- インストラクターサンプル（shop_idはサブクエリで取得）
 INSERT INTO instructors (
+  shop_id,
   name, bio, prefecture, city, areas,
   certifications, specialties, experience_years,
   photo_url, is_verified, is_public
 ) VALUES
 (
+  (SELECT id FROM shops WHERE name = '山田 海斗'),
   '山田 海斗',
   '沖縄を拠点に10年以上フリーダイビングを指導。初心者の「はじめての素潜り」から競技者のトレーニングまで幅広く対応。青の洞窟をはじめ沖縄の美しい海を知り尽くしたガイドです。',
   '沖縄県', '恩納村',
@@ -230,6 +330,7 @@ INSERT INTO instructors (
   TRUE, TRUE
 ),
 (
+  (SELECT id FROM shops WHERE name = '田中 美咲'),
   '田中 美咲',
   '伊豆・下田を中心に活動するインストラクター。AIDA2〜AIDA4の資格取得コースを専門とし、丁寧な指導で多くの競技フリーダイバーを輩出。英語・中国語での指導も可能。',
   '静岡県', '下田市',
@@ -241,6 +342,7 @@ INSERT INTO instructors (
   TRUE, TRUE
 ),
 (
+  (SELECT id FROM shops WHERE name = '佐藤 龍一'),
   '佐藤 龍一',
   '宮古島・下地島を拠点にアスリート向けトレーニングを提供。自身もCWT選手として活躍中。最大水深40mの透明度抜群の海でのバディダイブ・ディープトレーニングが得意。',
   '沖縄県', '宮古島市',
