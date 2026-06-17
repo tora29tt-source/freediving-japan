@@ -1035,14 +1035,15 @@ async function handleLogout() {
 
   // 名前：メタデータ優先、なければメールのローカル部
   const name = meta.name || meta.full_name || user.email.split('@')[0];
+  const avatarUrl = meta.avatar_url || meta.picture || null;
   // アバター：名前の最初の2文字（または1文字）
   const initials = name.replace(/\s+/g, '').slice(0, 2).toUpperCase();
   // ロール
   const role = meta.role === 'instructor' ? 'インストラクター' : '選手・愛好家';
 
   const heroAvatar = document.getElementById('heroAvatar');
-  if (meta.avatar_url) {
-    heroAvatar.innerHTML = `<img src="${meta.avatar_url}" alt="${name}" style="width:72px;height:72px;border-radius:50%;object-fit:cover;">`;
+  if (avatarUrl) {
+    heroAvatar.innerHTML = `<img src="${avatarUrl}" alt="${name}" style="width:72px;height:72px;border-radius:50%;object-fit:cover;">`;
   } else {
     heroAvatar.textContent = initials;
   }
@@ -1081,7 +1082,7 @@ function openProfileModal() {
   if (!_currentUser) return;
   const meta = _currentUser.user_metadata || {};
   document.getElementById('pf-name').value  = meta.name || meta.full_name || '';
-  document.getElementById('pf-photo').value = meta.avatar_url || '';
+  document.getElementById('pf-photo').value = meta.avatar_url || meta.picture || '';
   document.getElementById('pf-role').value  = meta.role || 'athlete';
   updatePhotoPreview(meta.avatar_url || '');
   document.getElementById('profile-modal').classList.add('open');

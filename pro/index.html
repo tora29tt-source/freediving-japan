@@ -1071,12 +1071,20 @@ function openListingModal(listingId = null) {
   editListingId = listingId;
   document.getElementById('listing-modal-title').textContent = listingId ? 'コースを編集' : 'コースを追加';
   document.getElementById('l-save-label').textContent        = listingId ? '更新する' : '保存する';
-  ['l-title','l-desc','l-pref','l-area','l-tags','l-image'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('l-price').value      = '';
-  document.getElementById('l-price-unit').value = '〜/人';
-  document.getElementById('l-public').checked   = true;
-  document.getElementById('l-category').value   = 'フリーダイビング体験';
-  document.getElementById('l-intent').value     = 'try';
+  ['l-title','l-desc','l-pref','l-area','l-tags','l-image',
+   'l-price-inc','l-price-exc','l-duration','l-season','l-meeting',
+   'l-deadline','l-cancel','l-bring','l-notes'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('l-price').value       = '';
+  document.getElementById('l-price-unit').value  = '〜/人';
+  document.getElementById('l-min-pax').value     = '';
+  document.getElementById('l-age-min').value     = '';
+  document.getElementById('l-age-max').value     = '';
+  document.getElementById('l-shuttle').checked   = false;
+  document.getElementById('l-public').checked    = true;
+  document.getElementById('l-category').value    = 'フリーダイビング体験';
+  document.getElementById('l-intent').value      = 'try';
   ['l-facilities','l-rental'].forEach(id => {
     document.querySelectorAll(`#${id} input[type="checkbox"]`).forEach(cb => cb.checked = false);
   });
@@ -1099,17 +1107,30 @@ function openListingModal(listingId = null) {
   if (listingId) {
     _sb.from('listings').select('*').eq('id', listingId).single().then(({ data: l }) => {
       if (!l) return;
-      document.getElementById('l-title').value      = l.title      || '';
-      document.getElementById('l-desc').value       = l.description|| '';
-      document.getElementById('l-category').value   = l.category   || 'フリーダイビング体験';
-      document.getElementById('l-intent').value     = l.intent     || 'try';
-      document.getElementById('l-pref').value       = l.prefecture || '';
-      document.getElementById('l-area').value       = l.area       || '';
-      document.getElementById('l-price').value      = l.price      || '';
-      document.getElementById('l-price-unit').value = l.price_unit || '〜/人';
-      document.getElementById('l-tags').value       = (l.tags || []).join(', ');
-      document.getElementById('l-image').value      = l.image_url  || '';
-      document.getElementById('l-public').checked   = l.is_public  !== false;
+      document.getElementById('l-title').value       = l.title       || '';
+      document.getElementById('l-desc').value        = l.description || '';
+      document.getElementById('l-category').value    = l.category    || 'フリーダイビング体験';
+      document.getElementById('l-intent').value      = l.intent      || 'try';
+      document.getElementById('l-pref').value        = l.prefecture  || '';
+      document.getElementById('l-area').value        = l.area        || '';
+      document.getElementById('l-price').value       = l.price       || '';
+      document.getElementById('l-price-unit').value  = l.price_unit  || '〜/人';
+      document.getElementById('l-price-inc').value   = l.price_includes  || '';
+      document.getElementById('l-price-exc').value   = l.price_excludes  || '';
+      document.getElementById('l-duration').value    = l.duration        || '';
+      document.getElementById('l-season').value      = l.season          || '';
+      document.getElementById('l-min-pax').value     = l.min_participants || '';
+      document.getElementById('l-age-min').value     = l.age_min         || '';
+      document.getElementById('l-age-max').value     = l.age_max         || '';
+      document.getElementById('l-meeting').value     = l.meeting_point   || '';
+      document.getElementById('l-deadline').value    = l.booking_deadline|| '';
+      document.getElementById('l-shuttle').checked   = l.has_shuttle     || false;
+      document.getElementById('l-cancel').value      = l.cancellation_policy || '';
+      document.getElementById('l-bring').value       = l.what_to_bring   || '';
+      document.getElementById('l-notes').value       = l.notes           || '';
+      document.getElementById('l-tags').value        = (l.tags || []).join(', ');
+      document.getElementById('l-image').value       = l.image_url       || '';
+      document.getElementById('l-public').checked    = l.is_public !== false;
       // 設備・機材チェックボックスを復元
       (l.facilities  || []).forEach(v => { const cb = document.querySelector(`#l-facilities input[value="${v}"]`); if (cb) cb.checked = true; });
       (l.rental_gear || []).forEach(v => { const cb = document.querySelector(`#l-rental input[value="${v}"]`);     if (cb) cb.checked = true; });
@@ -1138,21 +1159,34 @@ async function saveListing() {
   const tags    = tagsRaw.split(',').map(s => s.trim()).filter(Boolean);
 
   const payload = {
-    instructor_id: instructorId,
+    instructor_id:       instructorId,
     title,
-    description:   document.getElementById('l-desc').value.trim()       || null,
-    category:      document.getElementById('l-category').value,
-    intent:        document.getElementById('l-intent').value,
-    prefecture:    document.getElementById('l-pref').value.trim()        || null,
-    area:          document.getElementById('l-area').value.trim()        || null,
-    price:         parseInt(document.getElementById('l-price').value)    || null,
-    price_unit:    document.getElementById('l-price-unit').value.trim()  || '〜/人',
+    description:         document.getElementById('l-desc').value.trim()          || null,
+    category:            document.getElementById('l-category').value,
+    intent:              document.getElementById('l-intent').value,
+    prefecture:          document.getElementById('l-pref').value.trim()           || null,
+    area:                document.getElementById('l-area').value.trim()           || null,
+    price:               parseInt(document.getElementById('l-price').value)       || null,
+    price_unit:          document.getElementById('l-price-unit').value.trim()     || '〜/人',
+    price_includes:      document.getElementById('l-price-inc').value.trim()      || null,
+    price_excludes:      document.getElementById('l-price-exc').value.trim()      || null,
+    duration:            document.getElementById('l-duration').value.trim()       || null,
+    season:              document.getElementById('l-season').value.trim()         || null,
+    min_participants:    parseInt(document.getElementById('l-min-pax').value)     || null,
+    age_min:             parseInt(document.getElementById('l-age-min').value)     || null,
+    age_max:             parseInt(document.getElementById('l-age-max').value)     || null,
+    meeting_point:       document.getElementById('l-meeting').value.trim()        || null,
+    booking_deadline:    document.getElementById('l-deadline').value.trim()       || null,
+    has_shuttle:         document.getElementById('l-shuttle').checked,
+    cancellation_policy: document.getElementById('l-cancel').value.trim()        || null,
+    what_to_bring:       document.getElementById('l-bring').value.trim()          || null,
+    notes:               document.getElementById('l-notes').value.trim()          || null,
     tags,
-    facilities:    collectChecked('l-facilities'),
-    rental_gear:   collectChecked('l-rental'),
-    image_url:     document.getElementById('l-image').value.trim()       || null,
-    is_public:     document.getElementById('l-public').checked,
-    updated_at:    new Date().toISOString(),
+    facilities:          collectChecked('l-facilities'),
+    rental_gear:         collectChecked('l-rental'),
+    image_url:           document.getElementById('l-image').value.trim()          || null,
+    is_public:           document.getElementById('l-public').checked,
+    updated_at:          new Date().toISOString(),
   };
 
   let error;
