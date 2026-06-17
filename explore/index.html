@@ -306,6 +306,15 @@ body {
       <button class="chip" data-tag="子ども参加OK" onclick="toggleTag(this)">子ども参加OK</button>
     </div>
   </div>
+  <div class="filter-section">
+    <p class="filter-label">価格帯</p>
+    <div class="chip-row" id="priceChips">
+      <button class="chip active" data-price="" onclick="togglePrice(this)">すべて</button>
+      <button class="chip" data-price="0-5000" onclick="togglePrice(this)">〜¥5,000</button>
+      <button class="chip" data-price="5001-15000" onclick="togglePrice(this)">¥5,000〜¥15,000</button>
+      <button class="chip" data-price="15001-999999" onclick="togglePrice(this)">¥15,000〜</button>
+    </div>
+  </div>
   <div class="divider">
     <div class="divider-line"></div>
     <span class="divider-label" id="intentLabel">すべての体験・スクール</span>
@@ -313,9 +322,9 @@ body {
   </div>
   <div class="result-header">
     <p class="result-count"><span id="countNum">—</span> 件</p>
-    <button class="sort-btn">
+    <button class="sort-btn" id="sortBtn" onclick="cycleSort()">
       <svg class="icon" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="9" y1="18" x2="15" y2="18"/></svg>
-      おすすめ順
+      <span id="sortLabel">おすすめ順</span>
     </button>
   </div>
   <div class="listings" id="listings">
@@ -343,6 +352,10 @@ let allListings = [];
 let currentIntent = 'all';
 let currentArea = '';
 let activeTags = new Set();
+let currentPrice = '';
+let currentSort = 'recommended'; // recommended | price_asc | price_desc | rating
+const SORT_CYCLE = ['recommended','price_asc','price_desc','rating'];
+const SORT_LABELS = { recommended:'おすすめ順', price_asc:'価格安い順', price_desc:'価格高い順', rating:'評価順' };
 const intentLabels = { all: 'すべての体験・スクール', try: 'やってみたい — 体験・ツアー', learn: 'ちゃんと学びたい — スクール・資格', dive: 'もっと潜りたい — ファンダイブ・アスリート' };
 const badgeLabel = { try: '体験', learn: '資格', dive: 'ダイブ' };
 const badgeClass = { try: 'badge-try', learn: 'badge-learn', dive: 'badge-dive' };
@@ -500,17 +513,44 @@ function toggleTag(el) {
   else { activeTags.add(tag); el.classList.add('active'); }
   renderListings();
 }
+function togglePrice(el) {
+  document.querySelectorAll('#priceChips .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  currentPrice = el.dataset.price || '';
+  renderListings();
+}
+function cycleSort() {
+  const idx = SORT_CYCLE.indexOf(currentSort);
+  currentSort = SORT_CYCLE[(idx + 1) % SORT_CYCLE.length];
+  document.getElementById('sortLabel').textContent = SORT_LABELS[currentSort];
+  renderListings();
+}
 function applyFilters() { renderListings(); }
 
 function renderListings() {
-  const q = document.getElementById('searchInput').value.toLowerCase();
-  const filtered = allListings.filter(l => {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  let filtered = allListings.filter(l => {
     if (currentIntent !== 'all' && l.intent !== currentIntent) return false;
     if (currentArea && l.area !== currentArea) return false;
     if (activeTags.size > 0 && !([...(l.tags || [])].some(t => activeTags.has(t)))) return false;
-    if (q && !`${l.title} ${l.area} ${l.location_detail} ${l.category}`.toLowerCase().includes(q)) return false;
+    if (currentPrice) {
+      const [min, max] = currentPrice.split('-').map(Number);
+      const p = l.price || 0;
+      if (p < min || p > max) return false;
+    }
+    if (q) {
+      const instName = l.instructors?.name || '';
+      const haystack = `${l.title} ${l.area} ${l.location_detail || ''} ${l.category} ${instName}`.toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
     return true;
   });
+
+  // ソート
+  if (currentSort === 'price_asc')  filtered = [...filtered].sort((a, b) => (a.price || 0) - (b.price || 0));
+  if (currentSort === 'price_desc') filtered = [...filtered].sort((a, b) => (b.price || 0) - (a.price || 0));
+  if (currentSort === 'rating')     filtered = [...filtered].sort((a, b) => (b.instructors?.shops?.avg_rating || 0) - (a.instructors?.shops?.avg_rating || 0));
+
   document.getElementById('countNum').textContent = filtered.length;
   const container = document.getElementById('listings');
   if (filtered.length === 0) {
@@ -544,8 +584,8 @@ function renderListings() {
   }).join('');
 }
 
-document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') applyFilters(); });
-document.getElementById('searchInput').addEventListener('input', () => { if (!document.getElementById('searchInput').value) applyFilters(); });
+document.getElementById('searchInput').addEventListener('input', () => applyFilters());
+document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); applyFilters(); } });
 loadListings();
 </script>
 </body>

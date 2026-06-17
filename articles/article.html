@@ -90,7 +90,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sa
 <body>
 
 <header class="header">
-  <a href="index.html" class="back-btn">
+  <a href="../index.html" class="back-btn">
     <svg class="icon" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
     記事一覧
   </a>
@@ -124,7 +124,7 @@ const articleId = params.get('id');
 const articleSlug = params.get('slug');
 
 if (!articleId && !articleSlug) {
-  document.getElementById('pageContent').innerHTML = '<div class="main" style="padding-top:40px;text-align:center;color:var(--on-dark-soft)">記事が見つかりませんでした。<br><a href="index.html" style="color:var(--teal)">一覧に戻る</a></div>';
+  document.getElementById('pageContent').innerHTML = '<div class="main" style="padding-top:40px;text-align:center;color:var(--on-dark-soft)">記事が見つかりませんでした。<br><a href="../index.html" style="color:var(--teal)">一覧に戻る</a></div>';
 } else {
   loadArticle();
 }
@@ -138,7 +138,7 @@ async function loadArticle() {
     if (error) throw error;
     renderArticle(data);
   } catch (err) {
-    document.getElementById('pageContent').innerHTML = '<div class="main" style="padding-top:40px;text-align:center;color:var(--on-dark-soft)">記事を読み込めませんでした。<br><a href="index.html" style="color:var(--teal)">一覧に戻る</a></div>';
+    document.getElementById('pageContent').innerHTML = '<div class="main" style="padding-top:40px;text-align:center;color:var(--on-dark-soft)">記事を読み込めませんでした。<br><a href="../index.html" style="color:var(--teal)">一覧に戻る</a></div>';
   }
 }
 
@@ -185,7 +185,7 @@ function renderArticle(a) {
         </a>
       </div>
 
-      <a class="back-to-list" href="index.html">
+      <a class="back-to-list" href="../index.html">
         <svg class="icon" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
         記事一覧に戻る
       </a>
