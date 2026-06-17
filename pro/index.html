@@ -224,10 +224,16 @@ td.primary { color: var(--on-dark); font-weight: 500; }
     <div class="card setup-card">
       <h2>プロフィールをまだ作成していません</h2>
       <p>インストラクター・ショップのプロフィールを作成すると、コース登録・空き枠管理・問い合わせ受付ができるようになります。</p>
-      <button class="btn-primary" style="margin:0 auto;" onclick="showCreateProfile()">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg>
-        プロフィールを作成する
-      </button>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn-primary" onclick="showCreateProfile('instructor')">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg>
+          インストラクターとして登録
+        </button>
+        <button class="btn-primary" style="background:var(--ocean-light);border:1px solid rgba(46,196,182,0.4);" onclick="showCreateProfile('shop')">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg>
+          ショップとして登録
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -298,6 +304,11 @@ td.primary { color: var(--on-dark); font-weight: 500; }
 <div class="modal-backdrop" id="listing-modal">
   <div class="modal">
     <div class="modal-title" id="listing-modal-title">コースを追加</div>
+
+    <div class="form-group" id="l-instructor-wrap" style="display:none;">
+      <label>担当インストラクター <span style="color:var(--warm);">*</span></label>
+      <select id="l-instructor"><option value="">選択してください</option></select>
+    </div>
 
     <div class="form-group">
       <label>タイトル</label>
@@ -406,6 +417,11 @@ td.primary { color: var(--on-dark); font-weight: 500; }
   <div class="modal">
     <div class="modal-title" id="slot-modal-title">空き枠を追加</div>
 
+    <div class="form-group" id="s-instructor-wrap" style="display:none;">
+      <label>担当インストラクター <span style="color:var(--warm);">*</span></label>
+      <select id="s-instructor" onchange="populateSlotListings()"><option value="">選択してください</option></select>
+    </div>
+
     <div class="form-group">
       <label>コース</label>
       <select id="s-listing">
@@ -507,16 +523,69 @@ td.primary { color: var(--on-dark); font-weight: 500; }
   </div>
 </div>
 
+<!-- ── ショップ作成 モーダル ── -->
+<div class="modal-backdrop" id="create-shop-modal">
+  <div class="modal">
+    <div class="modal-title">ショップを作成</div>
+
+    <div class="form-group">
+      <label>屋号 <span style="color:var(--warm);">*</span></label>
+      <input type="text" id="csp-name" placeholder="例：Blue Ocean Freediving">
+    </div>
+    <div class="form-group">
+      <label>ショップタイプ</label>
+      <select id="csp-type">
+        <option value="individual">個人</option>
+        <option value="school">スクール</option>
+        <option value="operator">ダイビングオペレーター</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>自己紹介</label>
+      <textarea id="csp-bio" placeholder="ショップの特徴・得意なことなど..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>活動エリア <span style="color:var(--on-dark-soft);font-weight:400;">（時期を添えて追加）</span></label>
+      <div id="csp-area-rows">
+        <div class="area-row">
+          <input type="text" class="area-name" placeholder="例：沖縄" style="flex:1;">
+          <input type="text" class="area-season" placeholder="例：4月〜10月" style="flex:1;">
+        </div>
+      </div>
+      <button type="button" class="btn-edit" onclick="addAreaRow('csp-area-rows')" style="margin-top:8px;font-size:12px;">＋ エリアを追加</button>
+    </div>
+
+    <div class="form-group">
+      <label>対応言語</label>
+      <div class="check-group" id="csp-langs">
+        <label class="check-item"><input type="checkbox" value="日本語" checked> 日本語</label>
+        <label class="check-item"><input type="checkbox" value="英語"> 英語</label>
+        <label class="check-item"><input type="checkbox" value="中国語"> 中国語</label>
+        <label class="check-item"><input type="checkbox" value="フランス語"> フランス語</label>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeShopCreate()">キャンセル</button>
+      <button class="btn-primary" onclick="createShopProfile()">作成する</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast hidden" id="toast"></div>
 
 <script>
 // ============================================================
 // State
 // ============================================================
-let currentUser    = null;
-let myInstructor   = null; // instructors レコード
-let editListingId  = null;
-let editSlotId     = null;
+let currentUser       = null;
+let myInstructor      = null; // instructors レコード（インストラクターモード）
+let myShop            = null; // shops レコード（ショップモード）
+let myRole            = null; // 'instructor' | 'shop'
+let myShopInstructors = []; // ショップ傘下のインストラクター一覧
+let editListingId     = null;
+let editSlotId        = null;
 
 // ============================================================
 // Boot
@@ -530,16 +599,24 @@ async function boot() {
   currentUser = session.user;
   document.getElementById('user-email').textContent = currentUser.email;
 
-  // 自分の instructor レコードを取得
-  const { data: inst } = await _sb
-    .from('instructors')
-    .select('*')
-    .eq('user_id', currentUser.id)
-    .maybeSingle();
+  // instructors / shops の両方を並列チェック
+  const [{ data: inst }, { data: shop }] = await Promise.all([
+    _sb.from('instructors').select('*').eq('user_id', currentUser.id).maybeSingle(),
+    _sb.from('shops').select('*').eq('user_id', currentUser.id).maybeSingle(),
+  ]);
 
-  myInstructor = inst;
+  if (inst) {
+    myInstructor = inst;
+    myRole = 'instructor';
+  } else if (shop) {
+    myShop = shop;
+    myRole = 'shop';
+    // ショップに紐づくインストラクターを取得
+    const { data: shopInsts } = await _sb.from('instructors').select('id, name').eq('shop_id', shop.id);
+    myShopInstructors = shopInsts || [];
+  }
 
-  if (!myInstructor) {
+  if (!myRole) {
     document.getElementById('setup-guard').style.display = 'block';
     return;
   }
@@ -571,6 +648,7 @@ function switchTab(name) {
 // プロフィール
 // ============================================================
 function renderProfileForm() {
+  if (myRole === 'shop') { renderShopProfileForm(); return; }
   const i = myInstructor;
   const certsStr  = (i.certifications || []).join(', ');
   const specsStr  = (i.specialties    || []).join(', ');
@@ -670,6 +748,7 @@ function renderProfileForm() {
 }
 
 async function saveProfile() {
+  if (myRole === 'shop') { await saveShopProfile(); return; }
   const toArr = v => v.split(',').map(s => s.trim()).filter(Boolean);
   const payload = {
     name:            document.getElementById('p-name').value.trim(),
@@ -701,11 +780,18 @@ async function saveProfile() {
 }
 
 // ── プロフィール新規作成 ──
-function showCreateProfile() {
-  document.getElementById('create-profile-modal').classList.add('open');
+function showCreateProfile(type) {
+  if (type === 'shop') {
+    document.getElementById('create-shop-modal').classList.add('open');
+  } else {
+    document.getElementById('create-profile-modal').classList.add('open');
+  }
 }
 function closeCreateProfile() {
   document.getElementById('create-profile-modal').classList.remove('open');
+}
+function closeShopCreate() {
+  document.getElementById('create-shop-modal').classList.remove('open');
 }
 async function createProfile() {
   const toArr = v => v.split(',').map(s => s.trim()).filter(Boolean);
@@ -726,11 +812,140 @@ async function createProfile() {
   if (error) { showToast('作成に失敗しました: ' + error.message, 'error'); return; }
 
   myInstructor = inst;
+  myRole = 'instructor';
   closeCreateProfile();
   document.getElementById('setup-guard').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   renderProfileForm();
   showToast('プロフィールを作成しました', 'success');
+}
+
+async function createShopProfile() {
+  const name = document.getElementById('csp-name').value.trim();
+  if (!name) { showToast('屋号は必須です', 'error'); return; }
+
+  const { data: shop, error } = await _sb.from('shops').insert({
+    user_id:   currentUser.id,
+    name,
+    shop_type: document.getElementById('csp-type').value,
+    bio:       document.getElementById('csp-bio').value.trim()  || null,
+    areas:     collectAreaRows('csp-area-rows'),
+    languages: collectChecked('csp-langs'),
+    is_public: false,
+  }).select().single();
+
+  if (error) { showToast('作成に失敗しました: ' + error.message, 'error'); return; }
+
+  myShop = shop;
+  myRole = 'shop';
+  myShopInstructors = [];
+  closeShopCreate();
+  document.getElementById('setup-guard').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  renderShopProfileForm();
+  showToast('ショップを作成しました', 'success');
+}
+
+// ============================================================
+// ショッププロフィール
+// ============================================================
+function renderShopProfileForm() {
+  const s = myShop;
+  const langs = s.languages || [];
+  const areaRows = (s.areas || []).map(a => {
+    const m = a.match(/^(.+?)（(.+?)）$/);
+    return m ? { name: m[1], season: m[2] } : { name: a, season: '' };
+  });
+  if (!areaRows.length) areaRows.push({ name: '', season: '' });
+  const areaRowsHtml = areaRows.map((r, idx) => `
+    <div class="area-row">
+      <input type="text" class="area-name"   value="${escHtml(r.name)}"   placeholder="例：沖縄">
+      <input type="text" class="area-season" value="${escHtml(r.season)}" placeholder="例：4月〜10月">
+      ${idx > 0 ? `<button type="button" class="area-remove" onclick="removeAreaRow(this)">×</button>` : '<span style="width:24px;"></span>'}
+    </div>`).join('');
+  const langOpts  = ['日本語','英語','中国語','フランス語','スペイン語'];
+  const typeLabel = { individual:'個人', school:'スクール', operator:'ダイビングオペレーター' }[s.shop_type] || s.shop_type || '—';
+
+  document.getElementById('profile-form-wrap').innerHTML = `
+    <div class="profile-hero">
+      <div class="profile-avatar">
+        ${s.logo_url ? `<img src="${escHtml(s.logo_url)}" alt="${escHtml(s.name)}">` : escHtml((s.name||'?').charAt(0))}
+      </div>
+      <div class="profile-meta">
+        <h2>${escHtml(s.name)}</h2>
+        <p style="color:var(--teal);font-size:12px;">${typeLabel}</p>
+      </div>
+    </div>
+
+    <div class="form-section-title">基本情報</div>
+    <div class="form-row">
+      <div class="form-group"><label>屋号</label><input type="text" id="sp-name" value="${escHtml(s.name||'')}"></div>
+      <div class="form-group">
+        <label>ショップタイプ</label>
+        <select id="sp-type">
+          <option value="individual"${s.shop_type==='individual'?' selected':''}>個人</option>
+          <option value="school"${s.shop_type==='school'?' selected':''}>スクール</option>
+          <option value="operator"${s.shop_type==='operator'?' selected':''}>ダイビングオペレーター</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label>自己紹介</label><textarea id="sp-bio">${escHtml(s.bio||'')}</textarea></div>
+
+    <div class="form-section-title">活動エリア</div>
+    <div class="form-group">
+      <label>エリアと活動時期</label>
+      <div id="sp-area-rows">${areaRowsHtml}</div>
+      <button type="button" class="btn-edit" onclick="addAreaRow('sp-area-rows')" style="margin-top:8px;font-size:12px;">＋ エリアを追加</button>
+    </div>
+
+    <div class="form-section-title">対応言語</div>
+    <div class="form-group">
+      <div class="check-group" id="sp-langs">
+        ${langOpts.map(l => `<label class="check-item"><input type="checkbox" value="${l}"${langs.includes(l)?' checked':''}> ${l}</label>`).join('')}
+      </div>
+    </div>
+
+    <div class="form-section-title">メディア・SNS</div>
+    <div class="form-group"><label>ロゴ画像URL</label><input type="url" id="sp-logo"  value="${escHtml(s.logo_url||'')}"      placeholder="https://..."></div>
+    <div class="form-group"><label>カバー画像URL</label><input type="url" id="sp-cover" value="${escHtml(s.cover_url||'')}"     placeholder="https://..."></div>
+    <div class="form-row">
+      <div class="form-group"><label>Instagram</label><input type="url" id="sp-ig" value="${escHtml(s.instagram_url||'')}" placeholder="https://instagram.com/..."></div>
+      <div class="form-group"><label>YouTube</label>  <input type="url" id="sp-yt" value="${escHtml(s.youtube_url||'')}"   placeholder="https://youtube.com/..."></div>
+    </div>
+    <div class="form-group"><label>Webサイト</label><input type="url" id="sp-web" value="${escHtml(s.website_url||'')}" placeholder="https://..."></div>
+
+    <div class="form-section-title">公開設定</div>
+    <div class="form-group">
+      <div class="toggle-wrap">
+        <label class="toggle"><input type="checkbox" id="sp-public" ${s.is_public?'checked':''}><span class="toggle-track"></span></label>
+        <span class="toggle-label">ショップ一覧に表示する</span>
+      </div>
+    </div>
+    <div class="save-row"><button class="btn-primary" onclick="saveShopProfile()">プロフィールを保存</button></div>
+  `;
+}
+
+async function saveShopProfile() {
+  const payload = {
+    name:          document.getElementById('sp-name').value.trim(),
+    shop_type:     document.getElementById('sp-type').value,
+    bio:           document.getElementById('sp-bio').value.trim()    || null,
+    areas:         collectAreaRows('sp-area-rows'),
+    languages:     collectChecked('sp-langs'),
+    logo_url:      document.getElementById('sp-logo').value.trim()   || null,
+    cover_url:     document.getElementById('sp-cover').value.trim()  || null,
+    website_url:   document.getElementById('sp-web').value.trim()    || null,
+    instagram_url: document.getElementById('sp-ig').value.trim()     || null,
+    youtube_url:   document.getElementById('sp-yt').value.trim()     || null,
+    is_public:     document.getElementById('sp-public').checked,
+    updated_at:    new Date().toISOString(),
+  };
+  if (!payload.name) { showToast('屋号は必須です', 'error'); return; }
+  const { error } = await _sb.from('shops').update(payload).eq('id', myShop.id);
+  if (error) { showToast('保存に失敗しました: ' + error.message, 'error'); return; }
+  myShop = { ...myShop, ...payload };
+  showToast('プロフィールを保存しました', 'success');
+  renderShopProfileForm();
 }
 
 // ============================================================
@@ -740,11 +955,19 @@ async function loadListings() {
   const el = document.getElementById('listings-content');
   el.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
 
-  const { data: listings, error } = await _sb
-    .from('listings')
-    .select('*')
-    .eq('instructor_id', myInstructor.id)
-    .order('sort_order', { ascending: true });
+  let listings, error;
+  const isShop = myRole === 'shop';
+
+  if (isShop) {
+    if (!myShopInstructors.length) {
+      el.innerHTML = '<div class="empty">まだインストラクターが紐づいていません。<br>インストラクターのアカウントでショップIDを設定すると管理できます。</div>';
+      return;
+    }
+    const ids = myShopInstructors.map(i => i.id);
+    ({ data: listings, error } = await _sb.from('listings').select('*, instructors(name)').in('instructor_id', ids).order('sort_order', { ascending: true }));
+  } else {
+    ({ data: listings, error } = await _sb.from('listings').select('*').eq('instructor_id', myInstructor.id).order('sort_order', { ascending: true }));
+  }
 
   if (error) { el.innerHTML = `<div class="empty">取得エラー: ${error.message}</div>`; return; }
   if (!listings || !listings.length) {
@@ -752,26 +975,29 @@ async function loadListings() {
     return;
   }
 
+  const instrTh = isShop ? '<th>担当</th>' : '';
   el.innerHTML = `
     <div class="table-wrap">
       <table>
         <thead>
-          <tr><th>タイトル</th><th>カテゴリ</th><th>エリア</th><th>料金</th><th>公開</th><th>操作</th></tr>
+          <tr><th>タイトル</th><th>カテゴリ</th>${instrTh}<th>エリア</th><th>料金</th><th>公開</th><th>操作</th></tr>
         </thead>
-        <tbody>${listings.map(listingRow).join('')}</tbody>
+        <tbody>${listings.map(l => listingRow(l, isShop)).join('')}</tbody>
       </table>
     </div>`;
 }
 
-function listingRow(l) {
+function listingRow(l, showInstructor = false) {
   const price = l.price ? `¥${l.price.toLocaleString()} ${l.price_unit || ''}` : '—';
   const pub   = l.is_public
     ? '<span class="badge badge-public">公開</span>'
     : '<span class="badge badge-private">非公開</span>';
+  const instrCell = showInstructor ? `<td>${escHtml(l.instructors?.name || '—')}</td>` : '';
   return `
     <tr>
       <td class="primary" style="max-width:200px;">${escHtml(l.title)}</td>
       <td>${escHtml(l.category || '—')}</td>
+      ${instrCell}
       <td>${escHtml(l.area || '—')}</td>
       <td style="white-space:nowrap;">${escHtml(price)}</td>
       <td>${pub}</td>
@@ -796,6 +1022,21 @@ function openListingModal(listingId = null) {
     document.querySelectorAll(`#${id} input[type="checkbox"]`).forEach(cb => cb.checked = false);
   });
 
+  // ショップモード: インストラクター選択を表示
+  const instrWrap = document.getElementById('l-instructor-wrap');
+  const instrSel  = document.getElementById('l-instructor');
+  if (myRole === 'shop') {
+    instrWrap.style.display = '';
+    instrSel.innerHTML = '<option value="">選択してください</option>';
+    myShopInstructors.forEach(i => {
+      const opt = document.createElement('option');
+      opt.value = i.id; opt.textContent = i.name;
+      instrSel.appendChild(opt);
+    });
+  } else {
+    instrWrap.style.display = 'none';
+  }
+
   if (listingId) {
     _sb.from('listings').select('*').eq('id', listingId).single().then(({ data: l }) => {
       if (!l) return;
@@ -813,6 +1054,8 @@ function openListingModal(listingId = null) {
       // 設備・機材チェックボックスを復元
       (l.facilities  || []).forEach(v => { const cb = document.querySelector(`#l-facilities input[value="${v}"]`); if (cb) cb.checked = true; });
       (l.rental_gear || []).forEach(v => { const cb = document.querySelector(`#l-rental input[value="${v}"]`);     if (cb) cb.checked = true; });
+      // ショップモード: 担当インストラクターを復元
+      if (myRole === 'shop') setTimeout(() => { document.getElementById('l-instructor').value = l.instructor_id || ''; }, 50);
     });
   }
   document.getElementById('listing-modal').classList.add('open');
@@ -827,11 +1070,16 @@ async function saveListing() {
   const title = document.getElementById('l-title').value.trim();
   if (!title) { showToast('タイトルは必須です', 'error'); return; }
 
+  const instructorId = myRole === 'shop'
+    ? document.getElementById('l-instructor').value
+    : myInstructor.id;
+  if (!instructorId) { showToast('担当インストラクターを選択してください', 'error'); return; }
+
   const tagsRaw = document.getElementById('l-tags').value;
   const tags    = tagsRaw.split(',').map(s => s.trim()).filter(Boolean);
 
   const payload = {
-    instructor_id: myInstructor.id,
+    instructor_id: instructorId,
     title,
     description:   document.getElementById('l-desc').value.trim()       || null,
     category:      document.getElementById('l-category').value,
@@ -873,14 +1121,19 @@ async function deleteListing(id) {
 // 空き枠管理
 // ============================================================
 async function populateSlotListings() {
-  const { data: listings } = await _sb
-    .from('listings')
-    .select('id, title')
-    .eq('instructor_id', myInstructor.id)
-    .order('sort_order');
+  let instructorId;
+  if (myRole === 'shop') {
+    instructorId = document.getElementById('s-instructor').value;
+  } else {
+    instructorId = myInstructor.id;
+  }
+
   const sel = document.getElementById('s-listing');
   const cur = sel.value;
   sel.innerHTML = '<option value="">指定なし（全コース共通）</option>';
+  if (!instructorId) return;
+
+  const { data: listings } = await _sb.from('listings').select('id, title').eq('instructor_id', instructorId).order('sort_order');
   (listings || []).forEach(l => {
     const opt = document.createElement('option');
     opt.value = l.id; opt.textContent = l.title;
@@ -893,11 +1146,17 @@ async function loadSlots() {
   const el = document.getElementById('slots-content');
   el.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
 
-  const { data: slots, error } = await _sb
-    .from('availability_slots')
-    .select('*, listings(title)')
-    .eq('instructor_id', myInstructor.id)
-    .order('slot_date', { ascending: false });
+  let slots, error;
+  if (myRole === 'shop') {
+    if (!myShopInstructors.length) {
+      el.innerHTML = '<div class="empty">まだインストラクターが紐づいていません。</div>';
+      return;
+    }
+    const ids = myShopInstructors.map(i => i.id);
+    ({ data: slots, error } = await _sb.from('availability_slots').select('*, listings(title), instructors(name)').in('instructor_id', ids).order('slot_date', { ascending: false }));
+  } else {
+    ({ data: slots, error } = await _sb.from('availability_slots').select('*, listings(title)').eq('instructor_id', myInstructor.id).order('slot_date', { ascending: false }));
+  }
 
   if (error) { el.innerHTML = `<div class="empty">取得エラー: ${error.message}</div>`; return; }
   if (!slots || !slots.length) { el.innerHTML = '<div class="empty">空き枠がありません</div>'; return; }
@@ -942,7 +1201,22 @@ function openSlotModal(slotId = null) {
   ['s-date','s-start','s-end'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('s-max').value    = 4;
   document.getElementById('s-active').checked = true;
-  populateSlotListings();
+
+  // ショップモード: インストラクター選択を表示
+  const sInstrWrap = document.getElementById('s-instructor-wrap');
+  const sInstrSel  = document.getElementById('s-instructor');
+  if (myRole === 'shop') {
+    sInstrWrap.style.display = '';
+    sInstrSel.innerHTML = '<option value="">選択してください</option>';
+    myShopInstructors.forEach(i => {
+      const opt = document.createElement('option');
+      opt.value = i.id; opt.textContent = i.name;
+      sInstrSel.appendChild(opt);
+    });
+  } else {
+    sInstrWrap.style.display = 'none';
+    populateSlotListings();
+  }
 
   if (slotId) {
     _sb.from('availability_slots').select('*').eq('id', slotId).single().then(({ data: s }) => {
@@ -970,8 +1244,13 @@ async function saveSlot() {
   if (!slotDate || !start || !end) { showToast('日付・時間は必須です', 'error'); return; }
   if (start >= end) { showToast('開始時刻は終了時刻より前にしてください', 'error'); return; }
 
+  const slotInstructorId = myRole === 'shop'
+    ? document.getElementById('s-instructor').value
+    : myInstructor.id;
+  if (!slotInstructorId) { showToast('担当インストラクターを選択してください', 'error'); return; }
+
   const payload = {
-    instructor_id:    myInstructor.id,
+    instructor_id:    slotInstructorId,
     listing_id:       document.getElementById('s-listing').value || null,
     slot_date:        slotDate,
     start_time:       start,

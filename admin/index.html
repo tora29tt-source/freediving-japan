@@ -271,9 +271,11 @@ td.name { color: var(--on-dark); font-weight: 500; }
 <div id="app" style="display:none;">
   <div class="tabs-wrap">
     <div class="tabs">
-      <button class="tab active" id="tab-btn-slots"    onclick="switchTab('slots')">空き枠管理</button>
-      <button class="tab"        id="tab-btn-bookings" onclick="switchTab('bookings')">予約一覧</button>
-      <button class="tab"        id="tab-btn-users"    onclick="switchTab('users')" style="display:none;">ユーザー管理</button>
+      <button class="tab active" id="tab-btn-slots"       onclick="switchTab('slots')">空き枠管理</button>
+      <button class="tab"        id="tab-btn-bookings"    onclick="switchTab('bookings')">予約一覧</button>
+      <button class="tab"        id="tab-btn-instructors" onclick="switchTab('instructors')">インストラクター</button>
+      <button class="tab"        id="tab-btn-listings"    onclick="switchTab('listings')">リスティング</button>
+      <button class="tab"        id="tab-btn-users"       onclick="switchTab('users')" style="display:none;">ユーザー管理</button>
     </div>
   </div>
 
@@ -326,6 +328,45 @@ td.name { color: var(--on-dark); font-weight: 500; }
       </div>
 
       <div id="bookings-content">
+        <div class="spinner-wrap"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- ── インストラクター管理 ── -->
+    <div id="tab-instructors" style="display:none;">
+      <div class="section-header">
+        <span class="section-title">インストラクター一覧</span>
+        <button class="btn-primary" onclick="openInstructorModal()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg>
+          追加
+        </button>
+      </div>
+      <div id="instructors-content">
+        <div class="spinner-wrap"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- ── リスティング管理 ── -->
+    <div id="tab-listings" style="display:none;">
+      <div class="section-header">
+        <span class="section-title">リスティング一覧</span>
+        <button class="btn-primary" onclick="openListingModal()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg>
+          追加
+        </button>
+      </div>
+      <div class="filters">
+        <select class="filter-select" id="listing-filter-instructor" onchange="loadListings()">
+          <option value="">すべてのインストラクター</option>
+        </select>
+        <select class="filter-select" id="listing-filter-intent" onchange="loadListings()">
+          <option value="">すべてのカテゴリ</option>
+          <option value="try">try（体験）</option>
+          <option value="learn">learn（スクール）</option>
+          <option value="dive">dive（ツアー）</option>
+        </select>
+      </div>
+      <div id="listings-content">
         <div class="spinner-wrap"><div class="spinner"></div></div>
       </div>
     </div>
@@ -420,6 +461,179 @@ td.name { color: var(--on-dark); font-weight: 500; }
   </div>
 </div>
 
+<!-- ── インストラクター モーダル ── -->
+<div class="modal-backdrop" id="instructor-modal">
+  <div class="modal">
+    <div class="modal-title" id="instructor-modal-title">インストラクターを追加</div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>名前 *</label>
+        <input type="text" id="inst-name" placeholder="山田 海斗">
+      </div>
+      <div class="form-group">
+        <label>英語名</label>
+        <input type="text" id="inst-name-en" placeholder="Kaito Yamada">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>自己紹介</label>
+      <input type="text" id="inst-bio" placeholder="沖縄を拠点に10年以上...">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>都道府県</label>
+        <input type="text" id="inst-prefecture" placeholder="沖縄県">
+      </div>
+      <div class="form-group">
+        <label>市区町村</label>
+        <input type="text" id="inst-city" placeholder="恩納村">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>活動エリア（カンマ区切り）</label>
+      <input type="text" id="inst-areas" placeholder="沖縄, 石垣島">
+    </div>
+
+    <div class="form-group">
+      <label>資格（カンマ区切り）</label>
+      <input type="text" id="inst-certifications" placeholder="AIDA インストラクター, SSI フリーダイビング インストラクター">
+    </div>
+
+    <div class="form-group">
+      <label>専門（カンマ区切り）</label>
+      <input type="text" id="inst-specialties" placeholder="フリーダイビング体験, スキンダイビング, 初心者指導">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>指導歴（年）</label>
+        <input type="number" id="inst-experience" min="0" placeholder="10">
+      </div>
+      <div class="form-group">
+        <label>写真URL</label>
+        <input type="text" id="inst-photo" placeholder="https://...">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Instagram URL</label>
+        <input type="text" id="inst-instagram" placeholder="https://instagram.com/...">
+      </div>
+      <div class="form-group">
+        <label>YouTube URL</label>
+        <input type="text" id="inst-youtube" placeholder="https://youtube.com/...">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <div class="toggle-wrap" style="margin-top:8px;">
+          <label class="toggle"><input type="checkbox" id="inst-public" checked><span class="toggle-track"></span></label>
+          <span class="toggle-label">公開</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="toggle-wrap" style="margin-top:8px;">
+          <label class="toggle"><input type="checkbox" id="inst-verified"><span class="toggle-track"></span></label>
+          <span class="toggle-label">認証済み</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeInstructorModal()">キャンセル</button>
+      <button class="btn-primary" onclick="saveInstructor()">
+        <span id="instructor-save-label">保存する</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── リスティング モーダル ── -->
+<div class="modal-backdrop" id="listing-modal">
+  <div class="modal">
+    <div class="modal-title" id="listing-modal-title">リスティングを追加</div>
+
+    <div class="form-group">
+      <label>インストラクター *</label>
+      <select id="listing-instructor">
+        <option value="">選択してください</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>タイトル *</label>
+      <input type="text" id="listing-title" placeholder="沖縄・青の洞窟フリーダイビング体験">
+    </div>
+
+    <div class="form-group">
+      <label>説明</label>
+      <input type="text" id="listing-description" placeholder="世界的に有名な青の洞窟を...">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>カテゴリ *</label>
+        <select id="listing-intent">
+          <option value="try">try（体験）</option>
+          <option value="learn">learn（スクール・資格）</option>
+          <option value="dive">dive（ツアー・上級）</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>カテゴリ名</label>
+        <input type="text" id="listing-category" placeholder="フリーダイビング体験">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>都道府県</label>
+        <input type="text" id="listing-prefecture" placeholder="沖縄県">
+      </div>
+      <div class="form-group">
+        <label>エリア</label>
+        <input type="text" id="listing-area" placeholder="恩納村">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>価格（円）</label>
+        <input type="number" id="listing-price" min="0" placeholder="8800">
+      </div>
+      <div class="form-group">
+        <label>単位</label>
+        <input type="text" id="listing-price-unit" placeholder="〜/人" value="〜/人">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>タグ（カンマ区切り）</label>
+      <input type="text" id="listing-tags" placeholder="初心者OK, 当日予約OK">
+    </div>
+
+    <div class="form-group">
+      <div class="toggle-wrap">
+        <label class="toggle"><input type="checkbox" id="listing-public" checked><span class="toggle-track"></span></label>
+        <span class="toggle-label">公開</span>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeListingModal()">キャンセル</button>
+      <button class="btn-primary" onclick="saveListing()">
+        <span id="listing-save-label">保存する</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ── Toast ── -->
 <div class="toast hidden" id="toast"></div>
 
@@ -431,7 +645,9 @@ let currentUser  = null;
 let currentRole  = null; // 'admin' | 'staff'
 let allInstructors = [];
 let allListings    = [];
-let editingSlotId  = null;
+let editingSlotId        = null;
+let editingInstructorId  = null;
+let editingListingId     = null;
 
 // ============================================================
 // Boot: auth + role check
@@ -504,7 +720,7 @@ async function loadMasterData() {
   allInstructors = instructors || [];
   allListings    = listings    || [];
 
-  ['slot-filter-instructor', 'booking-filter-instructor', 'slot-instructor'].forEach(id => {
+  ['slot-filter-instructor', 'booking-filter-instructor', 'slot-instructor', 'listing-filter-instructor'].forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
     const keep = el.querySelector('option[value=""]');
@@ -536,16 +752,19 @@ function onInstructorChange() {
 // Tabs
 // ============================================================
 function switchTab(name) {
-  const tabs = { slots: 0, bookings: 1, users: 2 };
+  const tabNames = ['slots', 'bookings', 'instructors', 'listings', 'users'];
   document.querySelectorAll('.tab').forEach((t, i) => {
-    t.classList.toggle('active', i === tabs[name]);
+    t.classList.toggle('active', tabNames[i] === name);
   });
-  document.getElementById('tab-slots').style.display    = name === 'slots'    ? '' : 'none';
-  document.getElementById('tab-bookings').style.display = name === 'bookings' ? '' : 'none';
-  document.getElementById('tab-users').style.display    = name === 'users'    ? '' : 'none';
+  tabNames.forEach(n => {
+    const el = document.getElementById('tab-' + n);
+    if (el) el.style.display = n === name ? '' : 'none';
+  });
 
-  if (name === 'bookings') loadBookings();
-  if (name === 'users')    loadUsers();
+  if (name === 'bookings')    loadBookings();
+  if (name === 'instructors') loadInstructors();
+  if (name === 'listings')    loadListings();
+  if (name === 'users')       loadUsers();
 }
 
 // ============================================================
@@ -809,6 +1028,299 @@ async function updateBookingStatus(bookingId, newStatus, selectEl) {
 }
 
 // ============================================================
+// Instructors
+// ============================================================
+async function loadInstructors() {
+  const el = document.getElementById('instructors-content');
+  el.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
+
+  const { data, error } = await _sb
+    .from('instructors')
+    .select('id, name, prefecture, city, is_verified, is_public, experience_years')
+    .order('created_at', { ascending: false });
+
+  if (error) { el.innerHTML = `<div class="empty">取得エラー: ${error.message}</div>`; return; }
+  if (!data || data.length === 0) { el.innerHTML = '<div class="empty">インストラクターがいません</div>'; return; }
+
+  el.innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>名前</th>
+            <th>エリア</th>
+            <th>指導歴</th>
+            <th>認証</th>
+            <th>公開</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${data.map(inst => `
+            <tr>
+              <td class="name">${escHtml(inst.name)}</td>
+              <td>${escHtml([inst.prefecture, inst.city].filter(Boolean).join(' ') || '—')}</td>
+              <td>${inst.experience_years ? inst.experience_years + '年' : '—'}</td>
+              <td>${inst.is_verified ? '<span class="badge badge-confirmed">✓ 済</span>' : '<span class="badge badge-inactive">未</span>'}</td>
+              <td>${inst.is_public ? '<span class="badge badge-active">公開</span>' : '<span class="badge badge-inactive">非公開</span>'}</td>
+              <td>
+                <div class="actions">
+                  <button class="btn-edit"   onclick="openInstructorModal('${inst.id}')">編集</button>
+                  <button class="btn-danger" onclick="deleteInstructor('${inst.id}', '${escHtml(inst.name)}')">削除</button>
+                </div>
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+
+  // マスタデータも更新（空き枠モーダルのプルダウンに反映）
+  await loadMasterData();
+}
+
+function openInstructorModal(instId = null) {
+  editingInstructorId = instId;
+  document.getElementById('instructor-modal-title').textContent = instId ? 'インストラクターを編集' : 'インストラクターを追加';
+  document.getElementById('instructor-save-label').textContent  = instId ? '更新する' : '保存する';
+
+  // リセット
+  ['inst-name','inst-name-en','inst-bio','inst-prefecture','inst-city',
+   'inst-areas','inst-certifications','inst-specialties','inst-photo','inst-instagram','inst-youtube'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('inst-experience').value = '';
+  document.getElementById('inst-public').checked   = true;
+  document.getElementById('inst-verified').checked = false;
+
+  if (instId) {
+    _sb.from('instructors').select('*').eq('id', instId).single().then(({ data: d }) => {
+      if (!d) return;
+      document.getElementById('inst-name').value           = d.name || '';
+      document.getElementById('inst-name-en').value        = d.name_en || '';
+      document.getElementById('inst-bio').value            = d.bio || '';
+      document.getElementById('inst-prefecture').value     = d.prefecture || '';
+      document.getElementById('inst-city').value           = d.city || '';
+      document.getElementById('inst-areas').value          = (d.areas || []).join(', ');
+      document.getElementById('inst-certifications').value = (d.certifications || []).join(', ');
+      document.getElementById('inst-specialties').value    = (d.specialties || []).join(', ');
+      document.getElementById('inst-experience').value     = d.experience_years || '';
+      document.getElementById('inst-photo').value          = d.photo_url || '';
+      document.getElementById('inst-instagram').value      = d.instagram_url || '';
+      document.getElementById('inst-youtube').value        = d.youtube_url || '';
+      document.getElementById('inst-public').checked       = d.is_public !== false;
+      document.getElementById('inst-verified').checked     = d.is_verified === true;
+    });
+  }
+
+  document.getElementById('instructor-modal').classList.add('open');
+}
+
+function closeInstructorModal() {
+  document.getElementById('instructor-modal').classList.remove('open');
+  editingInstructorId = null;
+}
+
+function splitTrim(str) {
+  return str.split(',').map(s => s.trim()).filter(Boolean);
+}
+
+async function saveInstructor() {
+  const name = document.getElementById('inst-name').value.trim();
+  if (!name) { showToast('名前は必須です', 'error'); return; }
+
+  const payload = {
+    name,
+    name_en:          document.getElementById('inst-name-en').value.trim() || null,
+    bio:              document.getElementById('inst-bio').value.trim() || null,
+    prefecture:       document.getElementById('inst-prefecture').value.trim() || null,
+    city:             document.getElementById('inst-city').value.trim() || null,
+    areas:            splitTrim(document.getElementById('inst-areas').value),
+    certifications:   splitTrim(document.getElementById('inst-certifications').value),
+    specialties:      splitTrim(document.getElementById('inst-specialties').value),
+    experience_years: parseInt(document.getElementById('inst-experience').value) || null,
+    photo_url:        document.getElementById('inst-photo').value.trim() || null,
+    instagram_url:    document.getElementById('inst-instagram').value.trim() || null,
+    youtube_url:      document.getElementById('inst-youtube').value.trim() || null,
+    is_public:        document.getElementById('inst-public').checked,
+    is_verified:      document.getElementById('inst-verified').checked,
+  };
+
+  let error;
+  if (editingInstructorId) {
+    ({ error } = await _sb.from('instructors').update(payload).eq('id', editingInstructorId));
+  } else {
+    ({ error } = await _sb.from('instructors').insert(payload));
+  }
+
+  if (error) { showToast('保存に失敗しました: ' + error.message, 'error'); return; }
+  showToast(editingInstructorId ? '更新しました' : '追加しました', 'success');
+  closeInstructorModal();
+  loadInstructors();
+}
+
+async function deleteInstructor(instId, name) {
+  if (!confirm(`「${name}」を削除しますか？\nリスティング・空き枠も削除されます。`)) return;
+  const { error } = await _sb.from('instructors').delete().eq('id', instId);
+  if (error) { showToast('削除できませんでした: ' + error.message, 'error'); return; }
+  showToast('削除しました', 'success');
+  loadInstructors();
+}
+
+// ============================================================
+// Listings
+// ============================================================
+async function loadListings() {
+  const el = document.getElementById('listings-content');
+  el.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
+
+  const instFilter   = document.getElementById('listing-filter-instructor').value;
+  const intentFilter = document.getElementById('listing-filter-intent').value;
+
+  let query = _sb
+    .from('listings')
+    .select('id, title, intent, area, price, is_public, instructors(name)')
+    .order('created_at', { ascending: false });
+
+  if (instFilter)   query = query.eq('instructor_id', instFilter);
+  if (intentFilter) query = query.eq('intent', intentFilter);
+
+  const { data, error } = await query;
+
+  if (error) { el.innerHTML = `<div class="empty">取得エラー: ${error.message}</div>`; return; }
+  if (!data || data.length === 0) { el.innerHTML = '<div class="empty">リスティングがありません</div>'; return; }
+
+  const intentLabel = { try: '体験', learn: 'スクール', dive: 'ツアー' };
+
+  el.innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>タイトル</th>
+            <th>インストラクター</th>
+            <th>カテゴリ</th>
+            <th>エリア</th>
+            <th>価格</th>
+            <th>公開</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${data.map(l => `
+            <tr>
+              <td class="name" style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(l.title)}</td>
+              <td>${escHtml(l.instructors?.name || '—')}</td>
+              <td><span class="badge badge-${l.intent === 'try' ? 'pending' : l.intent === 'learn' ? 'paid' : 'confirmed'}">${intentLabel[l.intent] || l.intent}</span></td>
+              <td>${escHtml(l.area || '—')}</td>
+              <td>${l.price ? '¥' + l.price.toLocaleString() : '—'}</td>
+              <td>${l.is_public ? '<span class="badge badge-active">公開</span>' : '<span class="badge badge-inactive">非公開</span>'}</td>
+              <td>
+                <div class="actions">
+                  <button class="btn-edit"   onclick="openListingModal('${l.id}')">編集</button>
+                  <button class="btn-danger" onclick="deleteListing('${l.id}')">削除</button>
+                </div>
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function openListingModal(listingId = null) {
+  editingListingId = listingId;
+  document.getElementById('listing-modal-title').textContent = listingId ? 'リスティングを編集' : 'リスティングを追加';
+  document.getElementById('listing-save-label').textContent  = listingId ? '更新する' : '保存する';
+
+  // インストラクタープルダウンを更新
+  const sel = document.getElementById('listing-instructor');
+  const keep = sel.querySelector('option[value=""]');
+  sel.innerHTML = '';
+  sel.appendChild(keep);
+  allInstructors.forEach(inst => {
+    const opt = document.createElement('option');
+    opt.value = inst.id;
+    opt.textContent = inst.name;
+    sel.appendChild(opt);
+  });
+
+  // リセット
+  ['listing-title','listing-description','listing-category','listing-prefecture','listing-area','listing-tags'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('listing-intent').value      = 'try';
+  document.getElementById('listing-price').value       = '';
+  document.getElementById('listing-price-unit').value  = '〜/人';
+  document.getElementById('listing-public').checked    = true;
+  document.getElementById('listing-instructor').value  = '';
+
+  if (listingId) {
+    _sb.from('listings').select('*').eq('id', listingId).single().then(({ data: d }) => {
+      if (!d) return;
+      document.getElementById('listing-instructor').value  = d.instructor_id || '';
+      document.getElementById('listing-title').value       = d.title || '';
+      document.getElementById('listing-description').value = d.description || '';
+      document.getElementById('listing-category').value    = d.category || '';
+      document.getElementById('listing-intent').value      = d.intent || 'try';
+      document.getElementById('listing-prefecture').value  = d.prefecture || '';
+      document.getElementById('listing-area').value        = d.area || '';
+      document.getElementById('listing-price').value       = d.price || '';
+      document.getElementById('listing-price-unit').value  = d.price_unit || '〜/人';
+      document.getElementById('listing-tags').value        = (d.tags || []).join(', ');
+      document.getElementById('listing-public').checked    = d.is_public !== false;
+    });
+  }
+
+  document.getElementById('listing-modal').classList.add('open');
+}
+
+function closeListingModal() {
+  document.getElementById('listing-modal').classList.remove('open');
+  editingListingId = null;
+}
+
+async function saveListing() {
+  const instructorId = document.getElementById('listing-instructor').value;
+  const title        = document.getElementById('listing-title').value.trim();
+  if (!instructorId) { showToast('インストラクターを選択してください', 'error'); return; }
+  if (!title)        { showToast('タイトルは必須です', 'error'); return; }
+
+  const payload = {
+    instructor_id: instructorId,
+    title,
+    description:  document.getElementById('listing-description').value.trim() || null,
+    category:     document.getElementById('listing-category').value.trim() || null,
+    intent:       document.getElementById('listing-intent').value,
+    prefecture:   document.getElementById('listing-prefecture').value.trim() || null,
+    area:         document.getElementById('listing-area').value.trim() || null,
+    price:        parseInt(document.getElementById('listing-price').value) || null,
+    price_unit:   document.getElementById('listing-price-unit').value.trim() || '〜/人',
+    tags:         splitTrim(document.getElementById('listing-tags').value),
+    is_public:    document.getElementById('listing-public').checked,
+  };
+
+  let error;
+  if (editingListingId) {
+    ({ error } = await _sb.from('listings').update(payload).eq('id', editingListingId));
+  } else {
+    ({ error } = await _sb.from('listings').insert(payload));
+  }
+
+  if (error) { showToast('保存に失敗しました: ' + error.message, 'error'); return; }
+  showToast(editingListingId ? '更新しました' : '追加しました', 'success');
+  closeListingModal();
+  loadListings();
+  loadMasterData(); // 空き枠モーダルのリスティング一覧を更新
+}
+
+async function deleteListing(listingId) {
+  if (!confirm('このリスティングを削除しますか？')) return;
+  const { error } = await _sb.from('listings').delete().eq('id', listingId);
+  if (error) { showToast('削除できませんでした: ' + error.message, 'error'); return; }
+  showToast('削除しました', 'success');
+  loadListings();
+}
+
+// ============================================================
 // Users (admin only)
 // ============================================================
 async function loadUsers() {
@@ -906,6 +1418,12 @@ function showToast(msg, type = 'success') {
 
 document.getElementById('slot-modal').addEventListener('click', function(e) {
   if (e.target === this) closeSlotModal();
+});
+document.getElementById('instructor-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeInstructorModal();
+});
+document.getElementById('listing-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeListingModal();
 });
 
 // ============================================================
