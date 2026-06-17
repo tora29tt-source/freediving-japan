@@ -910,7 +910,8 @@ function renderCalendar() {
 }
 
 initCalendar();
-renderUpcoming();
+renderUpcoming(); // 初期描画（データなし）
+loadMypageData(); // Supabase からデータ取得して再描画
 
 function renderUpcoming() {
   var el = document.getElementById('upcomingList');
@@ -995,6 +996,206 @@ function renderUpcoming() {
 // 大会作成
 function createEvent() {
   alert('Event creation will be available after Supabase integration.');
+}
+
+// =====================================================
+// Supabase データ読み込み
+// =====================================================
+async function loadMypageData() {
+  const { data: { session } } = await _sb.auth.getSession();
+  if (!session) return;
+
+  const user     = session.user;
+  const today    = new Date().toISOString().split('T')[0];
+  const past90   = new Date(Date.now() - 90*24*3600*1000).toISOString().split('T')[0];
+  const future90 = new Date(Date.now() + 90*24*3600*1000).toISOString().split('T')[0];
+
+  // ── トレーニングセッション ──
+  const { data: sessions } = await _sb
+    .from('training_sessions')
+    .select('date, env, rhr')
+    .eq('user_id', user.id)
+    .gte('date', past90)
+    .lte('date', future90)
+    .order('date', { ascending: true });
+
+  if (sessions) {
+    trainingData    = {};
+    plannedTraining = {};
+    sessions.forEach(s => {
+      const env = s.env || 'sea';
+      if (s.date <= today) {
+        trainingData[s.date] = trainingData[s.date] || [];
+        if (!trainingData[s.date].includes(env)) trainingData[s.date].push(env);
+      } else {
+        plannedTraining[s.date] = plannedTraining[s.date] || [];
+        if (!plannedTraining[s.date].includes(env)) plannedTraining[s.date].push(env);
+      }
+    });
+    const thisMonth    = today.slice(0, 7);
+    const monthSessions = sessions.filter(s => s.date.startsWith(thisMonth) && s.date <= today);
+    renderSummary(monthSessions);
+  }
+
+  // ── 公開イベント（カレンダー用） ──
+  const { data: events } = await _sb
+    .from('events')
+    .select('id, name, date')
+    .eq('is_published', true)
+    .gte('date', past90)
+    .lte('date', future90)
+    .order('date', { ascending: true });
+
+  if (events) {
+    calEvents     = [];
+    plannedEvents = [];
+    events.forEach(ev => {
+      const item = { type: 'event', label: ev.name, start: ev.date, end: ev.date };
+      if (ev.date <= today) {
+        calEvents.push(item);
+      } else {
+        plannedEvents.push({ ...item, planned: true });
+      }
+    });
+  }
+
+  // ── 自分が作成した大会 ──
+  const { data: myEvents } = await _sb
+    .from('events')
+    .select('id, name, date, location, is_published')
+    .eq('created_by', user.id)
+    .order('date', { ascending: false })
+    .limit(5);
+
+  renderMyEvents(myEvents || []);
+
+  // カレンダー・近日予定を再描画
+  renderCalendar();
+  renderUpcoming();
+
+  // 予約履歴
+  await loadBookingHistory(user.email);
+}
+
+// 今月のサマリー描画
+function renderSummary(sessions) {
+  const uniqueDays = new Set(sessions.map(s => s.date));
+  const days       = uniqueDays.size;
+  const total      = sessions.length;
+
+  const rhrVals = sessions.map(s => s.rhr).filter(v => v != null);
+  const avgRhr  = rhrVals.length
+    ? Math.round(rhrVals.reduce((a, b) => a + b, 0) / rhrVals.length)
+    : null;
+
+  document.getElementById('stat-days').textContent     = days  || '0';
+  document.getElementById('stat-sessions').textContent = total || '0';
+  document.getElementById('stat-rhr').textContent      = avgRhr != null ? avgRhr : '—';
+
+  // 環境別内訳
+  const cnt = { sea: 0, pool: 0, dry: 0 };
+  sessions.forEach(s => { if (cnt[s.env] !== undefined) cnt[s.env]++; });
+  const totalEnv = cnt.sea + cnt.pool + cnt.dry;
+
+  document.getElementById('stat-env-total').textContent = days + '日';
+
+  if (!totalEnv) {
+    document.getElementById('stat-env-bar').innerHTML =
+      '<div style="flex:1;background:rgba(255,255,255,0.1);border-radius:4px;"></div>';
+    document.getElementById('stat-env-labels').innerHTML =
+      '<div style="font-size:11px;color:var(--muted);">今月のセッションなし</div>';
+    return;
+  }
+
+  document.getElementById('stat-env-bar').innerHTML = [
+    cnt.sea  ? `<div style="flex:${cnt.sea};background:#2ec4b6;border-radius:4px 0 0 4px;"></div>` : '',
+    cnt.pool ? `<div style="flex:${cnt.pool};background:#3b82f6;"></div>` : '',
+    cnt.dry  ? `<div style="flex:${cnt.dry};background:#f97316;border-radius:0 4px 4px 0;"></div>` : '',
+  ].join('');
+
+  document.getElementById('stat-env-labels').innerHTML = [
+    cnt.sea  ? `<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub);"><div style="width:8px;height:8px;border-radius:50%;background:#2ec4b6;flex-shrink:0;"></div>海 ${cnt.sea}日</div>` : '',
+    cnt.pool ? `<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub);"><div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;flex-shrink:0;"></div>プール ${cnt.pool}日</div>` : '',
+    cnt.dry  ? `<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub);"><div style="width:8px;height:8px;border-radius:50%;background:#f97316;flex-shrink:0;"></div>ドライ ${cnt.dry}日</div>` : '',
+  ].join('');
+}
+
+// 予約履歴
+async function loadBookingHistory(guestEmail) {
+  const el = document.getElementById('booking-history-list');
+  if (!el) return;
+
+  const { data: bookings } = await _sb
+    .from('bookings')
+    .select(`
+      id, status, total_amount, participant_count, created_at,
+      listing:listings(title),
+      slot:availability_slots(slot_date, start_time)
+    `)
+    .eq('guest_email', guestEmail)
+    .order('created_at', { ascending: false })
+    .limit(10);
+
+  if (!bookings || !bookings.length) {
+    el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">予約はまだありません</div>';
+    return;
+  }
+
+  const MONTHS     = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const stLabel    = { paid:'決済済み', confirmed:'確定', pending:'保留中', cancelled:'キャンセル', refunded:'返金済み' };
+  const stClass    = { paid:'bk-status-paid', confirmed:'bk-status-confirmed', pending:'bk-status-pending', cancelled:'bk-status-cancelled', refunded:'bk-status-cancelled' };
+
+  el.innerHTML = bookings.map(b => {
+    const d       = new Date(b.slot?.slot_date || b.created_at);
+    const timeStr = b.slot?.start_time ? b.slot.start_time.slice(0, 5) + ' · ' : '';
+    const title   = b.listing?.title || '予約';
+    const amount  = b.total_amount ? '¥' + b.total_amount.toLocaleString() : '';
+    const st      = b.status || 'pending';
+    return `
+      <div class="bk-item">
+        <div class="bk-date">
+          <div class="bk-date-day">${d.getDate()}</div>
+          <div class="bk-date-mon">${MONTHS[d.getMonth()]} ${d.getFullYear()}</div>
+        </div>
+        <div class="bk-info">
+          <div class="bk-title">${title}</div>
+          <div class="bk-meta">${timeStr}${b.participant_count}名</div>
+        </div>
+        <div class="bk-right">
+          <div class="bk-amount">${amount}</div>
+          <div class="bk-status ${stClass[st] || 'bk-status-pending'}">${stLabel[st] || st}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// 自分の大会一覧描画
+function renderMyEvents(events) {
+  const el = document.getElementById('my-events-list');
+  if (!el) return;
+  if (!events.length) {
+    el.innerHTML = '<div style="padding:16px;text-align:center;color:var(--muted);font-size:13px;">作成済みの大会はありません</div>';
+    return;
+  }
+  el.innerHTML = events.map(ev => {
+    const d      = new Date(ev.date);
+    const ds     = d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日';
+    const bg     = ev.is_published ? 'rgba(46,196,182,0.15)' : 'rgba(245,158,11,0.15)';
+    const col    = ev.is_published ? 'var(--teal)' : 'var(--warn)';
+    const bdr    = ev.is_published ? 'rgba(46,196,182,0.3)' : 'rgba(245,158,11,0.3)';
+    const lbl    = ev.is_published ? '公開中' : 'Draft';
+    return `
+      <a href="event-staff.html?id=${ev.id}" style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);text-decoration:none;color:inherit;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background=''">
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:700;">${ev.name}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">${ds}${ev.location ? ' · ' + ev.location : ''}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-size:10px;font-weight:700;background:${bg};color:${col};border:1px solid ${bdr};padding:2px 8px;border-radius:100px;">${lbl}</div>
+        </div>
+        <span style="color:var(--muted);font-size:18px;">›</span>
+      </a>`;
+  }).join('');
 }
 
 // ログアウト

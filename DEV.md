@@ -236,7 +236,7 @@ TOP (index.html)
 |ランキング（AIDA_ranking_prototype.html / site/index.html）|✅ 完成                        |
 |大会情報（2026_competitions.html）                        |✅ 完成                        |
 |トレーニングログ（training-log.html）                         |✅ Supabase接続・保存・読み込み・編集・URLシェア実装済み（動作確認要）|
-|マイページ（mypage.html）                                  |🔄 作りかけ                      |
+|マイページ（mypage.html）                                  |✅ Supabase接続完了（トレーニングカレンダー・今月のサマリー・予約履歴・大会管理 すべて実データ表示）|
 |STAタイマー（sta-timer.html）                             |✅ 大幅機能追加・デプロイ済み              |
 |Mouthfill Calculator（mouthfill-calculator.html）     |✅ 完成・push済み                  |
 |インストラクターウェルカム（instructor-welcome.html）              |✅ 作成完了                      |
@@ -300,4 +300,4 @@ RLSポリシー（`storage.objects`）：INSERT/UPDATE/DELETE は `auth.uid()::t
 
 -----
 
-*最終更新：2026-06-17（クライアント管理・売り上げ管理タブ追加・listings 全フィールド対応・E2E決済テスト完了確認）*
+*最終更新：2026-06-17（mypage.html Supabase接続完了：トレーニングカレンダー・今月のサマリー・予約履歴・大会管理）*
