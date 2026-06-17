@@ -17,12 +17,15 @@
    - `events` / `event_entries` テーブルへの接続
    - AP登録・スタートリスト・結果表示
 
-6. **competition-countdown.html の再構築**
-   - チャット消失のため内容不明、一から再構築
-   - `js/aida-rules.js` を使ってアナウンスを統一
+6. **competition-countdown.html の再構築** ✅ 2026-06-18
+   - `sorted1` undefined バグ修正（→ `sorted2`）
+   - `js/aida-rules.js` を使ってアナウンスを統一（speak = aidaSpeak shim）
+   - `?event_id=` URL パラメータで Supabase から event_entries を取得する `loadFromSupabase()` 追加
+   - 📡 DB ボタンをサイドバーに追加（event_id がある場合のみ表示）
 
-7. **js/aida-rules.js をリポジトリに追加**
-   - sta-timer.html に現在インライン実装されているアナウンスロジックを切り出す
+7. **js/aida-rules.js をリポジトリに追加** ✅ 2026-06-18
+   - AIDA §4.2.9 公式カウントダウンシーケンスを AIDA_BEFORE_OT / AIDA_OT / AIDA_AFTER_OT として定義
+   - `aidaSpeak()` / `aidaSetLang()` / `aidaGetLang()` を export
 
 -----
 
@@ -122,8 +125,8 @@
 
 ## 📅 STAタイマー関連・残作業メモ
 
-- `js/aida-rules.js` をリポジトリに追加（sta-timer.htmlには現在インライン実装）
-- competition-countdown.htmlのアナウンスをaida-rules.jsに統一
+- ~~`js/aida-rules.js` をリポジトリに追加~~（✅ 2026-06-18 完了）
+- ~~competition-countdown.htmlのアナウンスをaida-rules.jsに統一~~（✅ 2026-06-18 完了）
 - BLE実機テスト（機種決定後にServiceUUIDを調整）
 - sta-timer → training-log データ引き継ぎ：✅ 2026-06-16 修正済み（spo2Profile除外で解決）
 

@@ -281,7 +281,7 @@ TOP (index.html)
 |プロダッシュボード（pro/index.html）予約管理タブ                      |✅ 実装済み・テストデータ投入済み（全ステータス確認可）|
 |クライアント管理タブ（pro/index.html）                           |✅ 実装済み（bookingsから自動集約・検索・詳細・メモ保存）※ client_memos テーブル要作成（sql/client_memos.sql）|
 |売り上げ管理タブ（pro/index.html）                              |✅ 実装済み（月次サマリー・棒グラフ・明細一覧・期間フィルタ）|
-|/learn/ 有料講座ページ                                      |✅ learn/index.html 骨格完成（Stripe/Vimeo接続は撮影後）|
+|/learn/ 有料講座ページ                                      |✅ learn/index.html 骨格完成・トップからリンク済み（先行通知機能なし・購入ボタンは準備中表示。Stripe/Vimeo接続は撮影後）|
 |メディア（/media/）                                        |❌ 未着手（Phase 2）|
 |iOSアプリ（React Native）                                 |❌ 未着手（Phase 1 Week 7-8）|
 

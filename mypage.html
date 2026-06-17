@@ -656,20 +656,9 @@ body {
         <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px;">AIDAの大会データから選択して作成</div>
       </div>
 
-      <!-- 作成済み大会一覧（ダミー） -->
-      <a href="event-staff.html" style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);text-decoration:none;color:inherit;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background=''">
-        <div style="flex:1;">
-          <div style="font-size:14px;font-weight:700;">Volcano Cup 2026</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:2px;">June 15, 2026 · Izu Peninsula · 13 entries</div>
-        </div>
-        <div style="text-align:right;flex-shrink:0;">
-          <div style="font-size:10px;font-weight:700;background:rgba(245,158,11,0.15);color:var(--warn);border:1px solid rgba(245,158,11,0.3);padding:2px 8px;border-radius:100px;">Draft</div>
-        </div>
-        <span style="color:var(--muted);font-size:18px;">›</span>
-      </a>
-
-      <div style="padding:14px 16px;text-align:center;color:var(--muted);font-size:12px;">
-        大会作成はSupabase接続後に有効になります
+      <!-- 作成済み大会一覧（Supabaseから動的レンダリング） -->
+      <div id="my-events-list">
+        <div style="padding:16px;text-align:center;color:var(--muted);font-size:13px;">読み込み中...</div>
       </div>
     </div>
   </div>
@@ -736,6 +725,60 @@ body {
     <div class="modal-actions">
       <button class="modal-btn-cancel" onclick="closeProfileModal()">キャンセル</button>
       <button class="modal-btn-primary" id="pf-save-btn" onclick="saveProfile()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 大会を作成 モーダル ── -->
+<div class="modal-backdrop" id="create-event-modal" style="display:none;">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-title">🏆 大会を作成</div>
+
+    <!-- Step 1: AIDA URL 入力 -->
+    <div id="ce-step1">
+      <p style="font-size:13px;color:var(--sub);margin-bottom:14px;">
+        AIDA カレンダーのイベント URL またはイベント ID を入力してください。
+      </p>
+      <div class="modal-form-group">
+        <label>AIDA イベント URL / ID</label>
+        <input type="text" id="ce-url-input"
+          placeholder="https://www.aidainternational.org/Events/EventDetails-5067  または  5067"
+          style="font-size:13px;">
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:8px;">
+        例: <a href="https://www.aidainternational.org/Events/EventCalendar" target="_blank" style="color:var(--teal);">AIDA カレンダー</a> でイベントを探して URL をコピーしてください。
+      </p>
+      <div id="ce-fetch-err" style="font-size:12px;color:#f87171;margin-top:8px;display:none;"></div>
+      <div class="modal-actions" style="margin-top:20px;">
+        <button class="modal-btn-cancel" onclick="closeCreateEventModal()">キャンセル</button>
+        <button class="modal-btn-primary" id="ce-fetch-btn" onclick="fetchAidaEvent()">取得する</button>
+      </div>
+    </div>
+
+    <!-- Step 2: 確認・編集 -->
+    <div id="ce-step2" style="display:none;">
+      <p style="font-size:12px;color:var(--teal);margin-bottom:14px;">✅ AIDA からデータを取得しました。内容を確認して作成してください。</p>
+      <div class="modal-form-group">
+        <label>大会名</label>
+        <input type="text" id="ce-name" style="font-size:13px;">
+      </div>
+      <div class="modal-form-group">
+        <label>開催日</label>
+        <input type="date" id="ce-date" style="font-size:13px;">
+      </div>
+      <div class="modal-form-group">
+        <label>場所</label>
+        <input type="text" id="ce-location" style="font-size:13px;">
+      </div>
+      <div class="modal-form-group">
+        <label>種別</label>
+        <input type="text" id="ce-type" style="font-size:13px;color:var(--muted);" readonly>
+      </div>
+      <div id="ce-create-err" style="font-size:12px;color:#f87171;margin-top:8px;display:none;"></div>
+      <div class="modal-actions" style="margin-top:20px;">
+        <button class="modal-btn-cancel" onclick="ceBackToStep1()">← 戻る</button>
+        <button class="modal-btn-primary" id="ce-create-btn" onclick="createEventConfirm()">大会を作成</button>
+      </div>
     </div>
   </div>
 </div>
@@ -993,9 +1036,130 @@ function renderUpcoming() {
   }).join('');
 }
 
-// 大会作成
+// ── 大会を作成 ────────────────────────────────────────────────────────
+var _ceAidaId = null;
+
 function createEvent() {
-  alert('Event creation will be available after Supabase integration.');
+  _ceAidaId = null;
+  document.getElementById('ce-url-input').value = '';
+  document.getElementById('ce-fetch-err').style.display = 'none';
+  document.getElementById('ce-step1').style.display = '';
+  document.getElementById('ce-step2').style.display = 'none';
+  document.getElementById('create-event-modal').style.display = 'flex';
+}
+
+function closeCreateEventModal() {
+  document.getElementById('create-event-modal').style.display = 'none';
+}
+
+function ceBackToStep1() {
+  document.getElementById('ce-step1').style.display = '';
+  document.getElementById('ce-step2').style.display = 'none';
+  document.getElementById('ce-fetch-err').style.display = 'none';
+}
+
+async function fetchAidaEvent() {
+  const raw = document.getElementById('ce-url-input').value.trim();
+  if (!raw) {
+    showCeErr('fetch', 'URL または ID を入力してください。');
+    return;
+  }
+
+  // URL から ID を抽出（例: EventDetails-5067 → 5067）
+  const idMatch = raw.match(/EventDetails[_-](\d+)/i) || raw.match(/^(\d+)$/);
+  if (!idMatch) {
+    showCeErr('fetch', 'URL 形式が正しくありません。例: .../EventDetails-5067 または 5067');
+    return;
+  }
+  const aida_id = idMatch[1];
+
+  const btn = document.getElementById('ce-fetch-btn');
+  btn.disabled = true;
+  btn.textContent = '取得中...';
+  document.getElementById('ce-fetch-err').style.display = 'none';
+
+  try {
+    const res = await fetch('/api/aida-event?id=' + aida_id);
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || 'Unknown error');
+
+    _ceAidaId = data.aida_id;
+    document.getElementById('ce-name').value     = data.name     || '';
+    document.getElementById('ce-date').value     = data.date_start || '';
+    document.getElementById('ce-location').value = data.location  || '';
+    document.getElementById('ce-type').value     =
+      (data.event_type || '') + (data.disciplines.length ? ' — ' + data.disciplines.join(' ') : '');
+
+    document.getElementById('ce-create-err').style.display = 'none';
+    document.getElementById('ce-step1').style.display = 'none';
+    document.getElementById('ce-step2').style.display = '';
+  } catch (err) {
+    showCeErr('fetch', 'データ取得に失敗しました: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '取得する';
+  }
+}
+
+async function createEventConfirm() {
+  const name     = document.getElementById('ce-name').value.trim();
+  const date     = document.getElementById('ce-date').value;
+  const location = document.getElementById('ce-location').value.trim();
+
+  if (!name || !date) {
+    showCeErr('create', '大会名と開催日は必須です。');
+    return;
+  }
+
+  const btn = document.getElementById('ce-create-btn');
+  btn.disabled = true;
+  btn.textContent = '作成中...';
+  document.getElementById('ce-create-err').style.display = 'none';
+
+  try {
+    const { data: { session } } = await _sb.auth.getSession();
+    if (!session) throw new Error('ログインが必要です。');
+
+    const { data: ev, error } = await _sb
+      .from('events')
+      .insert({
+        name,
+        date,
+        location: location || null,
+        is_published: false,
+        created_by: session.user.id,
+      })
+      .select('id, name, date, location, is_published')
+      .single();
+
+    if (error) throw error;
+
+    closeCreateEventModal();
+    // リスト更新
+    const { data: myEvents } = await _sb
+      .from('events')
+      .select('id, name, date, location, is_published')
+      .eq('created_by', session.user.id)
+      .order('date', { ascending: false })
+      .limit(5);
+    renderMyEvents(myEvents || []);
+
+    // 作成した大会の管理画面へ誘導
+    if (ev && ev.id && confirm('大会「' + name + '」を作成しました。管理画面を開きますか？')) {
+      window.location.href = 'events/event-staff.html?id=' + ev.id;
+    }
+  } catch (err) {
+    showCeErr('create', '作成に失敗しました: ' + (err.message || err));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '大会を作成';
+  }
+}
+
+function showCeErr(step, msg) {
+  const el = document.getElementById(step === 'fetch' ? 'ce-fetch-err' : 'ce-create-err');
+  el.textContent = msg;
+  el.style.display = '';
 }
 
 // =====================================================

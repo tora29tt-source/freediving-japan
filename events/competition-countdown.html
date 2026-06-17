@@ -291,6 +291,9 @@ select.fi option { background:var(--surface2); color:var(--text); }
   .sidebar{border-top:1px solid var(--border);}
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
+<script src="../js/aida-rules.js"></script>
 </head>
 <body>
 
@@ -366,6 +369,7 @@ select.fi option { background:var(--surface2); color:var(--text); }
   <div class="sidebar">
     <div class="sidebar-head">
       <span class="sidebar-title" id="sidebarTitle">Athlete List</span>
+      <button class="import-btn" id="btnDB" onclick="loadFromSupabase()" style="display:none">📡 DB</button>
       <button class="import-btn" onclick="document.getElementById('csvFile').click()">📂 CSV</button>
       <input type="file" id="csvFile" accept=".csv" style="display:none" onchange="handleCSV(this.files[0])">
     </div>
@@ -517,7 +521,7 @@ function openRulesModal() {
   var sorted2 = intervalRules.slice().sort(function(a,b){ return b.ap - a.ap; });
   var container = document.getElementById('ruleRows');
   container.innerHTML = '';
-  sorted1.forEach(function(r, i){ addRuleRow(r.ap, r.interval); });
+  sorted2.forEach(function(r, i){ addRuleRow(r.ap, r.interval); });
   openModal('rulesModal');
 }
 
@@ -1053,66 +1057,46 @@ function tick() {
 
 function checkAnnounce(a, secs) {
   var k = currentIdx + '_';
-  var before = [
-    { s:240, key:'240', text:'Four minutes.' },
-    { s:180, key:'180', text:'Three minutes.' },
-    { s:120, key:'120', text:'Two minutes to Official Top.' },
-    { s:90,  key:'90',  text:'One thirty.' },
-    { s:60,  key:'60',  text:'One minute.' },
-    { s:30,  key:'30',  text:'Thirty seconds.' },
-    { s:20,  key:'20',  text:'Twenty.' },
-    { s:10,  key:'10',  text:'Ten.' },
-    { s:5,   key:'5',   text:'Five.' },
-    { s:4,   key:'4',   text:'Four.' },
-    { s:3,   key:'3',   text:'Three.' },
-    { s:2,   key:'2',   text:'Two.' },
-    { s:1,   key:'1',   text:'One.' },
-  ];
-  var after = [
-    { s:-1,  key:'p1',  text:'Plus one.' },
-    { s:-2,  key:'p2',  text:'Two.' },
-    { s:-3,  key:'p3',  text:'Three.' },
-    { s:-4,  key:'p4',  text:'Four.' },
-    { s:-5,  key:'p5',  text:'Five.' },
-    { s:-6,  key:'p6',  text:'Six.' },
-    { s:-7,  key:'p7',  text:'Seven.' },
-    { s:-8,  key:'p8',  text:'Eight.' },
-    { s:-9,  key:'p9',  text:'Nine.' },
-    { s:-10, key:'p10', text:'Ten.' },
-    { s:-20, key:'p20', text:'Twenty.' },
-    { s:-25, key:'p25', text:'Twenty five.' },
-    { s:-26, key:'p26', text:'Twenty six.' },
-    { s:-27, key:'p27', text:'Twenty seven.' },
-    { s:-28, key:'p28', text:'Twenty eight.' },
-    { s:-29, key:'p29', text:'Twenty nine.' },
-    { s:-30, key:'p30', text:'Start cancelled.' },
-  ];
 
-  
-  for (var i = 0; i < before.length; i++) {
-    var b = before[i];
-    if (secs <= b.s && secs > b.s - 1 && !announcedAt[k + b.key]) {
-      announcedAt[k + b.key] = true;
-      speak(b.text);
-      addLog('[' + b.key + 's] ' + b.text, b.s <= 10);
+  // 非公式プレアナウンス（AIDA §4.2.9 の範囲外だが運営上有用）
+  var preAnnounce = [
+    { s: 240, key: '240', en: 'Four minutes.',   ja: '4分前。' },
+    { s: 180, key: '180', en: 'Three minutes.',  ja: '3分前。' },
+  ];
+  for (var p = 0; p < preAnnounce.length; p++) {
+    var pa = preAnnounce[p];
+    if (secs <= pa.s && secs > pa.s - 1 && !announcedAt[k + pa.key]) {
+      announcedAt[k + pa.key] = true;
+      speak(pa);
+      addLog('[' + pa.key + 's] ' + pa.en, false);
     }
   }
 
-  
-  if (secs <= 0 && secs > -1 && !announcedAt[k + 'ot']) {
-    announcedAt[k + 'ot'] = true;
-    speak('Official Top.');
+  // OT前: AIDA §4.2.9 公式シーケンス（aida-rules.js の AIDA_BEFORE_OT を使用）
+  for (var i = 0; i < AIDA_BEFORE_OT.length; i++) {
+    var b = AIDA_BEFORE_OT[i];
+    if (secs <= b.s && secs > b.s - 1 && !announcedAt[k + b.key]) {
+      announcedAt[k + b.key] = true;
+      speak(b);
+      addLog('[' + b.key + 's] ' + b.en, b.s <= 10);
+    }
+  }
+
+  // オフィシャルトップ
+  if (secs <= 0 && secs > -1 && !announcedAt[k + AIDA_OT.key]) {
+    announcedAt[k + AIDA_OT.key] = true;
+    speak(AIDA_OT);
     addLog('[OT] ' + a.name, true);
     document.getElementById('btnDive').disabled = false;
   }
 
-  
-  for (var j = 0; j < after.length; j++) {
-    var af = after[j];
+  // OT後: AIDA §4.2.9 公式シーケンス（aida-rules.js の AIDA_AFTER_OT を使用）
+  for (var j = 0; j < AIDA_AFTER_OT.length; j++) {
+    var af = AIDA_AFTER_OT[j];
     if (secs <= af.s && secs > af.s - 1 && !announcedAt[k + af.key]) {
       announcedAt[k + af.key] = true;
-      speak(af.text);
-      addLog('[+' + Math.abs(af.s) + 's]', af.s === -30);
+      speak(af);
+      addLog('[+' + Math.abs(af.s) + 's] ' + af.en, af.s === -30);
       if (af.s === -30) {
         setTimeout(function() { moveToNext(); }, 2000);
       }
@@ -1327,13 +1311,8 @@ function endDiving() {
   }
 }
 
-function speak(text) {
-  if (!window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  var u = new SpeechSynthesisUtterance(text);
-  u.lang = 'en-US'; u.rate = 0.9; u.pitch = 1.0; u.volume = 1.0;
-  window.speechSynthesis.speak(u);
-}
+// aida-rules.js の aidaSpeak() を speak() として使う
+var speak = aidaSpeak;
 
 
 function addLog(text, hi) {
@@ -1444,6 +1423,62 @@ function buildOTSelect(containerId, prefix) {
   wrap.appendChild(sm);
 }
 
+
+// ── Supabase: event_entries ロード ────────────────────────────────────
+// URL: competition-countdown.html?event_id=<uuid>
+var _eventId = new URLSearchParams(location.search).get('event_id');
+if (_eventId) {
+  var btnDB = document.getElementById('btnDB');
+  if (btnDB) btnDB.style.display = '';
+}
+
+async function loadFromSupabase() {
+  if (!_eventId) {
+    var id = prompt('Event ID を入力してください (UUID)');
+    if (!id) return;
+    _eventId = id.trim();
+  }
+  try {
+    addLog('📡 Supabase からエントリーを取得中...', false);
+    var { data: entries, error } = await _sb
+      .from('event_entries')
+      .select('id, name, nationality, gender, discipline, ap_m, ap_time, remarks')
+      .eq('event_id', _eventId)
+      .order('discipline')
+      .order('ap_m', { ascending: false });
+
+    if (error) throw error;
+    if (!entries || !entries.length) {
+      addLog('⚠️ エントリーが見つかりません (event_id: ' + _eventId + ')', false);
+      return;
+    }
+
+    // event_entries には OT が未保存のため手動フォームに流し込む
+    // Sea mode: Generate Start List で OT を自動計算
+    // Pool mode: 各行の OT を手動入力
+    var mapped = entries.map(function(e, i) {
+      return {
+        no:          String(i + 1),
+        name:        e.name,
+        nationality: e.nationality || '',
+        gender:      e.gender || '',
+        disc:        e.discipline || '',
+        ap_m:        e.ap_m ? String(e.ap_m) : '',
+        ap_t:        e.ap_time || '',
+        remarks:     e.remarks || '',
+        wt: '', ot: '', done: false,
+      };
+    });
+
+    // Manual Entry フォームを更新（rawCSV も更新してGenerate対応）
+    rawCSV = mapped;
+    document.getElementById('dropZone').style.display = 'none';
+    addLog('✅ ' + entries.length + ' エントリー取得完了。OT を設定して Generate / Load してください。', false);
+    renderRawPreview();
+  } catch (err) {
+    addLog('❌ Supabase エラー: ' + (err.message || err), false);
+  }
+}
 
 setVenue('sea');
 buildOTSelect('firstOTWrap', 'firstOT');
