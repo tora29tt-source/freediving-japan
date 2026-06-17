@@ -530,20 +530,16 @@ body {
     <!-- 上段：練習日数・最大深度 -->
     <div class="stat-grid" style="margin-bottom:8px;">
       <div class="stat-card">
-        <div class="stat-val">18</div>
+        <div class="stat-val" id="stat-days">—</div>
         <div class="stat-lbl">練習日数</div>
       </div>
       <div class="stat-card">
-        <div class="stat-val">58m</div>
-        <div class="stat-lbl">最大深度
-          <span style="display:block;font-size:10px;color:#86efac;margin-top:2px;">▲ 先月比 +3m</span>
-        </div>
+        <div class="stat-val" id="stat-sessions">—</div>
+        <div class="stat-lbl">セッション数</div>
       </div>
       <div class="stat-card">
-        <div class="stat-val" style="font-size:16px;">40</div>
-        <div class="stat-lbl">平均RHR
-          <span style="display:block;font-size:10px;color:#86efac;margin-top:2px;">▼ 先月比 -2</span>
-        </div>
+        <div class="stat-val" id="stat-rhr" style="font-size:16px;">—</div>
+        <div class="stat-lbl">平均RHR</div>
       </div>
     </div>
 
@@ -551,26 +547,13 @@ body {
     <div class="stat-card" style="padding:12px 16px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
         <span style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">環境別内訳</span>
-        <span style="font-size:11px;color:var(--muted);">18日</span>
+        <span id="stat-env-total" style="font-size:11px;color:var(--muted);">—</span>
       </div>
-      <div style="display:flex;height:8px;border-radius:4px;overflow:hidden;gap:2px;margin-bottom:8px;">
-        <div style="flex:10;background:#2ec4b6;border-radius:4px 0 0 4px;"></div>
-        <div style="flex:5;background:#3b82f6;"></div>
-        <div style="flex:3;background:#f97316;border-radius:0 4px 4px 0;"></div>
+      <div id="stat-env-bar" style="display:flex;height:8px;border-radius:4px;overflow:hidden;gap:2px;margin-bottom:8px;">
+        <div style="flex:1;background:rgba(255,255,255,0.1);border-radius:4px;"></div>
       </div>
-      <div style="display:flex;justify-content:space-between;">
-        <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub);">
-          <div style="width:8px;height:8px;border-radius:50%;background:#2ec4b6;flex-shrink:0;"></div>
-          海 10日
-        </div>
-        <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub);">
-          <div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;flex-shrink:0;"></div>
-          プール 5日
-        </div>
-        <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub);">
-          <div style="width:8px;height:8px;border-radius:50%;background:#f97316;flex-shrink:0;"></div>
-          ドライ 3日
-        </div>
+      <div id="stat-env-labels" style="display:flex;justify-content:space-between;">
+        <div style="font-size:11px;color:var(--muted);">読み込み中...</div>
       </div>
     </div>
   </div>
@@ -644,7 +627,7 @@ body {
   <div class="section">
     <div class="sec-head">
       <div class="sec-title">大会管理</div>
-      <a class="sec-link" href="event-staff.html">管理画面 →</a>
+      <a class="sec-link" href="events/event-staff.html">管理画面 →</a>
     </div>
     <div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;">
 
@@ -1146,7 +1129,7 @@ async function createEventConfirm() {
 
     // 作成した大会の管理画面へ誘導
     if (ev && ev.id && confirm('大会「' + name + '」を作成しました。管理画面を開きますか？')) {
-      window.location.href = 'events/event-staff.html?id=' + ev.id;
+      window.location.href = 'events/event-staff.html?id=' + ev.id; // mypage.html は root にある
     }
   } catch (err) {
     showCeErr('create', '作成に失敗しました: ' + (err.message || err));
@@ -1252,36 +1235,37 @@ function renderSummary(sessions) {
     ? Math.round(rhrVals.reduce((a, b) => a + b, 0) / rhrVals.length)
     : null;
 
-  document.getElementById('stat-days').textContent     = days  || '0';
-  document.getElementById('stat-sessions').textContent = total || '0';
-  document.getElementById('stat-rhr').textContent      = avgRhr != null ? avgRhr : '—';
+  function setEl(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
+  function setHtml(id, html) { const el = document.getElementById(id); if (el) el.innerHTML = html; }
+
+  setEl('stat-days',     days  || '0');
+  setEl('stat-sessions', total || '0');
+  setEl('stat-rhr',      avgRhr != null ? avgRhr : '—');
 
   // 環境別内訳
   const cnt = { sea: 0, pool: 0, dry: 0 };
   sessions.forEach(s => { if (cnt[s.env] !== undefined) cnt[s.env]++; });
   const totalEnv = cnt.sea + cnt.pool + cnt.dry;
 
-  document.getElementById('stat-env-total').textContent = days + '日';
+  setEl('stat-env-total', days + '日');
 
   if (!totalEnv) {
-    document.getElementById('stat-env-bar').innerHTML =
-      '<div style="flex:1;background:rgba(255,255,255,0.1);border-radius:4px;"></div>';
-    document.getElementById('stat-env-labels').innerHTML =
-      '<div style="font-size:11px;color:var(--muted);">今月のセッションなし</div>';
+    setHtml('stat-env-bar',    '<div style="flex:1;background:rgba(255,255,255,0.1);border-radius:4px;"></div>');
+    setHtml('stat-env-labels', '<div style="font-size:11px;color:var(--muted);">今月のセッションなし</div>');
     return;
   }
 
-  document.getElementById('stat-env-bar').innerHTML = [
+  setHtml('stat-env-bar', [
     cnt.sea  ? `<div style="flex:${cnt.sea};background:#2ec4b6;border-radius:4px 0 0 4px;"></div>` : '',
     cnt.pool ? `<div style="flex:${cnt.pool};background:#3b82f6;"></div>` : '',
     cnt.dry  ? `<div style="flex:${cnt.dry};background:#f97316;border-radius:0 4px 4px 0;"></div>` : '',
-  ].join('');
+  ].join(''));
 
-  document.getElementById('stat-env-labels').innerHTML = [
+  setHtml('stat-env-labels', [
     cnt.sea  ? `<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub);"><div style="width:8px;height:8px;border-radius:50%;background:#2ec4b6;flex-shrink:0;"></div>海 ${cnt.sea}日</div>` : '',
     cnt.pool ? `<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub);"><div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;flex-shrink:0;"></div>プール ${cnt.pool}日</div>` : '',
     cnt.dry  ? `<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub);"><div style="width:8px;height:8px;border-radius:50%;background:#f97316;flex-shrink:0;"></div>ドライ ${cnt.dry}日</div>` : '',
-  ].join('');
+  ].join(''));
 }
 
 // 予約履歴
@@ -1349,7 +1333,7 @@ function renderMyEvents(events) {
     const bdr    = ev.is_published ? 'rgba(46,196,182,0.3)' : 'rgba(245,158,11,0.3)';
     const lbl    = ev.is_published ? '公開中' : 'Draft';
     return `
-      <a href="event-staff.html?id=${ev.id}" style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);text-decoration:none;color:inherit;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background=''">
+      <a href="events/event-staff.html?id=${ev.id}" style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);text-decoration:none;color:inherit;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background=''">
         <div style="flex:1;">
           <div style="font-size:14px;font-weight:700;">${ev.name}</div>
           <div style="font-size:11px;color:var(--muted);margin-top:2px;">${ds}${ev.location ? ' · ' + ev.location : ''}</div>
