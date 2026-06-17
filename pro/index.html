@@ -877,8 +877,10 @@ async function handleInstructorPhotoFile(input) {
 
   const { error } = await _sb.storage.from('avatars').upload(path, file, { upsert: true });
   if (error) {
-    if (statusEl) statusEl.textContent = 'アップロード失敗';
-    showToast('アップロードに失敗しました: ' + error.message, 'error');
+    const msg = error.message || JSON.stringify(error);
+    if (statusEl) statusEl.textContent = '失敗: ' + msg;
+    showToast('失敗: ' + msg, 'error');
+    console.error('Storage upload error:', error);
     return;
   }
 
