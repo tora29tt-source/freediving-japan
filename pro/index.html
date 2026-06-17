@@ -175,10 +175,24 @@ td.primary { color: var(--on-dark); font-weight: 500; }
 .status-select { background: rgba(255,255,255,0.06); border: 1px solid var(--hairline); border-radius: 8px; color: var(--on-dark); font-size: 12px; padding: 5px 8px; cursor: pointer; font-family: inherit; outline: none; }
 .status-select option { background: #0e3d5c; }
 
+/* ── Area rows ── */
+.area-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+.area-row input { flex: 1; }
+.area-remove { background: none; border: none; color: var(--on-dark-soft); font-size: 18px; cursor: pointer; padding: 0 4px; line-height: 1; flex-shrink: 0; }
+.area-remove:hover { color: var(--red); }
+
+/* ── Checkboxes ── */
+.check-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.check-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--on-dark-mid); cursor: pointer; padding: 7px 12px; border: 1px solid var(--hairline); border-radius: 100px; transition: border-color 0.2s, background 0.2s; }
+.check-item:hover { border-color: rgba(46,196,182,0.4); }
+.check-item input[type="checkbox"] { accent-color: var(--teal); width: 14px; height: 14px; }
+.check-item:has(input:checked) { border-color: var(--teal); background: rgba(46,196,182,0.1); color: var(--on-dark); }
+
 @media (max-width: 640px) {
   .form-row { grid-template-columns: 1fr; }
   th, td { padding: 10px 10px; }
   .pro-badge, .user-email { display: none; }
+  .area-row { flex-wrap: wrap; }
 }
 </style>
 </head>
@@ -415,6 +429,7 @@ td.primary { color: var(--on-dark); font-weight: 500; }
 <div class="modal-backdrop" id="create-profile-modal">
   <div class="modal">
     <div class="modal-title">プロフィールを作成</div>
+
     <div class="form-group">
       <label>氏名 / 屋号 <span style="color:var(--warm);">*</span></label>
       <input type="text" id="cp-name" placeholder="例：山田 海斗">
@@ -423,24 +438,44 @@ td.primary { color: var(--on-dark); font-weight: 500; }
       <label>自己紹介</label>
       <textarea id="cp-bio" placeholder="経歴・スタイル・得意なことなど..."></textarea>
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>都道府県</label>
-        <input type="text" id="cp-pref" placeholder="例：沖縄県">
-      </div>
-      <div class="form-group">
-        <label>市区町村</label>
-        <input type="text" id="cp-city" placeholder="例：恩納村">
-      </div>
-    </div>
+
     <div class="form-group">
-      <label>資格（カンマ区切り）</label>
+      <label>活動エリア <span style="color:var(--on-dark-soft);font-weight:400;">（時期を添えて追加）</span></label>
+      <div id="cp-area-rows">
+        <div class="area-row">
+          <input type="text" class="area-name" placeholder="例：沖縄" style="flex:1;">
+          <input type="text" class="area-season" placeholder="例：4月〜10月" style="flex:1;">
+        </div>
+      </div>
+      <button type="button" class="btn-edit" onclick="addAreaRow('cp-area-rows')" style="margin-top:8px;font-size:12px;">＋ エリアを追加</button>
+    </div>
+
+    <div class="form-group">
+      <label>資格</label>
       <input type="text" id="cp-certs" placeholder="例：AIDA インストラクター, SSI フリーダイビング">
+      <p class="form-hint">カンマ区切りで複数入力</p>
     </div>
+
     <div class="form-group">
-      <label>指導歴（年）</label>
-      <input type="number" id="cp-exp" min="0" placeholder="例：5">
+      <label>対応言語</label>
+      <div class="check-group" id="cp-langs">
+        <label class="check-item"><input type="checkbox" value="日本語" checked> 日本語</label>
+        <label class="check-item"><input type="checkbox" value="英語"> 英語</label>
+        <label class="check-item"><input type="checkbox" value="中国語"> 中国語</label>
+        <label class="check-item"><input type="checkbox" value="フランス語"> フランス語</label>
+      </div>
     </div>
+
+    <div class="form-group">
+      <label>レッスン形態</label>
+      <div class="check-group" id="cp-styles">
+        <label class="check-item"><input type="checkbox" value="個人レッスン"> 個人レッスン</label>
+        <label class="check-item"><input type="checkbox" value="グループ"> グループ</label>
+        <label class="check-item"><input type="checkbox" value="合宿"> 合宿</label>
+        <label class="check-item"><input type="checkbox" value="オンライン"> オンライン</label>
+      </div>
+    </div>
+
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeCreateProfile()">キャンセル</button>
       <button class="btn-primary" onclick="createProfile()">作成する</button>
@@ -513,9 +548,27 @@ function switchTab(name) {
 // ============================================================
 function renderProfileForm() {
   const i = myInstructor;
-  const certsStr = (i.certifications || []).join(', ');
-  const specsStr = (i.specialties    || []).join(', ');
-  const areasStr = (i.areas          || []).join(', ');
+  const certsStr  = (i.certifications || []).join(', ');
+  const specsStr  = (i.specialties    || []).join(', ');
+  const langs     = i.languages     || [];
+  const styles    = i.lesson_styles  || [];
+
+  // areas: ["沖縄（4月〜10月）","伊豆（通年）"] → rows
+  const areaRows = (i.areas || []).map(a => {
+    const m = a.match(/^(.+?)（(.+?)）$/);
+    return m ? { name: m[1], season: m[2] } : { name: a, season: '' };
+  });
+  if (!areaRows.length) areaRows.push({ name: '', season: '' });
+
+  const areaRowsHtml = areaRows.map((r, idx) => `
+    <div class="area-row">
+      <input type="text" class="area-name"   value="${escHtml(r.name)}"   placeholder="例：沖縄">
+      <input type="text" class="area-season" value="${escHtml(r.season)}" placeholder="例：4月〜10月">
+      ${idx > 0 ? `<button type="button" class="area-remove" onclick="removeAreaRow(this)">×</button>` : '<span style="width:24px;"></span>'}
+    </div>`).join('');
+
+  const langOpts   = ['日本語','英語','中国語','フランス語','スペイン語'];
+  const styleOpts  = ['個人レッスン','グループ','合宿','オンライン'];
 
   document.getElementById('profile-form-wrap').innerHTML = `
     <div class="profile-hero">
@@ -526,7 +579,7 @@ function renderProfileForm() {
       </div>
       <div class="profile-meta">
         <h2>${escHtml(i.name)}</h2>
-        <p>${escHtml(i.prefecture || '')} ${escHtml(i.city || '')}</p>
+        <p style="color:var(--teal);font-size:12px;">${(i.areas||[]).join(' · ')}</p>
       </div>
     </div>
 
@@ -538,14 +591,11 @@ function renderProfileForm() {
     <div class="form-group"><label>自己紹介（日本語）</label><textarea id="p-bio">${escHtml(i.bio || '')}</textarea></div>
     <div class="form-group"><label>自己紹介（英語）</label><textarea id="p-bio-en">${escHtml(i.bio_en || '')}</textarea></div>
 
-    <div class="form-section-title">エリア</div>
-    <div class="form-row">
-      <div class="form-group"><label>都道府県</label><input type="text" id="p-pref" value="${escHtml(i.prefecture || '')}"></div>
-      <div class="form-group"><label>市区町村</label><input type="text" id="p-city" value="${escHtml(i.city || '')}"></div>
-    </div>
+    <div class="form-section-title">活動エリア</div>
     <div class="form-group">
-      <label>活動エリア（カンマ区切り）</label>
-      <input type="text" id="p-areas" value="${escHtml(areasStr)}" placeholder="例：沖縄, 石垣島">
+      <label>エリアと活動時期</label>
+      <div id="p-area-rows">${areaRowsHtml}</div>
+      <button type="button" class="btn-edit" onclick="addAreaRow('p-area-rows')" style="margin-top:8px;font-size:12px;">＋ エリアを追加</button>
     </div>
 
     <div class="form-section-title">資格・専門</div>
@@ -554,22 +604,32 @@ function renderProfileForm() {
       <input type="text" id="p-certs" value="${escHtml(certsStr)}" placeholder="例：AIDA インストラクター, SSI">
     </div>
     <div class="form-group">
-      <label>専門・得意分野（カンマ区切り）</label>
-      <input type="text" id="p-specs" value="${escHtml(specsStr)}" placeholder="例：初心者指導, 競技トレーニング">
+      <label>得意分野・専門（カンマ区切り）</label>
+      <input type="text" id="p-specs" value="${escHtml(specsStr)}" placeholder="例：初心者指導, 競技トレーニング, STA">
     </div>
+
+    <div class="form-section-title">対応言語</div>
     <div class="form-group">
-      <label>指導歴（年）</label>
-      <input type="number" id="p-exp" value="${i.experience_years || ''}" min="0">
+      <div class="check-group" id="p-langs">
+        ${langOpts.map(l => `<label class="check-item"><input type="checkbox" value="${l}"${langs.includes(l)?' checked':''}> ${l}</label>`).join('')}
+      </div>
+    </div>
+
+    <div class="form-section-title">レッスン形態</div>
+    <div class="form-group">
+      <div class="check-group" id="p-styles">
+        ${styleOpts.map(s => `<label class="check-item"><input type="checkbox" value="${s}"${styles.includes(s)?' checked':''}> ${s}</label>`).join('')}
+      </div>
     </div>
 
     <div class="form-section-title">メディア・SNS</div>
     <div class="form-group"><label>プロフィール写真URL</label><input type="url" id="p-photo" value="${escHtml(i.photo_url || '')}" placeholder="https://..."></div>
     <div class="form-group"><label>紹介動画URL（YouTube / Vimeo）</label><input type="url" id="p-video" value="${escHtml(i.intro_video_url || '')}" placeholder="https://..."></div>
     <div class="form-row">
-      <div class="form-group"><label>Webサイト</label><input type="url" id="p-web" value="${escHtml(i.website_url || '')}" placeholder="https://..."></div>
       <div class="form-group"><label>Instagram</label><input type="url" id="p-ig" value="${escHtml(i.instagram_url || '')}" placeholder="https://instagram.com/..."></div>
+      <div class="form-group"><label>YouTube</label><input type="url" id="p-yt" value="${escHtml(i.youtube_url || '')}" placeholder="https://youtube.com/..."></div>
     </div>
-    <div class="form-group"><label>YouTube</label><input type="url" id="p-yt" value="${escHtml(i.youtube_url || '')}" placeholder="https://youtube.com/..."></div>
+    <div class="form-group"><label>Webサイト</label><input type="url" id="p-web" value="${escHtml(i.website_url || '')}" placeholder="https://..."></div>
 
     <div class="form-section-title">公開設定</div>
     <div class="form-group">
@@ -588,23 +648,22 @@ function renderProfileForm() {
 async function saveProfile() {
   const toArr = v => v.split(',').map(s => s.trim()).filter(Boolean);
   const payload = {
-    name:             document.getElementById('p-name').value.trim(),
-    name_en:          document.getElementById('p-name-en').value.trim() || null,
-    bio:              document.getElementById('p-bio').value.trim()     || null,
-    bio_en:           document.getElementById('p-bio-en').value.trim() || null,
-    prefecture:       document.getElementById('p-pref').value.trim()   || null,
-    city:             document.getElementById('p-city').value.trim()   || null,
-    areas:            toArr(document.getElementById('p-areas').value),
-    certifications:   toArr(document.getElementById('p-certs').value),
-    specialties:      toArr(document.getElementById('p-specs').value),
-    experience_years: parseInt(document.getElementById('p-exp').value) || null,
-    photo_url:        document.getElementById('p-photo').value.trim()  || null,
-    intro_video_url:  document.getElementById('p-video').value.trim()  || null,
-    website_url:      document.getElementById('p-web').value.trim()    || null,
-    instagram_url:    document.getElementById('p-ig').value.trim()     || null,
-    youtube_url:      document.getElementById('p-yt').value.trim()     || null,
-    is_public:        document.getElementById('p-public').checked,
-    updated_at:       new Date().toISOString(),
+    name:            document.getElementById('p-name').value.trim(),
+    name_en:         document.getElementById('p-name-en').value.trim() || null,
+    bio:             document.getElementById('p-bio').value.trim()     || null,
+    bio_en:          document.getElementById('p-bio-en').value.trim() || null,
+    areas:           collectAreaRows('p-area-rows'),
+    certifications:  toArr(document.getElementById('p-certs').value),
+    specialties:     toArr(document.getElementById('p-specs').value),
+    languages:       collectChecked('p-langs'),
+    lesson_styles:   collectChecked('p-styles'),
+    photo_url:       document.getElementById('p-photo').value.trim()  || null,
+    intro_video_url: document.getElementById('p-video').value.trim()  || null,
+    website_url:     document.getElementById('p-web').value.trim()    || null,
+    instagram_url:   document.getElementById('p-ig').value.trim()     || null,
+    youtube_url:     document.getElementById('p-yt').value.trim()     || null,
+    is_public:       document.getElementById('p-public').checked,
+    updated_at:      new Date().toISOString(),
   };
 
   if (!payload.name) { showToast('氏名は必須です', 'error'); return; }
@@ -630,14 +689,14 @@ async function createProfile() {
   if (!name) { showToast('氏名は必須です', 'error'); return; }
 
   const { data: inst, error } = await _sb.from('instructors').insert({
-    user_id:          currentUser.id,
+    user_id:        currentUser.id,
     name,
-    bio:              document.getElementById('cp-bio').value.trim()   || null,
-    prefecture:       document.getElementById('cp-pref').value.trim() || null,
-    city:             document.getElementById('cp-city').value.trim() || null,
-    certifications:   toArr(document.getElementById('cp-certs').value),
-    experience_years: parseInt(document.getElementById('cp-exp').value) || null,
-    is_public:        false,
+    bio:            document.getElementById('cp-bio').value.trim() || null,
+    areas:          collectAreaRows('cp-area-rows'),
+    certifications: toArr(document.getElementById('cp-certs').value),
+    languages:      collectChecked('cp-langs'),
+    lesson_styles:  collectChecked('cp-styles'),
+    is_public:      false,
   }).select().single();
 
   if (error) { showToast('作成に失敗しました: ' + error.message, 'error'); return; }
@@ -979,6 +1038,40 @@ async function updateInqStatus(id, newStatus, selectEl) {
   if (badge) { badge.className = `badge badge-${newStatus}`; badge.textContent = newStatus; }
   showToast('ステータスを更新しました', 'success');
   checkNewInquiries();
+}
+
+// ============================================================
+// Area rows helpers
+// ============================================================
+function addAreaRow(containerId) {
+  const wrap = document.getElementById(containerId);
+  const div  = document.createElement('div');
+  div.className = 'area-row';
+  div.innerHTML = `
+    <input type="text" class="area-name"   placeholder="例：沖縄" style="flex:1;">
+    <input type="text" class="area-season" placeholder="例：4月〜10月" style="flex:1;">
+    <button type="button" class="area-remove" onclick="removeAreaRow(this)">×</button>`;
+  wrap.appendChild(div);
+}
+
+function removeAreaRow(btn) {
+  btn.closest('.area-row').remove();
+}
+
+function collectAreaRows(containerId) {
+  const rows = document.querySelectorAll(`#${containerId} .area-row`);
+  return Array.from(rows).map(row => {
+    const name   = row.querySelector('.area-name').value.trim();
+    const season = row.querySelector('.area-season').value.trim();
+    if (!name) return null;
+    return season ? `${name}（${season}）` : name;
+  }).filter(Boolean);
+}
+
+function collectChecked(containerId) {
+  return Array.from(
+    document.querySelectorAll(`#${containerId} input[type="checkbox"]:checked`)
+  ).map(el => el.value);
 }
 
 // ============================================================

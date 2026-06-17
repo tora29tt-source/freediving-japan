@@ -45,7 +45,12 @@ body {
 }
 .logo { font-size: 15px; font-weight: 600; color: var(--on-dark); letter-spacing: 0.18em; text-transform: uppercase; text-decoration: none; }
 .logo span { color: var(--teal); }
-.admin-badge { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; padding: 3px 8px; border-radius: 100px; background: rgba(249,115,22,0.2); border: 1px solid rgba(249,115,22,0.4); color: var(--warm); margin-left: 10px; }
+.role-badge {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 100px; margin-left: 10px;
+}
+.role-badge.admin { background: rgba(249,115,22,0.2); border: 1px solid rgba(249,115,22,0.4); color: var(--warm); }
+.role-badge.staff { background: rgba(46,196,182,0.15); border: 1px solid rgba(46,196,182,0.35); color: var(--teal); }
 .header-right { display: flex; align-items: center; gap: 12px; }
 .user-info { font-size: 12px; color: var(--on-dark-soft); }
 .logout-btn { font-size: 12px; color: var(--on-dark-mid); background: none; border: 1px solid var(--hairline); border-radius: 8px; padding: 6px 12px; cursor: pointer; transition: border-color 0.2s; }
@@ -115,6 +120,8 @@ td.name { color: var(--on-dark); font-weight: 500; }
 .badge-refunded { background: rgba(148,163,184,0.15); color: #94a3b8;       border: 1px solid rgba(148,163,184,0.25); }
 .badge-active   { background: rgba(34,197,94,0.12);  color: var(--green);  border: 1px solid rgba(34,197,94,0.25); }
 .badge-inactive { background: rgba(148,163,184,0.12); color: #94a3b8;       border: 1px solid rgba(148,163,184,0.2); }
+.badge-admin    { background: rgba(249,115,22,0.15); color: var(--warm);   border: 1px solid rgba(249,115,22,0.3); }
+.badge-staff    { background: rgba(46,196,182,0.12); color: var(--teal);   border: 1px solid rgba(46,196,182,0.3); }
 
 /* ── Status select ── */
 .status-select {
@@ -220,11 +227,19 @@ td.name { color: var(--on-dark); font-weight: 500; }
 .auth-message h2 { font-size: 18px; margin-bottom: 12px; }
 .auth-message p { color: var(--on-dark-soft); font-size: 13px; margin-bottom: 20px; }
 
+/* ── User management ── */
+.user-add-form {
+  background: rgba(255,255,255,0.04); border: 1px solid var(--hairline);
+  border-radius: 14px; padding: 20px; margin-bottom: 24px;
+  display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;
+}
+.user-add-form .form-group { margin-bottom: 0; flex: 1; min-width: 200px; }
+
 /* ── Responsive ── */
 @media (max-width: 640px) {
   .form-row { grid-template-columns: 1fr; }
   th, td { padding: 10px 10px; }
-  .admin-badge { display: none; }
+  .role-badge { display: none; }
   .user-info { display: none; }
 }
 </style>
@@ -235,7 +250,7 @@ td.name { color: var(--on-dark); font-weight: 500; }
 <header class="header">
   <div style="display:flex;align-items:center;">
     <a href="../index.html" class="logo">Free<span>Dive</span> Japan</a>
-    <span class="admin-badge">ADMIN</span>
+    <span class="role-badge" id="role-badge"></span>
   </div>
   <div class="header-right">
     <span class="user-info" id="user-email"></span>
@@ -243,12 +258,12 @@ td.name { color: var(--on-dark); font-weight: 500; }
   </div>
 </header>
 
-<!-- Auth guard (表示制御) -->
+<!-- Auth guard -->
 <div id="auth-guard" style="display:none;">
   <div class="auth-message">
-    <h2>ログインが必要です</h2>
-    <p>管理画面を使用するにはログインしてください。</p>
-    <a href="../auth.html" class="btn-primary" style="display:inline-flex;text-decoration:none;">ログインへ</a>
+    <h2>アクセス権限がありません</h2>
+    <p>このページを表示する権限がありません。</p>
+    <a href="../index.html" class="btn-primary" style="display:inline-flex;text-decoration:none;">トップへ戻る</a>
   </div>
 </div>
 
@@ -256,8 +271,9 @@ td.name { color: var(--on-dark); font-weight: 500; }
 <div id="app" style="display:none;">
   <div class="tabs-wrap">
     <div class="tabs">
-      <button class="tab active" onclick="switchTab('slots')">空き枠管理</button>
-      <button class="tab" onclick="switchTab('bookings')">予約一覧</button>
+      <button class="tab active" id="tab-btn-slots"    onclick="switchTab('slots')">空き枠管理</button>
+      <button class="tab"        id="tab-btn-bookings" onclick="switchTab('bookings')">予約一覧</button>
+      <button class="tab"        id="tab-btn-users"    onclick="switchTab('users')" style="display:none;">ユーザー管理</button>
     </div>
   </div>
 
@@ -310,6 +326,33 @@ td.name { color: var(--on-dark); font-weight: 500; }
       </div>
 
       <div id="bookings-content">
+        <div class="spinner-wrap"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- ── ユーザー管理（admin専用） ── -->
+    <div id="tab-users" style="display:none;">
+      <div class="section-header">
+        <span class="section-title">ユーザー管理</span>
+      </div>
+
+      <!-- スタッフ追加フォーム -->
+      <div class="user-add-form">
+        <div class="form-group">
+          <label>メールアドレス</label>
+          <input type="email" id="new-user-email" placeholder="staff@example.com">
+        </div>
+        <div class="form-group" style="min-width:140px;flex:0;">
+          <label>ロール</label>
+          <select id="new-user-role">
+            <option value="staff">staff</option>
+            <option value="admin">admin</option>
+          </select>
+        </div>
+        <button class="btn-primary" onclick="addUser()" style="white-space:nowrap;">追加する</button>
+      </div>
+
+      <div id="users-content">
         <div class="spinner-wrap"><div class="spinner"></div></div>
       </div>
     </div>
@@ -385,25 +428,64 @@ td.name { color: var(--on-dark); font-weight: 500; }
 // State
 // ============================================================
 let currentUser  = null;
+let currentRole  = null; // 'admin' | 'staff'
 let allInstructors = [];
 let allListings    = [];
 let editingSlotId  = null;
 
 // ============================================================
-// Boot: auth check
+// Boot: auth + role check
 // ============================================================
 async function boot() {
   const { data: { session } } = await _sb.auth.getSession();
   if (!session) {
-    document.getElementById('auth-guard').style.display = 'flex';
+    showAccessDenied('ログインが必要です', 'このページを使用するにはログインしてください。', '../auth.html', 'ログインへ');
     return;
   }
   currentUser = session.user;
+
+  // user_roles からロール取得
+  const { data: roles } = await _sb
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', currentUser.id);
+
+  const roleList = (roles || []).map(r => r.role);
+  const isAdmin  = roleList.includes('admin');
+  const isStaff  = roleList.includes('staff');
+
+  if (!isAdmin && !isStaff) {
+    showAccessDenied('アクセス権限がありません', 'このページを表示する権限がありません。', '../index.html', 'トップへ戻る');
+    return;
+  }
+
+  currentRole = isAdmin ? 'admin' : 'staff';
+
+  // ヘッダー表示
   document.getElementById('user-email').textContent = currentUser.email;
+  const badge = document.getElementById('role-badge');
+  badge.textContent = currentRole.toUpperCase();
+  badge.classList.add(currentRole);
+
+  // adminのみユーザー管理タブを表示
+  if (isAdmin) {
+    document.getElementById('tab-btn-users').style.display = '';
+  }
+
   document.getElementById('app').style.display = 'block';
 
-  await Promise.all([loadMasterData()]);
+  await loadMasterData();
   await loadSlots();
+}
+
+function showAccessDenied(title, msg, href, label) {
+  const guard = document.getElementById('auth-guard');
+  guard.querySelector('h2').textContent  = title;
+  guard.querySelector('p').textContent   = msg;
+  const a = guard.querySelector('a');
+  a.href        = href;
+  a.textContent = label;
+  guard.style.display = 'flex';
 }
 
 async function handleLogout() {
@@ -422,7 +504,6 @@ async function loadMasterData() {
   allInstructors = instructors || [];
   allListings    = listings    || [];
 
-  // Populate instructor filters
   ['slot-filter-instructor', 'booking-filter-instructor', 'slot-instructor'].forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -455,12 +536,16 @@ function onInstructorChange() {
 // Tabs
 // ============================================================
 function switchTab(name) {
+  const tabs = { slots: 0, bookings: 1, users: 2 };
   document.querySelectorAll('.tab').forEach((t, i) => {
-    t.classList.toggle('active', (i === 0 && name === 'slots') || (i === 1 && name === 'bookings'));
+    t.classList.toggle('active', i === tabs[name]);
   });
   document.getElementById('tab-slots').style.display    = name === 'slots'    ? '' : 'none';
   document.getElementById('tab-bookings').style.display = name === 'bookings' ? '' : 'none';
+  document.getElementById('tab-users').style.display    = name === 'users'    ? '' : 'none';
+
   if (name === 'bookings') loadBookings();
+  if (name === 'users')    loadUsers();
 }
 
 // ============================================================
@@ -541,7 +626,6 @@ function openSlotModal(slotId = null) {
   document.getElementById('slot-modal-title').textContent = slotId ? '空き枠を編集' : '空き枠を追加';
   document.getElementById('slot-save-label').textContent  = slotId ? '更新する' : '保存する';
 
-  // Reset
   ['slot-instructor','slot-listing','slot-date','slot-start','slot-end'].forEach(id => {
     document.getElementById(id).value = '';
   });
@@ -558,7 +642,6 @@ function openSlotModal(slotId = null) {
         if (!s) return;
         document.getElementById('slot-instructor').value = s.instructor_id || '';
         onInstructorChange();
-        // listing を非同期設定（onInstructorChange はリストを再構築するのでその後に）
         setTimeout(() => {
           document.getElementById('slot-listing').value = s.listing_id || '';
         }, 50);
@@ -717,13 +800,89 @@ async function updateBookingStatus(bookingId, newStatus, selectEl) {
     return;
   }
   selectEl.dataset.prev = newStatus;
-  // バッジを更新
   const badge = selectEl.closest('tr').querySelector('.badge');
   if (badge) {
     badge.className = `badge badge-${newStatus}`;
     badge.textContent = newStatus;
   }
   showToast('ステータスを更新しました', 'success');
+}
+
+// ============================================================
+// Users (admin only)
+// ============================================================
+async function loadUsers() {
+  const el     = document.getElementById('users-content');
+  el.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
+
+  const { data: users, error } = await _sb
+    .from('user_roles')
+    .select('user_id, role, email')
+    .order('role');
+
+  if (error) { el.innerHTML = `<div class="empty">取得エラー: ${error.message}</div>`; return; }
+  if (!users || users.length === 0) { el.innerHTML = '<div class="empty">ユーザーがいません</div>'; return; }
+
+  el.innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>メールアドレス</th>
+            <th>ロール</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${users.map(u => userRow(u)).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function userRow(u) {
+  const email   = escHtml(u.email || u.user_id);
+  const isSelf  = u.user_id === currentUser.id;
+  const deleteBtn = isSelf
+    ? '<span style="font-size:12px;color:var(--on-dark-soft);">（自分）</span>'
+    : `<button class="btn-danger" onclick="removeUser('${u.user_id}', '${escHtml(u.email || '')}')">削除</button>`;
+  return `
+    <tr>
+      <td class="name">${email}</td>
+      <td><span class="badge badge-${u.role}">${u.role}</span></td>
+      <td>${deleteBtn}</td>
+    </tr>`;
+}
+
+async function addUser() {
+  const email = document.getElementById('new-user-email').value.trim();
+  const role  = document.getElementById('new-user-role').value;
+
+  if (!email) { showToast('メールアドレスを入力してください', 'error'); return; }
+
+  // メールからユーザーIDを取得（RPC経由）
+  const { data: userId, error: rpcErr } = await _sb.rpc('get_user_id_by_email', { p_email: email });
+  if (rpcErr || !userId) {
+    showToast('そのメールアドレスのユーザーが見つかりません', 'error'); return;
+  }
+
+  const { error } = await _sb.from('user_roles').insert({ user_id: userId, role, email });
+  if (error) {
+    showToast('追加できませんでした: ' + (error.message.includes('duplicate') ? 'すでに登録済みです' : error.message), 'error');
+    return;
+  }
+
+  showToast(`${email} を ${role} として追加しました`, 'success');
+  document.getElementById('new-user-email').value = '';
+  loadUsers();
+}
+
+async function removeUser(userId, email) {
+  if (!confirm(`${email || userId} を削除しますか？`)) return;
+  const { error } = await _sb.from('user_roles').delete().eq('user_id', userId);
+  if (error) { showToast('削除できませんでした: ' + error.message, 'error'); return; }
+  showToast('削除しました', 'success');
+  loadUsers();
 }
 
 // ============================================================
@@ -745,7 +904,6 @@ function showToast(msg, type = 'success') {
   setTimeout(() => el.classList.add('hidden'), 2800);
 }
 
-// Modal backdrop click to close
 document.getElementById('slot-modal').addEventListener('click', function(e) {
   if (e.target === this) closeSlotModal();
 });
