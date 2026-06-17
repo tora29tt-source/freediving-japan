@@ -117,7 +117,7 @@ export default async function handler(req, res) {
       mode: 'payment',
       customer_email: guestEmail,
       success_url: `${siteUrl}/booking/success.html?booking_id=${booking.id}&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url:  `${siteUrl}/explore/instructor.html?id=${instructorId || slot.instructor_id}`,
+      cancel_url:  `${siteUrl}/explore/listing.html?id=${instructorId || slot.instructor_id}`,
       metadata: {
         booking_id:    booking.id,
         slot_id:       slotId,

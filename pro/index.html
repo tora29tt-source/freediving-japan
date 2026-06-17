@@ -152,6 +152,25 @@ td.primary { color: var(--on-dark); font-weight: 500; }
 .spinner { width: 28px; height: 28px; border: 2px solid var(--hairline); border-top-color: var(--teal); border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ── Client / Revenue ── */
+.client-row { background:var(--glass); border:1px solid var(--hairline); border-radius:14px; padding:16px 18px; margin-bottom:10px; cursor:pointer; transition:border-color 0.2s; }
+.client-row:hover { border-color:rgba(46,196,182,0.35); }
+.client-name { font-size:15px; font-weight:600; color:var(--on-dark); }
+.client-meta { font-size:12px; color:var(--on-dark-soft); margin-top:4px; }
+.client-stats { display:flex; gap:16px; margin-top:10px; }
+.client-stat { font-size:12px; color:var(--on-dark-mid); }
+.client-stat strong { color:var(--teal); font-size:15px; font-weight:700; }
+.client-detail { display:none; border-top:1px solid var(--hairline); margin-top:14px; padding-top:14px; }
+.client-detail.open { display:block; }
+.rev-card-row { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:24px; }
+.rev-card { background:var(--glass); border:1px solid var(--hairline); border-radius:14px; padding:16px 18px; }
+.rev-card-label { font-size:11px; font-weight:600; color:var(--on-dark-soft); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px; }
+.rev-card-value { font-size:22px; font-weight:700; color:var(--on-dark); }
+.rev-card-sub { font-size:11px; color:var(--on-dark-soft); margin-top:4px; }
+.rev-bar-wrap { background:var(--glass); border:1px solid var(--hairline); border-radius:14px; padding:20px; }
+.rev-bar-title { font-size:12px; font-weight:600; color:var(--on-dark-soft); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:16px; }
+@media(max-width:600px){ .rev-card-row { grid-template-columns:1fr 1fr; } }
+
 /* ── Toast ── */
 .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--ocean-mid); border: 1px solid var(--hairline); border-radius: 100px; padding: 12px 20px; font-size: 13px; color: var(--on-dark); box-shadow: 0 8px 32px rgba(0,0,0,0.4); z-index: 300; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
 .toast.success { border-color: rgba(46,196,182,0.4); }
@@ -253,6 +272,8 @@ td.primary { color: var(--on-dark); font-weight: 500; }
         予約管理
         <span id="booking-badge" style="display:none;margin-left:5px;background:var(--teal);color:var(--ocean-deep);border-radius:100px;padding:1px 6px;font-size:10px;font-weight:700;"></span>
       </button>
+      <button class="tab"         data-tab="clients"   onclick="switchTab('clients')">クライアント管理</button>
+      <button class="tab"         data-tab="revenue"   onclick="switchTab('revenue')">売り上げ管理</button>
     </div>
   </div>
 
@@ -300,6 +321,33 @@ td.primary { color: var(--on-dark); font-weight: 500; }
         </select>
       </div>
       <div id="bookings-content"><div class="spinner-wrap"><div class="spinner"></div></div></div>
+    </div>
+
+    <!-- ── クライアント管理 ── -->
+    <div id="tab-clients" style="display:none;">
+      <div class="section-header">
+        <span class="section-title">クライアント一覧</span>
+        <input type="search" id="client-search" placeholder="名前・メール・電話で検索"
+          oninput="filterClients()"
+          style="padding:8px 13px;background:rgba(255,255,255,0.07);border:1px solid var(--hairline);border-radius:10px;color:var(--on-dark);font-size:13px;font-family:inherit;outline:none;width:220px;">
+      </div>
+      <div id="clients-content"><div class="spinner-wrap"><div class="spinner"></div></div></div>
+    </div>
+
+    <!-- ── 売り上げ管理 ── -->
+    <div id="tab-revenue" style="display:none;">
+      <div class="section-header" style="margin-bottom:20px;">
+        <span class="section-title">売り上げ管理</span>
+        <select id="revenue-period" class="btn-edit" onchange="loadRevenue()" style="padding:8px 12px;border-radius:10px;">
+          <option value="1">今月</option>
+          <option value="3">直近3ヶ月</option>
+          <option value="6" selected>直近6ヶ月</option>
+          <option value="0">全期間</option>
+        </select>
+      </div>
+      <div id="revenue-summary"></div>
+      <div id="revenue-chart" style="margin:24px 0;"></div>
+      <div id="revenue-content"></div>
     </div>
 
     <!-- ── 問い合わせ ── -->
@@ -740,13 +788,15 @@ async function handleLogout() {
 // ============================================================
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
-  ['profile','listings','slots','inquiries','bookings'].forEach(t => {
+  ['profile','listings','slots','inquiries','bookings','clients','revenue'].forEach(t => {
     document.getElementById(`tab-${t}`).style.display = t === name ? '' : 'none';
   });
   if (name === 'listings')  loadListings();
   if (name === 'slots')     loadSlots();
   if (name === 'inquiries') loadInquiries();
   if (name === 'bookings')  loadBookings();
+  if (name === 'clients')   loadClients();
+  if (name === 'revenue')   loadRevenue();
 }
 
 // ============================================================
@@ -1215,7 +1265,7 @@ function openListingModal(listingId = null) {
       (l.gallery_urls || []).forEach(url => addGalleryRow(url));
       // 当日の流れを復元
       document.getElementById('l-flow-rows').innerHTML = '';
-      (l.flow_steps || []).forEach(step => addFlowStep(step.title, step.desc));
+      (l.flow_steps || []).forEach(step => addFlowStep(step.title, step.desc, step.time));
       // ショップモード: 担当インストラクターを復元
       if (myRole === 'shop') setTimeout(() => { document.getElementById('l-instructor').value = l.instructor_id || ''; }, 50);
     });
@@ -1704,7 +1754,7 @@ function collectGalleryUrls() {
     .map(el => el.value.trim()).filter(Boolean);
 }
 
-function addFlowStep(title = '', desc = '') {
+function addFlowStep(title = '', desc = '', time = '') {
   const container = document.getElementById('l-flow-rows');
   const idx = container.children.length + 1;
   const row = document.createElement('div');
@@ -1714,6 +1764,8 @@ function addFlowStep(title = '', desc = '') {
       <span style="background:var(--teal);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">${idx}</span>
       <input type="text" class="flow-title" placeholder="タイトル（例：受付・オリエンテーション）" value="${escHtml(title)}"
         style="flex:1;padding:7px 10px;background:var(--ocean-mid);border:1px solid var(--hairline);border-radius:6px;color:var(--on-dark);font-size:14px;">
+      <input type="text" class="flow-time" placeholder="時間（例：30分）" value="${escHtml(time)}"
+        style="width:90px;padding:7px 10px;background:var(--ocean-mid);border:1px solid var(--hairline);border-radius:6px;color:var(--on-dark);font-size:14px;">
       <button type="button" onclick="this.closest('div').parentElement.remove();reindexFlowSteps()" style="background:none;border:none;color:var(--on-dark-soft);cursor:pointer;font-size:18px;line-height:1;padding:4px;">×</button>
     </div>
     <textarea class="flow-desc" placeholder="説明（例：シュノーケリングの使い方・安全説明）" rows="2"
@@ -1732,8 +1784,261 @@ function reindexFlowSteps() {
 function collectFlowSteps() {
   return Array.from(document.querySelectorAll('#l-flow-rows > div')).map(row => ({
     title: row.querySelector('.flow-title')?.value.trim() || '',
+    time:  row.querySelector('.flow-time')?.value.trim()  || '',
     desc:  row.querySelector('.flow-desc')?.value.trim()  || '',
   })).filter(s => s.title || s.desc);
+}
+
+// ============================================================
+// クライアント管理
+// ============================================================
+let _allClients = [];
+
+async function loadClients() {
+  const el = document.getElementById('clients-content');
+  el.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
+
+  const instrId = myInstructor?.id;
+  if (!instrId) { el.innerHTML = '<div class="empty">プロフィールを設定してください</div>'; return; }
+
+  const { data: bookings, error } = await _sb
+    .from('bookings')
+    .select('guest_name, guest_email, guest_phone, total_amount, status, created_at, listings(title)')
+    .eq('instructor_id', instrId)
+    .in('status', ['paid', 'confirmed', 'pending'])
+    .order('created_at', { ascending: false });
+
+  if (error) { el.innerHTML = `<div class="empty">読み込みエラー: ${error.message}</div>`; return; }
+
+  // guest_email でグループ化
+  const map = {};
+  (bookings || []).forEach(b => {
+    const key = b.guest_email;
+    if (!map[key]) map[key] = { name: b.guest_name, email: b.guest_email, phone: b.guest_phone, count: 0, total: 0, last: b.created_at, bookings: [] };
+    map[key].count++;
+    map[key].total += b.total_amount || 0;
+    if (b.created_at > map[key].last) map[key].last = b.created_at;
+    map[key].bookings.push(b);
+  });
+
+  // メモを一括取得
+  const emails = Object.keys(map);
+  let memoMap = {};
+  if (emails.length > 0) {
+    const { data: memos } = await _sb.from('client_memos').select('guest_email, memo').eq('instructor_id', instrId);
+    (memos || []).forEach(m => { memoMap[m.guest_email] = m.memo; });
+  }
+
+  _allClients = Object.values(map).map(c => ({ ...c, memo: memoMap[c.email] || '' }))
+    .sort((a, b) => b.last.localeCompare(a.last));
+
+  renderClients(_allClients);
+}
+
+function filterClients() {
+  const q = document.getElementById('client-search').value.toLowerCase();
+  const filtered = q
+    ? _allClients.filter(c =>
+        c.name?.toLowerCase().includes(q) ||
+        c.email?.toLowerCase().includes(q) ||
+        c.phone?.toLowerCase().includes(q))
+    : _allClients;
+  renderClients(filtered);
+}
+
+function renderClients(clients) {
+  const el = document.getElementById('clients-content');
+  if (!clients.length) { el.innerHTML = '<div class="empty">クライアントがいません</div>'; return; }
+  el.innerHTML = clients.map(c => `
+    <div class="client-row" onclick="toggleClientDetail(this, '${escHtml(c.email)}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div class="client-name">${escHtml(c.name || '—')}</div>
+          <div class="client-meta">${escHtml(c.email)}${c.phone ? ' · ' + escHtml(c.phone) : ''}</div>
+        </div>
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" style="color:var(--on-dark-soft);flex-shrink:0;margin-top:4px;transition:transform 0.2s;" class="client-chevron"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="client-stats">
+        <div class="client-stat"><strong>${c.count}</strong> 回</div>
+        <div class="client-stat"><strong>¥${c.total.toLocaleString()}</strong> 累計</div>
+        <div class="client-stat">最終: ${c.last ? c.last.slice(0,10) : '—'}</div>
+      </div>
+      <div class="client-detail" id="cd-${btoa(encodeURIComponent(c.email)).replace(/[^a-zA-Z0-9]/g,'')}">
+        <p style="font-size:11px;font-weight:600;color:var(--on-dark-soft);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;">予約履歴</p>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">
+          ${c.bookings.map(b => `
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px 12px;background:var(--ocean-deep);border-radius:8px;">
+              <span style="color:var(--on-dark-mid);">${b.created_at?.slice(0,10)} · ${escHtml(b.listings?.title || '—')}</span>
+              <span style="color:var(--teal);font-weight:600;">¥${(b.total_amount||0).toLocaleString()}</span>
+            </div>`).join('')}
+        </div>
+        <p style="font-size:11px;font-weight:600;color:var(--on-dark-soft);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">メモ（自分だけ見える）</p>
+        <textarea id="memo-${btoa(encodeURIComponent(c.email)).replace(/[^a-zA-Z0-9]/g,'')}"
+          style="width:100%;padding:10px;background:var(--ocean-deep);border:1px solid var(--hairline);border-radius:8px;color:var(--on-dark);font-size:13px;font-family:inherit;resize:vertical;min-height:72px;"
+          placeholder="受講歴・注意事項・次回提案など...">${escHtml(c.memo)}</textarea>
+        <button class="btn-edit" style="margin-top:8px;" onclick="event.stopPropagation();saveClientMemo('${escHtml(c.email)}')">メモを保存</button>
+      </div>
+    </div>`).join('');
+}
+
+function toggleClientDetail(row, email) {
+  const key = btoa(encodeURIComponent(email)).replace(/[^a-zA-Z0-9]/g,'');
+  const detail = document.getElementById('cd-' + key);
+  const chevron = row.querySelector('.client-chevron');
+  if (!detail) return;
+  const isOpen = detail.classList.toggle('open');
+  if (chevron) chevron.style.transform = isOpen ? 'rotate(180deg)' : '';
+}
+
+async function saveClientMemo(email) {
+  const instrId = myInstructor?.id;
+  if (!instrId) return;
+  const key = btoa(encodeURIComponent(email)).replace(/[^a-zA-Z0-9]/g,'');
+  const memo = document.getElementById('memo-' + key)?.value || '';
+  const { error } = await _sb.from('client_memos').upsert(
+    { instructor_id: instrId, guest_email: email, memo, updated_at: new Date().toISOString() },
+    { onConflict: 'instructor_id,guest_email' }
+  );
+  if (error) { showToast('保存失敗: ' + error.message, 'error'); return; }
+  // キャッシュ更新
+  const c = _allClients.find(x => x.email === email);
+  if (c) c.memo = memo;
+  showToast('メモを保存しました', 'success');
+}
+
+// ============================================================
+// 売り上げ管理
+// ============================================================
+async function loadRevenue() {
+  const months = parseInt(document.getElementById('revenue-period').value);
+  const instrId = myInstructor?.id;
+  if (!instrId) return;
+
+  document.getElementById('revenue-summary').innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
+  document.getElementById('revenue-chart').innerHTML = '';
+  document.getElementById('revenue-content').innerHTML = '';
+
+  let query = _sb.from('bookings')
+    .select('total_amount, unit_price, platform_fee, instructor_payout, status, created_at, participant_count, listings(title)')
+    .eq('instructor_id', instrId)
+    .in('status', ['paid', 'confirmed'])
+    .order('created_at', { ascending: false });
+
+  if (months > 0) {
+    const from = new Date();
+    from.setMonth(from.getMonth() - months);
+    query = query.gte('created_at', from.toISOString());
+  }
+
+  const { data: bookings, error } = await query;
+  if (error) { document.getElementById('revenue-summary').innerHTML = `<div class="empty">読み込みエラー: ${error.message}</div>`; return; }
+
+  renderRevenueSummary(bookings || []);
+  renderRevenueChart(bookings || []);
+  renderRevenueList(bookings || []);
+}
+
+function renderRevenueSummary(bookings) {
+  const now = new Date();
+  const thisMonth = bookings.filter(b => {
+    const d = new Date(b.created_at);
+    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+  });
+  const total      = bookings.reduce((s, b) => s + (b.total_amount || 0), 0);
+  const payout     = bookings.reduce((s, b) => s + (b.instructor_payout || Math.round((b.total_amount || 0) * 0.7)), 0);
+  const monthTotal = thisMonth.reduce((s, b) => s + (b.total_amount || 0), 0);
+
+  document.getElementById('revenue-summary').innerHTML = `
+    <div class="rev-card-row">
+      <div class="rev-card">
+        <div class="rev-card-label">期間内売上</div>
+        <div class="rev-card-value">¥${total.toLocaleString()}</div>
+        <div class="rev-card-sub">${bookings.length}件</div>
+      </div>
+      <div class="rev-card">
+        <div class="rev-card-label">インストラクター取り分</div>
+        <div class="rev-card-value" style="color:var(--teal);">¥${payout.toLocaleString()}</div>
+        <div class="rev-card-sub">プラットフォーム手数料 30% 控除後</div>
+      </div>
+      <div class="rev-card">
+        <div class="rev-card-label">今月売上</div>
+        <div class="rev-card-value">¥${monthTotal.toLocaleString()}</div>
+        <div class="rev-card-sub">${thisMonth.length}件</div>
+      </div>
+    </div>`;
+}
+
+function renderRevenueChart(bookings) {
+  if (!bookings.length) { document.getElementById('revenue-chart').innerHTML = ''; return; }
+
+  // 月別集計
+  const monthly = {};
+  bookings.forEach(b => {
+    const key = b.created_at?.slice(0, 7); // "YYYY-MM"
+    if (!key) return;
+    monthly[key] = (monthly[key] || 0) + (b.total_amount || 0);
+  });
+  const keys = Object.keys(monthly).sort();
+  if (!keys.length) return;
+
+  const max = Math.max(...Object.values(monthly));
+  const barW = Math.max(32, Math.min(64, Math.floor(520 / keys.length) - 12));
+  const chartW = keys.length * (barW + 12) + 40;
+  const chartH = 160;
+
+  const bars = keys.map(k => {
+    const h = max > 0 ? Math.round((monthly[k] / max) * 100) : 0;
+    const label = k.slice(5) + '月';
+    return `
+      <g>
+        <rect x="0" y="${chartH - h - 24}" width="${barW}" height="${h}"
+          fill="rgba(46,196,182,0.7)" rx="4"/>
+        <text x="${barW / 2}" y="${chartH - 8}" text-anchor="middle"
+          font-size="10" fill="rgba(255,255,255,0.5)">${label}</text>
+        <text x="${barW / 2}" y="${chartH - h - 29}" text-anchor="middle"
+          font-size="10" fill="rgba(46,196,182,0.9)">¥${(monthly[k]/10000).toFixed(1)}万</text>
+      </g>`;
+  }).map((bar, i) => `<g transform="translate(${20 + i * (barW + 12)}, 0)">${bar}</g>`).join('');
+
+  document.getElementById('revenue-chart').innerHTML = `
+    <div class="rev-bar-wrap">
+      <div class="rev-bar-title">月別売上</div>
+      <svg width="100%" viewBox="0 0 ${chartW} ${chartH + 10}" xmlns="http://www.w3.org/2000/svg"
+        style="overflow:visible;">
+        ${bars}
+      </svg>
+    </div>`;
+}
+
+function renderRevenueList(bookings) {
+  const el = document.getElementById('revenue-content');
+  if (!bookings.length) { el.innerHTML = '<div class="empty">データがありません</div>'; return; }
+  el.innerHTML = `
+    <p class="section-title" style="margin-bottom:12px;">明細</p>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr>
+          <th>日付</th><th>コース</th><th>人数</th>
+          <th style="text-align:right;">売上</th>
+          <th style="text-align:right;">手数料(30%)</th>
+          <th style="text-align:right;">取り分(70%)</th>
+        </tr></thead>
+        <tbody>
+          ${bookings.map(b => {
+            const fee    = b.platform_fee    || Math.round((b.total_amount || 0) * 0.3);
+            const payout = b.instructor_payout || Math.round((b.total_amount || 0) * 0.7);
+            return `<tr>
+              <td style="white-space:nowrap;">${b.created_at?.slice(0,10) || '—'}</td>
+              <td>${escHtml(b.listings?.title || '—')}</td>
+              <td>${b.participant_count || 1}名</td>
+              <td style="text-align:right;">¥${(b.total_amount||0).toLocaleString()}</td>
+              <td style="text-align:right;color:var(--on-dark-soft);">¥${fee.toLocaleString()}</td>
+              <td style="text-align:right;color:var(--teal);font-weight:600;">¥${payout.toLocaleString()}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
 }
 
 // ============================================================

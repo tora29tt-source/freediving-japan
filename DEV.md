@@ -49,11 +49,12 @@
 - コーディング全般（HTML/CSS/JS/SQL/Python）
 - ファイルの作成・編集
 - できる限り自律的に進めて、完了後に報告する
+- Chrome MCP が使える操作（Supabase SQL実行・ブラウザ操作全般）は Claude が直接実行する
+- git push できる場合は Claude が直接実行する
 
 **Takuyaがやること**
 
-- GitHub Desktop で commit → push
-- Supabaseの管理者権限が必要な操作（service_roleキーが必要なもの）
+- Claude が git push できなかった場合のみ GitHub Desktop で commit → push（Claude がコミットメッセージをチャットで提示する）
 - 動作確認・フィードバック
 
 **セキュリティルール**
@@ -61,6 +62,15 @@
 - `service_role`キー・パスワード等の秘匿情報はコードにハードコードしない
 - anon keyはフロントエンドに含めてOK（公開前提のキー）
 - 秘匿情報はTakuyaが直接Supabaseダッシュボードで操作する
+
+**SQL実行ルール**
+
+- SQL が必要な場合、まず Chrome MCP 経由で Supabase に直接実行を試みる
+- 何らかの理由で Claude が実行できない場合のみ、チャットにコピペしやすいコードブロック形式で提示する：
+
+```sql
+-- ← このような形式で提示
+```
 
 -----
 
@@ -245,7 +255,8 @@ TOP (index.html)
 |booking/success.html                                   |✅ 実装済み（予約番号・日時・金額・プラン表示）|
 |管理画面（/admin/index.html）                              |✅ 実装済み（空き枠管理・予約一覧・ステータス変更）|
 |プロダッシュボード（pro/index.html）予約管理タブ                      |✅ 実装済み・テストデータ投入済み（全ステータス確認可）|
-|CRM                                                    |❌ 未着手（Phase 1 Week 3-4）|
+|クライアント管理タブ（pro/index.html）                           |✅ 実装済み（bookingsから自動集約・検索・詳細・メモ保存）※ client_memos テーブル要作成（sql/client_memos.sql）|
+|売り上げ管理タブ（pro/index.html）                              |✅ 実装済み（月次サマリー・棒グラフ・明細一覧・期間フィルタ）|
 |/learn/ 有料講座ページ                                      |❌ 未着手（Week 2後に差し込み）|
 |メディア（/media/）                                        |❌ 未着手（Phase 2）|
 |iOSアプリ（React Native）                                 |❌ 未着手（Phase 1 Week 7-8）|
@@ -289,4 +300,4 @@ RLSポリシー（`storage.objects`）：INSERT/UPDATE/DELETE は `auth.uid()::t
 
 -----
 
-*最終更新：2026-06-17（listings 全フィールド対応・gallery_urls/flow_steps/max_participants 追加・E2E決済テスト完了確認）*
+*最終更新：2026-06-17（クライアント管理・売り上げ管理タブ追加・listings 全フィールド対応・E2E決済テスト完了確認）*

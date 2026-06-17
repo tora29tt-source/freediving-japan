@@ -426,7 +426,10 @@ function renderPage(inst, listing, otherListings, reviews = []) {
             <div class="timeline-line"></div>
           </div>
           <div class="timeline-body">
-            <p class="timeline-step-title">${s.title || ''}</p>
+            <div style="display:flex;align-items:baseline;gap:8px;">
+              <p class="timeline-step-title">${s.title || ''}</p>
+              ${s.time ? `<span style="font-size:12px;color:var(--teal);font-weight:600;">${s.time}</span>` : ''}
+            </div>
             <p class="timeline-step-desc">${s.desc || ''}</p>
           </div>
         </div>`).join('')}</div>`
@@ -449,7 +452,7 @@ function renderPage(inst, listing, otherListings, reviews = []) {
   // other listings
   const otherHtml = otherListings.length > 0
     ? `<div class="other-listings">${otherListings.map(l => `
-        <a class="other-card" href="instructor.html?id=${inst.id}&listing=${l.id}">
+        <a class="other-card" href="listing.html?id=${inst.id}&listing=${l.id}">
           <div class="other-card-thumb">${l.image_url ? `<img src="${l.image_url}" alt="${l.title}">` : ''}</div>
           <div class="other-card-body">
             <p class="other-card-title">${l.title}</p>

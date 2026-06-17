@@ -452,7 +452,7 @@ function renderModal(inst) {
       <div class="m-sns">${snsHtml}</div>
     </div>` : ''}
 
-    <a class="m-cta" href="instructor.html?id=${inst.id}" onclick="closeModal()">
+    <a class="m-cta" href="listing.html?id=${inst.id}" onclick="closeModal()">
       このインストラクターのプランを見る
       <svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
     </a>
@@ -525,7 +525,7 @@ function renderListings() {
     const ratingHtml = shop?.avg_rating
       ? `<span class="meta-item" style="color:var(--warm)">★ ${parseFloat(shop.avg_rating).toFixed(1)}<span style="color:var(--on-dark-soft);margin-left:2px">(${shop.review_count})</span></span>`
       : '';
-    return `<a class="listing-card" href="instructor.html?id=${l.instructor_id}&listing=${l.id}">
+    return `<a class="listing-card" href="listing.html?id=${l.instructor_id}&listing=${l.id}">
       <div class="listing-thumb">${thumb}<span class="listing-badge ${badgeClass[l.intent]}">${badgeLabel[l.intent]}</span></div>
       <div class="listing-body">
         <span class="listing-category">${l.category}</span>
