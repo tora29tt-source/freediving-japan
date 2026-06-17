@@ -365,26 +365,7 @@ body {
 .tip-text strong { color: var(--on-dark); font-weight: 600; }
 
 /* ── bottom nav ── */
-.bottom-nav {
-  position: sticky;
-  bottom: 0;
-  background: rgba(6,32,46,0.7);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-top: 1px solid var(--hairline);
-  display: flex;
-}
-.bnav-item {
-  flex: 1;
-  display: flex; flex-direction: column; align-items: center; gap: 5px;
-  padding: 11px 0 15px;
-  text-decoration: none;
-  color: var(--on-dark-soft);
-  transition: color 0.2s;
-}
 .bnav-item .icon { width: 21px; height: 21px; }
-.bnav-item.active { color: var(--teal); }
-.bnav-label { font-size: 9px; font-weight: 500; letter-spacing: 0.06em; }
 
 /* 両サイドの空の青を引き締めるビネット */
 .hero::after {
@@ -403,7 +384,6 @@ body {
   .hero-glow { height: 110%; }
   /* モバイルアプリのレイアウトを中央のシェルに収め、間延びを防ぐ */
   .content { padding-top: 16px; }
-  .bottom-nav { max-width: 640px; margin: 0 auto; border-left: 1px solid var(--hairline); border-right: 1px solid var(--hairline); }
 }
 </style>
 </head>
@@ -568,26 +548,6 @@ body {
   </div>
 
 </div>
-
-<!-- bottom nav -->
-<nav class="bottom-nav">
-  <a class="bnav-item active" href="#">
-    <svg class="icon" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7"/><path d="M6 9.5V20h12V9.5"/></svg>
-    <span class="bnav-label">ホーム</span>
-  </a>
-  <a class="bnav-item" href="explore/index.html">
-    <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-    <span class="bnav-label">探す</span>
-  </a>
-  <a class="bnav-item" href="#">
-    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M8.5 12.5L7 21l5-3 5 3-1.5-8.5"/></svg>
-    <span class="bnav-label">イベント</span>
-  </a>
-  <a class="bnav-item" href="mypage.html">
-    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/></svg>
-    <span class="bnav-label">マイページ</span>
-  </a>
-</nav>
 
 </body>
 </html>
