@@ -712,8 +712,13 @@ async function initCalendar(listingId) {
     .order('slot_date')
     .order('start_time');
 
-  if (listingId) query = query.eq('listing_id', listingId);
-  else query = query.eq('instructor_id', instructorId);
+  // listing指定があっても「全コース(listing_id=null)」の枠も表示する
+  if (listingId) {
+    query = query.eq('instructor_id', instructorId)
+                 .or(`listing_id.eq.${listingId},listing_id.is.null`);
+  } else {
+    query = query.eq('instructor_id', instructorId);
+  }
 
   const { data, error } = await query;
   if (error) { console.error('slots fetch error', error); }
@@ -801,8 +806,12 @@ async function fetchMonthSlots(year, month) {
   let query = _sb.from('availability_slots')
     .select('*').gte('slot_date', from).lt('slot_date', to)
     .eq('is_active', true).order('slot_date').order('start_time');
-  if (lid) query = query.eq('listing_id', lid);
-  else query = query.eq('instructor_id', instructorId);
+  if (lid) {
+    query = query.eq('instructor_id', instructorId)
+                 .or(`listing_id.eq.${lid},listing_id.is.null`);
+  } else {
+    query = query.eq('instructor_id', instructorId);
+  }
 
   const { data } = await query;
   (data || []).forEach(s => {
