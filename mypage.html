@@ -288,6 +288,63 @@ body {
 .settings-label { flex: 1; font-size: 14px; color: var(--text); }
 .settings-arrow { color: var(--muted); font-size: 14px; }
 .settings-row.danger .settings-label { color: #f87171; }
+.settings-row { cursor: pointer; }
+
+/* ── Modal ── */
+.modal-backdrop {
+  display: none; position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,0.72); backdrop-filter: blur(4px);
+  align-items: center; justify-content: center; padding: 20px;
+}
+.modal-backdrop.open { display: flex; }
+.modal {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 28px 24px; width: 100%; max-width: 460px;
+  max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+}
+.modal-title { font-size: 17px; font-weight: 700; margin-bottom: 22px; color: var(--text); }
+.modal-form-group { margin-bottom: 16px; }
+.modal-form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--sub); letter-spacing: 0.05em; margin-bottom: 6px; }
+.modal-form-group input,
+.modal-form-group select {
+  width: 100%; padding: 11px 13px;
+  background: rgba(255,255,255,0.07); border: 1px solid var(--border);
+  border-radius: 10px; color: var(--text); font-size: 14px;
+  font-family: inherit; outline: none; transition: border-color 0.2s;
+  -webkit-appearance: none;
+}
+.modal-form-group input:focus,
+.modal-form-group select:focus { border-color: var(--teal); background: rgba(255,255,255,0.1); }
+.modal-form-group select option { background: var(--surface); }
+.modal-actions { display: flex; gap: 10px; margin-top: 24px; }
+.modal-btn-primary {
+  flex: 1; padding: 12px; background: var(--teal); color: var(--ocean-deep);
+  border: none; border-radius: 10px; font-size: 14px; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: background 0.2s;
+}
+.modal-btn-primary:hover { background: var(--teal-light); }
+.modal-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.modal-btn-cancel {
+  flex: 1; padding: 12px; background: transparent; border: 1px solid var(--border);
+  border-radius: 10px; color: var(--sub); font-size: 14px;
+  cursor: pointer; font-family: inherit; transition: all 0.2s;
+}
+.modal-btn-cancel:hover { border-color: rgba(255,255,255,0.3); color: var(--text); }
+
+/* ── Toast ── */
+.toast-msg {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 100px; padding: 12px 20px;
+  font-size: 13px; color: var(--text);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  z-index: 400; transition: opacity 0.3s; pointer-events: none;
+  white-space: nowrap; opacity: 1;
+}
+.toast-msg.success { border-color: rgba(46,196,182,0.4); }
+.toast-msg.error   { border-color: rgba(239,68,68,0.4); }
+.toast-msg.hidden  { opacity: 0; }
 
 /* ===== BOTTOM NAV ===== */
 .bnav-item.active { color: var(--teal); }
@@ -420,7 +477,7 @@ body {
 
   <div class="hero-inner">
     <div class="avatar-wrap">
-      <div class="avatar" id="heroAvatar">…</div>
+      <div class="avatar" id="heroAvatar" style="overflow:hidden;">…</div>
       <div class="avatar-badge">🤿</div>
     </div>
     <div class="hero-info">
@@ -638,7 +695,7 @@ body {
       <div class="sec-title">設定</div>
     </div>
     <div class="settings-card">
-      <div class="settings-row">
+      <div class="settings-row" onclick="openProfileModal()">
         <div class="settings-icon">👤</div>
         <div class="settings-label">プロフィール編集</div>
         <div class="settings-arrow">›</div>
@@ -666,6 +723,38 @@ body {
   </div>
 
 </div>
+
+<!-- ── プロフィール編集モーダル ── -->
+<div class="modal-backdrop" id="profile-modal">
+  <div class="modal">
+    <div class="modal-title">プロフィール編集</div>
+    <div class="modal-form-group">
+      <label>表示名</label>
+      <input type="text" id="pf-name" placeholder="山田 海斗">
+    </div>
+    <div class="modal-form-group">
+      <label>プロフィール写真URL</label>
+      <input type="url" id="pf-photo" placeholder="https://...">
+      <div id="pf-preview" style="margin-top:10px;display:none;">
+        <img id="pf-preview-img" src="" alt="" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid rgba(46,196,182,0.3);">
+      </div>
+    </div>
+    <div class="modal-form-group">
+      <label>ロール</label>
+      <select id="pf-role">
+        <option value="athlete">選手・愛好家</option>
+        <option value="instructor">インストラクター</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="closeProfileModal()">キャンセル</button>
+      <button class="modal-btn-primary" id="pf-save-btn" onclick="saveProfile()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast ── -->
+<div class="toast-msg hidden" id="mypage-toast"></div>
 
 <!-- BOTTOM NAV -->
 
@@ -951,10 +1040,15 @@ async function handleLogout() {
   // ロール
   const role = meta.role === 'instructor' ? 'インストラクター' : '選手・愛好家';
 
-  document.getElementById('heroAvatar').textContent = initials;
-  document.getElementById('heroName').textContent    = name;
-  document.getElementById('heroEmail').textContent   = user.email;
-  document.getElementById('heroRole').textContent    = role;
+  const heroAvatar = document.getElementById('heroAvatar');
+  if (meta.avatar_url) {
+    heroAvatar.innerHTML = `<img src="${meta.avatar_url}" alt="${name}" style="width:72px;height:72px;border-radius:50%;object-fit:cover;">`;
+  } else {
+    heroAvatar.textContent = initials;
+  }
+  document.getElementById('heroName').textContent  = name;
+  document.getElementById('heroEmail').textContent = user.email;
+  document.getElementById('heroRole').textContent  = role;
 
   // admin/staff チェック → 管理画面ボタンを表示
   const { data: roles } = await _sb
@@ -971,6 +1065,93 @@ async function handleLogout() {
     if (!s) window.location.replace('auth.html');
   });
 })();
+</script>
+
+<script>
+// ── プロフィール編集 ──
+let _currentUser = null;
+
+// 認証スクリプトと共有するためにユーザー情報を保持
+(async () => {
+  const { data: { session } } = await _sb.auth.getSession();
+  if (session) _currentUser = session.user;
+})();
+
+function openProfileModal() {
+  if (!_currentUser) return;
+  const meta = _currentUser.user_metadata || {};
+  document.getElementById('pf-name').value  = meta.name || meta.full_name || '';
+  document.getElementById('pf-photo').value = meta.avatar_url || '';
+  document.getElementById('pf-role').value  = meta.role || 'athlete';
+  updatePhotoPreview(meta.avatar_url || '');
+  document.getElementById('profile-modal').classList.add('open');
+}
+
+function closeProfileModal() {
+  document.getElementById('profile-modal').classList.remove('open');
+}
+
+document.getElementById('pf-photo').addEventListener('input', function() {
+  updatePhotoPreview(this.value.trim());
+});
+
+function updatePhotoPreview(url) {
+  const wrap = document.getElementById('pf-preview');
+  const img  = document.getElementById('pf-preview-img');
+  if (url) {
+    img.src = url;
+    wrap.style.display = 'block';
+  } else {
+    wrap.style.display = 'none';
+  }
+}
+
+async function saveProfile() {
+  const name      = document.getElementById('pf-name').value.trim();
+  const avatarUrl = document.getElementById('pf-photo').value.trim();
+  const role      = document.getElementById('pf-role').value;
+
+  if (!name) { showMypageToast('表示名を入力してください', 'error'); return; }
+
+  const btn = document.getElementById('pf-save-btn');
+  btn.disabled = true;
+  btn.textContent = '保存中...';
+
+  const { data, error } = await _sb.auth.updateUser({
+    data: { name, avatar_url: avatarUrl || null, role }
+  });
+
+  btn.disabled = false;
+  btn.textContent = '保存する';
+
+  if (error) { showMypageToast('保存に失敗しました: ' + error.message, 'error'); return; }
+
+  // ページのヒーローを即時更新
+  _currentUser = data.user;
+  const initials = name.replace(/\s+/g, '').slice(0, 2).toUpperCase();
+  const heroAvatar = document.getElementById('heroAvatar');
+  if (avatarUrl) {
+    heroAvatar.innerHTML = `<img src="${avatarUrl}" alt="${name}" style="width:72px;height:72px;border-radius:50%;object-fit:cover;">`;
+  } else {
+    heroAvatar.textContent = initials;
+  }
+  document.getElementById('heroName').textContent = name;
+  document.getElementById('heroRole').textContent = role === 'instructor' ? 'インストラクター' : '選手・愛好家';
+
+  showMypageToast('プロフィールを保存しました', 'success');
+  closeProfileModal();
+}
+
+document.getElementById('profile-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeProfileModal();
+});
+
+function showMypageToast(msg, type = 'success') {
+  const el = document.getElementById('mypage-toast');
+  el.textContent = msg;
+  el.className = `toast-msg ${type}`;
+  setTimeout(() => el.classList.add('hidden'), 2800);
+}
 </script>
 </body>
 </html>

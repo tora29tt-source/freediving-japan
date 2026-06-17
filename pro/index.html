@@ -363,6 +363,74 @@ td.primary { color: var(--on-dark); font-weight: 500; }
       </div>
     </div>
 
+    <div class="form-row">
+      <div class="form-group">
+        <label>料金に含まれるもの</label>
+        <textarea id="l-price-inc" placeholder="例：器材一式、保険料、ガイド料" style="min-height:64px;"></textarea>
+      </div>
+      <div class="form-group">
+        <label>料金に含まれないもの</label>
+        <textarea id="l-price-exc" placeholder="例：交通費、昼食" style="min-height:64px;"></textarea>
+      </div>
+    </div>
+
+    <p class="form-section-title" style="margin-top:20px;">開催情報</p>
+    <div class="form-row">
+      <div class="form-group">
+        <label>所要時間</label>
+        <input type="text" id="l-duration" placeholder="例：2〜3時間">
+      </div>
+      <div class="form-group">
+        <label>開催期間</label>
+        <input type="text" id="l-season" placeholder="例：4月〜10月">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>最少催行人数</label>
+        <input type="number" id="l-min-pax" placeholder="例：1" min="1">
+      </div>
+      <div class="form-group">
+        <label>参加年齢</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="number" id="l-age-min" placeholder="例：6" min="0" style="flex:1;">
+          <span style="color:var(--on-dark-soft);font-size:13px;">〜</span>
+          <input type="number" id="l-age-max" placeholder="例：80" min="0" style="flex:1;">
+          <span style="color:var(--on-dark-soft);font-size:13px;">歳</span>
+        </div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>集合場所</label>
+        <input type="text" id="l-meeting" placeholder="例：○○ビーチ駐車場">
+      </div>
+      <div class="form-group">
+        <label>予約締切</label>
+        <input type="text" id="l-deadline" placeholder="例：前日17時まで">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="toggle-wrap" style="cursor:pointer;">
+        <label class="toggle"><input type="checkbox" id="l-shuttle"><span class="toggle-track"></span></label>
+        <span class="toggle-label">送迎あり</span>
+      </label>
+    </div>
+
+    <p class="form-section-title" style="margin-top:20px;">キャンセル・注意事項</p>
+    <div class="form-group">
+      <label>キャンセルポリシー</label>
+      <textarea id="l-cancel" placeholder="例：3日前まで無料、前日50%、当日100%" style="min-height:64px;"></textarea>
+    </div>
+    <div class="form-group">
+      <label>服装・持ち物</label>
+      <textarea id="l-bring" placeholder="例：水着、タオル、動きやすい服装" style="min-height:64px;"></textarea>
+    </div>
+    <div class="form-group">
+      <label>注意事項</label>
+      <textarea id="l-notes" placeholder="例：妊娠中の方・心臓疾患のある方はご参加いただけません" style="min-height:64px;"></textarea>
+    </div>
+
     <div class="form-group">
       <label>タグ（カンマ区切り）</label>
       <input type="text" id="l-tags" placeholder="例：初心者OK, 当日予約OK, 英語対応">
@@ -502,8 +570,9 @@ td.primary { color: var(--on-dark); font-weight: 500; }
         <label class="check-item"><input type="checkbox" value="日本語" checked> 日本語</label>
         <label class="check-item"><input type="checkbox" value="英語"> 英語</label>
         <label class="check-item"><input type="checkbox" value="中国語"> 中国語</label>
-        <label class="check-item"><input type="checkbox" value="フランス語"> フランス語</label>
+        <label class="check-item"><input type="checkbox" value="__other__" onchange="toggleLangOther(this,'cp-lang-other')"> その他</label>
       </div>
+      <input type="text" id="cp-lang-other" placeholder="例：スペイン語、フランス語（カンマ区切り）" style="margin-top:8px;display:none;">
     </div>
 
     <div class="modal-actions">
@@ -552,8 +621,9 @@ td.primary { color: var(--on-dark); font-weight: 500; }
         <label class="check-item"><input type="checkbox" value="日本語" checked> 日本語</label>
         <label class="check-item"><input type="checkbox" value="英語"> 英語</label>
         <label class="check-item"><input type="checkbox" value="中国語"> 中国語</label>
-        <label class="check-item"><input type="checkbox" value="フランス語"> フランス語</label>
+        <label class="check-item"><input type="checkbox" value="__other__" onchange="toggleLangOther(this,'csp-lang-other')"> その他</label>
       </div>
+      <input type="text" id="csp-lang-other" placeholder="例：スペイン語、フランス語（カンマ区切り）" style="margin-top:8px;display:none;">
     </div>
 
     <div class="modal-actions">
@@ -658,7 +728,10 @@ function renderProfileForm() {
       ${idx > 0 ? `<button type="button" class="area-remove" onclick="removeAreaRow(this)">×</button>` : '<span style="width:24px;"></span>'}
     </div>`).join('');
 
-  const langOpts   = ['日本語','英語','中国語'];
+  const knownLangs  = ['日本語','英語','中国語'];
+  const knownChecked = langs.filter(l => knownLangs.includes(l));
+  const otherLangs   = langs.filter(l => !knownLangs.includes(l));
+  const hasOther     = otherLangs.length > 0;
 
   document.getElementById('profile-form-wrap').innerHTML = `
     <div class="profile-hero">
@@ -701,8 +774,10 @@ function renderProfileForm() {
     <div class="form-section-title">対応言語</div>
     <div class="form-group">
       <div class="check-group" id="p-langs">
-        ${langOpts.map(l => `<label class="check-item"><input type="checkbox" value="${l}"${langs.includes(l)?' checked':''}> ${l}</label>`).join('')}
+        ${knownLangs.map(l => `<label class="check-item"><input type="checkbox" value="${l}"${knownChecked.includes(l)?' checked':''}> ${l}</label>`).join('')}
+        <label class="check-item"><input type="checkbox" value="__other__"${hasOther?' checked':''} onchange="toggleLangOther(this,'p-lang-other')"> その他</label>
       </div>
+      <input type="text" id="p-lang-other" value="${escHtml(otherLangs.join(', '))}" placeholder="例：スペイン語、フランス語（カンマ区切り）" style="margin-top:8px;${hasOther?'':'display:none;'}">
     </div>
 
     <div class="form-section-title">メディア・SNS</div>
@@ -739,7 +814,7 @@ async function saveProfile() {
     areas:           collectAreaRows('p-area-rows'),
     certifications:  toArr(document.getElementById('p-certs').value),
     specialties:     toArr(document.getElementById('p-specs').value),
-    languages:       collectChecked('p-langs'),
+    languages:       collectLanguages('p'),
     photo_url:       document.getElementById('p-photo').value.trim()  || null,
     intro_video_url: document.getElementById('p-video').value.trim()  || null,
     website_url:     document.getElementById('p-web').value.trim()    || null,
@@ -784,7 +859,7 @@ async function createProfile() {
     bio:            document.getElementById('cp-bio').value.trim() || null,
     areas:          collectAreaRows('cp-area-rows'),
     certifications: toArr(document.getElementById('cp-certs').value),
-    languages:      collectChecked('cp-langs'),
+    languages:      collectLanguages('cp'),
     is_public:      false,
   }).select().single();
 
@@ -809,7 +884,7 @@ async function createShopProfile() {
     shop_type: document.getElementById('csp-type').value,
     bio:       document.getElementById('csp-bio').value.trim()  || null,
     areas:     collectAreaRows('csp-area-rows'),
-    languages: collectChecked('csp-langs'),
+    languages: collectLanguages('csp'),
     is_public: false,
   }).select().single();
 
@@ -842,7 +917,10 @@ function renderShopProfileForm() {
       <input type="text" class="area-season" value="${escHtml(r.season)}" placeholder="例：4月〜10月">
       ${idx > 0 ? `<button type="button" class="area-remove" onclick="removeAreaRow(this)">×</button>` : '<span style="width:24px;"></span>'}
     </div>`).join('');
-  const langOpts  = ['日本語','英語','中国語','フランス語','スペイン語'];
+  const knownLangsS   = ['日本語','英語','中国語'];
+  const sKnownChecked = langs.filter(l => knownLangsS.includes(l));
+  const sOtherLangs   = langs.filter(l => !knownLangsS.includes(l));
+  const sHasOther     = sOtherLangs.length > 0;
   const typeLabel = { individual:'個人', school:'スクール', operator:'ダイビングオペレーター' }[s.shop_type] || s.shop_type || '—';
 
   document.getElementById('profile-form-wrap').innerHTML = `
@@ -880,8 +958,10 @@ function renderShopProfileForm() {
     <div class="form-section-title">対応言語</div>
     <div class="form-group">
       <div class="check-group" id="sp-langs">
-        ${langOpts.map(l => `<label class="check-item"><input type="checkbox" value="${l}"${langs.includes(l)?' checked':''}> ${l}</label>`).join('')}
+        ${knownLangsS.map(l => `<label class="check-item"><input type="checkbox" value="${l}"${sKnownChecked.includes(l)?' checked':''}> ${l}</label>`).join('')}
+        <label class="check-item"><input type="checkbox" value="__other__"${sHasOther?' checked':''} onchange="toggleLangOther(this,'sp-lang-other')"> その他</label>
       </div>
+      <input type="text" id="sp-lang-other" value="${escHtml(sOtherLangs.join(', '))}" placeholder="例：スペイン語、フランス語（カンマ区切り）" style="margin-top:8px;${sHasOther?'':'display:none;'}">
     </div>
 
     <div class="form-section-title">メディア・SNS</div>
@@ -910,7 +990,7 @@ async function saveShopProfile() {
     shop_type:     document.getElementById('sp-type').value,
     bio:           document.getElementById('sp-bio').value.trim()    || null,
     areas:         collectAreaRows('sp-area-rows'),
-    languages:     collectChecked('sp-langs'),
+    languages:     collectLanguages('sp'),
     logo_url:      document.getElementById('sp-logo').value.trim()   || null,
     cover_url:     document.getElementById('sp-cover').value.trim()  || null,
     website_url:   document.getElementById('sp-web').value.trim()    || null,
@@ -1361,6 +1441,20 @@ function collectAreaRows(containerId) {
     if (!name) return null;
     return season ? `${name}（${season}）` : name;
   }).filter(Boolean);
+}
+
+function toggleLangOther(cb, inputId) {
+  document.getElementById(inputId).style.display = cb.checked ? '' : 'none';
+}
+
+function collectLanguages(prefix) {
+  const known = ['日本語','英語','中国語'];
+  const checked = collectChecked(`${prefix}-langs`).filter(v => v !== '__other__');
+  const otherEl = document.getElementById(`${prefix}-lang-other`);
+  const others  = (otherEl && otherEl.value.trim())
+    ? otherEl.value.split(',').map(s => s.trim()).filter(Boolean)
+    : [];
+  return [...checked, ...others];
 }
 
 function collectChecked(containerId) {
