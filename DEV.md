@@ -1,0 +1,253 @@
+# Freediving Japan — 開発・技術仕様
+
+## 環境・作業フロー
+
+- **作業場所**：`/Users/takuyaterajima/Desktop/10.Freediving/30.Freediving Japan/freediving-japan`（直接読み書き）
+- **GitHubアカウント**：tora29tt-source / **リポジトリ**：tora29tt-source/freediving-japan
+- **本番URL**：<https://freediving-japan.vercel.app>
+- **デプロイ**：main push → Vercel 自動反映
+
+|担当    |作業                            |
+|------|------------------------------|
+|Claude|Cowork でファイルを編集               |
+|Takuya|GitHub Desktop で commit → push|
+|自動    |Vercel がデプロイ                  |
+
+-----
+
+## 技術スタック
+
+- **Web フロントエンド**：HTML / CSS / JavaScript（バニラ、フレームワークなし）
+- **モバイルアプリ**：React Native（iOS・App Store配信）
+- **バックエンド・認証・DB**：Supabase（Project ID: bbhqvbpsuccbdcnhnobm / Tokyo）
+- **決済**：Stripe（フリーダイビングを学ぶ の有料講座）
+- **動画配信**：Vimeo Pro（フリーダイビングを学ぶ の動画ホスティング）
+- **スタイル**：CSS変数でデザイントークン管理
+- **フォント**：-apple-system / Hiragino Sans / Noto Sans JP
+- **データ**：JSON（rankings.json, athlete_photos.json 等）
+- **スクレイピング**：Python（fetch_all.py 等）
+
+### カラーパレット（CSS変数）
+
+```css
+--ocean-deep:  #0b2d45
+--ocean-mid:   #0e3d5c
+--ocean-light: #1a5f82
+--teal:        #2ec4b6
+--teal-light:  #a8ece8
+--foam:        #f0f9fb
+--warm:        #f97316
+--sand:        #fdf8f2
+```
+
+-----
+
+## 作業分担ルール
+
+**Claudeがやること**
+
+- コーディング全般（HTML/CSS/JS/SQL/Python）
+- ファイルの作成・編集
+- できる限り自律的に進めて、完了後に報告する
+
+**Takuyaがやること**
+
+- GitHub Desktop で commit → push
+- Supabaseの管理者権限が必要な操作（service_roleキーが必要なもの）
+- 動作確認・フィードバック
+
+**セキュリティルール**
+
+- `service_role`キー・パスワード等の秘匿情報はコードにハードコードしない
+- anon keyはフロントエンドに含めてOK（公開前提のキー）
+- 秘匿情報はTakuyaが直接Supabaseダッシュボードで操作する
+
+-----
+
+## Supabase 接続情報
+
+- **Project URL**：`https://bbhqvbpsuccbdcnhnobm.supabase.co`
+- **Project ID**：`bbhqvbpsuccbdcnhnobm`
+- **Region**：ap-northeast-1（Northeast Asia / Tokyo）
+- **接続ファイル**：`js/supabase-config.js`（anon key 格納済み）
+
+### DBテーブル一覧
+
+```
+instructors        — インストラクターマスタ（id, name, ...）
+listings           — 体験・コース（id, title, instructor_id, price, ...）
+availability_slots — 空き枠（id, instructor_id, listing_id, slot_date, start_time, end_time, max_participants, booked_count, is_active）
+bookings           — 予約（id, slot_id, instructor_id, listing_id, guest_name, guest_email, participant_count, total_amount, status, stripe_session_id, ...）
+training_sessions  — トレーニングセッション
+dives              — ダイブ記録
+events             — 大会・イベント
+shops              — ショップ
+reviews            — レビュー
+```
+
+**予約ステータス遷移**：`pending` → `paid` → `confirmed` → `cancelled` / `refunded`
+
+-----
+
+## Stripe 設定メモ
+
+- **モード**：サンドボックス（テスト環境）
+- **ビジネスモデル**：マーケットプレイス（プラットフォームが集金 → インストラクターへ送金）
+- **手数料分配**：プラットフォーム 30% / インストラクター 70%
+- **Webhook エンドポイント**：`https://freediving-japan.vercel.app/api/stripe-webhook`
+- **リッスンイベント**：`checkout.session.completed`, `checkout.session.expired`
+- **Vercel 環境変数**：`STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` / `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` / `NEXT_PUBLIC_SITE_URL` 設定済み
+
+-----
+
+## ファイル構成（主要）
+
+```
+/index.html               # トップページ（未ログイン＝初めての人の世界）
+/auth.html                # 認証画面（メール/パスワード・Googleログイン）
+/mypage.html              # ログイン後＝プロ・選手の世界
+/admin/index.html         # 管理画面（空き枠・予約管理）
+/AIDA_ranking_prototype.html
+/2026_competitions.html
+/training-log.html
+/sta-timer.html
+/mouthfill-calculator.html
+/freediving-learn.html
+/instructor-welcome.html
+/ranking_data.js
+/athlete_photos.json
+/js/supabase-config.js    # Supabase接続設定（anon key格納）
+/api/                     # Vercel Serverless Functions
+  create-checkout-session.js
+  stripe-webhook.js
+/explore/                 # マッチング（先行実装中）
+  index.html
+  instructor.html
+  success.html
+/booking/
+  success.html
+/media/                   # メディア（Phase 2〜）
+/site/
+  index.html
+  data/
+    rankings.json
+    athlete_photos.json
+    jp_official_records.json
+  fetch_all.py
+```
+
+## サイトマップ（二層構造）
+
+```
+■ 未ログイン ＝ 初めての人の世界
+TOP (index.html)
+│
+├── 読む：メディア (/media/)              [Phase 2]
+│
+├── 探す：マッチング (/explore/)          [Phase 2・トップに前面表示]
+│   ├── フリーダイビング スクール・インストラクター
+│   ├── スキンダイビング スクール・インストラクター
+│   ├── ダイビング船（ファンダイビング対応ショップ）
+│   ├── ツアー
+│   ├── マップ検索 (/explore/map/)
+│   └── 詳細・マッチング (/explore/{category}/{id}/)
+│
+├── 学ぶ：初心者向け教材（入口商品）        [Phase 1.5・未ログインからも見せる]
+│
+├── 覗く：ランキング・大会のさわり        [Phase 1 データを軽く見せる]
+│
+└── インストラクターの方へ (instructor-welcome.html)
+
+■ ログイン後 ＝ プロ・選手の世界
+マイページ (mypage.html)
+│
+├── プロフィール
+├── 予約履歴
+├── トレーニングログ
+├── STAタイマー (sta-timer.html)
+├── Mouthfill Calculator (mouthfill-calculator.html)
+├── ランキング（フル機能・種目別/選手別）
+├── 大会情報（フル機能）
+├── 学ぶ：動画教材 (/learn/)
+└── プロ向け (/pro/)
+    ├── CRM・顧客管理 (/pro/crm/)
+    ├── 生徒管理 (/pro/students/)
+    └── 予約管理 (/pro/reservations/)
+
+■ 管理者
+管理画面 (/admin/)
+├── 空き枠管理
+└── 予約一覧・ステータス管理
+```
+
+## iOSアプリ 機能一覧（Phase 1）
+
+- トレーニングログ登録・履歴管理
+- ログのURLシェア（誰でも閲覧可能なリンクを発行）
+- ログのSNSシェア（写真＋かっこいいオーバーレイ画像を生成してInstagram/X等に投稿）
+- 練習用タイマー
+- カウントダウン機能
+- Webマイページとのデータ連携
+
+-----
+
+## スケジュール（2026-06-17更新）
+
+※ コーディングはClaude担当。Takuyaは確認・push・フィードバックのみ。
+
+### Phase 1（目標：約2ヶ月）
+
+|期間      |内容                                         |状況  |
+|--------|-------------------------------------------|-----|
+|Week 1  |Supabase導入・DB設計・ログイン画面・認証基盤                |✅完了 |
+|Week 2  |トレーニングログ完成・Supabase接続・URLシェア機能             |✅完了（動作確認要）|
+|Week 2後 |/learn/ 枠組みページ（撮影開始前に完成・Stripe導入）          |待機中 |
+|Week 3-4|CRM実装（顧客・生徒・予約管理）                          |未着手 |
+|Week 5-6|マイページ完成・ランキング・大会情報のDB接続                    |未着手 |
+|Week 7-8|React Nativeアプリ（タイマー・ログ・SNSシェア）            |未着手 |
+
+### Phase 2（Phase 1完了後・約2ヶ月）
+
+未ログイントップの二層化・マッチング機能・探す全カテゴリ・メディア立ち上げ・インストラクター紹介動画
+
+### Phase 3（Phase 2完了後・約2ヶ月〜継続）
+
+有料動画教材・SEOコンテンツ拡充
+
+**合計目標：約6ヶ月でフル展開**
+
+-----
+
+## 現在の実装状況
+
+|ページ・機能                                              |状況                          |
+|----------------------------------------------------|----------------------------|
+|トップページ（index.html）                                  |✅ 完成（※二層化に向けて要再設計）          |
+|ランキング（AIDA_ranking_prototype.html / site/index.html）|✅ 完成                        |
+|大会情報（2026_competitions.html）                        |✅ 完成                        |
+|トレーニングログ（training-log.html）                         |✅ Supabase接続・保存・読み込み・編集・URLシェア実装済み（動作確認要）|
+|マイページ（mypage.html）                                  |🔄 作りかけ                      |
+|STAタイマー（sta-timer.html）                             |✅ 大幅機能追加・デプロイ済み              |
+|Mouthfill Calculator（mouthfill-calculator.html）     |✅ 完成・push済み                  |
+|インストラクターウェルカム（instructor-welcome.html）              |✅ 作成完了                      |
+|フリーダイビングを学ぶ（freediving-learn.html）                 |🔄 管理ツール完成・/learn/枠組みは未着手    |
+|大会機能（event-athlete.html）                            |✅ 作成完了・Supabase接続は未着手        |
+|大会カウントダウン（competition-countdown.html）               |⚠️ チャット消失・要再構築               |
+|認証画面（auth.html）                                     |✅ メール/パスワード・Googleログイン実装済み（Apple は Developer 登録待ち）|
+|Supabase DB                                        |✅ テーブル作成済み（training_sessions/dives/events/shops/instructors/listings/reviews）|
+|Supabase 認証接続                                      |✅ メール/パスワード・Google OAuth 接続済み|
+|マッチング（/explore/）                                    |🔄 先行実装中（Supabase: shops/instructors/listings/reviews スキーマ投入済み。explore/index.html・instructor.html 動作確認済み。本格公開は Phase 2）|
+|予約・決済フロー（/explore/instructor.html + /api/）           |✅ 完成・動作確認済み（カレンダーUI → Stripe Checkout → 予約完了ページのフルフロー）|
+|Supabase: availability_slots / bookings テーブル          |✅ 作成済み・RLS設定済み|
+|Vercel API: /api/create-checkout-session.js            |✅ 実装済み・デプロイ済み|
+|Vercel API: /api/stripe-webhook.js                     |✅ 実装済み・Stripe Webhook登録済み|
+|booking/success.html                                   |✅ 実装済み（予約番号・日時・金額・プラン表示）|
+|管理画面（/admin/index.html）                              |✅ 実装済み（空き枠管理・予約一覧・ステータス変更）|
+|CRM                                                    |❌ 未着手（Phase 1 Week 3-4）|
+|/learn/ 有料講座ページ                                      |❌ 未着手（Week 2後に差し込み）|
+|メディア（/media/）                                        |❌ 未着手（Phase 2）|
+|iOSアプリ（React Native）                                 |❌ 未着手（Phase 1 Week 7-8）|
+
+-----
+
+*最終更新：2026-06-17（管理画面実装完了）*
