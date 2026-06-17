@@ -519,7 +519,7 @@ TOP (index.html)
 |期間      |内容                                         |状況  |
 |--------|-------------------------------------------|-----|
 |Week 1  |Supabase導入・DB設計・ログイン画面・認証基盤                |✅完了 |
-|Week 2  |トレーニングログ完成・Supabase接続・URLシェア機能             |🔄進行中|
+|Week 2  |トレーニングログ完成・Supabase接続・URLシェア機能             |✅完了（動作確認要）|
 |Week 2後 |/learn/ 枠組みページ（撮影開始前に完成・Stripe導入）          |待機中 |
 |Week 3-4|CRM実装（顧客・生徒・予約管理）                          |未着手 |
 |Week 5-6|マイページ完成・ランキング・大会情報のDB接続                    |未着手 |
@@ -544,7 +544,7 @@ TOP (index.html)
 |トップページ（index.html）                                  |✅ 完成（※二層化に向けて要再設計）          |
 |ランキング（AIDA_ranking_prototype.html / site/index.html）|✅ 完成                        |
 |大会情報（2026_competitions.html）                        |✅ 完成                        |
-|トレーニングログ（training-log.html）                         |🔄 80%（Supabase接続が次のタスク）      |
+|トレーニングログ（training-log.html）                         |✅ Supabase接続・保存・読み込み・編集・URLシェア実装済み（動作確認要）|
 |マイページ（mypage.html）                                  |🔄 作りかけ                      |
 |STAタイマー（sta-timer.html）                             |✅ 大幅機能追加・デプロイ済み              |
 |Mouthfill Calculator（mouthfill-calculator.html）     |✅ 完成・push済み                  |
@@ -563,4 +563,4 @@ TOP (index.html)
 
 -----
 
-*最終更新：2026-06-17（shops/instructors/listings/reviews スキーマ追加・explore/ 先行実装反映）*
+*最終更新：2026-06-17（トレーニングログ実装完了・Week 2完了扱いに更新）*
