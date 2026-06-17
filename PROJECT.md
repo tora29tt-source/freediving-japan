@@ -553,14 +553,14 @@ TOP (index.html)
 |大会機能（event-athlete.html）                            |✅ 作成完了・Supabase接続は未着手        |
 |大会カウントダウン（competition-countdown.html）               |⚠️ チャット消失・要再構築               |
 |認証画面（auth.html）                                     |✅ メール/パスワード・Googleログイン実装済み（Apple は Developer 登録待ち）|
-|Supabase DB                                        |✅ テーブル作成済み（training_sessions/dives/events等）|
+|Supabase DB                                        |✅ テーブル作成済み（training_sessions/dives/events/shops/instructors/listings/reviews）|
 |Supabase 認証接続                                      |✅ メール/パスワード・Google OAuth 接続済み（auth.html / mypage.html）|
 |CRM                                                |❌ 未着手（Phase 1 Week 3-4）     |
 |/learn/ 有料講座ページ                                     |❌ 未着手（Week 2後に差し込み）          |
 |メディア（/media/）                                       |❌ 未着手（Phase 2）              |
-|マッチング（/explore/）                                    |❌ 未着手（Phase 2）              |
+|マッチング（/explore/）                                    |🔄 先行実装中（Supabase: shops/instructors/listings/reviews スキーマ投入済み。explore/index.html・instructor.html 動作確認済み。本格公開は Phase 2）|
 |iOSアプリ（React Native）                                |❌ 未着手（Phase 1 Week 7-8）     |
 
 -----
 
-*最終更新：2026-06-17（認証実装状況を実態に反映：メール/パスワード・Google ログイン接続済み、Apple は Developer 登録待ち）*
+*最終更新：2026-06-17（shops/instructors/listings/reviews スキーマ追加・explore/ 先行実装反映）*
