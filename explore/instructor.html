@@ -118,14 +118,87 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sa
 .other-card-arrow { color: var(--on-dark-soft); flex-shrink: 0; }
 .other-card-arrow .icon { width: 16px; height: 16px; }
 
-/* booking CTA */
-.booking-section { background: linear-gradient(135deg, rgba(46,196,182,0.10) 0%, rgba(26,95,130,0.14) 100%); border: 1px solid rgba(46,196,182,0.25); border-radius: 20px; padding: 28px 20px; margin-bottom: 20px; text-align: center; }
-.booking-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
-.booking-subtitle { font-size: 13px; color: var(--on-dark-mid); margin-bottom: 24px; line-height: 1.7; }
-.booking-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 17px; background: var(--teal); border: none; border-radius: 14px; font-size: 16px; font-weight: 700; color: var(--ocean-deep); cursor: pointer; transition: background 0.2s, transform 0.1s; letter-spacing: 0.04em; text-decoration: none; }
-.booking-btn:hover { background: var(--teal-light); }
-.booking-btn:active { transform: scale(0.98); }
-.booking-coming { margin-top: 12px; font-size: 11px; color: var(--on-dark-soft); letter-spacing: 0.05em; }
+/* ── 予約カレンダー ── */
+.booking-section { background: rgba(255,255,255,0.03); border: 1px solid var(--hairline); border-radius: 20px; padding: 20px; margin-bottom: 20px; }
+.booking-section-title { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--teal); font-weight: 500; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--hairline); }
+
+/* calendar header */
+.cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.cal-month-label { font-size: 15px; font-weight: 600; color: var(--on-dark); }
+.cal-nav { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.06); border: 1px solid var(--hairline); color: var(--on-dark-mid); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.15s; }
+.cal-nav:hover { background: rgba(255,255,255,0.12); }
+.cal-nav .icon { width: 16px; height: 16px; }
+
+/* calendar grid */
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.cal-dow { text-align: center; font-size: 10px; letter-spacing: 0.1em; color: var(--on-dark-soft); padding-bottom: 6px; }
+.cal-dow.sun { color: rgba(249,115,22,0.7); }
+.cal-dow.sat { color: rgba(46,196,182,0.7); }
+.cal-cell { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border-radius: 8px; cursor: default; transition: background 0.15s; position: relative; }
+.cal-cell.has-slot { cursor: pointer; }
+.cal-cell.has-slot:hover { background: rgba(46,196,182,0.12); }
+.cal-cell.selected { background: rgba(46,196,182,0.20); border: 1px solid rgba(46,196,182,0.5); }
+.cal-cell.past { opacity: 0.3; }
+.cal-cell.today .cal-day { color: var(--teal); font-weight: 700; }
+.cal-day { font-size: 12px; color: var(--on-dark-mid); line-height: 1; }
+.cal-cell.sun-col .cal-day { color: rgba(249,115,22,0.8); }
+.cal-cell.sat-col .cal-day { color: rgba(46,196,182,0.8); }
+.cal-avail { font-size: 10px; line-height: 1; }
+.cal-avail.open { color: var(--teal); }
+.cal-avail.full { color: var(--on-dark-soft); }
+
+/* time slots */
+.time-slots { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.time-slot-btn { padding: 8px 16px; border-radius: 100px; border: 1px solid rgba(46,196,182,0.3); background: rgba(46,196,182,0.06); color: var(--teal-light); font-size: 13px; cursor: pointer; transition: background 0.15s, border-color 0.15s; white-space: nowrap; }
+.time-slot-btn:hover { background: rgba(46,196,182,0.15); }
+.time-slot-btn.selected { background: var(--teal); color: var(--ocean-deep); border-color: var(--teal); font-weight: 600; }
+.time-slot-btn.full { border-color: var(--hairline); color: var(--on-dark-soft); background: transparent; cursor: not-allowed; text-decoration: line-through; }
+
+/* legend */
+.cal-legend { display: flex; gap: 14px; margin-top: 12px; }
+.cal-legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--on-dark-soft); }
+.cal-legend-mark { font-size: 11px; }
+
+/* participant count */
+.pax-selector { display: flex; align-items: center; gap: 16px; margin-top: 16px; }
+.pax-label { font-size: 13px; color: var(--on-dark-mid); }
+.pax-controls { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+.pax-btn { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--hairline); background: rgba(255,255,255,0.06); color: var(--on-dark); font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.15s; user-select: none; }
+.pax-btn:hover { background: rgba(255,255,255,0.12); }
+.pax-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.pax-count { font-size: 20px; font-weight: 700; color: var(--on-dark); min-width: 24px; text-align: center; }
+
+/* booking form overlay */
+.bform-overlay { position: fixed; inset: 0; z-index: 300; background: rgba(4,22,31,0.8); backdrop-filter: blur(8px); display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+.bform-overlay.open { opacity: 1; pointer-events: all; }
+.bform-sheet { width: 100%; max-width: 640px; background: linear-gradient(180deg, #0d3348 0%, #091f2e 100%); border-top: 1px solid var(--hairline); border-radius: 22px 22px 0 0; padding: 0 0 40px; transform: translateY(100%); transition: transform 0.32s cubic-bezier(0.32,0.72,0,1); max-height: 90dvh; overflow-y: auto; }
+.bform-overlay.open .bform-sheet { transform: translateY(0); }
+.bform-drag { width: 40px; height: 4px; border-radius: 2px; background: rgba(168,236,232,0.25); margin: 12px auto 0; }
+.bform-head { padding: 16px 20px 12px; border-bottom: 1px solid var(--hairline); position: relative; }
+.bform-close { position: absolute; top: 12px; right: 16px; width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.08); border: 1px solid var(--hairline); color: var(--on-dark-mid); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.bform-close .icon { width: 16px; height: 16px; }
+.bform-title { font-size: 15px; font-weight: 600; }
+.bform-summary { font-size: 12px; color: var(--teal-light); margin-top: 4px; }
+.bform-body { padding: 20px 20px 0; }
+.bform-group { margin-bottom: 14px; }
+.bform-label { font-size: 11px; letter-spacing: 0.1em; color: var(--on-dark-soft); margin-bottom: 6px; display: flex; align-items: center; gap: 4px; }
+.bform-label .req { color: var(--warm); font-size: 10px; }
+.bform-input { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid var(--hairline); border-radius: 10px; padding: 12px 14px; font-size: 14px; color: var(--on-dark); outline: none; transition: border-color 0.2s; font-family: inherit; }
+.bform-input::placeholder { color: var(--on-dark-soft); }
+.bform-input:focus { border-color: rgba(46,196,182,0.5); }
+.bform-price-row { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 0; border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); margin-bottom: 16px; }
+.bform-price-label { font-size: 13px; color: var(--on-dark-mid); }
+.bform-price-val { font-size: 22px; font-weight: 700; color: var(--on-dark); }
+.bform-price-note { font-size: 11px; color: var(--on-dark-soft); }
+.bform-submit { width: 100%; padding: 17px; background: var(--teal); border: none; border-radius: 14px; font-size: 16px; font-weight: 700; color: var(--ocean-deep); cursor: pointer; transition: background 0.2s; letter-spacing: 0.04em; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.bform-submit:hover { background: var(--teal-light); }
+.bform-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+.bform-stripe-note { text-align: center; font-size: 11px; color: var(--on-dark-soft); margin-top: 10px; }
+
+/* proceed btn */
+.proceed-btn { width: 100%; padding: 16px; background: var(--teal); border: none; border-radius: 14px; font-size: 15px; font-weight: 700; color: var(--ocean-deep); cursor: pointer; transition: background 0.2s, opacity 0.2s; letter-spacing: 0.04em; margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.proceed-btn:hover { background: var(--teal-light); }
+.proceed-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* bottom nav */
 .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: var(--on-dark-soft); cursor: pointer; background: none; border: none; transition: color 0.2s; }
@@ -209,6 +282,50 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sa
   <div class="modal-body" id="modalBody"></div>
 </div>
 
+<!-- 予約フォーム オーバーレイ -->
+<div class="bform-overlay" id="bformOverlay" onclick="closeBformOnBg(event)">
+  <div class="bform-sheet" id="bformSheet">
+    <div class="bform-drag"></div>
+    <div class="bform-head">
+      <p class="bform-title">予約情報を入力</p>
+      <p class="bform-summary" id="bformSummary"></p>
+      <button class="bform-close" onclick="closeBookingForm()">
+        <svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="bform-body">
+      <div class="bform-group">
+        <label class="bform-label">お名前 <span class="req">*</span></label>
+        <input class="bform-input" type="text" id="bf-name" placeholder="山田 太郎" required>
+      </div>
+      <div class="bform-group">
+        <label class="bform-label">メールアドレス <span class="req">*</span></label>
+        <input class="bform-input" type="email" id="bf-email" placeholder="your@email.com" required>
+      </div>
+      <div class="bform-group">
+        <label class="bform-label">電話番号（任意）</label>
+        <input class="bform-input" type="tel" id="bf-phone" placeholder="090-1234-5678">
+      </div>
+      <div class="bform-group">
+        <label class="bform-label">備考（任意）</label>
+        <input class="bform-input" type="text" id="bf-notes" placeholder="アレルギー・その他ご要望など">
+      </div>
+      <div class="bform-price-row">
+        <div>
+          <p class="bform-price-label" id="bformPriceLabel">合計金額</p>
+          <p class="bform-price-note">税込・手数料込み</p>
+        </div>
+        <p class="bform-price-val" id="bformPriceVal">—</p>
+      </div>
+      <button class="bform-submit" id="bformSubmit" onclick="proceedToCheckout()">
+        <svg style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        クレジットカードで支払う
+      </button>
+      <p class="bform-stripe-note">🔒 決済は Stripe により安全に処理されます</p>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../js/supabase-config.js"></script>
 <script>
@@ -243,7 +360,10 @@ async function initPage() {
 
     window._pageInstructor = instructor;
     window._pageListingsCount = listings.length;
+    window._activeListing = activeListing || null;
     renderPage(instructor, activeListing, otherListings, reviews);
+    // カレンダー初期化（DOMレンダリング後）
+    setTimeout(() => initCalendar(activeListing?.id || null), 0);
   } catch (err) {
     console.error(err);
     document.getElementById('pageContent').innerHTML = '<div class="main" style="padding-top:40px;text-align:center;color:var(--on-dark-soft)">読み込みに失敗しました。<br><a href="index.html" style="color:var(--teal)">一覧に戻る</a></div>';
@@ -427,15 +547,48 @@ function renderPage(inst, listing, otherListings, reviews = []) {
           : `<p style="font-size:13px;color:var(--on-dark-soft)">まだレビューがありません</p>`}
       </div>
 
-      <!-- booking CTA -->
+      <!-- booking calendar -->
       <div class="booking-section" id="bookingSection">
-        <p class="booking-title">🤿 体験を予約する</p>
-        <p class="booking-subtitle">${listing ? listing.title + ' を' : 'このプランを'}オンラインで予約・決済できます。<br>日程・人数を選んでそのまま申し込みが完結します。</p>
-        <button class="booking-btn" onclick="alert('予約機能は準備中です。もうしばらくお待ちください！')">
-          予約・申し込みへ進む
-          <svg style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </button>
-        <p class="booking-coming">※ オンライン予約機能は準備中です</p>
+        <p class="booking-section-title">日程・空き状況</p>
+
+        <!-- calendar -->
+        <div class="cal-header">
+          <button class="cal-nav" id="calPrev" onclick="calShift(-1)">
+            <svg class="icon" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <span class="cal-month-label" id="calMonthLabel"></span>
+          <button class="cal-nav" id="calNext" onclick="calShift(1)">
+            <svg class="icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+        <div class="cal-legend">
+          <div class="cal-legend-item"><span class="cal-legend-mark" style="color:var(--teal)">○</span> 空きあり</div>
+          <div class="cal-legend-item"><span class="cal-legend-mark" style="color:var(--on-dark-soft)">×</span> 満席</div>
+          <div class="cal-legend-item"><span class="cal-legend-mark" style="color:var(--on-dark-soft)">—</span> 設定なし</div>
+        </div>
+
+        <!-- time slots（日付選択後に表示） -->
+        <div id="timeSlotsWrap" style="display:none">
+          <p style="font-size:11px;letter-spacing:0.12em;color:var(--on-dark-soft);margin-top:18px;margin-bottom:6px">開始時間を選択</p>
+          <div class="time-slots" id="timeSlots"></div>
+        </div>
+
+        <!-- participant count（スロット選択後に表示） -->
+        <div id="paxWrap" style="display:none">
+          <div class="pax-selector">
+            <span class="pax-label">参加人数</span>
+            <div class="pax-controls">
+              <button class="pax-btn" id="paxMinus" onclick="changePax(-1)">−</button>
+              <span class="pax-count" id="paxCount">1</span>
+              <button class="pax-btn" id="paxPlus"  onclick="changePax(1)">＋</button>
+            </div>
+          </div>
+          <button class="proceed-btn" onclick="openBookingForm()">
+            予約手続きへ進む
+            <svg style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.2" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
       </div>
 
     </div><!-- /main -->
@@ -524,6 +677,246 @@ function formatDuration(minutes) {
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
   return m > 0 ? `${h}時間${m}分` : `${h}時間`;
+}
+
+/* ══════════════════════════════════════════════
+   予約カレンダー
+══════════════════════════════════════════════ */
+let _calYear, _calMonth;       // 表示中の年月
+let _slotsMap = {};            // { 'YYYY-MM-DD': [slot, ...] }
+let _selectedDate = null;
+let _selectedSlot = null;
+let _paxCount = 1;
+
+async function initCalendar(listingId) {
+  const now = new Date();
+  _calYear  = now.getFullYear();
+  _calMonth = now.getMonth(); // 0-based
+
+  // Supabase から2ヶ月分の空き枠を取得
+  const from = `${_calYear}-${String(_calMonth + 1).padStart(2,'0')}-01`;
+  const toDate = new Date(_calYear, _calMonth + 2, 1);
+  const to = toDate.toISOString().slice(0,10);
+
+  let query = _sb.from('availability_slots')
+    .select('*')
+    .gte('slot_date', from)
+    .lt('slot_date', to)
+    .eq('is_active', true)
+    .order('slot_date')
+    .order('start_time');
+
+  if (listingId) query = query.eq('listing_id', listingId);
+  else query = query.eq('instructor_id', instructorId);
+
+  const { data, error } = await query;
+  if (error) { console.error('slots fetch error', error); }
+
+  _slotsMap = {};
+  (data || []).forEach(s => {
+    (_slotsMap[s.slot_date] = _slotsMap[s.slot_date] || []).push(s);
+  });
+
+  renderCal();
+}
+
+function renderCal() {
+  const DAYS = ['日','月','火','水','木','金','土'];
+  const monthNames = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+
+  document.getElementById('calMonthLabel').textContent =
+    `${_calYear}年 ${monthNames[_calMonth]}`;
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const firstDay = new Date(_calYear, _calMonth, 1).getDay();
+  const daysInMonth = new Date(_calYear, _calMonth + 1, 0).getDate();
+
+  let html = DAYS.map((d,i) =>
+    `<div class="cal-dow${i===0?' sun':i===6?' sat':''}">${d}</div>`).join('');
+
+  // 空白セル
+  for (let i = 0; i < firstDay; i++) html += `<div class="cal-cell"></div>`;
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date = new Date(_calYear, _calMonth, d);
+    const dateStr = date.toISOString().slice(0,10);
+    const dow = date.getDay();
+    const isPast = date < today;
+    const isToday = date.getTime() === today.getTime();
+    const slots = _slotsMap[dateStr] || [];
+    const available = slots.filter(s => s.booked_count < s.max_participants);
+    const hasSlot = slots.length > 0;
+    const isFull  = hasSlot && available.length === 0;
+    const isSelected = dateStr === _selectedDate;
+
+    const dowClass = dow === 0 ? ' sun-col' : dow === 6 ? ' sat-col' : '';
+    const stateClass = isPast ? ' past' : hasSlot ? ' has-slot' : '';
+    const todayCls = isToday ? ' today' : '';
+    const selCls   = isSelected ? ' selected' : '';
+    const onclick  = (!isPast && hasSlot) ? `onclick="selectDate('${dateStr}')"` : '';
+
+    const availMark = !hasSlot ? '' : isFull
+      ? `<span class="cal-avail full">×</span>`
+      : `<span class="cal-avail open">○</span>`;
+
+    html += `<div class="cal-cell${stateClass}${dowClass}${todayCls}${selCls}" ${onclick}>
+      <span class="cal-day">${d}</span>${availMark}
+    </div>`;
+  }
+
+  document.getElementById('calGrid').innerHTML = html;
+
+  // 月移動ボタンの制御（過去月には戻れない）
+  const now = new Date();
+  document.getElementById('calPrev').disabled =
+    (_calYear === now.getFullYear() && _calMonth <= now.getMonth());
+}
+
+function calShift(delta) {
+  _calMonth += delta;
+  if (_calMonth < 0)  { _calMonth = 11; _calYear--; }
+  if (_calMonth > 11) { _calMonth = 0;  _calYear++; }
+  _selectedDate = null;
+  _selectedSlot = null;
+  document.getElementById('timeSlotsWrap').style.display = 'none';
+  document.getElementById('paxWrap').style.display = 'none';
+  renderCal();
+
+  // 新しい月のスロットを追加取得
+  fetchMonthSlots(_calYear, _calMonth);
+}
+
+async function fetchMonthSlots(year, month) {
+  const from = `${year}-${String(month + 1).padStart(2,'0')}-01`;
+  const to = new Date(year, month + 1, 1).toISOString().slice(0,10);
+
+  const lid = window._activeListing?.id;
+  let query = _sb.from('availability_slots')
+    .select('*').gte('slot_date', from).lt('slot_date', to)
+    .eq('is_active', true).order('slot_date').order('start_time');
+  if (lid) query = query.eq('listing_id', lid);
+  else query = query.eq('instructor_id', instructorId);
+
+  const { data } = await query;
+  (data || []).forEach(s => {
+    (_slotsMap[s.slot_date] = _slotsMap[s.slot_date] || []).push(s);
+  });
+  renderCal();
+}
+
+function selectDate(dateStr) {
+  _selectedDate = dateStr;
+  _selectedSlot = null;
+  _paxCount = 1;
+  document.getElementById('paxWrap').style.display = 'none';
+  renderCal();
+  renderTimeSlots(dateStr);
+}
+
+function renderTimeSlots(dateStr) {
+  const slots = _slotsMap[dateStr] || [];
+  const wrap = document.getElementById('timeSlotsWrap');
+  const container = document.getElementById('timeSlots');
+
+  if (!slots.length) { wrap.style.display = 'none'; return; }
+
+  container.innerHTML = slots.map(s => {
+    const isFull = s.booked_count >= s.max_participants;
+    const remaining = s.max_participants - s.booked_count;
+    const label = `${s.start_time.slice(0,5)}〜${s.end_time.slice(0,5)}`;
+    const subLabel = isFull ? '満席' : `残${remaining}名`;
+    const cls = isFull ? 'full' : (_selectedSlot?.id === s.id ? 'selected' : '');
+    return `<button class="time-slot-btn ${cls}" ${isFull ? 'disabled' : ''} onclick="selectSlot('${s.id}')">
+      ${label}<br><span style="font-size:10px;opacity:0.7">${subLabel}</span>
+    </button>`;
+  }).join('');
+
+  wrap.style.display = 'block';
+}
+
+function selectSlot(slotId) {
+  const dateStr = _selectedDate;
+  _selectedSlot = (_slotsMap[dateStr] || []).find(s => s.id === slotId);
+  if (!_selectedSlot) return;
+  _paxCount = 1;
+  document.getElementById('paxCount').textContent = _paxCount;
+  document.getElementById('paxMinus').disabled = true;
+  document.getElementById('paxPlus').disabled = (_selectedSlot.max_participants - _selectedSlot.booked_count) <= 1;
+  document.getElementById('paxWrap').style.display = 'block';
+  renderTimeSlots(dateStr); // re-render to show selected state
+}
+
+function changePax(delta) {
+  if (!_selectedSlot) return;
+  const max = _selectedSlot.max_participants - _selectedSlot.booked_count;
+  _paxCount = Math.max(1, Math.min(max, _paxCount + delta));
+  document.getElementById('paxCount').textContent = _paxCount;
+  document.getElementById('paxMinus').disabled = _paxCount <= 1;
+  document.getElementById('paxPlus').disabled  = _paxCount >= max;
+}
+
+/* ── 予約フォーム ── */
+function openBookingForm() {
+  if (!_selectedSlot) return;
+  const listing = window._activeListing;
+  const price = listing?.price || 0;
+  const total = price * _paxCount;
+  const d = new Date(_selectedDate + 'T00:00:00');
+  const dateLabel = `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+  const timeLabel = `${_selectedSlot.start_time.slice(0,5)}〜${_selectedSlot.end_time.slice(0,5)}`;
+
+  document.getElementById('bformSummary').textContent =
+    `${dateLabel} ${timeLabel} ／ ${_paxCount}名`;
+  document.getElementById('bformPriceLabel').textContent =
+    `¥${price.toLocaleString()} × ${_paxCount}名`;
+  document.getElementById('bformPriceVal').textContent =
+    total > 0 ? `¥${total.toLocaleString()}` : '要相談';
+
+  document.getElementById('bformOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeBookingForm() {
+  document.getElementById('bformOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function closeBformOnBg(e) {
+  if (e.target === document.getElementById('bformOverlay')) closeBookingForm();
+}
+
+async function proceedToCheckout() {
+  const name  = document.getElementById('bf-name').value.trim();
+  const email = document.getElementById('bf-email').value.trim();
+  if (!name || !email) { alert('お名前とメールアドレスを入力してください。'); return; }
+
+  const btn = document.getElementById('bformSubmit');
+  btn.disabled = true;
+  btn.textContent = '処理中...';
+
+  try {
+    const res = await fetch('/api/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        slotId:           _selectedSlot.id,
+        listingId:        window._activeListing?.id || null,
+        instructorId:     instructorId,
+        guestName:        name,
+        guestEmail:       email,
+        guestPhone:       document.getElementById('bf-phone').value.trim() || null,
+        notes:            document.getElementById('bf-notes').value.trim() || null,
+        participantCount: _paxCount,
+      }),
+    });
+    const { url, error } = await res.json();
+    if (error) throw new Error(error);
+    window.location.href = url; // Stripe Checkout へリダイレクト
+  } catch (err) {
+    console.error(err);
+    alert('エラーが発生しました。もう一度お試しください。');
+    btn.disabled = false;
+    btn.innerHTML = '<svg style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> クレジットカードで支払う';
+  }
 }
 </script>
 </body>

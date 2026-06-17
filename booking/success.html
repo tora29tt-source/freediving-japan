@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>予約完了 — Freediving Japan</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ocean-deep: #0b2d45; --ocean-mid: #0e3d5c; --abyss: #04161f;
+  --teal: #2ec4b6; --teal-light: #a8ece8; --warm: #f97316;
+  --on-dark: rgba(255,255,255,0.92); --on-dark-mid: rgba(255,255,255,0.62);
+  --on-dark-soft: rgba(255,255,255,0.38); --hairline: rgba(168,236,232,0.14);
+}
+html { background: var(--abyss); }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  background: linear-gradient(180deg, var(--ocean-mid) 0%, var(--ocean-deep) 30%, var(--abyss) 100%);
+  background-attachment: fixed; color: var(--on-dark); min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 40px 20px; -webkit-font-smoothing: antialiased; }
+.card { background: rgba(255,255,255,0.04); border: 1px solid var(--hairline);
+  border-radius: 24px; padding: 40px 28px; max-width: 480px; width: 100%; text-align: center; }
+.icon-wrap { width: 72px; height: 72px; border-radius: 50%; background: rgba(46,196,182,0.15);
+  border: 2px solid rgba(46,196,182,0.4); display: flex; align-items: center;
+  justify-content: center; margin: 0 auto 24px; }
+.check-icon { width: 36px; height: 36px; stroke: var(--teal); fill: none; stroke-width: 2.5; }
+h1 { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
+.sub { font-size: 14px; color: var(--on-dark-mid); line-height: 1.8; margin-bottom: 32px; }
+.detail-box { background: rgba(46,196,182,0.07); border: 1px solid rgba(46,196,182,0.2);
+  border-radius: 14px; padding: 18px 20px; margin-bottom: 28px; text-align: left; }
+.detail-row { display: flex; justify-content: space-between; align-items: baseline;
+  padding: 7px 0; border-bottom: 1px solid var(--hairline); font-size: 13px; gap: 12px; }
+.detail-row:last-child { border-bottom: none; }
+.detail-key { color: var(--on-dark-soft); white-space: nowrap; }
+.detail-val { color: var(--on-dark); font-weight: 500; text-align: right; }
+.email-note { font-size: 12px; color: var(--on-dark-soft); margin-bottom: 28px; line-height: 1.7; }
+.btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
+  padding: 15px; background: var(--teal); border: none; border-radius: 12px;
+  font-size: 15px; font-weight: 700; color: var(--ocean-deep); text-decoration: none;
+  cursor: pointer; transition: background 0.2s; letter-spacing: 0.03em; }
+.btn:hover { background: var(--teal-light); }
+.btn-ghost { background: transparent; border: 1px solid var(--hairline); color: var(--on-dark-mid);
+  margin-top: 10px; font-weight: 400; }
+.btn-ghost:hover { background: rgba(255,255,255,0.06); }
+.logo { font-size: 14px; font-weight: 600; color: var(--on-dark); letter-spacing: 0.18em;
+  text-transform: uppercase; text-decoration: none; display: block; margin-bottom: 32px; }
+.logo span { color: var(--teal); }
+.spinner { width: 28px; height: 28px; border: 2px solid var(--hairline);
+  border-top-color: var(--teal); border-radius: 50%; animation: spin 0.8s linear infinite;
+  margin: 40px auto; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<a href="../index.html" class="logo">Free<span>Dive</span> Japan</a>
+
+<div class="card" id="card">
+  <div class="spinner" id="spinner"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
+<script>
+const params    = new URLSearchParams(location.search);
+const bookingId = params.get('booking_id');
+
+async function loadBooking() {
+  const card    = document.getElementById('card');
+  const spinner = document.getElementById('spinner');
+
+  if (!bookingId) {
+    renderError(card, '予約情報が見つかりませんでした。');
+    return;
+  }
+
+  // 少し待ってからDB確認（webhook処理の遅延を考慮）
+  await new Promise(r => setTimeout(r, 1500));
+
+  const { data: booking, error } = await _sb
+    .from('bookings')
+    .select(`
+      *,
+      availability_slots ( slot_date, start_time, end_time ),
+      listings ( title )
+    `)
+    .eq('id', bookingId)
+    .single();
+
+  if (error || !booking) {
+    renderError(card, '予約情報の取得に失敗しました。');
+    return;
+  }
+
+  const slot    = booking.availability_slots;
+  const listing = booking.listings;
+  const d       = slot ? new Date(slot.slot_date + 'T00:00:00') : null;
+  const dateStr = d ? `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日` : '—';
+  const timeStr = slot ? `${slot.start_time.slice(0,5)}〜${slot.end_time.slice(0,5)}` : '—';
+
+  card.innerHTML = `
+    <div class="icon-wrap">
+      <svg class="check-icon" viewBox="0 0 24 24">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+        <polyline points="22 4 12 14.01 9 11.01"/>
+      </svg>
+    </div>
+    <h1>予約が完了しました！</h1>
+    <p class="sub">ご予約ありがとうございます。<br>確認メールを <strong>${booking.guest_email}</strong> に送信しました。</p>
+    <div class="detail-box">
+      <div class="detail-row"><span class="detail-key">プラン</span><span class="detail-val">${listing?.title || '—'}</span></div>
+      <div class="detail-row"><span class="detail-key">日時</span><span class="detail-val">${dateStr} ${timeStr}</span></div>
+      <div class="detail-row"><span class="detail-key">参加人数</span><span class="detail-val">${booking.participant_count}名</span></div>
+      <div class="detail-row"><span class="detail-key">合計金額</span><span class="detail-val">¥${booking.total_amount.toLocaleString()}</span></div>
+      <div class="detail-row"><span class="detail-key">予約番号</span><span class="detail-val" style="font-size:11px;font-family:monospace">${booking.id.slice(0,8).toUpperCase()}</span></div>
+    </div>
+    <p class="email-note">インストラクターから詳細のご連絡をお送りします。<br>当日は集合場所にお越しください。</p>
+    <a href="../explore/index.html" class="btn">
+      <svg style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      他のプランを探す
+    </a>
+    <a href="../index.html" class="btn btn-ghost">トップに戻る</a>
+  `;
+}
+
+function renderError(card, msg) {
+  card.innerHTML = `
+    <div style="font-size:40px;margin-bottom:16px">⚠️</div>
+    <h1 style="margin-bottom:12px">エラー</h1>
+    <p class="sub">${msg}</p>
+    <a href="../index.html" class="btn btn-ghost">トップに戻る</a>
+  `;
+}
+
+loadBooking();
+</script>
+</body>
+</html>
