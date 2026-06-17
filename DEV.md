@@ -235,7 +235,7 @@ TOP (index.html)
 |--------|-------------------------------------------|-----|
 |Week 1  |Supabase導入・DB設計・ログイン画面・認証基盤                |✅完了 |
 |Week 2  |トレーニングログ完成・Supabase接続・URLシェア機能             |✅完了（動作確認要）|
-|Week 2後 |/learn/ 枠組みページ（撮影開始前に完成・Stripe導入）          |待機中 |
+|Week 2後 |/learn/ 枠組みページ（撮影開始前に完成・Stripe導入）          |✅完了（learn/index.html 骨格・コース4本・メール登録UI）|
 |Week 3-4|CRM実装（顧客・生徒・予約管理）                          |未着手 |
 |Week 5-6|マイページ完成・ランキング・大会情報のDB接続                    |未着手 |
 |Week 7-8|React Nativeアプリ（タイマー・ログ・SNSシェア）            |未着手 |
@@ -264,7 +264,7 @@ TOP (index.html)
 |STAタイマー（sta-timer.html）                             |✅ 大幅機能追加・デプロイ済み              |
 |Mouthfill Calculator（mouthfill-calculator.html）     |✅ 完成・push済み                  |
 |インストラクターウェルカム（instructor-welcome.html）              |✅ 作成完了                      |
-|フリーダイビングを学ぶ（freediving-learn.html）                 |🔄 管理ツール完成・/learn/枠組みは未着手    |
+|フリーダイビングを学ぶ（freediving-learn.html）                 |✅ 管理ツール完成・learn/index.html 骨格完成  |
 |大会機能（events/event-athlete.html）                      |✅ Supabase接続完了（?id= でイベント取得・AP登録→event_entries INSERT・スタートリスト・リザルト表示）|
 |大会カウントダウン（events/competition-countdown.html）         |✅ 完成（スタンドアロン・Supabase不要）        |
 |認証画面（auth.html）                                     |✅ メール/パスワード・Googleログイン実装済み（Apple は Developer 登録待ち）|
@@ -281,7 +281,7 @@ TOP (index.html)
 |プロダッシュボード（pro/index.html）予約管理タブ                      |✅ 実装済み・テストデータ投入済み（全ステータス確認可）|
 |クライアント管理タブ（pro/index.html）                           |✅ 実装済み（bookingsから自動集約・検索・詳細・メモ保存）※ client_memos テーブル要作成（sql/client_memos.sql）|
 |売り上げ管理タブ（pro/index.html）                              |✅ 実装済み（月次サマリー・棒グラフ・明細一覧・期間フィルタ）|
-|/learn/ 有料講座ページ                                      |❌ 未着手（Week 2後に差し込み）|
+|/learn/ 有料講座ページ                                      |✅ learn/index.html 骨格完成（Stripe/Vimeo接続は撮影後）|
 |メディア（/media/）                                        |❌ 未着手（Phase 2）|
 |iOSアプリ（React Native）                                 |❌ 未着手（Phase 1 Week 7-8）|
 

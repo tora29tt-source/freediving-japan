@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>フリーダイビングを学ぶ — Freediving Japan</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ocean-deep: #0b2d45;
+  --ocean-mid:  #0e3d5c;
+  --abyss:      #04161f;
+  --teal:       #2ec4b6;
+  --teal-light: #a8ece8;
+  --foam:       #f0f9fb;
+  --warm:       #f97316;
+  --on-dark:        rgba(255,255,255,0.92);
+  --on-dark-mid:    rgba(255,255,255,0.62);
+  --on-dark-soft:   rgba(255,255,255,0.40);
+  --hairline:       rgba(168,236,232,0.14);
+  --glass:          rgba(255,255,255,0.045);
+
+  /* course category colors */
+  --c-beginner: #2ec4b6;
+  --c-mid:      #7c9ef8;
+  --c-comp:     #fb7185;
+  --c-inst:     #fbbf24;
+}
+html { background: var(--abyss); }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  background: linear-gradient(180deg,
+    var(--ocean-mid) 0%,
+    var(--ocean-deep) 22%,
+    #06283a 55%,
+    var(--abyss) 100%);
+  background-attachment: fixed;
+  color: var(--on-dark);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+.icon { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; display: block; }
+
+/* ── header ── */
+.header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(6,32,46,0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--hairline);
+  padding: 0 20px; height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo {
+  font-size: 16px; font-weight: 600;
+  color: var(--on-dark); letter-spacing: 0.18em;
+  text-transform: uppercase; text-decoration: none;
+}
+.logo span { color: var(--teal); }
+.header-icons { display: flex; align-items: center; gap: 16px; }
+.icon-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 14px 7px 10px; border-radius: 100px;
+  background: transparent; border: 1px solid var(--hairline);
+  color: var(--on-dark-mid); font-size: 12px; font-weight: 500;
+  letter-spacing: 0.04em; text-decoration: none; cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.icon-btn:hover { border-color: var(--teal); color: var(--on-dark); }
+.icon-btn .icon { width: 16px; height: 16px; }
+
+/* ── hero ── */
+.hero {
+  position: relative; overflow: hidden;
+  text-align: center; padding: 60px 24px 56px;
+}
+.hero-glow {
+  position: absolute; top: -40%; left: 50%;
+  width: 130%; height: 90%; transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, rgba(168,236,232,0.18) 0%, rgba(168,236,232,0.05) 35%, transparent 65%);
+  pointer-events: none;
+}
+.hero-inner { position: relative; z-index: 2; }
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 7px;
+  color: var(--teal-light); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.22em; text-transform: uppercase; margin-bottom: 18px;
+}
+.hero-tag .icon { width: 14px; height: 14px; }
+.hero-title {
+  font-size: clamp(26px, 5vw, 38px); font-weight: 700;
+  line-height: 1.2; letter-spacing: -0.01em; margin-bottom: 14px;
+}
+.hero-title em { font-style: normal; color: var(--teal); }
+.hero-sub {
+  font-size: 14px; color: var(--on-dark-mid); max-width: 480px;
+  margin: 0 auto 28px; line-height: 1.7;
+}
+.notify-form {
+  display: flex; gap: 8px; justify-content: center;
+  flex-wrap: wrap; max-width: 420px; margin: 0 auto;
+}
+.notify-form input {
+  flex: 1; min-width: 200px; padding: 11px 16px;
+  background: rgba(255,255,255,0.07); border: 1px solid var(--hairline);
+  border-radius: 8px; color: var(--on-dark); font-size: 14px;
+  outline: none;
+}
+.notify-form input::placeholder { color: var(--on-dark-soft); }
+.notify-form input:focus { border-color: var(--teal); }
+.notify-form button {
+  padding: 11px 20px; border-radius: 8px;
+  background: var(--teal); color: #04161f;
+  font-size: 13px; font-weight: 700; border: none; cursor: pointer;
+  letter-spacing: 0.04em; transition: opacity 0.2s;
+}
+.notify-form button:hover { opacity: 0.85; }
+.notify-sent {
+  display: none; color: var(--teal); font-size: 13px;
+  margin-top: 10px; font-weight: 500;
+}
+
+/* ── main ── */
+.container { max-width: 900px; margin: 0 auto; padding: 0 20px 80px; }
+
+/* ── category tabs ── */
+.cat-tabs {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 28px; padding-top: 8px;
+}
+.cat-tab {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 16px; border-radius: 100px;
+  border: 1px solid var(--hairline);
+  background: var(--glass);
+  color: var(--on-dark-mid); font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all 0.18s; white-space: nowrap;
+}
+.cat-tab:hover { border-color: var(--teal); color: var(--on-dark); }
+.cat-tab.active { background: rgba(46,196,182,0.15); border-color: var(--teal); color: var(--teal); }
+.cat-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── section heading ── */
+.section-heading {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px; margin-top: 36px;
+}
+.section-heading:first-child { margin-top: 0; }
+.sh-line { flex: 1; height: 1px; background: var(--hairline); }
+.sh-label {
+  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--on-dark-soft); font-weight: 500; white-space: nowrap;
+}
+
+/* ── course grid ── */
+.course-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+/* ── course card ── */
+.course-card {
+  position: relative;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--hairline);
+  border-radius: 14px; overflow: hidden;
+  display: flex; flex-direction: column;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.course-card:hover { border-color: rgba(255,255,255,0.18); transform: translateY(-2px); }
+.course-card.locked { opacity: 0.7; }
+
+.course-thumb {
+  width: 100%; aspect-ratio: 16/9;
+  background: linear-gradient(135deg, rgba(14,61,92,0.8), rgba(4,22,31,0.9));
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+  flex-shrink: 0;
+}
+.course-thumb svg { width: 40px; height: 40px; opacity: 0.35; }
+.course-thumb-accent {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, transparent 40%, rgba(46,196,182,0.06));
+}
+.course-cat-stripe {
+  position: absolute; top: 0; left: 0;
+  width: 3px; height: 100%;
+}
+.coming-pill {
+  position: absolute; top: 10px; right: 10px;
+  padding: 3px 10px; border-radius: 100px;
+  background: rgba(4,22,31,0.8); border: 1px solid var(--hairline);
+  font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+  color: var(--on-dark-soft); text-transform: uppercase;
+}
+.play-circle {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: rgba(46,196,182,0.15); border: 1px solid rgba(46,196,182,0.3);
+  display: flex; align-items: center; justify-content: center;
+}
+.play-circle svg { width: 20px; height: 20px; color: var(--teal); margin-left: 2px; }
+
+.course-body { padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.course-cat-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.course-title { font-size: 15px; font-weight: 700; line-height: 1.35; }
+.course-author {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--on-dark-mid);
+}
+.author-avatar {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: rgba(46,196,182,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700; color: var(--teal); flex-shrink: 0;
+}
+.course-meta {
+  display: flex; gap: 12px;
+  font-size: 11px; color: var(--on-dark-soft);
+}
+.course-meta-item { display: flex; align-items: center; gap: 4px; }
+.course-meta-item svg { width: 12px; height: 12px; }
+
+.course-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--hairline);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.course-price { font-size: 18px; font-weight: 700; color: var(--on-dark); }
+.course-price small { font-size: 11px; color: var(--on-dark-soft); font-weight: 400; margin-left: 2px; }
+.btn-buy {
+  padding: 8px 18px; border-radius: 8px;
+  background: var(--teal); color: #04161f;
+  font-size: 12px; font-weight: 700; border: none; cursor: pointer;
+  letter-spacing: 0.04em; transition: opacity 0.2s;
+}
+.btn-buy:hover { opacity: 0.85; }
+.btn-buy:disabled, .btn-buy.soon {
+  background: rgba(255,255,255,0.08); color: var(--on-dark-soft);
+  cursor: default; opacity: 1;
+}
+
+/* ── free preview card ── */
+.course-card.free .btn-buy { background: rgba(46,196,182,0.2); color: var(--teal); }
+.course-card.free .btn-buy:hover { background: rgba(46,196,182,0.3); }
+
+/* ── level badge ── */
+.level-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 100px;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.06em;
+}
+.level-beginner { background: rgba(46,196,182,0.15); color: var(--c-beginner); }
+.level-mid      { background: rgba(124,158,248,0.15); color: var(--c-mid); }
+.level-comp     { background: rgba(251,113,133,0.15); color: var(--c-comp); }
+.level-inst     { background: rgba(251,191,36,0.15);  color: var(--c-inst); }
+
+/* ── waitlist banner ── */
+.waitlist-banner {
+  margin: 32px 0 8px;
+  padding: 20px 24px;
+  border-radius: 14px;
+  background: rgba(46,196,182,0.07);
+  border: 1px solid rgba(46,196,182,0.2);
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+.wb-icon { width: 40px; height: 40px; flex-shrink: 0; color: var(--teal); }
+.wb-text h3 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.wb-text p  { font-size: 13px; color: var(--on-dark-mid); line-height: 1.5; }
+.wb-form { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.wb-form input {
+  flex: 1; min-width: 180px; padding: 9px 14px;
+  background: rgba(255,255,255,0.06); border: 1px solid var(--hairline);
+  border-radius: 8px; color: var(--on-dark); font-size: 13px; outline: none;
+}
+.wb-form input:focus { border-color: var(--teal); }
+.wb-form button {
+  padding: 9px 18px; border-radius: 8px;
+  background: rgba(46,196,182,0.2); color: var(--teal);
+  font-size: 13px; font-weight: 700; border: 1px solid rgba(46,196,182,0.3);
+  cursor: pointer; transition: background 0.2s;
+}
+.wb-form button:hover { background: rgba(46,196,182,0.3); }
+
+/* ── faq ── */
+.faq { margin-top: 48px; }
+.faq-title { font-size: 17px; font-weight: 700; margin-bottom: 16px; }
+.faq-item {
+  border-bottom: 1px solid var(--hairline);
+}
+.faq-q {
+  width: 100%; text-align: left; padding: 16px 0;
+  background: none; border: none; color: var(--on-dark);
+  font-size: 14px; font-weight: 500; cursor: pointer;
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+}
+.faq-q svg { width: 16px; height: 16px; flex-shrink: 0; color: var(--teal); transition: transform 0.2s; }
+.faq-item.open .faq-q svg { transform: rotate(45deg); }
+.faq-a { display: none; padding-bottom: 16px; font-size: 13px; color: var(--on-dark-mid); line-height: 1.75; }
+.faq-item.open .faq-a { display: block; }
+
+/* ── footer ── */
+.learn-footer {
+  text-align: center; padding: 32px 20px;
+  border-top: 1px solid var(--hairline); margin-top: 60px;
+  font-size: 12px; color: var(--on-dark-soft);
+}
+.learn-footer a { color: var(--teal-light); text-decoration: none; }
+
+/* ── responsive ── */
+@media (max-width: 480px) {
+  .course-grid { grid-template-columns: 1fr; }
+  .hero { padding: 44px 16px 40px; }
+  .notify-form { flex-direction: column; align-items: stretch; }
+}
+
+/* ── modal overlay ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(4,22,31,0.85); backdrop-filter: blur(6px);
+  align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: #0d2135; border: 1px solid var(--hairline);
+  border-radius: 16px; padding: 28px; max-width: 400px; width: 100%;
+  position: relative;
+}
+.modal-close {
+  position: absolute; top: 14px; right: 14px;
+  background: none; border: none; color: var(--on-dark-soft);
+  cursor: pointer; padding: 4px;
+}
+.modal-close:hover { color: var(--on-dark); }
+.modal h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+.modal p  { font-size: 13px; color: var(--on-dark-mid); line-height: 1.65; margin-bottom: 16px; }
+.modal input {
+  width: 100%; padding: 11px 14px; border-radius: 8px;
+  background: rgba(255,255,255,0.06); border: 1px solid var(--hairline);
+  color: var(--on-dark); font-size: 14px; outline: none; margin-bottom: 12px;
+}
+.modal input:focus { border-color: var(--teal); }
+.modal button.primary {
+  width: 100%; padding: 12px; border-radius: 8px;
+  background: var(--teal); color: #04161f;
+  font-size: 14px; font-weight: 700; border: none; cursor: pointer;
+}
+.modal button.primary:hover { opacity: 0.88; }
+.modal-success { display: none; text-align: center; padding: 12px 0; }
+.modal-success svg { width: 44px; height: 44px; color: var(--teal); margin: 0 auto 10px; }
+.modal-success p { color: var(--teal); font-weight: 600; font-size: 15px; margin-bottom: 0; }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <a href="../index.html" class="logo">Freediving<span>Japan</span></a>
+  <div class="header-icons">
+    <a href="../mypage.html" class="icon-btn">
+      <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      マイページ
+    </a>
+  </div>
+</header>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div class="hero-tag">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h7v16H6a2 2 0 0 0-2 2z"/><path d="M20 5a2 2 0 0 0-2-2h-5v16h5a2 2 0 0 1 2 2z"/></svg>
+      フリーダイビングを学ぶ
+    </div>
+    <h1 class="hero-title">
+      海に潜る<em>技術と知識</em>を、<br>本物の選手から学ぶ。
+    </h1>
+    <p class="hero-sub">
+      耳抜きの基礎から競技向けトレーニングまで。<br>
+      動画教材はまもなく公開予定。メールを登録しておくと最速でお知らせします。
+    </p>
+    <div class="notify-form" id="heroForm">
+      <input type="email" id="heroEmail" placeholder="メールアドレスを入力">
+      <button onclick="handleHeroNotify()">先行通知を受け取る</button>
+    </div>
+    <div class="notify-sent" id="heroSent">✓ 登録しました。公開時にお知らせします！</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Category tabs -->
+  <div class="cat-tabs">
+    <button class="cat-tab active" data-cat="all" onclick="filterCat(this)">すべて</button>
+    <button class="cat-tab" data-cat="beginner" onclick="filterCat(this)">
+      <span class="cat-dot" style="background:var(--c-beginner)"></span>初心者
+    </button>
+    <button class="cat-tab" data-cat="mid" onclick="filterCat(this)">
+      <span class="cat-dot" style="background:var(--c-mid)"></span>中級
+    </button>
+    <button class="cat-tab" data-cat="comp" onclick="filterCat(this)">
+      <span class="cat-dot" style="background:var(--c-comp)"></span>競技
+    </button>
+    <button class="cat-tab" data-cat="inst" onclick="filterCat(this)">
+      <span class="cat-dot" style="background:var(--c-inst)"></span>インストラクター
+    </button>
+  </div>
+
+  <!-- Courses grid -->
+  <div class="course-grid" id="courseGrid">
+
+    <!-- 耳抜き入門 -->
+    <div class="course-card locked" data-cat="beginner">
+      <div class="course-thumb">
+        <div class="course-thumb-accent"></div>
+        <div class="course-cat-stripe" style="background:var(--c-beginner)"></div>
+        <div class="play-circle">
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </div>
+        <span class="coming-pill">COMING SOON</span>
+      </div>
+      <div class="course-body">
+        <div>
+          <span class="course-cat-badge" style="color:var(--c-beginner)">
+            <span class="cat-dot" style="background:var(--c-beginner)"></span>初心者
+          </span>
+          <span class="level-badge level-beginner" style="margin-left:6px">入門</span>
+        </div>
+        <div class="course-title">耳抜き入門・基礎完全講座</div>
+        <div class="course-author">
+          <div class="author-avatar">こ</div>
+          <span>こうようさん（AIDA インストラクター）</span>
+        </div>
+        <div class="course-meta">
+          <span class="course-meta-item">
+            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><path d="M12 2a9 9 0 1 0 0 18A9 9 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg>
+            全8レッスン
+          </span>
+          <span class="course-meta-item">
+            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><path d="M3 9l9-4 9 4-9 4-9-4z"/><path d="M7 11v5c0 1 2.5 2.5 5 2.5s5-1.5 5-2.5v-5"/></svg>
+            初心者〜水深20m
+          </span>
+        </div>
+      </div>
+      <div class="course-footer">
+        <div class="course-price">¥5,000<small>（税込）</small></div>
+        <button class="btn-buy soon" onclick="openNotifyModal('耳抜き入門・基礎完全講座')">通知を受け取る</button>
+      </div>
+    </div>
+
+    <!-- 息止め入門 -->
+    <div class="course-card locked" data-cat="beginner">
+      <div class="course-thumb">
+        <div class="course-thumb-accent"></div>
+        <div class="course-cat-stripe" style="background:var(--c-beginner)"></div>
+        <div class="play-circle">
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </div>
+        <span class="coming-pill">COMING SOON</span>
+      </div>
+      <div class="course-body">
+        <div>
+          <span class="course-cat-badge" style="color:var(--c-beginner)">
+            <span class="cat-dot" style="background:var(--c-beginner)"></span>初心者
+          </span>
+          <span class="level-badge level-beginner" style="margin-left:6px">入門</span>
+        </div>
+        <div class="course-title">息止め入門講座</div>
+        <div class="course-author">
+          <div class="author-avatar">T</div>
+          <span>寺嶋 拓也（日本フリーダイビング選手）</span>
+        </div>
+        <div class="course-meta">
+          <span class="course-meta-item">
+            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><path d="M12 2a9 9 0 1 0 0 18A9 9 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg>
+            全6レッスン
+          </span>
+          <span class="course-meta-item">
+            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><path d="M12 2a9 9 0 1 0 0 18A9 9 0 0 0 12 2z"/><circle cx="12" cy="12" r="3"/></svg>
+            初心者・魚突き・スキン層
+          </span>
+        </div>
+      </div>
+      <div class="course-footer">
+        <div class="course-price">¥5,000<small>（税込）</small></div>
+        <button class="btn-buy soon" onclick="openNotifyModal('息止め入門講座')">通知を受け取る</button>
+      </div>
+    </div>
+
+    <!-- 息止め中級 -->
+    <div class="course-card locked" data-cat="mid">
+      <div class="course-thumb">
+        <div class="course-thumb-accent"></div>
+        <div class="course-cat-stripe" style="background:var(--c-mid)"></div>
+        <div class="play-circle" style="background:rgba(124,158,248,0.15); border-color:rgba(124,158,248,0.3)">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="color:var(--c-mid)"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </div>
+        <span class="coming-pill">COMING SOON</span>
+      </div>
+      <div class="course-body">
+        <div>
+          <span class="course-cat-badge" style="color:var(--c-mid)">
+            <span class="cat-dot" style="background:var(--c-mid)"></span>中級
+          </span>
+          <span class="level-badge level-mid" style="margin-left:6px">中級</span>
+        </div>
+        <div class="course-title">息止め中級講座</div>
+        <div class="course-author">
+          <div class="author-avatar" style="background:rgba(124,158,248,0.2);color:var(--c-mid)">T</div>
+          <span>寺嶋 拓也（日本フリーダイビング選手）</span>
+        </div>
+        <div class="course-meta">
+          <span class="course-meta-item">
+            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><path d="M12 2a9 9 0 1 0 0 18A9 9 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg>
+            全8レッスン
+          </span>
+          <span class="course-meta-item">
+            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><path d="M3 17l6-6 4 4 8-8"/></svg>
+            2〜3分できる・ファンダイバー
+          </span>
+        </div>
+      </div>
+      <div class="course-footer">
+        <div class="course-price">¥8,000<small>（税込）</small></div>
+        <button class="btn-buy soon" onclick="openNotifyModal('息止め中級講座')">通知を受け取る</button>
+      </div>
+    </div>
+
+    <!-- STA競技者向け -->
+    <div class="course-card locked" data-cat="comp">
+      <div class="course-thumb">
+        <div class="course-thumb-accent"></div>
+        <div class="course-cat-stripe" style="background:var(--c-comp)"></div>
+        <div class="play-circle" style="background:rgba(251,113,133,0.15); border-color:rgba(251,113,133,0.3)">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="color:var(--c-comp)"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </div>
+        <span class="coming-pill">COMING SOON</span>
+      </div>
+      <div class="course-body">
+        <div>
+          <span class="course-cat-badge" style="color:var(--c-comp)">
+            <span class="cat-dot" style="background:var(--c-comp)"></span>競技
+          </span>
+          <span class="level-badge level-comp" style="margin-left:6px">上級</span>
+        </div>
+        <div class="course-title">STA競技者向け講座</div>
+        <div class="course-author">
+          <div class="author-avatar" style="background:rgba(251,113,133,0.15);color:var(--c-comp)">T</div>
+          <span>寺嶋 拓也（日本フリーダイビング選手）</span>
+        </div>
+        <div class="course-meta">
+          <span class="course-meta-item">
+            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><path d="M12 2a9 9 0 1 0 0 18A9 9 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg>
+            全10レッスン
+          </span>
+          <span class="course-meta-item">
+            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><circle cx="12" cy="8" r="5"/><path d="M8.5 12.5L7 21l5-3 5 3-1.5-8.5"/></svg>
+            既存フリーダイバー・競技者
+          </span>
+        </div>
+      </div>
+      <div class="course-footer">
+        <div class="course-price">¥12,000<small>（税込）</small></div>
+        <button class="btn-buy soon" onclick="openNotifyModal('STA競技者向け講座')">通知を受け取る</button>
+      </div>
+    </div>
+
+  </div><!-- /course-grid -->
+
+  <!-- Waitlist banner -->
+  <div class="waitlist-banner">
+    <svg class="wb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+    </svg>
+    <div style="flex:1">
+      <div class="wb-text">
+        <h3>コース公開通知を受け取る</h3>
+        <p>撮影・編集が完了したコースから順次公開していきます。メールアドレスを登録しておくと最速でお知らせします。</p>
+      </div>
+      <div class="wb-form">
+        <input type="email" id="wbEmail" placeholder="メールアドレス">
+        <button onclick="handleWaitlist()">登録する</button>
+      </div>
+      <div id="wbSent" style="display:none;font-size:13px;color:var(--teal);margin-top:10px;font-weight:500">✓ 登録しました！</div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="faq">
+    <div class="faq-title">よくある質問</div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        どんな人が対象ですか？
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <div class="faq-a">フリーダイビング未経験の完全初心者から、競技大会を目指す選手まで幅広く対象にしています。各コースに「対象レベル」が明記されているので、自分に合ったものを選んでください。</div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        購入後、いつでも視聴できますか？
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <div class="faq-a">購入後は期限なしで何度でも視聴できます。スマートフォン・タブレット・PCに対応しています。</div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        体験ダイビングや資格取得とどう違いますか？
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <div class="faq-a">動画教材は自分のペースで繰り返し学べる「予習・復習ツール」です。実際の海での練習や資格取得は、<a href="../explore/index.html">体験・コース検索</a>からインストラクターを探してください。</div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        返金は可能ですか？
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <div class="faq-a">購入から7日以内、かつ動画を50%以上視聴していない場合に限り返金対応します。詳細は購入後のメールをご確認ください。</div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        いつ公開されますか？
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <div class="faq-a">現在撮影・編集中です。公開日は未定ですが、メールアドレスを登録いただくと第一報をお届けします。</div>
+    </div>
+
+  </div>
+
+</div><!-- /container -->
+
+<footer class="learn-footer">
+  <a href="../index.html">← Freediving Japan トップへ</a>
+  &nbsp;·&nbsp;
+  <a href="../explore/index.html">体験・コースを探す</a>
+  &nbsp;·&nbsp;
+  <a href="../articles/index.html">記事・コラム</a>
+</footer>
+
+<!-- Notify Modal -->
+<div class="modal-overlay" id="notifyModal" onclick="closeNotifyModal(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeNotifyModal()">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <div id="modalForm">
+      <h3 id="modalTitle">コース公開通知</h3>
+      <p id="modalDesc">このコースが公開されたとき、メールでお知らせします。</p>
+      <input type="email" id="modalEmail" placeholder="メールアドレス">
+      <button class="primary" onclick="submitNotifyModal()">通知を受け取る</button>
+    </div>
+    <div class="modal-success" id="modalSuccess">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12l2 2 4-4M12 3a9 9 0 1 0 0 18A9 9 0 0 0 12 3z"/></svg>
+      <p>登録完了しました！</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── category filter ──────────────────────────────────────
+function filterCat(el) {
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  var cat = el.dataset.cat;
+  document.querySelectorAll('.course-card').forEach(card => {
+    card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
+  });
+}
+
+// ── FAQ toggle ───────────────────────────────────────────
+function toggleFaq(btn) {
+  btn.closest('.faq-item').classList.toggle('open');
+}
+
+// ── mock waitlist (Supabase接続はStripe/Vimeo連携時に実装) ──
+function handleHeroNotify() {
+  var email = document.getElementById('heroEmail').value.trim();
+  if (!email) return;
+  document.getElementById('heroForm').style.display = 'none';
+  document.getElementById('heroSent').style.display = 'block';
+  // TODO: Supabase INSERT to waitlist table
+}
+
+function handleWaitlist() {
+  var email = document.getElementById('wbEmail').value.trim();
+  if (!email) return;
+  document.getElementById('wbEmail').disabled = true;
+  document.querySelector('.wb-form button').disabled = true;
+  document.getElementById('wbSent').style.display = 'block';
+  // TODO: Supabase INSERT to waitlist table
+}
+
+// ── notify modal ─────────────────────────────────────────
+var _modalCourse = '';
+function openNotifyModal(courseName) {
+  _modalCourse = courseName;
+  document.getElementById('modalTitle').textContent = courseName + ' — 公開通知';
+  document.getElementById('modalDesc').textContent = '「' + courseName + '」が公開されたときにメールでお知らせします。';
+  document.getElementById('modalEmail').value = '';
+  document.getElementById('modalForm').style.display = 'block';
+  document.getElementById('modalSuccess').style.display = 'none';
+  document.getElementById('notifyModal').classList.add('open');
+}
+
+function closeNotifyModal(evt) {
+  if (evt && evt.target !== document.getElementById('notifyModal')) return;
+  document.getElementById('notifyModal').classList.remove('open');
+}
+
+function submitNotifyModal() {
+  var email = document.getElementById('modalEmail').value.trim();
+  if (!email) return;
+  document.getElementById('modalForm').style.display = 'none';
+  document.getElementById('modalSuccess').style.display = 'block';
+  // TODO: Supabase INSERT to waitlist table with { email, course: _modalCourse }
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') document.getElementById('notifyModal').classList.remove('open');
+});
+
+// ── auto-select category from URL param ─────────────────
+(function() {
+  var params = new URLSearchParams(location.search);
+  var cat = params.get('cat');
+  if (cat) {
+    var tab = document.querySelector('.cat-tab[data-cat="' + cat + '"]');
+    if (tab) filterCat(tab);
+  }
+})();
+</script>
+
+</body>
+</html>
