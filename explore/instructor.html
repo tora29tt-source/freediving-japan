@@ -745,7 +745,8 @@ function renderCal() {
 
   for (let d = 1; d <= daysInMonth; d++) {
     const date = new Date(_calYear, _calMonth, d);
-    const dateStr = date.toISOString().slice(0,10);
+    // toISOString() はUTC変換で日本時間だと1日ずれるため手動フォーマット
+    const dateStr = `${_calYear}-${String(_calMonth + 1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const dow = date.getDay();
     const isPast = date < today;
     const isToday = date.getTime() === today.getTime();
