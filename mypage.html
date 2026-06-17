@@ -574,6 +574,21 @@ body {
     </a>
   </div>
 
+  <!-- 管理画面（admin/staff のみ表示） -->
+  <div class="section" id="admin-section" style="display:none;">
+    <div class="sec-head">
+      <div class="sec-title">管理</div>
+    </div>
+    <a class="menu-card wide" href="admin/">
+      <span class="menu-icon">⚙️</span>
+      <div class="menu-body">
+        <div class="menu-title">管理画面</div>
+        <div class="menu-sub">予約・空き枠・ユーザー管理</div>
+      </div>
+      <span class="menu-arrow">›</span>
+    </a>
+  </div>
+
   <!-- 近日のイベント -->
   <div class="section">
     <div class="sec-head">
@@ -940,6 +955,15 @@ async function handleLogout() {
   document.getElementById('heroName').textContent    = name;
   document.getElementById('heroEmail').textContent   = user.email;
   document.getElementById('heroRole').textContent    = role;
+
+  // admin/staff チェック → 管理画面ボタンを表示
+  const { data: roles } = await _sb
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', user.id);
+  if (roles && roles.length > 0) {
+    document.getElementById('admin-section').style.display = '';
+  }
 
   // 認証状態の変化を監視（ログアウト検知）
   _sb.auth.onAuthStateChange((_event, s) => {
