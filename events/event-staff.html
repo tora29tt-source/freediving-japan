@@ -184,15 +184,105 @@ select.fi option{background:var(--surface2);}
 </div>
 
 <div class="tabs">
-  <div class="tab active" id="tab-ap" onclick="switchTab('ap')">AP List</div>
+  <div class="tab active" id="tab-overview"  onclick="switchTab('overview')">概要</div>
+  <div class="tab" id="tab-staff"     onclick="switchTab('staff')">スタッフ</div>
+  <div class="tab" id="tab-schedule"  onclick="switchTab('schedule')">スケジュール</div>
+  <div class="tab" id="tab-ap"        onclick="switchTab('ap')">AP List</div>
   <div class="tab" id="tab-startlist" onclick="switchTab('startlist')">Start List</div>
-  <div class="tab" id="tab-results" onclick="switchTab('results')">Results</div>
-  <div class="tab" id="tab-protests" onclick="switchTab('protests')">Protests</div>
-  <div class="tab" id="tab-sponsors" onclick="switchTab('sponsors')">Sponsors</div>
+  <div class="tab" id="tab-results"   onclick="switchTab('results')">Results</div>
+  <div class="tab" id="tab-protests"  onclick="switchTab('protests')">Protests</div>
+  <div class="tab" id="tab-sponsors"  onclick="switchTab('sponsors')">Sponsors</div>
+</div>
+
+<!-- OVERVIEW -->
+<div class="panel active" id="panel-overview">
+  <div class="content">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">大会概要</span>
+        <button class="btn btn-warn btn-sm" onclick="saveOverview()">保存</button>
+      </div>
+      <div style="padding:16px;display:flex;flex-direction:column;gap:14px;">
+        <div>
+          <div class="fld-label">大会名</div>
+          <input class="fi" id="ov-name" placeholder="大会名">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div>
+            <div class="fld-label">開催日</div>
+            <input class="fi" id="ov-date" type="date">
+          </div>
+          <div>
+            <div class="fld-label">終了日（複数日の場合）</div>
+            <input class="fi" id="ov-date-end" type="date">
+          </div>
+        </div>
+        <div>
+          <div class="fld-label">会場</div>
+          <input class="fi" id="ov-location" placeholder="会場名・住所">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div>
+            <div class="fld-label">種別</div>
+            <select class="fi" id="ov-venue">
+              <option value="sea">Sea（海洋）</option>
+              <option value="pool">Pool（プール）</option>
+            </select>
+          </div>
+          <div>
+            <div class="fld-label">最大深度 (m)（海洋のみ）</div>
+            <input class="fi" id="ov-max-depth" type="number" min="1" placeholder="例: 150">
+          </div>
+        </div>
+        <div>
+          <div class="fld-label">備考・案内事項</div>
+          <textarea class="fi" id="ov-notes" rows="4" placeholder="参加者への案内、注意事項など" style="resize:vertical;"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STAFF -->
+<div class="panel" id="panel-staff">
+  <div class="content">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">スタッフ一覧</span>
+        <button class="btn btn-primary btn-sm" onclick="openAddStaffModal()">＋ 追加</button>
+      </div>
+      <div id="staffList" style="padding:0 4px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SCHEDULE -->
+<div class="panel" id="panel-schedule">
+  <div class="content">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">大会スケジュール</span>
+        <button class="btn btn-primary btn-sm" onclick="addScheduleRow()">＋ 追加</button>
+      </div>
+      <div style="padding:14px 16px;">
+        <div style="display:grid;grid-template-columns:90px 1fr 120px 32px;gap:6px;margin-bottom:8px;padding:0 4px;">
+          <span style="font-size:10px;color:var(--muted);">時刻</span>
+          <span style="font-size:10px;color:var(--muted);">内容</span>
+          <span style="font-size:10px;color:var(--muted);">担当</span>
+          <span></span>
+        </div>
+        <div id="scheduleRows"></div>
+        <button class="btn btn-outline btn-sm" style="width:100%;margin-top:10px;" onclick="addScheduleRow()">＋ 行を追加</button>
+      </div>
+      <div style="padding:0 16px 16px;">
+        <button class="btn btn-warn btn-sm" style="width:100%;" onclick="saveSchedule()">スケジュールを保存</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- AP LIST -->
-<div class="panel active" id="panel-ap">
+<div class="panel" id="panel-ap">
   <div class="content">
     <div class="card">
       <div class="card-header">
@@ -272,6 +362,46 @@ select.fi option{background:var(--surface2);}
     <div class="card">
       <div class="card-header"><span class="card-title">Rankings</span></div>
       <div class="empty-state"><div class="empty-icon">&#x1F3C6;</div>Results will appear here after entry.</div>
+    </div>
+  </div>
+</div>
+
+<!-- STAFF ADD MODAL -->
+<div class="modal-backdrop" id="staff-modal" onclick="if(event.target===this)closeStaffModal()">
+  <div class="modal-box" style="max-width:420px;">
+    <div class="modal-header">
+      <span class="modal-title">スタッフを追加</span>
+      <button class="modal-close" onclick="closeStaffModal()">✕</button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:12px;">
+      <div>
+        <div class="fld-label">氏名 *</div>
+        <input class="fi" id="sm-name" placeholder="氏名">
+      </div>
+      <div>
+        <div class="fld-label">役割</div>
+        <select class="fi" id="sm-role">
+          <option>Chief Judge</option>
+          <option>Judge</option>
+          <option>Safety Diver</option>
+          <option>Announcer</option>
+          <option>Photographer</option>
+          <option>Volunteer</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div>
+        <div class="fld-label">シフト（例: 08:00〜17:00）</div>
+        <input class="fi" id="sm-shift" placeholder="08:00〜17:00">
+      </div>
+      <div>
+        <div class="fld-label">備考</div>
+        <input class="fi" id="sm-note" placeholder="連絡先・担当エリアなど">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeStaffModal()">キャンセル</button>
+      <button class="btn btn-primary" onclick="confirmAddStaff()">追加</button>
     </div>
   </div>
 </div>
@@ -637,6 +767,140 @@ async function loadEventFromUrl() {
 
 var _eventLocation = '';
 var _eventDateStr  = '';
+var _currentEventId = null;
+
+// =============================================
+// OVERVIEW タブ
+// =============================================
+function initOverview() {
+  var id = new URLSearchParams(location.search).get('id');
+  if (!id) return;
+  _currentEventId = id;
+  _sb.from('events').select('name,date,date_end,location,disciplines').eq('id', id).single()
+    .then(function(res) {
+      if (res.error || !res.data) return;
+      var ev = res.data;
+      if (document.getElementById('ov-name'))     document.getElementById('ov-name').value = ev.name || '';
+      if (document.getElementById('ov-date'))     document.getElementById('ov-date').value = ev.date || '';
+      if (document.getElementById('ov-date-end')) document.getElementById('ov-date-end').value = ev.date_end || '';
+      if (document.getElementById('ov-location')) document.getElementById('ov-location').value = ev.location || '';
+    });
+}
+
+function saveOverview() {
+  if (!_currentEventId) return;
+  var name     = document.getElementById('ov-name').value.trim();
+  var date     = document.getElementById('ov-date').value;
+  var dateEnd  = document.getElementById('ov-date-end').value || null;
+  var location = document.getElementById('ov-location').value.trim();
+  var notes    = document.getElementById('ov-notes').value.trim();
+  if (!name || !date) { alert('大会名と開催日は必須です'); return; }
+  _sb.from('events').update({ name, date, date_end: dateEnd, location, notes }).eq('id', _currentEventId)
+    .then(function(res) {
+      if (res.error) { alert('保存失敗: ' + res.error.message); return; }
+      // ヒーローも更新
+      var nameEl = document.getElementById('ev-name');
+      if (nameEl) nameEl.textContent = name;
+      alert('保存しました');
+    });
+}
+
+// =============================================
+// STAFF タブ
+// =============================================
+var _staffList = [];
+var STAFF_ROLES = ['Chief Judge','Judge','Safety Diver','Announcer','Photographer','Volunteer','Other'];
+
+function initStaffList() {
+  renderStaffList();
+}
+
+function renderStaffList() {
+  var el = document.getElementById('staffList');
+  if (!el) return;
+  if (!_staffList.length) {
+    el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">スタッフが登録されていません</div>';
+    return;
+  }
+  var rows = _staffList.map(function(s, i) {
+    return '<div style="display:grid;grid-template-columns:1fr 140px 80px 32px;gap:8px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);">' +
+      '<div><div style="font-size:13px;font-weight:700;">' + s.name + '</div>' +
+      (s.note ? '<div style="font-size:11px;color:var(--muted);margin-top:2px;">' + s.note + '</div>' : '') + '</div>' +
+      '<div style="font-size:12px;color:var(--teal2);">' + s.role + '</div>' +
+      '<div style="font-size:11px;color:var(--muted);">' + (s.shift || '—') + '</div>' +
+      '<button onclick="removeStaff(' + i + ')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;">×</button>' +
+      '</div>';
+  });
+  el.innerHTML = rows.join('');
+}
+
+function removeStaff(i) {
+  _staffList.splice(i, 1);
+  renderStaffList();
+}
+
+function openAddStaffModal() {
+  document.getElementById('staff-modal').classList.add('open');
+  document.getElementById('sm-name').value = '';
+  document.getElementById('sm-role').value = STAFF_ROLES[0];
+  document.getElementById('sm-shift').value = '';
+  document.getElementById('sm-note').value = '';
+}
+
+function closeStaffModal() {
+  document.getElementById('staff-modal').classList.remove('open');
+}
+
+function confirmAddStaff() {
+  var name = document.getElementById('sm-name').value.trim();
+  if (!name) { alert('氏名を入力してください'); return; }
+  _staffList.push({
+    name:  name,
+    role:  document.getElementById('sm-role').value,
+    shift: document.getElementById('sm-shift').value.trim(),
+    note:  document.getElementById('sm-note').value.trim(),
+  });
+  renderStaffList();
+  closeStaffModal();
+}
+
+// =============================================
+// SCHEDULE タブ
+// =============================================
+var _scheduleRowCount = 0;
+
+function initSchedule() {
+  addScheduleRow('08:00', 'スタッフ集合・機材搬入', '');
+  addScheduleRow('09:00', 'キャプテンミーティング', 'Chief Judge');
+  addScheduleRow('10:00', '競技開始', 'Announcer');
+}
+
+function addScheduleRow(time, content, person) {
+  _scheduleRowCount++;
+  var id = _scheduleRowCount;
+  var div = document.createElement('div');
+  div.id = 'sr-' + id;
+  div.style.cssText = 'display:grid;grid-template-columns:90px 1fr 120px 32px;gap:6px;margin-bottom:6px;align-items:center;';
+  div.innerHTML =
+    '<input class="fi" value="' + (time||'') + '" placeholder="09:00" style="font-size:13px;">' +
+    '<input class="fi" value="' + (content||'') + '" placeholder="内容" style="font-size:13px;">' +
+    '<input class="fi" value="' + (person||'') + '" placeholder="担当" style="font-size:13px;">' +
+    '<button onclick="document.getElementById(\'sr-' + id + '\').remove()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;">×</button>';
+  document.getElementById('scheduleRows').appendChild(div);
+}
+
+function saveSchedule() {
+  var rows = document.getElementById('scheduleRows').querySelectorAll('div[id^="sr-"]');
+  var data = [];
+  rows.forEach(function(row) {
+    var inputs = row.querySelectorAll('input');
+    if (inputs[0] && inputs[0].value) {
+      data.push({ time: inputs[0].value, content: inputs[1] ? inputs[1].value : '', person: inputs[2] ? inputs[2].value : '' });
+    }
+  });
+  alert('スケジュールを保存しました（' + data.length + '件）');
+  // TODO: Supabase保存 (event_schedule テーブル作成後)
+}
 
 </script>
 <script>
@@ -661,7 +925,7 @@ var defaultRules = [
 var apData = [];
 
 function switchTab(tab) {
-  ['ap','startlist','results','protests','sponsors'].forEach(function(p) {
+  ['overview','staff','schedule','ap','startlist','results','protests','sponsors'].forEach(function(p) {
     document.getElementById('tab-' + p).classList.toggle('active', p === tab);
     document.getElementById('panel-' + p).classList.toggle('active', p === tab);
   });
@@ -674,6 +938,9 @@ function initPage() {
   initResultInputList();
   initRankRows();
   initBannerLayout();
+  initOverview();
+  initStaffList();
+  initSchedule();
 }
 
 function renderAPList() {
