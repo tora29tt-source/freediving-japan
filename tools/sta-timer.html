@@ -2296,6 +2296,7 @@ function endHold(auto=false) {
 }
 
 function startSurface() {
+  _lastHoldMs = phaseMs; // hold終了時の経過時間を保存（phaseMs リセット前）
   phase = 'surface'; phaseStart = performance.now(); phaseMs = 0;
   document.getElementById('surfaceOverlay').classList.add('visible');
   document.getElementById('surfaceNum').textContent = '0';
@@ -3822,8 +3823,8 @@ function onSurfaceStart() {
   }
   // Surface開始時刻を記録（rest中の継続オーバーレイ用）
   _camSurfaceStartTime = performance.now();
-  // Hold最終タイムを確定保存
-  camOverlay.diveMs = camOverlay.holdMs;
+  // Hold最終タイムを確定保存（isRecordingがfalseだとcamOverlay.holdMsが0のため_lastHoldMsを優先）
+  camOverlay.diveMs = _lastHoldMs || camOverlay.holdMs;
   // オーバーレイをSurfaceモードに切り替え
   camOverlay.phase     = 'surface';
   camOverlay.spElapsed = 0;
@@ -3870,6 +3871,7 @@ document.addEventListener('visibilitychange', () => {
 // Surface後30秒は phase='rest' になるが録画は継続するため、
 // rest中もsurfaceオーバーレイを表示し続ける。
 let _camSurfaceStartTime = 0; // Surface開始時のperformance.now()
+let _lastHoldMs = 0;          // Hold終了時のphaseMs（Surface開始後も参照できるよう保存）
 function updateCamOverlay() {
   if (!cameraEnabled || !isRecording) return;
   if (phase === 'hold') {
