@@ -58,14 +58,6 @@ body {
 }
 .site-logo span { color: var(--accent); }
 .site-header-right { display: flex; align-items: center; gap: 10px; }
-.site-back-btn {
-  display: flex; align-items: center; gap: 5px;
-  font-size: 11px; font-weight: 500; letter-spacing: 0.06em;
-  color: var(--sub); text-decoration: none;
-  padding: 5px 12px; border-radius: 100px;
-  border: 1px solid var(--border); transition: color 0.15s, border-color 0.15s;
-}
-.site-back-btn:hover { color: var(--text); border-color: var(--accent); }
 .auth-btn {
   font-size: 11px; font-weight: 600; color: var(--accent2); text-decoration: none;
   padding: 5px 12px; border-radius: 100px;
@@ -450,16 +442,15 @@ tr:last-child td { border-bottom: none; }
 <header class="site-header">
   <a class="site-logo" href="../index.html">Freediving <span>Japan</span></a>
   <div class="site-header-right">
-    <a class="site-back-btn" href="../index.html">← ホーム</a>
     <button class="auth-btn" id="authBtn" onclick="handleAuthBtn()">ログイン</button>
   </div>
 </header>
 
 <!-- TOOL NAV TABS -->
 <nav class="tool-nav">
-  <button class="tool-tab active" id="tab-entry" onclick="goto('entry',this)">✏️ ログ登録</button>
-  <button class="tool-tab" id="tab-list"  onclick="goto('list',this)">📋 ログ一覧</button>
-  <button class="tool-tab" id="tab-dash"  onclick="goto('dash',this)">📊 ダッシュ</button>
+  <button class="tool-tab active" id="tab-entry" onclick="goto('entry',this)">ログ登録</button>
+  <button class="tool-tab" id="tab-list"  onclick="goto('list',this)">ログ一覧</button>
+  <button class="tool-tab" id="tab-dash"  onclick="goto('dash',this)">ダッシュ</button>
 </nav>
 
 <!-- ==================== ENTRY PAGE ==================== -->
