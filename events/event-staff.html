@@ -259,25 +259,51 @@ select.fi option{background:var(--surface2);}
 <!-- SCHEDULE -->
 <div class="panel" id="panel-schedule">
   <div class="content">
+
+    <!-- 準備カレンダー -->
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header">
+        <span class="card-title">準備カレンダー</span>
+        <button class="btn btn-primary btn-sm" onclick="addMilestoneRow()">＋ 追加</button>
+      </div>
+      <div style="padding:10px 16px 4px;font-size:11px;color:var(--muted);">大会の開催日から逆算して実際の日付を自動計算します。</div>
+      <div style="padding:8px 16px;">
+        <div style="display:grid;grid-template-columns:100px 80px 1fr 100px 32px;gap:6px;margin-bottom:6px;padding:0 2px;">
+          <span style="font-size:10px;color:var(--muted);">実際の日付</span>
+          <span style="font-size:10px;color:var(--muted);">何日前</span>
+          <span style="font-size:10px;color:var(--muted);">タスク</span>
+          <span style="font-size:10px;color:var(--muted);">担当</span>
+          <span></span>
+        </div>
+        <div id="milestoneRows"></div>
+        <button style="width:100%;margin-top:8px;padding:7px;background:none;border:1px dashed var(--border);border-radius:6px;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit;" onclick="addMilestoneRow()">＋ 追加</button>
+      </div>
+      <div style="padding:0 16px 16px;">
+        <button class="btn btn-warn btn-sm" style="width:100%;" onclick="saveMilestones()">保存</button>
+      </div>
+    </div>
+
+    <!-- 当日タイムライン -->
     <div class="card">
       <div class="card-header">
-        <span class="card-title">大会スケジュール</span>
+        <span class="card-title">当日タイムライン</span>
         <button class="btn btn-primary btn-sm" onclick="addScheduleRow()">＋ 追加</button>
       </div>
-      <div style="padding:14px 16px;">
-        <div style="display:grid;grid-template-columns:90px 1fr 120px 32px;gap:6px;margin-bottom:8px;padding:0 4px;">
+      <div style="padding:8px 16px;">
+        <div style="display:grid;grid-template-columns:90px 1fr 120px 32px;gap:6px;margin-bottom:6px;padding:0 2px;">
           <span style="font-size:10px;color:var(--muted);">時刻</span>
           <span style="font-size:10px;color:var(--muted);">内容</span>
           <span style="font-size:10px;color:var(--muted);">担当</span>
           <span></span>
         </div>
         <div id="scheduleRows"></div>
-        <button class="btn btn-outline btn-sm" style="width:100%;margin-top:10px;" onclick="addScheduleRow()">＋ 行を追加</button>
+        <button style="width:100%;margin-top:8px;padding:7px;background:none;border:1px dashed var(--border);border-radius:6px;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit;" onclick="addScheduleRow()">＋ 追加</button>
       </div>
       <div style="padding:0 16px 16px;">
-        <button class="btn btn-warn btn-sm" style="width:100%;" onclick="saveSchedule()">スケジュールを保存</button>
+        <button class="btn btn-warn btn-sm" style="width:100%;" onclick="saveSchedule()">保存</button>
       </div>
     </div>
+
   </div>
 </div>
 
@@ -867,12 +893,62 @@ function confirmAddStaff() {
 // =============================================
 // SCHEDULE タブ
 // =============================================
-var _scheduleRowCount = 0;
+var _scheduleRowCount  = 0;
+var _milestoneRowCount = 0;
+
+// デフォルトマイルストーン（大会何日前）
+var DEFAULT_MILESTONES = [
+  { daysBefor: 90, task: '会場予約・AIDA申請',           person: '主催者' },
+  { daysBefor: 60, task: 'エントリー受付開始',            person: '主催者' },
+  { daysBefor: 30, task: 'スタッフ確定・役割分担',        person: '主催者' },
+  { daysBefor: 14, task: '機材チェックリスト確認',        person: 'スタッフ全員' },
+  { daysBefor:  7, task: 'AP締切・スタートリスト作成',    person: 'Chief Judge' },
+  { daysBefor:  3, task: 'キャプテンミーティング資料作成', person: '主催者' },
+  { daysBefor:  1, task: '会場セットアップ・機材搬入',    person: 'スタッフ全員' },
+];
+
+// 大会日から逆算して実際の日付を返す
+function calcMilestoneDate(daysBefor) {
+  var eventDate = document.getElementById('ov-date') ? document.getElementById('ov-date').value : '';
+  if (!eventDate) return '—';
+  var d = new Date(eventDate + 'T00:00:00');
+  d.setDate(d.getDate() - daysBefor);
+  return d.getFullYear() + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getDate()).padStart(2,'0');
+}
 
 function initSchedule() {
+  DEFAULT_MILESTONES.forEach(function(m) { addMilestoneRow(m.daysBefor, m.task, m.person); });
   addScheduleRow('08:00', 'スタッフ集合・機材搬入', '');
   addScheduleRow('09:00', 'キャプテンミーティング', 'Chief Judge');
   addScheduleRow('10:00', '競技開始', 'Announcer');
+  addScheduleRow('17:00', '競技終了・表彰式', '主催者');
+}
+
+function addMilestoneRow(days, task, person) {
+  _milestoneRowCount++;
+  var id = _milestoneRowCount;
+  var div = document.createElement('div');
+  div.id = 'mr-' + id;
+  div.style.cssText = 'display:grid;grid-template-columns:100px 80px 1fr 100px 32px;gap:6px;margin-bottom:6px;align-items:center;';
+  var dateStr = days ? calcMilestoneDate(days) : '—';
+  div.innerHTML =
+    '<span id="mr-date-' + id + '" style="font-size:12px;color:var(--teal2);font-weight:600;">' + dateStr + '</span>' +
+    '<input class="fi" id="mr-days-' + id + '" value="' + (days||'') + '" placeholder="30" type="number" min="0" style="font-size:13px;" oninput="updateMilestoneDate(' + id + ')">' +
+    '<input class="fi" value="' + (task||'') + '" placeholder="タスク" style="font-size:13px;">' +
+    '<input class="fi" value="' + (person||'') + '" placeholder="担当" style="font-size:13px;">' +
+    '<button onclick="document.getElementById(\'mr-' + id + '\').remove()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;">×</button>';
+  document.getElementById('milestoneRows').appendChild(div);
+}
+
+function updateMilestoneDate(id) {
+  var daysEl = document.getElementById('mr-days-' + id);
+  var dateEl = document.getElementById('mr-date-' + id);
+  if (!daysEl || !dateEl) return;
+  dateEl.textContent = calcMilestoneDate(parseInt(daysEl.value) || 0);
+}
+
+function saveMilestones() {
+  alert('準備カレンダーを保存しました（TODO: Supabase連携）');
 }
 
 function addScheduleRow(time, content, person) {
@@ -898,8 +974,8 @@ function saveSchedule() {
       data.push({ time: inputs[0].value, content: inputs[1] ? inputs[1].value : '', person: inputs[2] ? inputs[2].value : '' });
     }
   });
-  alert('スケジュールを保存しました（' + data.length + '件）');
-  // TODO: Supabase保存 (event_schedule テーブル作成後)
+  alert('当日タイムラインを保存しました（' + data.length + '件）');
+  // TODO: Supabase保存
 }
 
 </script>
