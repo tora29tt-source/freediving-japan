@@ -2389,8 +2389,9 @@ function finishSession() {
   renderSetDots(); renderLog(); updateStats();
   document.getElementById('btnSave').disabled = false;
   // テーブルモードも確認モーダルを開く（種目・環境・メモを選んでから登録）
+  // 録画が進行中の場合は停止を待ってからopenSave（最終セットの録画が保存されてから）
   if (mode === 'o2' || mode === 'co2') {
-    openSave();
+    _finalizeRecordingThen(openSave);
   }
 }
 
@@ -2984,7 +2985,7 @@ function renderLaps() {
 // ── STATS ─────────────────────────────────────────────────
 function updateStats() {
   const done = holdDives.length;
-  document.getElementById('stSets').textContent = holdDives.filter(d=>!d.isRest).length;
+  document.getElementById('stSets').textContent = holdDives.filter(d=>!d.isRest).length + (phase === 'hold' ? 1 : 0);
   document.getElementById('stTotal').textContent = mode==='free'?'∞':totalSets();
   if (!done) {
     document.getElementById('stBest').textContent = '—';
@@ -3430,6 +3431,7 @@ let camOverlay = {
   diveMs: 0,           // Hold最終タイム（Surface中の固定表示用）
   spo2: null,          // 現在SpO2値
   spElapsed: 0,        // Surface開始からの経過ms
+  setNum: '',          // 右上バッジ表示用（例: "3/8" や "Dive #4"）
 };
 
 function _syncCameraButtons() {
@@ -3697,6 +3699,22 @@ function _drawOverlay(W, H) {
     }
   }
 
+  // ── SET/DIVE バッジ（右上）────────────────────────────────
+  if (o.setNum) {
+    const bH  = u * 0.72;
+    const bTxt = o.setNum;
+    ctx.font  = `600 ${u * 0.3}px -apple-system,sans-serif`;
+    const bW  = ctx.measureText(bTxt).width + u * 0.44;
+    const bX  = W - pad - bW;
+    const bY  = pad;
+    ctx.fillStyle = 'rgba(6,15,23,0.80)';
+    pill(bX, bY, bW, bH, bH * 0.35); ctx.fill();
+    ctx.fillStyle = '#a8ece8';
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(bTxt, bX + bW / 2, bY + bH / 2);
+  }
+
   ctx.restore();
 }
 
@@ -3705,6 +3723,27 @@ function getSupportedMimeType() {
   const types = ['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'];
   for (const t of types) { if (MediaRecorder.isTypeSupported(t)) return t; }
   return '';
+}
+
+// ── 録画中なら停止を待ってからコールバック、そうでなければ即実行 ──
+function _finalizeRecordingThen(cb) {
+  if (camRecorder && camRecorder.state !== 'inactive') {
+    // 残りのrestRecordTimeoutをキャンセルして即停止
+    clearTimeout(restRecordTimeout);
+    clearInterval(restRecordTimeout);
+    restRecordTimeout = null;
+    const _rec = camRecorder;
+    const _prev = _rec.onstop;
+    _rec.onstop = () => {
+      if (_prev) _prev.call(_rec); // 既存のonstop（チャンク保存）を先に実行
+      cb();                        // その後にコールバック（openSave等）
+    };
+    _rec.stop();
+    isRecording = false;
+    camRecorder = null;
+  } else {
+    cb();
+  }
 }
 
 function stopCameraStream() {
@@ -3721,7 +3760,8 @@ function stopAllCameraActivity() {
   clearInterval(restRecordTimeout);
   holdRecordTimeout = null; restRecordTimeout = null;
   if (camRecorder && camRecorder.state !== 'inactive') camRecorder.stop();
-  camRecorder = null; camChunks = []; isRecording = false; camRecordLabel = '';
+  // camChunks はここでクリアしない — onstop が splice(0) で処理する
+  camRecorder = null; isRecording = false; camRecordLabel = '';
 }
 
 // ── 録画開始 ─────────────────────────────────────────────
@@ -3729,6 +3769,7 @@ function startCamRecording(label) {
   if (!cameraEnabled || !camCanvas || isRecording) return;
   camRecordLabel = label;
   camChunks = [];
+  const _label = label; // onstop が非同期で呼ばれる際にもラベルを保持するクロージャ
   try {
     const canvasStream = camCanvas.captureStream(30);
     // audioトラックをcameraStreamから追加
@@ -3742,10 +3783,11 @@ function startCamRecording(label) {
     camRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) camChunks.push(e.data); };
     camRecorder.onerror = e => { console.error('MediaRecorder error:', e); };
     camRecorder.onstop = () => {
-      if (camChunks.length === 0) { toast('録画データなし', true); return; }
-      const blob = new Blob(camChunks, { type: mimeType || 'video/webm' });
-      cameraClips.push({ label: camRecordLabel, blob, ext });
-      toast(`📹 ${camRecordLabel} 保存`);
+      const chunks = camChunks.splice(0); // チャンクを取得しつつ配列をアトミックにクリア
+      if (chunks.length === 0) { toast('録画データなし', true); return; }
+      const blob = new Blob(chunks, { type: mimeType || 'video/webm' });
+      cameraClips.push({ label: _label, blob, ext }); // クロージャで保持した _label を使用
+      toast(`📹 ${_label} 保存`);
     };
     // timeslice=1000ms でiOS安定化（ondataavailableを定期発火させてメモリ蓄積を防ぐ）
     camRecorder.start(1000);
@@ -3762,7 +3804,8 @@ function scheduleHoldRecording(autoSec) {
   if (!cameraEnabled || !autoSec) return;
   const delay = Math.max(0, (autoSec - 30) * 1000);
   holdRecordTimeout = setTimeout(() => {
-    camOverlay.phase = 'hold';
+    camOverlay.phase  = 'hold';
+    camOverlay.setNum = `${currentSet+1}/${totalSets()}`;
     startCamRecording(`Set #${currentSet+1}`);
   }, delay);
 }
@@ -3770,9 +3813,11 @@ function scheduleHoldRecording(autoSec) {
 // ── Surface開始時に呼ぶ ───────────────────────────────────
 function onSurfaceStart() {
   if (!cameraEnabled) return;
-  // 録画中でなければ開始
+  // 録画中でなければ開始（マニュアルモードのフォールバック）
+  // currentSetはendSurface()でインクリメントされるためここでは+1が現在のセット番号
   if (!isRecording) {
-    camOverlay.phase = 'hold';
+    camOverlay.phase  = 'hold';
+    camOverlay.setNum = `${currentSet+1}/${totalSets()}`;
     startCamRecording(`Set #${currentSet+1}`);
   }
   // Surface開始時刻を記録（rest中の継続オーバーレイ用）
@@ -3798,17 +3843,15 @@ function onSurfaceStart() {
   }, 500);
 }
 
-// ── Hold開始時に呼ぶ（マニュアルモード）────────────────────
+// ── Hold開始時に呼ぶ（freeモードのみ・各Diveを全録画）──────
+// o2/co2モードはonSurfaceStart()がHold終了前後30秒を録画するためここでは何もしない
 function onHoldStartCamera() {
   if (!cameraEnabled) return;
-  const isManual = (mode === 'o2' || mode === 'co2')
-    ? cfg.tblHoldStop === 'manual'
-    : true;
-  if (isManual) {
+  if (mode === 'free') {
     camOverlay.phase  = 'hold';
     camOverlay.holdMs = 0;
-    const label = mode === 'free' ? `Dive #${swDive+1}` : `Set #${currentSet+1}`;
-    startCamRecording(label);
+    camOverlay.setNum = `Dive #${swDive+1}`;
+    startCamRecording(`Dive #${swDive+1}`);
   }
 }
 

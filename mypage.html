@@ -736,8 +736,12 @@ body {
       <input type="text" id="ce-name" placeholder="Volcano Cup 2026" style="font-size:13px;">
     </div>
     <div class="modal-form-group">
-      <label>開催日 <span style="color:#f87171;">*</span></label>
+      <label>開催日（開始）<span style="color:#f87171;">*</span></label>
       <input type="date" id="ce-date" style="font-size:13px;">
+    </div>
+    <div class="modal-form-group">
+      <label>終了日 <span style="font-size:10px;color:var(--muted);font-weight:400;">（複数日の場合）</span></label>
+      <input type="date" id="ce-date-end" style="font-size:13px;">
     </div>
     <div class="modal-form-group">
       <label>場所</label>
@@ -1009,13 +1013,16 @@ function renderUpcoming() {
 }
 
 // ── 大会を作成 ────────────────────────────────────────────────────────
-var _ceAidaId = null;
+var _ceAidaId      = null;
+var _ceDisciplines = [];
 
 function openCreateEvent() {
-  _ceAidaId = null;
+  _ceAidaId      = null;
+  _ceDisciplines = [];
   document.getElementById('ce-url-input').value = '';
   document.getElementById('ce-name').value = '';
   document.getElementById('ce-date').value = '';
+  document.getElementById('ce-date-end').value = '';
   document.getElementById('ce-location').value = '';
   document.getElementById('ce-type').value = '';
   document.getElementById('ce-fetch-err').style.display = 'none';
@@ -1052,12 +1059,14 @@ async function fetchAidaEvent() {
     const data = await res.json();
     if (!res.ok || data.error) throw new Error(data.error || 'Unknown error');
 
-    _ceAidaId = data.aida_id;
-    document.getElementById('ce-name').value     = data.name     || '';
+    _ceAidaId      = data.aida_id;
+    _ceDisciplines = data.disciplines || [];
+    document.getElementById('ce-name').value     = data.name       || '';
     document.getElementById('ce-date').value     = data.date_start || '';
-    document.getElementById('ce-location').value = data.location  || '';
+    document.getElementById('ce-date-end').value = (data.date_end && data.date_end !== data.date_start) ? data.date_end : '';
+    document.getElementById('ce-location').value = data.location   || '';
     document.getElementById('ce-type').value     =
-      (data.event_type || '') + (data.disciplines && data.disciplines.length ? ' — ' + data.disciplines.join(' ') : '');
+      (data.event_type || '') + (_ceDisciplines.length ? ' — ' + _ceDisciplines.join(' ') : '');
     document.getElementById('ce-create-err').style.display = 'none';
   } catch (err) {
     showCeErr('fetch', 'データ取得に失敗しました: ' + err.message);
@@ -1070,6 +1079,7 @@ async function fetchAidaEvent() {
 async function createEventConfirm() {
   const name     = document.getElementById('ce-name').value.trim();
   const date     = document.getElementById('ce-date').value;
+  const date_end = document.getElementById('ce-date-end').value || null;
   const location = document.getElementById('ce-location').value.trim();
 
   if (!name || !date) {
@@ -1091,11 +1101,14 @@ async function createEventConfirm() {
       .insert({
         name,
         date,
+        date_end: date_end || null,
         location: location || null,
+        aida_id: _ceAidaId ? String(_ceAidaId) : null,
+        disciplines: _ceDisciplines.length ? _ceDisciplines : null,
         is_published: false,
         created_by: session.user.id,
       })
-      .select('id, name, date, location, is_published')
+      .select('id, name, date, date_end, location, is_published')
       .single();
 
     if (error) throw error;
@@ -1104,7 +1117,7 @@ async function createEventConfirm() {
     // リスト更新
     const { data: myEvents } = await _sb
       .from('events')
-      .select('id, name, date, location, is_published')
+      .select('id, name, date, date_end, location, is_published')
       .eq('created_by', session.user.id)
       .order('date', { ascending: false })
       .limit(5);
@@ -1192,7 +1205,7 @@ async function loadMypageData() {
   // ── 自分が作成した大会 ──
   const { data: myEvents } = await _sb
     .from('events')
-    .select('id, name, date, location, is_published')
+    .select('id, name, date, date_end, location, is_published')
     .eq('created_by', user.id)
     .order('date', { ascending: false })
     .limit(5);
@@ -1309,8 +1322,10 @@ function renderMyEvents(events) {
     return;
   }
   el.innerHTML = events.map(ev => {
-    const d      = new Date(ev.date);
-    const ds     = d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日';
+    const d      = new Date(ev.date + 'T00:00:00');
+    const fmtD   = d => d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日';
+    const dEnd   = ev.date_end && ev.date_end !== ev.date ? new Date(ev.date_end + 'T00:00:00') : null;
+    const ds     = dEnd ? fmtD(d) + '〜' + fmtD(dEnd) : fmtD(d);
     const bg     = ev.is_published ? 'rgba(46,196,182,0.15)' : 'rgba(245,158,11,0.15)';
     const col    = ev.is_published ? 'var(--teal)' : 'var(--warn)';
     const bdr    = ev.is_published ? 'rgba(46,196,182,0.3)' : 'rgba(245,158,11,0.3)';

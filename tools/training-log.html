@@ -401,6 +401,9 @@ tr:last-child td { border-bottom: none; }
 
 @media (max-width: 639px) {
 
+  /* モバイルナビを表示 */
+  .mobile-nav { display: flex; }
+
   .page { padding: 14px 14px 20px; }
   .page-inner { max-width: 100%; }
 
@@ -441,6 +444,15 @@ tr:last-child td { border-bottom: none; }
   /* Cards */
   .card-body { padding: 14px; }
   .card-head { padding: 10px 14px; }
+}
+
+/* 保存後に新規行をハイライト */
+@keyframes fadeHighlight {
+  0%   { background: rgba(46,196,182,0.22); }
+  100% { background: transparent; }
+}
+.highlight-new {
+  animation: fadeHighlight 3s ease-out forwards;
 }
 </style>
 </head>
@@ -2289,6 +2301,18 @@ async function saveSession() {
   }
 
   resetForm();
+
+  // 保存後：一覧ページへ遷移して新規エントリをハイライト
+  const savedId = s.id;
+  const listNavItem = document.querySelectorAll('.nav-item')[1]; // "ログ一覧"
+  goto('list', listNavItem);
+  setTimeout(() => {
+    const row = document.querySelector(`#list-body tr[data-id="${savedId}"]`);
+    if (row) {
+      row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      row.classList.add('highlight-new');
+    }
+  }, 80);
 }
 
 // ===== UDDF =====
@@ -2888,7 +2912,7 @@ function renderList() {
     const mD = maxVal('dcs');
     const mN = maxVal('narcosis');
     return `
-    <tr class="trow" onclick="openModal('${s.id}')">
+    <tr class="trow" data-id="${s.id}" onclick="openModal('${s.id}')">
       <td>${s.date}</td>
       <td style="color:var(--sub)">${s.location||'—'}</td>
       <td>${s.discipline?`<span class="badge b-${s.discipline.toLowerCase()}">${s.discipline}</span>`:'—'}</td>
