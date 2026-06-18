@@ -717,51 +717,40 @@ body {
   <div class="modal" style="max-width:420px;">
     <div class="modal-title">🏆 大会を作成</div>
 
-    <!-- Step 1: AIDA URL 入力 -->
-    <div id="ce-step1">
-      <p style="font-size:13px;color:var(--sub);margin-bottom:14px;">
-        AIDA カレンダーのイベント URL またはイベント ID を入力してください。
-      </p>
-      <div class="modal-form-group">
-        <label>AIDA イベント URL / ID</label>
+    <!-- AIDA取得（任意） -->
+    <div style="background:rgba(46,196,182,0.07);border:1px solid rgba(46,196,182,0.2);border-radius:var(--rs);padding:12px 14px;margin-bottom:18px;">
+      <div style="font-size:11px;font-weight:700;color:var(--teal);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px;">AIDAから初期データ取得（任意）</div>
+      <div style="display:flex;gap:8px;">
         <input type="text" id="ce-url-input"
-          placeholder="https://www.aidainternational.org/Events/EventDetails-5067  または  5067"
-          style="font-size:13px;">
+          placeholder="EventDetails-5067 または 5067"
+          style="flex:1;font-size:12px;padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);outline:none;">
+        <button id="ce-fetch-btn" onclick="fetchAidaEvent()"
+          style="padding:8px 12px;background:rgba(46,196,182,0.15);border:1px solid rgba(46,196,182,0.4);color:var(--teal);border-radius:var(--rs);font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;">取得</button>
       </div>
-      <p style="font-size:11px;color:var(--muted);margin-top:8px;">
-        例: <a href="https://www.aidainternational.org/Events/EventCalendar" target="_blank" style="color:var(--teal);">AIDA カレンダー</a> でイベントを探して URL をコピーしてください。
-      </p>
-      <div id="ce-fetch-err" style="font-size:12px;color:#f87171;margin-top:8px;display:none;"></div>
-      <div class="modal-actions" style="margin-top:20px;">
-        <button class="modal-btn-cancel" onclick="closeCreateEventModal()">キャンセル</button>
-        <button class="modal-btn-primary" id="ce-fetch-btn" onclick="fetchAidaEvent()">取得する</button>
-      </div>
+      <div id="ce-fetch-err" style="font-size:11px;color:#f87171;margin-top:6px;display:none;"></div>
     </div>
 
-    <!-- Step 2: 確認・編集 -->
-    <div id="ce-step2" style="display:none;">
-      <p style="font-size:12px;color:var(--teal);margin-bottom:14px;">✅ AIDA からデータを取得しました。内容を確認して作成してください。</p>
-      <div class="modal-form-group">
-        <label>大会名</label>
-        <input type="text" id="ce-name" style="font-size:13px;">
-      </div>
-      <div class="modal-form-group">
-        <label>開催日</label>
-        <input type="date" id="ce-date" style="font-size:13px;">
-      </div>
-      <div class="modal-form-group">
-        <label>場所</label>
-        <input type="text" id="ce-location" style="font-size:13px;">
-      </div>
-      <div class="modal-form-group">
-        <label>種別</label>
-        <input type="text" id="ce-type" style="font-size:13px;color:var(--muted);" readonly>
-      </div>
-      <div id="ce-create-err" style="font-size:12px;color:#f87171;margin-top:8px;display:none;"></div>
-      <div class="modal-actions" style="margin-top:20px;">
-        <button class="modal-btn-cancel" onclick="ceBackToStep1()">← 戻る</button>
-        <button class="modal-btn-primary" id="ce-create-btn" onclick="createEventConfirm()">大会を作成</button>
-      </div>
+    <!-- 大会情報入力 -->
+    <div class="modal-form-group">
+      <label>大会名 <span style="color:#f87171;">*</span></label>
+      <input type="text" id="ce-name" placeholder="Volcano Cup 2026" style="font-size:13px;">
+    </div>
+    <div class="modal-form-group">
+      <label>開催日 <span style="color:#f87171;">*</span></label>
+      <input type="date" id="ce-date" style="font-size:13px;">
+    </div>
+    <div class="modal-form-group">
+      <label>場所</label>
+      <input type="text" id="ce-location" placeholder="東京アクアティクスセンター" style="font-size:13px;">
+    </div>
+    <div class="modal-form-group">
+      <label>種別</label>
+      <input type="text" id="ce-type" placeholder="Pool Competition" style="font-size:13px;color:var(--muted);">
+    </div>
+    <div id="ce-create-err" style="font-size:12px;color:#f87171;margin-top:8px;display:none;"></div>
+    <div class="modal-actions" style="margin-top:20px;">
+      <button class="modal-btn-cancel" onclick="closeCreateEventModal()">キャンセル</button>
+      <button class="modal-btn-primary" id="ce-create-btn" onclick="createEventConfirm()">大会を作成</button>
     </div>
   </div>
 </div>
@@ -1025,20 +1014,17 @@ var _ceAidaId = null;
 function openCreateEvent() {
   _ceAidaId = null;
   document.getElementById('ce-url-input').value = '';
+  document.getElementById('ce-name').value = '';
+  document.getElementById('ce-date').value = '';
+  document.getElementById('ce-location').value = '';
+  document.getElementById('ce-type').value = '';
   document.getElementById('ce-fetch-err').style.display = 'none';
-  document.getElementById('ce-step1').style.display = '';
-  document.getElementById('ce-step2').style.display = 'none';
+  document.getElementById('ce-create-err').style.display = 'none';
   document.getElementById('create-event-modal').classList.add('open');
 }
 
 function closeCreateEventModal() {
   document.getElementById('create-event-modal').classList.remove('open');
-}
-
-function ceBackToStep1() {
-  document.getElementById('ce-step1').style.display = '';
-  document.getElementById('ce-step2').style.display = 'none';
-  document.getElementById('ce-fetch-err').style.display = 'none';
 }
 
 async function fetchAidaEvent() {
@@ -1071,11 +1057,8 @@ async function fetchAidaEvent() {
     document.getElementById('ce-date').value     = data.date_start || '';
     document.getElementById('ce-location').value = data.location  || '';
     document.getElementById('ce-type').value     =
-      (data.event_type || '') + (data.disciplines.length ? ' — ' + data.disciplines.join(' ') : '');
-
+      (data.event_type || '') + (data.disciplines && data.disciplines.length ? ' — ' + data.disciplines.join(' ') : '');
     document.getElementById('ce-create-err').style.display = 'none';
-    document.getElementById('ce-step1').style.display = 'none';
-    document.getElementById('ce-step2').style.display = '';
   } catch (err) {
     showCeErr('fetch', 'データ取得に失敗しました: ' + err.message);
   } finally {
