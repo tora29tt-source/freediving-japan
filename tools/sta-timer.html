@@ -2250,10 +2250,8 @@ function startHold() {
     if (fcBtn) { fcBtn.style.display=''; fcBtn.classList.remove('done'); fcBtn.textContent='1st Contraction'; }
   }
   if (mode==='mock' || bleMode==='mock') startMock();
-  // Camera: schedule recording for last 30s if auto hold; immediate if manual
-  const _autoSec = holdAutoSec() || holdFixedSec();
-  if (_autoSec) scheduleHoldRecording(_autoSec);
-  else onHoldStartCamera();
+  // Camera: Hold開始時からプリバッファ録画を開始
+  onHoldStartCamera();
   cancelAnimationFrame(rafId);
   rafId = requestAnimationFrame(tick);
 }
@@ -3760,37 +3758,50 @@ function stopAllCameraActivity() {
   clearTimeout(restRecordTimeout);
   clearInterval(restRecordTimeout);
   holdRecordTimeout = null; restRecordTimeout = null;
+  _preBufChunks = []; _savingAfterSurface = false;
   if (camRecorder && camRecorder.state !== 'inactive') camRecorder.stop();
   // camChunks はここでクリアしない — onstop が splice(0) で処理する
   camRecorder = null; isRecording = false; camRecordLabel = '';
 }
 
 // ── 録画開始 ─────────────────────────────────────────────
-function startCamRecording(label) {
+// preBuf=true: Hold中はローリングバッファに蓄積 → onSurfaceStart()でcamChunksに転送
+// preBuf=false(default): 全チャンクをcamChunksへ直接保存（freeモード）
+function startCamRecording(label, preBuf = false) {
   if (!cameraEnabled || !camCanvas || isRecording) return;
   camRecordLabel = label;
   camChunks = [];
-  const _label = label; // onstop が非同期で呼ばれる際にもラベルを保持するクロージャ
+  _preBufChunks = [];
+  _savingAfterSurface = !preBuf; // preBuf=trueなら最初はローリングバッファモード
+  const _label = label;
+  const _mimeType = getSupportedMimeType();
   try {
     const canvasStream = camCanvas.captureStream(30);
-    // audioトラックをcameraStreamから追加
     const audioTracks = cameraStream ? cameraStream.getAudioTracks() : [];
     audioTracks.forEach(t => canvasStream.addTrack(t));
 
-    const mimeType = getSupportedMimeType();
-    const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
-    const opts = mimeType ? { mimeType } : {};
+    const ext = _mimeType.includes('mp4') ? 'mp4' : 'webm';
+    const opts = _mimeType ? { mimeType: _mimeType } : {};
     camRecorder = new MediaRecorder(canvasStream, opts);
-    camRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) camChunks.push(e.data); };
+    camRecorder.ondataavailable = e => {
+      if (!e.data || e.data.size === 0) return;
+      if (_savingAfterSurface) {
+        camChunks.push(e.data);
+      } else {
+        // ローリングプリバッファ: 最大30秒分を保持し古いものを捨てる
+        _preBufChunks.push(e.data);
+        if (_preBufChunks.length > 30) _preBufChunks.shift();
+      }
+    };
     camRecorder.onerror = e => { console.error('MediaRecorder error:', e); };
     camRecorder.onstop = () => {
-      const chunks = camChunks.splice(0); // チャンクを取得しつつ配列をアトミックにクリア
+      const chunks = camChunks.splice(0);
       if (chunks.length === 0) { toast('録画データなし', true); return; }
-      const blob = new Blob(chunks, { type: mimeType || 'video/webm' });
-      cameraClips.push({ label: _label, blob, ext }); // クロージャで保持した _label を使用
+      const blob = new Blob(chunks, { type: _mimeType || 'video/webm' });
+      cameraClips.push({ label: _label, blob, ext });
       toast(`📹 ${_label} 保存`);
     };
-    // timeslice=1000ms でiOS安定化（ondataavailableを定期発火させてメモリ蓄積を防ぐ）
+    // timeslice=1000ms でiOS安定化 + プリバッファ用に1秒単位チャンク
     camRecorder.start(1000);
     isRecording = true;
   } catch(e) {
@@ -3799,27 +3810,22 @@ function startCamRecording(label) {
   }
 }
 
-// ── オートモード：Hold残り30秒で録画予約 ─────────────────
-function scheduleHoldRecording(autoSec) {
-  clearTimeout(holdRecordTimeout);
-  if (!cameraEnabled || !autoSec) return;
-  const delay = Math.max(0, (autoSec - 30) * 1000);
-  holdRecordTimeout = setTimeout(() => {
-    camOverlay.phase  = 'hold';
-    camOverlay.setNum = `${currentSet+1}/${totalSets()}`;
-    startCamRecording(`Set #${currentSet+1}`);
-  }, delay);
-}
+// scheduleHoldRecording は廃止（プリバッファ方式に移行）
 
 // ── Surface開始時に呼ぶ ───────────────────────────────────
 function onSurfaceStart() {
   if (!cameraEnabled) return;
-  // 録画中でなければ開始（マニュアルモードのフォールバック）
-  // currentSetはendSurface()でインクリメントされるためここでは+1が現在のセット番号
+  // 録画中でなければ開始（フォールバック）
   if (!isRecording) {
     camOverlay.phase  = 'hold';
     camOverlay.setNum = `${currentSet+1}/${totalSets()}`;
-    startCamRecording(`Set #${currentSet+1}`);
+    startCamRecording(`Set #${currentSet+1}`, true);
+  }
+  // プリバッファを確定: camChunksの先頭に移動し、以降は直接保存モードへ
+  if (!_savingAfterSurface) {
+    camChunks = [..._preBufChunks];
+    _preBufChunks = [];
+    _savingAfterSurface = true;
   }
   // Surface開始時刻を記録（rest中の継続オーバーレイ用）
   _camSurfaceStartTime = performance.now();
@@ -3844,15 +3850,21 @@ function onSurfaceStart() {
   }, 500);
 }
 
-// ── Hold開始時に呼ぶ（freeモードのみ・各Diveを全録画）──────
-// o2/co2モードはonSurfaceStart()がHold終了前後30秒を録画するためここでは何もしない
+// ── Hold開始時に呼ぶ ─────────────────────────────────────
+// freeモード: 全Hold録画（プリバッファなし）
+// table/o2/co2: プリバッファ録画開始（Hold最後30秒 + Surface後30秒を確定保存）
 function onHoldStartCamera() {
   if (!cameraEnabled) return;
   if (mode === 'free') {
     camOverlay.phase  = 'hold';
     camOverlay.holdMs = 0;
     camOverlay.setNum = `Dive #${swDive+1}`;
-    startCamRecording(`Dive #${swDive+1}`);
+    startCamRecording(`Dive #${swDive+1}`); // preBuf=false: 全録画
+  } else {
+    camOverlay.phase  = 'hold';
+    camOverlay.holdMs = 0;
+    camOverlay.setNum = `${currentSet+1}/${totalSets()}`;
+    startCamRecording(`Set #${currentSet+1}`, true); // preBuf=true: ローリングバッファ
   }
 }
 
@@ -3870,8 +3882,10 @@ document.addEventListener('visibilitychange', () => {
 // ── tick()から毎フレーム呼ぶ：オーバーレイデータ更新 ──────
 // Surface後30秒は phase='rest' になるが録画は継続するため、
 // rest中もsurfaceオーバーレイを表示し続ける。
-let _camSurfaceStartTime = 0; // Surface開始時のperformance.now()
-let _lastHoldMs = 0;          // Hold終了時のphaseMs（Surface開始後も参照できるよう保存）
+let _camSurfaceStartTime  = 0;     // Surface開始時のperformance.now()
+let _lastHoldMs           = 0;     // Hold終了時のphaseMs（Surface開始後も参照できるよう保存）
+let _preBufChunks         = [];    // ローリングプリバッファ（Hold中の最後30秒分チャンク）
+let _savingAfterSurface   = false; // trueになった瞬間からcamChunksへ直接保存
 function updateCamOverlay() {
   if (!cameraEnabled || !isRecording) return;
   if (phase === 'hold') {
