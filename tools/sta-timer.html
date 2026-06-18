@@ -1212,7 +1212,7 @@ const PRESETS = [
       cfg.tblSets         = 8;
       cfg.prepSec         = 0;
     },
-    mode: 'o2',
+    mode: 'table',
   },
   {
     id: 'co2-basic',
@@ -1228,7 +1228,7 @@ const PRESETS = [
       cfg.tblSets         = 8;
       cfg.prepSec         = 0;
     },
-    mode: 'co2',
+    mode: 'table',
   },
   {
     id: 'relaxation',
@@ -1244,7 +1244,7 @@ const PRESETS = [
       cfg.tblSets         = 8;
       cfg.prepSec         = 0;
     },
-    mode: 'o2',
+    mode: 'table',
   },
 ];
 
@@ -1290,7 +1290,7 @@ function saveAsPreset() {
         Object.assign(cfg, s);
         syncTableUI();
       }; })(snap),
-      mode: tableSub,
+      mode: 'table',
       userAdded: true,
     });
     toast('✓ プリセット「' + name + '」を保存しました');
@@ -1410,7 +1410,7 @@ function applyPreset(p) {
   // 設定を適用してからO2/CO2モードに切り替え、そのままプランモーダルへ
   p.apply();
   // タブをO2/CO2に切り替え（presetパネルを隠す）
-  tableSub = p.mode; mode = p.mode;
+  mode = 'table';
   ['free','table','preset'].forEach(function(x) {
     const t = document.getElementById('tab-'+x);
     if (t) t.classList.toggle('active', x==='table');
@@ -1627,7 +1627,7 @@ function onCfgStart() {
 
 function closePlanModal() {
   document.getElementById('planOverlay').classList.remove('open');
-  if (mode === 'o2' || mode === 'co2') {
+  if (mode === 'table') {
     // プリセット経由ならPRESETタブに戻す、TABLE経由ならTABLEタブに戻す
     var backTo = planFromPreset ? 'preset' : 'table';
     planFromPreset = false;
@@ -1714,7 +1714,7 @@ function toggleCfgPanel(forceClose) {
 }
 
 // ── MODE & CONFIG ─────────────────────────────────────────
-let mode = 'free'; // free | o2 | co2
+let mode = 'free'; // free | table
 const cfg = {
   // 統合テーブル設定（tbl prefix）
   tblHoldMin: 1, tblHoldSec: 0,   // Hold Time (Auto時)
@@ -1754,7 +1754,7 @@ const cfgSec = {
 };
 
 function setMode(m) {
-  // preset タブは mode を変えない（free/o2/co2 のどれかを保持）
+  // preset タブは mode を変えない（free/table のどちらかを保持）
   // UI切り替えのみ行う
   const isPreset = (m === 'preset');
 
@@ -1825,7 +1825,7 @@ function setMode(m) {
 
 // セレクトの選択肢を生成してセット
 // ── TABLE MODE ────────────────────────────────────────────
-let tableSub = 'o2'; // 内部識別用（固定値、UI上の区別は廃止）
+// tableSub 廃止 — mode は 'free' | 'table' のみ
 
 function selSafeSet(sel, val) {
   if (!sel) return;
@@ -1835,7 +1835,7 @@ function selSafeSet(sel, val) {
   }
 }
 function syncTableUI() {
-  mode = tableSub;
+  mode = 'table';
   // Hold Stop ボタン
   const hm = cfg.tblHoldStop === 'manual';
   document.getElementById('tbl-stop-hold-manual').classList.toggle('active', hm);
@@ -2030,18 +2030,18 @@ let spo2Buf   = [];      // current hold spo2 data
 let currentSpo2 = null;
 let countdownSec = 0;    // countdown remaining
 
-function totalSets() { return (mode==='o2'||mode==='co2') ? cfg.tblSets : Infinity; }
+function totalSets() { return (mode==='table') ? cfg.tblSets : Infinity; }
 function holdAutoSec() {
   if (sessionPlan.length > 0) return planHoldSec();
-  return (mode==='o2'||mode==='co2') && cfg.tblHoldStop==='auto' ? cfgSec.o2Hold() : null;
+  return (mode==='table') && cfg.tblHoldStop==='auto' ? cfgSec.o2Hold() : null;
 }
 function restAutoSec() {
   return null; // Rest Stopは廃止、restFixedSec/currentRestSecで統一
 }
 function restFixedSec() {
   // Rest Stopがautoなら restAutoSecが担う、manualならsessionPlanから取得
-  if (sessionPlan.length > 0 && (mode==='o2'||mode==='co2')) return planRestSec();
-  return (mode==='o2'||mode==='co2') ? cfgSec.o2Rest() : null;
+  if (sessionPlan.length > 0 && (mode==='table')) return planRestSec();
+  return (mode==='table') ? cfgSec.o2Rest() : null;
 }
 function currentRestSec() {
   // O2/CO2どちらでも現在セットのrest秒数を返す（manual/auto問わず）
@@ -2049,8 +2049,8 @@ function currentRestSec() {
   return restFixedSec() || restAutoSec() || null;
 }
 function holdFixedSec() {
-  if (sessionPlan.length > 0 && (mode==='o2'||mode==='co2')) return planHoldSec();
-  return (mode==='o2'||mode==='co2') ? cfgSec.co2Hold() : null;
+  if (sessionPlan.length > 0 && (mode==='table')) return planHoldSec();
+  return (mode==='table') ? cfgSec.co2Hold() : null;
 }
 
 // ── TIMER LOOP ────────────────────────────────────────────
@@ -2390,7 +2390,7 @@ function finishSession() {
   document.getElementById('btnSave').disabled = false;
   // テーブルモードも確認モーダルを開く（種目・環境・メモを選んでから登録）
   // 録画が進行中の場合は停止を待ってからopenSave（最終セットの録画が保存されてから）
-  if (mode === 'o2' || mode === 'co2') {
+  if (mode === 'table') {
     _finalizeRecordingThen(openSave);
   }
 }
@@ -2449,7 +2449,7 @@ function setBtnMain(cls, label) {
 function onMainBtn() {
   if (phase === 'idle') {
     if (mode === 'free' && swLocked) return;
-    if ((mode === 'o2' || mode === 'co2') && !planConfirmed) {
+    if ((mode === 'table') && !planConfirmed) {
       toast('「作成」からセッションを作成してください', true);
       return;
     }
@@ -2488,9 +2488,9 @@ function onReset() {
   document.getElementById('setListWrap').style.display = 'none';
   document.getElementById('spo2Row').classList.add('hidden');
   document.getElementById('spo2ChartArea').classList.remove('visible');
-  showPhase('', (mode==='o2'||mode==='co2') ? 'Table' : 'Stopwatch');
+  showPhase('', (mode==='table') ? 'Table' : 'Stopwatch');
   sessionPlan = []; // モード切替時は常にリセット
-  if (mode === 'o2' || mode === 'co2') {
+  if (mode === 'table') {
     cfgOpen = true; toggleCfgPanel(false);
     document.getElementById('configPanel').style.display = '';
     const sum = document.getElementById('cfgSummary');
@@ -2889,7 +2889,7 @@ function updateDiveNum() {
       // idle中は表示しない（次へ or スタート時にholdで表示される）
       el.textContent = '';
     }
-  } else if (mode === 'o2' || mode === 'co2') {
+  } else if (mode === 'table') {
     const total = totalSets();
     // Rest/Surface中はcurrentSetがインクリメント済み（次のHoldのインデックス）
     // なので表示は「今終わったHoldの番号」= currentSet（インクリメント後）
@@ -2906,7 +2906,7 @@ function updateRingStartBtn() {
   if (!el) return;
   const nb = document.getElementById('btnNext');
   const nextVisible = nb && nb.style.display !== 'none';
-  const locked = (mode==='o2' || mode==='co2') && !planConfirmed;
+  const locked = mode==='table' && !planConfirmed;
   el.textContent = locked ? '「作成」から開始' : 'TAP TO START';
   el.style.opacity = (phase==='idle' && !nextVisible) ? '1' : '0';
 }
@@ -3292,7 +3292,7 @@ async function confirmSave() {
     date:       new Date().toISOString().slice(0,10),
     env:        sessionEnv,
     discipline: disc,
-    tableMode:  tableSub || mode,
+    tableMode:  mode,
     presetId:   activePresetId || null,
     sets:       holdOnly.length,
     bestTime:   fmt(best),
@@ -3940,7 +3940,7 @@ initLiveChart();
 setTimeCallEnabled(cfg.timeCallEnabled);
 setTimeCallCountdownEnabled(cfg.timeCallCountdownEnabled);
 // 初期モード設定（UIを確実に初期化）
-tableSub = 'o2'; setMode('free');
+setMode('free');
 </script>
 </body>
 </html>

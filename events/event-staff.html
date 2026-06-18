@@ -1,32 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Volcano Cup 2026 — Staff Portal</title>
+<title>Staff Portal | Freediving Japan</title>
 <style>
 :root {
+  --ocean-deep:#0b2d45; --ocean-mid:#0e3d5c; --ocean-light:#1a5f82;
   --bg:#04161f; --surface:#0c2738; --surface2:#123146;
-  --border:rgba(168,236,232,0.12); --teal:#2ec4b6; --teal2:#a8ece8;
+  --border:rgba(168,236,232,0.14); --teal:#2ec4b6; --teal2:#a8ece8; --teal-light:#a8ece8;
   --text:rgba(255,255,255,0.92); --muted:rgba(255,255,255,0.38); --sub:rgba(255,255,255,0.60);
   --warn:#f59e0b; --danger:#ef4444; --success:#22c55e; --r:14px; --rs:9px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;}
-.header{background:rgba(6,32,46,0.95);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-.logo{font-size:13px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;
+  background:linear-gradient(180deg,#0e3d5c 0%,#0b2d45 22%,#06283a 55%,#04161f 100%);
+  background-attachment:fixed;
+  color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;
+  padding-bottom:40px;
+}
+.header{
+  background:rgba(6,32,46,0.7);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  padding:0 20px;height:52px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+}
+.logo{font-size:15px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:var(--text);text-decoration:none;}
 .logo span{color:var(--teal);}
 .staff-badge{font-size:10px;font-weight:700;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:var(--warn);padding:3px 10px;border-radius:100px;}
-.event-hero{background:linear-gradient(135deg,#0e3d5c,#0b2d45);border-bottom:1px solid var(--border);padding:16px;}
-.event-name{font-size:18px;font-weight:800;color:#fff;}
-.event-meta{font-size:12px;color:var(--sub);margin-top:4px;}
-.event-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;}
-.stat-pill{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:var(--rs);padding:10px 8px;text-align:center;}
-.stat-pill-val{font-size:20px;font-weight:800;color:var(--teal2);}
-.stat-pill-lbl{font-size:10px;color:var(--muted);margin-top:2px;}
-.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;}
-.tab{flex-shrink:0;padding:12px 16px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap;-webkit-tap-highlight-color:transparent;}
+.event-hero{
+  background:linear-gradient(135deg,rgba(14,61,92,0.9),rgba(11,45,69,0.8));
+  border-bottom:1px solid var(--border);padding:20px;
+  position:relative;overflow:hidden;
+}
+.event-hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(46,196,182,0.08) 0%,transparent 70%);
+  pointer-events:none;
+}
+.event-name{font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.3px;}
+.event-meta{font-size:12px;color:var(--sub);margin-top:4px;display:flex;flex-wrap:wrap;gap:4px;align-items:center;}
+.event-meta-sep{color:var(--muted);}
+.event-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;}
+.stat-pill{background:rgba(12,39,56,0.6);border:1px solid var(--border);border-radius:var(--rs);padding:12px 8px;text-align:center;border-top:2px solid rgba(46,196,182,0.4);}
+.stat-pill-val{font-size:22px;font-weight:800;color:var(--teal2);}
+.stat-pill-lbl{font-size:10px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:0.04em;}
+.tabs{display:flex;background:rgba(12,39,56,0.8);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--border);overflow-x:auto;position:sticky;top:52px;z-index:90;}
+.tab{flex-shrink:0;padding:13px 18px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap;-webkit-tap-highlight-color:transparent;letter-spacing:0.04em;}
 .tab.active{color:var(--teal);border-bottom-color:var(--teal);}
+.tab:hover:not(.active){color:var(--sub);}
 .panel{display:none;} .panel.active{display:block;}
 .content{padding:16px;max-width:640px;margin:0 auto;}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:14px;}
@@ -141,18 +166,19 @@ select.fi option{background:var(--surface2);}
 </head>
 <body>
 <header class="header">
-  <a class="logo" href="../index.html">FreeDive<span>Japan</span></a>
+  <a class="logo" href="../index.html">Freediving <span>Japan</span></a>
   <div class="staff-badge">Staff</div>
 </header>
 
 <div class="event-hero">
+  <div style="position:relative;z-index:1;">
   <div class="event-name">Volcano Cup 2026</div>
   <div class="event-meta">June 15, 2026 &nbsp;·&nbsp; Izu Peninsula &nbsp;·&nbsp; Sea</div>
   <div class="event-stats">
     <div class="stat-pill"><div class="stat-pill-val">13</div><div class="stat-pill-lbl">Entries</div></div>
     <div class="stat-pill"><div class="stat-pill-val">13</div><div class="stat-pill-lbl">Confirmed</div></div>
     <div class="stat-pill"><div class="stat-pill-val">0</div><div class="stat-pill-lbl">Protests</div></div>
-  </div>
+  </div><!-- z-index wrapper -->
 </div>
 
 <div class="tabs">

@@ -36,37 +36,59 @@ body {
   color: var(--text);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
-  padding-left: 0;       /* mobile default: no sidebar */
-  padding-bottom: 64px;  /* mobile: space for bottom nav */
   line-height: 1.5;
 }
 
-/* ===== SIDEBAR ===== (desktop only) */
+/* ===== SITE HEADER ===== */
+.site-header {
+  position: sticky;
+  top: 0; z-index: 100;
+  background: rgba(6,32,46,0.60);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  height: 52px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.site-logo {
+  font-size: 14px; font-weight: 600;
+  color: var(--text); letter-spacing: 0.18em;
+  text-transform: uppercase; text-decoration: none;
+}
+.site-logo span { color: var(--accent); }
+.site-header-right { display: flex; align-items: center; gap: 10px; }
+.site-back-btn {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 500; letter-spacing: 0.06em;
+  color: var(--sub); text-decoration: none;
+  padding: 5px 12px; border-radius: 100px;
+  border: 1px solid var(--border); transition: color 0.15s, border-color 0.15s;
+}
+.site-back-btn:hover { color: var(--text); border-color: var(--accent); }
 
-/* ===== SIDEBAR ===== (hidden on mobile, shown on desktop) */
-.sidebar {
-  display: none; /* hidden by default on mobile */
-  position: fixed;
-  left: 0; top: 0; bottom: 0;
-  width: 200px;
+/* ===== TOOL NAV TABS ===== */
+.tool-nav {
+  display: flex;
   background: var(--surface);
-  border-right: 1px solid var(--border);
-  flex-direction: column;
-  z-index: 100;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 52px; z-index: 90;
+  overflow-x: auto; scrollbar-width: none;
 }
-.logo { padding: 20px 16px 16px; border-bottom: 1px solid var(--border); }
-.logo-mark { font-size: 20px; margin-bottom: 3px; }
-.logo-name { font-size: 11px; font-weight: 700; letter-spacing: .1em; color: var(--accent2); text-transform: uppercase; }
-.logo-sub { font-size: 10px; color: var(--muted); }
-nav { flex: 1; padding: 8px 0; }
-.nav-item {
-  display: flex; align-items: center; gap: 9px;
-  padding: 9px 16px; font-size: 13px; color: var(--sub);
-  cursor: pointer; transition: all .15s;
-  border-left: 2px solid transparent;
+.tool-nav::-webkit-scrollbar { display: none; }
+.tool-tab {
+  flex: 1; min-width: 80px;
+  padding: 11px 10px;
+  font-size: 12px; font-weight: 500; letter-spacing: 0.03em;
+  color: var(--sub);
+  border: none; background: none; cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  font-family: inherit; white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
 }
-.nav-item:hover { background: var(--surface2); color: var(--text); }
-.nav-item.active { background: var(--accent-dim); color: var(--accent2); border-left-color: var(--accent); }
+.tool-tab:hover { color: var(--text); }
+.tool-tab.active { color: var(--accent2); border-bottom-color: var(--accent); background: var(--accent-dim); }
 
 /* ===== PAGES ===== */
 .page { display: none; padding: 28px; }
@@ -358,51 +380,8 @@ tr:last-child td { border-bottom: none; }
 .entry-tab-panel { display: none; }
 .entry-tab-panel.active { display: block; }
 
-/* ===== MOBILE NAV BAR ===== */
-.mobile-nav {
-  display: none;
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  height: 56px;
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  z-index: 200;
-  flex-direction: row;
-}
-.mobile-nav-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  font-size: 10px;
-  color: var(--muted);
-  cursor: pointer;
-  transition: color .15s;
-  border: none;
-  background: none;
-  font-family: inherit;
-  padding: 6px 0;
-}
-.mobile-nav-item.active { color: var(--accent2); }
-.mobile-nav-item .icon { font-size: 20px; line-height: 1; }
-
 /* ===== RESPONSIVE ===== */
-/* ===== DESKTOP: show sidebar ===== */
-@media (min-width: 640px) {
-  body {
-    padding-left: 200px;
-    padding-bottom: 0;
-  }
-  .sidebar { display: flex; }
-  .mobile-nav { display: none; }
-}
-
 @media (max-width: 639px) {
-
-  /* モバイルナビを表示 */
-  .mobile-nav { display: flex; }
 
   .page { padding: 14px 14px 20px; }
   .page-inner { max-width: 100%; }
@@ -458,32 +437,20 @@ tr:last-child td { border-bottom: none; }
 </head>
 <body>
 
-<!-- MOBILE BOTTOM NAV -->
-<nav class="mobile-nav">
-  <button class="mobile-nav-item active" id="mnav-entry" onclick="goto('entry',this);updateMobileNav('entry')">
-    <span class="icon">✏️</span>登録
-  </button>
-  <button class="mobile-nav-item" id="mnav-list" onclick="goto('list',this);updateMobileNav('list')">
-    <span class="icon">📋</span>一覧
-  </button>
-  <button class="mobile-nav-item" id="mnav-dash" onclick="goto('dash',this);updateMobileNav('dash')">
-    <span class="icon">📊</span>ダッシュ
-  </button>
-</nav>
-
-<!-- SIDEBAR -->
-<aside class="sidebar">
-  <div class="logo">
-    <div class="logo-mark">🤿</div>
-    <div class="logo-name">Training Log</div>
-    <div class="logo-sub">Freediving Japan</div>
+<!-- SITE HEADER -->
+<header class="site-header">
+  <a class="site-logo" href="../index.html">Freediving <span>Japan</span></a>
+  <div class="site-header-right">
+    <a class="site-back-btn" href="../index.html">← ホーム</a>
   </div>
-  <nav>
-    <div class="nav-item active" onclick="goto('entry',this)"><span>✏️</span> ログ登録</div>
-    <div class="nav-item" onclick="goto('list',this)"><span>📋</span> ログ一覧</div>
-    <div class="nav-item" onclick="goto('dash',this)"><span>📊</span> ダッシュボード</div>
-  </nav>
-</aside>
+</header>
+
+<!-- TOOL NAV TABS -->
+<nav class="tool-nav">
+  <button class="tool-tab active" id="tab-entry" onclick="goto('entry',this)">✏️ ログ登録</button>
+  <button class="tool-tab" id="tab-list"  onclick="goto('list',this)">📋 ログ一覧</button>
+  <button class="tool-tab" id="tab-dash"  onclick="goto('dash',this)">📊 ダッシュ</button>
+</nav>
 
 <!-- ==================== ENTRY PAGE ==================== -->
 <div class="page active" id="page-entry">
@@ -858,7 +825,7 @@ tr:last-child td { border-bottom: none; }
 <div class="page-inner">
   <div class="ph">
     <h1>ログ <span>一覧</span></h1>
-    <button class="btn btn-primary btn-sm" onclick="goto('entry',document.querySelector('.nav-item'))">＋ 新規</button>
+    <button class="btn btn-primary btn-sm" onclick="goto('entry')">＋ 新規</button>
   </div>
   <div class="card">
     <div class="card-head">
@@ -1086,17 +1053,15 @@ function switchEntryTab(tab) {
 
 // ===== NAV =====
 function updateMobileNav(page) {
-  document.querySelectorAll('.mobile-nav-item').forEach(b => b.classList.remove('active'));
-  const btn = document.getElementById('mnav-' + page);
-  if (btn) btn.classList.add('active');
+  // tool-tab に統一 — goto() が管理するため互換用スタブ
 }
 
-function goto(page, el) {
+function goto(page, _el) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.tool-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
-  if (el && el.classList.contains('nav-item')) el.classList.add('active');
-  updateMobileNav(page);
+  const tab = document.getElementById('tab-' + page);
+  if (tab) tab.classList.add('active');
   if (page === 'list') renderList();
   if (page === 'dash') renderDash();
 }
@@ -2304,8 +2269,7 @@ async function saveSession() {
 
   // 保存後：一覧ページへ遷移して新規エントリをハイライト
   const savedId = s.id;
-  const listNavItem = document.querySelectorAll('.nav-item')[1]; // "ログ一覧"
-  goto('list', listNavItem);
+  goto('list');
   setTimeout(() => {
     const row = document.querySelector(`#list-body tr[data-id="${savedId}"]`);
     if (row) {
@@ -2958,7 +2922,7 @@ function editSession(id) {
   sessions = sessions.filter(x => x.id !== id);
 
   // ログ登録画面へ移動
-  goto('entry', document.querySelectorAll('.nav-item')[0]);
+  goto('entry');
 
   // フォームをリセットしてから値を設定
   resetForm();
