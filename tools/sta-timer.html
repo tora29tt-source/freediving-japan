@@ -62,7 +62,7 @@ header {
   display: flex; align-items: center; justify-content: space-between;
   padding: 8px 16px 4px; flex-shrink: 0;
 }
-.logo { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--teal); font-weight: 700; opacity: .8; }
+.logo { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--teal); font-weight: 700; opacity: .8; text-decoration: none; }
 .hdr-right { display: flex; align-items: center; gap: 10px; }
 .ble-btn {
   display: flex; align-items: center; gap: 4px;
@@ -612,7 +612,7 @@ header {
 
   <!-- HEADER -->
   <header>
-    <span class="logo">Freediving Japan</span>
+    <a class="logo" href="../index.html">Freediving Japan</a>
     <div class="hdr-right">
       <button class="ble-btn" id="bleBtn" onclick="toggleBLE()">
         <span class="ble-dot" id="bleDot"></span>

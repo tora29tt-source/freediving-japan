@@ -66,6 +66,15 @@ body {
   border: 1px solid var(--border); transition: color 0.15s, border-color 0.15s;
 }
 .site-back-btn:hover { color: var(--text); border-color: var(--accent); }
+.auth-btn {
+  font-size: 11px; font-weight: 600; color: var(--accent2); text-decoration: none;
+  padding: 5px 12px; border-radius: 100px;
+  border: 1px solid rgba(14,165,233,.4); background: rgba(14,165,233,.08);
+  cursor: pointer; font-family: inherit; letter-spacing: 0.04em;
+  transition: background 0.15s, border-color 0.15s;
+}
+.auth-btn:hover { background: rgba(14,165,233,.16); border-color: rgba(14,165,233,.7); }
+.auth-btn.logged-in { color: var(--sub); border-color: var(--border); background: transparent; font-weight: 500; }
 
 /* ===== TOOL NAV TABS ===== */
 .tool-nav {
@@ -442,6 +451,7 @@ tr:last-child td { border-bottom: none; }
   <a class="site-logo" href="../index.html">Freediving <span>Japan</span></a>
   <div class="site-header-right">
     <a class="site-back-btn" href="../index.html">← ホーム</a>
+    <button class="auth-btn" id="authBtn" onclick="handleAuthBtn()">ログイン</button>
   </div>
 </header>
 
@@ -865,7 +875,7 @@ tr:last-child td { border-bottom: none; }
     </div><!-- /overflow-x:auto -->
     <div id="list-empty" style="display:none;padding:48px;text-align:center;color:var(--muted)">
       <div style="font-size:36px;margin-bottom:10px">🌊</div>
-      <div>ログがまだありません</div>
+      <div id="list-empty-msg">ログがまだありません</div>
     </div>
   </div>
 </div>
@@ -952,11 +962,51 @@ function secToFmt(sec) {
 }
 
 // 認証チェック（未ログインでも画面は表示する・DBだけスキップ）
+function updateAuthBtn() {
+  const btn = document.getElementById('authBtn')
+  if (!btn) return
+  if (_currentUser) {
+    const email = _currentUser.email || ''
+    const label = email.length > 20 ? email.slice(0, 18) + '…' : email
+    btn.textContent = label || 'ログアウト'
+    btn.classList.add('logged-in')
+    btn.title = 'クリックでログアウト'
+  } else {
+    btn.textContent = 'ログイン'
+    btn.classList.remove('logged-in')
+    btn.title = ''
+  }
+}
+
+function handleAuthBtn() {
+  if (_currentUser) {
+    if (confirm('ログアウトしますか？')) {
+      _sb.auth.signOut().then(() => { location.reload() })
+    }
+  } else {
+    location.href = '../auth.html?next=' + encodeURIComponent(location.pathname + location.search)
+  }
+}
+
 async function initAuth() {
   try {
     const { data: { session } } = await _sb.auth.getSession()
     _currentUser = session?.user || null
-    _sb.auth.onAuthStateChange((_event, s) => { _currentUser = s?.user || null })
+    updateAuthBtn()
+    _sb.auth.onAuthStateChange(async (_event, s) => {
+      _currentUser = s?.user || null
+      updateAuthBtn()
+      // ログイン状態が変わったらDBから再読み込み
+      if (_currentUser) {
+        const dbSessions = await loadSessionsFromDB()
+        if (dbSessions.length > 0) {
+          const dbIds = new Set(dbSessions.map(x => x.id))
+          const localOnly = sessions.filter(x => !dbIds.has(x.id) && !x._fromDB)
+          sessions = [...dbSessions, ...localOnly].sort((a,b) => b.date.localeCompare(a.date))
+        }
+        renderList(); renderDash()
+      }
+    })
   } catch(e) {
     console.warn('auth check failed:', e)
   }
@@ -979,7 +1029,7 @@ async function loadSessionsFromDB() {
       .eq('user_id', _currentUser.id)
       .order('date', { ascending: false })
       .order('created_at', { ascending: false })
-    if (error) { console.warn('DB load error:', error); return [] }
+    if (error) { console.warn('DB load error:', error); showToast('⚠️ DB読み込みエラー: ' + (error.message || error.code)); return [] }
 
     const SEA  = ['CWT','CWTB','CNF','FIM']
     const POOL = ['DYN','DNF','DYNB']
@@ -2863,7 +2913,19 @@ function renderList() {
   });
   const body=document.getElementById('list-body');
   const empty=document.getElementById('list-empty');
-  if(!data.length){body.innerHTML='';empty.style.display='block';return;}
+  if(!data.length){
+    body.innerHTML='';
+    empty.style.display='block';
+    const msg = document.getElementById('list-empty-msg');
+    if (msg) {
+      if (!_currentUser) {
+        msg.innerHTML = 'ログインするとDBのデータを表示できます<br><br><a href="../auth.html" style="color:var(--accent2);font-weight:600;text-decoration:none;border:1px solid rgba(14,165,233,.4);padding:8px 20px;border-radius:100px;display:inline-block;margin-top:4px">ログイン</a>';
+      } else {
+        msg.textContent = 'ログがまだありません';
+      }
+    }
+    return;
+  }
   empty.style.display='none';
   body.innerHTML=data.map(s=>{
     const maxVal = (key) => {

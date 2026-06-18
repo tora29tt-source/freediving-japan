@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Staff Portal | Freediving Japan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
 <style>
 :root {
   --ocean-deep:#0b2d45; --ocean-mid:#0e3d5c; --ocean-light:#1a5f82;
@@ -172,12 +174,12 @@ select.fi option{background:var(--surface2);}
 
 <div class="event-hero">
   <div style="position:relative;z-index:1;">
-  <div class="event-name">Volcano Cup 2026</div>
-  <div class="event-meta">June 15, 2026 &nbsp;·&nbsp; Izu Peninsula &nbsp;·&nbsp; Sea</div>
+  <div class="event-name" id="ev-name">読み込み中...</div>
+  <div class="event-meta" id="ev-meta"></div>
   <div class="event-stats">
-    <div class="stat-pill"><div class="stat-pill-val">13</div><div class="stat-pill-lbl">Entries</div></div>
-    <div class="stat-pill"><div class="stat-pill-val">13</div><div class="stat-pill-lbl">Confirmed</div></div>
-    <div class="stat-pill"><div class="stat-pill-val">0</div><div class="stat-pill-lbl">Protests</div></div>
+    <div class="stat-pill"><div class="stat-pill-val" id="ev-stat-entries">—</div><div class="stat-pill-lbl">Entries</div></div>
+    <div class="stat-pill"><div class="stat-pill-val" id="ev-stat-confirmed">—</div><div class="stat-pill-lbl">Confirmed</div></div>
+    <div class="stat-pill"><div class="stat-pill-val" id="ev-stat-protests">0</div><div class="stat-pill-lbl">Protests</div></div>
   </div><!-- z-index wrapper -->
 </div>
 
@@ -587,20 +589,54 @@ function buildOTSelect(hEl, mEl, options) {
 }
 
 // =============================================
-// Supabase接続後の差し替え用（パソコン復帰後に実装）
+// URLパラメータ ?id= からイベントをロード
 // =============================================
-// async function loadEventConfig(eventId) {
-//   const { data } = await supabase
-//     .from('events')
-//     .select('max_depth, name, date')
-//     .eq('id', eventId)
-//     .single();
-//   if (data) {
-//     EVENT_CONFIG.maxDepth = data.max_depth;
-//     EVENT_CONFIG.eventName = data.name;
-//     EVENT_CONFIG.eventDate = data.date;
-//   }
-// }
+async function loadEventFromUrl() {
+  var id = new URLSearchParams(location.search).get('id');
+  if (!id) return; // id がない場合はデフォルトのまま
+
+  var _sbClient = (typeof _sb !== 'undefined') ? _sb : null;
+  if (!_sbClient) { console.warn('Supabase client not ready'); return; }
+
+  var result = await _sbClient
+    .from('events')
+    .select('id, name, date, date_end, location')
+    .eq('id', id)
+    .single();
+
+  if (result.error) { console.error('Event load error:', result.error); return; }
+  var ev = result.data;
+
+  // EVENT_CONFIG を更新
+  EVENT_CONFIG.eventName = ev.name || EVENT_CONFIG.eventName;
+  EVENT_CONFIG.eventDate = ev.date || EVENT_CONFIG.eventDate;
+
+  // ページタイトル更新
+  document.title = ev.name + ' | Staff Portal | Freediving Japan';
+
+  // ヒーロー：大会名
+  var nameEl = document.getElementById('ev-name');
+  if (nameEl) nameEl.textContent = ev.name;
+
+  // ヒーロー：日付＋会場
+  var metaEl = document.getElementById('ev-meta');
+  if (metaEl) {
+    var fmtDate = function(d) {
+      var dt = new Date(d + 'T00:00:00');
+      return dt.getFullYear() + '年' + (dt.getMonth()+1) + '月' + dt.getDate() + '日';
+    };
+    var dateStr = fmtDate(ev.date);
+    if (ev.date_end && ev.date_end !== ev.date) dateStr += '〜' + fmtDate(ev.date_end);
+    metaEl.textContent = dateStr + (ev.location ? '  ·  ' + ev.location : '');
+  }
+
+  // exportModal 初期値
+  _eventLocation = ev.location || '';
+  _eventDateStr  = ev.date || '';
+}
+
+var _eventLocation = '';
+var _eventDateStr  = '';
 
 </script>
 <script>
@@ -821,7 +857,8 @@ function exportCSV() {
   var blob = new Blob([rows.join('\n')], { type: 'text/csv' });
   var url = URL.createObjectURL(blob);
   var link = document.createElement('a');
-  link.href = url; link.download = 'volcano_cup_2026.csv';
+  var csvName = EVENT_CONFIG.eventName.toLowerCase().replace(/\s+/g,'_') + '.csv';
+  link.href = url; link.download = csvName;
   link.click();
 }
 
@@ -1156,9 +1193,9 @@ function openExportModal() {
   var n = document.getElementById('export-event-name');
   var d = document.getElementById('export-event-date');
   var l = document.getElementById('export-event-location');
-  if (n) n.value = 'Volcano Cup 2026';
-  if (d) d.value = 'June 15, 2026';
-  if (l) l.value = 'Izu Peninsula, Shizuoka';
+  if (n) n.value = EVENT_CONFIG.eventName;
+  if (d) d.value = _eventDateStr || EVENT_CONFIG.eventDate;
+  if (l) l.value = _eventLocation;
   var modal = document.getElementById('exportModal');
   if (modal) modal.classList.add('open');
   renderExportPreview();
@@ -1483,6 +1520,12 @@ function downloadImage() {
     if (btn) { btn.textContent = 'Regenerate'; btn.disabled = false; }
   }, 600);
 }
+</script>
+<script>
+// ページロード時にURLの ?id= からイベント情報を取得して反映
+document.addEventListener('DOMContentLoaded', function() {
+  loadEventFromUrl();
+});
 </script>
 </body>
 </html>
