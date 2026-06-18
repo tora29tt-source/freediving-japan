@@ -1075,6 +1075,7 @@ async function loadSessionsFromDB() {
     })
   } catch(e) {
     console.warn('loadSessionsFromDB error:', e)
+    showToast('⚠️ DB例外: ' + (e?.message || String(e)))
     return []
   }
 }
@@ -3155,6 +3156,7 @@ updateDistLabels();
   // 3. ログイン済みならDBからも読み込み、マージ
   if (_currentUser) {
     const dbSessions = await loadSessionsFromDB()
+    showToast(`DB: ${dbSessions.length}件 / ローカル: ${localSessions.length}件`)
     if (dbSessions.length > 0) {
       // DBのIDセットを作成して、ローカルにしかないセッション（未同期）を残す
       const dbIds = new Set(dbSessions.map(s => s.id))
@@ -3164,6 +3166,7 @@ updateDistLabels();
       sessions = localSessions
     }
   } else {
+    showToast('未ログイン — ローカルのみ表示')
     sessions = localSessions
   }
 
