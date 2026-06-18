@@ -3788,9 +3788,10 @@ function startCamRecording(label, preBuf = false) {
       if (_savingAfterSurface) {
         camChunks.push(e.data);
       } else {
-        // ローリングプリバッファ: 最大30秒分を保持し古いものを捨てる
+        // ローリングプリバッファ: index0はコーデック初期化データとして常に保持
+        // index1以降を最大30秒分のローリングバッファとする
         _preBufChunks.push(e.data);
-        if (_preBufChunks.length > 30) _preBufChunks.shift();
+        if (_preBufChunks.length > 31) _preBufChunks.splice(1, 1); // index0は残す
       }
     };
     camRecorder.onerror = e => { console.error('MediaRecorder error:', e); };
