@@ -1718,6 +1718,15 @@ document.getElementById('article-modal').addEventListener('click', function(e) {
 // ============================================================
 boot();
 
+// 未来日のみ入力可：スロット日付に今日をmin設定
+(function() {
+  const todayStr = new Date().toISOString().slice(0, 10);
+  ['slot-date'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.min = todayStr;
+  });
+})();
+
 // ── 未保存警告 ────────────────────────────────────────
 let _isDirty = false;
 document.addEventListener('input',  () => { _isDirty = true; });

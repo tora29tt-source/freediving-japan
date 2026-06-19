@@ -235,13 +235,29 @@ body.role-staff #panel-overview textarea.fi{pointer-events:none;opacity:0.65;}
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
           <div>
             <div class="fld-label">開催日</div>
-            <input class="fi" id="ov-date" type="date">
+            <input class="fi" id="ov-date" type="date" onchange="renderDayLabelRows()">
           </div>
           <div>
             <div class="fld-label">終了日（複数日の場合）</div>
-            <input class="fi" id="ov-date-end" type="date">
+            <input class="fi" id="ov-date-end" type="date" onchange="renderDayLabelRows()">
           </div>
         </div>
+
+        <!-- 日程ラベル -->
+        <datalist id="day-label-list">
+          <option value="準備日"></option><option value="設営日"></option>
+          <option value="開会式"></option><option value="閉会式"></option>
+          <option value="1日目"></option><option value="2日目"></option>
+          <option value="3日目"></option><option value="4日目"></option>
+          <option value="5日目"></option><option value="レスト日"></option>
+          <option value="競技日1"></option><option value="競技日2"></option>
+          <option value="競技日3"></option>
+        </datalist>
+        <div id="day-labels-wrap" style="display:none;">
+          <div class="fld-label" style="margin-bottom:8px;">日程ラベル <span style="font-size:10px;color:var(--muted);">（各日の種別）</span></div>
+          <div id="day-labels-rows" style="display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+
         <div>
           <div class="fld-label">会場</div>
           <input class="fi" id="ov-location" placeholder="会場名・住所">
@@ -988,8 +1004,72 @@ function initOverview() {
       document.querySelectorAll('#ov-disciplines input[type="checkbox"]').forEach(function(cb) {
         cb.checked = discs.indexOf(cb.value) !== -1;
       });
+      // 日程ラベルをロード（日付フィールドの値が入ってから実行）
+      loadDayLabels();
     });
 }
+
+// ── 日程ラベル ──────────────────────────────────────────
+var _dayLabels = {}; // { "2026-09-17": "開会式", ... }
+
+function getDatesInRange(startStr, endStr) {
+  var dates = [], cur = new Date(startStr + 'T00:00:00'), end = new Date(endStr + 'T00:00:00');
+  while (cur <= end) { dates.push(cur.toISOString().slice(0,10)); cur.setDate(cur.getDate()+1); }
+  return dates;
+}
+
+function renderDayLabelRows() {
+  var g = function(i){ return document.getElementById(i); };
+  var startStr = g('ov-date') ? g('ov-date').value : '';
+  var endStr   = g('ov-date-end') ? g('ov-date-end').value : '';
+  var wrap = document.getElementById('day-labels-wrap');
+  var rowsEl = document.getElementById('day-labels-rows');
+  if (!wrap || !rowsEl) return;
+  if (!startStr) { wrap.style.display = 'none'; return; }
+  if (!endStr) endStr = startStr;
+  var dates = getDatesInRange(startStr, endStr);
+  var weekDays = ['日','月','火','水','木','金','土'];
+  wrap.style.display = '';
+  rowsEl.innerHTML = dates.map(function(d) {
+    var dt = new Date(d + 'T00:00:00');
+    var dayLabel = (dt.getMonth()+1) + '/' + dt.getDate() + '（' + weekDays[dt.getDay()] + '）';
+    var val = (_dayLabels[d] || '').replace(/"/g,'&quot;');
+    return '<div style="display:flex;align-items:center;gap:8px;">' +
+      '<span style="font-size:12px;color:var(--sub);min-width:85px;flex-shrink:0;">' + dayLabel + '</span>' +
+      '<input class="fi" list="day-label-list" data-date="' + d + '" value="' + val + '" placeholder="例: 1日目" style="flex:1;font-size:12px;" oninput="_dayLabels[this.dataset.date]=this.value;">' +
+    '</div>';
+  }).join('');
+}
+
+function loadDayLabels() {
+  if (!_currentEventId) return;
+  _sb.from('event_schedule').select('*').eq('event_id', _currentEventId).eq('type', 'day_label')
+    .then(function(res) {
+      _dayLabels = {};
+      (res.data || []).forEach(function(r) { if (r.time_label) _dayLabels[r.time_label] = r.content || ''; });
+      renderDayLabelRows();
+    });
+}
+
+function saveDayLabels(callback) {
+  if (!_currentEventId) { if (callback) callback(); return; }
+  // 現在の入力値を反映
+  document.querySelectorAll('#day-labels-rows input[data-date]').forEach(function(inp) {
+    _dayLabels[inp.dataset.date] = inp.value;
+  });
+  var inserts = Object.keys(_dayLabels).filter(function(d){ return _dayLabels[d]; }).map(function(d, idx) {
+    return { event_id: _currentEventId, type: 'day_label', time_label: d, content: _dayLabels[d], sort_order: idx };
+  });
+  _sb.from('event_schedule').delete().eq('event_id', _currentEventId).eq('type', 'day_label')
+    .then(function() {
+      if (!inserts.length) { if (callback) callback(); return; }
+      _sb.from('event_schedule').insert(inserts).then(function(res) {
+        if (res.error) { alert('日程ラベル保存失敗: ' + res.error.message); }
+        if (callback) callback();
+      });
+    });
+}
+// ────────────────────────────────────────────────────────
 
 async function saveOverview() {
   if (!_currentEventId) { alert('大会IDが不明です（URLに?id=が必要）'); return; }
@@ -1032,7 +1112,7 @@ async function saveOverview() {
       if (nameEl) nameEl.textContent = name;
       EVENT_CONFIG.eventName = name;
       EVENT_CONFIG.eventDate = date;
-      alert('保存しました ✓');
+      saveDayLabels(function() { alert('保存しました ✓'); });
     });
 }
 
@@ -1093,7 +1173,8 @@ function renderStaffGrid() {
     var m = dt.getMonth() + 1;
     var day = dt.getDate();
     var weekDay = ['日','月','火','水','木','金','土'][dt.getDay()];
-    return '<th style="' + thStyle + 'width:' + colW + ';">' + m + '/' + day + '<br><span style="font-size:9px;opacity:0.6;">(' + weekDay + ')</span></th>';
+    var lbl = _dayLabels && _dayLabels[d] ? '<br><span style="font-size:9px;color:var(--teal2);font-weight:700;">' + _dayLabels[d] + '</span>' : '';
+    return '<th style="' + thStyle + 'width:' + colW + ';">' + m + '/' + day + '<br><span style="font-size:9px;opacity:0.6;">(' + weekDay + ')</span>' + lbl + '</th>';
   }).join('');
 
   var tdNameStyle = 'font-size:12px;font-weight:600;padding:7px 8px;border-bottom:1px solid var(--border);white-space:nowrap;max-width:110px;overflow:hidden;text-overflow:ellipsis;';
@@ -2470,6 +2551,13 @@ async function orgLogout() {
 
 // ページロード時にURLの ?id= からイベント情報を取得して反映
 document.addEventListener('DOMContentLoaded', async function() {
+  // 未来日のみ入力可：イベント日付・締切フィールドに今日をmin設定
+  var _todayStr = new Date().toISOString().slice(0, 10);
+  ['ov-date','ov-date-end','ov-entry-deadline'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.min = _todayStr;
+  });
+
   var eventId = new URLSearchParams(location.search).get('id');
   try {
     var sessionResult = await _sb.auth.getSession();
