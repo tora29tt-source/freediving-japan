@@ -76,6 +76,8 @@ header {
 .ble-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
 .ble-dot.pulse { animation: blink .9s infinite; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.15} }
+.rec-dot { display:inline-block;width:7px;height:7px;border-radius:50%;background:currentColor;margin-right:5px;vertical-align:middle;animation:recBlink .8s ease-in-out infinite; }
+@keyframes recBlink { 0%,100%{opacity:1} 50%{opacity:.1} }
 .nav-back { font-size: 12px; color: var(--muted); text-decoration: none; }
 .lang-btn { font-size: 10px; font-weight: 700; letter-spacing: .1em; color: var(--muted); background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 3px 8px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .lang-btn.ja { color: var(--teal); border-color: var(--teal); }
@@ -2511,6 +2513,7 @@ function onReset() {
   document.getElementById('btnPause').style.borderColor = '';
   document.getElementById('btnPause').style.color = '';
   stopAllCameraActivity();
+  cameraClips = []; _clearIDB(); // リセット時にクリップも破棄
   swDive = 0; swLocked = false; currentFC = null;
   stopRestTimer();
   hidePhaseRingLabel();
@@ -3435,11 +3438,21 @@ let camOverlay = {
 
 function _syncCameraButtons() {
   const on = cameraEnabled;
+  const buffering = on && isRecording && !_savingAfterSurface; // Hold中プリバッファ
+  const saving    = on && isRecording &&  _savingAfterSurface; // Surface後保存中
   ['btnCameraToggle','btnCameraToggleCo2','btnCameraToggleFree'].forEach(id => {
     const b = document.getElementById(id); if (!b) return;
-    b.textContent = on ? '📹 録画：ON' : '📹 録画：OFF';
-    b.style.color = on ? 'var(--danger)' : 'var(--muted)';
-    b.style.borderColor = on ? 'var(--danger)' : '';
+    if (saving) {
+      b.innerHTML = '<span class="rec-dot" style="color:var(--danger)"></span>録画中';
+      b.style.color = 'var(--danger)'; b.style.borderColor = 'var(--danger)';
+    } else if (buffering) {
+      b.innerHTML = '<span class="rec-dot" style="color:var(--warn)"></span>バッファ中';
+      b.style.color = 'var(--warn)'; b.style.borderColor = 'var(--warn)';
+    } else {
+      b.textContent = on ? '📹 録画：ON' : '📹 録画：OFF';
+      b.style.color = on ? 'var(--danger)' : 'var(--muted)';
+      b.style.borderColor = on ? 'var(--danger)' : '';
+    }
   });
 }
 
@@ -3764,6 +3777,37 @@ function stopAllCameraActivity() {
   camRecorder = null; isRecording = false; camRecordLabel = '';
 }
 
+// ── IndexedDB: クリップ永続化（バックグラウンド復帰時の消失防止）────────
+const _IDB_NAME = 'fj-sta-clips', _IDB_STORE = 'clips';
+let _idb = null;
+async function _openIDB() {
+  if (_idb) return _idb;
+  return new Promise((res, rej) => {
+    const r = indexedDB.open(_IDB_NAME, 1);
+    r.onupgradeneeded = e => { const db = e.target.result; if (!db.objectStoreNames.contains(_IDB_STORE)) db.createObjectStore(_IDB_STORE, { keyPath: 'label' }); };
+    r.onsuccess = e => { _idb = e.target.result; res(_idb); };
+    r.onerror   = e => rej(e);
+  });
+}
+async function _saveClipToIDB(clip) {
+  try { const db = await _openIDB(); db.transaction(_IDB_STORE,'readwrite').objectStore(_IDB_STORE).put({ label: clip.label, blob: clip.blob, ext: clip.ext, savedAt: Date.now() }); }
+  catch(e) { console.warn('IDB save:', e); }
+}
+async function _loadClipsFromIDB() {
+  try {
+    const db = await _openIDB();
+    return await new Promise((res, rej) => { const r = db.transaction(_IDB_STORE,'readonly').objectStore(_IDB_STORE).getAll(); r.onsuccess = e => res(e.target.result||[]); r.onerror = rej; });
+  } catch(e) { return []; }
+}
+async function _deleteClipFromIDB(label) {
+  try { const db = await _openIDB(); db.transaction(_IDB_STORE,'readwrite').objectStore(_IDB_STORE).delete(label); }
+  catch(e) { console.warn('IDB delete:', e); }
+}
+async function _clearIDB() {
+  try { const db = await _openIDB(); db.transaction(_IDB_STORE,'readwrite').objectStore(_IDB_STORE).clear(); }
+  catch(e) { console.warn('IDB clear:', e); }
+}
+
 // ── 録画開始 ─────────────────────────────────────────────
 // preBuf=true: Hold中はローリングバッファに蓄積 → onSurfaceStart()でcamChunksに転送
 // preBuf=false(default): 全チャンクをcamChunksへ直接保存（freeモード）
@@ -3797,14 +3841,18 @@ function startCamRecording(label, preBuf = false) {
     camRecorder.onerror = e => { console.error('MediaRecorder error:', e); };
     camRecorder.onstop = () => {
       const chunks = camChunks.splice(0);
-      if (chunks.length === 0) { toast('録画データなし', true); return; }
+      if (chunks.length === 0) { toast('録画データなし', true); _syncCameraButtons(); return; }
       const blob = new Blob(chunks, { type: _mimeType || 'video/webm' });
-      cameraClips.push({ label: _label, blob, ext });
+      const clip = { label: _label, blob, ext };
+      cameraClips.push(clip);
+      _saveClipToIDB(clip); // IndexedDBに永続化
       toast(`📹 ${_label} 保存`);
+      _syncCameraButtons();
     };
     // timeslice=1000ms でiOS安定化 + プリバッファ用に1秒単位チャンク
     camRecorder.start(1000);
     isRecording = true;
+    _syncCameraButtons(); // バッファ中インジケーター表示
   } catch(e) {
     console.error('cam record error', e);
     toast('録画開始失敗', true);
@@ -3827,6 +3875,7 @@ function onSurfaceStart() {
     camChunks = [..._preBufChunks];
     _preBufChunks = [];
     _savingAfterSurface = true;
+    _syncCameraButtons(); // バッファ中 → 録画中 に切り替え
   }
   // Surface開始時刻を記録（rest中の継続オーバーレイ用）
   _camSurfaceStartTime = performance.now();
@@ -3935,6 +3984,7 @@ function closeCameraReview() {
 async function shareClip(i) {
   const clip = cameraClips[i];
   if (!clip) return;
+  _deleteClipFromIDB(clip.label); // カメラロールに保存後はIDBから削除
   const filename = `sta-${clip.label.replace(/[^\w]/g,'-')}.${clip.ext || 'webm'}`;
   const file = new File([clip.blob], filename, { type: clip.blob.type });
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -3958,6 +4008,14 @@ setTimeCallEnabled(cfg.timeCallEnabled);
 setTimeCallCountdownEnabled(cfg.timeCallCountdownEnabled);
 // 初期モード設定（UIを確実に初期化）
 setMode('free');
+
+// IndexedDBからクリップを復元（バックグラウンド復帰でページがリロードされても消えない）
+_loadClipsFromIDB().then(saved => {
+  if (saved.length) {
+    cameraClips = saved;
+    toast(`📹 ${saved.length}件のクリップを復元`);
+  }
+});
 </script>
 </body>
 </html>
