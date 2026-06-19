@@ -313,7 +313,10 @@ select.fi option{background:var(--surface2);}
     <div class="card">
       <div class="card-header">
         <span class="card-title">AP Entries</span>
-        <button class="btn btn-primary btn-sm" onclick="exportCSV()">Export CSV</button>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-ghost btn-sm" onclick="exportCSV()">CSV</button>
+          <button class="btn btn-primary btn-sm" onclick="openAddEntryModal()">＋ 追加</button>
+        </div>
       </div>
       <div id="apList"></div>
     </div>
@@ -388,6 +391,56 @@ select.fi option{background:var(--surface2);}
     <div class="card">
       <div class="card-header"><span class="card-title">Rankings</span></div>
       <div class="empty-state"><div class="empty-icon">&#x1F3C6;</div>Results will appear here after entry.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ENTRY ADD MODAL -->
+<div class="modal-backdrop" id="entry-modal" onclick="if(event.target===this)closeEntryModal()">
+  <div class="modal-box" style="max-width:440px;">
+    <div class="modal-header">
+      <span class="modal-title">選手を追加</span>
+      <button class="modal-close" onclick="closeEntryModal()">✕</button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:12px;">
+      <div>
+        <div class="fld-label">選手名 *</div>
+        <input class="fi" id="em-name" placeholder="氏名">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>
+          <div class="fld-label">国籍</div>
+          <input class="fi" id="em-nat" value="JPN" placeholder="JPN">
+        </div>
+        <div>
+          <div class="fld-label">性別</div>
+          <select class="fi" id="em-gender">
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+        <div>
+          <div class="fld-label">種目</div>
+          <select class="fi" id="em-disc">
+            <option>CWT</option><option>CWTB</option><option>CNF</option><option>FIM</option>
+            <option>STA</option><option>DYN</option><option>DNF</option><option>DYNB</option>
+          </select>
+        </div>
+        <div>
+          <div class="fld-label">AP (m)</div>
+          <input class="fi" id="em-ap-m" type="number" min="0" placeholder="80">
+        </div>
+        <div>
+          <div class="fld-label">AP Time</div>
+          <input class="fi" id="em-ap-t" placeholder="02:30">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeEntryModal()">キャンセル</button>
+      <button class="btn btn-primary" onclick="confirmAddEntry()">追加</button>
     </div>
   </div>
 </div>
@@ -838,7 +891,13 @@ var _staffList = [];
 var STAFF_ROLES = ['Chief Judge','Judge','Safety Diver','Announcer','Photographer','Volunteer','Other'];
 
 function initStaffList() {
-  renderStaffList();
+  if (!_currentEventId) return;
+  _sb.from('event_staff').select('*').eq('event_id', _currentEventId).order('created_at')
+    .then(function(res) {
+      if (res.error) return;
+      _staffList = res.data || [];
+      renderStaffList();
+    });
 }
 
 function renderStaffList() {
@@ -861,8 +920,17 @@ function renderStaffList() {
 }
 
 function removeStaff(i) {
-  _staffList.splice(i, 1);
-  renderStaffList();
+  var s = _staffList[i];
+  if (s && s.id && _currentEventId) {
+    _sb.from('event_staff').delete().eq('id', s.id).then(function(res) {
+      if (res.error) { alert('削除失敗: ' + res.error.message); return; }
+      _staffList.splice(i, 1);
+      renderStaffList();
+    });
+  } else {
+    _staffList.splice(i, 1);
+    renderStaffList();
+  }
 }
 
 function openAddStaffModal() {
@@ -880,13 +948,24 @@ function closeStaffModal() {
 function confirmAddStaff() {
   var name = document.getElementById('sm-name').value.trim();
   if (!name) { alert('氏名を入力してください'); return; }
-  _staffList.push({
-    name:  name,
-    role:  document.getElementById('sm-role').value,
-    shift: document.getElementById('sm-shift').value.trim(),
-    note:  document.getElementById('sm-note').value.trim(),
-  });
-  renderStaffList();
+  var entry = {
+    event_id: _currentEventId,
+    name:     name,
+    role:     document.getElementById('sm-role').value,
+    shift:    document.getElementById('sm-shift').value.trim() || null,
+    note:     document.getElementById('sm-note').value.trim() || null,
+  };
+  if (_currentEventId) {
+    _sb.from('event_staff').insert(entry).select().single()
+      .then(function(res) {
+        if (res.error) { alert('保存失敗: ' + res.error.message); return; }
+        _staffList.push(res.data);
+        renderStaffList();
+      });
+  } else {
+    _staffList.push(entry);
+    renderStaffList();
+  }
   closeStaffModal();
 }
 
@@ -917,11 +996,34 @@ function calcMilestoneDate(daysBefor) {
 }
 
 function initSchedule() {
-  DEFAULT_MILESTONES.forEach(function(m) { addMilestoneRow(m.daysBefor, m.task, m.person); });
-  addScheduleRow('08:00', 'スタッフ集合・機材搬入', '');
-  addScheduleRow('09:00', 'キャプテンミーティング', 'Chief Judge');
-  addScheduleRow('10:00', '競技開始', 'Announcer');
-  addScheduleRow('17:00', '競技終了・表彰式', '主催者');
+  if (!_currentEventId) {
+    // idなし：デフォルト表示
+    DEFAULT_MILESTONES.forEach(function(m) { addMilestoneRow(m.daysBefor, m.task, m.person); });
+    addScheduleRow('08:00', 'スタッフ集合・機材搬入', '');
+    addScheduleRow('09:00', 'キャプテンミーティング', 'Chief Judge');
+    addScheduleRow('10:00', '競技開始', 'Announcer');
+    addScheduleRow('17:00', '競技終了・表彰式', '主催者');
+    return;
+  }
+  _sb.from('event_schedule').select('*').eq('event_id', _currentEventId).order('sort_order')
+    .then(function(res) {
+      if (res.error || !res.data || !res.data.length) {
+        // DBにデータなし → デフォルト
+        DEFAULT_MILESTONES.forEach(function(m) { addMilestoneRow(m.daysBefor, m.task, m.person); });
+        addScheduleRow('08:00', 'スタッフ集合・機材搬入', '');
+        addScheduleRow('09:00', 'キャプテンミーティング', 'Chief Judge');
+        addScheduleRow('10:00', '競技開始', 'Announcer');
+        addScheduleRow('17:00', '競技終了・表彰式', '主催者');
+        return;
+      }
+      res.data.forEach(function(row) {
+        if (row.type === 'milestone') {
+          addMilestoneRow(row.days_before, row.content, row.person);
+        } else {
+          addScheduleRow(row.time_label, row.content, row.person);
+        }
+      });
+    });
 }
 
 function addMilestoneRow(days, task, person) {
@@ -948,7 +1050,30 @@ function updateMilestoneDate(id) {
 }
 
 function saveMilestones() {
-  alert('準備カレンダーを保存しました（TODO: Supabase連携）');
+  if (!_currentEventId) { alert('大会IDが不明です'); return; }
+  var rows = document.getElementById('milestoneRows').querySelectorAll('div[id^="mr-"]');
+  var inserts = [];
+  rows.forEach(function(row, idx) {
+    var daysEl  = row.querySelector('input[type="number"]');
+    var inputs  = row.querySelectorAll('input');
+    if (!inputs[1] || !inputs[1].value.trim()) return;
+    inserts.push({
+      event_id:    _currentEventId,
+      type:        'milestone',
+      days_before: daysEl ? parseInt(daysEl.value) || null : null,
+      content:     inputs[1].value.trim(),
+      person:      inputs[2] ? inputs[2].value.trim() || null : null,
+      sort_order:  idx,
+    });
+  });
+  _sb.from('event_schedule').delete().eq('event_id', _currentEventId).eq('type', 'milestone')
+    .then(function() {
+      if (!inserts.length) { alert('保存しました（0件）'); return; }
+      _sb.from('event_schedule').insert(inserts).then(function(res) {
+        if (res.error) { alert('保存失敗: ' + res.error.message); return; }
+        alert('準備カレンダーを保存しました（' + inserts.length + '件）');
+      });
+    });
 }
 
 function addScheduleRow(time, content, person) {
@@ -966,16 +1091,29 @@ function addScheduleRow(time, content, person) {
 }
 
 function saveSchedule() {
+  if (!_currentEventId) { alert('大会IDが不明です'); return; }
   var rows = document.getElementById('scheduleRows').querySelectorAll('div[id^="sr-"]');
-  var data = [];
-  rows.forEach(function(row) {
+  var inserts = [];
+  rows.forEach(function(row, idx) {
     var inputs = row.querySelectorAll('input');
-    if (inputs[0] && inputs[0].value) {
-      data.push({ time: inputs[0].value, content: inputs[1] ? inputs[1].value : '', person: inputs[2] ? inputs[2].value : '' });
-    }
+    if (!inputs[0] || !inputs[1] || !inputs[1].value.trim()) return;
+    inserts.push({
+      event_id:   _currentEventId,
+      type:       'day',
+      time_label: inputs[0].value.trim() || null,
+      content:    inputs[1].value.trim(),
+      person:     inputs[2] ? inputs[2].value.trim() || null : null,
+      sort_order: idx,
+    });
   });
-  alert('当日タイムラインを保存しました（' + data.length + '件）');
-  // TODO: Supabase保存
+  _sb.from('event_schedule').delete().eq('event_id', _currentEventId).eq('type', 'day')
+    .then(function() {
+      if (!inserts.length) { alert('保存しました（0件）'); return; }
+      _sb.from('event_schedule').insert(inserts).then(function(res) {
+        if (res.error) { alert('保存失敗: ' + res.error.message); return; }
+        alert('当日タイムラインを保存しました（' + inserts.length + '件）');
+      });
+    });
 }
 
 </script>
@@ -1008,7 +1146,7 @@ function switchTab(tab) {
 }
 
 function initPage() {
-  renderAPList();
+  loadAPList();
   initRuleSelects();
   initOTSelects();
   initResultInputList();
@@ -1019,8 +1157,34 @@ function initPage() {
   initSchedule();
 }
 
+// AP List: Supabase から取得してレンダリング
+function loadAPList() {
+  if (!_currentEventId) { renderAPList(); return; }
+  _sb.from('athlete_entries')
+    .select('*').eq('event_id', _currentEventId).order('entry_no')
+    .then(function(res) {
+      if (res.error) { console.error(res.error); return; }
+      apData = (res.data || []).map(function(a) {
+        return { id: a.id, no: a.entry_no, name: a.name, nationality: a.nationality,
+                 gender: a.gender, disc: a.discipline, ap_m: a.ap_m, ap_t: a.ap_time,
+                 ot_time: a.ot_time, dns: a.dns };
+      });
+      renderAPList();
+      // Entries stat 更新
+      var entriesEl = document.getElementById('ev-stat-entries');
+      if (entriesEl) entriesEl.textContent = apData.length;
+    });
+}
+
 function renderAPList() {
   var el = document.getElementById('apList');
+  if (!el) return;
+  if (!apData.length) {
+    el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">エントリーがありません。「＋ 追加」から選手を登録してください。</div>';
+    return;
+  }
+  var SEA_DISCS  = ['CWT','CWTB','CNF','FIM'];
+  var POOL_DISCS = ['STA','DYN','DNF','DYNB'];
   var header = '<div class="ap-row ap-header">' +
     '<span class="ap-col-no">#</span>' +
     '<span class="ap-col-name">Name</span>' +
@@ -1029,19 +1193,84 @@ function renderAPList() {
     '<span class="ap-col-disc">Disc</span>' +
     '<span class="ap-col-depth">AP(m)</span>' +
     '<span class="ap-col-dt">DT</span>' +
+    '<span style="width:32px;flex-shrink:0;"></span>' +
   '</div>';
-  var rows = apData.map(function(a) {
-    return '<div class="ap-row">' +
-      '<span class="ap-col-no">' + a.no + '</span>' +
+  var rows = apData.map(function(a, i) {
+    return '<div class="ap-row" style="' + (a.dns ? 'opacity:0.4;' : '') + '">' +
+      '<span class="ap-col-no">' + (a.no || i+1) + '</span>' +
       '<span class="ap-col-name">' + a.name + '</span>' +
       '<span class="ap-col-nat">' + (a.nationality || '—') + '</span>' +
-      '<span class="ap-col-gender">' + a.gender + '</span>' +
-      '<span class="ap-col-disc">' + a.disc + '</span>' +
-      '<span class="ap-col-depth">' + a.ap_m + '</span>' +
-      '<span class="ap-col-dt">' + a.ap_t + '</span>' +
+      '<span class="ap-col-gender">' + (a.gender || '—') + '</span>' +
+      '<span class="ap-col-disc">' + (a.disc || '—') + '</span>' +
+      '<span class="ap-col-depth">' + (a.ap_m || '—') + '</span>' +
+      '<span class="ap-col-dt">' + (a.ap_t || '—') + '</span>' +
+      '<button onclick="deleteEntry(' + i + ')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px;width:32px;flex-shrink:0;">×</button>' +
     '</div>';
   }).join('');
   el.innerHTML = header + rows;
+}
+
+function deleteEntry(i) {
+  var a = apData[i];
+  if (!a) return;
+  if (!confirm(a.name + ' を削除しますか？')) return;
+  if (a.id && _currentEventId) {
+    _sb.from('athlete_entries').delete().eq('id', a.id).then(function(res) {
+      if (res.error) { alert('削除失敗: ' + res.error.message); return; }
+      apData.splice(i, 1);
+      renderAPList();
+    });
+  } else {
+    apData.splice(i, 1);
+    renderAPList();
+  }
+}
+
+function openAddEntryModal() {
+  document.getElementById('entry-modal').classList.add('open');
+  document.getElementById('em-name').value = '';
+  document.getElementById('em-nat').value = 'JPN';
+  document.getElementById('em-gender').value = 'Male';
+  document.getElementById('em-disc').value = 'CWT';
+  document.getElementById('em-ap-m').value = '';
+  document.getElementById('em-ap-t').value = '';
+}
+
+function closeEntryModal() {
+  document.getElementById('entry-modal').classList.remove('open');
+}
+
+function confirmAddEntry() {
+  var name = document.getElementById('em-name').value.trim();
+  if (!name) { alert('選手名を入力してください'); return; }
+  var entry = {
+    event_id:    _currentEventId,
+    entry_no:    apData.length + 1,
+    name:        name,
+    nationality: document.getElementById('em-nat').value.trim() || 'JPN',
+    gender:      document.getElementById('em-gender').value,
+    discipline:  document.getElementById('em-disc').value,
+    ap_m:        parseFloat(document.getElementById('em-ap-m').value) || null,
+    ap_time:     document.getElementById('em-ap-t').value.trim() || null,
+    dns:         false,
+  };
+  if (_currentEventId) {
+    _sb.from('athlete_entries').insert(entry).select().single()
+      .then(function(res) {
+        if (res.error) { alert('保存失敗: ' + res.error.message); return; }
+        var d = res.data;
+        apData.push({ id: d.id, no: d.entry_no, name: d.name, nationality: d.nationality,
+                      gender: d.gender, disc: d.discipline, ap_m: d.ap_m, ap_t: d.ap_time });
+        renderAPList();
+        var entriesEl = document.getElementById('ev-stat-entries');
+        if (entriesEl) entriesEl.textContent = apData.length;
+      });
+  } else {
+    apData.push({ no: apData.length+1, name: entry.name, nationality: entry.nationality,
+                  gender: entry.gender, disc: entry.discipline, ap_m: entry.ap_m, ap_t: entry.ap_time });
+    renderAPList();
+  }
+  closeEntryModal();
 }
 
 function initOTSelects() {
@@ -1175,7 +1404,9 @@ function togglePublish() {
 }
 
 function openCountdown() {
-  alert('Opens competition-countdown.html with start list loaded.\n(Supabase required for full integration)');
+  var id = _currentEventId || new URLSearchParams(location.search).get('id');
+  var url = 'competition-countdown.html' + (id ? '?id=' + id : '');
+  window.open(url, '_blank');
 }
 
 function exportCSV() {

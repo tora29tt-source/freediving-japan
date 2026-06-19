@@ -1424,56 +1424,58 @@ function buildOTSelect(containerId, prefix) {
 }
 
 
-// ── Supabase: event_entries ロード ────────────────────────────────────
-// URL: competition-countdown.html?event_id=<uuid>
-var _eventId = new URLSearchParams(location.search).get('event_id');
+// ── Supabase: athlete_entries ロード ─────────────────────────────────
+// URL: competition-countdown.html?id=<uuid>
+var _params  = new URLSearchParams(location.search);
+var _eventId = _params.get('id') || _params.get('event_id');
 if (_eventId) {
   var btnDB = document.getElementById('btnDB');
   if (btnDB) btnDB.style.display = '';
+  // イベント名もヘッダーに表示
+  _sb.from('events').select('name').eq('id', _eventId).single().then(function(r) {
+    if (r.data) document.title = r.data.name + ' — Competition';
+  });
 }
 
 async function loadFromSupabase() {
   if (!_eventId) {
-    var id = prompt('Event ID を入力してください (UUID)');
+    var id = prompt('大会ID（UUID）を入力してください');
     if (!id) return;
     _eventId = id.trim();
   }
   try {
     addLog('📡 Supabase からエントリーを取得中...', false);
-    var { data: entries, error } = await _sb
-      .from('event_entries')
-      .select('id, name, nationality, gender, discipline, ap_m, ap_time, remarks')
+    var res = await _sb
+      .from('athlete_entries')
+      .select('entry_no, name, nationality, gender, discipline, ap_m, ap_time, ot_time, dns')
       .eq('event_id', _eventId)
-      .order('discipline')
-      .order('ap_m', { ascending: false });
+      .eq('dns', false)
+      .order('entry_no');
 
-    if (error) throw error;
-    if (!entries || !entries.length) {
-      addLog('⚠️ エントリーが見つかりません (event_id: ' + _eventId + ')', false);
+    if (res.error) throw res.error;
+    var entries = res.data || [];
+    if (!entries.length) {
+      addLog('⚠️ エントリーが見つかりません。event-staff.html でAPリストを登録してください。', false);
       return;
     }
 
-    // event_entries には OT が未保存のため手動フォームに流し込む
-    // Sea mode: Generate Start List で OT を自動計算
-    // Pool mode: 各行の OT を手動入力
     var mapped = entries.map(function(e, i) {
       return {
-        no:          String(i + 1),
+        no:          String(e.entry_no || i + 1),
         name:        e.name,
         nationality: e.nationality || '',
         gender:      e.gender || '',
         disc:        e.discipline || '',
         ap_m:        e.ap_m ? String(e.ap_m) : '',
         ap_t:        e.ap_time || '',
-        remarks:     e.remarks || '',
-        wt: '', ot: '', done: false,
+        remarks:     '',
+        wt: '', ot: e.ot_time || '', done: false,
       };
     });
 
-    // Manual Entry フォームを更新（rawCSV も更新してGenerate対応）
     rawCSV = mapped;
     document.getElementById('dropZone').style.display = 'none';
-    addLog('✅ ' + entries.length + ' エントリー取得完了。OT を設定して Generate / Load してください。', false);
+    addLog('✅ ' + entries.length + ' 選手のデータを取得しました。OT を確認して Generate / Load してください。', false);
     renderRawPreview();
   } catch (err) {
     addLog('❌ Supabase エラー: ' + (err.message || err), false);
