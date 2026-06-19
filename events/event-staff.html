@@ -1982,6 +1982,170 @@ function initPage() {
   initSchedule();
 }
 
+// =============================================
+// CSV IMPORT
+// =============================================
+var _csvRows    = [];   // パース済み全行（ヘッダー含む）
+var _csvHeaders = [];   // 1行目ヘッダー
+var _csvMapping = {};   // { appField: csvColIndex }
+
+var IMPORT_FIELDS = [
+  { key: 'last_name',  label: '姓 (Last Name)',    detect: ['姓','last'] },
+  { key: 'first_name', label: '名 (First Name)',   detect: ['名','first'] },
+  { key: 'gender',     label: '性別 (Gender)',     detect: ['性別','gender'] },
+  { key: 'nationality',label: '国籍 (Nationality)',detect: ['国籍','nationality'] },
+  { key: 'discipline', label: '種目 (Discipline)', detect: ['種目','discipline','disc'] },
+  { key: 'email',      label: 'メール (Email)',    detect: ['メール','email','mail'] },
+];
+
+function openImportModal() {
+  _csvRows = []; _csvHeaders = []; _csvMapping = {};
+  document.getElementById('import-step1').style.display = '';
+  document.getElementById('import-step2').style.display = 'none';
+  document.getElementById('import-step3').style.display = 'none';
+  document.getElementById('import-file-input').value = '';
+  document.getElementById('import-modal').style.display = 'flex';
+
+  // ドラッグ&ドロップ
+  var zone = document.getElementById('import-drop-zone');
+  zone.onclick = function() { document.getElementById('import-file-input').click(); };
+  zone.ondragover = function(e) { e.preventDefault(); zone.style.borderColor = 'var(--teal)'; };
+  zone.ondragleave = function() { zone.style.borderColor = 'var(--border)'; };
+  zone.ondrop = function(e) {
+    e.preventDefault(); zone.style.borderColor = 'var(--border)';
+    var f = e.dataTransfer.files[0];
+    if (f) parseCSVFile(f);
+  };
+}
+
+function closeImportModal() {
+  document.getElementById('import-modal').style.display = 'none';
+}
+
+function onImportFileSelect(input) {
+  if (input.files[0]) parseCSVFile(input.files[0]);
+}
+
+function parseCSVFile(file) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var text = e.target.result;
+    // BOM除去
+    if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+    _csvRows = parseCSV(text);
+    if (_csvRows.length < 2) { showToast('データが見つかりません', 'error'); return; }
+    _csvHeaders = _csvRows[0];
+    autoDetectMapping();
+    renderMappingUI();
+    document.getElementById('import-step1').style.display = 'none';
+    document.getElementById('import-step2').style.display = '';
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function parseCSV(text) {
+  var rows = [], cur = [], field = '', inQ = false;
+  for (var i = 0; i < text.length; i++) {
+    var c = text[i];
+    if (inQ) {
+      if (c === '"' && text[i+1] === '"') { field += '"'; i++; }
+      else if (c === '"') inQ = false;
+      else field += c;
+    } else {
+      if (c === '"') { inQ = true; }
+      else if (c === ',') { cur.push(field); field = ''; }
+      else if (c === '\n' || c === '\r') {
+        cur.push(field); field = '';
+        if (cur.some(function(v){ return v.trim(); })) rows.push(cur);
+        cur = [];
+        if (c === '\r' && text[i+1] === '\n') i++;
+      } else field += c;
+    }
+  }
+  if (field || cur.length) { cur.push(field); if (cur.some(function(v){ return v.trim(); })) rows.push(cur); }
+  return rows;
+}
+
+function autoDetectMapping() {
+  _csvMapping = {};
+  IMPORT_FIELDS.forEach(function(f) {
+    for (var i = 0; i < _csvHeaders.length; i++) {
+      var h = (_csvHeaders[i] || '').toLowerCase();
+      if (f.detect.some(function(kw) { return h.indexOf(kw.toLowerCase()) !== -1; })) {
+        _csvMapping[f.key] = i; break;
+      }
+    }
+  });
+}
+
+function renderMappingUI() {
+  var mapEl = document.getElementById('import-mapping');
+  mapEl.innerHTML = IMPORT_FIELDS.map(function(f) {
+    var opts = '<option value="">— スキップ —</option>' +
+      _csvHeaders.map(function(h, i) {
+        return '<option value="' + i + '"' + (_csvMapping[f.key] === i ? ' selected' : '') + '>' + h + '</option>';
+      }).join('');
+    return '<div>' +
+      '<div style="font-size:11px;font-weight:700;color:var(--sub);margin-bottom:4px;">' + f.label + '</div>' +
+      '<select class="fi" style="font-size:12px;" onchange="updateMapping(\'' + f.key + '\', this.value)" data-field="' + f.key + '">' + opts + '</select>' +
+    '</div>';
+  }).join('');
+  renderImportPreview();
+}
+
+function updateMapping(fieldKey, val) {
+  if (val === '') delete _csvMapping[fieldKey];
+  else _csvMapping[fieldKey] = parseInt(val);
+  renderImportPreview();
+}
+
+function renderImportPreview() {
+  var preview = document.getElementById('import-preview');
+  var sample = _csvRows.slice(1, 6);
+  var cols = IMPORT_FIELDS.filter(function(f) { return _csvMapping[f.key] !== undefined; });
+  if (!cols.length) { preview.innerHTML = '<span style="color:var(--muted);">列を選択してください</span>'; return; }
+
+  var th = cols.map(function(f) { return '<th style="padding:4px 8px;font-size:10px;font-weight:700;color:var(--muted);border-bottom:1px solid var(--border);">' + f.label + '</th>'; }).join('');
+  var tbody = sample.map(function(row) {
+    var cells = cols.map(function(f) {
+      return '<td style="padding:4px 8px;border-bottom:1px solid var(--border)22;">' + (row[_csvMapping[f.key]] || '') + '</td>';
+    }).join('');
+    return '<tr>' + cells + '</tr>';
+  }).join('');
+
+  preview.innerHTML = '<table style="border-collapse:collapse;width:100%;"><thead><tr>' + th + '</tr></thead><tbody>' + tbody + '</tbody></table>';
+}
+
+async function executeImport() {
+  var btn = document.getElementById('import-exec-btn');
+  btn.disabled = true; btn.textContent = '処理中…';
+
+  var dataRows = _csvRows.slice(1).filter(function(r) { return r.some(function(v){ return v.trim(); }); });
+  var inserts = dataRows.map(function(row, i) {
+    var lastName  = _csvMapping['last_name']  !== undefined ? (row[_csvMapping['last_name']]  || '').trim() : '';
+    var firstName = _csvMapping['first_name'] !== undefined ? (row[_csvMapping['first_name']] || '').trim() : '';
+    var name = [lastName, firstName].filter(Boolean).join(' ') || ('選手' + (i+1));
+    var entry = { event_id: _currentEventId, entry_no: i + 1, name: name };
+    if (_csvMapping['gender']      !== undefined) entry.gender      = (row[_csvMapping['gender']]      || '').trim() || null;
+    if (_csvMapping['nationality'] !== undefined) entry.nationality = (row[_csvMapping['nationality']] || '').trim() || null;
+    if (_csvMapping['discipline']  !== undefined) entry.discipline  = (row[_csvMapping['discipline']]  || '').trim() || null;
+    return entry;
+  }).filter(function(e) { return e.name && e.event_id; });
+
+  try {
+    var res = await _sb.from('athlete_entries').insert(inserts).select();
+    if (res.error) throw new Error(res.error.message);
+    document.getElementById('import-step2').style.display = 'none';
+    document.getElementById('import-step3').style.display = '';
+    document.getElementById('import-result-msg').textContent = inserts.length + '名の選手データをインポートしました';
+    loadAPList();
+  } catch(e) {
+    showToast('インポート失敗: ' + e.message, 'error');
+    btn.disabled = false; btn.textContent = 'インポート実行';
+  }
+}
+
+// =============================================
 // AP List: Supabase から取得してレンダリング
 function loadAPList() {
   if (!_currentEventId) { renderAPList(); return; }
