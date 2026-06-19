@@ -336,8 +336,9 @@ body.role-staff #panel-overview textarea.fi{pointer-events:none;opacity:0.65;}
         <span class="card-title">スタッフ一覧</span>
         <div style="display:flex;gap:8px;align-items:center;">
           <div style="display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;">
-            <button id="viewBtnCard" onclick="setStaffView('card')" style="padding:4px 10px;font-size:11px;font-weight:700;font-family:inherit;border:none;cursor:pointer;background:var(--teal);color:#fff;transition:all 0.15s;">カード</button>
-            <button id="viewBtnGrid" onclick="setStaffView('grid')" style="padding:4px 10px;font-size:11px;font-weight:700;font-family:inherit;border:none;cursor:pointer;background:transparent;color:var(--muted);transition:all 0.15s;">グリッド</button>
+            <button id="viewBtnCard"  onclick="setStaffView('card')"  style="padding:4px 10px;font-size:11px;font-weight:700;font-family:inherit;border:none;cursor:pointer;background:var(--teal);color:#fff;transition:all 0.15s;">カード</button>
+            <button id="viewBtnGrid"  onclick="setStaffView('grid')"  style="padding:4px 10px;font-size:11px;font-weight:700;font-family:inherit;border:none;cursor:pointer;background:transparent;color:var(--muted);transition:all 0.15s;">グリッド</button>
+            <button id="viewBtnShift" onclick="setStaffView('shift')" style="padding:4px 10px;font-size:11px;font-weight:700;font-family:inherit;border:none;cursor:pointer;background:transparent;color:var(--muted);transition:all 0.15s;">シフト</button>
           </div>
           <button class="btn btn-primary btn-sm" onclick="openAddStaffModal()">＋ 追加</button>
         </div>
@@ -1221,21 +1222,224 @@ var SITE_ROLE_LABELS = { organizer: '主催者', staff: 'スタッフ', readonly
 
 var ENG_LABELS = { advanced:'上級', intermediate:'中級', beginner:'初級' };
 
-var _staffView = 'card'; // 'card' or 'grid'
+var _staffView = 'card'; // 'card' | 'grid' | 'shift'
 
 function setStaffView(v) {
   _staffView = v;
-  var btnCard = document.getElementById('viewBtnCard');
-  var btnGrid = document.getElementById('viewBtnGrid');
-  if (btnCard && btnGrid) {
-    btnCard.style.background = v === 'card' ? 'var(--teal)' : 'transparent';
-    btnCard.style.color      = v === 'card' ? '#fff' : 'var(--muted)';
-    btnGrid.style.background = v === 'grid' ? 'var(--teal)' : 'transparent';
-    btnGrid.style.color      = v === 'grid' ? '#fff' : 'var(--muted)';
+  ['card','grid','shift'].forEach(function(k) {
+    var btn = document.getElementById('viewBtn' + k.charAt(0).toUpperCase() + k.slice(1));
+    if (btn) {
+      btn.style.background = v === k ? 'var(--teal)' : 'transparent';
+      btn.style.color      = v === k ? '#fff' : 'var(--muted)';
+    }
+  });
+  if (v === 'shift' && !_shiftLoaded) {
+    initShiftData().then(function() { renderStaffList(); });
+  } else {
+    renderStaffList();
   }
-  renderStaffList();
 }
 
+// =============================================
+// SHIFT ビュー
+// =============================================
+var _shiftRoles  = [];   // [{id, name, color, sort_order}]
+var _staffShifts = {};   // key: "staffId_YYYY-MM-DD" → row object
+var _shiftLoaded = false;
+var SHIFT_SPECIAL = [
+  { name: 'Day off',  color: '#f87171' },
+  { name: 'not here', color: '#94a3b8' },
+];
+
+async function initShiftData() {
+  if (!_currentEventId) return;
+  var results = await Promise.all([
+    _sb.from('event_shift_roles').select('*').eq('event_id', _currentEventId).order('sort_order'),
+    _sb.from('event_staff_shifts').select('*').eq('event_id', _currentEventId)
+  ]);
+  _shiftRoles  = results[0].data || [];
+  _staffShifts = {};
+  (results[1].data || []).forEach(function(s) { _staffShifts[s.staff_id + '_' + s.date] = s; });
+  _shiftLoaded = true;
+}
+
+function renderShiftView() {
+  var el = document.getElementById('staffList');
+  if (!el) return;
+
+  // ---- ロール管理エリア ----
+  var roleChips = _shiftRoles.map(function(r) {
+    return '<div style="display:inline-flex;align-items:center;gap:5px;background:' + r.color + '22;border:1px solid ' + r.color + '55;border-radius:6px;padding:3px 6px 3px 10px;">' +
+      '<div style="width:7px;height:7px;border-radius:50%;background:' + r.color + ';flex-shrink:0;"></div>' +
+      '<span style="font-size:12px;font-weight:700;color:' + r.color + ';">' + r.name + '</span>' +
+      '<button onclick="deleteShiftRole(\'' + r.id + '\')" style="background:none;border:none;color:' + r.color + ';cursor:pointer;font-size:15px;padding:0 2px;opacity:0.7;line-height:1;">×</button>' +
+    '</div>';
+  }).join('');
+
+  var roleManager =
+    '<div style="padding:12px 16px 14px;border-bottom:2px solid var(--border);background:var(--surface2);">' +
+      '<div style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:0.08em;margin-bottom:8px;">ROLE 管理</div>' +
+      '<div id="shift-role-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;min-height:20px;">' +
+        (roleChips || '<span style="font-size:12px;color:var(--muted);">まだロールがありません</span>') +
+      '</div>' +
+      '<div style="display:flex;gap:6px;align-items:center;">' +
+        '<input id="new-role-name" class="fi" type="text" placeholder="ロール名 (例: Pier)" style="flex:1;font-size:12px;padding:5px 10px;" onkeydown="if(event.key===\'Enter\')addShiftRole()">' +
+        '<input id="new-role-color" type="color" value="#2ec4b6" style="width:34px;height:32px;border:1px solid var(--border);border-radius:6px;cursor:pointer;padding:2px;background:var(--surface2);">' +
+        '<button onclick="addShiftRole()" class="btn btn-primary btn-sm">追加</button>' +
+      '</div>' +
+    '</div>';
+
+  if (!_staffList.length) {
+    el.innerHTML = roleManager + '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">スタッフが登録されていません</div>';
+    return;
+  }
+
+  var dateStr    = document.getElementById('ov-date')     ? document.getElementById('ov-date').value     : '';
+  var dateEndStr = document.getElementById('ov-date-end') ? document.getElementById('ov-date-end').value : '';
+  if (!dateStr) {
+    el.innerHTML = roleManager + '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">概要タブで開催日を設定してください</div>';
+    return;
+  }
+  var allDates = getDatesInRange(dateStr, dateEndStr || dateStr);
+
+  var thStyle = 'font-size:10px;font-weight:700;color:var(--muted);text-align:center;padding:6px 4px;border-bottom:1px solid var(--border);white-space:nowrap;min-width:82px;';
+  var headerCols = allDates.map(function(d) {
+    var dt = new Date(d + 'T00:00:00');
+    var weekDay = ['日','月','火','水','木','金','土'][dt.getDay()];
+    var lbl = _dayLabels && _dayLabels[d] ? '<br><span style="font-size:9px;color:var(--teal2);font-weight:700;">' + _dayLabels[d] + '</span>' : '';
+    return '<th style="' + thStyle + '">' + (dt.getMonth()+1) + '/' + dt.getDate() + '<br><span style="opacity:0.6;">(' + weekDay + ')</span>' + lbl + '</th>';
+  }).join('');
+
+  var tdNameStyle = 'font-size:12px;font-weight:600;padding:7px 10px;border-bottom:1px solid var(--border);white-space:nowrap;max-width:110px;overflow:hidden;text-overflow:ellipsis;border-right:1px solid var(--border);';
+
+  var bodyRows = _staffList.map(function(s) {
+    var cells = allDates.map(function(d) {
+      var key      = s.id + '_' + d;
+      var entry    = _staffShifts[key];
+      var roleName = entry ? entry.role_name : '';
+
+      var cellBg = 'transparent', cellColor = 'var(--muted)';
+      if (roleName === 'Day off')  { cellBg = 'rgba(248,113,113,0.18)'; cellColor = '#f87171'; }
+      else if (roleName === 'not here') { cellBg = 'rgba(148,163,184,0.18)'; cellColor = '#94a3b8'; }
+      else if (roleName) {
+        var mr = null;
+        for (var ri = 0; ri < _shiftRoles.length; ri++) { if (_shiftRoles[ri].name === roleName) { mr = _shiftRoles[ri]; break; } }
+        if (mr) { cellBg = mr.color + '28'; cellColor = mr.color; }
+        else    { cellColor = 'var(--text)'; }
+      }
+
+      return '<td style="padding:3px;border-bottom:1px solid var(--border);border-right:1px solid var(--border)33;text-align:center;">' +
+        '<div onclick="openShiftPicker(\'' + s.id + '\',\'' + d + '\',this)" ' +
+          'style="cursor:pointer;border-radius:5px;padding:5px 6px;font-size:11px;font-weight:' + (roleName?'700':'400') + ';' +
+          'color:' + cellColor + ';background:' + cellBg + ';min-height:26px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:opacity 0.1s;" ' +
+          'onmouseover="this.style.opacity=\'0.65\'" onmouseout="this.style.opacity=\'1\'">' +
+          (roleName || '<span style="color:var(--border);font-size:13px;">—</span>') +
+        '</div>' +
+      '</td>';
+    }).join('');
+    return '<tr><td style="' + tdNameStyle + '">' + s.name + '</td>' + cells + '</tr>';
+  }).join('');
+
+  var grid =
+    '<div style="overflow-x:auto;padding:0;">' +
+    '<table style="width:100%;border-collapse:collapse;">' +
+      '<thead><tr>' +
+        '<th style="' + thStyle + 'text-align:left;padding-left:10px;min-width:100px;border-right:1px solid var(--border);">名前</th>' +
+        headerCols +
+      '</tr></thead>' +
+      '<tbody>' + bodyRows + '</tbody>' +
+    '</table></div>';
+
+  el.innerHTML = roleManager + grid;
+}
+
+// ---- シフトピッカー ----
+var _pickerEl = null;
+
+function openShiftPicker(staffId, date, cellDiv) {
+  closeShiftPicker();
+  var allOptions = [{ name: '', label: '— 未割当', color: '' }];
+  _shiftRoles.forEach(function(r) { allOptions.push({ name: r.name, label: r.name, color: r.color }); });
+  SHIFT_SPECIAL.forEach(function(s) { allOptions.push({ name: s.name, label: s.name, color: s.color }); });
+
+  var items = allOptions.map(function(o) {
+    var dot = o.color ? '<div style="width:8px;height:8px;border-radius:50%;background:' + o.color + ';flex-shrink:0;"></div>'
+                      : '<div style="width:8px;height:8px;"></div>';
+    return '<div onclick="selectShiftOption(\'' + staffId + '\',\'' + date + '\',\'' + o.name + '\')" ' +
+      'style="display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;border-radius:5px;font-size:12px;font-weight:600;color:' + (o.color||'var(--muted)') + ';transition:background 0.1s;" ' +
+      'onmouseover="this.style.background=\'rgba(255,255,255,0.09)\'" onmouseout="this.style.background=\'transparent\'">' +
+      dot + o.label + '</div>';
+  }).join('');
+
+  var picker = document.createElement('div');
+  picker.id = 'shift-picker';
+  picker.style.cssText = 'position:fixed;z-index:9999;background:#1a2844;border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,0.6);padding:6px;min-width:160px;';
+  picker.innerHTML = items;
+
+  var rect = cellDiv.getBoundingClientRect();
+  var top  = rect.bottom + 4;
+  var left = rect.left;
+  if (left + 180 > window.innerWidth) left = window.innerWidth - 184;
+  picker.style.top  = top  + 'px';
+  picker.style.left = left + 'px';
+
+  document.body.appendChild(picker);
+  _pickerEl = picker;
+
+  setTimeout(function() {
+    document.addEventListener('click', closeShiftPicker, { once: true });
+  }, 10);
+}
+
+function closeShiftPicker() {
+  if (_pickerEl) { _pickerEl.remove(); _pickerEl = null; }
+}
+
+async function selectShiftOption(staffId, date, roleName) {
+  closeShiftPicker();
+  var key = staffId + '_' + date;
+  try {
+    if (!roleName) {
+      var existing = _staffShifts[key];
+      if (existing && existing.id) await _sb.from('event_staff_shifts').delete().eq('id', existing.id);
+      delete _staffShifts[key];
+    } else {
+      var res = await _sb.from('event_staff_shifts').upsert(
+        { event_id: _currentEventId, staff_id: staffId, date: date, role_name: roleName },
+        { onConflict: 'staff_id,date' }
+      ).select();
+      if (res.error) throw new Error(res.error.message);
+      _staffShifts[key] = res.data[0];
+    }
+    renderShiftView();
+  } catch(e) {
+    showToast('保存失敗: ' + e.message, 'error');
+  }
+}
+
+async function addShiftRole() {
+  var nameEl  = document.getElementById('new-role-name');
+  var colorEl = document.getElementById('new-role-color');
+  var name    = nameEl ? nameEl.value.trim() : '';
+  if (!name || !_currentEventId) return;
+  var color = colorEl ? colorEl.value : '#2ec4b6';
+  var res = await _sb.from('event_shift_roles').insert(
+    { event_id: _currentEventId, name: name, color: color, sort_order: _shiftRoles.length }
+  ).select();
+  if (res.error) { showToast('追加失敗: ' + res.error.message, 'error'); return; }
+  _shiftRoles.push(res.data[0]);
+  if (nameEl) nameEl.value = '';
+  renderShiftView();
+}
+
+async function deleteShiftRole(roleId) {
+  var res = await _sb.from('event_shift_roles').delete().eq('id', roleId);
+  if (res.error) { showToast('削除失敗: ' + res.error.message, 'error'); return; }
+  _shiftRoles = _shiftRoles.filter(function(r){ return r.id !== roleId; });
+  renderShiftView();
+}
+
+// =============================================
 function renderStaffGrid() {
   var el = document.getElementById('staffList');
   if (!el) return;
@@ -1296,7 +1500,8 @@ function renderStaffGrid() {
 }
 
 function renderStaffList() {
-  if (_staffView === 'grid') { renderStaffGrid(); return; }
+  if (_staffView === 'grid')  { renderStaffGrid();  return; }
+  if (_staffView === 'shift') { renderShiftView(); return; }
   var el = document.getElementById('staffList');
   if (!el) return;
   if (!_staffList.length) {

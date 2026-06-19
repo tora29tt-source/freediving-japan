@@ -432,6 +432,34 @@ tr:last-child td { border-bottom: none; }
   .card-head { padding: 10px 14px; }
 }
 
+/* ===== SHARE CARD ===== */
+.share-format-btns { display:flex; gap:6px; margin-bottom:12px; }
+.share-fmt-btn {
+  padding:5px 14px; border-radius:20px; font-size:11px; font-weight:700;
+  border:1px solid var(--border); color:var(--sub);
+  background:transparent; cursor:pointer; transition:all .15s; font-family:inherit;
+}
+.share-fmt-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+.share-canvas-wrap {
+  position:relative; border-radius:10px; overflow:hidden;
+  background:var(--surface2); margin-bottom:14px;
+  display:flex; align-items:center; justify-content:center;
+}
+#share-canvas { display:block; border-radius:8px; max-width:100%; }
+.share-photo-zone {
+  border:1.5px dashed var(--border); border-radius:8px;
+  padding:16px; text-align:center; cursor:pointer; transition:all .2s;
+  font-size:12px; color:var(--muted); margin-bottom:12px;
+}
+.share-photo-zone:hover { border-color:var(--accent); color:var(--accent2); }
+.share-style-btns { display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap; }
+.share-style-btn {
+  padding:5px 12px; border-radius:8px; font-size:11px; font-weight:700;
+  border:1px solid var(--border); color:var(--sub);
+  background:var(--surface2); cursor:pointer; transition:all .15s; font-family:inherit;
+}
+.share-style-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+
 /* 保存後に新規行をハイライト */
 @keyframes fadeHighlight {
   0%   { background: rgba(46,196,182,0.22); }
@@ -944,6 +972,48 @@ tr:last-child td { border-bottom: none; }
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- ===== SHARE CARD MODAL ===== -->
+<div class="overlay" id="share-overlay">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-head">
+      <h2 class="modal-title">📸 SNSシェアカード</h2>
+      <button class="close" onclick="closeShareCard()">✕</button>
+    </div>
+
+    <!-- フォーマット選択 -->
+    <div class="share-format-btns">
+      <button class="share-fmt-btn active" id="sfmt-square" onclick="setShareFmt('square',this)">▪ 1:1（フィード）</button>
+      <button class="share-fmt-btn" id="sfmt-story" onclick="setShareFmt('story',this)">▌ 9:16（ストーリー）</button>
+    </div>
+
+    <!-- スタイル選択 -->
+    <div class="share-style-btns">
+      <button class="share-style-btn active" id="sst-ocean" onclick="setShareStyle('ocean',this)">🌊 オーシャン</button>
+      <button class="share-style-btn" id="sst-dark" onclick="setShareStyle('dark',this)">🖤 ダーク</button>
+      <button class="share-style-btn" id="sst-photo" onclick="setShareStyle('photo',this)">🖼 写真</button>
+    </div>
+
+    <!-- 写真アップロード（photoモード時のみ） -->
+    <div id="share-photo-area" style="display:none">
+      <div class="share-photo-zone" onclick="document.getElementById('share-photo-input').click()">
+        <input type="file" id="share-photo-input" accept="image/*,video/*" style="display:none" onchange="loadSharePhoto(this.files[0])">
+        📷 写真をタップして選択（動画はiOSアプリで対応予定）
+      </div>
+    </div>
+
+    <!-- キャンバスプレビュー -->
+    <div class="share-canvas-wrap" id="share-canvas-wrap">
+      <canvas id="share-canvas"></canvas>
+    </div>
+
+    <!-- ダウンロード -->
+    <div style="display:flex;gap:8px;justify-content:flex-end;padding-top:12px;border-top:1px solid var(--border)">
+      <button class="btn btn-ghost" onclick="closeShareCard()">閉じる</button>
+      <button class="btn btn-primary" onclick="downloadShareCard()">⬇ 画像を保存</button>
+    </div>
+  </div>
+</div>
 
 <script>
 'use strict';
@@ -2953,6 +3023,7 @@ function renderList() {
       <td style="color:var(--sub);font-size:12px">${s.rhr?s.rhr+'bpm':'—'}</td>
       <td onclick="event.stopPropagation()" style="white-space:nowrap;display:flex;gap:6px;align-items:center;padding:10px 13px">
         <button class="btn btn-sm" style="font-size:11px;padding:4px 10px;color:var(--accent2);border:1px solid rgba(14,165,233,.3);background:transparent;border-radius:6px;cursor:pointer" onclick="editSession('${s.id}')">✏️ 編集</button>
+        <button class="btn btn-sm" style="font-size:11px;padding:4px 10px;color:#a78bfa;border:1px solid rgba(167,139,250,.3);background:transparent;border-radius:6px;cursor:pointer" onclick="openShareCard('${s.id}')">📸 シェア</button>
         <button class="btn btn-sm" style="font-size:11px;padding:4px 8px;color:var(--danger);border:1px solid rgba(239,68,68,.3);background:transparent;border-radius:6px;cursor:pointer" onclick="delSess('${s.id}')">削除</button>
       </td>
     </tr>`;
@@ -3303,6 +3374,281 @@ updateDistLabels();
     }
   } catch(e) { console.error('import error:', e); }
 })();
+
+// ===== SHARE CARD =====
+let _shareSession = null;
+let _shareFmt = 'square';   // 'square' | 'story'
+let _shareStyle = 'ocean';  // 'ocean' | 'dark' | 'photo'
+let _shareBgImage = null;   // Image object for photo mode
+
+function openShareCard(id) {
+  _shareSession = sessions.find(s => String(s.id) === String(id));
+  if (!_shareSession) return;
+  _shareBgImage = null;
+  document.getElementById('share-photo-area').style.display = 'none';
+  document.getElementById('share-overlay').classList.add('open');
+  // reset to defaults
+  setShareFmt('square', document.getElementById('sfmt-square'));
+  setShareStyle('ocean', document.getElementById('sst-ocean'));
+}
+
+function closeShareCard() {
+  document.getElementById('share-overlay').classList.remove('open');
+}
+
+function setShareFmt(fmt, el) {
+  _shareFmt = fmt;
+  document.querySelectorAll('.share-fmt-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderShareCard();
+}
+
+function setShareStyle(style, el) {
+  _shareStyle = style;
+  document.querySelectorAll('.share-style-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('share-photo-area').style.display = style === 'photo' ? '' : 'none';
+  renderShareCard();
+}
+
+function loadSharePhoto(file) {
+  if (!file) return;
+  const isVideo = file.type.startsWith('video/');
+  if (isVideo) {
+    showToast('⚠️ 動画オーバーレイはiOSアプリで対応予定です（現在は静止画）');
+  }
+  // Use first frame via canvas for video, or direct for image
+  const reader = new FileReader();
+  reader.onload = e => {
+    if (isVideo) {
+      const video = document.createElement('video');
+      video.src = e.target.result;
+      video.muted = true;
+      video.onloadeddata = () => {
+        video.currentTime = 0.5;
+      };
+      video.onseeked = () => {
+        const tmpCanvas = document.createElement('canvas');
+        tmpCanvas.width = video.videoWidth;
+        tmpCanvas.height = video.videoHeight;
+        tmpCanvas.getContext('2d').drawImage(video, 0, 0);
+        const img = new Image();
+        img.onload = () => { _shareBgImage = img; renderShareCard(); };
+        img.src = tmpCanvas.toDataURL();
+      };
+      video.load();
+    } else {
+      const img = new Image();
+      img.onload = () => { _shareBgImage = img; renderShareCard(); };
+      img.src = e.target.result;
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderShareCard() {
+  const s = _shareSession;
+  if (!s) return;
+
+  const canvas = document.getElementById('share-canvas');
+  const wrap = document.getElementById('share-canvas-wrap');
+  const isStory = _shareFmt === 'story';
+
+  // Canvas size (high-res for download)
+  const W = 1080, H = isStory ? 1920 : 1080;
+  canvas.width = W;
+  canvas.height = H;
+
+  // Display size (fit in modal)
+  const maxDisplay = Math.min(wrap.offsetWidth || 400, isStory ? 280 : 440);
+  if (isStory) {
+    canvas.style.width  = Math.round(maxDisplay * (W/H)) + 'px';
+    canvas.style.height = maxDisplay + 'px';
+  } else {
+    canvas.style.width  = maxDisplay + 'px';
+    canvas.style.height = maxDisplay + 'px';
+  }
+
+  const ctx = canvas.getContext('2d');
+
+  // ── Background ──
+  if (_shareStyle === 'photo' && _shareBgImage) {
+    // Draw user photo centered/cropped
+    const img = _shareBgImage;
+    const scale = Math.max(W / img.width, H / img.height);
+    const dw = img.width * scale, dh = img.height * scale;
+    const dx = (W - dw) / 2, dy = (H - dh) / 2;
+    ctx.drawImage(img, dx, dy, dw, dh);
+    // Dark overlay for readability
+    ctx.fillStyle = 'rgba(4, 22, 31, 0.62)';
+    ctx.fillRect(0, 0, W, H);
+  } else {
+    // Gradient background
+    const colors = _shareStyle === 'dark'
+      ? ['#000000', '#0b2d45', '#04161f']
+      : ['#0e3d5c', '#0b2d45', '#04161f'];
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0,   colors[0]);
+    grad.addColorStop(0.5, colors[1]);
+    grad.addColorStop(1,   colors[2]);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Subtle wave lines
+    ctx.strokeStyle = 'rgba(46,196,182,0.06)';
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 5; i++) {
+      const y = H * (0.55 + i * 0.08);
+      ctx.beginPath();
+      for (let x = 0; x <= W; x += 20) {
+        const wy = y + Math.sin((x / W) * Math.PI * 4 + i) * 30;
+        i === 0 && x === 0 ? ctx.moveTo(x, wy) : ctx.lineTo(x, wy);
+        x !== 0 && ctx.lineTo(x, wy);
+      }
+      ctx.stroke();
+    }
+  }
+
+  // ── Teal accent line at top ──
+  const lineH = Math.round(H * 0.004);
+  ctx.fillStyle = '#2ec4b6';
+  ctx.fillRect(0, 0, W, lineH);
+
+  // ── Layout constants ──
+  const pad = W * 0.08;
+  const centerX = W / 2;
+  const isSquare = !isStory;
+
+  // ── Logo: FREEDIVING JAPAN ──
+  const logoY = isStory ? H * 0.08 : H * 0.10;
+  ctx.font = `bold ${Math.round(W * 0.038)}px -apple-system, 'Helvetica Neue', sans-serif`;
+  ctx.fillStyle = '#2ec4b6';
+  ctx.letterSpacing = '0.18em';
+  ctx.textAlign = 'center';
+  ctx.fillText('FREEDIVING  JAPAN', centerX, logoY);
+
+  // URL below logo
+  ctx.font = `${Math.round(W * 0.019)}px -apple-system, sans-serif`;
+  ctx.fillStyle = 'rgba(168,236,232,0.55)';
+  ctx.fillText('freediving-japan.vercel.app', centerX, logoY + W * 0.046);
+
+  // ── Discipline + Env badge ──
+  const disc = s.discipline || (s.diveLog?.[0]?.disc) || null;
+  const envMap = { sea: '🌊 海', pool: '🏊 プール', dry: '🏠 ドライ' };
+  const badgeY = isStory ? H * 0.38 : H * 0.34;
+
+  if (disc) {
+    const badgeText = disc + (s.env ? '  ' + envMap[s.env] : '');
+    const badgeFontSz = Math.round(W * 0.028);
+    ctx.font = `bold ${badgeFontSz}px -apple-system, sans-serif`;
+    const tw = ctx.measureText(badgeText).width;
+    const bPad = W * 0.03, bH = badgeFontSz * 1.8;
+    const bX = centerX - tw / 2 - bPad, bY = badgeY - bH * 0.75;
+    // pill background
+    ctx.fillStyle = 'rgba(46,196,182,0.18)';
+    _roundRect(ctx, bX, bY, tw + bPad * 2, bH, bH / 2);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(46,196,182,0.5)';
+    ctx.lineWidth = 2;
+    _roundRect(ctx, bX, bY, tw + bPad * 2, bH, bH / 2);
+    ctx.stroke();
+    ctx.fillStyle = '#a8ece8';
+    ctx.fillText(badgeText, centerX, badgeY);
+  }
+
+  // ── Main stat (depth or time) ──
+  const hasDepth = s.bestDepth != null;
+  const hasTime  = s.bestTime  != null;
+  const mainVal   = hasDepth ? s.bestDepth + 'm' : (hasTime ? s.bestTime : '—');
+  const mainLabel = hasDepth ? 'BEST DEPTH' : (hasTime ? 'BEST TIME' : 'SESSION');
+
+  const mainY = isStory ? H * 0.52 : H * 0.52;
+  ctx.font = `800 ${Math.round(W * 0.17)}px -apple-system, 'Helvetica Neue', sans-serif`;
+  ctx.fillStyle = '#ffffff';
+  ctx.textAlign = 'center';
+  ctx.fillText(mainVal, centerX, mainY);
+
+  ctx.font = `600 ${Math.round(W * 0.025)}px -apple-system, sans-serif`;
+  ctx.fillStyle = 'rgba(168,236,232,0.7)';
+  ctx.letterSpacing = '0.14em';
+  ctx.fillText(mainLabel, centerX, mainY + W * 0.04);
+
+  // ── Secondary stats ──
+  const statY = isStory ? H * 0.64 : H * 0.68;
+  const divider = (x, y, h) => {
+    ctx.strokeStyle = 'rgba(168,236,232,0.2)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(x, y - h/2); ctx.lineTo(x, y + h/2); ctx.stroke();
+  };
+
+  const stats = [];
+  if (hasDepth && hasTime) stats.push({ val: s.bestTime, lbl: 'BEST TIME' });
+  else if (!hasDepth && !hasTime) stats.push({ val: '—', lbl: 'TIME' });
+  if (s.dives)      stats.push({ val: s.dives + '本', lbl: 'DIVES' });
+  if (s.condition)  stats.push({ val: '⭐'.repeat(s.condition), lbl: 'CONDITION' });
+
+  if (stats.length) {
+    const cols = stats.length;
+    const colW = (W - pad * 2) / cols;
+    stats.forEach((st, i) => {
+      const sx = pad + colW * i + colW / 2;
+      ctx.font = `800 ${Math.round(W * 0.052)}px -apple-system, sans-serif`;
+      ctx.fillStyle = '#a8ece8';
+      ctx.textAlign = 'center';
+      ctx.fillText(st.val, sx, statY);
+      ctx.font = `600 ${Math.round(W * 0.022)}px -apple-system, sans-serif`;
+      ctx.fillStyle = 'rgba(168,236,232,0.55)';
+      ctx.letterSpacing = '0.1em';
+      ctx.fillText(st.lbl, sx, statY + W * 0.038);
+      if (i > 0) divider(pad + colW * i, statY - W * 0.02, W * 0.08);
+    });
+  }
+
+  // ── Date + Location ──
+  const dateY = isStory ? H * 0.76 : H * 0.82;
+  const dateStr = s.date ? s.date.replace(/-/g, '.') : '';
+  const locStr  = s.location || '';
+  const meta = [dateStr, locStr].filter(Boolean).join('  ·  ');
+  ctx.font = `500 ${Math.round(W * 0.025)}px -apple-system, sans-serif`;
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  ctx.textAlign = 'center';
+  ctx.letterSpacing = '0.04em';
+  ctx.fillText(meta, centerX, dateY);
+
+  // ── Bottom watermark ──
+  const wY = H * 0.94;
+  ctx.font = `500 ${Math.round(W * 0.018)}px -apple-system, sans-serif`;
+  ctx.fillStyle = 'rgba(168,236,232,0.35)';
+  ctx.textAlign = 'center';
+  ctx.letterSpacing = '0.08em';
+  ctx.fillText('freediving-japan.vercel.app', centerX, wY);
+}
+
+// Helper: rounded rect path
+function _roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.arcTo(x + w, y, x + w, y + r, r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+  ctx.lineTo(x + r, y + h);
+  ctx.arcTo(x, y + h, x, y + h - r, r);
+  ctx.lineTo(x, y + r);
+  ctx.arcTo(x, y, x + r, y, r);
+  ctx.closePath();
+}
+
+function downloadShareCard() {
+  const canvas = document.getElementById('share-canvas');
+  const s = _shareSession;
+  const dateStr = (s?.date || 'session').replace(/-/g, '');
+  const disc = s?.discipline || 'dive';
+  const link = document.createElement('a');
+  link.download = `fj-${disc}-${dateStr}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
 </script>
 </body>
 </html>
