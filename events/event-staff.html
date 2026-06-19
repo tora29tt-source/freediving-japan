@@ -454,90 +454,118 @@ select.fi option{background:var(--surface2);}
 
 <!-- ENTRY ADD MODAL -->
 <div class="modal-backdrop" id="entry-modal" onclick="if(event.target===this)closeEntryModal()">
-  <div class="modal-box" style="max-width:440px;">
+  <div class="modal-box" style="max-width:480px;max-height:90vh;overflow-y:auto;">
     <div class="modal-header">
       <span class="modal-title">選手を追加</span>
       <button class="modal-close" onclick="closeEntryModal()">✕</button>
     </div>
-    <div class="modal-body" style="display:flex;flex-direction:column;gap:12px;">
-      <div>
-        <div class="fld-label">選手名 *</div>
-        <input class="fi" id="em-name" placeholder="氏名">
-      </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <div>
-          <div class="fld-label">国籍</div>
-          <input class="fi" id="em-nat" value="JPN" placeholder="JPN">
-        </div>
-        <div>
-          <div class="fld-label">性別</div>
-          <select class="fi" id="em-gender">
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-          </select>
-        </div>
+        <div><div class="fld-label">選手名 *</div><input class="fi" id="em-name" placeholder="氏名（フルネーム）"></div>
+        <div><div class="fld-label">Email</div><input class="fi" id="em-email" type="email" placeholder="example@email.com"></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
-        <div>
-          <div class="fld-label">種目</div>
+        <div><div class="fld-label">国籍</div><input class="fi" id="em-nat" value="JPN" placeholder="JPN"></div>
+        <div><div class="fld-label">性別</div>
+          <select class="fi" id="em-gender"><option value="Male">Male</option><option value="Female">Female</option></select>
+        </div>
+        <div><div class="fld-label">生年月日</div><input class="fi" id="em-dob" type="date"></div>
+      </div>
+      <div><div class="fld-label">緊急連絡先（氏名・電話番号）</div><input class="fi" id="em-emergency" placeholder="例：田中太郎 090-1234-5678"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+        <div><div class="fld-label">種目</div>
           <select class="fi" id="em-disc">
             <option>CWT</option><option>CWTB</option><option>CNF</option><option>FIM</option>
             <option>STA</option><option>DYN</option><option>DNF</option><option>DYNB</option>
           </select>
         </div>
-        <div>
-          <div class="fld-label">AP (m)</div>
-          <input class="fi" id="em-ap-m" type="number" min="0" placeholder="80">
+        <div><div class="fld-label">PB (m)</div><input class="fi" id="em-pb-m" type="number" min="0" placeholder="90"></div>
+        <div><div class="fld-label">AP (m)</div><input class="fi" id="em-ap-m" type="number" min="0" placeholder="80"></div>
+      </div>
+      <div><div class="fld-label">AP Time</div><input class="fi" id="em-ap-t" placeholder="02:30" style="max-width:120px;"></div>
+      <div>
+        <div class="fld-label" style="margin-bottom:6px;">参加日</div>
+        <div id="em-days" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div><div class="fld-label">支払状況</div>
+          <select class="fi" id="em-payment">
+            <option value="unpaid">未払い</option>
+            <option value="paid">支払済み</option>
+            <option value="refunded">返金済み</option>
+          </select>
         </div>
-        <div>
-          <div class="fld-label">AP Time</div>
-          <input class="fi" id="em-ap-t" placeholder="02:30">
+        <div style="display:flex;align-items:center;gap:8px;padding-top:20px;">
+          <input type="checkbox" id="em-insurance" style="width:16px;height:16px;cursor:pointer;">
+          <label for="em-insurance" style="font-size:13px;cursor:pointer;">保険確認済み</label>
         </div>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeEntryModal()">キャンセル</button>
-      <button class="btn btn-primary" onclick="confirmAddEntry()">追加</button>
+    <div style="display:flex;gap:8px;margin-top:16px;">
+      <button class="btn btn-full" style="background:var(--surface2);color:var(--sub);" onclick="closeEntryModal()">キャンセル</button>
+      <button class="btn btn-primary btn-full" onclick="confirmAddEntry()">追加</button>
     </div>
   </div>
 </div>
 
 <!-- STAFF ADD MODAL -->
 <div class="modal-backdrop" id="staff-modal" onclick="if(event.target===this)closeStaffModal()">
-  <div class="modal-box" style="max-width:420px;">
+  <div class="modal-box" style="max-width:480px;max-height:90vh;overflow-y:auto;">
     <div class="modal-header">
       <span class="modal-title">スタッフを追加</span>
       <button class="modal-close" onclick="closeStaffModal()">✕</button>
     </div>
-    <div class="modal-body" style="display:flex;flex-direction:column;gap:12px;">
-      <div>
-        <div class="fld-label">氏名 *</div>
-        <input class="fi" id="sm-name" placeholder="氏名">
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div><div class="fld-label">氏名 *</div><input class="fi" id="sm-name" placeholder="氏名"></div>
+        <div><div class="fld-label">Email</div><input class="fi" id="sm-email" type="email" placeholder="example@email.com"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+        <div><div class="fld-label">役割</div>
+          <select class="fi" id="sm-role">
+            <option>Chief Judge</option><option>Judge</option><option>Safety Diver</option>
+            <option>Announcer</option><option>Photographer</option><option>Volunteer</option><option>Other</option>
+          </select>
+        </div>
+        <div><div class="fld-label">性別</div>
+          <select class="fi" id="sm-gender"><option value="">-</option><option value="男性">男性</option><option value="女性">女性</option></select>
+        </div>
+        <div><div class="fld-label">生年月日</div><input class="fi" id="sm-dob" type="date"></div>
       </div>
       <div>
-        <div class="fld-label">役割</div>
-        <select class="fi" id="sm-role">
-          <option>Chief Judge</option>
-          <option>Judge</option>
-          <option>Safety Diver</option>
-          <option>Announcer</option>
-          <option>Photographer</option>
-          <option>Volunteer</option>
-          <option>Other</option>
-        </select>
+        <div class="fld-label" style="margin-bottom:6px;">参加可能日</div>
+        <div id="sm-days" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
       </div>
+      <div><div class="fld-label">シフト（例: 08:00〜17:00）</div><input class="fi" id="sm-shift" placeholder="08:00〜17:00"></div>
       <div>
-        <div class="fld-label">シフト（例: 08:00〜17:00）</div>
-        <input class="fi" id="sm-shift" placeholder="08:00〜17:00">
+        <div class="fld-label" style="margin-bottom:6px;">免許・資格</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;"><input type="checkbox" value="普通自動車">普通自動車</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;"><input type="checkbox" value="小型船舶1級">小型船舶1級</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;"><input type="checkbox" value="小型船舶2級">小型船舶2級</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;"><input type="checkbox" value="潜水士">潜水士</label>
+        </div>
       </div>
-      <div>
-        <div class="fld-label">備考</div>
-        <input class="fi" id="sm-note" placeholder="連絡先・担当エリアなど">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div><div class="fld-label">英語レベル</div>
+          <select class="fi" id="sm-english">
+            <option value="">-</option>
+            <option value="beginner">初級</option>
+            <option value="intermediate">中級</option>
+            <option value="advanced">上級</option>
+          </select>
+        </div>
+        <div><div class="fld-label">LINE ID</div><input class="fi" id="sm-line" placeholder="LINE ID"></div>
       </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="sm-safety" style="width:16px;height:16px;cursor:pointer;">
+        <label for="sm-safety" style="font-size:13px;cursor:pointer;">セーフティコース受講済み</label>
+      </div>
+      <div><div class="fld-label">備考</div><input class="fi" id="sm-note" placeholder="担当エリアなど"></div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeStaffModal()">キャンセル</button>
-      <button class="btn btn-primary" onclick="confirmAddStaff()">追加</button>
+    <div style="display:flex;gap:8px;margin-top:16px;">
+      <button class="btn btn-full" style="background:var(--surface2);color:var(--sub);" onclick="closeStaffModal()">キャンセル</button>
+      <button class="btn btn-primary btn-full" onclick="confirmAddStaff()">追加</button>
     </div>
   </div>
 </div>
@@ -1034,12 +1062,41 @@ function removeStaff(i) {
   }
 }
 
+// 大会日程から参加日チェックボックスを生成
+function buildDayCheckboxes(containerId) {
+  var container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = '';
+  var dateStr = document.getElementById('ov-date') ? document.getElementById('ov-date').value : '';
+  var dateEndStr = document.getElementById('ov-date-end') ? document.getElementById('ov-date-end').value : '';
+  if (!dateStr) { container.innerHTML = '<span style="font-size:12px;color:var(--muted);">概要タブで開催日を設定してください</span>'; return; }
+  var start = new Date(dateStr + 'T00:00:00');
+  var end   = dateEndStr ? new Date(dateEndStr + 'T00:00:00') : start;
+  var dayNames = ['日','月','火','水','木','金','土'];
+  for (var d = new Date(start); d <= end; d.setDate(d.getDate()+1)) {
+    var label = (d.getMonth()+1) + '/' + d.getDate() + '(' + dayNames[d.getDay()] + ')';
+    var val   = d.toISOString().substring(0,10);
+    var lbl = document.createElement('label');
+    lbl.style.cssText = 'display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 8px;';
+    lbl.innerHTML = '<input type="checkbox" value="' + val + '"> ' + label;
+    container.appendChild(lbl);
+  }
+}
+
 function openAddStaffModal() {
   document.getElementById('staff-modal').classList.add('open');
   document.getElementById('sm-name').value = '';
+  document.getElementById('sm-email').value = '';
   document.getElementById('sm-role').value = STAFF_ROLES[0];
+  document.getElementById('sm-gender').value = '';
+  document.getElementById('sm-dob').value = '';
   document.getElementById('sm-shift').value = '';
+  document.getElementById('sm-english').value = '';
+  document.getElementById('sm-line').value = '';
   document.getElementById('sm-note').value = '';
+  document.getElementById('sm-safety').checked = false;
+  document.querySelectorAll('#staff-modal input[type="checkbox"][value]').forEach(function(cb){ cb.checked = false; });
+  buildDayCheckboxes('sm-days');
 }
 
 function closeStaffModal() {
@@ -1049,12 +1106,24 @@ function closeStaffModal() {
 function confirmAddStaff() {
   var name = document.getElementById('sm-name').value.trim();
   if (!name) { alert('氏名を入力してください'); return; }
+  var days = [];
+  document.querySelectorAll('#sm-days input[type="checkbox"]:checked').forEach(function(cb){ days.push(cb.value); });
+  var lics = [];
+  document.querySelectorAll('#staff-modal input[type="checkbox"][value]:not([id])').forEach(function(cb){ if(cb.checked) lics.push(cb.value); });
   var entry = {
-    event_id: _currentEventId,
-    name:     name,
-    role:     document.getElementById('sm-role').value,
-    shift:    document.getElementById('sm-shift').value.trim() || null,
-    note:     document.getElementById('sm-note').value.trim() || null,
+    event_id:          _currentEventId,
+    name:              name,
+    email:             document.getElementById('sm-email').value.trim() || null,
+    role:              document.getElementById('sm-role').value,
+    gender:            document.getElementById('sm-gender').value || null,
+    dob:               document.getElementById('sm-dob').value || null,
+    shift:             document.getElementById('sm-shift').value.trim() || null,
+    english_level:     document.getElementById('sm-english').value || null,
+    line_id:           document.getElementById('sm-line').value.trim() || null,
+    safety_course:     document.getElementById('sm-safety').checked,
+    note:              document.getElementById('sm-note').value.trim() || null,
+    participation_days: days.length ? days : null,
+    licenses:          lics.length ? lics : null,
   };
   if (_currentEventId) {
     _sb.from('event_staff').insert(entry).select().single()
@@ -1330,11 +1399,18 @@ function deleteEntry(i) {
 function openAddEntryModal() {
   document.getElementById('entry-modal').classList.add('open');
   document.getElementById('em-name').value = '';
+  document.getElementById('em-email').value = '';
   document.getElementById('em-nat').value = 'JPN';
   document.getElementById('em-gender').value = 'Male';
+  document.getElementById('em-dob').value = '';
+  document.getElementById('em-emergency').value = '';
   document.getElementById('em-disc').value = 'CWT';
+  document.getElementById('em-pb-m').value = '';
   document.getElementById('em-ap-m').value = '';
   document.getElementById('em-ap-t').value = '';
+  document.getElementById('em-payment').value = 'unpaid';
+  document.getElementById('em-insurance').checked = false;
+  buildDayCheckboxes('em-days');
 }
 
 function closeEntryModal() {
@@ -1344,16 +1420,25 @@ function closeEntryModal() {
 function confirmAddEntry() {
   var name = document.getElementById('em-name').value.trim();
   if (!name) { alert('選手名を入力してください'); return; }
+  var days = [];
+  document.querySelectorAll('#em-days input[type="checkbox"]:checked').forEach(function(cb){ days.push(cb.value); });
   var entry = {
-    event_id:    _currentEventId,
-    entry_no:    apData.length + 1,
-    name:        name,
-    nationality: document.getElementById('em-nat').value.trim() || 'JPN',
-    gender:      document.getElementById('em-gender').value,
-    discipline:  document.getElementById('em-disc').value,
-    ap_m:        parseFloat(document.getElementById('em-ap-m').value) || null,
-    ap_time:     document.getElementById('em-ap-t').value.trim() || null,
-    dns:         false,
+    event_id:           _currentEventId,
+    entry_no:           apData.length + 1,
+    name:               name,
+    email:              document.getElementById('em-email').value.trim() || null,
+    nationality:        document.getElementById('em-nat').value.trim() || 'JPN',
+    gender:             document.getElementById('em-gender').value,
+    dob:                document.getElementById('em-dob').value || null,
+    emergency_contact:  document.getElementById('em-emergency').value.trim() || null,
+    discipline:         document.getElementById('em-disc').value,
+    pb_m:               parseFloat(document.getElementById('em-pb-m').value) || null,
+    ap_m:               parseFloat(document.getElementById('em-ap-m').value) || null,
+    ap_time:            document.getElementById('em-ap-t').value.trim() || null,
+    payment_status:     document.getElementById('em-payment').value,
+    insurance_ok:       document.getElementById('em-insurance').checked,
+    participation_days: days.length ? days : null,
+    dns:                false,
   };
   if (_currentEventId) {
     _sb.from('athlete_entries').insert(entry).select().single()
@@ -1361,7 +1446,8 @@ function confirmAddEntry() {
         if (res.error) { alert('保存失敗: ' + res.error.message); return; }
         var d = res.data;
         apData.push({ id: d.id, no: d.entry_no, name: d.name, nationality: d.nationality,
-                      gender: d.gender, disc: d.discipline, ap_m: d.ap_m, ap_t: d.ap_time });
+                      gender: d.gender, disc: d.discipline, ap_m: d.ap_m, ap_t: d.ap_time,
+                      payment_status: d.payment_status, insurance_ok: d.insurance_ok });
         renderAPList();
         var entriesEl = document.getElementById('ev-stat-entries');
         if (entriesEl) entriesEl.textContent = apData.length;
