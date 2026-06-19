@@ -225,7 +225,7 @@ TOP (index.html)
 
 -----
 
-## スケジュール（2026-06-17更新）
+## スケジュール（2026-06-19更新）
 
 ※ コーディングはClaude担当。Takuyaは確認・push・フィードバックのみ。
 
@@ -236,8 +236,8 @@ TOP (index.html)
 |Week 1  |Supabase導入・DB設計・ログイン画面・認証基盤                |✅完了 |
 |Week 2  |トレーニングログ完成・Supabase接続・URLシェア機能             |✅完了（動作確認要）|
 |Week 2後 |/learn/ 枠組みページ（撮影開始前に完成・Stripe導入）          |✅完了（learn/index.html 骨格・コース4本・メール登録UI）|
-|Week 3-4|CRM実装（顧客・生徒・予約管理）                          |未着手 |
-|Week 5-6|マイページ完成・ランキング・大会情報のDB接続                    |未着手 |
+|Week 3-4|CRM実装（顧客・生徒・予約管理）                          |✅完了（予約管理・クライアント管理・売上管理タブ実装。clients テーブル設計・bookings カラム名 client_* に統一）|
+|Week 5-6|マイページ完成・ランキング・大会情報のDB接続                    |✅完了（mypage.html Supabase接続済み）|
 |Week 7-8|React Nativeアプリ（タイマー・ログ・SNSシェア）            |未着手 |
 
 ### Phase 2（Phase 1完了後・約2ヶ月）
