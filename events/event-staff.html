@@ -449,14 +449,21 @@ body.role-staff #panel-overview textarea.fi{pointer-events:none;opacity:0.65;}
     </div>
 
     <div class="card" id="slCard" style="display:none;">
-      <div class="card-header">
+      <div class="card-header" style="flex-wrap:wrap;gap:8px;">
         <span class="card-title">Start List</span>
-        <div class="role-org-only" style="display:flex;gap:6px;">
-          <button class="btn btn-warn btn-sm" onclick="regenerate()">Regenerate</button>
-          <button class="btn btn-primary btn-sm" onclick="openExportModal()">Export</button>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <div style="display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;">
+            <button id="slViewBtnList"   onclick="setSlView('list')"   style="padding:4px 10px;font-size:11px;font-weight:700;font-family:inherit;border:none;cursor:pointer;background:var(--teal);color:#fff;transition:all 0.15s;">リスト</button>
+            <button id="slViewBtnSafety" onclick="setSlView('safety')" style="padding:4px 10px;font-size:11px;font-weight:700;font-family:inherit;border:none;cursor:pointer;background:transparent;color:var(--muted);transition:all 0.15s;">Safety</button>
+          </div>
+          <div class="role-org-only" style="display:flex;gap:6px;">
+            <button class="btn btn-warn btn-sm" onclick="regenerate()">Regenerate</button>
+            <button class="btn btn-primary btn-sm" onclick="openExportModal()">Export</button>
+          </div>
         </div>
       </div>
       <div id="slList"></div>
+      <div id="safetyGrid" style="display:none;"></div>
     </div>
 
     <div class="countdown-link-card" id="countdownLink" style="display:none;" onclick="openCountdown()">
@@ -2147,6 +2154,201 @@ function minutesToOT(min) {
   return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
 }
 
+// =============================================
+// SAFETY ASSIGNMENT ビュー
+// =============================================
+var SAFETY_POSITIONS = ['1st', '2nd', '3rd', 'Rest', 'O2/Rest', 'Warm up'];
+var _safetyAssignments = {};  // key: "entryId_date_position" → safety_name
+var _safetyDate        = null;
+var _safetyLoaded      = false;
+var _safetyPickerEl    = null;
+var _slView            = 'list'; // 'list' | 'safety'
+
+function setSlView(v) {
+  _slView = v;
+  var btnList   = document.getElementById('slViewBtnList');
+  var btnSafety = document.getElementById('slViewBtnSafety');
+  if (btnList)   { btnList.style.background   = v === 'list'   ? 'var(--teal)' : 'transparent'; btnList.style.color   = v === 'list'   ? '#fff' : 'var(--muted)'; }
+  if (btnSafety) { btnSafety.style.background = v === 'safety' ? 'var(--teal)' : 'transparent'; btnSafety.style.color = v === 'safety' ? '#fff' : 'var(--muted)'; }
+  document.getElementById('slList').style.display     = v === 'list'   ? '' : 'none';
+  document.getElementById('safetyGrid').style.display = v === 'safety' ? '' : 'none';
+  if (v === 'safety') {
+    if (!_safetyLoaded) {
+      initSafetyData().then(renderSafetyView);
+    } else {
+      renderSafetyView();
+    }
+  }
+}
+
+async function initSafetyData() {
+  if (!_currentEventId) return;
+  var res = await _sb.from('event_safety_assignments').select('*').eq('event_id', _currentEventId);
+  _safetyAssignments = {};
+  (res.data || []).forEach(function(r) {
+    _safetyAssignments[r.entry_id + '_' + r.date + '_' + r.position] = r;
+  });
+  _safetyLoaded = true;
+  if (!_safetyDate) {
+    var dateStr = document.getElementById('ov-date') ? document.getElementById('ov-date').value : '';
+    _safetyDate = dateStr || null;
+  }
+}
+
+function getSafetyDiversForDate(date) {
+  var pool = _staffList.filter(function(s) { return s.role === 'Safety Diver'; });
+  if (_shiftLoaded && date) {
+    pool = pool.filter(function(s) {
+      var key = s.id + '_' + date;
+      var shift = _staffShifts[key];
+      if (!shift) return true;
+      return shift.role_name !== 'Day off' && shift.role_name !== 'not here';
+    });
+  }
+  return pool;
+}
+
+function renderSafetyView() {
+  var el = document.getElementById('safetyGrid');
+  if (!el) return;
+
+  var dateStr    = document.getElementById('ov-date')     ? document.getElementById('ov-date').value     : '';
+  var dateEndStr = document.getElementById('ov-date-end') ? document.getElementById('ov-date-end').value : '';
+  if (!dateStr) { el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);">概要タブで開催日を設定してください</div>'; return; }
+
+  var allDates = getDatesInRange(dateStr, dateEndStr || dateStr);
+  if (!_safetyDate || allDates.indexOf(_safetyDate) === -1) _safetyDate = allDates[0];
+
+  // ---- 日付タブ ----
+  var dateTabs = '<div style="display:flex;gap:0;border-bottom:1px solid var(--border);overflow-x:auto;">' +
+    allDates.map(function(d) {
+      var dt = new Date(d + 'T00:00:00');
+      var lbl = _dayLabels && _dayLabels[d] ? _dayLabels[d] : (dt.getMonth()+1) + '/' + dt.getDate();
+      var active = d === _safetyDate;
+      return '<button onclick="setSafetyDate(\'' + d + '\')" style="padding:8px 14px;font-size:11px;font-weight:700;font-family:inherit;border:none;border-bottom:2px solid ' + (active ? 'var(--teal)' : 'transparent') + ';background:transparent;color:' + (active ? 'var(--teal2)' : 'var(--muted)') + ';cursor:pointer;white-space:nowrap;">' + lbl + '</button>';
+    }).join('') +
+  '</div>';
+
+  // ---- セーフティープール ----
+  var pool = getSafetyDiversForDate(_safetyDate);
+  var poolHtml = '<div style="padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;gap:8px;flex-wrap:wrap;">' +
+    '<span style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:0.07em;flex-shrink:0;">SAFETY</span>' +
+    (pool.length ? pool.map(function(s) {
+      return '<span style="font-size:11px;font-weight:700;background:rgba(46,196,182,0.15);color:var(--teal2);border:1px solid rgba(46,196,182,0.3);border-radius:5px;padding:2px 8px;">' + s.name + '</span>';
+    }).join('') : '<span style="font-size:11px;color:var(--muted);">シフト未登録</span>') +
+  '</div>';
+
+  // ---- グリッド ----
+  if (!apData.length) {
+    el.innerHTML = dateTabs + poolHtml + '<div style="padding:20px;text-align:center;color:var(--muted);">選手が登録されていません</div>';
+    return;
+  }
+
+  var thBase = 'font-size:10px;font-weight:700;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--border);white-space:nowrap;text-align:center;';
+  var posHeaders = SAFETY_POSITIONS.map(function(p) {
+    return '<th style="' + thBase + 'min-width:72px;">' + p + '</th>';
+  }).join('');
+
+  var poolNames = pool.map(function(s) { return s.name; });
+
+  var bodyRows = apData.filter(function(a) { return !a.dns; }).map(function(a) {
+    var cells = SAFETY_POSITIONS.map(function(pos) {
+      var key    = a.id + '_' + _safetyDate + '_' + pos;
+      var assign = _safetyAssignments[key];
+      var name   = assign ? assign.safety_name : '';
+      // 色: プール外のセーフティーは amber、プール内は teal、空は –
+      var inPool = name && poolNames.indexOf(name) !== -1;
+      var cellColor = name ? (inPool ? '#2ec4b6' : '#f59e0b') : 'var(--border)';
+      var cellBg    = name ? (inPool ? 'rgba(46,196,182,0.15)' : 'rgba(245,158,11,0.15)') : 'transparent';
+      return '<td style="padding:3px;border-bottom:1px solid var(--border);border-right:1px solid var(--border)22;text-align:center;">' +
+        '<div onclick="openSafetyPicker(\'' + a.id + '\',\'' + _safetyDate + '\',\'' + pos + '\',this)" ' +
+          'style="cursor:pointer;border-radius:5px;padding:4px 5px;font-size:11px;font-weight:' + (name?'700':'400') + ';color:' + cellColor + ';background:' + cellBg + ';min-height:26px;transition:opacity 0.1s;" ' +
+          'onmouseover="this.style.opacity=\'0.65\'" onmouseout="this.style.opacity=\'1\'">' +
+          (name || '<span style="font-size:13px;">—</span>') +
+        '</div></td>';
+    }).join('');
+
+    return '<tr>' +
+      '<td style="padding:6px 10px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);white-space:nowrap;">' +
+        '<div style="font-size:12px;font-weight:700;">' + a.name + '</div>' +
+        '<div style="font-size:10px;color:var(--muted);">OT ' + (a.ot_time||'—') + ' · ' + a.disc + ' · ' + (a.ap_m||'—') + 'm</div>' +
+      '</td>' +
+      cells +
+    '</tr>';
+  }).join('');
+
+  var grid = '<div style="overflow-x:auto;">' +
+    '<table style="width:100%;border-collapse:collapse;">' +
+      '<thead><tr>' +
+        '<th style="' + thBase + 'text-align:left;min-width:140px;border-right:1px solid var(--border);">選手</th>' +
+        posHeaders +
+      '</tr></thead>' +
+      '<tbody>' + bodyRows + '</tbody>' +
+    '</table></div>';
+
+  el.innerHTML = dateTabs + poolHtml + grid;
+}
+
+function setSafetyDate(date) {
+  _safetyDate = date;
+  renderSafetyView();
+}
+
+function openSafetyPicker(entryId, date, position, cellDiv) {
+  closeSafetyPicker();
+  var pool = getSafetyDiversForDate(date);
+  var options = [{ name: '', label: '— クリア' }].concat(pool.map(function(s) { return { name: s.name, label: s.name }; }));
+
+  var items = options.map(function(o) {
+    return '<div onclick="selectSafetyOption(\'' + entryId + '\',\'' + date + '\',\'' + position + '\',\'' + o.name + '\')" ' +
+      'style="display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;border-radius:5px;font-size:12px;font-weight:600;color:' + (o.name ? 'var(--teal2)' : 'var(--muted)') + ';transition:background 0.1s;" ' +
+      'onmouseover="this.style.background=\'rgba(255,255,255,0.09)\'" onmouseout="this.style.background=\'transparent\'">' +
+      (o.name ? '<div style="width:8px;height:8px;border-radius:50%;background:var(--teal);flex-shrink:0;"></div>' : '<div style="width:8px;height:8px;"></div>') +
+      o.label + '</div>';
+  }).join('');
+
+  var picker = document.createElement('div');
+  picker.id = 'safety-picker';
+  picker.style.cssText = 'position:fixed;z-index:9999;background:#1a2844;border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,0.6);padding:6px;min-width:150px;max-height:240px;overflow-y:auto;';
+  picker.innerHTML = '<div style="font-size:9px;font-weight:700;color:var(--muted);letter-spacing:0.08em;padding:4px 12px 2px;">' + position + '</div>' + items;
+
+  var rect = cellDiv.getBoundingClientRect();
+  var top  = rect.bottom + 4;
+  var left = rect.left;
+  if (left + 160 > window.innerWidth) left = window.innerWidth - 164;
+  if (top + 260 > window.innerHeight) top = rect.top - 260;
+  picker.style.top = top + 'px'; picker.style.left = left + 'px';
+
+  document.body.appendChild(picker);
+  _safetyPickerEl = picker;
+  setTimeout(function() { document.addEventListener('click', closeSafetyPicker, { once: true }); }, 10);
+}
+
+function closeSafetyPicker() {
+  if (_safetyPickerEl) { _safetyPickerEl.remove(); _safetyPickerEl = null; }
+}
+
+async function selectSafetyOption(entryId, date, position, safetyName) {
+  closeSafetyPicker();
+  var key = entryId + '_' + date + '_' + position;
+  try {
+    if (!safetyName) {
+      var ex = _safetyAssignments[key];
+      if (ex && ex.id) await _sb.from('event_safety_assignments').delete().eq('id', ex.id);
+      delete _safetyAssignments[key];
+    } else {
+      var res = await _sb.from('event_safety_assignments').upsert(
+        { event_id: _currentEventId, entry_id: entryId, date: date, position: position, safety_name: safetyName },
+        { onConflict: 'entry_id,date,position' }
+      ).select();
+      if (res.error) throw new Error(res.error.message);
+      _safetyAssignments[key] = res.data[0];
+    }
+    renderSafetyView();
+  } catch(e) { showToast('保存失敗: ' + e.message, 'error'); }
+}
+
+// =============================================
 function generateStartList() {
   var h = document.getElementById('firstOT-h').value;
   var m = document.getElementById('firstOT-m').value;
