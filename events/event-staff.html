@@ -1110,17 +1110,25 @@ async function saveOverview() {
     var sr = await _sb.auth.getSession();
     var uid = sr && sr.data && sr.data.session && sr.data.session.user && sr.data.session.user.id;
     if (uid) payload.created_by = uid;
-  } catch(e) {}
+    console.log('[saveOverview] uid:', uid, 'eventId:', _currentEventId);
+  } catch(e) { console.warn('[saveOverview] auth error:', e); }
 
-  _sb.from('events').update(payload).eq('id', _currentEventId)
-    .then(function(res) {
-      if (res.error) { alert('保存失敗: ' + res.error.message); return; }
-      var nameEl = document.getElementById('ev-name');
-      if (nameEl) nameEl.textContent = name;
-      EVENT_CONFIG.eventName = name;
-      EVENT_CONFIG.eventDate = date;
-      saveDayLabels(function() { alert('保存しました ✓'); });
-    });
+  try {
+    var res = await _sb.from('events').update(payload).eq('id', _currentEventId).select();
+    console.log('[saveOverview] result:', res);
+    if (res.error) {
+      alert('保存失敗: ' + res.error.message + '\ncode: ' + res.error.code);
+      return;
+    }
+    var nameEl = document.getElementById('ev-name');
+    if (nameEl) nameEl.textContent = name;
+    EVENT_CONFIG.eventName = name;
+    EVENT_CONFIG.eventDate = date;
+    saveDayLabels(function() { alert('保存しました ✓'); });
+  } catch(e) {
+    console.error('[saveOverview] exception:', e);
+    alert('保存失敗(例外): ' + e.message);
+  }
 }
 
 // =============================================
