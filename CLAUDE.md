@@ -13,9 +13,11 @@
 **Claude は git コマンドを一切実行しない。**
 ファイルの編集のみ行い、commit/push はユーザーが `gcp "メッセージ"` で実行する。
 
+コミットを促す際は**必ず以下の2行セットで出力すること**：
+
 ```bash
-# ~/.zshrc に定義済み
-gcp "commit message"   # add -u → commit → push を一括実行（ロック自動解除付き）
+cd ~/Desktop/10.Freediving/30.Freediving\ Japan/freediving-japan
+gcp "commit message"
 ```
 
 *最終更新：2026-06-18*
