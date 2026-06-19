@@ -306,16 +306,6 @@ body.role-staff #panel-overview textarea.fi{pointer-events:none;opacity:0.65;}
             </div>
           </div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-          <div>
-            <div class="fld-label">エントリー締切</div>
-            <input class="fi" id="ov-entry-deadline" type="date">
-          </div>
-          <div>
-            <div class="fld-label">AIDA申請ID</div>
-            <input class="fi" id="ov-aida-id" placeholder="例: AIDA-2026-JP-001">
-          </div>
-        </div>
         <div>
           <div class="fld-label" style="margin-bottom:8px;">実施種目</div>
           <div style="display:flex;flex-wrap:wrap;gap:8px;" id="ov-disciplines">
@@ -1304,60 +1294,81 @@ function renderStaffList() {
     el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">スタッフが登録されていません</div>';
     return;
   }
+  // 役割ごとのアクセントカラー
+  var ROLE_COLORS = {
+    'Safety Diver':  '#2ec4b6',
+    'Chief Judge':   '#f59e0b',
+    'Judge':         '#f59e0b',
+    'Announcer':     '#818cf8',
+    'Photographer':  '#fb923c',
+    'Volunteer':     '#6b7280',
+    'Other':         '#6b7280',
+  };
+
   var rows = _staffList.map(function(s, i) {
-    var siteRole = s.site_role || 'staff';
-    var siteRoleSelect = _role === 'organizer'
-      ? '<select onchange="changeStaffSiteRole(\'' + s.id + '\', this.value)" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--teal2);padding:3px 6px;font-size:11px;font-family:inherit;cursor:pointer;">' +
+    var siteRole  = s.site_role || 'staff';
+    var accentClr = ROLE_COLORS[s.role] || 'var(--teal)';
+
+    // 権限セレクト or ラベル
+    var siteRoleCtrl = _role === 'organizer'
+      ? '<select onchange="changeStaffSiteRole(\'' + s.id + '\', this.value)" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--teal2);padding:3px 8px;font-size:11px;font-family:inherit;cursor:pointer;">' +
         ['readonly','staff','organizer'].map(function(r){ return '<option value="' + r + '"' + (siteRole===r?' selected':'') + '>' + SITE_ROLE_LABELS[r] + '</option>'; }).join('') +
         '</select>'
-      : '<span style="font-size:11px;color:var(--teal2);">' + (SITE_ROLE_LABELS[siteRole] || siteRole) + '</span>';
+      : '<span style="font-size:11px;color:var(--teal2);">' + (SITE_ROLE_LABELS[siteRole]||siteRole) + '</span>';
 
-    // 参加日をコンパクト表示
-    var days = '';
+    // アバター（名前の頭文字）
+    var initials = (s.name || '?').charAt(0);
+    var avatar = '<div style="width:36px;height:36px;border-radius:50%;background:' + accentClr + '22;border:2px solid ' + accentClr + ';display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:' + accentClr + ';flex-shrink:0;">' + initials + '</div>';
+
+    // 参加日ピル
+    var dayPills = '';
     if (s.participation_days && s.participation_days.length) {
-      days = s.participation_days.map(function(d){
-        var dt = new Date(d + 'T00:00:00');
-        return (dt.getMonth()+1) + '/' + dt.getDate();
-      }).join(' ');
+      dayPills = '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;">' +
+        s.participation_days.map(function(d) {
+          var dt = new Date(d + 'T00:00:00');
+          var lbl = _dayLabels && _dayLabels[d] ? _dayLabels[d] : (dt.getMonth()+1) + '/' + dt.getDate();
+          return '<span style="font-size:10px;font-weight:700;background:' + accentClr + '22;color:' + accentClr + ';border:1px solid ' + accentClr + '44;border-radius:4px;padding:1px 6px;">' + lbl + '</span>';
+        }).join('') +
+      '</div>';
     }
-    // 免許
-    var lics = (s.licenses && s.licenses.length) ? s.licenses.join('・') : null;
-    // タグ群
-    var tags = [];
-    if (s.english_level) tags.push('🌐 ' + (ENG_LABELS[s.english_level] || s.english_level));
-    if (s.safety_course) tags.push('✅ セーフティ');
-    if (lics) tags.push('🪪 ' + lics);
 
-    return '<div style="padding:12px 16px;border-bottom:1px solid var(--border);">' +
-      // Row1: 名前 + 権限 + 削除
-      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">' +
-        '<div style="flex:1;">' +
+    // バッジ（セーフティ・英語・免許）
+    var badges = [];
+    if (s.safety_course) badges.push('<span style="font-size:10px;background:rgba(46,196,182,0.15);color:var(--teal2);border:1px solid rgba(46,196,182,0.3);border-radius:4px;padding:1px 7px;">✓ セーフティ</span>');
+    if (s.english_level && s.english_level !== 'beginner') badges.push('<span style="font-size:10px;background:var(--surface2);color:var(--sub);border:1px solid var(--border);border-radius:4px;padding:1px 7px;">🌐 ' + (ENG_LABELS[s.english_level]||s.english_level) + '</span>');
+    if (s.licenses && s.licenses.length) badges.push('<span style="font-size:10px;background:var(--surface2);color:var(--sub);border:1px solid var(--border);border-radius:4px;padding:1px 7px;">🪪 ' + s.licenses.join('・') + '</span>');
+    var badgeRow = badges.length ? '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;">' + badges.join('') + '</div>' : '';
+
+    // 連絡先
+    var contact = [];
+    if (s.email)   contact.push('<span style="font-size:11px;color:var(--sub);">✉ ' + s.email + '</span>');
+    if (s.line_id) contact.push('<span style="font-size:11px;color:var(--sub);">LINE: ' + s.line_id + '</span>');
+    var contactRow = contact.length ? '<div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:5px;">' + contact.join('') + '</div>' : '';
+
+    return '<div style="display:flex;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);border-left:3px solid ' + accentClr + ';transition:background 0.15s;" onmouseover="this.style.background=\'rgba(255,255,255,0.03)\'" onmouseout="this.style.background=\'transparent\'">' +
+      avatar +
+      '<div style="flex:1;min-width:0;">' +
+        // 名前行
+        '<div style="display:flex;align-items:center;gap:8px;">' +
           '<span style="font-size:14px;font-weight:700;">' + s.name + '</span>' +
-          (s.gender ? '<span style="font-size:11px;color:var(--muted);margin-left:6px;">' + s.gender + '</span>' : '') +
+          (s.gender ? '<span style="font-size:10px;color:var(--muted);background:var(--surface2);border-radius:3px;padding:1px 5px;">' + s.gender + '</span>' : '') +
+          '<div style="flex:1;"></div>' +
+          siteRoleCtrl +
+          '<button onclick="removeStaff(' + i + ')" style="background:none;border:none;color:var(--border);cursor:pointer;font-size:18px;padding:0 0 0 6px;line-height:1;flex-shrink:0;transition:color 0.15s;" onmouseover="this.style.color=\'#ef4444\'" onmouseout="this.style.color=\'var(--border)\'">×</button>' +
         '</div>' +
-        siteRoleSelect +
-        '<button onclick="removeStaff(' + i + ')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:0;line-height:1;flex-shrink:0;">×</button>' +
+        // 役割
+        '<div style="margin-top:3px;">' +
+          '<span style="font-size:12px;font-weight:600;color:' + accentClr + ';">' + (s.role||'—') + '</span>' +
+          (s.shift ? '<span style="font-size:11px;color:var(--muted);margin-left:10px;">' + s.shift + '</span>' : '') +
+        '</div>' +
+        dayPills +
+        contactRow +
+        badgeRow +
+        (s.note ? '<div style="font-size:11px;color:var(--muted);margin-top:6px;padding:5px 8px;background:var(--surface2);border-radius:5px;font-style:italic;">' + s.note + '</div>' : '') +
       '</div>' +
-      // Row2: 役割・シフト
-      '<div style="display:flex;gap:12px;margin-bottom:6px;flex-wrap:wrap;">' +
-        '<span style="font-size:12px;color:var(--teal2);font-weight:600;">' + (s.role || '—') + '</span>' +
-        (s.shift ? '<span style="font-size:12px;color:var(--muted);">🕐 ' + s.shift + '</span>' : '') +
-        (days ? '<span style="font-size:12px;color:var(--muted);">📅 ' + days + '</span>' : '') +
-      '</div>' +
-      // Row3: 連絡先
-      '<div style="display:flex;gap:12px;margin-bottom:6px;flex-wrap:wrap;">' +
-        (s.email ? '<span style="font-size:11px;color:var(--sub);">✉ ' + s.email + '</span>' : '') +
-        (s.line_id ? '<span style="font-size:11px;color:var(--sub);">LINE: ' + s.line_id + '</span>' : '') +
-      '</div>' +
-      // Row4: タグ（英語・セーフティ・免許）
-      (tags.length ? '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;">' +
-        tags.map(function(t){ return '<span style="font-size:11px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:2px 7px;color:var(--sub);">' + t + '</span>'; }).join('') +
-        '</div>' : '') +
-      // Row5: 備考
-      (s.note ? '<div style="font-size:11px;color:var(--muted);margin-top:4px;font-style:italic;">' + s.note + '</div>' : '') +
     '</div>';
   });
-  el.innerHTML = rows.join('');
+  el.innerHTML = '<div style="padding:4px 0;">' + rows.join('') + '</div>';
 }
 
 function changeStaffSiteRole(staffId, newRole) {
