@@ -239,20 +239,62 @@ select.fi option{background:var(--surface2);}
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
           <div>
             <div class="fld-label">種別</div>
-            <select class="fi" id="ov-venue">
+            <select class="fi" id="ov-venue" onchange="toggleDepthField()">
               <option value="sea">Sea（海洋）</option>
               <option value="pool">Pool（プール）</option>
             </select>
           </div>
-          <div>
-            <div class="fld-label">最大深度 (m)（海洋のみ）</div>
+          <div id="ov-depth-wrap">
+            <div class="fld-label">最大深度 (m)</div>
             <input class="fi" id="ov-max-depth" type="number" min="1" placeholder="例: 150">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div>
+            <div class="fld-label">主催者・連絡先</div>
+            <input class="fi" id="ov-organizer" placeholder="氏名・メール等">
+          </div>
+          <div>
+            <div class="fld-label">参加費</div>
+            <input class="fi" id="ov-entry-fee" placeholder="例: ¥15,000">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div>
+            <div class="fld-label">エントリー締切</div>
+            <input class="fi" id="ov-entry-deadline" type="date">
+          </div>
+          <div>
+            <div class="fld-label">AIDA申請ID</div>
+            <input class="fi" id="ov-aida-id" placeholder="例: AIDA-2026-JP-001">
+          </div>
+        </div>
+        <div>
+          <div class="fld-label" style="margin-bottom:8px;">実施種目</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;" id="ov-disciplines">
+            <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;"><input type="checkbox" value="CWT">CWT</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;"><input type="checkbox" value="CWTB">CWTB</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;"><input type="checkbox" value="CNF">CNF</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;"><input type="checkbox" value="FIM">FIM</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;"><input type="checkbox" value="STA">STA</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;"><input type="checkbox" value="DYN">DYN</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;"><input type="checkbox" value="DNF">DNF</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;"><input type="checkbox" value="DYNB">DYNB</label>
           </div>
         </div>
         <div>
           <div class="fld-label">備考・案内事項</div>
           <textarea class="fi" id="ov-notes" rows="4" placeholder="参加者への案内、注意事項など" style="resize:vertical;"></textarea>
         </div>
+      </div>
+    </div>
+    <!-- クイックアクション -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">クイックアクション</span></div>
+      <div style="padding:12px;display:flex;flex-direction:column;gap:8px;">
+        <button class="btn btn-success btn-full" onclick="openCountdown()">⏱ カウントダウン画面を開く</button>
+        <button class="btn btn-primary btn-full" onclick="switchTab('ap')">📋 AP List を見る</button>
+        <button class="btn btn-primary btn-full" onclick="switchTab('startlist')">🏁 Start List を見る</button>
       </div>
     </div>
   </div>
@@ -866,36 +908,80 @@ var _currentEventId = null;
 // =============================================
 // OVERVIEW タブ
 // =============================================
+function toggleDepthField() {
+  var venue = document.getElementById('ov-venue').value;
+  var wrap  = document.getElementById('ov-depth-wrap');
+  if (wrap) wrap.style.display = (venue === 'sea') ? '' : 'none';
+}
+
 function initOverview() {
   var id = new URLSearchParams(location.search).get('id');
   if (!id) return;
   _currentEventId = id;
-  _sb.from('events').select('name,date,date_end,location,disciplines').eq('id', id).single()
+  _sb.from('events')
+    .select('name,date,date_end,location,disciplines,notes,venue_type,max_depth,organizer,entry_fee,entry_deadline,aida_id')
+    .eq('id', id).single()
     .then(function(res) {
       if (res.error || !res.data) return;
       var ev = res.data;
-      if (document.getElementById('ov-name'))     document.getElementById('ov-name').value = ev.name || '';
-      if (document.getElementById('ov-date'))     document.getElementById('ov-date').value = ev.date || '';
-      if (document.getElementById('ov-date-end')) document.getElementById('ov-date-end').value = ev.date_end || '';
-      if (document.getElementById('ov-location')) document.getElementById('ov-location').value = ev.location || '';
+      var g = function(i){ return document.getElementById(i); };
+      if (g('ov-name'))           g('ov-name').value           = ev.name || '';
+      if (g('ov-date'))           g('ov-date').value           = ev.date || '';
+      if (g('ov-date-end'))       g('ov-date-end').value       = ev.date_end || '';
+      if (g('ov-location'))       g('ov-location').value       = ev.location || '';
+      if (g('ov-notes'))          g('ov-notes').value          = ev.notes || '';
+      if (g('ov-organizer'))      g('ov-organizer').value      = ev.organizer || '';
+      if (g('ov-entry-fee'))      g('ov-entry-fee').value      = ev.entry_fee || '';
+      if (g('ov-entry-deadline')) g('ov-entry-deadline').value = ev.entry_deadline || '';
+      if (g('ov-aida-id'))        g('ov-aida-id').value        = ev.aida_id || '';
+      if (g('ov-max-depth'))      g('ov-max-depth').value      = ev.max_depth || '';
+      if (g('ov-venue')) {
+        g('ov-venue').value = ev.venue_type || 'sea';
+        toggleDepthField();
+      }
+      // disciplines チェックボックス
+      var discs = ev.disciplines || [];
+      document.querySelectorAll('#ov-disciplines input[type="checkbox"]').forEach(function(cb) {
+        cb.checked = discs.indexOf(cb.value) !== -1;
+      });
     });
 }
 
 function saveOverview() {
-  if (!_currentEventId) return;
-  var name     = document.getElementById('ov-name').value.trim();
-  var date     = document.getElementById('ov-date').value;
-  var dateEnd  = document.getElementById('ov-date-end').value || null;
-  var location = document.getElementById('ov-location').value.trim();
-  var notes    = document.getElementById('ov-notes').value.trim();
+  if (!_currentEventId) { alert('大会IDが不明です（URLに?id=が必要）'); return; }
+  var g = function(i){ return document.getElementById(i); };
+  var name = g('ov-name').value.trim();
+  var date = g('ov-date').value;
   if (!name || !date) { alert('大会名と開催日は必須です'); return; }
-  _sb.from('events').update({ name, date, date_end: dateEnd, location, notes }).eq('id', _currentEventId)
+
+  var discs = [];
+  document.querySelectorAll('#ov-disciplines input[type="checkbox"]:checked').forEach(function(cb){
+    discs.push(cb.value);
+  });
+
+  var payload = {
+    name:            name,
+    date:            date,
+    date_end:        g('ov-date-end').value || null,
+    location:        g('ov-location').value.trim() || null,
+    notes:           g('ov-notes').value.trim() || null,
+    venue_type:      g('ov-venue').value || 'sea',
+    max_depth:       g('ov-max-depth').value ? parseInt(g('ov-max-depth').value) : null,
+    organizer:       g('ov-organizer').value.trim() || null,
+    entry_fee:       g('ov-entry-fee').value.trim() || null,
+    entry_deadline:  g('ov-entry-deadline').value || null,
+    aida_id:         g('ov-aida-id').value.trim() || null,
+    disciplines:     discs.length ? discs : null,
+  };
+
+  _sb.from('events').update(payload).eq('id', _currentEventId)
     .then(function(res) {
       if (res.error) { alert('保存失敗: ' + res.error.message); return; }
-      // ヒーローも更新
       var nameEl = document.getElementById('ev-name');
       if (nameEl) nameEl.textContent = name;
-      alert('保存しました');
+      EVENT_CONFIG.eventName = name;
+      EVENT_CONFIG.eventDate = date;
+      alert('保存しました ✓');
     });
 }
 
