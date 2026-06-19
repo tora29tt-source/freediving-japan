@@ -2008,7 +2008,6 @@ function openImportModal() {
 
   // ドラッグ&ドロップ
   var zone = document.getElementById('import-drop-zone');
-  zone.onclick = function() { document.getElementById('import-file-input').click(); };
   zone.ondragover = function(e) { e.preventDefault(); zone.style.borderColor = 'var(--teal)'; };
   zone.ondragleave = function() { zone.style.borderColor = 'var(--border)'; };
   zone.ondrop = function(e) {
