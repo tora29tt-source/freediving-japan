@@ -2127,7 +2127,12 @@ async function executeImport() {
     var firstName = _csvMapping['first_name'] !== undefined ? (row[_csvMapping['first_name']] || '').trim() : '';
     var name = [lastName, firstName].filter(Boolean).join(' ') || ('選手' + (i+1));
     var entry = { event_id: _currentEventId, entry_no: i + 1, name: name };
-    if (_csvMapping['gender']      !== undefined) entry.gender      = (row[_csvMapping['gender']]      || '').trim() || null;
+    if (_csvMapping['gender'] !== undefined) {
+      var g = (row[_csvMapping['gender']] || '').trim();
+      if (/^m$/i.test(g) || /^male$/i.test(g) || g === '男' || g === '男性') g = 'Male';
+      else if (/^f$/i.test(g) || /^female$/i.test(g) || g === '女' || g === '女性') g = 'Female';
+      entry.gender = g || null;
+    }
     if (_csvMapping['nationality'] !== undefined) entry.nationality = (row[_csvMapping['nationality']] || '').trim() || null;
     if (_csvMapping['discipline']  !== undefined) entry.discipline  = (row[_csvMapping['discipline']]  || '').trim() || null;
     if (_csvMapping['ap_m']        !== undefined) { var v = parseFloat((row[_csvMapping['ap_m']] || '').replace(/[^0-9.]/g,'')); if (!isNaN(v)) entry.ap_m = v; }
