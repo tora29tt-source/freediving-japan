@@ -179,12 +179,22 @@ select.fi option{background:var(--surface2);}
 .form-3col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
 .modal-actions{display:flex;gap:8px;margin-top:16px;}
 .modal-actions .btn{flex:1;}
+/* ROLE ACCESS */
+body.role-staff .role-org-only{display:none!important;}
+body.role-staff #panel-overview .fi,
+body.role-staff #panel-overview textarea.fi{pointer-events:none;opacity:0.65;}
+.role-banner{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.22);border-radius:var(--rs);padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;color:var(--warn);}
+.role-banner-text{flex:1;}
 </style>
 </head>
 <body>
 <header class="header">
   <a class="logo" href="../index.html">Freediving <span>Japan</span></a>
-  <div class="staff-badge">Staff</div>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <button id="btn-org-login" class="btn btn-warn btn-sm" onclick="location.href='../auth.html?next='+encodeURIComponent(location.href)" style="display:none;font-size:11px;padding:5px 12px;">🔐 主催者ログイン</button>
+    <button id="btn-org-logout" class="btn btn-sm" onclick="orgLogout()" style="display:none;font-size:11px;padding:5px 12px;background:rgba(255,255,255,0.08);color:var(--sub);">ログアウト</button>
+    <div class="staff-badge" id="role-badge">読込中</div>
+  </div>
 </header>
 
 <div class="event-hero">
@@ -200,13 +210,13 @@ select.fi option{background:var(--surface2);}
 
 <div class="tabs">
   <div class="tab active" id="tab-overview"  onclick="switchTab('overview')">概要</div>
-  <div class="tab" id="tab-staff"     onclick="switchTab('staff')">スタッフ</div>
+  <div class="tab role-org-only" id="tab-staff"     onclick="switchTab('staff')">スタッフ</div>
   <div class="tab" id="tab-schedule"  onclick="switchTab('schedule')">スケジュール</div>
   <div class="tab" id="tab-ap"        onclick="switchTab('ap')">AP List</div>
   <div class="tab" id="tab-startlist" onclick="switchTab('startlist')">Start List</div>
-  <div class="tab" id="tab-results"   onclick="switchTab('results')">Results</div>
-  <div class="tab" id="tab-protests"  onclick="switchTab('protests')">Protests</div>
-  <div class="tab" id="tab-sponsors"  onclick="switchTab('sponsors')">Sponsors</div>
+  <div class="tab role-org-only" id="tab-results"   onclick="switchTab('results')">Results</div>
+  <div class="tab role-org-only" id="tab-protests"  onclick="switchTab('protests')">Protests</div>
+  <div class="tab role-org-only" id="tab-sponsors"  onclick="switchTab('sponsors')">Sponsors</div>
 </div>
 
 <!-- OVERVIEW -->
@@ -215,7 +225,7 @@ select.fi option{background:var(--surface2);}
     <div class="card">
       <div class="card-header">
         <span class="card-title">大会概要</span>
-        <button class="btn btn-warn btn-sm" onclick="saveOverview()">保存</button>
+        <button class="btn btn-warn btn-sm role-org-only" onclick="saveOverview()">保存</button>
       </div>
       <div style="padding:16px;display:flex;flex-direction:column;gap:14px;">
         <div>
@@ -312,7 +322,7 @@ select.fi option{background:var(--surface2);}
     <div class="card" style="margin-bottom:16px;">
       <div class="card-header">
         <span class="card-title">準備カレンダー</span>
-        <button class="btn btn-primary btn-sm" onclick="addMilestoneRow()">＋ 追加</button>
+        <button class="btn btn-primary btn-sm role-org-only" onclick="addMilestoneRow()">＋ 追加</button>
       </div>
       <div style="padding:10px 16px 4px;font-size:11px;color:var(--muted);">大会の開催日から逆算して実際の日付を自動計算します。</div>
       <div style="padding:8px 16px;">
@@ -324,10 +334,10 @@ select.fi option{background:var(--surface2);}
           <span></span>
         </div>
         <div id="milestoneRows"></div>
-        <button style="width:100%;margin-top:8px;padding:7px;background:none;border:1px dashed var(--border);border-radius:6px;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit;" onclick="addMilestoneRow()">＋ 追加</button>
+        <button class="role-org-only" style="width:100%;margin-top:8px;padding:7px;background:none;border:1px dashed var(--border);border-radius:6px;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit;" onclick="addMilestoneRow()">＋ 追加</button>
       </div>
       <div style="padding:0 16px 16px;">
-        <button class="btn btn-warn btn-sm" style="width:100%;" onclick="saveMilestones()">保存</button>
+        <button class="btn btn-warn btn-sm role-org-only" style="width:100%;" onclick="saveMilestones()">保存</button>
       </div>
     </div>
 
@@ -335,7 +345,7 @@ select.fi option{background:var(--surface2);}
     <div class="card">
       <div class="card-header">
         <span class="card-title">当日タイムライン</span>
-        <button class="btn btn-primary btn-sm" onclick="addScheduleRow()">＋ 追加</button>
+        <button class="btn btn-primary btn-sm role-org-only" onclick="addScheduleRow()">＋ 追加</button>
       </div>
       <div style="padding:8px 16px;">
         <div style="display:grid;grid-template-columns:90px 1fr 120px 32px;gap:6px;margin-bottom:6px;padding:0 2px;">
@@ -345,10 +355,10 @@ select.fi option{background:var(--surface2);}
           <span></span>
         </div>
         <div id="scheduleRows"></div>
-        <button style="width:100%;margin-top:8px;padding:7px;background:none;border:1px dashed var(--border);border-radius:6px;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit;" onclick="addScheduleRow()">＋ 追加</button>
+        <button class="role-org-only" style="width:100%;margin-top:8px;padding:7px;background:none;border:1px dashed var(--border);border-radius:6px;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit;" onclick="addScheduleRow()">＋ 追加</button>
       </div>
       <div style="padding:0 16px 16px;">
-        <button class="btn btn-warn btn-sm" style="width:100%;" onclick="saveSchedule()">保存</button>
+        <button class="btn btn-warn btn-sm role-org-only" style="width:100%;" onclick="saveSchedule()">保存</button>
       </div>
     </div>
 
@@ -361,7 +371,7 @@ select.fi option{background:var(--surface2);}
     <div class="card">
       <div class="card-header">
         <span class="card-title">AP Entries</span>
-        <div style="display:flex;gap:8px;">
+        <div class="role-org-only" style="display:flex;gap:8px;">
           <button class="btn btn-ghost btn-sm" onclick="exportCSV()">CSV</button>
           <button class="btn btn-primary btn-sm" onclick="openAddEntryModal()">＋ 追加</button>
         </div>
@@ -374,7 +384,7 @@ select.fi option{background:var(--surface2);}
 <!-- START LIST -->
 <div class="panel" id="panel-startlist">
   <div class="content">
-    <div class="publish-bar">
+    <div class="publish-bar role-org-only">
       <div>
         <span class="publish-dot draft" id="publishDot"></span>
         <span id="publishStatusText" style="font-size:13px;">Draft — not visible to athletes</span>
@@ -382,7 +392,7 @@ select.fi option{background:var(--surface2);}
       <button class="btn btn-success btn-sm" id="btnPublish" onclick="togglePublish()">Publish</button>
     </div>
 
-    <div class="card" id="generateSection">
+    <div class="card role-org-only" id="generateSection">
       <div class="card-header"><span class="card-title">OT Interval Rules</span></div>
       <div style="padding:14px 16px;">
         <div style="display:grid;grid-template-columns:1fr 1fr 28px;gap:6px;margin-bottom:6px;">
@@ -407,7 +417,7 @@ select.fi option{background:var(--surface2);}
     <div class="card" id="slCard" style="display:none;">
       <div class="card-header">
         <span class="card-title">Start List</span>
-        <div style="display:flex;gap:6px;">
+        <div class="role-org-only" style="display:flex;gap:6px;">
           <button class="btn btn-warn btn-sm" onclick="regenerate()">Regenerate</button>
           <button class="btn btn-primary btn-sm" onclick="openExportModal()">Export</button>
         </div>
@@ -1365,7 +1375,7 @@ function renderAPList() {
       '<span class="ap-col-disc">' + (a.disc || '—') + '</span>' +
       '<span class="ap-col-depth">' + (a.ap_m || '—') + '</span>' +
       '<span class="ap-col-dt">' + (a.ap_t || '—') + '</span>' +
-      '<button onclick="deleteEntry(' + i + ')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px;width:32px;flex-shrink:0;">×</button>' +
+      '<button onclick="deleteEntry(' + i + ')" class="role-org-only" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px;width:32px;flex-shrink:0;">×</button>' +
     '</div>';
   }).join('');
   el.innerHTML = header + rows;
@@ -2260,8 +2270,60 @@ function downloadImage() {
 }
 </script>
 <script>
+// =============================================
+// 役割ベースアクセス制御
+// =============================================
+var _role = 'staff'; // デフォルトはスタッフ（制限あり）
+
+function applyRoleAccess() {
+  var isOrg = _role === 'organizer';
+  document.body.classList.toggle('role-staff', !isOrg);
+  document.body.classList.toggle('role-organizer', isOrg);
+
+  // ヘッダーバッジ
+  var badge = document.getElementById('role-badge');
+  if (badge) {
+    badge.textContent = isOrg ? '主催者' : 'スタッフ';
+    badge.style.background = isOrg ? 'rgba(46,196,182,0.15)' : 'rgba(245,158,11,0.15)';
+    badge.style.borderColor = isOrg ? 'rgba(46,196,182,0.3)' : 'rgba(245,158,11,0.3)';
+    badge.style.color = isOrg ? 'var(--teal)' : 'var(--warn)';
+  }
+
+  // ログイン/ログアウトボタン
+  var btnLogin  = document.getElementById('btn-org-login');
+  var btnLogout = document.getElementById('btn-org-logout');
+  if (btnLogin)  btnLogin.style.display  = isOrg ? 'none' : '';
+  if (btnLogout) btnLogout.style.display = isOrg ? '' : 'none';
+
+  // スタッフ時: スケジュールタブをデフォルトにする
+  if (!isOrg) {
+    // 概要は読み取り専用バナーを表示
+    var ovContent = document.querySelector('#panel-overview .content');
+    if (ovContent && !document.getElementById('staff-role-banner')) {
+      var banner = document.createElement('div');
+      banner.className = 'role-banner';
+      banner.id = 'staff-role-banner';
+      banner.innerHTML = '<span class="role-banner-text">👁 閲覧専用モードです。編集するには主催者ログインが必要です。</span>';
+      ovContent.insertBefore(banner, ovContent.firstChild);
+    }
+  }
+}
+
+async function orgLogout() {
+  await _sb.auth.signOut();
+  location.reload();
+}
+
 // ページロード時にURLの ?id= からイベント情報を取得して反映
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
+  // 認証状態を確認してロールを決定
+  try {
+    var sessionResult = await _sb.auth.getSession();
+    _role = (sessionResult && sessionResult.data && sessionResult.data.session) ? 'organizer' : 'staff';
+  } catch(e) {
+    _role = 'staff';
+  }
+  applyRoleAccess();
   loadEventFromUrl();
 });
 </script>
