@@ -225,7 +225,7 @@ body.role-staff #panel-overview textarea.fi{pointer-events:none;opacity:0.65;}
     <div class="card">
       <div class="card-header">
         <span class="card-title">大会概要</span>
-        <button class="btn btn-warn btn-sm role-org-only" onclick="saveOverview()">保存</button>
+        <button id="ov-save-btn" class="btn btn-warn btn-sm role-org-only" onclick="saveOverview()">保存</button>
       </div>
       <div style="padding:16px;display:flex;flex-direction:column;gap:14px;">
         <div>
@@ -1105,30 +1105,45 @@ async function saveOverview() {
     disciplines:     discs.length ? discs : null,
   };
 
+  // ボタンをローディング状態に
+  var saveBtn = document.getElementById('ov-save-btn');
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '保存中…'; }
+
   // created_by が未設定なら現在のユーザーをセット
   try {
     var sr = await _sb.auth.getSession();
     var uid = sr && sr.data && sr.data.session && sr.data.session.user && sr.data.session.user.id;
     if (uid) payload.created_by = uid;
-    console.log('[saveOverview] uid:', uid, 'eventId:', _currentEventId);
-  } catch(e) { console.warn('[saveOverview] auth error:', e); }
+  } catch(e) {}
 
   try {
     var res = await _sb.from('events').update(payload).eq('id', _currentEventId).select();
-    console.log('[saveOverview] result:', res);
-    if (res.error) {
-      alert('保存失敗: ' + res.error.message + '\ncode: ' + res.error.code);
-      return;
-    }
+    if (res.error) throw new Error(res.error.message);
     var nameEl = document.getElementById('ev-name');
     if (nameEl) nameEl.textContent = name;
     EVENT_CONFIG.eventName = name;
     EVENT_CONFIG.eventDate = date;
-    saveDayLabels(function() { alert('保存しました ✓'); });
+    saveDayLabels(function() { showToast('保存しました ✓', 'success'); });
   } catch(e) {
-    console.error('[saveOverview] exception:', e);
-    alert('保存失敗(例外): ' + e.message);
+    showToast('保存失敗: ' + e.message, 'error');
+  } finally {
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '保存'; }
   }
+}
+
+function showToast(msg, type) {
+  var el = document.getElementById('fj-toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.background = type === 'error' ? '#ef4444' : '#0e3d5c';
+  el.style.borderLeft = type === 'error' ? '4px solid #fca5a5' : '4px solid var(--teal)';
+  el.style.opacity = '1';
+  el.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(el._t);
+  el._t = setTimeout(function() {
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(-50%) translateY(20px)';
+  }, 2800);
 }
 
 // =============================================
@@ -2610,5 +2625,8 @@ document.addEventListener('DOMContentLoaded', async function() {
   loadEventFromUrl();
 });
 </script>
+
+<!-- トースト通知 -->
+<div id="fj-toast" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e293b;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:opacity 0.25s,transform 0.25s;z-index:9999;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,0.4);"></div>
 </body>
 </html>
