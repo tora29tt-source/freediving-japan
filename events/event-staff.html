@@ -281,8 +281,29 @@ body.role-staff #panel-overview textarea.fi{pointer-events:none;opacity:0.65;}
             <input class="fi" id="ov-organizer" placeholder="氏名・メール等">
           </div>
           <div>
-            <div class="fld-label">参加費</div>
-            <input class="fi" id="ov-entry-fee" placeholder="例: ¥15,000">
+            <div class="fld-label">参加費（日数別）</div>
+            <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px;" id="ov-entry-fee-rows">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-size:12px;color:var(--sub);min-width:80px;flex-shrink:0;">1日参加</span>
+                <input class="fi" id="ov-fee-1" type="number" min="0" step="500" placeholder="25000" style="flex:1;font-size:13px;">
+                <span style="font-size:12px;color:var(--muted);">円</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-size:12px;color:var(--sub);min-width:80px;flex-shrink:0;">2日間参加</span>
+                <input class="fi" id="ov-fee-2" type="number" min="0" step="500" placeholder="47500" style="flex:1;font-size:13px;">
+                <span style="font-size:12px;color:var(--muted);">円</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-size:12px;color:var(--sub);min-width:80px;flex-shrink:0;">3日間参加</span>
+                <input class="fi" id="ov-fee-3" type="number" min="0" step="500" placeholder="67500" style="flex:1;font-size:13px;">
+                <span style="font-size:12px;color:var(--muted);">円</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-size:12px;color:var(--sub);min-width:80px;flex-shrink:0;">4日間参加</span>
+                <input class="fi" id="ov-fee-4" type="number" min="0" step="500" placeholder="85000" style="flex:1;font-size:13px;">
+                <span style="font-size:12px;color:var(--muted);">円</span>
+              </div>
+            </div>
           </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
@@ -968,10 +989,26 @@ var _currentEventId = null;
 // =============================================
 // OVERVIEW タブ
 // =============================================
+var SEA_DISCS  = ['CWT','CWTB','CNF','FIM'];
+var POOL_DISCS = ['STA','DYN','DNF','DYNB'];
+
 function toggleDepthField() {
   var venue = document.getElementById('ov-venue').value;
-  var wrap  = document.getElementById('ov-depth-wrap');
-  if (wrap) wrap.style.display = (venue === 'sea') ? '' : 'none';
+  var isSea = venue === 'sea';
+
+  // 最大深度フィールドはSeaのみ表示
+  var wrap = document.getElementById('ov-depth-wrap');
+  if (wrap) wrap.style.display = isSea ? '' : 'none';
+
+  // 種目チェックボックスをSea/Poolで絞り込む
+  var showSet = isSea ? SEA_DISCS : POOL_DISCS;
+  document.querySelectorAll('#ov-disciplines label').forEach(function(lbl) {
+    var cb = lbl.querySelector('input[type="checkbox"]');
+    if (!cb) return;
+    var visible = showSet.indexOf(cb.value) !== -1;
+    lbl.style.display = visible ? '' : 'none';
+    if (!visible) cb.checked = false; // 非表示は自動でチェック解除
+  });
 }
 
 function initOverview() {
@@ -991,7 +1028,19 @@ function initOverview() {
       if (g('ov-location'))       g('ov-location').value       = ev.location || '';
       if (g('ov-notes'))          g('ov-notes').value          = ev.notes || '';
       if (g('ov-organizer'))      g('ov-organizer').value      = ev.organizer || '';
-      if (g('ov-entry-fee'))      g('ov-entry-fee').value      = ev.entry_fee || '';
+      // 参加費：JSON形式 {"1":25000,"2":47500,...} または旧テキストに対応
+      if (ev.entry_fee) {
+        try {
+          var fees = JSON.parse(ev.entry_fee);
+          if (g('ov-fee-1')) g('ov-fee-1').value = fees['1'] || '';
+          if (g('ov-fee-2')) g('ov-fee-2').value = fees['2'] || '';
+          if (g('ov-fee-3')) g('ov-fee-3').value = fees['3'] || '';
+          if (g('ov-fee-4')) g('ov-fee-4').value = fees['4'] || '';
+        } catch(e) {
+          // 旧テキスト形式の場合は1日参加欄に入れる
+          if (g('ov-fee-1')) g('ov-fee-1').value = ev.entry_fee.replace(/[^\d]/g,'') || '';
+        }
+      }
       if (g('ov-entry-deadline')) g('ov-entry-deadline').value = ev.entry_deadline || '';
       if (g('ov-aida-id'))        g('ov-aida-id').value        = ev.aida_id || '';
       if (g('ov-max-depth'))      g('ov-max-depth').value      = ev.max_depth || '';
@@ -1099,7 +1148,14 @@ async function saveOverview() {
     venue_type:      g('ov-venue').value || 'sea',
     max_depth:       g('ov-max-depth').value ? parseInt(g('ov-max-depth').value) : null,
     organizer:       g('ov-organizer').value.trim() || null,
-    entry_fee:       g('ov-entry-fee').value.trim() || null,
+    entry_fee:       (function() {
+      var f = {};
+      if (g('ov-fee-1') && g('ov-fee-1').value) f['1'] = parseInt(g('ov-fee-1').value);
+      if (g('ov-fee-2') && g('ov-fee-2').value) f['2'] = parseInt(g('ov-fee-2').value);
+      if (g('ov-fee-3') && g('ov-fee-3').value) f['3'] = parseInt(g('ov-fee-3').value);
+      if (g('ov-fee-4') && g('ov-fee-4').value) f['4'] = parseInt(g('ov-fee-4').value);
+      return Object.keys(f).length ? JSON.stringify(f) : null;
+    })(),
     entry_deadline:  g('ov-entry-deadline').value || null,
     aida_id:         g('ov-aida-id').value.trim() || null,
     disciplines:     discs.length ? discs : null,
