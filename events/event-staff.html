@@ -557,8 +557,8 @@ body.role-staff #panel-overview textarea.fi{pointer-events:none;opacity:0.65;}
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
         <div><div class="fld-label">役割</div>
           <select class="fi" id="sm-role">
-            <option>Chief Judge</option><option>Judge</option><option>Safety Diver</option>
-            <option>Announcer</option><option>Photographer</option><option>Volunteer</option><option>Other</option>
+            <option>Chief Judge</option><option>Judge</option><option>Safety Diver</option><option>Medic</option>
+            <option>Photographer</option><option>Announcer</option><option>Volunteer</option><option>Other</option>
           </select>
         </div>
         <div><div class="fld-label">性別</div>
@@ -1196,7 +1196,16 @@ function showToast(msg, type) {
 // STAFF タブ
 // =============================================
 var _staffList = [];
-var STAFF_ROLES = ['Chief Judge','Judge','Safety Diver','Announcer','Photographer','Volunteer','Other'];
+var STAFF_ROLES = ['Chief Judge','Judge','Safety Diver','Medic','Photographer','Announcer','Volunteer','Other'];
+
+// カード表示用グループ定義
+var STAFF_GROUPS = [
+  { key: 'judge',  label: 'ジャッジ',    roles: ['Chief Judge','Judge'],              color: '#f59e0b' },
+  { key: 'safety', label: 'セーフティー', roles: ['Safety Diver'],                    color: '#2ec4b6' },
+  { key: 'medic',  label: 'メディック',   roles: ['Medic'],                           color: '#f87171' },
+  { key: 'media',  label: 'メディア',    roles: ['Photographer'],                    color: '#818cf8' },
+  { key: 'ops',    label: '運営',        roles: ['Announcer','Volunteer','Other'],   color: '#6b7280' },
+];
 
 function initStaffList() {
   if (!_currentEventId) return;
@@ -1294,81 +1303,93 @@ function renderStaffList() {
     el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">スタッフが登録されていません</div>';
     return;
   }
-  // 役割ごとのアクセントカラー
-  var ROLE_COLORS = {
-    'Safety Diver':  '#2ec4b6',
-    'Chief Judge':   '#f59e0b',
-    'Judge':         '#f59e0b',
-    'Announcer':     '#818cf8',
-    'Photographer':  '#fb923c',
-    'Volunteer':     '#6b7280',
-    'Other':         '#6b7280',
-  };
 
-  var rows = _staffList.map(function(s, i) {
-    var siteRole  = s.site_role || 'staff';
-    var accentClr = ROLE_COLORS[s.role] || 'var(--teal)';
+  // グループにスタッフを振り分け
+  var grouped = {};
+  STAFF_GROUPS.forEach(function(g) { grouped[g.key] = []; });
+  grouped['_other'] = [];
+  _staffList.forEach(function(s, i) {
+    var found = false;
+    STAFF_GROUPS.forEach(function(g) {
+      if (g.roles.indexOf(s.role) !== -1) { grouped[g.key].push({ s: s, i: i }); found = true; }
+    });
+    if (!found) grouped['_other'].push({ s: s, i: i });
+  });
 
-    // 権限セレクト or ラベル
+  function buildCard(s, i, accentClr) {
+    var siteRole = s.site_role || 'staff';
     var siteRoleCtrl = _role === 'organizer'
       ? '<select onchange="changeStaffSiteRole(\'' + s.id + '\', this.value)" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--teal2);padding:3px 8px;font-size:11px;font-family:inherit;cursor:pointer;">' +
         ['readonly','staff','organizer'].map(function(r){ return '<option value="' + r + '"' + (siteRole===r?' selected':'') + '>' + SITE_ROLE_LABELS[r] + '</option>'; }).join('') +
         '</select>'
       : '<span style="font-size:11px;color:var(--teal2);">' + (SITE_ROLE_LABELS[siteRole]||siteRole) + '</span>';
 
-    // アバター（名前の頭文字）
     var initials = (s.name || '?').charAt(0);
-    var avatar = '<div style="width:36px;height:36px;border-radius:50%;background:' + accentClr + '22;border:2px solid ' + accentClr + ';display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:' + accentClr + ';flex-shrink:0;">' + initials + '</div>';
+    var avatar = '<div style="width:34px;height:34px;border-radius:50%;background:' + accentClr + '22;border:2px solid ' + accentClr + ';display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:' + accentClr + ';flex-shrink:0;">' + initials + '</div>';
 
-    // 参加日ピル
-    var dayPills = '';
-    if (s.participation_days && s.participation_days.length) {
-      dayPills = '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;">' +
-        s.participation_days.map(function(d) {
-          var dt = new Date(d + 'T00:00:00');
-          var lbl = _dayLabels && _dayLabels[d] ? _dayLabels[d] : (dt.getMonth()+1) + '/' + dt.getDate();
-          return '<span style="font-size:10px;font-weight:700;background:' + accentClr + '22;color:' + accentClr + ';border:1px solid ' + accentClr + '44;border-radius:4px;padding:1px 6px;">' + lbl + '</span>';
-        }).join('') +
-      '</div>';
-    }
+    // 参加日数（数字のみ）
+    var dayCount = s.participation_days ? s.participation_days.length : 0;
+    var dayBadge = dayCount > 0
+      ? '<span style="font-size:11px;font-weight:700;background:' + accentClr + '22;color:' + accentClr + ';border:1px solid ' + accentClr + '44;border-radius:10px;padding:1px 8px;">' + dayCount + '日</span>'
+      : '';
 
-    // バッジ（セーフティ・英語・免許）
+    // バッジ
     var badges = [];
     if (s.safety_course) badges.push('<span style="font-size:10px;background:rgba(46,196,182,0.15);color:var(--teal2);border:1px solid rgba(46,196,182,0.3);border-radius:4px;padding:1px 7px;">✓ セーフティ</span>');
     if (s.english_level && s.english_level !== 'beginner') badges.push('<span style="font-size:10px;background:var(--surface2);color:var(--sub);border:1px solid var(--border);border-radius:4px;padding:1px 7px;">🌐 ' + (ENG_LABELS[s.english_level]||s.english_level) + '</span>');
     if (s.licenses && s.licenses.length) badges.push('<span style="font-size:10px;background:var(--surface2);color:var(--sub);border:1px solid var(--border);border-radius:4px;padding:1px 7px;">🪪 ' + s.licenses.join('・') + '</span>');
-    var badgeRow = badges.length ? '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;">' + badges.join('') + '</div>' : '';
+    var badgeRow = badges.length ? '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;">' + badges.join('') + '</div>' : '';
 
     // 連絡先
     var contact = [];
     if (s.email)   contact.push('<span style="font-size:11px;color:var(--sub);">✉ ' + s.email + '</span>');
     if (s.line_id) contact.push('<span style="font-size:11px;color:var(--sub);">LINE: ' + s.line_id + '</span>');
-    var contactRow = contact.length ? '<div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:5px;">' + contact.join('') + '</div>' : '';
+    var contactRow = contact.length ? '<div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:4px;">' + contact.join('') + '</div>' : '';
 
-    return '<div style="display:flex;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);border-left:3px solid ' + accentClr + ';transition:background 0.15s;" onmouseover="this.style.background=\'rgba(255,255,255,0.03)\'" onmouseout="this.style.background=\'transparent\'">' +
+    return '<div style="display:flex;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);border-left:3px solid ' + accentClr + ';transition:background 0.15s;" onmouseover="this.style.background=\'rgba(255,255,255,0.03)\'" onmouseout="this.style.background=\'transparent\'">' +
       avatar +
       '<div style="flex:1;min-width:0;">' +
-        // 名前行
-        '<div style="display:flex;align-items:center;gap:8px;">' +
+        '<div style="display:flex;align-items:center;gap:6px;">' +
           '<span style="font-size:14px;font-weight:700;">' + s.name + '</span>' +
           (s.gender ? '<span style="font-size:10px;color:var(--muted);background:var(--surface2);border-radius:3px;padding:1px 5px;">' + s.gender + '</span>' : '') +
+          dayBadge +
           '<div style="flex:1;"></div>' +
           siteRoleCtrl +
           '<button onclick="removeStaff(' + i + ')" style="background:none;border:none;color:var(--border);cursor:pointer;font-size:18px;padding:0 0 0 6px;line-height:1;flex-shrink:0;transition:color 0.15s;" onmouseover="this.style.color=\'#ef4444\'" onmouseout="this.style.color=\'var(--border)\'">×</button>' +
         '</div>' +
-        // 役割
-        '<div style="margin-top:3px;">' +
-          '<span style="font-size:12px;font-weight:600;color:' + accentClr + ';">' + (s.role||'—') + '</span>' +
-          (s.shift ? '<span style="font-size:11px;color:var(--muted);margin-left:10px;">' + s.shift + '</span>' : '') +
-        '</div>' +
-        dayPills +
+        (s.shift ? '<div style="margin-top:2px;font-size:11px;color:var(--muted);">' + s.shift + '</div>' : '') +
         contactRow +
         badgeRow +
-        (s.note ? '<div style="font-size:11px;color:var(--muted);margin-top:6px;padding:5px 8px;background:var(--surface2);border-radius:5px;font-style:italic;">' + s.note + '</div>' : '') +
+        (s.note ? '<div style="font-size:11px;color:var(--muted);margin-top:5px;padding:4px 8px;background:var(--surface2);border-radius:5px;font-style:italic;">' + s.note + '</div>' : '') +
       '</div>' +
     '</div>';
+  }
+
+  var html = '<div style="padding:4px 0;">';
+
+  STAFF_GROUPS.forEach(function(g) {
+    var members = grouped[g.key];
+    if (!members.length) return;
+    html += '<div style="display:flex;align-items:center;gap:8px;padding:8px 16px 6px;background:var(--surface2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">' +
+      '<div style="width:8px;height:8px;border-radius:50%;background:' + g.color + ';flex-shrink:0;"></div>' +
+      '<span style="font-size:11px;font-weight:700;color:' + g.color + ';letter-spacing:0.05em;">' + g.label + '</span>' +
+      '<span style="font-size:10px;color:var(--muted);">' + members.length + '名</span>' +
+    '</div>';
+    members.forEach(function(m) { html += buildCard(m.s, m.i, g.color); });
   });
-  el.innerHTML = '<div style="padding:4px 0;">' + rows.join('') + '</div>';
+
+  // グループ未分類
+  if (grouped['_other'].length) {
+    html += '<div style="display:flex;align-items:center;gap:8px;padding:8px 16px 6px;background:var(--surface2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">' +
+      '<div style="width:8px;height:8px;border-radius:50%;background:#6b7280;flex-shrink:0;"></div>' +
+      '<span style="font-size:11px;font-weight:700;color:#6b7280;letter-spacing:0.05em;">その他</span>' +
+      '<span style="font-size:10px;color:var(--muted);">' + grouped['_other'].length + '名</span>' +
+    '</div>';
+    grouped['_other'].forEach(function(m) { html += buildCard(m.s, m.i, '#6b7280'); });
+  }
+
+  html += '</div>';
+  el.innerHTML = html;
 }
 
 function changeStaffSiteRole(staffId, newRole) {
