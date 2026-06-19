@@ -507,12 +507,12 @@ body.role-staff #panel-overview textarea.fi{pointer-events:none;opacity:0.65;}
       <p style="font-size:13px;color:var(--sub);margin-bottom:14px;">
         Googleスプレッドシート → <b>ファイル → ダウンロード → CSV</b> で保存したファイルを選択してください。
       </p>
-      <label style="display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px dashed var(--border);border-radius:10px;padding:32px;cursor:pointer;gap:8px;" id="import-drop-zone">
+      <div onclick="document.getElementById('import-file-input').click()" id="import-drop-zone" style="display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px dashed var(--border);border-radius:10px;padding:32px;cursor:pointer;gap:8px;">
         <span style="font-size:28px;">📄</span>
         <span style="font-size:13px;font-weight:700;">CSVファイルをドロップ or クリック</span>
         <span style="font-size:11px;color:var(--muted);">.csv ファイル対応</span>
-        <input type="file" id="import-file-input" accept=".csv,text/csv" style="display:none;" onchange="onImportFileSelect(this)">
-      </label>
+      </div>
+      <input type="file" id="import-file-input" accept=".csv,text/csv" style="display:none;" onchange="onImportFileSelect(this)">
     </div>
     <!-- Step 2: 列マッピング -->
     <div id="import-step2" style="display:none;padding:16px;">
