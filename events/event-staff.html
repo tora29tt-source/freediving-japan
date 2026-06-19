@@ -562,7 +562,16 @@ body.role-staff #panel-overview textarea.fi{pointer-events:none;opacity:0.65;}
         <input type="checkbox" id="sm-safety" style="width:16px;height:16px;cursor:pointer;">
         <label for="sm-safety" style="font-size:13px;cursor:pointer;">セーフティコース受講済み</label>
       </div>
-      <div><div class="fld-label">備考</div><input class="fi" id="sm-note" placeholder="担当エリアなど"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div><div class="fld-label">備考</div><input class="fi" id="sm-note" placeholder="担当エリアなど"></div>
+        <div><div class="fld-label">このサイトの権限</div>
+          <select class="fi" id="sm-site-role">
+            <option value="readonly">閲覧のみ</option>
+            <option value="staff" selected>スタッフ</option>
+            <option value="organizer">主催者</option>
+          </select>
+        </div>
+      </div>
     </div>
     <div style="display:flex;gap:8px;margin-top:16px;">
       <button class="btn btn-full" style="background:var(--surface2);color:var(--sub);" onclick="closeStaffModal()">キャンセル</button>
@@ -976,7 +985,7 @@ function initOverview() {
     });
 }
 
-function saveOverview() {
+async function saveOverview() {
   if (!_currentEventId) { alert('大会IDが不明です（URLに?id=が必要）'); return; }
   var g = function(i){ return document.getElementById(i); };
   var name = g('ov-name').value.trim();
@@ -1002,6 +1011,13 @@ function saveOverview() {
     aida_id:         g('ov-aida-id').value.trim() || null,
     disciplines:     discs.length ? discs : null,
   };
+
+  // created_by が未設定なら現在のユーザーをセット
+  try {
+    var sr = await _sb.auth.getSession();
+    var uid = sr && sr.data && sr.data.session && sr.data.session.user && sr.data.session.user.id;
+    if (uid) payload.created_by = uid;
+  } catch(e) {}
 
   _sb.from('events').update(payload).eq('id', _currentEventId)
     .then(function(res) {
@@ -1030,6 +1046,8 @@ function initStaffList() {
     });
 }
 
+var SITE_ROLE_LABELS = { organizer: '主催者', staff: 'スタッフ', readonly: '閲覧のみ' };
+
 function renderStaffList() {
   var el = document.getElementById('staffList');
   if (!el) return;
@@ -1038,15 +1056,29 @@ function renderStaffList() {
     return;
   }
   var rows = _staffList.map(function(s, i) {
-    return '<div style="display:grid;grid-template-columns:1fr 140px 80px 32px;gap:8px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);">' +
+    var siteRole = s.site_role || 'staff';
+    var siteRoleSelect = _role === 'organizer'
+      ? '<select onchange="changeStaffSiteRole(\'' + s.id + '\', this.value)" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--teal2);padding:4px 6px;font-size:11px;font-family:inherit;cursor:pointer;">' +
+        ['readonly','staff','organizer'].map(function(r){ return '<option value="' + r + '"' + (siteRole===r?' selected':'') + '>' + SITE_ROLE_LABELS[r] + '</option>'; }).join('') +
+        '</select>'
+      : '<span style="font-size:11px;color:var(--teal2);">' + (SITE_ROLE_LABELS[siteRole] || siteRole) + '</span>';
+    return '<div style="display:grid;grid-template-columns:1fr 120px 110px 32px;gap:8px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);">' +
       '<div><div style="font-size:13px;font-weight:700;">' + s.name + '</div>' +
-      (s.note ? '<div style="font-size:11px;color:var(--muted);margin-top:2px;">' + s.note + '</div>' : '') + '</div>' +
-      '<div style="font-size:12px;color:var(--teal2);">' + s.role + '</div>' +
-      '<div style="font-size:11px;color:var(--muted);">' + (s.shift || '—') + '</div>' +
+      '<div style="font-size:11px;color:var(--muted);margin-top:2px;">' + (s.role || '') + (s.note ? ' · ' + s.note : '') + '</div></div>' +
+      '<div style="font-size:12px;color:var(--muted);">' + (s.shift || '—') + '</div>' +
+      siteRoleSelect +
       '<button onclick="removeStaff(' + i + ')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;">×</button>' +
       '</div>';
   });
   el.innerHTML = rows.join('');
+}
+
+function changeStaffSiteRole(staffId, newRole) {
+  if (!staffId) return;
+  _sb.from('event_staff').update({ site_role: newRole }).eq('id', staffId)
+    .then(function(res) {
+      if (res.error) { alert('更新失敗: ' + res.error.message); initStaffList(); }
+    });
 }
 
 function removeStaff(i) {
@@ -1095,6 +1127,7 @@ function openAddStaffModal() {
   document.getElementById('sm-english').value = '';
   document.getElementById('sm-line').value = '';
   document.getElementById('sm-note').value = '';
+  document.getElementById('sm-site-role').value = 'staff';
   document.getElementById('sm-safety').checked = false;
   document.querySelectorAll('#staff-modal input[type="checkbox"][value]').forEach(function(cb){ cb.checked = false; });
   buildDayCheckboxes('sm-days');
@@ -1125,6 +1158,7 @@ function confirmAddStaff() {
     note:              document.getElementById('sm-note').value.trim() || null,
     participation_days: days.length ? days : null,
     licenses:          lics.length ? lics : null,
+    site_role:         document.getElementById('sm-site-role').value,
   };
   if (_currentEventId) {
     _sb.from('event_staff').insert(entry).select().single()
@@ -2316,12 +2350,38 @@ async function orgLogout() {
 
 // ページロード時にURLの ?id= からイベント情報を取得して反映
 document.addEventListener('DOMContentLoaded', async function() {
-  // 認証状態を確認してロールを決定
+  var eventId = new URLSearchParams(location.search).get('id');
   try {
     var sessionResult = await _sb.auth.getSession();
-    _role = (sessionResult && sessionResult.data && sessionResult.data.session) ? 'organizer' : 'staff';
+    var session = sessionResult && sessionResult.data && sessionResult.data.session;
+    var userId = session && session.user && session.user.id;
+
+    if (!userId) {
+      // 未ログイン → readonly
+      _role = 'readonly';
+    } else if (!eventId) {
+      // eventIDなし & ログイン済み → 主催者（イベント管理画面）
+      _role = 'organizer';
+    } else {
+      // events.created_by を確認
+      var evRes = await _sb.from('events').select('created_by').eq('id', eventId).single();
+      if (evRes.data && evRes.data.created_by === userId) {
+        _role = 'organizer';
+      } else {
+        // event_staff に user_id が紐付いているか確認
+        var staffRes = await _sb.from('event_staff')
+          .select('site_role').eq('event_id', eventId).eq('user_id', userId).maybeSingle();
+        if (staffRes.data) {
+          _role = staffRes.data.site_role || 'staff';
+        } else {
+          // ログイン済みだがこのイベントに紐付きなし → readonly
+          _role = 'readonly';
+        }
+      }
+    }
   } catch(e) {
-    _role = 'staff';
+    console.warn('Auth check error:', e);
+    _role = 'readonly';
   }
   applyRoleAccess();
   loadEventFromUrl();

@@ -434,8 +434,8 @@ header {
 
 /* SPO2 MINI CHART */
 .spo2-chart-area {
-  flex-shrink: 0; width: 100%; max-width: 300px; margin: 0 auto;
-  height: 32px; opacity: 0; transition: opacity .4s; position: relative;
+  flex-shrink: 0; width: 100%; max-width: 320px; margin: 0 auto;
+  height: 64px; opacity: 0; transition: opacity .4s; position: relative;
   pointer-events: none;
 }
 .spo2-chart-area.visible { opacity: 1; }
@@ -2208,6 +2208,8 @@ function setDisplayCountdown(s) {
 function startHold() {
   phase = 'hold'; phaseStart = performance.now(); phaseMs = 0;
   spo2Buf = [];
+  // 前のHoldのチャートをリセット（新しいデータが来るまで非表示）
+  document.getElementById('spo2ChartArea').classList.remove('visible');
   resetTimeCall();
   document.getElementById('ringCountdown').classList.remove('visible');
   document.getElementById('btnEnd').style.display = 'none';
@@ -2268,6 +2270,10 @@ function endHold(auto=false) {
   cancelAnimationFrame(rafId); rafId=null;
   stopMock();
   phaseMs = performance.now() - phaseStart;
+  // Hold終了時にチャートを最終状態で再描画してRest中も表示維持
+  if (spo2Buf.length >= 2) {
+    requestAnimationFrame(() => drawTimeChart('spo2Live', spo2Buf, 70, 100, 60));
+  }
   const rec = {
     set: mode === 'free' ? swDive+1 : currentSet+1, ms: phaseMs,
     spo2Profile: [...spo2Buf],
@@ -3173,9 +3179,85 @@ function drawSparkline(canvasId, pts, minY=70, maxY=100, h=null) {
 
 function initLiveChart() { /* no-op: using canvas直描 */ }
 
+// 時間軸ベースのSpO2チャート（x=ダイブ秒数, y=SpO2%）
+function drawTimeChart(canvasId, pts, minY=70, maxY=100, h=null) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas || !pts || pts.length < 2) return;
+  const W = canvas.offsetWidth || canvas.parentElement?.offsetWidth || 300;
+  const H = h || canvas.offsetHeight || canvas.height || 64;
+  canvas.width  = W * (window.devicePixelRatio || 1);
+  canvas.height = H * (window.devicePixelRatio || 1);
+  const ctx = canvas.getContext('2d');
+  ctx.scale(window.devicePixelRatio||1, window.devicePixelRatio||1);
+  ctx.clearRect(0, 0, W, H);
+
+  const vals = pts.map(p=>p.v);
+  const lo = Math.max(minY, Math.min(...vals) - 2);
+  const hi = maxY;
+  const maxT = pts[pts.length-1].t || (pts.length - 1);
+  const minT = pts[0].t || 0;
+  const PAD_L = 24, PAD_B = 14;
+  const cW = W - PAD_L, cH = H - PAD_B;
+
+  const toX = t => PAD_L + ((t - minT) / Math.max(maxT - minT, 1)) * cW;
+  const toY = v => cH - ((v - lo) / (hi - lo)) * (cH - 6) - 2;
+
+  const lastColor = spo2Color(vals[vals.length-1]);
+  const fillColor = lastColor === '#2ec4b6' ? 'rgba(46,196,182,0.15)' : lastColor === '#f97316' ? 'rgba(249,115,22,0.18)' : 'rgba(239,68,68,0.18)';
+
+  // fill area
+  ctx.beginPath();
+  ctx.moveTo(toX(pts[0].t), cH);
+  pts.forEach(p => ctx.lineTo(toX(p.t), toY(p.v)));
+  ctx.lineTo(toX(pts[pts.length-1].t), cH);
+  ctx.closePath();
+  ctx.fillStyle = fillColor;
+  ctx.fill();
+
+  // line (smooth bezier)
+  ctx.beginPath();
+  ctx.moveTo(toX(pts[0].t), toY(pts[0].v));
+  for (let i = 1; i < pts.length; i++) {
+    const cx = (toX(pts[i-1].t) + toX(pts[i].t)) / 2;
+    ctx.bezierCurveTo(cx, toY(pts[i-1].v), cx, toY(pts[i].v), toX(pts[i].t), toY(pts[i].v));
+  }
+  ctx.strokeStyle = lastColor;
+  ctx.lineWidth = 1.8;
+  ctx.stroke();
+
+  // x-axis baseline
+  ctx.strokeStyle = '#1a3f5c';
+  ctx.lineWidth = 0.5;
+  ctx.beginPath(); ctx.moveTo(PAD_L, cH); ctx.lineTo(W, cH); ctx.stroke();
+
+  // y-axis labels (SpO2%)
+  ctx.fillStyle = '#5a8ca8';
+  ctx.font = `${window.devicePixelRatio>1?7:8}px -apple-system,sans-serif`;
+  ctx.textAlign = 'right';
+  [80, 90, 100].forEach(v => {
+    if (v >= lo && v <= hi) ctx.fillText(v + '%', PAD_L - 2, toY(v) + 3);
+  });
+
+  // x-axis time labels (30s or 60s interval)
+  const totalSec = maxT - minT;
+  const interval = totalSec > 240 ? 60 : totalSec > 90 ? 30 : 15;
+  ctx.textAlign = 'center';
+  for (let t = Math.ceil(minT/interval)*interval; t <= maxT; t += interval) {
+    const x = toX(t);
+    if (x < PAD_L + 4 || x > W - 4) continue;
+    const m = Math.floor(t/60), s = t%60;
+    const lbl = m > 0 ? (s===0 ? m+':00' : m+':'+String(s).padStart(2,'0')) : s+'s';
+    ctx.fillStyle = '#5a8ca8';
+    ctx.fillText(lbl, x, H - 2);
+    ctx.strokeStyle = '#1a3f5c';
+    ctx.lineWidth = 0.5;
+    ctx.beginPath(); ctx.moveTo(x, cH); ctx.lineTo(x, cH+3); ctx.stroke();
+  }
+}
+
 function updateLiveChart() {
   if (!spo2Buf.length) return;
-  requestAnimationFrame(() => drawSparkline('spo2Live', spo2Buf.slice(-60), 70, 100, 40));
+  requestAnimationFrame(() => drawTimeChart('spo2Live', spo2Buf, 70, 100, 60));
 }
 
 // ── SAVE MODAL ────────────────────────────────────────────
@@ -3226,7 +3308,7 @@ function openSave() {
   saveSpo2Snap = holdOnly.reduce((best,d) => d.ms>best.ms ? d : best).spo2Profile || [];
   if (saveSpo2Snap.length > 2) {
     document.getElementById('saveChartWrap').style.display = '';
-    setTimeout(() => drawSparkline('saveChart', saveSpo2Snap, 70, 100, 60), 50);
+    setTimeout(() => drawTimeChart('saveChart', saveSpo2Snap, 70, 100, 60), 50);
   } else {
     document.getElementById('saveChartWrap').style.display = 'none';
   }
@@ -3369,7 +3451,7 @@ function openDetail(d) {
     <div class="dm"><div class="dm-lbl">Set #</div><div class="dm-val">${d.set}</div></div>`;
   if (d.spo2Profile?.length>2) {
     document.getElementById('detailChartWrap').style.display='';
-    setTimeout(() => drawSparkline('detailChart', d.spo2Profile, 70, 100, 90), 50);
+    setTimeout(() => drawTimeChart('detailChart', d.spo2Profile, 70, 100, 90), 50);
   } else {
     document.getElementById('detailChartWrap').style.display='none';
   }
