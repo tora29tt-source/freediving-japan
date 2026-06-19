@@ -1276,7 +1276,7 @@ async function loadBookingHistory(guestEmail) {
       listing:listings(title),
       slot:availability_slots(slot_date, start_time)
     `)
-    .eq('guest_email', guestEmail)
+    .eq('client_email', guestEmail)
     .order('created_at', { ascending: false })
     .limit(10);
 

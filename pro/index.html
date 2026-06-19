@@ -1557,7 +1557,7 @@ async function loadBookings() {
         const slot    = b.availability_slots;
         const dateStr = slot ? `${slot.slot_date}<br><span style="font-size:11px;color:var(--on-dark-soft);">${slot.start_time?.slice(0,5)}〜${slot.end_time?.slice(0,5)}</span>` : '—';
         const course  = escHtml(b.listings?.title || '—');
-        const guest   = `${escHtml(b.guest_name)}<br><span style="font-size:11px;color:var(--on-dark-soft);">${escHtml(b.guest_email)}</span>`;
+        const guest   = `${escHtml(b.client_name)}<br><span style="font-size:11px;color:var(--on-dark-soft);">${escHtml(b.client_email)}</span>`;
         const rental  = b.rental_requests?.length ? `<br><button class="btn-edit" style="font-size:11px;padding:2px 8px;margin-top:4px;" onclick='showRentalRequests(${JSON.stringify(JSON.stringify(b.rental_requests))})'>機材サイズ確認</button>` : '';
         return `<tr>
           <td>${dateStr}</td>
@@ -1801,36 +1801,38 @@ async function loadClients() {
   const instrId = myInstructor?.id;
   if (!instrId) { el.innerHTML = '<div class="empty">プロフィールを設定してください</div>'; return; }
 
-  const { data: bookings, error } = await _sb
+  // clients テーブルからプロフィール・メモを取得
+  const { data: clientsData, error: cErr } = await _sb
+    .from('clients')
+    .select('*')
+    .eq('instructor_id', instrId)
+    .order('updated_at', { ascending: false });
+
+  if (cErr) { el.innerHTML = `<div class="empty">読み込みエラー: ${cErr.message}</div>`; return; }
+
+  // 予約履歴（統計・一覧用）
+  const { data: bookings } = await _sb
     .from('bookings')
-    .select('guest_name, guest_email, guest_phone, total_amount, status, created_at, listings(title)')
+    .select('client_email, total_amount, status, created_at, listings(title)')
     .eq('instructor_id', instrId)
     .in('status', ['paid', 'confirmed', 'pending'])
     .order('created_at', { ascending: false });
 
-  if (error) { el.innerHTML = `<div class="empty">読み込みエラー: ${error.message}</div>`; return; }
-
-  // guest_email でグループ化
-  const map = {};
+  // client_email で予約を集計
+  const statsMap = {};
   (bookings || []).forEach(b => {
-    const key = b.guest_email;
-    if (!map[key]) map[key] = { name: b.guest_name, email: b.guest_email, phone: b.guest_phone, count: 0, total: 0, last: b.created_at, bookings: [] };
-    map[key].count++;
-    map[key].total += b.total_amount || 0;
-    if (b.created_at > map[key].last) map[key].last = b.created_at;
-    map[key].bookings.push(b);
+    const key = b.client_email;
+    if (!statsMap[key]) statsMap[key] = { count: 0, total: 0, last: b.created_at, bookings: [] };
+    statsMap[key].count++;
+    statsMap[key].total += b.total_amount || 0;
+    if (b.created_at > statsMap[key].last) statsMap[key].last = b.created_at;
+    statsMap[key].bookings.push(b);
   });
 
-  // メモを一括取得
-  const emails = Object.keys(map);
-  let memoMap = {};
-  if (emails.length > 0) {
-    const { data: memos } = await _sb.from('client_memos').select('guest_email, memo').eq('instructor_id', instrId);
-    (memos || []).forEach(m => { memoMap[m.guest_email] = m.memo; });
-  }
-
-  _allClients = Object.values(map).map(c => ({ ...c, memo: memoMap[c.email] || '' }))
-    .sort((a, b) => b.last.localeCompare(a.last));
+  _allClients = (clientsData || []).map(c => ({
+    ...c,
+    ...(statsMap[c.email] || { count: 0, total: 0, last: null, bookings: [] })
+  }));
 
   renderClients(_allClients);
 }
@@ -1895,10 +1897,10 @@ async function saveClientMemo(email) {
   if (!instrId) return;
   const key = btoa(encodeURIComponent(email)).replace(/[^a-zA-Z0-9]/g,'');
   const memo = document.getElementById('memo-' + key)?.value || '';
-  const { error } = await _sb.from('client_memos').upsert(
-    { instructor_id: instrId, guest_email: email, memo, updated_at: new Date().toISOString() },
-    { onConflict: 'instructor_id,guest_email' }
-  );
+  const { error } = await _sb.from('clients')
+    .update({ memo, updated_at: new Date().toISOString() })
+    .eq('instructor_id', instrId)
+    .eq('email', email);
   if (error) { showToast('保存失敗: ' + error.message, 'error'); return; }
   // キャッシュ更新
   const c = _allClients.find(x => x.email === email);

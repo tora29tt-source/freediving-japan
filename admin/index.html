@@ -1112,8 +1112,8 @@ function bookingRow(b) {
         <div style="font-size:11px;color:var(--on-dark-soft);">${time}</div>
       </td>
       <td>
-        <div class="name">${escHtml(b.guest_name || '—')}</div>
-        <div style="font-size:11px;color:var(--on-dark-soft);">${escHtml(b.guest_email || '')}</div>
+        <div class="name">${escHtml(b.client_name || '—')}</div>
+        <div style="font-size:11px;color:var(--on-dark-soft);">${escHtml(b.client_email || '')}</div>
       </td>
       <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(title)}</td>
       <td>${b.participant_count || 1}名</td>

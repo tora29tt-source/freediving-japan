@@ -52,10 +52,10 @@ CREATE TABLE bookings (
   instructor_id            UUID NOT NULL REFERENCES instructors(id),
   listing_id               UUID REFERENCES listings(id),
 
-  -- 予約者情報
-  guest_name               TEXT NOT NULL,
-  guest_email              TEXT NOT NULL,
-  guest_phone              TEXT,
+  -- クライアント情報
+  client_name              TEXT NOT NULL,
+  client_email             TEXT NOT NULL,
+  client_phone             TEXT,
   participant_count        SMALLINT NOT NULL DEFAULT 1,
 
   -- 金額（円）
@@ -81,7 +81,7 @@ CREATE TABLE bookings (
 
 CREATE INDEX idx_bookings_instructor ON bookings(instructor_id, created_at DESC);
 CREATE INDEX idx_bookings_slot       ON bookings(slot_id);
-CREATE INDEX idx_bookings_email      ON bookings(guest_email);
+CREATE INDEX idx_bookings_email      ON bookings(client_email);
 CREATE INDEX idx_bookings_status     ON bookings(status);
 CREATE INDEX idx_bookings_stripe     ON bookings(stripe_session_id);
 

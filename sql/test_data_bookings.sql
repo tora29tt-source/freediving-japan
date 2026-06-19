@@ -84,7 +84,7 @@ ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO bookings (
   id, slot_id, instructor_id, listing_id,
-  guest_name, guest_email, guest_phone, notes,
+  client_name, client_email, client_phone, notes,
   participant_count, unit_price, total_amount, platform_fee, instructor_payout,
   status, stripe_session_id, created_at, updated_at
 )
@@ -170,7 +170,7 @@ SELECT
   b.id,
   i.name AS instructor,
   l.title AS listing,
-  b.guest_name,
+  b.client_name,
   b.total_amount,
   b.status,
   b.created_at::date AS booked_date
