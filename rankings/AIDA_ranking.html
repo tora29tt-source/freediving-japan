@@ -310,7 +310,7 @@ let DATA = {records:[], overall:[]};
 // ローディング
 document.getElementById('hero').innerHTML='<p style="color:var(--muted);padding:20px">データ読み込み中...</p>';
 
-fetch('all_rankings_data.json')
+fetch('../data/all_rankings_data.json')
   .then(r => r.json())
   .then(json => {
     const evs = json.events || [];

@@ -1995,6 +1995,8 @@ var IMPORT_FIELDS = [
   { key: 'gender',     label: '性別 (Gender)',     detect: ['性別','gender'] },
   { key: 'nationality',label: '国籍 (Nationality)',detect: ['国籍','nationality'] },
   { key: 'discipline', label: '種目 (Discipline)', detect: ['種目','discipline','disc'] },
+  { key: 'ap_m',       label: 'AP (m)',            detect: ['ap(m)','ap_m','ap m','depth'] },
+  { key: 'ap_time',    label: 'AP (mm:ss)',        detect: ['ap(mm','ap_time','ap time','static','sta'] },
   { key: 'email',      label: 'メール (Email)',    detect: ['メール','email','mail'] },
 ];
 
@@ -2128,6 +2130,8 @@ async function executeImport() {
     if (_csvMapping['gender']      !== undefined) entry.gender      = (row[_csvMapping['gender']]      || '').trim() || null;
     if (_csvMapping['nationality'] !== undefined) entry.nationality = (row[_csvMapping['nationality']] || '').trim() || null;
     if (_csvMapping['discipline']  !== undefined) entry.discipline  = (row[_csvMapping['discipline']]  || '').trim() || null;
+    if (_csvMapping['ap_m']        !== undefined) { var v = parseFloat((row[_csvMapping['ap_m']] || '').replace(/[^0-9.]/g,'')); if (!isNaN(v)) entry.ap_m = v; }
+    if (_csvMapping['ap_time']     !== undefined) { var t = (row[_csvMapping['ap_time']] || '').trim(); if (t) entry.ap_time = t; }
     return entry;
   }).filter(function(e) { return e.name && e.event_id; });
 
