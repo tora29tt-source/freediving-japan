@@ -307,7 +307,13 @@ body.role-staff #panel-overview textarea.fi{pointer-events:none;opacity:0.65;}
     <div class="card">
       <div class="card-header">
         <span class="card-title">スタッフ一覧</span>
-        <button class="btn btn-primary btn-sm" onclick="openAddStaffModal()">＋ 追加</button>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <div style="display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;">
+            <button id="viewBtnCard" onclick="setStaffView('card')" style="padding:4px 10px;font-size:11px;font-weight:700;font-family:inherit;border:none;cursor:pointer;background:var(--teal);color:#fff;transition:all 0.15s;">カード</button>
+            <button id="viewBtnGrid" onclick="setStaffView('grid')" style="padding:4px 10px;font-size:11px;font-weight:700;font-family:inherit;border:none;cursor:pointer;background:transparent;color:var(--muted);transition:all 0.15s;">グリッド</button>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openAddStaffModal()">＋ 追加</button>
+        </div>
       </div>
       <div id="staffList" style="padding:0 4px;"></div>
     </div>
@@ -1050,7 +1056,81 @@ var SITE_ROLE_LABELS = { organizer: '主催者', staff: 'スタッフ', readonly
 
 var ENG_LABELS = { advanced:'上級', intermediate:'中級', beginner:'初級' };
 
+var _staffView = 'card'; // 'card' or 'grid'
+
+function setStaffView(v) {
+  _staffView = v;
+  var btnCard = document.getElementById('viewBtnCard');
+  var btnGrid = document.getElementById('viewBtnGrid');
+  if (btnCard && btnGrid) {
+    btnCard.style.background = v === 'card' ? 'var(--teal)' : 'transparent';
+    btnCard.style.color      = v === 'card' ? '#fff' : 'var(--muted)';
+    btnGrid.style.background = v === 'grid' ? 'var(--teal)' : 'transparent';
+    btnGrid.style.color      = v === 'grid' ? '#fff' : 'var(--muted)';
+  }
+  renderStaffList();
+}
+
+function renderStaffGrid() {
+  var el = document.getElementById('staffList');
+  if (!el) return;
+  if (!_staffList.length) {
+    el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">スタッフが登録されていません</div>';
+    return;
+  }
+  // 全スタッフの参加日を収集して一意にソート
+  var dateSet = {};
+  _staffList.forEach(function(s) {
+    (s.participation_days || []).forEach(function(d) { dateSet[d] = true; });
+  });
+  var allDates = Object.keys(dateSet).sort();
+
+  // ヘッダー（日付列）
+  var colW = '44px';
+  var thStyle = 'font-size:10px;font-weight:700;color:var(--muted);text-align:center;padding:6px 4px;border-bottom:1px solid var(--border);white-space:nowrap;';
+  var headerCols = allDates.map(function(d) {
+    var dt = new Date(d + 'T00:00:00');
+    var m = dt.getMonth() + 1;
+    var day = dt.getDate();
+    var weekDay = ['日','月','火','水','木','金','土'][dt.getDay()];
+    return '<th style="' + thStyle + 'width:' + colW + ';">' + m + '/' + day + '<br><span style="font-size:9px;opacity:0.6;">(' + weekDay + ')</span></th>';
+  }).join('');
+
+  var tdNameStyle = 'font-size:12px;font-weight:600;padding:7px 8px;border-bottom:1px solid var(--border);white-space:nowrap;max-width:110px;overflow:hidden;text-overflow:ellipsis;';
+  var tdRoleStyle = 'font-size:10px;color:var(--teal2);padding:7px 4px;border-bottom:1px solid var(--border);white-space:nowrap;';
+  var tdCellStyle = 'text-align:center;padding:7px 4px;border-bottom:1px solid var(--border);';
+
+  var bodyRows = _staffList.map(function(s) {
+    var daySet = {};
+    (s.participation_days || []).forEach(function(d) { daySet[d] = true; });
+    var cells = allDates.map(function(d) {
+      var active = daySet[d];
+      return '<td style="' + tdCellStyle + '">' +
+        (active ? '<span style="display:inline-block;width:22px;height:22px;line-height:22px;border-radius:50%;background:var(--teal);color:#fff;font-size:11px;font-weight:700;">●</span>'
+                : '<span style="color:var(--border);font-size:14px;">—</span>') +
+        '</td>';
+    }).join('');
+    return '<tr>' +
+      '<td style="' + tdNameStyle + '">' + s.name + '</td>' +
+      '<td style="' + tdRoleStyle + '">' + (s.role || '—') + '</td>' +
+      cells +
+    '</tr>';
+  }).join('');
+
+  el.innerHTML = '<div style="overflow-x:auto;padding:8px 4px;">' +
+    '<table style="width:100%;border-collapse:collapse;table-layout:auto;">' +
+      '<thead><tr>' +
+        '<th style="' + thStyle + 'text-align:left;padding-left:8px;min-width:90px;">名前</th>' +
+        '<th style="' + thStyle + 'text-align:left;min-width:70px;">役割</th>' +
+        headerCols +
+      '</tr></thead>' +
+      '<tbody>' + bodyRows + '</tbody>' +
+    '</table>' +
+  '</div>';
+}
+
 function renderStaffList() {
+  if (_staffView === 'grid') { renderStaffGrid(); return; }
   var el = document.getElementById('staffList');
   if (!el) return;
   if (!_staffList.length) {
