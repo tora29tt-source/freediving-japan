@@ -6,56 +6,28 @@
 <title>マイページ | Freediving Japan</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase-config.js"></script>
+<link rel="stylesheet" href="css/design-system.css">
 <style>
 :root {
-  --ocean-deep:  #0b2d45;
-  --ocean-mid:   #0e3d5c;
-  --ocean-light: #1a5f82;
-  --teal:        #2ec4b6;
-  --teal-light:  #a8ece8;
-  --bg:          #04161f;
-  --surface:     #0c2738;
-  --surface2:    #123146;
-  --border:      rgba(168,236,232,0.14);
-  --accent:      #2ec4b6;
-  --accent2:     #a8ece8;
-  --accent-dim:  rgba(46,196,182,0.10);
-  --text:        rgba(255,255,255,0.92);
-  --muted:       rgba(255,255,255,0.40);
-  --sub:         rgba(255,255,255,0.62);
-  --warn:        #f59e0b;
-  --r:           14px;
-  --rs:          9px;
+  /* design-system.css への統一エイリアス */
+  --bg:       var(--abyss);
+  --border:   var(--hairline);
+  --accent:   var(--teal);
+  --accent2:  var(--teal-light);
+  --text:     var(--on-dark);
+  --sub:      var(--on-dark-mid);
+  --muted:    var(--on-dark-soft);
+  /* このページ固有のサーフェス色 */
+  --surface:  #0c2738;
+  --surface2: #123146;
+  --accent-dim: rgba(46,196,182,0.10);
+  --warn:     #f59e0b;
+  --r:        14px;
+  --rs:       9px;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
-  background: linear-gradient(180deg, #0e3d5c 0%, #0b2d45 22%, #06283a 55%, #04161f 100%);
-  background-attachment: fixed;
-  color: var(--text);
-  min-height: 100vh;
-  padding-bottom: 72px;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* ===== HEADER ===== */
-.header {
-  position: sticky; top: 0; z-index: 100;
-  background: rgba(6,32,46,0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border);
-  padding: 0 20px; height: 52px;
-  display: flex; align-items: center; justify-content: space-between;
-}
-.logo { font-size: 15px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text);   text-decoration: none;
-}
-.logo span { color: var(--teal); }
-.icon-btn { display: flex; align-items: center; gap: 6px; padding: 7px 14px 7px 10px; border-radius: 100px; background: transparent; border: 1px solid var(--hairline); color: var(--on-dark-mid); font-size: 12px; font-weight: 500; letter-spacing: 0.04em; text-decoration: none; cursor: pointer; transition: border-color 0.2s, color 0.2s; }
-.icon-btn:hover { border-color: var(--teal); color: var(--on-dark); }
-.icon-btn .icon { width: 16px; height: 16px; }
+/* body に padding-bottom を追加（BottomNav分） */
+body { padding-bottom: 72px; }
 
 /* ===== HERO ===== */
 .hero {

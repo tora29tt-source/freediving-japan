@@ -6,49 +6,105 @@
 <title>ログイン | Freediving Japan</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase-config.js"></script>
+<link rel="stylesheet" href="css/design-system.css">
 <style>
-:root {
-  --ocean-deep: #0b2d45;
-  --ocean-mid: #0e3d5c;
-  --ocean-light: #1a5f82;
-  --teal: #2ec4b6;
-  --teal-light: #a8ece8;
-  --foam: #f0f9fb;
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
 body {
-  font-family: -apple-system, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
-  background: var(--ocean-deep);
-  min-height: 100vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  min-height: 100vh;
   padding: 24px 16px;
+  position: relative;
+  overflow: hidden;
 }
 
-.card {
-  background: white;
-  border-radius: 16px;
-  padding: 40px 32px;
+/* 背景グロー */
+.bg-glow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(46,196,182,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 80% 80%, rgba(26,95,130,0.15) 0%, transparent 60%);
+}
+
+/* ロゴ */
+.auth-logo {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--on-dark);
+  text-decoration: none;
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.auth-logo span { color: var(--teal); }
+.auth-logo-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--teal);
+  animation: pulse-dot 2.4s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.7); }
+}
+
+/* カード */
+.auth-card {
   width: 100%;
   max-width: 400px;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+  background: rgba(12,39,56,0.80);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--hairline);
+  border-radius: 20px;
+  padding: 32px 28px;
+  box-shadow: 0 24px 64px rgba(4,22,31,0.7), 0 0 0 1px rgba(168,236,232,0.06);
+  position: relative;
 }
 
-.logo { text-align: center; margin-bottom: 32px; }
-.logo h1 { font-size: 22px; font-weight: 700; color: var(--ocean-deep); letter-spacing: -0.5px; }
-.logo p { font-size: 13px; color: #888; margin-top: 4px; }
+/* カード上部のハイライトライン */
+.auth-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(168,236,232,0.4), transparent);
+}
 
-.tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 28px; }
+/* タブ */
+.tabs {
+  display: flex;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-pill);
+  padding: 4px;
+  margin-bottom: 28px;
+  gap: 4px;
+}
 .tab {
-  flex: 1; text-align: center; padding: 10px;
-  font-size: 14px; font-weight: 600; color: #aaa;
-  cursor: pointer; border-bottom: 2px solid transparent;
-  margin-bottom: -2px; transition: all 0.2s;
+  flex: 1;
+  text-align: center;
+  padding: 9px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--on-dark-soft);
+  cursor: pointer;
+  border-radius: var(--r-pill);
+  transition: all var(--t-base);
+  letter-spacing: 0.03em;
 }
-.tab.active { color: var(--teal); border-bottom-color: var(--teal); }
+.tab.active {
+  background: var(--teal);
+  color: var(--ocean-deep);
+}
 
 /* ソーシャルボタン */
 .social-btn {
@@ -58,85 +114,177 @@ body {
   justify-content: center;
   gap: 10px;
   padding: 12px 16px;
-  border: 1.5px solid #ddd;
-  border-radius: 10px;
-  font-size: 14px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r);
+  font-size: 13px;
   font-weight: 600;
-  color: #333;
-  background: white;
+  color: var(--on-dark-mid);
+  background: var(--glass);
   cursor: pointer;
   margin-bottom: 10px;
-  transition: all 0.2s;
+  transition: border-color var(--t-base), color var(--t-base), background var(--t-base);
+  font-family: inherit;
+  backdrop-filter: blur(6px);
+}
+.social-btn:hover {
+  border-color: rgba(46,196,182,0.45);
+  color: var(--on-dark);
+  background: rgba(46,196,182,0.06);
+}
+.social-btn svg { flex-shrink: 0; }
+
+/* または区切り */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  color: var(--on-dark-soft);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--hairline);
+}
+
+/* フォーム */
+.form-group { margin-bottom: 14px; }
+.form-group label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--on-dark-soft);
+  margin-bottom: 7px;
+}
+.form-group input {
+  width: 100%;
+  padding: 13px 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r);
+  font-size: 14px;
+  color: var(--on-dark);
+  outline: none;
+  font-family: inherit;
+  transition: border-color var(--t-base), background var(--t-base);
+  -webkit-appearance: none;
+}
+.form-group input::placeholder { color: var(--on-dark-soft); }
+.form-group input:focus {
+  border-color: rgba(46,196,182,0.55);
+  background: rgba(255,255,255,0.08);
+}
+
+/* 送信ボタン */
+.btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--teal);
+  color: var(--ocean-deep);
+  border: none;
+  border-radius: var(--r);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: background var(--t-base), transform var(--t-fast);
+  font-family: inherit;
+  -webkit-appearance: none;
+  letter-spacing: 0.04em;
+}
+.btn:hover   { background: var(--teal-light); transform: translateY(-1px); }
+.btn:active  { transform: translateY(0); }
+.btn:disabled { background: rgba(46,196,182,0.3); color: rgba(11,45,69,0.6); cursor: not-allowed; transform: none; }
+
+/* ロール選択 */
+.role-selector {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.role-btn {
+  flex: 1;
+  padding: 11px 8px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--on-dark-soft);
+  cursor: pointer;
+  background: var(--glass);
+  text-align: center;
+  transition: border-color var(--t-base), color var(--t-base), background var(--t-base);
   font-family: inherit;
 }
-.social-btn:hover { border-color: var(--teal); background: var(--foam); }
-
-.divider {
-  display: flex; align-items: center; gap: 10px;
-  color: #aaa; font-size: 12px; margin: 16px 0;
-}
-.divider::before, .divider::after {
-  content: ''; flex: 1; height: 1px; background: #eee;
+.role-btn.active {
+  border-color: var(--teal);
+  background: rgba(46,196,182,0.10);
+  color: var(--on-dark);
 }
 
-.form-group { margin-bottom: 16px; }
-label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 6px; }
-input {
-  width: 100%; padding: 12px 14px;
-  border: 1.5px solid #ddd; border-radius: 10px;
-  font-size: 15px; outline: none; transition: border-color 0.2s;
-  -webkit-appearance: none;
-}
-input:focus { border-color: var(--teal); }
-
-.btn {
-  width: 100%; padding: 14px;
-  background: var(--teal); color: white;
-  border: none; border-radius: 10px;
-  font-size: 15px; font-weight: 700;
-  cursor: pointer; margin-top: 8px;
-  transition: background 0.2s; font-family: inherit;
-  -webkit-appearance: none;
-}
-.btn:hover { background: #25a99d; }
-.btn:disabled { background: #aaa; cursor: not-allowed; }
-
+/* メッセージ */
 .message {
-  margin-top: 16px; padding: 12px;
-  border-radius: 8px; font-size: 13px;
-  text-align: center; display: none;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: var(--r-sm);
+  font-size: 12px;
+  text-align: center;
+  display: none;
+  line-height: 1.6;
 }
-.message.error { background: #fff0f0; color: #d00; display: block; }
-.message.success { background: #f0fff8; color: #0a7; display: block; }
+.message.error {
+  background: rgba(239,68,68,0.12);
+  border: 1px solid rgba(239,68,68,0.25);
+  color: #fca5a5;
+  display: block;
+}
+.message.success {
+  background: rgba(46,196,182,0.10);
+  border: 1px solid rgba(46,196,182,0.25);
+  color: var(--teal-light);
+  display: block;
+}
 
-.role-selector { display: flex; gap: 8px; margin-bottom: 16px; }
-.role-btn {
-  flex: 1; padding: 10px 8px;
-  border: 1.5px solid #ddd; border-radius: 10px;
-  font-size: 13px; font-weight: 600; color: #666;
-  cursor: pointer; background: white; text-align: center;
-  transition: all 0.2s;
+/* 戻るリンク */
+.back-link {
+  margin-top: 20px;
+  font-size: 12px;
+  color: var(--on-dark-soft);
+  text-align: center;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: color var(--t-base);
 }
-.role-btn.active { border-color: var(--teal); background: var(--foam); color: var(--ocean-deep); }
+.back-link:hover { color: var(--on-dark-mid); }
 </style>
 </head>
 <body>
+<div class="bg-glow"></div>
 
-<div class="card">
-  <div class="logo">
-    <h1>🤿 Freediving Japan</h1>
-    <p>フリーダイビングのプラットフォーム</p>
-  </div>
+<a class="auth-logo" href="index.html">
+  <span class="auth-logo-dot"></span>
+  Freediving <span>Japan</span>
+</a>
 
+<div class="auth-card">
   <div class="tabs">
     <div class="tab active" onclick="switchTab('login')">ログイン</div>
     <div class="tab" onclick="switchTab('signup')">新規登録</div>
   </div>
 
-  <!-- ログインフォーム -->
+  <!-- ── ログインフォーム ── -->
   <div id="loginForm">
     <button class="social-btn" onclick="signInGoogle()">
-      <svg width="18" height="18" viewBox="0 0 18 18">
+      <svg width="17" height="17" viewBox="0 0 18 18">
         <path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/>
         <path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2.04a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/>
         <path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"/>
@@ -144,9 +292,8 @@ input:focus { border-color: var(--teal); }
       </svg>
       Googleでログイン
     </button>
-
     <button class="social-btn" onclick="signInApple()">
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="#000">
+      <svg width="17" height="17" viewBox="0 0 18 18" fill="rgba(255,255,255,0.85)">
         <path d="M13.18 9.5c-.02-1.96 1.6-2.9 1.67-2.95-1.6-2.34-2.56-.9-3.22-.86-.83.08-1.64.5-2.07.5-.44 0-1.12-.48-1.84-.47-1.44.02-2.74.84-3.47 2.13-1.48 2.57-.38 6.36 1.06 8.44.7 1.02 1.54 2.16 2.63 2.12 1.06-.04 1.46-.68 2.74-.68 1.28 0 1.64.68 2.76.66 1.14-.02 1.86-1.04 2.55-2.06.51-.74.9-1.57 1.14-2.43-2.5-.96-2.95-4.4-.95-4.4zM11.1 4.1C11.67 3.42 12 2.5 11.9 1.6c-.8.04-1.77.53-2.34 1.2-.51.6-.96 1.55-.84 2.46.9.07 1.82-.46 2.38-1.16z"/>
       </svg>
       Appleでログイン
@@ -160,15 +307,15 @@ input:focus { border-color: var(--teal); }
     </div>
     <div class="form-group">
       <label>パスワード</label>
-      <input type="password" id="loginPassword" placeholder="パスワード" autocomplete="current-password">
+      <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
     </div>
     <button class="btn" onclick="handleLogin()">ログイン</button>
   </div>
 
-  <!-- サインアップフォーム -->
+  <!-- ── 新規登録フォーム ── -->
   <div id="signupForm" style="display:none;">
     <button class="social-btn" onclick="signInGoogle()">
-      <svg width="18" height="18" viewBox="0 0 18 18">
+      <svg width="17" height="17" viewBox="0 0 18 18">
         <path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/>
         <path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2.04a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/>
         <path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"/>
@@ -176,9 +323,8 @@ input:focus { border-color: var(--teal); }
       </svg>
       Googleで登録
     </button>
-
     <button class="social-btn" onclick="signInApple()">
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="#000">
+      <svg width="17" height="17" viewBox="0 0 18 18" fill="rgba(255,255,255,0.85)">
         <path d="M13.18 9.5c-.02-1.96 1.6-2.9 1.67-2.95-1.6-2.34-2.56-.9-3.22-.86-.83.08-1.64.5-2.07.5-.44 0-1.12-.48-1.84-.47-1.44.02-2.74.84-3.47 2.13-1.48 2.57-.38 6.36 1.06 8.44.7 1.02 1.54 2.16 2.63 2.12 1.06-.04 1.46-.68 2.74-.68 1.28 0 1.64.68 2.76.66 1.14-.02 1.86-1.04 2.55-2.06.51-.74.9-1.57 1.14-2.43-2.5-.96-2.95-4.4-.95-4.4zM11.1 4.1C11.67 3.42 12 2.5 11.9 1.6c-.8.04-1.77.53-2.34 1.2-.51.6-.96 1.55-.84 2.46.9.07 1.82-.46 2.38-1.16z"/>
       </svg>
       Appleで登録
@@ -189,8 +335,8 @@ input:focus { border-color: var(--teal); }
     <div class="form-group">
       <label>ロールを選択</label>
       <div class="role-selector">
-        <div class="role-btn active" onclick="selectRole('athlete')" id="role-athlete">🏊 選手・愛好家</div>
-        <div class="role-btn" onclick="selectRole('instructor')" id="role-instructor">🎓 インストラクター</div>
+        <button class="role-btn active" onclick="selectRole('athlete')" id="role-athlete">🏊 選手・愛好家</button>
+        <button class="role-btn" onclick="selectRole('instructor')" id="role-instructor">🎓 インストラクター</button>
       </div>
     </div>
     <div class="form-group">
@@ -203,13 +349,18 @@ input:focus { border-color: var(--teal); }
     </div>
     <div class="form-group">
       <label>パスワード（8文字以上）</label>
-      <input type="password" id="signupPassword" placeholder="パスワード" autocomplete="new-password">
+      <input type="password" id="signupPassword" placeholder="••••••••" autocomplete="new-password">
     </div>
     <button class="btn" onclick="handleSignup()">アカウント作成</button>
   </div>
 
   <div id="message" class="message"></div>
 </div>
+
+<a class="back-link" href="index.html">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M11 6l-6 6 6 6"/></svg>
+  トップページに戻る
+</a>
 
 <script>
 let selectedRole = 'athlete';
@@ -222,7 +373,7 @@ function switchTab(tab) {
   document.querySelectorAll('.tab').forEach((t, i) => {
     t.classList.toggle('active', (tab === 'login' && i === 0) || (tab === 'signup' && i === 1));
   });
-  document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('loginForm').style.display  = tab === 'login'  ? 'block' : 'none';
   document.getElementById('signupForm').style.display = tab === 'signup' ? 'block' : 'none';
   clearMessage();
 }
@@ -262,7 +413,7 @@ async function signInApple() {
 }
 
 async function handleLogin() {
-  const email = document.getElementById('loginEmail').value.trim();
+  const email    = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
   if (!email || !password) return showMessage('メールとパスワードを入力してください', 'error');
 
@@ -279,8 +430,8 @@ async function handleLogin() {
 }
 
 async function handleSignup() {
-  const name = document.getElementById('signupName').value.trim();
-  const email = document.getElementById('signupEmail').value.trim();
+  const name     = document.getElementById('signupName').value.trim();
+  const email    = document.getElementById('signupEmail').value.trim();
   const password = document.getElementById('signupPassword').value;
   if (!name || !email || !password) return showMessage('すべての項目を入力してください', 'error');
   if (password.length < 8) return showMessage('パスワードは8文字以上にしてください', 'error');

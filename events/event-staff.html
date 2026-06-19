@@ -406,7 +406,8 @@ body.role-staff #panel-overview textarea.fi{pointer-events:none;opacity:0.65;}
       <div class="card-header">
         <span class="card-title">AP Entries</span>
         <div class="role-org-only" style="display:flex;gap:8px;">
-          <button class="btn btn-ghost btn-sm" onclick="exportCSV()">CSV</button>
+          <button class="btn btn-ghost btn-sm" onclick="exportCSV()">CSV出力</button>
+          <button class="btn btn-ghost btn-sm" onclick="openImportModal()">📥 CSV取込</button>
           <button class="btn btn-primary btn-sm" onclick="openAddEntryModal()">＋ 追加</button>
         </div>
       </div>
@@ -490,6 +491,47 @@ body.role-staff #panel-overview textarea.fi{pointer-events:none;opacity:0.65;}
     <div class="card">
       <div class="card-header"><span class="card-title">Rankings</span></div>
       <div class="empty-state"><div class="empty-icon">&#x1F3C6;</div>Results will appear here after entry.</div>
+    </div>
+  </div>
+</div>
+
+<!-- CSV IMPORT MODAL -->
+<div class="modal-backdrop" id="import-modal" onclick="if(event.target===this)closeImportModal()" style="display:none;">
+  <div class="modal-box" style="max-width:600px;max-height:92vh;overflow-y:auto;">
+    <div class="modal-header">
+      <span class="modal-title">📥 CSV 選手インポート</span>
+      <button class="modal-close" onclick="closeImportModal()">✕</button>
+    </div>
+    <!-- Step 1: ファイル選択 -->
+    <div id="import-step1" style="padding:16px;">
+      <p style="font-size:13px;color:var(--sub);margin-bottom:14px;">
+        Googleスプレッドシート → <b>ファイル → ダウンロード → CSV</b> で保存したファイルを選択してください。
+      </p>
+      <label style="display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px dashed var(--border);border-radius:10px;padding:32px;cursor:pointer;gap:8px;" id="import-drop-zone">
+        <span style="font-size:28px;">📄</span>
+        <span style="font-size:13px;font-weight:700;">CSVファイルをドロップ or クリック</span>
+        <span style="font-size:11px;color:var(--muted);">.csv ファイル対応</span>
+        <input type="file" id="import-file-input" accept=".csv,text/csv" style="display:none;" onchange="onImportFileSelect(this)">
+      </label>
+    </div>
+    <!-- Step 2: 列マッピング -->
+    <div id="import-step2" style="display:none;padding:16px;">
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:10px;">列のマッピングを確認・修正してください</div>
+      <div id="import-mapping" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;"></div>
+      <div id="import-preview-wrap">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px;">プレビュー（先頭5件）</div>
+        <div id="import-preview" style="overflow-x:auto;font-size:11px;"></div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px;">
+        <button class="btn btn-ghost btn-sm" onclick="closeImportModal()">キャンセル</button>
+        <button class="btn btn-primary" onclick="executeImport()" id="import-exec-btn">インポート実行</button>
+      </div>
+    </div>
+    <!-- Step 3: 完了 -->
+    <div id="import-step3" style="display:none;padding:32px;text-align:center;">
+      <div style="font-size:36px;margin-bottom:12px;">✅</div>
+      <div id="import-result-msg" style="font-size:14px;font-weight:700;"></div>
+      <button class="btn btn-primary" style="margin-top:20px;" onclick="closeImportModal()">閉じる</button>
     </div>
   </div>
 </div>

@@ -4,46 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>探す — Freediving Japan</title>
+<link rel="stylesheet" href="../css/design-system.css">
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --ocean-deep:  #0b2d45;
-  --ocean-mid:   #0e3d5c;
-  --ocean-light: #1a5f82;
-  --abyss:       #04161f;
-  --teal:        #2ec4b6;
-  --teal-light:  #a8ece8;
-  --foam:        #f0f9fb;
-  --warm:        #f97316;
-  --on-dark:         rgba(255,255,255,0.92);
-  --on-dark-mid:     rgba(255,255,255,0.62);
-  --on-dark-soft:    rgba(255,255,255,0.38);
-  --hairline:        rgba(168,236,232,0.14);
-  --glass:           rgba(255,255,255,0.045);
-}
-html { background: var(--abyss); }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
-  background: linear-gradient(180deg, var(--ocean-mid) 0%, var(--ocean-deep) 22%, #06283a 55%, var(--abyss) 100%);
-  background-attachment: fixed;
-  color: var(--on-dark);
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-}
-.icon { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; display: block; }
-.header {
-  position: sticky; top: 0; z-index: 100;
-  background: rgba(6,32,46,0.55); backdrop-filter: blur(14px);
-  border-bottom: 1px solid var(--hairline);
-  padding: 0 20px; height: 56px;
-  display: flex; align-items: center; justify-content: space-between;
-}
-.logo { font-size: 16px; font-weight: 600; color: var(--on-dark); letter-spacing: 0.18em; text-transform: uppercase; text-decoration: none; }
-.logo span { color: var(--teal); }
 .header-icons { display: flex; align-items: center; gap: 16px; }
-.icon-btn { display: flex; align-items: center; gap: 6px; padding: 7px 14px 7px 10px; border-radius: 100px; background: transparent; border: 1px solid var(--hairline); color: var(--on-dark-mid); font-size: 12px; font-weight: 500; letter-spacing: 0.04em; text-decoration: none; cursor: pointer; transition: border-color 0.2s, color 0.2s; }
-.icon-btn:hover { border-color: var(--teal); color: var(--on-dark); }
-.icon-btn .icon { width: 16px; height: 16px; }
 .search-hero { padding: 36px 20px 28px; text-align: center; position: relative; overflow: hidden; }
 .search-hero-glow { position: absolute; top: -60%; left: 50%; width: 120%; height: 100%; transform: translateX(-50%); background: radial-gradient(ellipse at center, rgba(168,236,232,0.16) 0%, transparent 65%); pointer-events: none; }
 .search-hero-inner { position: relative; z-index: 2; }
@@ -75,12 +38,6 @@ body {
 .filter-label { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--on-dark-soft); margin-bottom: 10px; }
 .chip-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
 .chip-row::-webkit-scrollbar { display: none; }
-.chip { flex-shrink: 0; padding: 7px 14px; border-radius: 100px; border: 1px solid var(--hairline); background: transparent; font-size: 12px; color: var(--on-dark-mid); cursor: pointer; transition: border-color 0.2s, background 0.2s, color 0.2s; white-space: nowrap; }
-.chip:hover { border-color: rgba(46,196,182,0.35); color: var(--on-dark); }
-.chip.active { border-color: var(--teal); background: rgba(46,196,182,0.12); color: var(--on-dark); }
-.divider { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
-.divider-line { flex: 1; height: 1px; background: var(--hairline); }
-.divider-label { font-size: 11px; color: var(--on-dark-soft); letter-spacing: 0.08em; }
 .result-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 .result-count { font-size: 12px; color: var(--on-dark-soft); }
 .result-count span { color: var(--teal-light); font-weight: 600; }
