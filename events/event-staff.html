@@ -2134,23 +2134,37 @@ async function executeImport() {
       entry.gender = g || null;
     }
     if (_csvMapping['nationality'] !== undefined) entry.nationality = (row[_csvMapping['nationality']] || '').trim() || null;
-    if (_csvMapping['discipline']  !== undefined) entry.discipline  = (row[_csvMapping['discipline']]  || '').trim() || null;
-    if (_csvMapping['ap_m']        !== undefined) { var v = parseFloat((row[_csvMapping['ap_m']] || '').replace(/[^0-9.]/g,'')); if (!isNaN(v)) entry.ap_m = v; }
-    if (_csvMapping['ap_time']     !== undefined) { var t = (row[_csvMapping['ap_time']] || '').trim(); if (t) entry.ap_time = t; }
+    if (_csvMapping['discipline']  !== undefined) {
+      var disc = (row[_csvMapping['discipline']] || '').trim().toUpperCase();
+      var DISC_MAP = { 'CONSTANT WEIGHT':'CWT','CONSTANT WEIGHT BIFINS':'CWTB','CONSTANT NO FINS':'CNF',
+                       'FREE IMMERSION':'FIM','STATIC APNEA':'STA','STATIC':'STA',
+                       'DYNAMIC WITH FINS':'DYN','DYNAMIC NO FINS':'DNF','DYNAMIC BIFINS':'DYNB' };
+      entry.discipline = DISC_MAP[disc] || disc || null;
+    }
+    if (_csvMapping['ap_m']    !== undefined) { var v = parseFloat((row[_csvMapping['ap_m']] || '').replace(/[^0-9.]/g,'')); if (!isNaN(v)) entry.ap_m = v; }
+    if (_csvMapping['ap_time'] !== undefined) { var t = (row[_csvMapping['ap_time']] || '').trim(); if (t) entry.ap_time = t; }
     return entry;
   }).filter(function(e) { return e.name && e.event_id; });
 
-  try {
-    var res = await _sb.from('athlete_entries').insert(inserts).select();
-    if (res.error) throw new Error(res.error.message);
-    document.getElementById('import-step2').style.display = 'none';
-    document.getElementById('import-step3').style.display = '';
-    document.getElementById('import-result-msg').textContent = inserts.length + '名の選手データをインポートしました';
-    loadAPList();
-  } catch(e) {
-    showToast('インポート失敗: ' + e.message, 'error');
-    btn.disabled = false; btn.textContent = 'インポート実行';
+  var succeeded = 0, failed = [], total = inserts.length;
+  for (var i = 0; i < inserts.length; i++) {
+    var res = await _sb.from('athlete_entries').insert(inserts[i]).select();
+    if (res.error) {
+      failed.push({ row: i + 2, name: inserts[i].name, msg: res.error.message });
+    } else {
+      succeeded++;
+    }
   }
+
+  document.getElementById('import-step2').style.display = 'none';
+  document.getElementById('import-step3').style.display = '';
+  var msg = succeeded + '名をインポートしました';
+  if (failed.length) {
+    msg += '（' + failed.length + '件スキップ: ' + failed.map(function(f){ return f.name; }).join(', ') + '）';
+    console.warn('Import errors:', failed);
+  }
+  document.getElementById('import-result-msg').textContent = msg;
+  loadAPList();
 }
 
 // =============================================

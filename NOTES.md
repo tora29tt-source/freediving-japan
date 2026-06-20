@@ -1,6 +1,32 @@
 # Freediving Japan — 作業メモ
 
-*最終更新：2026-06-17*
+*最終更新：2026-06-20*
+
+-----
+
+## 🎨 デザインシステム（2026-06-20 実施）
+
+### 作成・更新ファイル
+
+| ファイル | 内容 |
+|---|---|
+| `css/design-system.css` | 新規作成（504行）。CSS変数・リセット・ヘッダー・ボタン・カード・フォーム・バッジ・トースト等を一元管理 |
+| `auth.html` | 白カード→海テーマのダークUIに完全リデザイン。タブ切り替えpill型・ソーシャルボタンをゴースト風に統一 |
+| `index.html` | 重複インラインCSS削除・design-system.css 読み込みに移行。大会・ランキングのリンクパス修正 |
+| `explore/index.html` | 重複インラインCSS削除・design-system.css 読み込みに移行（`../css/design-system.css`） |
+| `mypage.html` | design-system.css 読み込み追加。旧変数名（`--text`, `--border`等）をエイリアスで統一 |
+| `rankings/AIDA_ranking.html` | JSONフェッチパスを `all_rankings_data.json` → `../data/all_rankings_data.json` に修正 |
+
+### CSS変数 統一命名規則
+
+| 旧（mypage等） | 新（design-system） | 用途 |
+|---|---|---|
+| `--text` | `--on-dark` | 主テキスト |
+| `--sub` | `--on-dark-mid` | サブテキスト |
+| `--muted` | `--on-dark-soft` | 弱テキスト |
+| `--border` | `--hairline` | ボーダー |
+| `--bg` | `--abyss` | 最深部背景 |
+| `--accent` | `--teal` | アクセント |
 
 -----
 
