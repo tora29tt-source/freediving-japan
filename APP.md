@@ -119,23 +119,30 @@ Freediving Japan における App は「**Webと同じことができる、モ�
 
 | タスク | 状態 |
 |---|---|
-| STAタイマー（簡易版） | 🔄 `app/src/app/index.tsx` に実装済み。フル実装が必要 |
+| STAタイマー フル実装 | ✅ 完了・シミュレーター動作確認済み |
 | タブバー（6タブ） | ❌ 未着手 |
 | トレーニングログ画面 | ❌ 未着手 |
-| Supabase 連携 | ❌ 未着手 |
+| Supabase 連携 | ✅ STAタイマー保存のみ実装済み |
 | SNSシェア（画像生成） | ❌ 未着手 |
 
-### STAタイマー：実装すべき機能（web版 `tools/sta-timer.html` 参照）
+### STAタイマー：実装済み機能（2026-06-21）
 
-- 3モード：ストップウォッチ / テーブル / プリセット
-- AIDA アナウンス（EN/JA）
-- タイムコール（経過時間の定期音声）
-- SpO2 BLE モニター
-- サーフェスプロトコル カウントダウン
-- 第1収縮ボタン
-- SVG リング進捗インジケーター
-- セッション統計（ベスト・平均・セット数・最低SpO2）
-- Supabase ログ登録
+- ✅ 3モード：ストップウォッチ / テーブル / プリセット
+- ✅ AIDA アナウンス（EN/JA）— expo-speech
+- ✅ タイムコール（経過時間の定期音声）
+- ✅ サーフェスプロトコル カウントダウン（3秒）
+- ✅ 第1収縮ボタン（FC）
+- ✅ 進捗リング（pure RN実装 — react-native-svg非使用）
+- ✅ セッション統計（ベスト・平均・セット数）
+- ✅ Supabase ログ登録
+- ✅ ハプティクス — expo-haptics
+- ❌ SpO2 BLE モニター（未実装）
+
+### 技術メモ
+
+- `react-native-svg` は RN 0.85 と C++ ABI 非互換のため削除。pure RN の半円クリップ手法でリングを実装。
+- `expo-speech` / `expo-haptics` は try/catch で optional require（ビルドなしでも動く）。
+- タイマーエンジンは 50ms `setInterval` 単発。stale closure 回避のため全状態を `useRef` で管理。
 
 ---
 
