@@ -28,7 +28,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Svg, { Circle } from 'react-native-svg';
+// react-native-svg は RN 0.85 との C++ ABI 非互換のため使用しない
 
 // ─── expo-speech (optional — needs EAS build with package) ───────────────────
 let Speech: { speak: (t: string, o?: { language?: string }) => void; stop: () => void } | null = null;
@@ -161,11 +161,12 @@ const fmtSec = (s:  number) => `${pad2(s / 60)}:${pad2(s % 60)}`;
 const getAvgMs = (dives: Dive[]) =>
   dives.length ? dives.reduce((a, d) => a + d.holdMs, 0) / dives.length : 0;
 
-// ─── SVG RING ────────────────────────────────────────────────────────────────
+// ─── PURE-RN PROGRESS RING ───────────────────────────────────────────────────
+// react-native-svg を使わず、2つの半円クリップで時計回りの進捗リングを実現する。
+// 右クリップ: p=0→0.5 の間に右弧を上から時計回りに描く (disc rotation: -180°→0°)
+// 左クリップ: p=0.5→1.0 の間に左弧を下から時計回りに描く (disc rotation: 180°→0°)
 const R_SIZE   = 260;
 const R_STROKE = 5;
-const R_RADIUS = (R_SIZE - R_STROKE) / 2;
-const R_CIRCUM = 2 * Math.PI * R_RADIUS;
 
 function TimerRing({
   progress,
@@ -178,25 +179,54 @@ function TimerRing({
   trackColor?: string;
   children: React.ReactNode;
 }) {
-  const p      = Math.min(Math.max(progress, 0), 1);
-  const offset = R_CIRCUM * (1 - p);
-  const center = R_SIZE / 2;
-  const inner  = R_SIZE - R_STROKE * 2 - 16;
+  const p    = Math.min(Math.max(progress, 0), 1);
+  const half = R_SIZE / 2;
+
+  // 右クリップ内の disc 回転: p=0 → -180°, p=0.5 → 0°
+  const rightRot = (2 * Math.min(p, 0.5) - 1) * 180;
+  // 左クリップ内の disc 回転: p=0.5 → 180°, p=1 → 0°
+  const leftRot  = 360 * (1 - Math.max(p, 0.5));
+
+  const discBase: object = {
+    position: 'absolute' as const,
+    width: R_SIZE,
+    height: R_SIZE,
+    borderRadius: half,
+    borderWidth: R_STROKE,
+  };
+
+  const inner = R_SIZE - R_STROKE * 2 - 16;
 
   return (
     <View style={{ width: R_SIZE, height: R_SIZE, alignItems: 'center', justifyContent: 'center' }}>
-      <Svg width={R_SIZE} height={R_SIZE} style={{ position: 'absolute' }}>
-        <Circle cx={center} cy={center} r={R_RADIUS}
-          stroke={trackColor} strokeWidth={R_STROKE} fill="none" />
-        <Circle cx={center} cy={center} r={R_RADIUS}
-          stroke={color} strokeWidth={R_STROKE} fill="none"
-          strokeDasharray={R_CIRCUM}
-          strokeDashoffset={offset}
-          strokeLinecap="round"
-          rotation="-90"
-          origin={`${center}, ${center}`}
-        />
-      </Svg>
+      {/* トラック（背景の円リング） */}
+      <View style={[discBase, { borderColor: trackColor }]} />
+
+      {/* 右クリップ: 右半分のみ表示, discを左 -half に配置してcenter=x:0 of clip */}
+      <View style={{
+        position: 'absolute', right: 0, top: 0,
+        width: half, height: R_SIZE, overflow: 'hidden',
+      }}>
+        <View style={[discBase, {
+          left: -half,
+          borderColor: p > 0 ? color : 'transparent',
+          transform: [{ rotate: `${rightRot}deg` }],
+        }]} />
+      </View>
+
+      {/* 左クリップ: 左半分のみ表示, discはleft:0でcenter=x:half of clip */}
+      <View style={{
+        position: 'absolute', left: 0, top: 0,
+        width: half, height: R_SIZE, overflow: 'hidden',
+      }}>
+        <View style={[discBase, {
+          left: 0,
+          borderColor: p > 0.5 ? color : 'transparent',
+          transform: [{ rotate: `${leftRot}deg` }],
+        }]} />
+      </View>
+
+      {/* 中央コンテンツ */}
       <View style={{
         width: inner, height: inner,
         borderRadius: inner / 2,

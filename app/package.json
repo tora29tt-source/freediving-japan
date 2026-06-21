@@ -23,7 +23,6 @@
     "expo-haptics": "~14.1.4",
     "expo-speech": "~13.1.0",
     "react-native-gesture-handler": "~2.31.1",
-    "react-native-svg": "~15.11.2",
     "react-native-reanimated": "4.3.1",
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "4.25.2",
