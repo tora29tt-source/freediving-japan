@@ -238,7 +238,7 @@ TOP (index.html)
 |Week 2後 |/learn/ 枠組みページ（撮影開始前に完成・Stripe導入）          |✅完了（learn/index.html 骨格・コース4本・メール登録UI）|
 |Week 3-4|CRM実装（顧客・生徒・予約管理）                          |✅完了（予約管理・クライアント管理・売上管理タブ実装。clients テーブル設計・bookings カラム名 client_* に統一）|
 |Week 5-6|マイページ完成・ランキング・大会情報のDB接続                    |✅完了（mypage.html Supabase接続済み）|
-|Week 7-8|React Nativeアプリ（タイマー・ログ・SNSシェア）            |未着手 |
+|Week 7-8|React Nativeアプリ（タイマー・ログ・SNSシェア）            |🔄 開発中 |
 
 ### Phase 2（Phase 1完了後・約2ヶ月）
 
@@ -279,11 +279,11 @@ TOP (index.html)
 |booking/success.html                                   |✅ 実装済み（予約番号・日時・金額・プラン表示）|
 |管理画面（/admin/index.html）                              |✅ 実装済み（空き枠管理・予約一覧・ステータス変更）|
 |プロダッシュボード（pro/index.html）予約管理タブ                      |✅ 実装済み・テストデータ投入済み（全ステータス確認可）|
-|クライアント管理タブ（pro/index.html）                           |✅ 実装済み（bookingsから自動集約・検索・詳細・メモ保存）※ client_memos テーブル要作成（sql/client_memos.sql）|
+|クライアント管理タブ（pro/index.html）                           |✅ 実装済み（bookingsから自動集約・検索・詳細・メモ保存）|
 |売り上げ管理タブ（pro/index.html）                              |✅ 実装済み（月次サマリー・棒グラフ・明細一覧・期間フィルタ）|
 |/learn/ 有料講座ページ                                      |✅ learn/index.html 骨格完成・トップからリンク済み（先行通知機能なし・購入ボタンは準備中表示。Stripe/Vimeo接続は撮影後）|
 |メディア（/media/）                                        |❌ 未着手（Phase 2）|
-|iOSアプリ（React Native）                                 |❌ 未着手（Phase 1 Week 7-8）|
+|iOSアプリ（React Native）                                 |🔄 開発中（環境構築済み・Expo Go動作確認済み。タブバー・ログ・Supabase連携・SNSシェアが未実装）|
 
 -----
 
