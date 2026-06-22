@@ -174,7 +174,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sa
 /* booking form overlay */
 .bform-overlay { position: fixed; inset: 0; z-index: 300; background: rgba(4,22,31,0.8); backdrop-filter: blur(8px); display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
 .bform-overlay.open { opacity: 1; pointer-events: all; }
-.bform-sheet { width: 100%; max-width: 640px; background: linear-gradient(180deg, #0d3348 0%, #091f2e 100%); border-top: 1px solid var(--hairline); border-radius: 22px 22px 0 0; padding: 0 0 40px; transform: translateY(100%); transition: transform 0.32s cubic-bezier(0.32,0.72,0,1); max-height: 90dvh; overflow-y: auto; }
+.bform-sheet { width: 100%; max-width: 640px; background: linear-gradient(180deg, #0d3348 0%, #091f2e 100%); border-top: 1px solid var(--hairline); border-radius: 22px 22px 0 0; padding: 0 0 40px; transform: translateY(100%); transition: transform 0.32s cubic-bezier(0.32,0.72,0,1); max-height: 90dvh; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 .bform-overlay.open .bform-sheet { transform: translateY(0); }
 .bform-drag { width: 40px; height: 4px; border-radius: 2px; background: rgba(168,236,232,0.25); margin: 12px auto 0; }
 .bform-head { padding: 16px 20px 12px; border-bottom: 1px solid var(--hairline); position: relative; }
@@ -916,8 +916,10 @@ function selectSlot(slotId) {
   document.getElementById('paxCount').textContent = _paxCount;
   document.getElementById('paxMinus').disabled = true;
   document.getElementById('paxPlus').disabled = (_selectedSlot.max_participants - _selectedSlot.booked_count) <= 1;
-  document.getElementById('paxWrap').style.display = 'block';
+  const paxWrap = document.getElementById('paxWrap');
+  paxWrap.style.display = 'block';
   renderTimeSlots(dateStr); // re-render to show selected state
+  setTimeout(() => paxWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
 }
 
 function changePax(delta) {

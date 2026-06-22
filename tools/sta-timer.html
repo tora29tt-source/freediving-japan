@@ -3052,22 +3052,51 @@ async function connectBLE() {
   try {
     bleDevice = await navigator.bluetooth.requestDevice({
       acceptAllDevices: true,
-      optionalServices: ['00001822-0000-1000-8000-00805f9b34fb']
+      optionalServices: [
+        '00001822-0000-1000-8000-00805f9b34fb',  // PLX standard (Contec等)
+        '0000ffb0-0000-1000-8000-00805f9b34fb',  // Wellue/Viatom O2Ring (YX110)
+        '0000ff12-0000-1000-8000-00805f9b34fb',  // Contec CMS50 variant
+      ]
     });
-    bleDevice.addEventListener('gattserverdisconnected', ()=>{ setBle('off'); toast('SpO2切断'); });
-    const srv  = await bleDevice.gatt.connect();
-    const svc  = await srv.getPrimaryService('00001822-0000-1000-8000-00805f9b34fb');
-    try {
-      const c = await svc.getCharacteristic('00002a5f-0000-1000-8000-00805f9b34fb');
-      await c.startNotifications();
-      c.addEventListener('characteristicvaluechanged', e => {
-        const v = e.target.value;
-        const s = v.getUint16(1,true)*0.01;
-        if (s>0&&s<=100) onSpo2(Math.round(s));
-      });
-    } catch { toast('SpO2通知を開始できませんでした', true); }
-    setBle('on'); toast(`✓ ${bleDevice.name||'Device'} 接続`);
-  } catch(e) { setBle('off'); if(e.name!=='NotFoundError') toast('接続失敗', true); }
+    bleDevice.addEventListener('gattserverdisconnected', () => { setBle('off'); toast('SpO2切断'); });
+    const srv = await bleDevice.gatt.connect();
+
+    // Protocol 1: Standard BLE PLX (Contec, Nonin 等)
+    let ok = await _tryBleChar(srv,
+      '00001822-0000-1000-8000-00805f9b34fb',
+      '00002a5f-0000-1000-8000-00805f9b34fb',
+      dv => { const s = dv.getUint16(1, true) * 0.01; if (s > 0 && s <= 100) onSpo2(Math.round(s)); }
+    );
+
+    // Protocol 2: Wellue / Viatom O2Ring YX110
+    if (!ok) ok = await _tryBleChar(srv,
+      '0000ffb0-0000-1000-8000-00805f9b34fb',
+      '0000ffb2-0000-1000-8000-00805f9b34fb',
+      dv => {
+        if (dv.byteLength < 2) return;
+        // Wellue packet: [type, SpO2%, HR, ...] — SpO2 at byte[1]
+        const s = dv.getUint8(1);
+        if (s > 0 && s <= 100 && s !== 0x7f) onSpo2(s);
+      }
+    );
+
+    if (ok) {
+      setBle('on'); toast(`✓ ${bleDevice.name || 'Device'} 接続`);
+    } else {
+      toast('SpO2サービス未検出 — デバイスを確認してください', true);
+      bleDevice?.gatt?.disconnect(); bleDevice = null; setBle('off');
+    }
+  } catch(e) { setBle('off'); if (e.name !== 'NotFoundError') toast('接続失敗', true); }
+}
+
+async function _tryBleChar(server, svcUUID, charUUID, handler) {
+  try {
+    const svc  = await server.getPrimaryService(svcUUID);
+    const char = await svc.getCharacteristic(charUUID);
+    await char.startNotifications();
+    char.addEventListener('characteristicvaluechanged', e => handler(e.target.value));
+    return true;
+  } catch(e) { return false; }
 }
 
 function disconnectBLE() {
