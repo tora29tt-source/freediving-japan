@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Judge Input | Freediving Japan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
+<style>
+:root {
+  --ocean-deep:#0b2d45; --ocean-mid:#0e3d5c; --ocean-light:#1a5f82;
+  --bg:#04161f; --surface:#0c2738; --surface2:#123146;
+  --border:rgba(168,236,232,0.14); --teal:#2ec4b6; --teal2:#a8ece8;
+  --text:rgba(255,255,255,0.92); --muted:rgba(255,255,255,0.38); --sub:rgba(255,255,255,0.60);
+  --warn:#f59e0b; --danger:#ef4444; --success:#22c55e; --r:14px; --rs:9px;
+  --white-card:#e8f5e9; --safe-top:env(safe-area-inset-top,0px); --safe-bot:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;
+  background:linear-gradient(180deg,#0e3d5c 0%,#0b2d45 22%,#06283a 55%,#04161f 100%);
+  background-attachment:fixed;
+  color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;
+  padding-bottom:calc(60px + var(--safe-bot));
+}
+
+/* ===== HEADER ===== */
+.header{
+  background:rgba(6,32,46,0.85);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  padding:calc(var(--safe-top) + 10px) 16px 10px;
+  position:sticky;top:0;z-index:200;
+}
+.header-inner{display:flex;align-items:center;justify-content:space-between;}
+.judge-badge{font-size:10px;font-weight:700;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#f87171;padding:3px 10px;border-radius:100px;letter-spacing:0.04em;}
+.event-title{font-size:13px;font-weight:800;color:#fff;text-align:center;flex:1;margin:0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.disc-badge{font-size:10px;font-weight:700;background:rgba(46,196,182,0.12);border:1px solid rgba(46,196,182,0.25);color:var(--teal2);padding:3px 9px;border-radius:100px;}
+
+/* event sub-header */
+.event-sub{background:rgba(11,45,69,0.6);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.sub-pill{font-size:11px;color:var(--sub);display:flex;align-items:center;gap:4px;}
+.sub-pill strong{color:var(--text);}
+.status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.dot-live{background:var(--success);box-shadow:0 0 6px var(--success);animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
+
+/* ===== TABS ===== */
+.tabs{display:flex;background:rgba(12,39,56,0.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);position:sticky;top:calc(var(--safe-top) + 52px);z-index:190;}
+.tab{flex:1;padding:11px 6px;font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;text-align:center;letter-spacing:0.04em;text-transform:uppercase;}
+.tab.active{color:var(--teal);border-bottom-color:var(--teal);}
+.panel{display:none;}.panel.active{display:block;}
+
+/* ===== START LIST ===== */
+.content{padding:12px;max-width:480px;margin:0 auto;}
+.sl-item{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  margin-bottom:10px;overflow:hidden;cursor:pointer;
+  transition:border-color 0.2s,box-shadow 0.2s;
+  position:relative;
+}
+.sl-item:active{opacity:0.85;}
+.sl-item.status-done-white{border-color:rgba(34,197,94,0.35);}
+.sl-item.status-done-dq{border-color:rgba(239,68,68,0.35);}
+.sl-item.status-done-penalty{border-color:rgba(245,158,11,0.35);}
+.sl-item.status-active{border-color:var(--teal);box-shadow:0 0 0 2px rgba(46,196,182,0.15);}
+
+.sl-top{padding:11px 14px;display:flex;align-items:center;gap:10px;}
+.sl-no{font-size:11px;color:var(--muted);width:22px;text-align:right;flex-shrink:0;font-weight:700;}
+.sl-athlete{flex:1;min-width:0;}
+.sl-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sl-nat{font-size:11px;color:var(--muted);margin-top:1px;}
+.sl-right{text-align:right;flex-shrink:0;}
+.sl-ot{font-size:16px;font-weight:800;color:var(--teal2);font-variant-numeric:tabular-nums;}
+.sl-ap{font-size:11px;color:var(--sub);margin-top:2px;}
+.sl-status-bar{height:3px;width:100%;}
+.sl-status-bar.pending{background:transparent;}
+.sl-status-bar.active{background:linear-gradient(90deg,var(--teal),var(--teal2));}
+.sl-status-bar.done-white{background:var(--success);}
+.sl-status-bar.done-dq{background:var(--danger);}
+.sl-status-bar.done-penalty{background:var(--warn);}
+
+.sl-result{padding:6px 14px 10px;display:flex;align-items:center;gap:8px;}
+.result-chip{font-size:11px;font-weight:700;padding:3px 9px;border-radius:100px;}
+.chip-white{background:rgba(34,197,94,0.15);color:#86efac;border:1px solid rgba(34,197,94,0.25);}
+.chip-dq{background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.25);}
+.chip-penalty{background:rgba(245,158,11,0.15);color:var(--warn);border:1px solid rgba(245,158,11,0.25);}
+.result-points{font-size:15px;font-weight:800;color:#fff;}
+.result-rp{font-size:12px;color:var(--sub);}
+.result-dq-reason{font-size:10px;color:#f87171;margin-left:auto;}
+
+/* ===== BOTTOM SHEET ===== */
+.sheet-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+}
+.sheet-overlay.open{display:block;}
+.sheet{
+  position:fixed;bottom:0;left:0;right:0;z-index:301;
+  background:#0c2d40;
+  border-top:1px solid rgba(46,196,182,0.25);
+  border-radius:20px 20px 0 0;
+  max-height:90vh;overflow-y:auto;
+  padding-bottom:calc(20px + var(--safe-bot));
+  transform:translateY(100%);transition:transform 0.35s cubic-bezier(0.32,0.72,0,1);
+}
+.sheet.open{transform:translateY(0);}
+
+.sheet-handle{width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,0.2);margin:10px auto 0;}
+
+/* sheet athlete header */
+.sheet-athlete{padding:14px 16px 12px;border-bottom:1px solid var(--border);}
+.sheet-num{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;}
+.sheet-name{font-size:18px;font-weight:800;color:#fff;margin-top:2px;}
+.sheet-meta{display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap;}
+.sheet-meta-item{font-size:11px;color:var(--sub);}
+.ap-display{background:rgba(46,196,182,0.1);border:1px solid rgba(46,196,182,0.25);border-radius:8px;padding:5px 12px;display:inline-flex;align-items:center;gap:6px;}
+.ap-display label{font-size:9px;text-transform:uppercase;letter-spacing:0.07em;color:var(--teal2);}
+.ap-display span{font-size:16px;font-weight:800;color:var(--teal2);font-variant-numeric:tabular-nums;}
+
+/* ===== SP TIMER ===== */
+.sp-timer-section{padding:14px 16px;border-bottom:1px solid var(--border);background:rgba(0,0,0,0.2);}
+.sp-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--sub);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.sp-label::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--warn);box-shadow:0 0 6px var(--warn);}
+.sp-timer-row{display:flex;align-items:center;gap:12px;}
+.sp-clock{
+  font-size:52px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-2px;
+  color:#fff;min-width:95px;text-align:center;flex-shrink:0;
+  transition:color 0.3s;
+}
+.sp-clock.urgent{color:var(--danger);}
+.sp-clock.ok{color:var(--success);}
+.sp-btns{display:flex;flex-direction:column;gap:7px;flex:1;}
+.sp-btn{width:100%;padding:10px;border-radius:var(--rs);font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;border:none;transition:all 0.15s;}
+.sp-btn-start{background:var(--warn);color:#000;}
+.sp-btn-start:active{opacity:0.8;}
+.sp-btn-reset{background:rgba(255,255,255,0.06);color:var(--sub);border:1px solid var(--border);}
+.sp-result-badge{margin-top:6px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;display:inline-flex;align-items:center;gap:5px;}
+.sp-pass{background:rgba(34,197,94,0.15);color:#86efac;border:1px solid rgba(34,197,94,0.2);}
+.sp-fail{background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.2);}
+.sp-progress{height:4px;background:rgba(255,255,255,0.08);border-radius:2px;margin-top:8px;overflow:hidden;}
+.sp-progress-bar{height:100%;border-radius:2px;transition:width 0.5s linear,background-color 0.3s;}
+
+/* ===== RP INPUT ===== */
+.rp-section{padding:14px 16px;border-bottom:1px solid var(--border);}
+.section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--sub);margin-bottom:10px;}
+
+/* STA time picker */
+.time-picker{display:flex;align-items:center;gap:4px;}
+.time-field{display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;}
+.time-field label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;}
+.time-input{
+  width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--rs);
+  color:var(--text);padding:10px 4px;font-size:26px;font-weight:800;font-family:inherit;
+  text-align:center;-webkit-appearance:none;font-variant-numeric:tabular-nums;
+  -moz-appearance:textfield;
+}
+.time-input::-webkit-inner-spin-button,.time-input::-webkit-outer-spin-button{-webkit-appearance:none;}
+.time-input:focus{outline:none;border-color:var(--teal);}
+.time-sep{font-size:24px;font-weight:800;color:var(--muted);padding-top:16px;}
+/* meters/depth */
+.rp-number-row{display:flex;align-items:center;gap:10px;}
+.rp-number{
+  flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--rs);
+  color:var(--text);padding:10px 12px;font-size:32px;font-weight:800;font-family:inherit;
+  text-align:center;-webkit-appearance:none;-moz-appearance:textfield;
+}
+.rp-number::-webkit-inner-spin-button,.rp-number::-webkit-outer-spin-button{-webkit-appearance:none;}
+.rp-number:focus{outline:none;border-color:var(--teal);}
+.rp-unit{font-size:16px;color:var(--sub);font-weight:700;width:24px;}
+
+/* ===== CARD SELECTOR ===== */
+.card-section{padding:14px 16px;border-bottom:1px solid var(--border);}
+.card-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;}
+.card-btn{
+  padding:12px 6px;border-radius:10px;border:1.5px solid var(--border);
+  font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  transition:all 0.15s;background:var(--surface2);color:var(--muted);
+}
+.card-btn span{font-size:22px;}
+.card-btn:active{transform:scale(0.96);}
+.card-btn.sel-white{background:rgba(34,197,94,0.15);border-color:var(--success);color:#86efac;}
+.card-btn.sel-penalty{background:rgba(245,158,11,0.12);border-color:var(--warn);color:var(--warn);}
+.card-btn.sel-dq{background:rgba(239,68,68,0.15);border-color:var(--danger);color:#f87171;}
+
+/* ===== DQ REASONS ===== */
+.dq-section{padding:12px 16px;border-bottom:1px solid var(--border);display:none;}
+.dq-section.visible{display:block;}
+.dq-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.dq-btn{
+  padding:10px 8px;border-radius:var(--rs);border:1.5px solid var(--border);
+  font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;
+  background:var(--surface2);color:var(--muted);text-align:center;
+  transition:all 0.15s;line-height:1.3;
+}
+.dq-btn .dq-code{font-size:10px;opacity:0.7;display:block;margin-top:2px;letter-spacing:0.03em;}
+.dq-btn:active{transform:scale(0.97);}
+.dq-btn.active{background:rgba(239,68,68,0.15);border-color:var(--danger);color:#f87171;}
+
+/* ===== PENALTIES ===== */
+.penalty-section{padding:12px 16px;border-bottom:1px solid var(--border);display:none;}
+.penalty-section.visible{display:block;}
+.penalty-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);}
+.penalty-item:last-child{border-bottom:none;}
+.penalty-info{flex:1;}
+.penalty-name{font-size:12px;font-weight:700;color:var(--text);}
+.penalty-desc{font-size:10px;color:var(--muted);margin-top:1px;}
+.penalty-calc{font-size:11px;color:var(--warn);margin-top:1px;font-weight:700;}
+.penalty-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.penalty-checkbox{
+  width:22px;height:22px;border-radius:6px;border:1.5px solid var(--border);
+  background:var(--surface2);cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;flex-shrink:0;
+}
+.penalty-checkbox.checked{background:rgba(245,158,11,0.2);border-color:var(--warn);}
+.penalty-checkbox.checked::after{content:'✓';font-size:13px;font-weight:800;color:var(--warn);}
+.penalty-counter{display:flex;align-items:center;gap:4px;}
+.cnt-btn{width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.cnt-btn:active{background:rgba(46,196,182,0.15);}
+.cnt-val{width:28px;text-align:center;font-size:16px;font-weight:800;font-variant-numeric:tabular-nums;}
+
+/* ===== SCORE SUMMARY ===== */
+.score-section{padding:14px 16px;border-bottom:1px solid var(--border);}
+.score-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.score-item{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;}
+.score-label{font-size:9px;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:3px;}
+.score-val{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;}
+.score-val.pts{color:var(--teal2);}
+.score-val.penalty-pts{color:var(--warn);}
+.score-total{background:linear-gradient(135deg,rgba(46,196,182,0.12),rgba(18,49,70,0.8));border:1px solid rgba(46,196,182,0.3);border-radius:var(--rs);padding:12px 14px;margin-top:8px;display:flex;align-items:center;justify-content:space-between;}
+.score-total-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--sub);}
+.score-total-val{font-size:28px;font-weight:900;color:#fff;font-variant-numeric:tabular-nums;}
+.score-total-val.dq{color:var(--danger);}
+
+/* ===== NOTES ===== */
+.notes-section{padding:12px 16px;border-bottom:1px solid var(--border);}
+.notes-input{
+  width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);
+  color:var(--text);padding:10px 12px;font-size:13px;font-family:inherit;resize:none;min-height:60px;
+}
+.notes-input:focus{outline:none;border-color:var(--teal);}
+.notes-input::placeholder{color:var(--muted);}
+
+/* ===== SAVE BUTTON ===== */
+.save-section{padding:14px 16px;}
+.save-btn{
+  width:100%;padding:15px;border-radius:12px;font-size:15px;font-weight:800;font-family:inherit;
+  cursor:pointer;border:none;background:var(--teal);color:#fff;
+  transition:all 0.15s;letter-spacing:0.03em;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.save-btn:active{opacity:0.85;transform:scale(0.99);}
+.save-btn:disabled{background:var(--surface2);color:var(--muted);cursor:not-allowed;}
+.save-btn.saved{background:rgba(34,197,94,0.2);color:#86efac;border:1px solid rgba(34,197,94,0.3);}
+
+/* ===== RESULTS TAB ===== */
+.results-list{padding:12px;}
+.result-row{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  padding:12px 14px;margin-bottom:8px;
+  display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;
+}
+.result-rank{font-size:11px;font-weight:800;color:var(--muted);}
+.result-name{font-size:13px;font-weight:700;}
+.result-detail{font-size:11px;color:var(--muted);margin-top:2px;}
+.result-pts{text-align:right;}
+.result-pts-val{font-size:20px;font-weight:800;color:var(--teal2);font-variant-numeric:tabular-nums;}
+.result-pts-label{font-size:10px;color:var(--muted);}
+
+/* ===== FILTERS ===== */
+.filter-bar{padding:10px 12px;display:flex;gap:6px;overflow-x:auto;border-bottom:1px solid var(--border);}
+.filter-chip{flex-shrink:0;padding:5px 12px;border-radius:100px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--sub);transition:all 0.15s;}
+.filter-chip.active{background:rgba(46,196,182,0.12);border-color:var(--teal);color:var(--teal2);}
+
+/* empty state */
+.empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;}
+.empty-icon{font-size:36px;margin-bottom:8px;}
+
+/* ===== LOADING ===== */
+.loading{text-align:center;padding:40px;color:var(--muted);font-size:13px;}
+.spin{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin 0.7s linear infinite;margin-bottom:8px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ===== TOAST ===== */
+.toast{
+  position:fixed;bottom:calc(70px + var(--safe-bot));left:50%;transform:translateX(-50%) translateY(20px);
+  background:#1a5f82;color:#fff;padding:10px 20px;border-radius:100px;
+  font-size:13px;font-weight:700;z-index:999;opacity:0;transition:all 0.3s;
+  white-space:nowrap;pointer-events:none;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<div class="header">
+  <div class="header-inner">
+    <span class="judge-badge">⚖ JUDGE</span>
+    <div class="event-title" id="eventTitle">大会を読み込み中…</div>
+    <span class="disc-badge" id="discBadge">—</span>
+  </div>
+</div>
+<div class="event-sub">
+  <div class="sub-pill"><div class="status-dot dot-live"></div>&nbsp;<strong id="subStatus">LIVE</strong></div>
+  <div class="sub-pill">OT: <strong id="subOT">—</strong></div>
+  <div class="sub-pill">選手: <strong id="subCount">—</strong></div>
+  <div class="sub-pill" id="subJudge">ジャッジ: <strong id="judgeNameEl">—</strong></div>
+</div>
+
+<!-- ===== TABS ===== -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('startlist')">スタートリスト</div>
+  <div class="tab" onclick="switchTab('results')">リザルト</div>
+</div>
+
+<!-- ===== START LIST PANEL ===== -->
+<div class="panel active" id="panel-startlist">
+  <div class="filter-bar" id="filterBar">
+    <div class="filter-chip active" onclick="setFilter('all',this)">すべて</div>
+    <div class="filter-chip" onclick="setFilter('pending',this)">未入力</div>
+    <div class="filter-chip" onclick="setFilter('done',this)">入力済</div>
+  </div>
+  <div class="content" id="startListEl">
+    <div class="loading"><div class="spin"></div><br>読み込み中…</div>
+  </div>
+</div>
+
+<!-- ===== RESULTS PANEL ===== -->
+<div class="panel" id="panel-results">
+  <div class="content results-list" id="resultsEl">
+    <div class="empty"><div class="empty-icon">🏆</div>まだ結果がありません</div>
+  </div>
+</div>
+
+<!-- ===== BOTTOM SHEET (result input) ===== -->
+<div class="sheet-overlay" id="sheetOverlay" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+
+  <!-- athlete info -->
+  <div class="sheet-athlete">
+    <div class="sheet-num" id="sheetNum">START #1</div>
+    <div class="sheet-name" id="sheetName">—</div>
+    <div class="sheet-meta">
+      <div class="sheet-meta-item" id="sheetNat"></div>
+      <div class="ap-display">
+        <label>AP</label>
+        <span id="sheetAP">—</span>
+      </div>
+      <div class="sheet-meta-item" id="sheetOT"></div>
+    </div>
+  </div>
+
+  <!-- SP Timer -->
+  <div class="sp-timer-section">
+    <div class="sp-label">Surface Protocol タイマー（15秒以内）</div>
+    <div class="sp-timer-row">
+      <div class="sp-clock" id="spClock">15.0</div>
+      <div class="sp-btns">
+        <button class="sp-btn sp-btn-start" onclick="startSPTimer()">▶ 浮上！スタート</button>
+        <button class="sp-btn sp-btn-reset" onclick="resetSPTimer()">↺ リセット</button>
+      </div>
+    </div>
+    <div id="spResultBadge"></div>
+    <div class="sp-progress"><div class="sp-progress-bar" id="spProgressBar" style="width:100%;background:var(--success);"></div></div>
+  </div>
+
+  <!-- RP Input -->
+  <div class="rp-section">
+    <div class="section-label">RP（Realized Performance）</div>
+    <!-- STA: mm:ss.0 -->
+    <div id="rpSTA" style="display:none">
+      <div class="time-picker">
+        <div class="time-field">
+          <label>分</label>
+          <input class="time-input" id="rpMin" type="number" min="0" max="59" value="0" oninput="calcScore()">
+        </div>
+        <div class="time-sep">:</div>
+        <div class="time-field">
+          <label>秒</label>
+          <input class="time-input" id="rpSec" type="number" min="0" max="59" value="0" oninput="calcScore()">
+        </div>
+        <div class="time-sep">.</div>
+        <div class="time-field">
+          <label>0.1秒</label>
+          <input class="time-input" id="rpTenth" type="number" min="0" max="9" value="0" oninput="calcScore()">
+        </div>
+      </div>
+    </div>
+    <!-- DYN / Depth: meters -->
+    <div id="rpMeters" style="display:none">
+      <div class="rp-number-row">
+        <input class="rp-number" id="rpMeterVal" type="number" min="0" step="0.1" placeholder="0" oninput="calcScore()">
+        <div class="rp-unit" id="rpUnitLabel">m</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card selector -->
+  <div class="card-section">
+    <div class="section-label">判定カード</div>
+    <div class="card-row">
+      <button class="card-btn" id="cardWhite" onclick="selectCard('white')">
+        <span>🟩</span>White
+      </button>
+      <button class="card-btn" id="cardPenalty" onclick="selectCard('penalty')">
+        <span>🟨</span>Penalty
+      </button>
+      <button class="card-btn" id="cardDQ" onclick="selectCard('dq')">
+        <span>🟥</span>DQ
+      </button>
+    </div>
+  </div>
+
+  <!-- DQ Reasons (shown when DQ selected) -->
+  <div class="dq-section" id="dqSection">
+    <div class="section-label">DQ理由</div>
+    <div class="dq-grid">
+      <button class="dq-btn" data-code="DQSP" onclick="selectDQ(this)">
+        Surface Protocol<span class="dq-code">DQSP</span>
+      </button>
+      <button class="dq-btn" data-code="DQBO" onclick="selectDQ(this)">
+        ブラックアウト<span class="dq-code">DQBO</span>
+      </button>
+      <button class="dq-btn" data-code="DQAIRWAYS" onclick="selectDQ(this)">
+        Airways潜水<span class="dq-code">DQAIRWAYS</span>
+      </button>
+      <button class="dq-btn" data-code="DQTOUCH" onclick="selectDQ(this)">
+        不正タッチ<span class="dq-code">DQTOUCH</span>
+      </button>
+      <button class="dq-btn" data-code="DQPULL" onclick="selectDQ(this)">
+        ライン引き<span class="dq-code">DQPULL</span>
+      </button>
+      <button class="dq-btn" data-code="DQLATESTART" onclick="selectDQ(this)">
+        30秒超え遅刻<span class="dq-code">DQ LATE START</span>
+      </button>
+      <button class="dq-btn" data-code="DQOTHER" onclick="selectDQ(this)" style="grid-column:span 2;">
+        その他<span class="dq-code">DQOTHER</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Penalties (shown when White or Penalty selected) -->
+  <div class="penalty-section" id="penaltySection">
+    <div class="section-label">ペナルティ</div>
+
+    <!-- EARLY START -->
+    <div class="penalty-item" id="pen-earlystart">
+      <div class="penalty-info">
+        <div class="penalty-name">Early Start</div>
+        <div class="penalty-desc">OT前にスタート</div>
+        <div class="penalty-calc" id="pc-earlystart"></div>
+      </div>
+      <div class="penalty-right">
+        <div class="penalty-counter">
+          <button class="cnt-btn" onclick="adj('earlystart',-1)">−</button>
+          <div class="cnt-val" id="cv-earlystart">0</div>
+          <button class="cnt-btn" onclick="adj('earlystart',1)">+</button>
+        </div>
+        <div style="font-size:10px;color:var(--muted)">×5秒</div>
+      </div>
+    </div>
+
+    <!-- LATE START -->
+    <div class="penalty-item" id="pen-latestart">
+      <div class="penalty-info">
+        <div class="penalty-name">Late Start</div>
+        <div class="penalty-desc">OT後〜30秒以内の遅刻</div>
+        <div class="penalty-calc" id="pc-latestart"></div>
+      </div>
+      <div class="penalty-right">
+        <div class="penalty-counter">
+          <button class="cnt-btn" onclick="adj('latestart',-1)">−</button>
+          <div class="cnt-val" id="cv-latestart">0</div>
+          <button class="cnt-btn" onclick="adj('latestart',1)">+</button>
+        </div>
+        <div style="font-size:10px;color:var(--muted)">×5秒</div>
+      </div>
+    </div>
+
+    <!-- UNDER AP (auto-calculated, shown when RP < AP) -->
+    <div class="penalty-item" id="pen-underap" style="display:none;">
+      <div class="penalty-info">
+        <div class="penalty-name">Under AP</div>
+        <div class="penalty-desc">RP &lt; AP（自動計算）</div>
+        <div class="penalty-calc" id="pc-underap"></div>
+      </div>
+      <div class="penalty-right">
+        <div style="font-size:20px;font-weight:800;color:var(--warn)" id="cv-underap">0</div>
+        <div style="font-size:10px;color:var(--muted)">pt</div>
+      </div>
+    </div>
+
+    <!-- DYN only: TURN -->
+    <div class="penalty-item pen-dyn" id="pen-turn" style="display:none;">
+      <div class="penalty-info">
+        <div class="penalty-name">Turn Miss</div>
+        <div class="penalty-desc">端壁タッチなし（DYN系）</div>
+        <div class="penalty-calc" id="pc-turn"></div>
+      </div>
+      <div class="penalty-right">
+        <div class="penalty-counter">
+          <button class="cnt-btn" onclick="adj('turn',-1)">−</button>
+          <div class="cnt-val" id="cv-turn">0</div>
+          <button class="cnt-btn" onclick="adj('turn',1)">+</button>
+        </div>
+        <div style="font-size:10px;color:var(--muted)">×5pt</div>
+      </div>
+    </div>
+
+    <!-- DYN only: PULL -->
+    <div class="penalty-item pen-dyn" id="pen-pull" style="display:none;">
+      <div class="penalty-info">
+        <div class="penalty-name">Pull</div>
+        <div class="penalty-desc">支持点を引っ張った（DYN系）</div>
+        <div class="penalty-calc" id="pc-pull"></div>
+      </div>
+      <div class="penalty-right">
+        <div class="penalty-counter">
+          <button class="cnt-btn" onclick="adj('pull',-1)">−</button>
+          <div class="cnt-val" id="cv-pull">0</div>
+          <button class="cnt-btn" onclick="adj('pull',1)">+</button>
+        </div>
+        <div style="font-size:10px;color:var(--muted)">×5pt</div>
+      </div>
+    </div>
+
+    <!-- Depth only: TAG -->
+    <div class="penalty-item pen-depth" id="pen-tag" style="display:none;">
+      <div class="penalty-info">
+        <div class="penalty-name">Tag Missing</div>
+        <div class="penalty-desc">タグを持ち帰れず（水深）</div>
+        <div class="penalty-calc" id="pc-tag"></div>
+      </div>
+      <div class="penalty-right">
+        <div class="penalty-checkbox" id="cb-tag" onclick="toggleCheck('tag')"></div>
+        <div style="font-size:10px;color:var(--muted)">1pt</div>
+      </div>
+    </div>
+
+    <!-- Depth only: LANYARD -->
+    <div class="penalty-item pen-depth" id="pen-lanyard" style="display:none;">
+      <div class="penalty-info">
+        <div class="penalty-name">Lanyard Removal</div>
+        <div class="penalty-desc">競技中にランヤード外し（水深）</div>
+        <div class="penalty-calc" id="pc-lanyard"></div>
+      </div>
+      <div class="penalty-right">
+        <div class="penalty-checkbox" id="cb-lanyard" onclick="toggleCheck('lanyard')"></div>
+        <div style="font-size:10px;color:var(--muted)">10pt</div>
+      </div>
+    </div>
+
+    <!-- Depth CWT/CWTB/CNF only: GRAB -->
+    <div class="penalty-item pen-grab" id="pen-grab" style="display:none;">
+      <div class="penalty-info">
+        <div class="penalty-name">Grab</div>
+        <div class="penalty-desc">ロープを握った（CWT/CWTB/CNF）</div>
+        <div class="penalty-calc" id="pc-grab"></div>
+      </div>
+      <div class="penalty-right">
+        <div class="penalty-counter">
+          <button class="cnt-btn" onclick="adj('grab',-1)">−</button>
+          <div class="cnt-val" id="cv-grab">0</div>
+          <button class="cnt-btn" onclick="adj('grab',1)">+</button>
+        </div>
+        <div style="font-size:10px;color:var(--muted)">×5pt</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Score summary -->
+  <div class="score-section">
+    <div class="section-label">スコア計算</div>
+    <div class="score-grid">
+      <div class="score-item">
+        <div class="score-label">RP点数</div>
+        <div class="score-val pts" id="scoreRP">—</div>
+      </div>
+      <div class="score-item">
+        <div class="score-label">ペナルティ合計</div>
+        <div class="score-val penalty-pts" id="scorePenalty">—</div>
+      </div>
+    </div>
+    <div class="score-total">
+      <div class="score-total-label" id="scoreTotalLabel">Final Score</div>
+      <div class="score-total-val" id="scoreTotal">—</div>
+    </div>
+  </div>
+
+  <!-- Notes -->
+  <div class="notes-section">
+    <div class="section-label">メモ（審判記録・抗議メモ等）</div>
+    <textarea class="notes-input" id="noteInput" rows="2" placeholder="例: SPタイマー14.2秒 / コーチが声掛け…"></textarea>
+  </div>
+
+  <!-- Save -->
+  <div class="save-section">
+    <button class="save-btn" id="saveBtn" onclick="saveResult()">
+      ✓ 結果を保存する
+    </button>
+    <div style="text-align:center;margin-top:10px;">
+      <button onclick="closeSheet()" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===================================================
+// CONFIG
+// ===================================================
+const EVENT_ID = new URLSearchParams(location.search).get('event_id') || null;
+const JUDGE_NAME = new URLSearchParams(location.search).get('judge') || 'Judge 1';
+
+// ===================================================
+// STATE
+// ===================================================
+let entries = []; // event_entries rows
+let results = {}; // { entry_id: result_obj }
+let currentEntry = null;
+let currentDisc = 'CWT'; // active discipline filter
+let filterMode = 'all';
+
+// SP Timer state
+let spTimerInterval = null;
+let spElapsed = 0;
+let spRunning = false;
+const SP_LIMIT = 15.0;
+
+// Penalty counters
+const counters = { earlystart: 0, latestart: 0, turn: 0, pull: 0, grab: 0 };
+const checks = { tag: false, lanyard: false };
+let selectedCard = null;
+let selectedDQ = null;
+
+// ===================================================
+// INIT
+// ===================================================
+document.getElementById('judgeNameEl').textContent = JUDGE_NAME;
+
+async function init() {
+  if (!EVENT_ID) {
+    loadMockData();
+    return;
+  }
+  try {
+    // Load event
+    const { data: ev } = await supabase.from('events').select('*').eq('id', EVENT_ID).single();
+    if (ev) {
+      document.getElementById('eventTitle').textContent = ev.name;
+      document.getElementById('subOT').textContent = ev.start_time || '—';
+    }
+
+    // Load event_entries (start list)
+    const { data: ents } = await supabase
+      .from('event_entries')
+      .select('*')
+      .eq('event_id', EVENT_ID)
+      .order('start_order', { ascending: true });
+
+    entries = ents || [];
+    document.getElementById('subCount').textContent = entries.length + '名';
+
+    // Load existing results
+    const { data: res } = await supabase
+      .from('event_results')
+      .select('*')
+      .eq('event_id', EVENT_ID);
+    if (res) {
+      res.forEach(r => { results[r.entry_id] = r; });
+    }
+
+    renderStartList();
+    renderResults();
+  } catch(e) {
+    console.error(e);
+    loadMockData();
+  }
+}
+
+// ===================================================
+// MOCK DATA (demo mode)
+// ===================================================
+function loadMockData() {
+  document.getElementById('eventTitle').textContent = '2026 日本フリーダイビング選手権';
+  document.getElementById('discBadge').textContent = 'CWT';
+  document.getElementById('subOT').textContent = '09:00';
+  currentDisc = 'CWT';
+
+  entries = [
+    { id:'e1', athlete_name:'田中 海斗', nationality:'JPN', discipline:'CWT', ap:60, start_order:1, ot_time:'09:00' },
+    { id:'e2', athlete_name:'鈴木 碧', nationality:'JPN', discipline:'CWT', ap:55, start_order:2, ot_time:'09:10' },
+    { id:'e3', athlete_name:'Sarah Miller', nationality:'AUS', discipline:'CWT', ap:65, start_order:3, ot_time:'09:20' },
+    { id:'e4', athlete_name:'山田 龍一', nationality:'JPN', discipline:'CWT', ap:50, start_order:4, ot_time:'09:30' },
+    { id:'e5', athlete_name:'Luca Rossi', nationality:'ITA', discipline:'CWT', ap:70, start_order:5, ot_time:'09:40' },
+    { id:'e6', athlete_name:'佐藤 美咲', nationality:'JPN', discipline:'CWT', ap:45, start_order:6, ot_time:'09:50' },
+  ];
+  document.getElementById('subCount').textContent = entries.length + '名';
+  renderStartList();
+}
+
+// ===================================================
+// RENDER START LIST
+// ===================================================
+function renderStartList() {
+  const el = document.getElementById('startListEl');
+  const disc = entries[0]?.discipline || 'CWT';
+  document.getElementById('discBadge').textContent = disc;
+  currentDisc = disc;
+
+  let filtered = entries;
+  if (filterMode === 'pending') filtered = entries.filter(e => !results[e.id]);
+  if (filterMode === 'done')    filtered = entries.filter(e => !!results[e.id]);
+
+  if (!filtered.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">✅</div>該当する選手はいません</div>';
+    return;
+  }
+
+  el.innerHTML = filtered.map(e => {
+    const r = results[e.id];
+    const apLabel = formatAP(e.ap, e.discipline);
+    let statusClass = 'pending', statusBar = 'pending', resultHtml = '';
+
+    if (r) {
+      if (r.card === 'white') {
+        statusClass = 'status-done-white'; statusBar = 'done-white';
+        resultHtml = `<div class="sl-result">
+          <span class="result-chip chip-white">✓ WHITE</span>
+          <span class="result-rp">RP ${formatAP(r.rp, e.discipline)}</span>
+          <span class="result-points">${r.final_points.toFixed(1)} pt</span>
+        </div>`;
+      } else if (r.card === 'dq') {
+        statusClass = 'status-done-dq'; statusBar = 'done-dq';
+        resultHtml = `<div class="sl-result">
+          <span class="result-chip chip-dq">✕ DQ</span>
+          <span class="result-dq-reason">${r.dq_reason || ''}</span>
+        </div>`;
+      } else if (r.card === 'penalty') {
+        statusClass = 'status-done-penalty'; statusBar = 'done-penalty';
+        resultHtml = `<div class="sl-result">
+          <span class="result-chip chip-penalty">⚠ WHITE+PEN</span>
+          <span class="result-rp">RP ${formatAP(r.rp, e.discipline)}</span>
+          <span class="result-points">${r.final_points.toFixed(1)} pt</span>
+        </div>`;
+      }
+    }
+
+    return `<div class="sl-item ${statusClass}" onclick="openSheet('${e.id}')">
+      <div class="sl-status-bar ${statusBar}"></div>
+      <div class="sl-top">
+        <div class="sl-no">#${e.start_order}</div>
+        <div class="sl-athlete">
+          <div class="sl-name">${e.athlete_name}</div>
+          <div class="sl-nat">${e.nationality || '—'} · ${e.discipline}</div>
+        </div>
+        <div class="sl-right">
+          <div class="sl-ot">${e.ot_time || '—'}</div>
+          <div class="sl-ap">AP: ${apLabel}</div>
+        </div>
+      </div>
+      ${resultHtml}
+    </div>`;
+  }).join('');
+}
+
+// ===================================================
+// FORMAT HELPERS
+// ===================================================
+function formatAP(val, disc) {
+  if (!val && val !== 0) return '—';
+  if (disc === 'STA') return secToTime(val);
+  return val + ' m';
+}
+function secToTime(s) {
+  if (!s && s !== 0) return '—';
+  const m = Math.floor(s / 60);
+  const sec = (s % 60).toFixed(1).padStart(4, '0');
+  return `${m}'${sec}"`;
+}
+function getRPSeconds() {
+  const m = parseInt(document.getElementById('rpMin').value)||0;
+  const s = parseInt(document.getElementById('rpSec').value)||0;
+  const t = parseInt(document.getElementById('rpTenth').value)||0;
+  return m*60 + s + t*0.1;
+}
+function getRPMeters() {
+  return parseFloat(document.getElementById('rpMeterVal').value)||0;
+}
+
+// ===================================================
+// OPEN / CLOSE SHEET
+// ===================================================
+function openSheet(entryId) {
+  currentEntry = entries.find(e => e.id === entryId);
+  if (!currentEntry) return;
+
+  // Reset state
+  selectedCard = null;
+  selectedDQ = null;
+  Object.keys(counters).forEach(k => counters[k] = 0);
+  Object.keys(checks).forEach(k => checks[k] = false);
+  resetSPTimer();
+
+  // Populate
+  const e = currentEntry;
+  const disc = e.discipline || 'CWT';
+  document.getElementById('sheetNum').textContent = `START #${e.start_order}`;
+  document.getElementById('sheetName').textContent = e.athlete_name;
+  document.getElementById('sheetNat').textContent = e.nationality || '';
+  document.getElementById('sheetOT').textContent = 'OT: ' + (e.ot_time || '—');
+  document.getElementById('sheetAP').textContent = formatAP(e.ap, disc);
+  document.getElementById('noteInput').value = '';
+
+  // RP input type
+  const isSTA = disc === 'STA';
+  document.getElementById('rpSTA').style.display = isSTA ? '' : 'none';
+  document.getElementById('rpMeters').style.display = isSTA ? 'none' : '';
+  document.getElementById('rpUnitLabel').textContent = 'm';
+
+  // Reset RP
+  document.getElementById('rpMin').value = 0;
+  document.getElementById('rpSec').value = 0;
+  document.getElementById('rpTenth').value = 0;
+  document.getElementById('rpMeterVal').value = '';
+
+  // Discipline-specific penalties
+  const isDYN = ['DYN','DYNB','DNF'].includes(disc);
+  const isDepth = ['CWT','CWTB','CNF','FIM','VWT'].includes(disc);
+  const isGrab = ['CWT','CWTB','CNF'].includes(disc);
+
+  document.querySelectorAll('.pen-dyn').forEach(el => el.style.display = isDYN ? '' : 'none');
+  document.querySelectorAll('.pen-depth').forEach(el => el.style.display = isDepth ? '' : 'none');
+  document.querySelector('.pen-grab').style.display = isGrab ? '' : 'none';
+
+  // Reset UI
+  ['cardWhite','cardPenalty','cardDQ'].forEach(id => {
+    const el = document.getElementById(id);
+    el.className = 'card-btn';
+  });
+  document.getElementById('dqSection').classList.remove('visible');
+  document.getElementById('penaltySection').classList.remove('visible');
+  document.querySelectorAll('.dq-btn').forEach(b => b.classList.remove('active'));
+  updateCounterDisplays();
+
+  // Load existing result if any
+  const existing = results[entryId];
+  if (existing) prefillResult(existing);
+
+  calcScore();
+
+  // Open sheet
+  document.getElementById('sheetOverlay').classList.add('open');
+  document.getElementById('sheet').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function prefillResult(r) {
+  selectCard(r.card, true);
+  if (r.dq_reason) {
+    const btn = document.querySelector(`.dq-btn[data-code="${r.dq_reason}"]`);
+    if (btn) selectDQ(btn, true);
+  }
+  if (r.penalty_early_start) counters.earlystart = r.penalty_early_start;
+  if (r.penalty_late_start) counters.latestart = r.penalty_late_start;
+  if (r.penalty_turn) counters.turn = r.penalty_turn;
+  if (r.penalty_pull) counters.pull = r.penalty_pull;
+  if (r.penalty_grab) counters.grab = r.penalty_grab;
+  if (r.penalty_tag) checks.tag = true;
+  if (r.penalty_lanyard) checks.lanyard = true;
+  updateCounterDisplays();
+
+  const disc = currentEntry.discipline;
+  if (disc === 'STA' && r.rp) {
+    const total = r.rp;
+    document.getElementById('rpMin').value = Math.floor(total/60);
+    document.getElementById('rpSec').value = Math.floor(total%60);
+    document.getElementById('rpTenth').value = Math.round((total%1)*10);
+  } else if (r.rp) {
+    document.getElementById('rpMeterVal').value = r.rp;
+  }
+  if (r.notes) document.getElementById('noteInput').value = r.notes;
+  calcScore();
+}
+
+function closeSheet() {
+  document.getElementById('sheetOverlay').classList.remove('open');
+  document.getElementById('sheet').classList.remove('open');
+  document.body.style.overflow = '';
+  clearInterval(spTimerInterval);
+  spRunning = false;
+  currentEntry = null;
+}
+
+// ===================================================
+// SP TIMER
+// ===================================================
+function startSPTimer() {
+  if (spRunning) return;
+  spRunning = true;
+  spElapsed = 0;
+  const startTime = Date.now();
+
+  updateSPDisplay(0);
+  spTimerInterval = setInterval(() => {
+    spElapsed = (Date.now() - startTime) / 1000;
+    updateSPDisplay(spElapsed);
+    if (spElapsed >= SP_LIMIT + 2) {
+      clearInterval(spTimerInterval);
+      spRunning = false;
+    }
+  }, 100);
+}
+
+function updateSPDisplay(elapsed) {
+  const remaining = SP_LIMIT - elapsed;
+  const clock = document.getElementById('spClock');
+  const bar = document.getElementById('spProgressBar');
+  const badge = document.getElementById('spResultBadge');
+
+  const pct = Math.max(0, (remaining / SP_LIMIT) * 100);
+  bar.style.width = pct + '%';
+
+  if (elapsed === 0) {
+    clock.textContent = '15.0';
+    clock.className = 'sp-clock';
+    bar.style.background = 'var(--success)';
+    badge.innerHTML = '';
+    return;
+  }
+
+  if (remaining > 0) {
+    clock.textContent = remaining.toFixed(1);
+    clock.className = 'sp-clock' + (remaining < 5 ? ' urgent' : '');
+    bar.style.background = remaining < 5 ? 'var(--danger)' : remaining < 10 ? 'var(--warn)' : 'var(--success)';
+    badge.innerHTML = '';
+  } else {
+    clock.textContent = elapsed.toFixed(1);
+    clock.className = 'sp-clock urgent';
+    bar.style.width = '0%';
+    if (!badge.innerHTML) {
+      badge.innerHTML = '<div class="sp-result-badge sp-fail">✕ SP FAIL — DQSP対象 (' + elapsed.toFixed(1) + '秒)</div>';
+    }
+    clearInterval(spTimerInterval);
+    spRunning = false;
+  }
+
+  if (remaining > 0 && elapsed > 0 && remaining <= SP_LIMIT) {
+    badge.innerHTML = '<div class="sp-result-badge sp-pass">✓ SP 経過: ' + elapsed.toFixed(1) + '秒</div>';
+  }
+}
+
+function resetSPTimer() {
+  clearInterval(spTimerInterval);
+  spRunning = false;
+  spElapsed = 0;
+  updateSPDisplay(0);
+}
+
+// ===================================================
+// CARD SELECTION
+// ===================================================
+function selectCard(type, silent) {
+  selectedCard = type;
+  ['cardWhite','cardPenalty','cardDQ'].forEach(id => {
+    document.getElementById(id).className = 'card-btn';
+  });
+  if (type === 'white')   { document.getElementById('cardWhite').classList.add('sel-white'); }
+  if (type === 'penalty') { document.getElementById('cardPenalty').classList.add('sel-penalty'); }
+  if (type === 'dq')      { document.getElementById('cardDQ').classList.add('sel-dq'); }
+
+  const showDQ = type === 'dq';
+  const showPen = type === 'white' || type === 'penalty';
+  document.getElementById('dqSection').classList.toggle('visible', showDQ);
+  document.getElementById('penaltySection').classList.toggle('visible', showPen);
+
+  if (!silent) calcScore();
+}
+
+// ===================================================
+// DQ SELECTION
+// ===================================================
+function selectDQ(btn, silent) {
+  document.querySelectorAll('.dq-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedDQ = btn.dataset.code;
+  if (!silent) calcScore();
+}
+
+// ===================================================
+// PENALTY COUNTERS
+// ===================================================
+function adj(key, delta) {
+  counters[key] = Math.max(0, (counters[key] || 0) + delta);
+  updateCounterDisplays();
+  calcScore();
+}
+function toggleCheck(key) {
+  checks[key] = !checks[key];
+  const cb = document.getElementById('cb-' + key);
+  if (checks[key]) cb.classList.add('checked');
+  else cb.classList.remove('checked');
+  calcScore();
+}
+function updateCounterDisplays() {
+  Object.keys(counters).forEach(k => {
+    const el = document.getElementById('cv-' + k);
+    if (el) el.textContent = counters[k];
+  });
+  const cbTag = document.getElementById('cb-tag');
+  const cbLan = document.getElementById('cb-lanyard');
+  if (cbTag) cbTag.className = 'penalty-checkbox' + (checks.tag ? ' checked' : '');
+  if (cbLan) cbLan.className = 'penalty-checkbox' + (checks.lanyard ? ' checked' : '');
+}
+
+// ===================================================
+// SCORE CALCULATION
+// ===================================================
+function calcScore() {
+  if (!currentEntry) return;
+  const disc = currentEntry.discipline;
+  const ap = currentEntry.ap || 0;
+
+  // Get RP
+  let rp = 0;
+  if (disc === 'STA') rp = getRPSeconds();
+  else rp = getRPMeters();
+
+  // Base points
+  let basePoints = 0;
+  if (disc === 'STA')                        basePoints = Math.floor(rp * 2) / 10;  // 0.2pt/sec, floor to 0.2
+  else if (['DYN','DYNB','DNF'].includes(disc)) basePoints = Math.floor(rp * 2) / 2;  // 0.5pt/m, floor to 0.5
+  else                                          basePoints = Math.floor(rp);             // 1pt/m, floor to 1
+
+  // Under AP penalty (auto)
+  let underAPPen = 0;
+  let underAPPts = 0;
+  if (rp < ap && rp > 0) {
+    const diff = ap - rp;
+    if (disc === 'STA')                           underAPPts = parseFloat((diff * 0.2).toFixed(2));
+    else if (['DYN','DYNB','DNF'].includes(disc)) underAPPts = parseFloat((diff * 0.5).toFixed(2));
+    else                                           underAPPts = Math.ceil(diff);  // 1pt/m
+    underAPPen = underAPPts;
+
+    document.getElementById('pen-underap').style.display = '';
+    document.getElementById('cv-underap').textContent = underAPPts.toFixed(1);
+    document.getElementById('pc-underap').textContent = `AP ${formatAP(ap, disc)} → RP ${formatAP(rp, disc)} = -${underAPPts.toFixed(1)} pt`;
+  } else {
+    document.getElementById('pen-underap').style.display = 'none';
+  }
+
+  // Other penalties
+  const earlyPts = counters.earlystart * 1;  // 1pt per 5-sec unit
+  const latePts  = counters.latestart  * 1;
+  const turnPts  = counters.turn  * 5;
+  const pullPts  = counters.pull  * 5;
+  const grabPts  = counters.grab  * 5;
+  const tagPts   = checks.tag ? 1 : 0;
+  const lanyardPts = checks.lanyard ? 10 : 0;
+
+  // Update penalty calcs display
+  if (counters.earlystart > 0) document.getElementById('pc-earlystart').textContent = `${counters.earlystart} × 5秒 = -${earlyPts} pt`;
+  else document.getElementById('pc-earlystart').textContent = '';
+  if (counters.latestart > 0) document.getElementById('pc-latestart').textContent = `${counters.latestart} × 5秒 = -${latePts} pt`;
+  else document.getElementById('pc-latestart').textContent = '';
+  if (counters.turn > 0) document.getElementById('pc-turn').textContent = `${counters.turn} × 5 = -${turnPts} pt`;
+  else document.getElementById('pc-turn').textContent = '';
+  if (counters.pull > 0) document.getElementById('pc-pull').textContent = `${counters.pull} × 5 = -${pullPts} pt`;
+  else document.getElementById('pc-pull').textContent = '';
+  if (counters.grab > 0) document.getElementById('pc-grab').textContent = `${counters.grab} × 5 = -${grabPts} pt`;
+  else document.getElementById('pc-grab').textContent = '';
+  if (checks.tag) document.getElementById('pc-tag').textContent = '-1 pt';
+  else document.getElementById('pc-tag').textContent = '';
+  if (checks.lanyard) document.getElementById('pc-lanyard').textContent = '-10 pt';
+  else document.getElementById('pc-lanyard').textContent = '';
+
+  const totalPen = underAPPen + earlyPts + latePts + turnPts + pullPts + grabPts + tagPts + lanyardPts;
+  const finalPoints = Math.max(0, basePoints - totalPen);
+
+  // Update display
+  document.getElementById('scoreRP').textContent = basePoints.toFixed(1);
+  document.getElementById('scorePenalty').textContent = totalPen > 0 ? '-' + totalPen.toFixed(1) : '0';
+
+  const totalEl = document.getElementById('scoreTotal');
+  const labelEl = document.getElementById('scoreTotalLabel');
+
+  if (selectedCard === 'dq') {
+    totalEl.textContent = 'DQ';
+    totalEl.className = 'score-total-val dq';
+    labelEl.textContent = selectedDQ || 'DQ';
+  } else if (selectedCard === 'white' || selectedCard === 'penalty') {
+    totalEl.textContent = finalPoints.toFixed(1) + ' pt';
+    totalEl.className = 'score-total-val';
+    labelEl.textContent = 'Final Score';
+  } else {
+    totalEl.textContent = '—';
+    totalEl.className = 'score-total-val';
+    labelEl.textContent = 'Final Score';
+  }
+
+  return { rp, basePoints, totalPen, finalPoints };
+}
+
+// ===================================================
+// SAVE RESULT
+// ===================================================
+async function saveResult() {
+  if (!currentEntry) return;
+  if (!selectedCard) { showToast('⚠ カードを選択してください'); return; }
+  if (selectedCard === 'dq' && !selectedDQ) { showToast('⚠ DQ理由を選択してください'); return; }
+
+  const disc = currentEntry.discipline;
+  let rp = disc === 'STA' ? getRPSeconds() : getRPMeters();
+  const scores = calcScore();
+
+  const payload = {
+    event_id: EVENT_ID || 'demo',
+    entry_id: currentEntry.id,
+    athlete_name: currentEntry.athlete_name,
+    discipline: disc,
+    ap: currentEntry.ap,
+    rp: rp,
+    card: selectedCard,
+    dq_reason: selectedCard === 'dq' ? selectedDQ : null,
+    is_valid: selectedCard !== 'dq',
+    penalty_early_start: counters.earlystart,
+    penalty_late_start: counters.latestart,
+    penalty_under_ap: scores?.underAPPen || 0,
+    penalty_turn: counters.turn,
+    penalty_pull: counters.pull,
+    penalty_grab: counters.grab,
+    penalty_tag: checks.tag,
+    penalty_lanyard: checks.lanyard,
+    total_penalty: scores?.totalPen || 0,
+    base_points: scores?.basePoints || 0,
+    final_points: scores?.finalPoints || 0,
+    notes: document.getElementById('noteInput').value,
+    judge_name: JUDGE_NAME,
+    sp_elapsed: spElapsed > 0 ? parseFloat(spElapsed.toFixed(1)) : null,
+    sp_pass: spElapsed > 0 ? spElapsed <= SP_LIMIT : null,
+  };
+
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true;
+  btn.textContent = '保存中…';
+
+  try {
+    if (EVENT_ID) {
+      // Try upsert to event_results table
+      const existing = results[currentEntry.id];
+      let err;
+      if (existing) {
+        const res = await supabase.from('event_results').update(payload).eq('id', existing.id);
+        err = res.error;
+      } else {
+        const res = await supabase.from('event_results').insert(payload);
+        err = res.error;
+      }
+      if (err) throw err;
+    }
+
+    // Update local state
+    results[currentEntry.id] = payload;
+    showToast('✓ 保存しました');
+    btn.className = 'save-btn saved';
+    btn.textContent = '✓ 保存済み';
+    setTimeout(() => {
+      closeSheet();
+      renderStartList();
+      renderResults();
+    }, 800);
+  } catch(e) {
+    console.error(e);
+    btn.disabled = false;
+    btn.textContent = '✓ 結果を保存する';
+    showToast('⚠ 保存に失敗: ' + (e.message || e));
+  }
+}
+
+// ===================================================
+// RENDER RESULTS
+// ===================================================
+function renderResults() {
+  const el = document.getElementById('resultsEl');
+  const validResults = Object.values(results)
+    .filter(r => r.is_valid)
+    .sort((a, b) => b.final_points - a.final_points);
+
+  if (!validResults.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">🏆</div>まだ結果がありません</div>';
+    return;
+  }
+
+  el.innerHTML = validResults.map((r, i) => `
+    <div class="result-row">
+      <div class="result-rank">${i+1}</div>
+      <div>
+        <div class="result-name">${r.athlete_name}</div>
+        <div class="result-detail">RP: ${formatAP(r.rp, r.discipline)} | ${r.total_penalty > 0 ? '-' + r.total_penalty + ' pt pen' : 'No penalty'}</div>
+      </div>
+      <div class="result-pts">
+        <div class="result-pts-val">${r.final_points.toFixed(1)}</div>
+        <div class="result-pts-label">pts</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===================================================
+// TAB / FILTER
+// ===================================================
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    const names = ['startlist','results'];
+    t.classList.toggle('active', names[i] === name);
+  });
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + name)?.classList.add('active');
+  if (name === 'results') renderResults();
+}
+
+function setFilter(mode, el) {
+  filterMode = mode;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderStartList();
+}
+
+// ===================================================
+// TOAST
+// ===================================================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ===================================================
+// START
+// ===================================================
+init();
+</script>
+</body>
+</html>
