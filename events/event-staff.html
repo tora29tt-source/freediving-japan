@@ -294,6 +294,13 @@ select.fi option{background:var(--surface2);}
 body.role-staff .role-org-only{display:none!important;}
 body.role-staff #panel-overview .fi,
 body.role-staff #panel-overview textarea.fi{pointer-events:none;opacity:0.65;}
+/* judge-only: judge と organizer だけ表示 */
+body.role-staff .role-judge-only{display:none!important;}
+body.role-readonly .role-judge-only{display:none!important;}
+/* judge-edit-only: judge だけ操作可 */
+body.role-organizer .role-judge-edit{pointer-events:none;opacity:0.45;cursor:not-allowed;}
+body.role-staff .role-judge-edit{pointer-events:none;opacity:0.45;cursor:not-allowed;}
+body.role-readonly .role-judge-edit{pointer-events:none;opacity:0.45;cursor:not-allowed;}
 .role-banner{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.22);border-radius:var(--rs);padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;color:var(--warn);}
 .role-banner-text{flex:1;}
 </style>
@@ -325,7 +332,7 @@ body.role-staff #panel-overview textarea.fi{pointer-events:none;opacity:0.65;}
   <div class="tab" id="tab-schedule"  onclick="switchTab('schedule')">スケジュール</div>
   <div class="tab" id="tab-ap"        onclick="switchTab('ap')">AP List</div>
   <div class="tab" id="tab-startlist" onclick="switchTab('startlist')">Start List</div>
-  <div class="tab role-org-only" id="tab-results"   onclick="switchTab('results')">Results</div>
+  <div class="tab role-judge-only" id="tab-results"   onclick="switchTab('results')">Results</div>
   <div class="tab role-org-only" id="tab-protests"  onclick="switchTab('protests')">Protests</div>
   <div class="tab role-org-only" id="tab-sponsors"  onclick="switchTab('sponsors')">Sponsors</div>
 </div>
@@ -3065,6 +3072,12 @@ function jrRenderRankings() {
 }
 
 function jmOpen(athleteId) {
+  if (_role !== 'judge' && _role !== 'organizer') {
+    showToast('結果入力はジャッジ権限が必要です', 'warn'); return;
+  }
+  if (_role === 'organizer') {
+    showToast('主催者は閲覧のみです（入力はジャッジが行います）', 'warn'); return;
+  }
   jmEntry = apData.find(function(a){ return a.id===athleteId; });
   if (!jmEntry) return;
   var disc=jmEntry.disc||'CWT';
@@ -3816,24 +3829,30 @@ function downloadImage() {
 var _role = 'staff'; // デフォルトはスタッフ（制限あり）
 
 function applyRoleAccess() {
-  var isOrg = _role === 'organizer';
-  document.body.classList.toggle('role-staff', !isOrg);
+  var isOrg   = _role === 'organizer';
+  var isJudge = _role === 'judge';
+
   document.body.classList.toggle('role-organizer', isOrg);
+  document.body.classList.toggle('role-judge',     isJudge);
+  document.body.classList.toggle('role-staff',     !isOrg && !isJudge);
+  document.body.classList.toggle('role-readonly',  _role === 'readonly');
 
   // ヘッダーバッジ
   var badge = document.getElementById('role-badge');
   if (badge) {
-    badge.textContent = isOrg ? '主催者' : 'スタッフ';
-    badge.style.background = isOrg ? 'rgba(46,196,182,0.15)' : 'rgba(245,158,11,0.15)';
-    badge.style.borderColor = isOrg ? 'rgba(46,196,182,0.3)' : 'rgba(245,158,11,0.3)';
-    badge.style.color = isOrg ? 'var(--teal)' : 'var(--warn)';
+    var label = isOrg ? '主催者' : isJudge ? 'ジャッジ' : 'スタッフ';
+    var bg    = isOrg ? 'rgba(46,196,182,0.15)' : isJudge ? 'rgba(99,102,241,0.15)' : 'rgba(245,158,11,0.15)';
+    var bc    = isOrg ? 'rgba(46,196,182,0.3)'  : isJudge ? 'rgba(99,102,241,0.3)'  : 'rgba(245,158,11,0.3)';
+    var col   = isOrg ? 'var(--teal)' : isJudge ? '#a5b4fc' : 'var(--warn)';
+    badge.textContent = label;
+    badge.style.background = bg; badge.style.borderColor = bc; badge.style.color = col;
   }
 
   // ログイン/ログアウトボタン
   var btnLogin  = document.getElementById('btn-org-login');
   var btnLogout = document.getElementById('btn-org-logout');
-  if (btnLogin)  btnLogin.style.display  = isOrg ? 'none' : '';
-  if (btnLogout) btnLogout.style.display = isOrg ? '' : 'none';
+  if (btnLogin)  btnLogin.style.display  = (isOrg||isJudge) ? 'none' : '';
+  if (btnLogout) btnLogout.style.display = (isOrg||isJudge) ? '' : 'none';
 
   // スタッフ時: スケジュールタブをデフォルトにする
   if (!isOrg) {
