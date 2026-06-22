@@ -3075,9 +3075,6 @@ function jmOpen(athleteId) {
   if (_role !== 'judge' && _role !== 'organizer') {
     showToast('結果入力はジャッジ権限が必要です', 'warn'); return;
   }
-  if (_role === 'organizer') {
-    showToast('主催者は閲覧のみです（入力はジャッジが行います）', 'warn'); return;
-  }
   jmEntry = apData.find(function(a){ return a.id===athleteId; });
   if (!jmEntry) return;
   var disc=jmEntry.disc||'CWT';
