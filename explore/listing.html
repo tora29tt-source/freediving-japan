@@ -172,7 +172,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sa
 .pax-count { font-size: 20px; font-weight: 700; color: var(--on-dark); min-width: 24px; text-align: center; }
 
 /* booking form overlay */
-.bform-overlay { position: fixed; inset: 0; z-index: 300; background: rgba(4,22,31,0.8); backdrop-filter: blur(8px); display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+.bform-overlay { position: fixed; inset: 0; z-index: 300; background: rgba(4,22,31,0.8); backdrop-filter: blur(8px); display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; overflow: hidden; }
 .bform-overlay.open { opacity: 1; pointer-events: all; }
 .bform-sheet { width: 100%; max-width: 640px; background: linear-gradient(180deg, #0d3348 0%, #091f2e 100%); border-top: 1px solid var(--hairline); border-radius: 22px 22px 0 0; padding: 0 0 40px; transform: translateY(calc(100% + 4px)); transition: transform 0.32s cubic-bezier(0.32,0.72,0,1); max-height: 90dvh; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 .bform-overlay.open .bform-sheet { transform: translateY(0); }
@@ -219,8 +219,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sa
 /* ── インストラクター モーダル ── */
 .modal-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(4,22,31,0.72); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); opacity: 0; pointer-events: none; transition: opacity 0.25s; }
 .modal-overlay.open { opacity: 1; pointer-events: all; }
-.modal-sheet { position: fixed; bottom: 0; left: 50%; z-index: 201; transform: translateX(-50%) translateY(calc(100% + 4px)); width: 100%; max-width: 640px; background: linear-gradient(180deg, #0d3348 0%, #091f2e 100%); border-top: 1px solid var(--hairline); border-radius: 22px 22px 0 0; transition: transform 0.32s cubic-bezier(0.32,0.72,0,1); max-height: 92dvh; overflow-y: auto; overscroll-behavior: contain; }
-.modal-sheet.open { transform: translateX(-50%) translateY(0); }
+.modal-sheet { position: fixed; bottom: 0; left: 50%; z-index: 201; transform: translateX(-50%) translateY(calc(100% + 4px)); width: 100%; max-width: 640px; background: linear-gradient(180deg, #0d3348 0%, #091f2e 100%); border-top: 1px solid var(--hairline); border-radius: 22px 22px 0 0; transition: transform 0.32s cubic-bezier(0.32,0.72,0,1), visibility 0s 0.32s; max-height: 92dvh; overflow-y: auto; overscroll-behavior: contain; visibility: hidden; }
+.modal-sheet.open { transform: translateX(-50%) translateY(0); visibility: visible; transition: transform 0.32s cubic-bezier(0.32,0.72,0,1), visibility 0s 0s; }
 .modal-drag { width: 40px; height: 4px; border-radius: 2px; background: rgba(168,236,232,0.25); margin: 12px auto 0; }
 .modal-close { position: absolute; top: 14px; right: 16px; width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.08); border: 1px solid var(--hairline); color: var(--on-dark-mid); display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .modal-close .icon { width: 16px; height: 16px; }
