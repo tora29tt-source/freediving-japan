@@ -164,6 +164,117 @@ select.fi option{background:var(--surface2);}
 .rank-row{display:grid;grid-template-columns:28px 1fr 80px 60px;gap:6px;margin-bottom:6px;align-items:center;}
 .rank-badge{width:20px;height:20px;border-radius:4px;flex-shrink:0;}
 .color-input{width:52px;height:32px;border-radius:6px;border:1px solid var(--border);cursor:pointer;padding:2px;}
+/* ===== JUDGE RESULT INPUT ===== */
+/* 選手カード一覧 */
+.jr-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden;cursor:pointer;transition:border-color .2s;}
+.jr-item:hover{border-color:rgba(46,196,182,0.3);}
+.jr-item.jr-white{border-color:rgba(34,197,94,0.4);}
+.jr-item.jr-dq{border-color:rgba(239,68,68,0.4);}
+.jr-item.jr-penalty{border-color:rgba(245,158,11,0.4);}
+.jr-bar{height:3px;}
+.jr-bar-pending{background:transparent;}
+.jr-bar-white{background:var(--success);}
+.jr-bar-dq{background:var(--danger);}
+.jr-bar-penalty{background:var(--warn);}
+.jr-row{display:flex;align-items:center;gap:10px;padding:10px 14px;}
+.jr-no{font-size:11px;color:var(--muted);width:20px;text-align:right;flex-shrink:0;font-weight:700;}
+.jr-info{flex:1;min-width:0;}
+.jr-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.jr-meta{font-size:10px;color:var(--muted);margin-top:2px;}
+.jr-right{text-align:right;flex-shrink:0;}
+.jr-ot{font-size:14px;font-weight:800;color:var(--teal2);font-variant-numeric:tabular-nums;}
+.jr-ap{font-size:10px;color:var(--sub);margin-top:2px;}
+.jr-result-row{padding:4px 14px 10px;display:flex;align-items:center;gap:8px;}
+.jr-chip{font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;}
+.jr-chip-w{background:rgba(34,197,94,0.15);color:#86efac;border:1px solid rgba(34,197,94,0.25);}
+.jr-chip-dq{background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.25);}
+.jr-chip-p{background:rgba(245,158,11,0.15);color:var(--warn);border:1px solid rgba(245,158,11,0.25);}
+.jr-pts{font-size:15px;font-weight:800;color:#fff;margin-left:auto;font-variant-numeric:tabular-nums;}
+.jr-rp{font-size:11px;color:var(--sub);}
+/* Judge Modal */
+.jm-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:600;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);}
+.jm-overlay.open{display:block;}
+.jm-sheet{position:fixed;bottom:0;left:0;right:0;z-index:601;background:#0c2d40;border-top:1px solid rgba(46,196,182,0.25);border-radius:20px 20px 0 0;max-height:92vh;overflow-y:auto;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);}
+.jm-sheet.open{transform:translateY(0);}
+.jm-handle{width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,0.2);margin:10px auto 0;}
+.jm-head{padding:14px 16px 12px;border-bottom:1px solid var(--border);}
+.jm-num{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;}
+.jm-name{font-size:18px;font-weight:800;color:#fff;margin-top:2px;}
+.jm-meta{display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap;}
+.jm-ap{background:rgba(46,196,182,0.1);border:1px solid rgba(46,196,182,0.25);border-radius:8px;padding:4px 12px;display:inline-flex;align-items:center;gap:6px;}
+.jm-ap label{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--teal2);}
+.jm-ap span{font-size:16px;font-weight:800;color:var(--teal2);font-variant-numeric:tabular-nums;}
+.jm-sec{padding:12px 16px;border-bottom:1px solid var(--border);}
+.jm-sec-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--sub);margin-bottom:8px;}
+/* SP Timer */
+.sp-row{display:flex;align-items:center;gap:12px;}
+.sp-clock{font-size:52px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-2px;color:#fff;min-width:95px;text-align:center;transition:color .3s;}
+.sp-clock.sp-urgent{color:var(--danger);}
+.sp-btns{display:flex;flex-direction:column;gap:7px;flex:1;}
+.sp-btn{width:100%;padding:9px;border-radius:var(--rs);font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;border:none;}
+.sp-btn-go{background:var(--warn);color:#000;}
+.sp-btn-rst{background:rgba(255,255,255,0.07);color:var(--sub);border:1px solid var(--border);}
+.sp-badge{margin-top:6px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;display:inline-flex;align-items:center;gap:5px;}
+.sp-pass{background:rgba(34,197,94,0.15);color:#86efac;border:1px solid rgba(34,197,94,0.2);}
+.sp-fail{background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.2);}
+.sp-prog{height:4px;background:rgba(255,255,255,0.08);border-radius:2px;margin-top:8px;overflow:hidden;}
+.sp-prog-bar{height:100%;border-radius:2px;transition:width .5s linear,background-color .3s;}
+/* RP inputs */
+.rp-time{display:flex;align-items:center;gap:4px;}
+.rp-tf{display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;}
+.rp-tf label{font-size:9px;color:var(--muted);text-transform:uppercase;}
+.rp-ti{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--rs);color:var(--text);padding:8px 4px;font-size:26px;font-weight:800;font-family:inherit;text-align:center;-webkit-appearance:none;-moz-appearance:textfield;}
+.rp-ti::-webkit-inner-spin-button,.rp-ti::-webkit-outer-spin-button{-webkit-appearance:none;}
+.rp-ti:focus{outline:none;border-color:var(--teal);}
+.rp-tsep{font-size:22px;font-weight:800;color:var(--muted);padding-top:14px;}
+.rp-num{flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--rs);color:var(--text);padding:10px 12px;font-size:34px;font-weight:800;font-family:inherit;text-align:center;-webkit-appearance:none;-moz-appearance:textfield;}
+.rp-num::-webkit-inner-spin-button,.rp-num::-webkit-outer-spin-button{-webkit-appearance:none;}
+.rp-num:focus{outline:none;border-color:var(--teal);}
+.rp-unit{font-size:16px;color:var(--sub);font-weight:700;width:22px;}
+/* Card picker */
+.jm-card-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.jm-card-btn{padding:11px 6px;border-radius:10px;border:1.5px solid var(--border);font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .15s;background:var(--surface2);color:var(--muted);}
+.jm-card-btn span{font-size:20px;}
+.jm-card-btn.sel-w{background:rgba(34,197,94,0.15);border-color:var(--success);color:#86efac;}
+.jm-card-btn.sel-p{background:rgba(245,158,11,0.12);border-color:var(--warn);color:var(--warn);}
+.jm-card-btn.sel-dq{background:rgba(239,68,68,0.15);border-color:var(--danger);color:#f87171;}
+/* DQ reasons */
+.jm-dq-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.jm-dq-btn{padding:9px 8px;border-radius:var(--rs);border:1.5px solid var(--border);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;background:var(--surface2);color:var(--muted);text-align:center;line-height:1.3;transition:all .15s;}
+.jm-dq-btn .dqcode{font-size:9px;opacity:.7;display:block;margin-top:2px;}
+.jm-dq-btn.active{background:rgba(239,68,68,0.15);border-color:var(--danger);color:#f87171;}
+/* Penalty items */
+.jm-pen-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.jm-pen-item:last-child{border-bottom:none;}
+.jm-pen-info{flex:1;}
+.jm-pen-name{font-size:12px;font-weight:700;}
+.jm-pen-desc{font-size:10px;color:var(--muted);margin-top:1px;}
+.jm-pen-calc{font-size:10px;color:var(--warn);font-weight:700;margin-top:1px;}
+.jm-pen-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.jm-cnt{display:flex;align-items:center;gap:4px;}
+.jm-cnt-btn{width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.jm-cnt-btn:active{background:rgba(46,196,182,0.15);}
+.jm-cnt-val{width:28px;text-align:center;font-size:16px;font-weight:800;font-variant-numeric:tabular-nums;}
+.jm-check{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
+.jm-check.chk{background:rgba(245,158,11,0.2);border-color:var(--warn);}
+.jm-check.chk::after{content:'✓';font-size:13px;font-weight:800;color:var(--warn);}
+/* Score summary */
+.jm-score-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.jm-score-item{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:9px 12px;}
+.jm-score-label{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:3px;}
+.jm-score-val{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;}
+.jm-score-total{background:linear-gradient(135deg,rgba(46,196,182,0.12),rgba(18,49,70,0.8));border:1px solid rgba(46,196,182,0.3);border-radius:var(--rs);padding:12px 14px;margin-top:8px;display:flex;align-items:center;justify-content:space-between;}
+.jm-score-total-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--sub);}
+.jm-score-total-val{font-size:28px;font-weight:900;color:#fff;font-variant-numeric:tabular-nums;}
+.jm-score-total-val.is-dq{color:var(--danger);}
+/* Rankings */
+.jr-rank-row{display:grid;grid-template-columns:30px 1fr auto;gap:8px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);}
+.jr-rank-row:last-child{border-bottom:none;}
+.jr-rank-no{font-size:11px;font-weight:800;color:var(--muted);}
+.jr-rank-name{font-size:13px;font-weight:700;}
+.jr-rank-detail{font-size:10px;color:var(--muted);margin-top:2px;}
+.jr-rank-pts{font-size:20px;font-weight:800;color:var(--teal2);font-variant-numeric:tabular-nums;text-align:right;}
+.jr-rank-pts-label{font-size:10px;color:var(--muted);}
 /* MODAL */
 .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:center;justify-content:center;padding:16px;}
 .modal-backdrop.open{display:flex;}
@@ -481,16 +592,180 @@ body.role-staff #panel-overview textarea.fi{pointer-events:none;opacity:0.65;}
 <!-- RESULTS -->
 <div class="panel" id="panel-results">
   <div class="content">
+    <!-- Result Entry -->
     <div class="card">
       <div class="card-header">
         <span class="card-title">Result Entry</span>
-        <button class="btn btn-primary btn-sm" onclick="publishResults()">Publish Results</button>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <span id="jr-progress" style="font-size:11px;color:var(--muted);"></span>
+          <button class="btn btn-primary btn-sm" onclick="publishResults()">Publish Results</button>
+        </div>
+      </div>
+      <!-- filter chips -->
+      <div style="padding:8px 12px;display:flex;gap:6px;border-bottom:1px solid var(--border);overflow-x:auto;">
+        <div class="filter-chip active" id="jr-f-all"    onclick="jrSetFilter('all',this)">すべて</div>
+        <div class="filter-chip" id="jr-f-pending" onclick="jrSetFilter('pending',this)">未入力</div>
+        <div class="filter-chip" id="jr-f-done"    onclick="jrSetFilter('done',this)">入力済</div>
       </div>
       <div id="resultInputList"></div>
     </div>
+    <!-- Rankings -->
     <div class="card">
-      <div class="card-header"><span class="card-title">Rankings</span></div>
-      <div class="empty-state"><div class="empty-icon">&#x1F3C6;</div>Results will appear here after entry.</div>
+      <div class="card-header">
+        <span class="card-title">Rankings</span>
+        <span id="jr-rank-count" style="font-size:11px;color:var(--muted);"></span>
+      </div>
+      <div id="jr-rankings"><div class="empty-state"><div class="empty-icon">&#x1F3C6;</div>Results will appear here after entry.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== JUDGE INPUT MODAL (bottom sheet) ===== -->
+<div class="jm-overlay" id="jmOverlay" onclick="closeJudgeModal()"></div>
+<div class="jm-sheet" id="jmSheet">
+  <div class="jm-handle"></div>
+
+  <!-- athlete header -->
+  <div class="jm-head">
+    <div class="jm-num" id="jmNum">START #—</div>
+    <div class="jm-name" id="jmName">—</div>
+    <div class="jm-meta">
+      <span style="font-size:11px;color:var(--sub);" id="jmNat"></span>
+      <div class="jm-ap"><label>AP</label><span id="jmAP">—</span></div>
+      <span style="font-size:11px;color:var(--sub);" id="jmOT"></span>
+    </div>
+  </div>
+
+  <!-- SP Timer -->
+  <div class="jm-sec" style="background:rgba(0,0,0,0.15);">
+    <div class="jm-sec-label" style="display:flex;align-items:center;gap:6px;">
+      <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--warn);box-shadow:0 0 5px var(--warn);"></span>
+      Surface Protocol タイマー（15秒以内）
+    </div>
+    <div class="sp-row">
+      <div class="sp-clock" id="jmSpClock">15.0</div>
+      <div class="sp-btns">
+        <button class="sp-btn sp-btn-go" onclick="jmSpStart()">▶ 浮上！スタート</button>
+        <button class="sp-btn sp-btn-rst" onclick="jmSpReset()">↺ リセット</button>
+      </div>
+    </div>
+    <div id="jmSpBadge"></div>
+    <div class="sp-prog"><div class="sp-prog-bar" id="jmSpBar" style="width:100%;background:var(--success);"></div></div>
+  </div>
+
+  <!-- RP input -->
+  <div class="jm-sec">
+    <div class="jm-sec-label">RP（Realized Performance）</div>
+    <div id="jmRpSTA" style="display:none;">
+      <div class="rp-time">
+        <div class="rp-tf"><label>分</label><input class="rp-ti" id="jmMin" type="number" min="0" max="59" value="0" oninput="jmCalc()"></div>
+        <div class="rp-tsep">:</div>
+        <div class="rp-tf"><label>秒</label><input class="rp-ti" id="jmSec" type="number" min="0" max="59" value="0" oninput="jmCalc()"></div>
+        <div class="rp-tsep">.</div>
+        <div class="rp-tf"><label>0.1秒</label><input class="rp-ti" id="jmTenth" type="number" min="0" max="9" value="0" oninput="jmCalc()"></div>
+      </div>
+    </div>
+    <div id="jmRpM" style="display:none;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <input class="rp-num" id="jmMval" type="number" min="0" step="0.1" placeholder="0" oninput="jmCalc()">
+        <div class="rp-unit">m</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card selector -->
+  <div class="jm-sec">
+    <div class="jm-sec-label">判定カード</div>
+    <div class="jm-card-row">
+      <button class="jm-card-btn" id="jmCardW"   onclick="jmSelectCard('white')"><span>🟩</span>White</button>
+      <button class="jm-card-btn" id="jmCardP"   onclick="jmSelectCard('penalty')"><span>🟨</span>Penalty</button>
+      <button class="jm-card-btn" id="jmCardDQ"  onclick="jmSelectCard('dq')"><span>🟥</span>DQ</button>
+    </div>
+  </div>
+
+  <!-- DQ reasons -->
+  <div class="jm-sec" id="jmDqSec" style="display:none;">
+    <div class="jm-sec-label">DQ理由</div>
+    <div class="jm-dq-grid">
+      <button class="jm-dq-btn" data-code="DQSP"       onclick="jmSelectDQ(this)">Surface Protocol<span class="dqcode">DQSP</span></button>
+      <button class="jm-dq-btn" data-code="DQBO"       onclick="jmSelectDQ(this)">ブラックアウト<span class="dqcode">DQBO</span></button>
+      <button class="jm-dq-btn" data-code="DQAIRWAYS"  onclick="jmSelectDQ(this)">Airways潜水<span class="dqcode">DQAIRWAYS</span></button>
+      <button class="jm-dq-btn" data-code="DQTOUCH"    onclick="jmSelectDQ(this)">不正タッチ<span class="dqcode">DQTOUCH</span></button>
+      <button class="jm-dq-btn" data-code="DQPULL"     onclick="jmSelectDQ(this)">ライン引き<span class="dqcode">DQPULL</span></button>
+      <button class="jm-dq-btn" data-code="DQLATESTART" onclick="jmSelectDQ(this)">30秒超え遅刻<span class="dqcode">DQ LATE START</span></button>
+      <button class="jm-dq-btn" data-code="DQOTHER"    onclick="jmSelectDQ(this)" style="grid-column:span 2;">その他<span class="dqcode">DQOTHER</span></button>
+    </div>
+  </div>
+
+  <!-- Penalties -->
+  <div class="jm-sec" id="jmPenSec" style="display:none;">
+    <div class="jm-sec-label">ペナルティ</div>
+    <!-- Early Start -->
+    <div class="jm-pen-item">
+      <div class="jm-pen-info"><div class="jm-pen-name">Early Start</div><div class="jm-pen-desc">OT前スタート（5秒単位 × 1pt）</div><div class="jm-pen-calc" id="jmPcEs"></div></div>
+      <div class="jm-pen-right"><div class="jm-cnt"><button class="jm-cnt-btn" onclick="jmAdj('es',-1)">−</button><div class="jm-cnt-val" id="jmCvEs">0</div><button class="jm-cnt-btn" onclick="jmAdj('es',1)">+</button></div><span style="font-size:10px;color:var(--muted);">unit</span></div>
+    </div>
+    <!-- Late Start -->
+    <div class="jm-pen-item">
+      <div class="jm-pen-info"><div class="jm-pen-name">Late Start</div><div class="jm-pen-desc">OT後〜30秒以内（5秒単位 × 1pt）</div><div class="jm-pen-calc" id="jmPcLs"></div></div>
+      <div class="jm-pen-right"><div class="jm-cnt"><button class="jm-cnt-btn" onclick="jmAdj('ls',-1)">−</button><div class="jm-cnt-val" id="jmCvLs">0</div><button class="jm-cnt-btn" onclick="jmAdj('ls',1)">+</button></div><span style="font-size:10px;color:var(--muted);">unit</span></div>
+    </div>
+    <!-- Under AP (auto) -->
+    <div class="jm-pen-item" id="jmPenUap" style="display:none;">
+      <div class="jm-pen-info"><div class="jm-pen-name">Under AP <span style="font-size:10px;font-weight:400;color:var(--muted);">（自動）</span></div><div class="jm-pen-calc" id="jmPcUap"></div></div>
+      <div class="jm-pen-right"><div style="font-size:20px;font-weight:800;color:var(--warn);" id="jmCvUap">0</div><span style="font-size:10px;color:var(--muted);">pt</span></div>
+    </div>
+    <!-- DYN: Turn -->
+    <div class="jm-pen-item jm-dyn-only" style="display:none;">
+      <div class="jm-pen-info"><div class="jm-pen-name">Turn Miss</div><div class="jm-pen-desc">端壁タッチなし × 5pt（DYN系）</div><div class="jm-pen-calc" id="jmPcTu"></div></div>
+      <div class="jm-pen-right"><div class="jm-cnt"><button class="jm-cnt-btn" onclick="jmAdj('tu',-1)">−</button><div class="jm-cnt-val" id="jmCvTu">0</div><button class="jm-cnt-btn" onclick="jmAdj('tu',1)">+</button></div><span style="font-size:10px;color:var(--muted);">×5pt</span></div>
+    </div>
+    <!-- DYN: Pull -->
+    <div class="jm-pen-item jm-dyn-only" style="display:none;">
+      <div class="jm-pen-info"><div class="jm-pen-name">Pull</div><div class="jm-pen-desc">支持点引き × 5pt（DYN系）</div><div class="jm-pen-calc" id="jmPcPu"></div></div>
+      <div class="jm-pen-right"><div class="jm-cnt"><button class="jm-cnt-btn" onclick="jmAdj('pu',-1)">−</button><div class="jm-cnt-val" id="jmCvPu">0</div><button class="jm-cnt-btn" onclick="jmAdj('pu',1)">+</button></div><span style="font-size:10px;color:var(--muted);">×5pt</span></div>
+    </div>
+    <!-- Depth: TAG -->
+    <div class="jm-pen-item jm-depth-only" style="display:none;">
+      <div class="jm-pen-info"><div class="jm-pen-name">Tag Missing</div><div class="jm-pen-desc">タグ未持参 1pt（水深）</div><div class="jm-pen-calc" id="jmPcTag"></div></div>
+      <div class="jm-pen-right"><div class="jm-check" id="jmCbTag" onclick="jmToggleCheck('tag')"></div><span style="font-size:10px;color:var(--muted);">1pt</span></div>
+    </div>
+    <!-- Depth: LANYARD -->
+    <div class="jm-pen-item jm-depth-only" style="display:none;">
+      <div class="jm-pen-info"><div class="jm-pen-name">Lanyard Removal</div><div class="jm-pen-desc">ランヤード外し 10pt（水深）</div><div class="jm-pen-calc" id="jmPcLan"></div></div>
+      <div class="jm-pen-right"><div class="jm-check" id="jmCbLan" onclick="jmToggleCheck('lan')"></div><span style="font-size:10px;color:var(--muted);">10pt</span></div>
+    </div>
+    <!-- Depth CWT/CWTB/CNF: GRAB -->
+    <div class="jm-pen-item jm-grab-only" style="display:none;">
+      <div class="jm-pen-info"><div class="jm-pen-name">Grab</div><div class="jm-pen-desc">ロープ握り × 5pt（CWT/CWTB/CNF）</div><div class="jm-pen-calc" id="jmPcGr"></div></div>
+      <div class="jm-pen-right"><div class="jm-cnt"><button class="jm-cnt-btn" onclick="jmAdj('gr',-1)">−</button><div class="jm-cnt-val" id="jmCvGr">0</div><button class="jm-cnt-btn" onclick="jmAdj('gr',1)">+</button></div><span style="font-size:10px;color:var(--muted);">×5pt</span></div>
+    </div>
+  </div>
+
+  <!-- Score summary -->
+  <div class="jm-sec">
+    <div class="jm-sec-label">スコア計算</div>
+    <div class="jm-score-grid">
+      <div class="jm-score-item"><div class="jm-score-label">RP点数</div><div class="jm-score-val" style="color:var(--teal2);" id="jmScRp">—</div></div>
+      <div class="jm-score-item"><div class="jm-score-label">ペナルティ計</div><div class="jm-score-val" style="color:var(--warn);" id="jmScPen">—</div></div>
+    </div>
+    <div class="jm-score-total">
+      <div class="jm-score-total-label" id="jmScLabel">Final Score</div>
+      <div class="jm-score-total-val" id="jmScTotal">—</div>
+    </div>
+  </div>
+
+  <!-- Notes -->
+  <div class="jm-sec">
+    <div class="jm-sec-label">メモ（SP秒数・抗議記録等）</div>
+    <textarea class="note-input" id="jmNote" rows="2" style="resize:none;min-height:52px;" placeholder="例: SP 13.8秒 / コーチ声掛けあり…"></textarea>
+  </div>
+
+  <!-- Save -->
+  <div style="padding:14px 16px;">
+    <button class="btn btn-primary btn-full" id="jmSaveBtn" onclick="jmSave()">✓ 結果を保存する</button>
+    <div style="text-align:center;margin-top:10px;">
+      <button onclick="closeJudgeModal()" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;">キャンセル</button>
     </div>
   </div>
 </div>
@@ -2145,6 +2420,15 @@ async function executeImport() {
     if (_csvMapping['ap_time'] !== undefined) { var t = (row[_csvMapping['ap_time']] || '').trim(); if (t) entry.ap_time = t; }
     return entry;
   }).filter(function(e) { return e.name && e.event_id; });
+
+  // 既存エントリを全削除してから再インポート（重複防止）
+  var delRes = await _sb.from('athlete_entries').delete().eq('event_id', _currentEventId);
+  if (delRes.error) {
+    console.error('既存エントリ削除エラー:', delRes.error);
+    btn.disabled = false; btn.textContent = 'インポート実行';
+    showToast('既存データの削除に失敗しました: ' + delRes.error.message, 'error');
+    return;
+  }
 
   var succeeded = 0, failed = [], total = inserts.length;
   for (var i = 0; i < inserts.length; i++) {

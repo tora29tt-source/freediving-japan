@@ -27,6 +27,14 @@
     "plugins": [
       "expo-router",
       [
+        "react-native-ble-plx",
+        {
+          "isBackgroundEnabled": false,
+          "modes": ["peripheral", "central"],
+          "bluetoothAlwaysPermission": "SpO2センサー（Wellue O2Ring等）に接続するために使用します"
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "backgroundColor": "#208AEF",

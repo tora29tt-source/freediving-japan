@@ -16,6 +16,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
+import { useBleSpO2 } from '../hooks/useBleSpO2';
 import {
   Alert,
   Modal,
@@ -77,6 +78,7 @@ interface Cfg {
 interface Dive {
   holdMs: number;
   fcMs?: number;
+  minSpo2?: number;
 }
 
 // ─── DEFAULTS ────────────────────────────────────────────────────────────────
@@ -439,6 +441,11 @@ export default function TimerScreen() {
   const [fcMarked,   setFcMarked]   = useState(false);
   const [fcMs,       setFcMs]       = useState<number | undefined>();
 
+  // BLE SpO2
+  const { status: bleStatus, spo2: liveSpo2, devName: bleDevName, toggle: toggleBle } = useBleSpO2();
+  const liveSpo2Ref = useRef<number | null>(null);
+  const minSpo2Ref  = useRef<number | null>(null);
+
   // Mutable refs (used inside setInterval to avoid stale closures)
   const intervalRef       = useRef<ReturnType<typeof setInterval> | null>(null);
   const phaseRef          = useRef<Phase>('idle');
@@ -456,9 +463,10 @@ export default function TimerScreen() {
   const transGuard        = useRef(false);
 
   // Keep refs in sync
-  useEffect(() => { cfgRef.current  = cfg;  }, [cfg]);
-  useEffect(() => { langRef.current = lang; }, [lang]);
-  useEffect(() => { fcMsRef.current = fcMs; }, [fcMs]);
+  useEffect(() => { cfgRef.current     = cfg;      }, [cfg]);
+  useEffect(() => { langRef.current    = lang;     }, [lang]);
+  useEffect(() => { fcMsRef.current    = fcMs;     }, [fcMs]);
+  useEffect(() => { liveSpo2Ref.current = liveSpo2; }, [liveSpo2]);
 
   // ── HELPERS ───────────────────────────────────────────────────────────────
   const stopInterval = () => {
@@ -546,9 +554,11 @@ export default function TimerScreen() {
   });
 
   const goSurface = () => withGuard(() => {
-    const ms = holdMsRef.current;
-    const fc = fcMsRef.current;
-    setDives(prev => [...prev, { holdMs: ms, fcMs: fc }]);
+    const ms   = holdMsRef.current;
+    const fc   = fcMsRef.current;
+    const minS = minSpo2Ref.current ?? undefined;
+    minSpo2Ref.current = null;
+    setDives(prev => [...prev, { holdMs: ms, fcMs: fc, minSpo2: minS }]);
     phaseRef.current = 'surface';
     cdStartRef.current = Date.now();
     lastSecRef.current = 4; // force first update
@@ -601,6 +611,12 @@ export default function TimerScreen() {
 
       const elapsedSec = Math.floor(elapsed / 1000);
       fireTimeCall(elapsedSec, c, l);
+
+      // SpO2トラッキング
+      const sv = liveSpo2Ref.current;
+      if (sv !== null) {
+        if (minSpo2Ref.current === null || sv < minSpo2Ref.current) minSpo2Ref.current = sv;
+      }
 
       // Auto stop
       if (c.holdStop === 'auto' && modeRef.current === 'table') {
@@ -702,6 +718,7 @@ export default function TimerScreen() {
     setDives([]);
     setFcMarked(false);
     setFcMs(undefined);
+    minSpo2Ref.current = null;
   };
 
   const handleSave = async (note: string) => {
@@ -715,6 +732,7 @@ export default function TimerScreen() {
       best_hold_sec: Math.round(best / 1000),
       avg_hold_sec:  Math.round(avg_ / 1000),
       set_count:     dives.length,
+      min_spo2:      dives.some(d => d.minSpo2 != null) ? Math.min(...dives.filter(d => d.minSpo2 != null).map(d => d.minSpo2!)) : null,
       notes:         note || null,
       app_source:    'ios',
       dives_json: JSON.stringify(dives.map(d => ({
@@ -783,9 +801,36 @@ export default function TimerScreen() {
         {/* Header */}
         <View style={ss.header}>
           <Text style={ss.title}>STA Timer</Text>
-          <Pressable style={ss.langBtn} onPress={() => setLang(l => l === 'en' ? 'ja' : 'en')}>
-            <Text style={ss.langBtnTxt}>{lang.toUpperCase()}</Text>
-          </Pressable>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            {/* SpO2 / BLE ボタン */}
+            <Pressable
+              style={[
+                ss.bleBtn,
+                bleStatus === 'connected'  && ss.bleBtnOn,
+                (bleStatus === 'scanning' || bleStatus === 'connecting') && ss.bleBtnBusy,
+                bleStatus === 'error'      && ss.bleBtnErr,
+              ]}
+              onPress={toggleBle}
+            >
+              <View style={[
+                ss.bleDot,
+                bleStatus === 'connected'  && { backgroundColor: C.teal },
+                (bleStatus === 'scanning' || bleStatus === 'connecting') && { backgroundColor: C.warm },
+                bleStatus === 'error'      && { backgroundColor: C.danger },
+              ]} />
+              <Text style={[ss.bleBtnTxt, bleStatus === 'connected' && { color: C.teal }]}>
+                {bleStatus === 'connected'
+                  ? (liveSpo2 != null ? `${liveSpo2}%` : 'SpO2')
+                  : bleStatus === 'scanning'   ? 'スキャン中…'
+                  : bleStatus === 'connecting' ? '接続中…'
+                  : bleStatus === 'error'      ? 'SpO2 ✕'
+                  : 'SpO2'}
+              </Text>
+            </Pressable>
+            <Pressable style={ss.langBtn} onPress={() => setLang(l => l === 'en' ? 'ja' : 'en')}>
+              <Text style={ss.langBtnTxt}>{lang.toUpperCase()}</Text>
+            </Pressable>
+          </View>
         </View>
 
         {/* Mode tabs */}
@@ -827,6 +872,17 @@ export default function TimerScreen() {
                 )}
                 {phase === 'idle' && dives.length > 0 && (
                   <Text style={ss.setLabel}>{dives.length} dives</Text>
+                )}
+                {/* SpO2 リアルタイム表示 */}
+                {bleStatus === 'connected' && liveSpo2 != null && (
+                  <Text style={[
+                    ss.spo2Ring,
+                    liveSpo2 >= 95 ? { color: C.tealLight }
+                    : liveSpo2 >= 90 ? { color: C.warm }
+                    : { color: C.danger },
+                  ]}>
+                    {liveSpo2}%
+                  </Text>
                 )}
               </>
             )}
@@ -1029,4 +1085,15 @@ const ss = StyleSheet.create({
   input:        { height: 40, borderRadius: 9, borderWidth: 1, borderColor: C.border, backgroundColor: C.surface2, color: C.text, paddingHorizontal: 12, fontSize: 13, marginBottom: 12, marginTop: 8 },
   sheetBtn:     { flex: 1, height: 44, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
   sheetBtnTxt:  { fontSize: 13, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase' },
+
+  // BLE SpO2 button
+  bleBtn:     { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 4, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 16, borderWidth: 1, borderColor: '#1a3f5c', backgroundColor: '#0f2a44' },
+  bleBtnOn:   { borderColor: '#2ec4b6', backgroundColor: 'rgba(46,196,182,0.12)' },
+  bleBtnBusy: { borderColor: '#f97316' },
+  bleBtnErr:  { borderColor: '#ef4444' },
+  bleDot:     { width: 5, height: 5, borderRadius: 3, backgroundColor: '#5a8ca8' },
+  bleBtnTxt:  { fontSize: 10, fontWeight: '700' as const, letterSpacing: 0.5, color: '#5a8ca8' },
+
+  // SpO2 in ring
+  spo2Ring:   { fontSize: 20, fontWeight: '600' as const, fontVariant: ['tabular-nums'] as const, marginTop: 2 },
 });
