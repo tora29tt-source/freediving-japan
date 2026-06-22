@@ -651,6 +651,13 @@ body.role-staff #panel-overview textarea.fi{pointer-events:none;opacity:0.65;}
     </div>
     <div id="jmSpBadge"></div>
     <div class="sp-prog"><div class="sp-prog-bar" id="jmSpBar" style="width:100%;background:var(--success);"></div></div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:10px;">
+      <span style="font-size:11px;color:var(--muted);white-space:nowrap;">ストップウォッチ手動入力</span>
+      <input type="number" id="jmSpManual" step="0.1" min="0" max="99" placeholder="秒"
+        style="width:72px;padding:6px 8px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:14px;font-family:inherit;"
+        oninput="jmSpManualInput(this.value)">
+      <span style="font-size:11px;color:var(--muted);">秒</span>
+    </div>
   </div>
 
   <!-- RP input -->
@@ -677,9 +684,9 @@ body.role-staff #panel-overview textarea.fi{pointer-events:none;opacity:0.65;}
   <div class="jm-sec">
     <div class="jm-sec-label">判定カード</div>
     <div class="jm-card-row">
-      <button class="jm-card-btn" id="jmCardW"   onclick="jmSelectCard('white')"><span>🟩</span>White</button>
-      <button class="jm-card-btn" id="jmCardP"   onclick="jmSelectCard('penalty')"><span>🟨</span>Penalty</button>
-      <button class="jm-card-btn" id="jmCardDQ"  onclick="jmSelectCard('dq')"><span>🟥</span>DQ</button>
+      <button class="jm-card-btn" id="jmCardW"   onclick="jmSelectCard('white')"><span>⬜</span>ホワイト</button>
+      <button class="jm-card-btn" id="jmCardP"   onclick="jmSelectCard('penalty')"><span>🟨</span>イエロー</button>
+      <button class="jm-card-btn" id="jmCardDQ"  onclick="jmSelectCard('dq')"><span>🟥</span>レッド</button>
     </div>
   </div>
 
@@ -3082,7 +3089,8 @@ function closeJudgeModal() {
 
 function jmSpStart() { if(jmSpRunning)return; jmSpRunning=true; jmSpElapsed=0; var t0=Date.now(); jmSpInterval=setInterval(function(){ jmSpElapsed=(Date.now()-t0)/1000; jmSpTick(jmSpElapsed); if(jmSpElapsed>=JM_SP_LIMIT+2) jmSpStop(); },100); }
 function jmSpStop()  { clearInterval(jmSpInterval); jmSpRunning=false; }
-function jmSpReset() { jmSpStop(); jmSpElapsed=0; jmSpTick(0); }
+function jmSpReset() { jmSpStop(); jmSpElapsed=0; jmSpTick(0); var m=document.getElementById('jmSpManual'); if(m) m.value=''; }
+function jmSpManualInput(val) { var v=parseFloat(val); if(isNaN(v)||v<0) return; jmSpStop(); jmSpElapsed=v; jmSpTick(v); }
 function jmSpTick(elapsed) {
   var rem=JM_SP_LIMIT-elapsed;
   var clock=document.getElementById('jmSpClock'), bar=document.getElementById('jmSpBar'), badge=document.getElementById('jmSpBadge');
