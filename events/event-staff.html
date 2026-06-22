@@ -930,6 +930,7 @@ body.role-readonly .role-judge-edit{pointer-events:none;opacity:0.45;cursor:not-
           <select class="fi" id="sm-site-role">
             <option value="readonly">閲覧のみ</option>
             <option value="staff" selected>スタッフ</option>
+            <option value="judge">ジャッジ</option>
             <option value="organizer">主催者</option>
           </select>
         </div>
@@ -1546,7 +1547,7 @@ function initStaffList() {
     });
 }
 
-var SITE_ROLE_LABELS = { organizer: '主催者', staff: 'スタッフ', readonly: '閲覧のみ' };
+var SITE_ROLE_LABELS = { organizer: '主催者', judge: 'ジャッジ', staff: 'スタッフ', readonly: '閲覧のみ' };
 
 var ENG_LABELS = { advanced:'上級', intermediate:'中級', beginner:'初級' };
 
@@ -1900,7 +1901,7 @@ function renderStaffList() {
     var siteRole = s.site_role || 'staff';
     var siteRoleCtrl = _role === 'organizer'
       ? '<select onchange="changeStaffSiteRole(\'' + s.id + '\', this.value)" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--teal2);padding:3px 8px;font-size:11px;font-family:inherit;cursor:pointer;">' +
-        ['readonly','staff','organizer'].map(function(r){ return '<option value="' + r + '"' + (siteRole===r?' selected':'') + '>' + SITE_ROLE_LABELS[r] + '</option>'; }).join('') +
+        ['readonly','staff','judge','organizer'].map(function(r){ return '<option value="' + r + '"' + (siteRole===r?' selected':'') + '>' + SITE_ROLE_LABELS[r] + '</option>'; }).join('') +
         '</select>'
       : '<span style="font-size:11px;color:var(--teal2);">' + (SITE_ROLE_LABELS[siteRole]||siteRole) + '</span>';
 
