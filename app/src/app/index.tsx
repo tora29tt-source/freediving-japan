@@ -365,53 +365,101 @@ function TableConfig({ cfg, onChange }: { cfg: Cfg; onChange: (c: Cfg) => void }
   );
 }
 
+type Env        = 'dry' | 'pool';
+type Discipline = 'STA' | 'RV STA' | 'FRC STA';
+
 // ─── SAVE MODAL ───────────────────────────────────────────────────────────────
 function SaveModal({
   visible, dives, onClose, onSave,
 }: {
   visible: boolean; dives: Dive[];
-  onClose: () => void; onSave: (note: string) => void;
+  onClose: () => void;
+  onSave: (note: string, env: Env, discipline: Discipline) => void;
 }) {
-  const [note, setNote] = useState('');
-  const best = dives.length ? Math.max(...dives.map(d => d.holdMs)) : 0;
-  const avg_ = getAvgMs(dives);
+  const [note,       setNote]       = useState('');
+  const [env,        setEnv]        = useState<Env>('dry');
+  const [discipline, setDiscipline] = useState<Discipline>('STA');
+
+  const best   = dives.length ? Math.max(...dives.map(d => d.holdMs)) : 0;
+  const avg_   = getAvgMs(dives);
+  const spo2s  = dives.filter(d => d.minSpo2 != null).map(d => d.minSpo2!);
+  const minSp  = spo2s.length ? Math.min(...spo2s) : null;
+  const spo2Cls = (v: number) => v >= 95 ? C.tealLight : v >= 90 ? C.warm : C.danger;
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <Pressable style={ss.overlay} onPress={onClose}>
         <Pressable style={ss.sheet} onPress={e => e.stopPropagation()}>
           <Text style={ss.sheetTitle}>セッション確認</Text>
+
+          {/* 環境選択 */}
+          <View style={{ flexDirection: 'row', gap: 6, marginBottom: 10 }}>
+            {(['dry', 'pool'] as Env[]).map(e => (
+              <Pressable key={e} onPress={() => setEnv(e)}
+                style={[ss.envBtn, env === e && ss.envBtnOn]}>
+                <Text style={[ss.envBtnTxt, env === e && { color: C.tealLight }]}>
+                  {e === 'dry' ? '🏠 Dry' : '🏊 Pool'}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+
+          {/* 種目選択 */}
+          <View style={{ flexDirection: 'row', gap: 6, marginBottom: 12 }}>
+            {(['STA', 'RV STA', 'FRC STA'] as Discipline[]).map(d => (
+              <Pressable key={d} onPress={() => setDiscipline(d)}
+                style={[ss.discBtn, discipline === d && ss.discBtnOn]}>
+                <Text style={[ss.discBtnTxt, discipline === d && { color: C.tealLight }]}>{d}</Text>
+              </Pressable>
+            ))}
+          </View>
+
+          {/* サマリー */}
           <View style={ss.modalSummary}>
-            {[['Best', fmtMs(best)], ['Avg', fmtMs(avg_)], ['Sets', dives.length]].map(([l, v]) => (
-              <View key={l as string} style={ss.modalStat}>
+            {([
+              ['Best', fmtMs(best)],
+              ['Avg',  fmtMs(avg_)],
+              ['Sets', String(dives.length)],
+              ...(minSp != null ? [['Min SpO2', `${minSp}%`]] : []),
+            ] as [string, string][]).map(([l, v]) => (
+              <View key={l} style={ss.modalStat}>
                 <Text style={ss.modalStatLbl}>{l}</Text>
-                <Text style={ss.modalStatVal}>{v}</Text>
+                <Text style={[ss.modalStatVal, l === 'Min SpO2' && minSp != null ? { color: spo2Cls(minSp), fontSize: 15 } : {}]}>{v}</Text>
               </View>
             ))}
           </View>
-          <ScrollView style={{ maxHeight: 180, marginBottom: 10 }}>
+
+          {/* セット一覧 */}
+          <ScrollView style={{ maxHeight: 200, marginBottom: 10 }}>
             {dives.map((d, i) => (
               <View key={i} style={ss.logRow}>
                 <Text style={ss.logN}>#{i + 1}</Text>
                 <Text style={[ss.logTag, { color: C.teal, backgroundColor: C.tealDim }]}>HOLD</Text>
                 <Text style={ss.logTime}>{fmtMs(d.holdMs)}</Text>
                 {d.fcMs != null && (
-                  <Text style={[ss.logTag, { color: C.warm, backgroundColor: 'rgba(249,115,22,0.12)', marginLeft: 4 }]}>
+                  <Text style={[ss.logTag, { color: C.warm, backgroundColor: 'rgba(249,115,22,0.12)' }]}>
                     FC {fmtMs(d.fcMs)}
+                  </Text>
+                )}
+                {d.minSpo2 != null && (
+                  <Text style={[ss.logTag, { color: spo2Cls(d.minSpo2), backgroundColor: 'rgba(46,196,182,0.1)' }]}>
+                    {d.minSpo2}%
                   </Text>
                 )}
               </View>
             ))}
           </ScrollView>
+
           <TextInput style={ss.input} placeholder="メモ（任意）" placeholderTextColor={C.muted}
             value={note} onChangeText={setNote} maxLength={100} />
+
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <Pressable style={[ss.sheetBtn, { backgroundColor: C.surface2 }]} onPress={onClose}>
               <Text style={[ss.sheetBtnTxt, { color: C.muted }]}>キャンセル</Text>
             </Pressable>
             <Pressable style={[ss.sheetBtn, { backgroundColor: C.teal }]}
-              onPress={() => { onSave(note); setNote(''); }}>
-              <Text style={[ss.sheetBtnTxt, { color: C.surface }]}>登録</Text>
+              onPress={() => { onSave(note, env, discipline); setNote(''); }}>
+              <Text style={[ss.sheetBtnTxt, { color: C.surface }]}>登録してログへ</Text>
             </Pressable>
           </View>
         </Pressable>
@@ -457,7 +505,7 @@ export default function TimerScreen() {
   const cfgRef            = useRef(cfg);
   const modeRef           = useRef<Mode>('free');
   const langRef           = useRef<Lang>('en');
-  const fcMsRef           = useRef<number | undefined>();
+  const fcMsRef           = useRef<number | undefined>(undefined);
   const aidasFired        = useRef(new Set<number>());
   const tcFired           = useRef(new Set<string>());
   const transGuard        = useRef(false);
@@ -721,18 +769,19 @@ export default function TimerScreen() {
     minSpo2Ref.current = null;
   };
 
-  const handleSave = async (note: string) => {
+  const handleSave = async (note: string, env: Env, discipline: Discipline) => {
     setShowSave(false);
-    const best = dives.length ? Math.max(...dives.map(d => d.holdMs)) : 0;
-    const avg_ = getAvgMs(dives);
+    const best  = dives.length ? Math.max(...dives.map(d => d.holdMs)) : 0;
+    const avg_  = getAvgMs(dives);
+    const spo2s = dives.filter(d => d.minSpo2 != null).map(d => d.minSpo2!);
     const ok = await sbInsert('training_sessions', {
-      type: 'STA',
-      environment: 'dry',
+      type: discipline,
+      environment: env,
       duration_sec:  Math.round(dives.reduce((s, d) => s + d.holdMs, 0) / 1000),
       best_hold_sec: Math.round(best / 1000),
       avg_hold_sec:  Math.round(avg_ / 1000),
       set_count:     dives.length,
-      min_spo2:      dives.some(d => d.minSpo2 != null) ? Math.min(...dives.filter(d => d.minSpo2 != null).map(d => d.minSpo2!)) : null,
+      min_spo2:      spo2s.length ? Math.min(...spo2s) : null,
       notes:         note || null,
       app_source:    'ios',
       dives_json: JSON.stringify(dives.map(d => ({
@@ -903,10 +952,19 @@ export default function TimerScreen() {
         {/* Stats */}
         {(dives.length > 0 || phase !== 'idle') && (
           <View style={ss.stats}>
-            {([['Best', fmtMs(bestMs)], ['Avg', fmtMs(avgMsV)], ['Sets', `${dives.length}${mode === 'table' ? `/${cfg.sets}` : ''}`]] as [string, string][]).map(([l, v]) => (
+            {((() => {
+              const spo2s = dives.filter(d => d.minSpo2 != null).map(d => d.minSpo2!);
+              const minSp = spo2s.length ? Math.min(...spo2s) : null;
+              return [
+                ['Best', fmtMs(bestMs)],
+                ['Sets', `${dives.length}${mode === 'table' ? `/${cfg.sets}` : ''}`],
+                ['Avg',  fmtMs(avgMsV)],
+                ...(minSp != null ? [['Min SpO2', `${minSp}%`]] : []),
+              ] as [string, string][];
+            })()).map(([l, v]) => (
               <View key={l} style={ss.stat}>
                 <Text style={ss.statLbl}>{l}</Text>
-                <Text style={ss.statVal}>{bestMs > 0 || l === 'Sets' ? v : '—'}</Text>
+                <Text style={ss.statVal}>{bestMs > 0 || l === 'Sets' || l === 'Min SpO2' ? v : '—'}</Text>
               </View>
             ))}
           </View>
@@ -994,8 +1052,16 @@ export default function TimerScreen() {
                 <Text style={[ss.logTag, { color: C.teal, backgroundColor: C.tealDim }]}>HOLD</Text>
                 <Text style={ss.logTime}>{fmtMs(d.holdMs)}</Text>
                 {d.fcMs != null && (
-                  <Text style={[ss.logTag, { color: C.warm, backgroundColor: 'rgba(249,115,22,0.12)', marginLeft: 4 }]}>
+                  <Text style={[ss.logTag, { color: C.warm, backgroundColor: 'rgba(249,115,22,0.12)' }]}>
                     FC {fmtMs(d.fcMs)}
+                  </Text>
+                )}
+                {d.minSpo2 != null && (
+                  <Text style={[ss.logTag, {
+                    color: d.minSpo2 >= 95 ? C.tealLight : d.minSpo2 >= 90 ? C.warm : C.danger,
+                    backgroundColor: d.minSpo2 >= 95 ? C.tealDim : d.minSpo2 >= 90 ? 'rgba(249,115,22,0.12)' : 'rgba(239,68,68,0.12)',
+                  }]}>
+                    {d.minSpo2}%
                   </Text>
                 )}
               </View>
@@ -1085,6 +1151,14 @@ const ss = StyleSheet.create({
   input:        { height: 40, borderRadius: 9, borderWidth: 1, borderColor: C.border, backgroundColor: C.surface2, color: C.text, paddingHorizontal: 12, fontSize: 13, marginBottom: 12, marginTop: 8 },
   sheetBtn:     { flex: 1, height: 44, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
   sheetBtnTxt:  { fontSize: 13, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase' },
+
+  // 環境・種目ボタン
+  envBtn:     { flex: 1, height: 34, borderRadius: 8, borderWidth: 1, borderColor: '#1a3f5c', backgroundColor: '#0f2a44', alignItems: 'center' as const, justifyContent: 'center' as const },
+  envBtnOn:   { borderColor: '#2ec4b6', backgroundColor: 'rgba(46,196,182,0.12)' },
+  envBtnTxt:  { fontSize: 12, fontWeight: '700' as const, color: '#5a8ca8' },
+  discBtn:    { flex: 1, height: 30, borderRadius: 7, borderWidth: 1, borderColor: '#1a3f5c', backgroundColor: '#0f2a44', alignItems: 'center' as const, justifyContent: 'center' as const },
+  discBtnOn:  { borderColor: '#2ec4b6', backgroundColor: 'rgba(46,196,182,0.12)' },
+  discBtnTxt: { fontSize: 10, fontWeight: '700' as const, color: '#5a8ca8', letterSpacing: 0.5 },
 
   // BLE SpO2 button
   bleBtn:     { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 4, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 16, borderWidth: 1, borderColor: '#1a3f5c', backgroundColor: '#0f2a44' },

@@ -2240,6 +2240,7 @@ function switchTab(tab) {
     document.getElementById('tab-' + p).classList.toggle('active', p === tab);
     document.getElementById('panel-' + p).classList.toggle('active', p === tab);
   });
+  if (tab === 'results') jrRender();
 }
 
 function initPage() {
@@ -2462,10 +2463,56 @@ function loadAPList() {
                  ot_time: a.ot_time, dns: a.dns };
       });
       renderAPList();
+      jrLoadResults();
       // Entries stat 更新
       var entriesEl = document.getElementById('ev-stat-entries');
       if (entriesEl) entriesEl.textContent = apData.length;
     });
+}
+
+// =============================================
+// Results 永続化: localStorage + Supabase
+// =============================================
+var JR_LS_KEY = function(){ return 'jrResults_' + (_currentEventId||''); };
+
+function jrSaveLocal() {
+  try { localStorage.setItem(JR_LS_KEY(), JSON.stringify(jrResults)); } catch(e){}
+}
+
+async function jrLoadResults() {
+  // ① localStorageから即時復元
+  try {
+    var raw = localStorage.getItem(JR_LS_KEY());
+    if (raw) { jrResults = JSON.parse(raw); }
+  } catch(e){}
+
+  // ② Supabaseからロード（ログイン時のみ・上書き優先）
+  if (_sb && _currentEventId) {
+    try {
+      var res = await _sb.from('event_results').select('*').eq('event_id', _currentEventId);
+      if (!res.error && res.data && res.data.length) {
+        res.data.forEach(function(r) {
+          // entry_id をキーに jrResults を更新
+          var match = apData.find(function(a){ return a.id === r.entry_id; });
+          if (match) {
+            jrResults[match.id] = {
+              card: r.card, dq_reason: r.dq_reason,
+              rp: r.rp, ap: r.ap, disc: r.discipline,
+              penalty_early_start: r.penalty_early_start, penalty_late_start: r.penalty_late_start,
+              penalty_under_ap: r.penalty_under_ap, penalty_turn: r.penalty_turn,
+              penalty_pull: r.penalty_pull, penalty_grab: r.penalty_grab,
+              penalty_tag: r.penalty_tag, penalty_lanyard: r.penalty_lanyard,
+              total_penalty: r.total_penalty, base_points: r.base_points, final_points: r.final_points,
+              notes: r.notes, sp_elapsed: r.sp_elapsed, sp_pass: r.sp_pass, _dbId: r.id
+            };
+          }
+        });
+        jrSaveLocal(); // Supabaseの内容でlocalStorageも更新
+      }
+    } catch(e){ console.warn('jrLoadResults Supabase:', e); }
+  }
+
+  jrRender();
 }
 
 function renderAPList() {
@@ -3170,6 +3217,7 @@ async function jmSave() {
     if(qr.data&&qr.data.id) payload._dbId=qr.data.id;
   } catch(e){ console.warn('event_results save (table may not exist yet):',e.message||e); } }
   jrResults[jmEntry.id]=payload;
+  jrSaveLocal();
   btn.className='btn btn-success btn-full'; btn.textContent='✓ 保存済み';
   setTimeout(function(){ closeJudgeModal(); jrRender(); },700);
 }
