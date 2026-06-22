@@ -2937,75 +2937,243 @@ function setCard(btn, type) {
   btn.classList.add(type + '-active');
 }
 
-function initResultInputList() {
-  var el = document.getElementById('resultInputList');
-  if (!el) return;
-  el.innerHTML = '';
+// =============================================
+// JUDGE RESULT INPUT — AIDA V17.8 準拠
+// =============================================
+var jrResults  = {};
+var jrFilter   = 'all';
+var jmEntry    = null;
+var jmCard     = null;
+var jmDQ       = null;
+var jmCounters = { es:0, ls:0, tu:0, pu:0, gr:0 };
+var jmChecks   = { tag:false, lan:false };
+var jmSpInterval = null;
+var jmSpElapsed  = 0;
+var jmSpRunning  = false;
+var JM_SP_LIMIT  = 15.0;
 
-  apData.forEach(function(a, idx) {
-    var i = idx + 1;
-
-    var rowDiv = document.createElement('div');
-    rowDiv.className = 'result-input-row';
-    rowDiv.id = 'result-row-' + i;
-
-    var topDiv = document.createElement('div');
-    topDiv.className = 'result-row-top';
-
-    var nameEl = document.createElement('div');
-    nameEl.className = 'result-athlete-name';
-    nameEl.textContent = a.no + '. ' + a.name;
-    topDiv.appendChild(nameEl);
-
-    var depthSel = document.createElement('select');
-    depthSel.className = 'fi';
-    depthSel.id = 'result-depth-' + i;
-    depthSel.style.cssText = 'font-size:12px;padding:6px 4px;width:auto;';
-    topDiv.appendChild(depthSel);
-
-    ['W','Y','R'].forEach(function(label, ci) {
-      var types = ['w','y','r'];
-      var btn = document.createElement('button');
-      btn.className = 'card-btn';
-      btn.textContent = label;
-      btn.title = label === 'W' ? 'White' : label === 'Y' ? 'Yellow' : 'Red';
-      btn.addEventListener('click', (function(b, t){ return function(){ setCard(b, t); }; })(btn, types[ci]));
-      topDiv.appendChild(btn);
-    });
-
-    var botDiv = document.createElement('div');
-    botDiv.className = 'result-row-bottom';
-
-    var penWrap = document.createElement('div');
-    penWrap.className = 'penalty-wrap';
-    var penLabel = document.createElement('span');
-    penLabel.className = 'penalty-label';
-    penLabel.textContent = 'Penalty';
-    var penSel = document.createElement('select');
-    penSel.className = 'fi';
-    penSel.id = 'result-penalty-' + i;
-    penSel.style.cssText = 'font-size:12px;padding:6px 4px;';
-    penWrap.appendChild(penLabel);
-    penWrap.appendChild(penSel);
-    botDiv.appendChild(penWrap);
-
-    var noteInput = document.createElement('input');
-    noteInput.className = 'note-input';
-    noteInput.id = 'result-note-' + i;
-    noteInput.placeholder = 'Note...';
-    botDiv.appendChild(noteInput);
-
-    rowDiv.appendChild(topDiv);
-    rowDiv.appendChild(botDiv);
-    el.appendChild(rowDiv);
-
-    buildDepthSelect(depthSel, { placeholder: '— m', selected: a.ap_m });
-    buildPenaltySelect(penSel);
-  });
+function jmGetRpSec() {
+  return (parseInt(document.getElementById('jmMin').value)||0)*60
+       + (parseInt(document.getElementById('jmSec').value)||0)
+       + (parseInt(document.getElementById('jmTenth').value)||0)*0.1;
+}
+function jmGetRpM() { return parseFloat(document.getElementById('jmMval').value)||0; }
+function jmFormatAP(val, disc) {
+  if (!val && val!==0) return '—';
+  if (disc==='STA') { var m=Math.floor(val/60),s=(val%60).toFixed(1).padStart(4,'0'); return m+"'"+s+'"'; }
+  return val+' m';
 }
 
+function initResultInputList() { jrRender(); }
+
+function jrSetFilter(mode, el) {
+  jrFilter = mode;
+  ['all','pending','done'].forEach(function(f){ document.getElementById('jr-f-'+f).classList.toggle('active', f===mode); });
+  jrRender();
+}
+function jrRender() {
+  var el = document.getElementById('resultInputList');
+  if (!el) return;
+  var list = apData;
+  if (jrFilter==='pending') list = apData.filter(function(a){ return !jrResults[a.id]; });
+  if (jrFilter==='done')    list = apData.filter(function(a){ return !!jrResults[a.id]; });
+  var done = apData.filter(function(a){ return !!jrResults[a.id]; }).length;
+  var prog = document.getElementById('jr-progress');
+  if (prog) prog.textContent = done+'/'+apData.length;
+  if (!list.length) { el.innerHTML='<div class="empty-state"><div class="empty-icon">✅</div>該当選手なし</div>'; jrRenderRankings(); return; }
+  el.innerHTML = list.map(function(a) {
+    var r = jrResults[a.id];
+    var disc = a.disc||'CWT';
+    var apLabel = jmFormatAP(disc==='STA'?(a.ap_t||0):(a.ap_m||0), disc);
+    var barClass='jr-bar-pending', itemClass='', resultHtml='';
+    if (r) {
+      if (r.card==='white')   { barClass='jr-bar-white';   itemClass='jr-white';
+        resultHtml='<div class="jr-result-row"><span class="jr-chip jr-chip-w">✓ WHITE</span><span class="jr-rp">'+jmFormatAP(r.rp,disc)+'</span><span class="jr-pts">'+r.final_points.toFixed(1)+' pt</span></div>'; }
+      if (r.card==='penalty') { barClass='jr-bar-penalty'; itemClass='jr-penalty';
+        resultHtml='<div class="jr-result-row"><span class="jr-chip jr-chip-p">⚠ WHITE+PEN</span><span class="jr-rp">'+jmFormatAP(r.rp,disc)+'</span><span class="jr-pts">'+r.final_points.toFixed(1)+' pt</span></div>'; }
+      if (r.card==='dq')      { barClass='jr-bar-dq';      itemClass='jr-dq';
+        resultHtml='<div class="jr-result-row"><span class="jr-chip jr-chip-dq">✕ DQ</span><span style="font-size:10px;color:#f87171;margin-left:4px;">'+(r.dq_reason||'')+'</span></div>'; }
+    }
+    return '<div class="jr-item '+itemClass+'" onclick="jmOpen(\''+a.id+'\')">'+
+      '<div class="jr-bar '+barClass+'"></div>'+
+      '<div class="jr-row"><div class="jr-no">#'+(a.no||'—')+'</div>'+
+      '<div class="jr-info"><div class="jr-name">'+a.name+'</div><div class="jr-meta">'+(a.nationality||'—')+' · '+disc+'</div></div>'+
+      '<div class="jr-right"><div class="jr-ot">'+(a.ot_time||'—')+'</div><div class="jr-ap">AP: '+apLabel+'</div></div></div>'+
+      resultHtml+'</div>';
+  }).join('');
+  jrRenderRankings();
+}
+function jrRenderRankings() {
+  var el = document.getElementById('jr-rankings');
+  if (!el) return;
+  var valid = Object.values(jrResults).filter(function(r){ return r.is_valid; })
+    .sort(function(a,b){ return b.final_points-a.final_points; });
+  var cnt = document.getElementById('jr-rank-count');
+  if (cnt) cnt.textContent = valid.length?valid.length+'名':'';
+  if (!valid.length) { el.innerHTML='<div class="empty-state"><div class="empty-icon">&#x1F3C6;</div>Results will appear here after entry.</div>'; return; }
+  el.innerHTML = valid.map(function(r,i){
+    return '<div class="jr-rank-row">'+
+      '<div class="jr-rank-no">'+(i+1)+'</div>'+
+      '<div><div class="jr-rank-name">'+r.athlete_name+'</div>'+
+      '<div class="jr-rank-detail">RP: '+jmFormatAP(r.rp,r.discipline)+(r.total_penalty>0?' | -'+r.total_penalty.toFixed(1)+' pt pen':'')+'</div></div>'+
+      '<div><div class="jr-rank-pts">'+r.final_points.toFixed(1)+'</div><div class="jr-rank-pts-label">pts</div></div></div>';
+  }).join('');
+}
+
+function jmOpen(athleteId) {
+  jmEntry = apData.find(function(a){ return a.id===athleteId; });
+  if (!jmEntry) return;
+  var disc=jmEntry.disc||'CWT';
+  var isDYN=['DYN','DYNB','DNF'].includes(disc);
+  var isDepth=['CWT','CWTB','CNF','FIM','VWT'].includes(disc);
+  var isGrab=['CWT','CWTB','CNF'].includes(disc);
+  var isSTA=disc==='STA';
+  jmCard=null; jmDQ=null;
+  jmCounters={es:0,ls:0,tu:0,pu:0,gr:0}; jmChecks={tag:false,lan:false};
+  jmSpReset();
+  document.getElementById('jmNum').textContent='START #'+(jmEntry.no||'—');
+  document.getElementById('jmName').textContent=jmEntry.name;
+  document.getElementById('jmNat').textContent=jmEntry.nationality||'';
+  document.getElementById('jmOT').textContent='OT: '+(jmEntry.ot_time||'—');
+  var ap=isSTA?(jmEntry.ap_t||0):(jmEntry.ap_m||0);
+  document.getElementById('jmAP').textContent=jmFormatAP(ap,disc);
+  document.getElementById('jmNote').value='';
+  document.getElementById('jmRpSTA').style.display=isSTA?'':'none';
+  document.getElementById('jmRpM').style.display=isSTA?'none':'';
+  document.getElementById('jmMin').value=0; document.getElementById('jmSec').value=0; document.getElementById('jmTenth').value=0;
+  document.getElementById('jmMval').value='';
+  document.querySelectorAll('.jm-dyn-only').forEach(function(e){ e.style.display=isDYN?'':'none'; });
+  document.querySelectorAll('.jm-depth-only').forEach(function(e){ e.style.display=isDepth?'':'none'; });
+  document.querySelectorAll('.jm-grab-only').forEach(function(e){ e.style.display=isGrab?'':'none'; });
+  ['jmCardW','jmCardP','jmCardDQ'].forEach(function(id){ document.getElementById(id).className='jm-card-btn'; });
+  document.getElementById('jmDqSec').style.display='none';
+  document.getElementById('jmPenSec').style.display='none';
+  document.querySelectorAll('.jm-dq-btn').forEach(function(b){ b.classList.remove('active'); });
+  jmUpdateCounters();
+  var ex=jrResults[athleteId]; if(ex) jmPrefill(ex);
+  jmCalc();
+  var btn=document.getElementById('jmSaveBtn');
+  btn.disabled=false; btn.textContent='✓ 結果を保存する'; btn.className='btn btn-primary btn-full';
+  document.getElementById('jmOverlay').classList.add('open');
+  document.getElementById('jmSheet').classList.add('open');
+}
+function jmPrefill(r) {
+  jmSelectCard(r.card,true);
+  if(r.dq_reason){ var b=document.querySelector('.jm-dq-btn[data-code="'+r.dq_reason+'"]'); if(b) jmSelectDQ(b,true); }
+  if(r.penalty_early_start) jmCounters.es=r.penalty_early_start;
+  if(r.penalty_late_start)  jmCounters.ls=r.penalty_late_start;
+  if(r.penalty_turn)  jmCounters.tu=r.penalty_turn;
+  if(r.penalty_pull)  jmCounters.pu=r.penalty_pull;
+  if(r.penalty_grab)  jmCounters.gr=r.penalty_grab;
+  if(r.penalty_tag)   jmChecks.tag=true;
+  if(r.penalty_lanyard) jmChecks.lan=true;
+  jmUpdateCounters();
+  var disc=jmEntry.disc||'CWT';
+  if(disc==='STA'&&r.rp){ document.getElementById('jmMin').value=Math.floor(r.rp/60); document.getElementById('jmSec').value=Math.floor(r.rp%60); document.getElementById('jmTenth').value=Math.round((r.rp%1)*10); }
+  else if(r.rp) document.getElementById('jmMval').value=r.rp;
+  if(r.notes) document.getElementById('jmNote').value=r.notes;
+  jmCalc();
+}
+function closeJudgeModal() {
+  document.getElementById('jmOverlay').classList.remove('open');
+  document.getElementById('jmSheet').classList.remove('open');
+  jmSpStop(); jmEntry=null;
+}
+
+function jmSpStart() { if(jmSpRunning)return; jmSpRunning=true; jmSpElapsed=0; var t0=Date.now(); jmSpInterval=setInterval(function(){ jmSpElapsed=(Date.now()-t0)/1000; jmSpTick(jmSpElapsed); if(jmSpElapsed>=JM_SP_LIMIT+2) jmSpStop(); },100); }
+function jmSpStop()  { clearInterval(jmSpInterval); jmSpRunning=false; }
+function jmSpReset() { jmSpStop(); jmSpElapsed=0; jmSpTick(0); }
+function jmSpTick(elapsed) {
+  var rem=JM_SP_LIMIT-elapsed;
+  var clock=document.getElementById('jmSpClock'), bar=document.getElementById('jmSpBar'), badge=document.getElementById('jmSpBadge');
+  if(!clock)return;
+  bar.style.width=Math.max(0,(rem/JM_SP_LIMIT)*100)+'%';
+  if(elapsed===0){ clock.textContent='15.0'; clock.className='sp-clock'; bar.style.background='var(--success)'; badge.innerHTML=''; return; }
+  if(rem>0){ clock.textContent=rem.toFixed(1); clock.className='sp-clock'+(rem<5?' sp-urgent':''); bar.style.background=rem<5?'var(--danger)':rem<10?'var(--warn)':'var(--success)'; badge.innerHTML='<div class="sp-badge sp-pass">経過: '+elapsed.toFixed(1)+'秒</div>'; }
+  else{ clock.textContent=elapsed.toFixed(1); clock.className='sp-clock sp-urgent'; bar.style.width='0%'; badge.innerHTML='<div class="sp-badge sp-fail">✕ SP FAIL — DQSP対象 ('+elapsed.toFixed(1)+'秒)</div>'; jmSpStop(); }
+}
+
+function jmSelectCard(type,silent) {
+  jmCard=type;
+  document.getElementById('jmCardW').className='jm-card-btn'+(type==='white'?' sel-w':'');
+  document.getElementById('jmCardP').className='jm-card-btn'+(type==='penalty'?' sel-p':'');
+  document.getElementById('jmCardDQ').className='jm-card-btn'+(type==='dq'?' sel-dq':'');
+  document.getElementById('jmDqSec').style.display=type==='dq'?'':'none';
+  document.getElementById('jmPenSec').style.display=(type==='white'||type==='penalty')?'':'none';
+  if(!silent) jmCalc();
+}
+function jmSelectDQ(btn,silent) { document.querySelectorAll('.jm-dq-btn').forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); jmDQ=btn.dataset.code; if(!silent) jmCalc(); }
+function jmAdj(key,delta) { jmCounters[key]=Math.max(0,(jmCounters[key]||0)+delta); jmUpdateCounters(); jmCalc(); }
+function jmToggleCheck(key) { jmChecks[key]=!jmChecks[key]; var id='jmCb'+key.charAt(0).toUpperCase()+key.slice(1); var e=document.getElementById(id); if(e) e.className='jm-check'+(jmChecks[key]?' chk':''); jmCalc(); }
+function jmUpdateCounters() {
+  [{k:'es',id:'jmCvEs'},{k:'ls',id:'jmCvLs'},{k:'tu',id:'jmCvTu'},{k:'pu',id:'jmCvPu'},{k:'gr',id:'jmCvGr'}].forEach(function(x){ var e=document.getElementById(x.id); if(e) e.textContent=jmCounters[x.k]; });
+  var ct=document.getElementById('jmCbTag'); if(ct) ct.className='jm-check'+(jmChecks.tag?' chk':'');
+  var cl=document.getElementById('jmCbLan'); if(cl) cl.className='jm-check'+(jmChecks.lan?' chk':'');
+}
+function jmCalc() {
+  if(!jmEntry) return;
+  var disc=jmEntry.disc||'CWT', ap=disc==='STA'?(jmEntry.ap_t||0):(jmEntry.ap_m||0);
+  var rp=disc==='STA'?jmGetRpSec():jmGetRpM();
+  var base=0;
+  if(disc==='STA') base=Math.floor(rp*10/5)/2;
+  else if(['DYN','DYNB','DNF'].includes(disc)) base=Math.floor(rp*2)/2;
+  else base=Math.floor(rp);
+  var uapPts=0;
+  var uapEl=document.getElementById('jmPenUap');
+  if(rp>0&&rp<ap){ var diff=ap-rp;
+    if(disc==='STA') uapPts=parseFloat((diff*0.2).toFixed(2));
+    else if(['DYN','DYNB','DNF'].includes(disc)) uapPts=parseFloat((diff*0.5).toFixed(2));
+    else uapPts=Math.ceil(diff);
+    if(uapEl){ uapEl.style.display=''; document.getElementById('jmCvUap').textContent=uapPts.toFixed(1); document.getElementById('jmPcUap').textContent='AP '+jmFormatAP(ap,disc)+' → RP '+jmFormatAP(rp,disc)+' = -'+uapPts.toFixed(1)+' pt'; }
+  } else { if(uapEl) uapEl.style.display='none'; }
+  var esPts=jmCounters.es,lsPts=jmCounters.ls,tuPts=jmCounters.tu*5,puPts=jmCounters.pu*5,grPts=jmCounters.gr*5;
+  var tagPts=jmChecks.tag?1:0, lanPts=jmChecks.lan?10:0;
+  function pc(id,v,lbl){ var e=document.getElementById(id); if(e) e.textContent=v>0?lbl:''; }
+  pc('jmPcEs',esPts,jmCounters.es+'unit×1=-'+esPts+'pt'); pc('jmPcLs',lsPts,jmCounters.ls+'unit×1=-'+lsPts+'pt');
+  pc('jmPcTu',tuPts,jmCounters.tu+'×5=-'+tuPts+'pt'); pc('jmPcPu',puPts,jmCounters.pu+'×5=-'+puPts+'pt');
+  pc('jmPcGr',grPts,jmCounters.gr+'×5=-'+grPts+'pt'); pc('jmPcTag',tagPts,'-1pt'); pc('jmPcLan',lanPts,'-10pt');
+  var totalPen=uapPts+esPts+lsPts+tuPts+puPts+grPts+tagPts+lanPts;
+  var final=Math.max(0,base-totalPen);
+  document.getElementById('jmScRp').textContent=base.toFixed(1);
+  document.getElementById('jmScPen').textContent=totalPen>0?'-'+totalPen.toFixed(1):'0';
+  var tv=document.getElementById('jmScTotal'),tl=document.getElementById('jmScLabel');
+  if(jmCard==='dq'){ tv.textContent='DQ'; tv.className='jm-score-total-val is-dq'; tl.textContent=jmDQ||'DQ'; }
+  else if(jmCard){ tv.textContent=final.toFixed(1)+' pt'; tv.className='jm-score-total-val'; tl.textContent='Final Score'; }
+  else{ tv.textContent='—'; tv.className='jm-score-total-val'; tl.textContent='Final Score'; }
+  return {rp:rp,base:base,totalPen:totalPen,final:final,uapPts:uapPts};
+}
+async function jmSave() {
+  if(!jmEntry) return;
+  if(!jmCard){ alert('カードを選択してください'); return; }
+  if(jmCard==='dq'&&!jmDQ){ alert('DQ理由を選択してください'); return; }
+  var disc=jmEntry.disc||'CWT', rp=disc==='STA'?jmGetRpSec():jmGetRpM(), sc=jmCalc();
+  var payload={ event_id:_currentEventId, entry_id:jmEntry.id, athlete_name:jmEntry.name, discipline:disc,
+    ap:disc==='STA'?(jmEntry.ap_t||0):(jmEntry.ap_m||0), rp:rp, card:jmCard, is_valid:jmCard!=='dq',
+    dq_reason:jmCard==='dq'?jmDQ:null,
+    penalty_early_start:jmCounters.es, penalty_late_start:jmCounters.ls, penalty_under_ap:sc?sc.uapPts:0,
+    penalty_turn:jmCounters.tu, penalty_pull:jmCounters.pu, penalty_grab:jmCounters.gr,
+    penalty_tag:jmChecks.tag, penalty_lanyard:jmChecks.lan,
+    total_penalty:sc?sc.totalPen:0, base_points:sc?sc.base:0, final_points:sc?sc.final:0,
+    notes:document.getElementById('jmNote').value, judge_name:'Judge',
+    sp_elapsed:jmSpElapsed>0?parseFloat(jmSpElapsed.toFixed(1)):null,
+    sp_pass:jmSpElapsed>0?jmSpElapsed<=JM_SP_LIMIT:null };
+  var btn=document.getElementById('jmSaveBtn'); btn.disabled=true; btn.textContent='保存中…';
+  if(_currentEventId&&_sb){ try{ var ex=jrResults[jmEntry.id]; var qr;
+    if(ex&&ex._dbId) qr=await _sb.from('event_results').update(payload).eq('id',ex._dbId);
+    else qr=await _sb.from('event_results').insert(payload).select().single();
+    if(qr.error) throw qr.error;
+    if(qr.data&&qr.data.id) payload._dbId=qr.data.id;
+  } catch(e){ console.warn('event_results save (table may not exist yet):',e.message||e); } }
+  jrResults[jmEntry.id]=payload;
+  btn.className='btn btn-success btn-full'; btn.textContent='✓ 保存済み';
+  setTimeout(function(){ closeJudgeModal(); jrRender(); },700);
+}
 function publishResults() {
-  alert('Results published.\n(Supabase connection required)');
+  var done=Object.values(jrResults).filter(function(r){ return r.is_valid; }).length;
+  if(!done){ alert('まだ結果が入力されていません'); return; }
+  if(!confirm('リザルトを公開しますか？（'+done+'件）')) return;
+  if(_currentEventId&&_sb){ _sb.from('event_results').update({is_published:true}).eq('event_id',_currentEventId).then(function(r){ if(r.error) console.warn(r.error); }); }
+  alert('リザルトを公開しました（'+done+'件）');
 }
 
 var sponsors = [];
