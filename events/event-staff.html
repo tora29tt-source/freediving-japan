@@ -3210,6 +3210,14 @@ async function jmSave() {
   if(!jmCard){ alert('カードを選択してください'); return; }
   if(jmCard==='dq'&&!jmDQ){ alert('DQ理由を選択してください'); return; }
   var disc=jmEntry.disc||'CWT', rp=disc==='STA'?jmGetRpSec():jmGetRpM(), sc=jmCalc();
+  // ログイン中ユーザーの ID を取得（RLS: auth.uid() = judge_id に必須）
+  var _judgeId = null, _judgeName = 'Judge';
+  try {
+    var _sr = await _sb.auth.getSession();
+    var _su = _sr && _sr.data && _sr.data.session && _sr.data.session.user;
+    if (_su) { _judgeId = _su.id; _judgeName = _su.email || _su.id; }
+  } catch(e) {}
+
   var payload={ event_id:_currentEventId, entry_id:jmEntry.id, athlete_name:jmEntry.name, discipline:disc,
     ap:disc==='STA'?(jmEntry.ap_t||0):(jmEntry.ap_m||0), rp:rp, card:jmCard, is_valid:jmCard!=='dq',
     dq_reason:jmCard==='dq'?jmDQ:null,
@@ -3217,16 +3225,20 @@ async function jmSave() {
     penalty_turn:jmCounters.tu, penalty_pull:jmCounters.pu, penalty_grab:jmCounters.gr,
     penalty_tag:jmChecks.tag, penalty_lanyard:jmChecks.lan,
     total_penalty:sc?sc.totalPen:0, base_points:sc?sc.base:0, final_points:sc?sc.final:0,
-    notes:document.getElementById('jmNote').value, judge_name:'Judge',
+    notes:document.getElementById('jmNote').value,
+    judge_name:_judgeName, judge_id:_judgeId,
     sp_elapsed:jmSpElapsed>0?parseFloat(jmSpElapsed.toFixed(1)):null,
     sp_pass:jmSpElapsed>0?jmSpElapsed<=JM_SP_LIMIT:null };
   var btn=document.getElementById('jmSaveBtn'); btn.disabled=true; btn.textContent='保存中…';
-  if(_currentEventId&&_sb){ try{ var ex=jrResults[jmEntry.id]; var qr;
-    if(ex&&ex._dbId) qr=await _sb.from('event_results').update(payload).eq('id',ex._dbId);
-    else qr=await _sb.from('event_results').insert(payload).select().single();
-    if(qr.error) throw qr.error;
-    if(qr.data&&qr.data.id) payload._dbId=qr.data.id;
-  } catch(e){ console.warn('event_results save (table may not exist yet):',e.message||e); } }
+  if(_currentEventId&&_sb){
+    if(!_judgeId){ showToast('DB保存にはログインが必要です（ローカルには保存済み）','warn'); }
+    else { try{ var ex=jrResults[jmEntry.id]; var qr;
+      if(ex&&ex._dbId) qr=await _sb.from('event_results').update(payload).eq('id',ex._dbId);
+      else qr=await _sb.from('event_results').insert(payload).select().single();
+      if(qr.error) throw qr.error;
+      if(qr.data&&qr.data.id) payload._dbId=qr.data.id;
+    } catch(e){ console.warn('event_results save error:',e.message||e); showToast('DB保存失敗: '+(e.message||e),'error'); } }
+  }
   jrResults[jmEntry.id]=payload;
   jrSaveLocal();
   btn.className='btn btn-success btn-full'; btn.textContent='✓ 保存済み';
