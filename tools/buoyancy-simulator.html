@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>浮力シュミレーター | Freediving Japan</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --ocean-deep: #0b2d45;
+  --ocean-mid: #0e3d5c;
+  --ocean-light: #1a5f82;
+  --teal: #2ec4b6;
+  --teal-light: #a8ece8;
+  --warm: #f97316;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  background: var(--ocean-deep);
+  color: #fff;
+  min-height: 100vh;
+  padding-bottom: 60px;
+}
+
+/* ── Header ── */
+header {
+  background: var(--ocean-mid);
+  padding: 0.85rem 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  border-bottom: 1px solid rgba(46,196,182,0.2);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+header a.back {
+  color: var(--teal-light);
+  text-decoration: none;
+  font-size: 0.78rem;
+  white-space: nowrap;
+  opacity: 0.75;
+}
+
+header a.back:hover { opacity: 1; }
+
+header h1 {
+  font-size: 0.97rem;
+  font-weight: 700;
+}
+
+/* ── Layout ── */
+.layout {
+  display: grid;
+  grid-template-columns: 336px 1fr;
+  gap: 1.2rem;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 1.2rem 1.2rem 0;
+}
+
+@media (max-width: 800px) {
+  .layout { grid-template-columns: 1fr; }
+}
+
+/* ── Card ── */
+.card {
+  background: var(--ocean-mid);
+  border-radius: 13px;
+  padding: 1.1rem 1.15rem;
+  border: 1px solid rgba(46,196,182,0.13);
+}
+
+.card-title {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 1rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid rgba(46,196,182,0.15);
+}
+
+/* ── Section labels ── */
+.sec {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(168,236,232,0.45);
+  margin: 0.9rem 0 0.42rem;
+}
+
+.sec:first-of-type { margin-top: 0; }
+
+hr.sep {
+  border: none;
+  border-top: 1px solid rgba(46,196,182,0.1);
+  margin: 0.8rem 0;
+}
+
+/* ── Fields ── */
+.field { margin-bottom: 0.65rem; }
+.field:last-child { margin-bottom: 0; }
+
+.field label {
+  display: block;
+  font-size: 0.72rem;
+  color: rgba(168,236,232,0.7);
+  margin-bottom: 0.26rem;
+}
+
+.field input[type="number"],
+.field select {
+  width: 100%;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(46,196,182,0.22);
+  border-radius: 7px;
+  color: #fff;
+  padding: 0.46rem 0.72rem;
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+  -webkit-appearance: none;
+  appearance: none;
+  font-family: inherit;
+}
+
+.field input:focus,
+.field select:focus {
+  border-color: var(--teal);
+  background: rgba(255,255,255,0.1);
+}
+
+.field select option { background: #0b2d45; }
+
+.hint {
+  font-size: 0.67rem;
+  color: rgba(168,236,232,0.35);
+  margin-top: 0.22rem;
+  line-height: 1.45;
+}
+
+/* ── Toggle switch ── */
+.toggle {
+  display: flex;
+  background: rgba(0,0,0,0.25);
+  border-radius: 7px;
+  overflow: hidden;
+  border: 1px solid rgba(46,196,182,0.18);
+}
+
+.toggle button {
+  flex: 1;
+  padding: 0.43rem 0.5rem;
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.38);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.toggle button.on {
+  background: var(--teal);
+  color: #fff;
+  font-weight: 700;
+}
+
+/* ── 2-col row ── */
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+/* ── Result box ── */
+.result-box {
+  background: rgba(46,196,182,0.07);
+  border: 1px solid rgba(46,196,182,0.3);
+  border-radius: 11px;
+  padding: 0.9rem 1rem;
+  margin-top: 0.85rem;
+}
+
+.nb-lbl {
+  font-size: 0.68rem;
+  color: var(--teal-light);
+  margin-bottom: 0.18rem;
+  letter-spacing: 0.04em;
+}
+
+.nb-val {
+  font-size: 2.1rem;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--teal);
+  margin-bottom: 0.22rem;
+}
+
+.nb-sub {
+  font-size: 0.7rem;
+  color: rgba(168,236,232,0.42);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
+  margin-top: 0.75rem;
+}
+
+.stat {
+  background: rgba(0,0,0,0.18);
+  border-radius: 7px;
+  padding: 0.48rem 0.6rem;
+}
+
+.stat-val { font-size: 0.9rem; font-weight: 700; }
+.stat-lbl { font-size: 0.62rem; color: rgba(168,236,232,0.4); margin-top: 0.08rem; }
+
+.clr-pos { color: #4ade80; }
+.clr-neg { color: #f87171; }
+.clr-neu { color: var(--teal); }
+
+/* ── Right column ── */
+.right { display: flex; flex-direction: column; gap: 1.2rem; }
+
+.chart-wrap { position: relative; height: 370px; }
+
+/* ── Legend ── */
+.legend {
+  display: flex;
+  gap: 1.1rem;
+  margin-top: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.leg { display: flex; align-items: center; gap: 0.35rem; font-size: 0.7rem; color: rgba(168,236,232,0.55); }
+
+.leg-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+.leg-dash {
+  width: 16px; height: 0;
+  border-top: 2px dashed rgba(249,115,22,0.8);
+  flex-shrink: 0;
+}
+
+/* ── Phase cards ── */
+.phase-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+}
+
+.phase-card {
+  border-radius: 9px;
+  padding: 0.7rem 0.85rem;
+}
+
+.phase-card.pos {
+  background: rgba(74,222,128,0.07);
+  border: 1px solid rgba(74,222,128,0.22);
+}
+
+.phase-card.neg {
+  background: rgba(96,165,250,0.07);
+  border: 1px solid rgba(96,165,250,0.22);
+}
+
+.phase-title {
+  font-size: 0.73rem;
+  font-weight: 700;
+  margin-bottom: 0.22rem;
+}
+
+.phase-card.pos .phase-title { color: #4ade80; }
+.phase-card.neg .phase-title { color: #60a5fa; }
+
+.phase-desc { font-size: 0.7rem; color: rgba(255,255,255,0.45); line-height: 1.5; }
+
+/* ── Recommendations ── */
+.rec-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--warm);
+  margin-bottom: 0.72rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.rec-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.5rem;
+}
+
+@media (max-width: 960px) {
+  .rec-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.rec-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 8px;
+  padding: 0.58rem 0.4rem;
+  text-align: center;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.rec-card.current {
+  border-color: var(--teal);
+  background: rgba(46,196,182,0.1);
+}
+
+.rec-d { font-size: 0.62rem; color: rgba(168,236,232,0.45); margin-bottom: 0.18rem; }
+.rec-w { font-size: 1.05rem; font-weight: 900; color: var(--warm); }
+.rec-u { font-size: 0.62rem; color: rgba(255,255,255,0.28); }
+
+/* ── Physics note ── */
+.physics-note {
+  background: rgba(0,0,0,0.2);
+  border-radius: 8px;
+  padding: 0.65rem 0.8rem;
+  font-size: 0.67rem;
+  color: rgba(168,236,232,0.35);
+  line-height: 1.6;
+  margin-top: 0.6rem;
+}
+
+.physics-note strong { color: rgba(168,236,232,0.55); }
+
+/* ── Knowledge card ── */
+.know-section {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(46,196,182,0.1);
+}
+
+.know-section:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+
+.know-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--teal-light);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.know-body {
+  font-size: 0.72rem;
+  color: rgba(168,236,232,0.5);
+  line-height: 1.65;
+}
+
+.know-body strong { color: rgba(168,236,232,0.8); }
+
+.formula-block {
+  background: rgba(0,0,0,0.25);
+  border-left: 2px solid rgba(46,196,182,0.35);
+  border-radius: 0 6px 6px 0;
+  padding: 0.6rem 0.8rem;
+  margin: 0.55rem 0;
+  font-size: 0.7rem;
+  color: rgba(168,236,232,0.6);
+  line-height: 1.8;
+  font-feature-settings: "tnum";
+}
+
+.formula-block .hl { color: var(--teal); font-weight: 700; }
+.formula-block .dim { color: rgba(168,236,232,0.3); }
+
+.measure-steps {
+  counter-reset: step;
+  list-style: none;
+  margin-top: 0.45rem;
+}
+
+.measure-steps li {
+  counter-increment: step;
+  display: flex;
+  gap: 0.55rem;
+  align-items: flex-start;
+  margin-bottom: 0.38rem;
+  font-size: 0.71rem;
+  color: rgba(168,236,232,0.5);
+  line-height: 1.5;
+}
+
+.measure-steps li::before {
+  content: counter(step);
+  background: rgba(46,196,182,0.2);
+  border: 1px solid rgba(46,196,182,0.3);
+  color: var(--teal);
+  font-size: 0.65rem;
+  font-weight: 700;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 0.05rem;
+}
+
+.formula-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.68rem;
+  margin-top: 0.45rem;
+}
+
+.formula-table th {
+  text-align: left;
+  color: rgba(168,236,232,0.4);
+  font-weight: 600;
+  padding: 0.22rem 0.5rem;
+  border-bottom: 1px solid rgba(46,196,182,0.1);
+}
+
+.formula-table td {
+  padding: 0.28rem 0.5rem;
+  color: rgba(168,236,232,0.55);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  vertical-align: top;
+}
+
+.formula-table td:first-child { color: rgba(168,236,232,0.75); font-weight: 600; white-space: nowrap; }
+.formula-table .mono { font-family: 'SF Mono', 'Consolas', monospace; font-size: 0.67rem; color: var(--teal); }
+
+/* ── Sensitivity analysis ── */
+.sens-subtitle {
+  font-size: 0.67rem;
+  color: rgba(168,236,232,0.38);
+  margin-bottom: 0.7rem;
+  line-height: 1.5;
+}
+
+.sens-legend {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.7rem;
+}
+
+.sens-leg-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.67rem;
+  color: rgba(168,236,232,0.4);
+}
+
+.sens-leg-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.sens-row {
+  display: grid;
+  grid-template-columns: 128px 1fr 70px;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.48rem;
+}
+
+.sens-lbl {
+  font-size: 0.7rem;
+  color: rgba(168,236,232,0.65);
+  line-height: 1.3;
+}
+
+.sens-unit {
+  display: block;
+  font-size: 0.59rem;
+  color: rgba(168,236,232,0.28);
+  margin-top: 0.05rem;
+}
+
+.sens-bar-bg {
+  height: 10px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.sens-bar {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.3s ease;
+  min-width: 3px;
+}
+
+.sens-bar.pos { background: linear-gradient(90deg, rgba(46,196,182,0.4), rgba(46,196,182,0.9)); }
+.sens-bar.neg { background: linear-gradient(90deg, rgba(249,115,22,0.4), rgba(249,115,22,0.9)); }
+
+.sens-val {
+  font-size: 0.73rem;
+  font-weight: 700;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.sens-val.pos { color: var(--teal); }
+.sens-val.neg { color: var(--warm); }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="back" href="/tools/">← ツール</a>
+  <h1>🤿 浮力シュミレーター</h1>
+</header>
+
+<div class="layout">
+
+  <!-- ── LEFT: Inputs ── -->
+  <div class="card" style="align-self: start;">
+    <div class="card-title">パラメータ設定</div>
+
+    <!-- Environment -->
+    <div class="sec">環境</div>
+    <div class="field">
+      <label>水の種類</label>
+      <div class="toggle">
+        <button class="on" id="saltBtn" onclick="setWater('salt')">海水 (1.025 g/cm³)</button>
+        <button id="freshBtn" onclick="setWater('fresh')">淡水 (1.000 g/cm³)</button>
+      </div>
+    </div>
+
+    <hr class="sep">
+
+    <!-- Body -->
+    <div class="sec">身体</div>
+    <div class="row2">
+      <div class="field">
+        <label>体重 (kg)</label>
+        <input type="number" id="bodyWeight" value="70" min="40" max="130" step="0.5" oninput="update()">
+      </div>
+      <div class="field">
+        <label>体脂肪率 (%)</label>
+        <input type="number" id="bodyFat" value="15" min="1" max="45" step="0.5" oninput="applyBF()">
+        <div class="hint">Siri式で体密度を自動計算</div>
+      </div>
+    </div>
+    <div class="field" style="margin-top:0.4rem;">
+      <label>体密度 (g/cm³) — 手動上書き可</label>
+      <input type="number" id="bodyDensity" value="1.065" min="1.00" max="1.12" step="0.001" oninput="applyDensityManual()">
+      <div class="hint">7%→1.083 ｜ 15%→1.065 ｜ 22%→1.050 ｜ 30%→1.034。測定値があれば直接入力。</div>
+    </div>
+
+    <hr class="sep">
+
+    <!-- Wetsuit -->
+    <div class="sec">ウェットスーツ</div>
+    <div class="field">
+      <label>厚さプリセット</label>
+      <select id="wetsuitPreset" onchange="applyPreset()">
+        <option value="">— 選択してください —</option>
+        <option value="0">なし (0.0 kg)</option>
+        <optgroup label="── ワンピース（フルスーツ）──">
+          <option value="0.8">0.5mm ワンピース (≈ 0.8 kg)</option>
+          <option value="1.5">1mm ワンピース (≈ 1.5 kg)</option>
+          <option value="2.2">1.5mm ワンピース (≈ 2.2 kg)</option>
+          <option value="3.0">2mm ワンピース (≈ 3.0 kg)</option>
+          <option value="4.5">3mm ワンピース (≈ 4.5 kg)</option>
+          <option value="7.5">5mm ワンピース (≈ 7.5 kg)</option>
+        </optgroup>
+        <optgroup label="── ツーピース（ジャケット＋パンツ）──">
+          <option value="2.0">1mm ツーピース (≈ 2.0 kg)</option>
+          <option value="3.0">1.5mm ツーピース (≈ 3.0 kg)</option>
+          <option value="4.0">2mm ツーピース (≈ 4.0 kg)</option>
+          <option value="6.0">3mm ツーピース (≈ 6.0 kg)</option>
+          <option value="10.0">5mm ツーピース (≈ 10.0 kg)</option>
+          <option value="14.0">7mm ツーピース (≈ 14.0 kg)</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="field">
+      <label>水面浮力（kg）— 手動上書き可</label>
+      <input type="number" id="wetsuitBuoyancy" value="3.2" min="0" max="25" step="0.1" oninput="clearPreset(); update()">
+      <div class="hint">実測値があれば直接入力（最も正確）。プリセット値の根拠は下の「前提知識」を参照。</div>
+    </div>
+
+    <hr class="sep">
+
+    <!-- Lungs -->
+    <div class="sec">肺・パッキング</div>
+    <div class="row2">
+      <div class="field">
+        <label>全肺気量 TLC (L)</label>
+        <input type="number" id="tlc" value="7.0" min="2" max="14" step="0.1" oninput="update()">
+        <div class="hint">フル吸気の容量</div>
+      </div>
+      <div class="field">
+        <label>パッキング追加 (L)</label>
+        <input type="number" id="packing" value="0.5" min="0" max="4" step="0.1" oninput="update()">
+        <div class="hint">なし → 0</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>残気量 RV (L)</label>
+      <input type="number" id="rv" value="1.2" min="0.5" max="3.0" step="0.1" oninput="update()">
+      <div class="hint">完全呼気後に肺に残る空気。体密度1.02の測定値に含まれているため計算上の補正に使用。一般成人 1.0〜1.5L・競技者 1.5〜2.0L</div>
+    </div>
+
+    <hr class="sep">
+
+    <!-- Weight -->
+    <div class="sec">ウェイト（鉛）</div>
+    <div class="field">
+      <label>装着ウェイト (kg)</label>
+      <input type="number" id="lead" value="5.0" min="0" max="30" step="0.5" oninput="update()">
+      <div class="hint">鉛の実効マイナス浮力 ≈ 装着量 × 0.912 kg（深度によらず一定）</div>
+    </div>
+
+    <hr class="sep">
+
+    <!-- Simulation depth -->
+    <div class="sec">シミュレーション範囲</div>
+    <div class="field">
+      <label>最大深度 (m)</label>
+      <input type="number" id="maxDepth" value="50" min="10" max="200" step="5" oninput="update()">
+    </div>
+
+    <!-- Result -->
+    <div class="result-box">
+      <div class="nb-lbl">ニュートラルブォイアンシー深度</div>
+      <div class="nb-val" id="nbVal">—</div>
+      <div class="nb-sub" id="nbSub">パラメータを入力してください</div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-val" id="sTotal">—</div>
+          <div class="stat-lbl">水面 総浮力</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val" id="sBody">—</div>
+          <div class="stat-lbl">身体浮力（一定）</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val" id="sLung">—</div>
+          <div class="stat-lbl">肺浮力（水面）</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val" id="sSuit">—</div>
+          <div class="stat-lbl">スーツ浮力（水面）</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RIGHT ── -->
+  <div class="right">
+
+    <!-- Chart -->
+    <div class="card">
+      <div class="card-title">浮力プロファイル（深度 vs 浮力）</div>
+      <div class="chart-wrap">
+        <canvas id="chart"></canvas>
+      </div>
+      <div class="legend">
+        <div class="leg"><div class="leg-dot" style="background:#4ade80;"></div>正の浮力（浮き上がる）</div>
+        <div class="leg"><div class="leg-dot" style="background:#60a5fa;"></div>負の浮力（沈む）</div>
+        <div class="leg"><div class="leg-dot" style="background:var(--teal);width:18px;height:2px;border-radius:1px;"></div>浮力ライン</div>
+        <div class="leg"><div class="leg-dash"></div>NB深度</div>
+      </div>
+    </div>
+
+    <!-- Phase info -->
+    <div class="card">
+      <div class="card-title">ダイブフェーズ解説</div>
+      <div class="phase-grid">
+        <div class="phase-card pos">
+          <div class="phase-title">▲ 正の浮力フェーズ</div>
+          <div class="phase-desc" id="posPhaseText">水面からキックで潜降する区間。</div>
+        </div>
+        <div class="phase-card neg">
+          <div class="phase-title">▼ フリーフォールフェーズ</div>
+          <div class="phase-desc" id="negPhaseText">ウェイトが勝り自然に沈む区間。</div>
+        </div>
+      </div>
+      <div class="physics-note">
+        <strong>物理の背景：</strong>
+        ボイルの法則 (P₁V₁ = P₂V₂) により、深度 d[m] での気体量は水面の 1/(d÷10+1) に圧縮されます。
+        肺とネオプレンの気泡は同じ割合で縮みますが、鉛は非圧縮性固体のため浮力変化なし。
+        この非対称な変化がNBポイントを生み出します。
+      </div>
+    </div>
+
+    <!-- Sensitivity analysis -->
+    <div class="card">
+      <div class="card-title">📊 パラメータ感度分析</div>
+      <div class="sens-subtitle">各パラメータを 1 単位増やした場合にNB深度が何m変化するか（現在の設定値基準）</div>
+      <div class="sens-legend">
+        <div class="sens-leg-item">
+          <div class="sens-leg-dot" style="background:rgba(46,196,182,0.8);"></div>NB が深くなる
+        </div>
+        <div class="sens-leg-item">
+          <div class="sens-leg-dot" style="background:rgba(249,115,22,0.8);"></div>NB が浅くなる
+        </div>
+      </div>
+      <div id="sensRows"><div class="hint">NB深度が有効な場合に表示されます。</div></div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="card">
+      <div class="rec-title">⚖️ 目標NB深度別 推奨ウェイト</div>
+      <div class="rec-grid" id="recGrid"></div>
+      <div class="hint" style="margin-top:0.6rem;">
+        現在のスーツ・肺容量・体型のまま「NBをここにしたい」場合に必要なウェイト量。
+      </div>
+    </div>
+
+    <!-- Knowledge card -->
+    <div class="card">
+      <div class="card-title">📐 前提知識・計算式</div>
+
+      <!-- 1. Wetsuit preset basis -->
+      <div class="know-section">
+        <div class="know-title">① ウェットスーツのプリセット値の根拠</div>
+        <div class="know-body">
+          ネオプレンは<strong>発泡構造</strong>（無数の気泡入り）のため水より大幅に軽い（密度 ≈ 0.07 g/cm³）。
+          水面浮力は「スーツが排除する水の重さ − スーツ自身の重さ」で決まる。
+        </div>
+        <div class="formula-block">
+          <span class="dim">浮力</span> = 厚さ × <span class="hl">被覆面積</span> × (ρ水 − ρネオプレン)<br>
+          <span class="dim">　　</span> = 厚さ × 被覆面積 × <span class="hl">0.955 kg/L</span><br>
+          <br>
+          <span class="dim">体表面積 (170cm・70kg) ≈ 1.83 m²</span>
+        </div>
+        <div class="know-body" style="margin-bottom:0.5rem;">
+          <strong>ワンピース vs ツーピースの違い</strong>
+        </div>
+        <table class="formula-table">
+          <thead><tr><th>タイプ</th><th>被覆面積の考え方</th><th>同厚比較</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>ワンピース</td>
+              <td>BSA × 85% ≈ <span class="mono">1.56 m²</span></td>
+              <td>基準</td>
+            </tr>
+            <tr>
+              <td>ツーピース</td>
+              <td>ジャケット (60%) ＋ パンツ (55%) → 体幹部が二重<br>
+              実効面積 ≈ <span class="mono">2.1 m²</span>（ワンピースの約 1.35 倍）</td>
+              <td>＋35%</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="formula-block" style="margin-top:0.55rem;">
+          <span class="dim">2mm ワンピース：</span> 0.002 × 1.56 m² × 0.955 ≈ <span class="hl">3.0 kg</span><br>
+          <span class="dim">2mm ツーピース：</span> 0.002 × 2.10 m² × 0.955 ≈ <span class="hl">4.0 kg</span><br>
+          <span class="dim">3mm ワンピース：</span> 0.003 × 1.56 m² × 0.955 ≈ <span class="hl">4.5 kg</span><br>
+          <span class="dim">3mm ツーピース：</span> 0.003 × 2.10 m² × 0.955 ≈ <span class="hl">6.0 kg</span>
+        </div>
+        <div class="know-body">
+          ネオプレン密度はブランド・グレードで <strong>0.05〜0.12 g/cm³</strong> の幅があるため、
+          プリセット値は目安にすぎない。正確な値は実測が最善（下記参照）。
+        </div>
+      </div>
+
+      <!-- 2. Measurement method -->
+      <div class="know-section">
+        <div class="know-title">② スーツ浮力の実測方法（最も正確）</div>
+        <ol class="measure-steps">
+          <li>スーツを着た状態でプールに入り、ニュートラルになるウェイト量を確認する。</li>
+          <li>スーツを脱いでもう一度ニュートラルになるウェイト量を確認する。</li>
+          <li>その差がスーツの実浮力。上の入力フィールドに直接入力する。</li>
+        </ol>
+        <div class="know-body" style="margin-top:0.45rem;">
+          ウォームアップ時に5分で計測できる。スーツ新調・体型変化のたびに再測定が理想。
+        </div>
+      </div>
+
+      <!-- 3. All formulas -->
+      <div class="know-section">
+        <div class="know-title">③ シミュレーターで使っている式（すべて）</div>
+        <div class="know-body" style="margin-bottom:0.5rem;">
+          体密度 1.02 は<strong>残気量（RV）を含んだ状態</strong>で測定された値。
+          肺浮力を別途加算すると RV を二重計上してしまうため、身体浮力から <strong>RV × ρ水</strong> を差し引いて補正している。
+        </div>
+        <table class="formula-table">
+          <thead>
+            <tr>
+              <th>要素</th>
+              <th>計算式</th>
+              <th>深度依存</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>体密度 ρ体<br><span style="font-weight:400;color:rgba(168,236,232,0.35);font-size:0.65rem;">Siri 式</span></td>
+              <td><span class="mono">4.95 ÷ (体脂肪率/100 + 4.50)</span></td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td>身体浮力<br><span style="font-weight:400;color:rgba(168,236,232,0.35);font-size:0.65rem;">（RV補正済み・一定）</span></td>
+              <td><span class="mono">体重 × (ρ水 / ρ体 − 1) − RV × ρ水</span><br><span style="color:rgba(168,236,232,0.3);font-size:0.65rem;">ρ体 = 入力した体密度</span></td>
+              <td>なし（一定）</td>
+            </tr>
+            <tr>
+              <td>肺浮力</td>
+              <td><span class="mono">(TLC + パッキング) ÷ P × ρ水</span></td>
+              <td>あり（圧縮）</td>
+            </tr>
+            <tr>
+              <td>スーツ浮力</td>
+              <td><span class="mono">水面浮力 ÷ P</span></td>
+              <td>あり（圧縮）</td>
+            </tr>
+            <tr>
+              <td>鉛マイナス浮力</td>
+              <td><span class="mono">装着量 × (1 − 1/11.35) ≈ × 0.912</span></td>
+              <td>なし（一定）</td>
+            </tr>
+            <tr>
+              <td>NB深度 d*</td>
+              <td><span class="mono">10 × ( A / C − 1 )</span><br>
+                <span style="color:rgba(168,236,232,0.3);font-size:0.65rem;">
+                  A = スーツ₀ + (TLC+パッキング)×ρ水<br>
+                  C = 鉛効果 − 身体浮力（RV補正済み）
+                </span>
+              </td>
+              <td>—</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="formula-block" style="margin-top:0.55rem;">
+          <span class="dim">P = d/10 + 1 [atm]　</span>
+          <span class="dim">ρ水 = 1.025（海水）/ 1.000（淡水）　</span>
+          <span class="dim">鉛密度 = 11.35 g/cm³</span>
+        </div>
+      </div>
+
+      <!-- 4. NB strategy note -->
+      <div class="know-section">
+        <div class="know-title">④ NBをどこに設定するか（CWT戦略）</div>
+        <div class="know-body">
+          NB が浅すぎると前半ずっとキックが必要で体力を消耗する。深すぎるとフリーフォール区間が短くなり
+          折り返し後の浮上補助も弱くなる。<strong>目標深度の 1/3 前後</strong>（例：30m狙いなら10m前後）に設定するのが
+          一般的。ただし個人差・コンディションによるので、本番前のウォームアップダイブで確認すること。
+        </div>
+      </div>
+
+    </div><!-- /knowledge card -->
+
+  </div>
+</div>
+
+<script>
+// ── State ──
+let waterDensity = 1.025;
+let chartInst = null;
+
+// ── Custom plugin: vertical dashed line with label ──
+const vertLinePlugin = {
+  id: 'vertLine',
+  afterDraw(chart, _, opts) {
+    if (opts.x == null || isNaN(opts.x)) return;
+    const { ctx, scales: { x, y } } = chart;
+    const px = x.getPixelForValue(opts.x);
+    ctx.save();
+    ctx.beginPath();
+    ctx.strokeStyle = 'rgba(249,115,22,0.9)';
+    ctx.lineWidth = 1.8;
+    ctx.setLineDash([6, 4]);
+    ctx.moveTo(px, y.top);
+    ctx.lineTo(px, y.bottom);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    const lbl = opts.label || '';
+    ctx.font = 'bold 11px -apple-system, sans-serif';
+    const tw = ctx.measureText(lbl).width;
+    const tx = Math.min(px + 5, x.right - tw - 8);
+    const ty = y.top + 18;
+    ctx.fillStyle = 'rgba(11,45,69,0.82)';
+    ctx.fillRect(tx - 3, ty - 13, tw + 8, 17);
+    ctx.fillStyle = 'rgba(249,115,22,0.95)';
+    ctx.fillText(lbl, tx + 1, ty);
+    ctx.restore();
+  }
+};
+
+Chart.register(vertLinePlugin);
+
+// ── Helpers ──
+function g(id) { return parseFloat(document.getElementById(id).value) || 0; }
+
+function setWater(type) {
+  waterDensity = type === 'salt' ? 1.025 : 1.000;
+  document.getElementById('saltBtn').classList.toggle('on', type === 'salt');
+  document.getElementById('freshBtn').classList.toggle('on', type === 'fresh');
+  update();
+}
+
+function applyPreset() {
+  const v = document.getElementById('wetsuitPreset').value;
+  if (v !== '') {
+    document.getElementById('wetsuitBuoyancy').value = v;
+    update();
+  }
+}
+
+function clearPreset() {
+  document.getElementById('wetsuitPreset').value = '';
+}
+
+// ── Body fat ↔ density sync (Siri formula: ρ = 4.95 / (BF%/100 + 4.50)) ──
+function applyBF() {
+  const bf = parseFloat(document.getElementById('bodyFat').value);
+  if (isNaN(bf) || bf < 1 || bf > 70) return;
+  const rho = 4.95 / (bf / 100 + 4.50);
+  document.getElementById('bodyDensity').value = rho.toFixed(3);
+  update();
+}
+
+function applyDensityManual() {
+  const rho = parseFloat(document.getElementById('bodyDensity').value);
+  if (isNaN(rho) || rho < 1.00) return;
+  // Inverse Siri: BF% = (4.95/ρ − 4.50) × 100
+  const bf = (4.95 / rho - 4.50) * 100;
+  const bfEl = document.getElementById('bodyFat');
+  if (bf >= 1 && bf <= 60) {
+    bfEl.value = bf.toFixed(1);
+  } else {
+    bfEl.value = '';
+  }
+  update();
+}
+
+// ── Sensitivity analysis (pure — never touches DOM during computation) ──
+function computeSensitivities() {
+  // Snapshot all current values into plain variables ONCE
+  const p = {
+    M:      g('bodyWeight'),
+    rho:    parseFloat(document.getElementById('bodyDensity').value) || 1.065,
+    bf:     parseFloat(document.getElementById('bodyFat').value) || 15,
+    RV:     g('rv') || 1.2,
+    suitB0: g('wetsuitBuoyancy'),
+    lungV0: g('tlc') + g('packing'),
+    lead:   g('lead'),
+  };
+
+  const baseBodyB = getBodyBWith(p.M, p.rho, p.RV);
+  const baseNB    = neutralDepthWith(p.suitB0, p.lungV0, p.lead, baseBodyB);
+  if (baseNB === null || isNaN(baseNB)) return null;
+
+  // Compute NB with a subset of parameters overridden — pure, no DOM
+  function nbWith(overrides) {
+    const q = { ...p, ...overrides };
+    const bodyB = getBodyBWith(q.M, q.rho, q.RV);
+    return neutralDepthWith(q.suitB0, q.lungV0, q.lead, bodyB);
+  }
+
+  function sens(overrides, delta) {
+    const nb = nbWith(overrides);
+    if (nb === null || isNaN(nb) || Math.abs(nb - baseNB) > 500) return null;
+    return (nb - baseNB) / delta;
+  }
+
+  const rows = [
+    { label: 'ウェイト（鉛）', detail: '＋1 kg', s: sens({ lead: p.lead + 1 }, 1) },
+    { label: 'パッキング',     detail: '＋1 L',  s: sens({ lungV0: p.lungV0 + 1 }, 1) },
+    { label: '全肺気量 TLC',  detail: '＋1 L',  s: sens({ lungV0: p.lungV0 + 1 }, 1) },
+    { label: 'スーツ浮力',    detail: '＋1 kg',  s: sens({ suitB0: p.suitB0 + 1 }, 1) },
+    { label: '体脂肪率',      detail: '＋1 %',   s: (() => {
+        const newBF = p.bf + 1;
+        if (newBF >= 100) return null;
+        return sens({ rho: 4.95 / (newBF / 100 + 4.50) }, 1);
+      })() },
+    { label: '残気量 RV',     detail: '＋1 L',   s: sens({ RV: p.RV + 1 }, 1) },
+    { label: '体重',          detail: '＋1 kg',  s: sens({ M: p.M + 1 }, 1) },
+  ].filter(x => x.s !== null);
+
+  rows.sort((a, b) => Math.abs(b.s) - Math.abs(a.s));
+  return rows;
+}
+
+function drawSensitivity() {
+  const container = document.getElementById('sensRows');
+  if (!container) return;
+  const rows = computeSensitivities();
+  if (!rows || rows.length === 0) {
+    container.innerHTML = '<div class="hint">NB深度が有効な場合に表示されます。</div>';
+    return;
+  }
+  const maxAbs = Math.max(...rows.map(r => Math.abs(r.s)), 0.01);
+  container.innerHTML = rows.map(r => {
+    const pct = Math.max(4, Math.round((Math.abs(r.s) / maxAbs) * 100));
+    const cls  = r.s > 0 ? 'pos' : 'neg';
+    const dir  = r.s > 0 ? '▼ ' : '▲ ';
+    const sign = r.s > 0 ? '+' : '−';
+    return `<div class="sens-row">
+  <div class="sens-lbl">${r.label}<span class="sens-unit">${r.detail} のとき</span></div>
+  <div class="sens-bar-bg"><div class="sens-bar ${cls}" style="width:${pct}%"></div></div>
+  <div class="sens-val ${cls}">${dir}${sign}${Math.abs(r.s).toFixed(1)}m</div>
+</div>`;
+  }).join('');
+}
+
+// ── Physics (corrected) ──
+//
+//  Pressure at depth d(m): P = (d/10 + 1) [atm]
+//
+//  ★ Why RV matters:
+//    Body density ρ_body = 1.02 g/cm³ is measured by hydrostatic weighing at
+//    residual volume (RV ≈ 1.2L). The RV air is already "baked in" to 1.02.
+//    If we also add the full TLC as lung buoyancy, we double-count RV.
+//    Fix: subtract RV × ρ_water from body buoyancy, then add TLC/P × ρ_water.
+//
+//  Body tissue buoyancy (constant, no depth dependence):
+//    B_body = M×(ρw/1.02 − 1) − RV×ρw
+//    V_tissue = M/1.02 − RV  [volume excluding lung gas]
+//
+//  Lung buoyancy at depth (Boyle's law, multiplied by water density):
+//    B_lung(d) = V₀ / P × ρw     [V₀ = TLC + packing]
+//    (1 litre gas at depth displaces 1 litre water = ρw kg buoyancy)
+//
+//  Wetsuit buoyancy at depth:
+//    B_suit(d) = B_suit₀ / P     [B_suit₀ already in kg, scales with pressure]
+//
+//  Lead effective negative (constant):
+//    B_lead = lead × (1 − 1/11.35) ≈ lead × 0.912
+//
+//  Total:
+//    B(d) = B_body + (V₀×ρw + B_suit₀)/P − B_lead
+//
+//  Neutral depth (solve B(d*) = 0):
+//    A = V₀×ρw + B_suit₀         [compressible positives at 1 atm]
+//    C = B_lead − B_body          [net negative offset]
+//    d* = 10 × (A/C − 1)
+
+function getBodyB() {
+  const M       = g('bodyWeight');
+  const RV      = g('rv') || 1.2;
+  const rhoBody = parseFloat(document.getElementById('bodyDensity').value) || 1.065;
+  return M * (waterDensity / rhoBody - 1) - RV * waterDensity;
+}
+
+// DOM-free versions — used for sensitivity (never touch input elements)
+function getBodyBWith(M, rhoBody, RV) {
+  return M * (waterDensity / rhoBody - 1) - RV * waterDensity;
+}
+
+function neutralDepthWith(suitB0, lungV0, lead, bodyB) {
+  const A    = suitB0 + lungV0 * waterDensity;
+  const leadN = lead * (1 - 1 / 11.35);
+  const C    = leadN - bodyB;
+  if (C <= 0) return null;
+  if (A / C <= 1) return 0;
+  return 10 * (A / C - 1);
+}
+
+function calcAt(depth) {
+  const P      = depth / 10 + 1;
+  const suitB0 = g('wetsuitBuoyancy');
+  const lungV0 = g('tlc') + g('packing');
+  const lead   = g('lead');
+
+  const bodyB = getBodyB();
+  const suitB = suitB0 / P;
+  const lungB = (lungV0 / P) * waterDensity;
+  const leadN = lead * (1 - 1 / 11.35);
+
+  return { total: bodyB + suitB + lungB - leadN, bodyB, suitB, lungB, leadN };
+}
+
+function neutralDepth() {
+  const suitB0 = g('wetsuitBuoyancy');
+  const lungV0 = g('tlc') + g('packing');
+  const lead   = g('lead');
+
+  const bodyB = getBodyB();
+  const A     = suitB0 + lungV0 * waterDensity;   // compressible positives at 1 atm
+  const leadN = lead * (1 - 1 / 11.35);
+  const C     = leadN - bodyB;                     // net negative offset
+
+  if (C <= 0) return null;    // always floats
+  if (A / C <= 1) return 0;   // already negative at surface
+
+  return 10 * (A / C - 1);
+}
+
+function leadForNBAt(targetDepth) {
+  const suitB0 = g('wetsuitBuoyancy');
+  const lungV0 = g('tlc') + g('packing');
+  const P      = targetDepth / 10 + 1;
+  const bodyB  = getBodyB();
+  const A      = suitB0 + lungV0 * waterDensity;
+  // For NB at targetDepth: leadN = bodyB + A/P
+  const reqLeadN = bodyB + A / P;
+  return Math.max(0, reqLeadN / (1 - 1 / 11.35));
+}
+
+// ── Stat display helpers ──
+function setStat(id, val, forceClass) {
+  const el = document.getElementById(id);
+  const sign = val > 0 ? '+' : '';
+  el.textContent = sign + val.toFixed(2) + ' kg';
+  el.className = 'stat-val ' + (forceClass || (val > 0.05 ? 'clr-pos' : val < -0.05 ? 'clr-neg' : 'clr-neu'));
+}
+
+// ── Main update ──
+function update() {
+  const maxD = g('maxDepth') || 50;
+  const nbD  = neutralDepth();
+  const surf = calcAt(0);
+
+  // ── NB display ──
+  const nbEl  = document.getElementById('nbVal');
+  const nbSub = document.getElementById('nbSub');
+
+  if (nbD === null) {
+    nbEl.textContent = '∞';
+    nbEl.className   = 'nb-val clr-pos';
+    nbSub.textContent = '全深度でプラス浮力 — ウェイトを増やしてください';
+  } else if (surf.total < 0) {
+    nbEl.textContent = '水面以浅';
+    nbEl.className   = 'nb-val clr-neg';
+    nbSub.textContent = 'すでにマイナス浮力 — ウェイトを減らしてください';
+  } else {
+    nbEl.textContent = nbD.toFixed(1) + ' m';
+    nbEl.className   = 'nb-val clr-neu';
+    nbSub.textContent = 'この深度でウェイトが浮力を上回りフリーフォール開始';
+  }
+
+  // ── Stats ──
+  setStat('sTotal', surf.total);
+  setStat('sBody',  surf.bodyB);
+  const el = document.getElementById('sLung');
+  el.textContent = '+' + surf.lungB.toFixed(2) + ' kg';
+  el.className = 'stat-val clr-pos';
+  const el2 = document.getElementById('sSuit');
+  el2.textContent = '+' + surf.suitB.toFixed(2) + ' kg';
+  el2.className = 'stat-val clr-pos';
+
+  // ── Phase text ──
+  const posEl = document.getElementById('posPhaseText');
+  const negEl = document.getElementById('negPhaseText');
+
+  if (nbD !== null && nbD > 0 && !isNaN(nbD)) {
+    posEl.textContent = `水面 〜 ${nbD.toFixed(1)}m：正の浮力。キックとアームプルで潜降する必要あり。`;
+    negEl.textContent = `${nbD.toFixed(1)}m 以深：負の浮力。体を伸ばしてフリーフォール開始。この深度が早いほどCWTが楽。`;
+  } else if (nbD === null) {
+    posEl.textContent = '全深度でプラス浮力。ウェイトが不足しています。';
+    negEl.textContent = 'フリーフォールは発生しません。';
+  } else {
+    posEl.textContent = '水面からすでにマイナス浮力です。';
+    negEl.textContent = '全深度フリーフォール。ウェイトを若干減らすことを検討してください。';
+  }
+
+  // ── Recommendations ──
+  const targets = [5, 10, 15, 20, 30, 40];
+  document.getElementById('recGrid').innerHTML = targets.map(d => {
+    const w = leadForNBAt(d);
+    const cur = nbD !== null && !isNaN(nbD) && Math.abs(nbD - d) < 0.6;
+    return `<div class="rec-card ${cur ? 'current' : ''}">
+      <div class="rec-d">NB @ ${d}m</div>
+      <div class="rec-w">${w.toFixed(1)}</div>
+      <div class="rec-u">kg</div>
+    </div>`;
+  }).join('');
+
+  // ── Chart ──
+  const STEPS = 250;
+  const depths     = Array.from({ length: STEPS + 1 }, (_, i) => +(i * maxD / STEPS).toFixed(3));
+  const buoyancies = depths.map(d => +calcAt(d).total.toFixed(4));
+
+  const validNb = nbD !== null && !isNaN(nbD) && nbD > 0 && nbD <= maxD;
+
+  const datasets = [
+    // Green fill above 0
+    {
+      data: depths.map((d, i) => ({ x: d, y: buoyancies[i] })),
+      fill: { target: { value: 0 }, above: 'rgba(74,222,128,0.14)', below: 'rgba(96,165,250,0.14)' },
+      borderColor: 'transparent',
+      pointRadius: 0,
+      tension: 0.35,
+    },
+    // Main teal line
+    {
+      data: depths.map((d, i) => ({ x: d, y: buoyancies[i] })),
+      borderColor: 'rgba(46,196,182,0.95)',
+      borderWidth: 2.2,
+      pointRadius: 0,
+      tension: 0.35,
+      fill: false,
+    },
+  ];
+
+  // NB marker point
+  if (validNb) {
+    datasets.push({
+      data: [{ x: nbD, y: 0 }],
+      backgroundColor: 'var(--warm)',
+      borderColor: '#fff',
+      borderWidth: 1.5,
+      pointRadius: 7,
+      pointHoverRadius: 9,
+      fill: false,
+      showLine: false,
+      pointStyle: 'circle',
+    });
+  }
+
+  const chartOpts = {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: { duration: 180 },
+    interaction: { mode: 'index', intersect: false },
+    scales: {
+      x: {
+        type: 'linear',
+        min: 0,
+        max: maxD,
+        title: {
+          display: true,
+          text: '深度 (m)',
+          color: 'rgba(168,236,232,0.55)',
+          font: { size: 11 },
+        },
+        ticks: { color: 'rgba(168,236,232,0.5)', font: { size: 10 } },
+        grid: { color: 'rgba(255,255,255,0.04)' },
+      },
+      y: {
+        title: {
+          display: true,
+          text: '浮力 (kg)',
+          color: 'rgba(168,236,232,0.55)',
+          font: { size: 11 },
+        },
+        ticks: {
+          color: 'rgba(168,236,232,0.5)',
+          font: { size: 10 },
+          callback: v => (v > 0 ? '+' : '') + v.toFixed(1),
+        },
+        grid: {
+          color: ctx => ctx.tick.value === 0 ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.04)',
+          lineWidth: ctx => ctx.tick.value === 0 ? 1.5 : 1,
+        },
+      },
+    },
+    plugins: {
+      legend: { display: false },
+      vertLine: {
+        x: validNb ? nbD : null,
+        label: validNb ? `NB: ${nbD.toFixed(1)}m` : '',
+      },
+      tooltip: {
+        filter: item => item.datasetIndex === 1,
+        callbacks: {
+          title: items => `深度: ${(+items[0].parsed.x).toFixed(1)} m`,
+          label: item => {
+            const v = item.parsed.y;
+            return `浮力: ${v > 0 ? '+' : ''}${v.toFixed(2)} kg`;
+          },
+          afterLabel: item => {
+            const d = item.parsed.x;
+            const det = calcAt(d);
+            return [
+              `  肺: +${det.lungB.toFixed(2)} kg`,
+              `  スーツ: +${det.suitB.toFixed(2)} kg`,
+              `  身体: ${det.bodyB > 0 ? '+' : ''}${det.bodyB.toFixed(2)} kg`,
+              `  鉛: −${det.leadN.toFixed(2)} kg`,
+            ];
+          },
+        },
+        backgroundColor: 'rgba(11,45,69,0.93)',
+        borderColor: 'rgba(46,196,182,0.35)',
+        borderWidth: 1,
+        titleColor: '#a8ece8',
+        bodyColor: 'rgba(255,255,255,0.75)',
+        padding: 10,
+      },
+    },
+  };
+
+  if (chartInst) {
+    chartInst.data.datasets = datasets;
+    chartInst.options = chartOpts;
+    chartInst.update('none');
+  } else {
+    chartInst = new Chart(document.getElementById('chart'), {
+      type: 'line',
+      data: { datasets },
+      options: chartOpts,
+    });
+  }
+
+  drawSensitivity();
+}
+
+// ── Init ──
+applyBF();
+</script>
+</body>
+</html>

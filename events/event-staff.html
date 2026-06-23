@@ -51,6 +51,9 @@ body{
 .stat-pill-val{font-size:22px;font-weight:800;color:var(--teal2);}
 .stat-pill-lbl{font-size:10px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:0.04em;}
 .tabs{display:flex;background:rgba(12,39,56,0.8);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--border);overflow-x:auto;position:sticky;top:52px;z-index:90;}
+.tabs.subtabs{top:98px;background:rgba(8,28,42,0.85);z-index:89;}
+.tabs.subtabs .tab{font-size:11px;padding:9px 16px;color:var(--muted);}
+.tabs.subtabs .tab.active{color:var(--teal2);border-bottom-color:var(--teal2);}
 .tab{flex-shrink:0;padding:13px 18px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap;-webkit-tap-highlight-color:transparent;letter-spacing:0.04em;}
 .tab.active{color:var(--teal);border-bottom-color:var(--teal);}
 .tab:hover:not(.active){color:var(--sub);}
@@ -326,15 +329,20 @@ body.role-readonly .role-judge-edit{pointer-events:none;opacity:0.45;cursor:not-
   </div><!-- z-index wrapper -->
 </div>
 
-<div class="tabs">
+<div class="tabs" id="mainTabRow">
   <div class="tab active" id="tab-overview"  onclick="switchTab('overview')">概要</div>
   <div class="tab role-org-only" id="tab-staff"     onclick="switchTab('staff')">スタッフ</div>
   <div class="tab" id="tab-schedule"  onclick="switchTab('schedule')">スケジュール</div>
-  <div class="tab" id="tab-ap"        onclick="switchTab('ap')">AP List</div>
-  <div class="tab" id="tab-startlist" onclick="switchTab('startlist')">Start List</div>
-  <div class="tab role-judge-only" id="tab-results"   onclick="switchTab('results')">Results</div>
-  <div class="tab role-org-only" id="tab-protests"  onclick="switchTab('protests')">Protests</div>
+  <!-- Day tabs (動的生成) -->
+  <span id="dayTabsContainer"></span>
   <div class="tab role-org-only" id="tab-sponsors"  onclick="switchTab('sponsors')">Sponsors</div>
+</div>
+<!-- Day サブタブ行 -->
+<div class="tabs subtabs" id="daySubTabRow" style="display:none;">
+  <div class="tab active" id="sub-tab-ap"        onclick="switchDaySubTab('ap')">AP List</div>
+  <div class="tab" id="sub-tab-startlist" onclick="switchDaySubTab('startlist')">Start List</div>
+  <div class="tab role-judge-only" id="sub-tab-results"   onclick="switchDaySubTab('results')">Results</div>
+  <div class="tab role-org-only" id="sub-tab-protests"  onclick="switchDaySubTab('protests')">Protests</div>
 </div>
 
 <!-- OVERVIEW -->
