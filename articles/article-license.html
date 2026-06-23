@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>フリーダイビングのライセンスとは？種類・取り方・必要性を徹底解説 — Freediving Japan</title>
+<meta name="description" content="フリーダイビングにもライセンスがある。AIDA・PADI・SSI・Apnea Academyの違いからレベル別取得内容、費用・期間の目安まで徹底解説。どの団体を選ぶべきかも答えます。">
+<style>
+:root {
+  --ocean-deep:  #0b2d45;
+  --ocean-mid:   #0e3d5c;
+  --ocean-light: #1a5f82;
+  --teal:        #2ec4b6;
+  --teal-light:  #a8ece8;
+  --foam:        #f0f9fb;
+  --warm:        #f97316;
+  --sand:        #fdf8f2;
+  --text:        #1a2b38;
+  --text-mid:    #3d5166;
+  --text-light:  #6b8091;
+  --font-body:   -apple-system, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  color: var(--text);
+  background: white;
+  line-height: 1.8;
+  font-size: 16px;
+}
+
+/* ── HEADER ── */
+.site-header {
+  background: var(--ocean-deep);
+  padding: 0 20px;
+  height: 52px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.site-logo {
+  color: white; font-size: 14px; font-weight: 600;
+  text-decoration: none; display: flex; align-items: center; gap: 8px;
+}
+.site-logo .dot { width: 6px; height: 6px; background: var(--teal); border-radius: 50%; }
+.site-nav a {
+  color: rgba(255,255,255,.6); font-size: 13px; text-decoration: none;
+  margin-left: 20px; transition: color .15s;
+}
+.site-nav a:hover { color: white; }
+
+/* ── BREADCRUMB ── */
+.breadcrumb {
+  padding: 12px 20px;
+  font-size: 12px; color: var(--text-light);
+  border-bottom: 1px solid #eef2f6;
+  background: var(--sand);
+}
+.breadcrumb a { color: var(--ocean-light); text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb span { margin: 0 6px; opacity: .4; }
+
+/* ── HERO ── */
+.hero {
+  background: var(--ocean-deep);
+  padding: 48px 20px 40px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 70% 50%, rgba(46,196,182,.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-inner { max-width: 680px; margin: 0 auto; position: relative; }
+.hero-category {
+  display: inline-block;
+  background: rgba(46,196,182,.2);
+  color: var(--teal);
+  font-size: 11px; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  padding: 4px 12px; border-radius: 20px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(46,196,182,.3);
+}
+.hero h1 {
+  font-size: clamp(22px, 5vw, 32px);
+  font-weight: 700;
+  color: white;
+  line-height: 1.35;
+  margin-bottom: 16px;
+  letter-spacing: -.01em;
+}
+.hero-meta {
+  display: flex; align-items: center; gap: 16px;
+  flex-wrap: wrap;
+}
+.hero-meta .by { color: rgba(255,255,255,.5); font-size: 13px; }
+.hero-meta .by strong { color: rgba(255,255,255,.8); }
+.hero-meta .date { color: rgba(255,255,255,.4); font-size: 12px; }
+.hero-meta .read-time {
+  color: var(--teal); font-size: 12px;
+  background: rgba(46,196,182,.1);
+  padding: 3px 10px; border-radius: 10px;
+}
+
+/* ── LAYOUT ── */
+.article-wrap {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 20px 80px;
+}
+
+/* ── LEAD ── */
+.lead {
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--text-mid);
+  padding: 32px 0 24px;
+  border-bottom: 1px solid #eef2f6;
+  margin-bottom: 36px;
+}
+
+/* ── TOC ── */
+.toc {
+  background: var(--foam);
+  border-left: 3px solid var(--teal);
+  border-radius: 0 10px 10px 0;
+  padding: 20px 20px 20px 24px;
+  margin-bottom: 40px;
+}
+.toc-title {
+  font-size: 12px; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--ocean-light); margin-bottom: 12px;
+}
+.toc ol { padding-left: 18px; }
+.toc li { margin-bottom: 8px; }
+.toc a {
+  font-size: 14px; color: var(--ocean-mid);
+  text-decoration: none; line-height: 1.5;
+  transition: color .15s;
+}
+.toc a:hover { color: var(--teal); }
+
+/* ── BODY ── */
+.article-body h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ocean-deep);
+  margin: 48px 0 16px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--teal-light);
+  line-height: 1.4;
+}
+.article-body h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ocean-mid);
+  margin: 32px 0 12px;
+}
+.article-body p {
+  margin-bottom: 20px;
+  color: var(--text);
+  line-height: 1.9;
+}
+.article-body strong { color: var(--ocean-deep); font-weight: 700; }
+
+/* ── PULLQUOTE ── */
+.pullquote {
+  border-left: 4px solid var(--teal);
+  margin: 32px 0;
+  padding: 16px 20px;
+  background: var(--foam);
+  border-radius: 0 10px 10px 0;
+}
+.pullquote p {
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--ocean-mid);
+  line-height: 1.7;
+  margin: 0;
+  font-style: italic;
+}
+.pullquote cite {
+  display: block;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--text-light);
+  font-style: normal;
+}
+
+/* ── COMPARISON TABLE (standard) ── */
+.compare-table {
+  width: 100%; border-collapse: collapse;
+  margin: 28px 0;
+  font-size: 14px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(11,45,69,.08);
+}
+.compare-table thead { background: var(--ocean-deep); color: white; }
+.compare-table th {
+  padding: 12px 16px; text-align: left;
+  font-size: 12px; font-weight: 600;
+  letter-spacing: .06em; text-transform: uppercase;
+}
+.compare-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eef2f6;
+  color: var(--text-mid);
+  line-height: 1.6;
+}
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table tbody tr:nth-child(odd) { background: var(--foam); }
+.compare-table .label-col { font-weight: 600; color: var(--ocean-mid); }
+
+/* ── LEVEL TABLE ── */
+.level-table-wrap {
+  margin: 28px 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(11,45,69,.1);
+}
+.level-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 13.5px;
+}
+.level-table th {
+  padding: 13px 14px; text-align: left;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  background: var(--ocean-deep); color: rgba(255,255,255,.75);
+}
+.level-table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid #e8f2f8;
+  color: var(--text-mid);
+  line-height: 1.55;
+  vertical-align: middle;
+}
+.level-table tr:last-child td { border-bottom: none; }
+/* 団体ヘッダー行 */
+.level-table .org-row td {
+  background: var(--ocean-mid);
+  color: white;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 10px 14px;
+  letter-spacing: .03em;
+}
+.level-table .org-row .org-badge {
+  display: inline-block;
+  background: rgba(46,196,182,.25);
+  border: 1px solid rgba(46,196,182,.4);
+  color: var(--teal-light);
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .1em;
+  padding: 2px 8px; border-radius: 20px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+/* レベルセル */
+.level-table .level-name {
+  font-weight: 700;
+  color: var(--ocean-deep);
+  font-size: 13px;
+}
+.level-table .level-sub {
+  display: block;
+  font-size: 11px;
+  color: var(--text-light);
+  margin-top: 2px;
+}
+/* 深度バッジ */
+.depth-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--ocean-light), var(--teal));
+  color: white;
+  font-size: 11px; font-weight: 700;
+  padding: 3px 9px; border-radius: 20px;
+  white-space: nowrap;
+}
+/* 奇数行の背景 */
+.level-table tbody tr:nth-child(4n+1):not(.org-row),
+.level-table tbody tr:nth-child(4n+2):not(.org-row) { background: var(--foam); }
+.level-table tbody tr:nth-child(4n+3):not(.org-row),
+.level-table tbody tr:nth-child(4n+4):not(.org-row) { background: white; }
+
+/* ── TABLE NOTE ── */
+.table-note {
+  font-size: 12px; color: var(--text-light);
+  background: var(--foam);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-top: -12px;
+  margin-bottom: 32px;
+  line-height: 1.8;
+}
+
+/* ── ORG CARDS ── */
+.org-cards { display: flex; flex-direction: column; gap: 16px; margin: 24px 0 32px; }
+.org-card {
+  border: 1.5px solid #ddeef6;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.org-card-header {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--foam);
+  padding: 14px 18px;
+  border-bottom: 1.5px solid #ddeef6;
+}
+.org-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: var(--ocean-deep);
+  color: var(--teal);
+  font-weight: 900; font-size: 12px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; letter-spacing: -.5px;
+}
+.org-card-header .org-name { font-weight: 700; font-size: 15px; color: var(--ocean-deep); }
+.org-card-header .org-tagline { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+.org-card-body { padding: 16px 18px; font-size: 14px; color: var(--text-mid); line-height: 1.8; }
+.org-card-body p { margin-bottom: 0; }
+
+/* ── COST BOX ── */
+.cost-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 20px 0 28px;
+}
+.cost-card {
+  background: var(--foam);
+  border: 1.5px solid #d4e8f0;
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+}
+.cost-label { font-size: 11px; color: var(--text-light); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+.cost-amount { font-size: 20px; font-weight: 800; color: var(--ocean-deep); line-height: 1.2; }
+.cost-sub { font-size: 11px; color: var(--text-light); margin-top: 4px; }
+
+/* ── INFO BOX ── */
+.info-box {
+  background: #fff8f3;
+  border: 1.5px solid #fddcbb;
+  border-radius: 10px;
+  padding: 20px 22px;
+  margin: 32px 0;
+}
+.info-box-title {
+  font-size: 13px; font-weight: 700;
+  color: var(--warm); margin-bottom: 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+.info-box p { font-size: 14px; color: var(--text-mid); margin-bottom: 10px; }
+.info-box p:last-child { margin-bottom: 0; }
+
+/* ── CHOICE GUIDE ── */
+.choice-list { list-style: none; margin: 16px 0 28px; }
+.choice-list li {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 14px 16px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  background: var(--foam);
+  border: 1.5px solid #ddeef6;
+}
+.choice-num {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--teal); color: white;
+  font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+.choice-body { flex: 1; }
+.choice-body .choice-cond { font-size: 14px; color: var(--text-mid); line-height: 1.6; }
+.choice-body .choice-rec { font-size: 13px; color: var(--teal); font-weight: 700; margin-top: 4px; }
+
+/* ── CTA ── */
+.cta-box {
+  background: var(--ocean-deep);
+  border-radius: 14px;
+  padding: 28px 24px;
+  margin: 48px 0 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.cta-box::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(46,196,182,.2) 0%, transparent 60%);
+}
+.cta-box h3 { color: white; font-size: 18px; margin-bottom: 8px; position: relative; }
+.cta-box p { color: rgba(255,255,255,.6); font-size: 14px; margin-bottom: 20px; position: relative; }
+.cta-btn {
+  display: inline-block;
+  background: var(--teal); color: white;
+  padding: 13px 28px; border-radius: 8px;
+  font-size: 15px; font-weight: 700;
+  text-decoration: none;
+  position: relative;
+  transition: background .15s;
+}
+.cta-btn:hover { background: #25a99c; }
+
+/* ── AUTHOR ── */
+.author-box {
+  display: flex; gap: 16px; align-items: flex-start;
+  background: var(--foam);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 48px 0 0;
+}
+.author-icon {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--ocean-mid);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 20px;
+}
+.author-info .name { font-size: 14px; font-weight: 700; color: var(--ocean-deep); margin-bottom: 4px; }
+.author-info .desc { font-size: 13px; color: var(--text-light); line-height: 1.6; }
+
+/* ── TAGS ── */
+.tags { margin: 32px 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.tag {
+  font-size: 12px; color: var(--ocean-light);
+  background: var(--foam);
+  border: 1px solid #d4e8f0;
+  border-radius: 20px;
+  padding: 4px 12px;
+  text-decoration: none;
+  transition: all .15s;
+}
+.tag:hover { background: var(--teal-light); border-color: var(--teal); }
+
+/* ── RELATED ── */
+.related { margin-top: 48px; }
+.related-title {
+  font-size: 13px; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--text-light); margin-bottom: 16px;
+}
+.related-list { display: flex; flex-direction: column; gap: 10px; }
+.related-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px;
+  background: var(--foam);
+  border-radius: 10px;
+  text-decoration: none;
+  border: 1px solid #eef2f6;
+  transition: border-color .15s, background .15s;
+}
+.related-item:hover { border-color: var(--teal); background: white; }
+.related-item .arrow { color: var(--teal); font-size: 16px; margin-left: auto; flex-shrink: 0; }
+.related-item .r-cat { font-size: 10px; color: var(--text-light); margin-bottom: 3px; text-transform: uppercase; letter-spacing: .05em; }
+.related-item .r-title { font-size: 14px; font-weight: 500; color: var(--ocean-deep); line-height: 1.4; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  .hero { padding: 32px 16px 28px; }
+  .article-wrap { padding: 0 16px 60px; }
+  .compare-table, .level-table { font-size: 12px; }
+  .compare-table th, .compare-table td,
+  .level-table th, .level-table td { padding: 10px 10px; }
+  .cost-grid { grid-template-columns: 1fr 1fr; }
+  .site-nav { display: none; }
+}
+
+footer { color: var(--text-light); font-size: 11px; text-align: center; padding: 20px; border-top: 1px solid #eef2f6; margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <a href="/" class="site-logo">
+    <div class="dot"></div>
+    Freediving Japan
+  </a>
+  <nav class="site-nav">
+    <a href="/media/">メディア</a>
+    <a href="/explore/">スクールを探す</a>
+    <a href="/learn/">学ぶ</a>
+  </nav>
+</header>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb">
+  <a href="/">ホーム</a>
+  <span>›</span>
+  <a href="/media/">メディア</a>
+  <span>›</span>
+  フリーダイビングのライセンスとは
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-category">入門・ライセンス</div>
+    <h1>フリーダイビングのライセンスとは？<br>種類・取り方・必要性を徹底解説</h1>
+    <div class="hero-meta">
+      <span class="by">By <strong>Freediving Japan 編集部</strong></span>
+      <span class="date">2026年6月</span>
+      <span class="read-time">約10分で読めます</span>
+    </div>
+  </div>
+</div>
+
+<!-- ARTICLE -->
+<div class="article-wrap">
+
+  <!-- LEAD -->
+  <p class="lead">
+    「フリーダイビングにもライセンスがあるの？」——スキューバのCカードは知っていても、フリーダイビングにも認定資格があることを知らない人は多い。実はフリーダイビングのライセンスは、単なるお墨付きではなく、不安を解消し、自分の限界を知り、安全に水中世界を楽しむための実践的なスキルパッケージだ。この記事では、認定団体の違い、レベル別の取得内容、費用・期間の目安、そして「結局どこで取ればいいのか」に答えていく。
+  </p>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">この記事の内容</div>
+    <ol>
+      <li><a href="#why">ライセンスがなくても潜れる。でも、なぜ取るのか</a></li>
+      <li><a href="#orgs">主な認定団体は4つ</a></li>
+      <li><a href="#table">団体別・レベル早見表</a></li>
+      <li><a href="#detail">各団体の特徴を詳しく</a></li>
+      <li><a href="#cost">費用と期間の目安</a></li>
+      <li><a href="#choose">どの団体を選ぶべきか</a></li>
+    </ol>
+  </div>
+
+  <div class="article-body">
+
+    <!-- SECTION 1 -->
+    <h2 id="why">ライセンスがなくても潜れる。でも、なぜ取るのか</h2>
+
+    <p>まず大前提として、フリーダイビング（息こらえ潜水）そのものに法的な資格要件はない。素潜りは誰でもできる。</p>
+
+    <p>それでも世界中のダイバーがライセンスを取得するのには理由がある。耳抜きを自己流でやり続けることは耳のトラブルの最大要因になるし、ブラックアウト（水中失神）のリスクを知らないまま潜ることは、本当に命に直結する。</p>
+
+    <div class="pullquote">
+      <p>フリーダイビングは「気合と根性」でなんとかなる競技ではない。生理学的な知識もバディシステムもないまま一人で潜ると、本当に簡単に人は死ぬ。</p>
+    </div>
+
+    <p>ブラックアウトは本人に自覚症状がほとんどないまま起こり、水面でも水中でも一瞬で意識を失う。誰かがそばにいて、正しい救助の手順を知っていなければ、それだけで命を落とす。講習では生理学とバディシステムを体系的に学べる——これがライセンスを取る最大の理由だ。</p>
+
+    <p>もう一つ見落とされがちなのが、<strong>インストラクターから直接フィードバックをもらえる価値</strong>だ。耳抜きのコツも、力の抜き方も、フィンキックの効率も、文章や動画だけでは伝わりきらない。「肩に力が入りすぎている」「フィンキックが膝から曲がっている」——こうした的確な指摘は独学では絶対に得られない。ライセンス講習の本当の価値は、紙の認定証ではなくこの「目の前で見てもらえる時間」にある。</p>
+
+    <p>そして実務的な理由として、<strong>多くのダイビングショップやリゾートは一定レベルの認定がないと深く潜らせてくれない</strong>。海外の有名なディーププール施設も同様で、ライセンスの提示がないと利用自体を断られることが珍しくない。タンクを使わない自由な潜水だからこそ、「どこまで潜れる人か」を客観的に示す手段が必要になる。</p>
+
+    <!-- SECTION 2 -->
+    <h2 id="orgs">主な認定団体は4つ</h2>
+
+    <p>フリーダイビングのライセンスを発行している団体は世界に複数あるが、日本でよく見かけるのは<strong>AIDA International・PADI・SSI・Apnea Academy</strong>の4つだ。</p>
+
+    <div class="info-box">
+      <div class="info-box-title">💡 団体選びに優劣はない</div>
+      <p>スキューバダイビングと同じく、指導団体そのものに大きな質の差はないとされている。重要なのは「どの団体か」より「どのインストラクター・ショップか」だ。</p>
+      <p>また、一度ある団体でライセンスを取得しても縛られるわけではない。団体間のクロスオーバー（乗り換え）はいつでも可能で、AIDAで取得した後にApnea Academyで上のレベルを受講する、といった形も珍しくない。<strong>「最初に選んだ団体で一生固定」と気負う必要はまったくない。</strong></p>
+    </div>
+
+    <!-- SECTION 3 -->
+    <h2 id="table">団体別・レベル早見表</h2>
+
+    <p>団体ごとに名称や基準は異なるが、いずれも「初級→中級→上級」の3段階構造を軸にしている。</p>
+
+    <div class="level-table-wrap">
+      <table class="level-table">
+        <thead>
+          <tr>
+            <th style="width:28%">レベル</th>
+            <th style="width:20%">深度の目安</th>
+            <th style="width:30%">プール種目の目安</th>
+            <th style="width:22%">期間目安</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <!-- AIDA -->
+          <tr class="org-row">
+            <td colspan="4">
+              AIDA International
+              <span class="org-badge">世界記録認定機関</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="level-name">AIDA 1</span>
+              <span class="level-sub">入門</span>
+            </td>
+            <td><span class="depth-badge">〜10m</span></td>
+            <td>基礎的な息こらえ、フィンワーク</td>
+            <td>1日</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="level-name">AIDA 2</span>
+              <span class="level-sub">初級</span>
+            </td>
+            <td><span class="depth-badge">16〜20m</span></td>
+            <td>STA 2分 ／ DYN 40m</td>
+            <td>2〜3日</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="level-name">AIDA 3</span>
+              <span class="level-sub">中級</span>
+            </td>
+            <td><span class="depth-badge">24〜30m</span></td>
+            <td>STA 2分45秒 ／ DYN 60m</td>
+            <td>2〜3日</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="level-name">AIDA 4 以上</span>
+              <span class="level-sub">上級〜競技</span>
+            </td>
+            <td><span class="depth-badge">30m〜</span></td>
+            <td>パッキング、アシスタントインストラクター養成</td>
+            <td>数日〜</td>
+          </tr>
+
+          <!-- PADI -->
+          <tr class="org-row">
+            <td colspan="4">
+              PADI
+              <span class="org-badge">世界最大の認定団体</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="level-name">フリーダイバー</span>
+              <span class="level-sub">初級</span>
+            </td>
+            <td><span class="depth-badge">10〜15m</span></td>
+            <td>STA 1分30秒 ／ DYN 25m</td>
+            <td>1〜2日</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="level-name">アドバンスド</span>
+              <span class="level-sub">中級</span>
+            </td>
+            <td><span class="depth-badge">20〜24m</span></td>
+            <td>STA 2分30秒 ／ DYN 50m</td>
+            <td>2〜3日</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="level-name">マスター</span>
+              <span class="level-sub">上級</span>
+            </td>
+            <td><span class="depth-badge">エリート準備</span></td>
+            <td>ライフスタイル・トレーニング調整、CPR必須</td>
+            <td>数日</td>
+          </tr>
+
+          <!-- SSI -->
+          <tr class="org-row">
+            <td colspan="4">
+              SSI
+              <span class="org-badge">世界共通プログラム</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="level-name">レベル1〜</span>
+              <span class="level-sub">初級〜上級</span>
+            </td>
+            <td><span class="depth-badge">段階による</span></td>
+            <td>AIDA・PADIと同様の段階制、世界共通プログラム</td>
+            <td>段階による</td>
+          </tr>
+
+          <!-- Apnea Academy -->
+          <tr class="org-row">
+            <td colspan="4">
+              Apnea Academy
+              <span class="org-badge">ウンベルト・ペリッツァーリ創設</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="level-name">ファーストレベル</span>
+              <span class="level-sub">初級</span>
+            </td>
+            <td><span class="depth-badge">〜10m前後</span></td>
+            <td>DYN 30m ／ DNF 25m ／ STA 1分45秒</td>
+            <td>3日（プール2+海洋1）</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="level-name">セカンドレベル</span>
+              <span class="level-sub">中級</span>
+            </td>
+            <td><span class="depth-badge">より深く</span></td>
+            <td>上級耳抜き、フリーイマージョン</td>
+            <td>2日</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="level-name">サードレベル</span>
+              <span class="level-sub">上級〜競技</span>
+            </td>
+            <td><span class="depth-badge">競技レベル</span></td>
+            <td>競技種目を通じたリラックスの追求、自立した安全管理</td>
+            <td>要相談</td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-note">
+      ※ <strong>STA</strong>：静止した息こらえ（水面）　<strong>DYN</strong>：フィンありの水平潜水　<strong>DNF</strong>：フィンなし水平潜水　<strong>CWT</strong>：垂直潜水（錘あり）<br>
+      数値は各ショップ・講習によって多少前後する。正式な検定基準は受講予定の団体・ショップで必ず確認してほしい。
+    </div>
+
+    <!-- SECTION 4 -->
+    <h2 id="detail">各団体の特徴を詳しく</h2>
+
+    <div class="org-cards">
+
+      <div class="org-card">
+        <div class="org-card-header">
+          <div class="org-icon">AIDA</div>
+          <div>
+            <div class="org-name">AIDA International</div>
+            <div class="org-tagline">競技フリーダイビングの世界基準を作る機関</div>
+          </div>
+        </div>
+        <div class="org-card-body">
+          <p>世界最大のフリーダイビング記録認定機関であり、公式な深度記録や大会のほとんどがAIDAルールに基づいている。「いずれ大会に出たい」「記録を狙いたい」という人はAIDA系列が王道。記録認定の仕組みがそのまま使えるため、競技志向の人には一択に近い選択肢だ。</p>
+        </div>
+      </div>
+
+      <div class="org-card">
+        <div class="org-card-header">
+          <div class="org-icon">PADI</div>
+          <div>
+            <div class="org-name">PADI</div>
+            <div class="org-tagline">スキューバでも世界最大。国際的な知名度の高さが強み</div>
+          </div>
+        </div>
+        <div class="org-card-body">
+          <p>スキューバダイビングで世界最大のシェアを持つ指導団体で、フリーダイビング専用プログラムも展開している。各コースには明確な達成基準があり、STA・DYN・CWT（コンスタント・ウェイト）それぞれにタイムや距離の条件が設定されている。苦手種目だけの再受講で合格することも可能だ。</p>
+        </div>
+      </div>
+
+      <div class="org-card">
+        <div class="org-card-header">
+          <div class="org-icon">SSI</div>
+          <div>
+            <div class="org-name">SSI（Scuba Schools International）</div>
+            <div class="org-tagline">1970年設立。世界共通の段階制プログラム</div>
+          </div>
+        </div>
+        <div class="org-card-body">
+          <p>もともとPADI出身者が立ち上げた団体として知られる。フリーダイビング部門でもAIDAやPADIと同様の段階制プログラムを提供しており、世界中のショップで共通の基準が使われている。</p>
+        </div>
+      </div>
+
+      <div class="org-card">
+        <div class="org-card-header">
+          <div class="org-icon" style="font-size:10px;letter-spacing:-.3px;">AA</div>
+          <div>
+            <div class="org-name">Apnea Academy</div>
+            <div class="org-tagline">ジャック・マイヨールの系譜。指導品質へのこだわり</div>
+          </div>
+        </div>
+        <div class="org-card-body">
+          <p>イタリアに本拠地を置く、ジャック・マイヨールの愛弟子ウンベルト・ペリッツァーリが創設したフリーダイビング専門の教育団体。アジア支部のアプネア・アカデミー・ジャパン（AAJ）はプロフリーダイバー松元恵選手が中心となり、日本含めアジア各国を統括している。<br><br>最大の特徴は<strong>インストラクター・トレーナー制度を持たないこと</strong>。ウンベルトが自ら直接指導し、AAインストラクターとしてふさわしいと認めた者にしか認定を出さない。品質に対するこだわりが強く、ジャック・マイヨールの系譜というブランドとロマンに惹かれる人も多い。</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SECTION 5 -->
+    <h2 id="cost">費用と期間の目安</h2>
+
+    <div class="cost-grid">
+      <div class="cost-card">
+        <div class="cost-label">入門コース（1日）</div>
+        <div class="cost-amount">2.5〜3万円</div>
+        <div class="cost-sub">講習料・教材・認定料込み</div>
+      </div>
+      <div class="cost-card">
+        <div class="cost-label">中級コース（2〜3日）</div>
+        <div class="cost-amount">5〜8万円</div>
+        <div class="cost-sub">AIDA3相当・地域によって変動</div>
+      </div>
+    </div>
+
+    <p>費用はショップや地域によって変動するため、あくまで目安として参照してほしい。体験コースから始めて相性を確かめてから本コースに進む、というルートも一般的だ。</p>
+
+    <!-- SECTION 6 -->
+    <h2 id="choose">どの団体を選ぶべきか</h2>
+
+    <p>迷ったら、次の3つの軸で考えるとシンプルだ。</p>
+
+    <ul class="choice-list">
+      <li>
+        <div class="choice-num">1</div>
+        <div class="choice-body">
+          <div class="choice-cond">将来、大会や公式記録を狙いたい</div>
+          <div class="choice-rec">→ AIDA 一択。記録認定の仕組みがそのまま使える。</div>
+        </div>
+      </li>
+      <li>
+        <div class="choice-num">2</div>
+        <div class="choice-body">
+          <div class="choice-cond">スキューバも含めて世界共通の知名度を重視したい</div>
+          <div class="choice-rec">→ PADI または SSI。海外でも通用する認知度の高さが強み。</div>
+        </div>
+      </li>
+      <li>
+        <div class="choice-num">3</div>
+        <div class="choice-body">
+          <div class="choice-cond">指導の質や専門性、コミュニティの濃さを重視したい</div>
+          <div class="choice-rec">→ Apnea Academy。ジャック・マイヨールの系譜を継ぐウンベルト直系というブランドに惹かれる人も多い。</div>
+        </div>
+      </li>
+    </ul>
+
+    <p>そして最も大事なのは<strong>団体名より「誰に教わるか」</strong>だ。フリーダイビングは耳抜き・力の抜き方・恐怖心のコントロールなど、座学だけでは身につかない感覚的な要素が大きい。体験講習や無料説明会でインストラクターとの相性を確かめてから決めることを強くすすめたい。</p>
+
+  </div><!-- /.article-body -->
+
+  <!-- TAGS -->
+  <div class="tags">
+    <a href="#" class="tag">ライセンス</a>
+    <a href="#" class="tag">AIDA</a>
+    <a href="#" class="tag">PADI</a>
+    <a href="#" class="tag">SSI</a>
+    <a href="#" class="tag">Apnea Academy</a>
+    <a href="#" class="tag">初心者</a>
+    <a href="#" class="tag">認定資格</a>
+    <a href="#" class="tag">始め方</a>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-box">
+    <h3>スクール・インストラクターを探す</h3>
+    <p>全国のフリーダイビングスクール・インストラクターをFreediving Japanで検索できます。</p>
+    <a href="/explore/" class="cta-btn">スクールを探してみる →</a>
+  </div>
+
+  <!-- AUTHOR -->
+  <div class="author-box">
+    <div class="author-icon">🌊</div>
+    <div class="author-info">
+      <div class="name">Freediving Japan 編集部</div>
+      <div class="desc">日本記録保持者・寺島拓哉が設立したフリーダイビングプラットフォーム「Freediving Japan」の編集部。競技者・インストラクター・初心者が使える情報と道具を届けます。</div>
+    </div>
+  </div>
+
+  <!-- RELATED -->
+  <div class="related">
+    <div class="related-title">関連記事</div>
+    <div class="related-list">
+      <a href="/articles/article-what-is-freediving.html" class="related-item">
+        <div>
+          <div class="r-cat">入門・基礎知識</div>
+          <div class="r-title">フリーダイビングとは？スキューバとの違い、始め方まで</div>
+        </div>
+        <span class="arrow">›</span>
+      </a>
+      <a href="#" class="related-item">
+        <div>
+          <div class="r-cat">入門・体験</div>
+          <div class="r-title">「耳抜きができない」を解決する3つのアプローチ</div>
+        </div>
+        <span class="arrow">›</span>
+      </a>
+      <a href="#" class="related-item">
+        <div>
+          <div class="r-cat">人物メディア</div>
+          <div class="r-title">IBM辞めてフリーダイバーになった話——収入・不安・後悔してるか</div>
+        </div>
+        <span class="arrow">›</span>
+      </a>
+    </div>
+  </div>
+
+</div><!-- /.article-wrap -->
+
+<footer>© 2026 Freediving Japan</footer>
+
+</body>
+</html>

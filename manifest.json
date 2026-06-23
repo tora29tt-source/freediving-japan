@@ -1,0 +1,14 @@
+{
+  "name": "Freediving Japan",
+  "short_name": "FJ Timer",
+  "description": "フリーダイビング トレーニングツール",
+  "start_url": "/tools/sta-timer.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#04161f",
+  "theme_color": "#04161f",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
