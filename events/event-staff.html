@@ -2275,6 +2275,7 @@ function switchTab(tab) {
     document.getElementById('panel-' + p).classList.toggle('active', p === tab);
   });
   if (tab === 'results') jrRender();
+  if (tab === 'startlist') initSlDayTabs();
 }
 
 function initPage() {
