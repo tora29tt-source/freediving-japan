@@ -2,7 +2,9 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Staff Portal | Freediving Japan</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../js/supabase-config.js"></script>
@@ -13,20 +15,21 @@
   --border:rgba(168,236,232,0.14); --teal:#2ec4b6; --teal2:#a8ece8; --teal-light:#a8ece8;
   --text:rgba(255,255,255,0.92); --muted:rgba(255,255,255,0.38); --sub:rgba(255,255,255,0.60);
   --warn:#f59e0b; --danger:#ef4444; --success:#22c55e; --r:14px; --rs:9px;
+  --safe-top:env(safe-area-inset-top,0px); --safe-bot:env(safe-area-inset-bottom,0px);
 }
-*{box-sizing:border-box;margin:0;padding:0;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 body{
   font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;
   background:linear-gradient(180deg,#0e3d5c 0%,#0b2d45 22%,#06283a 55%,#04161f 100%);
   background-attachment:fixed;
   color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;
-  padding-bottom:40px;
+  padding-bottom:calc(40px + var(--safe-bot));
 }
 .header{
   background:rgba(6,32,46,0.7);
   backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
   border-bottom:1px solid var(--border);
-  padding:0 20px;height:52px;
+  padding:var(--safe-top) 20px 0;height:calc(52px + var(--safe-top));
   display:flex;align-items:center;justify-content:space-between;
   position:sticky;top:0;z-index:100;
 }
@@ -50,8 +53,8 @@ body{
 .stat-pill{background:rgba(12,39,56,0.6);border:1px solid var(--border);border-radius:var(--rs);padding:12px 8px;text-align:center;border-top:2px solid rgba(46,196,182,0.4);}
 .stat-pill-val{font-size:22px;font-weight:800;color:var(--teal2);}
 .stat-pill-lbl{font-size:10px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:0.04em;}
-.tabs{display:flex;background:rgba(12,39,56,0.8);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--border);overflow-x:auto;position:sticky;top:52px;z-index:90;}
-.tabs.subtabs{top:98px;background:rgba(8,28,42,0.85);z-index:89;}
+.tabs{display:flex;background:rgba(12,39,56,0.8);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--border);overflow-x:auto;position:sticky;top:calc(52px + var(--safe-top));z-index:90;}
+.tabs.subtabs{top:calc(98px + var(--safe-top));background:rgba(8,28,42,0.85);z-index:89;}
 .tabs.subtabs .tab{font-size:11px;padding:9px 16px;color:var(--muted);}
 .tabs.subtabs .tab.active{color:var(--teal2);border-bottom-color:var(--teal2);}
 .tab{flex-shrink:0;padding:13px 18px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap;-webkit-tap-highlight-color:transparent;letter-spacing:0.04em;}
@@ -306,6 +309,38 @@ body.role-staff .role-judge-edit{pointer-events:none;opacity:0.45;cursor:not-all
 body.role-readonly .role-judge-edit{pointer-events:none;opacity:0.45;cursor:not-allowed;}
 .role-banner{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.22);border-radius:var(--rs);padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;color:var(--warn);}
 .role-banner-text{flex:1;}
+/* ===== filter-chip（Resultsタブ用） ===== */
+.filter-chip{flex-shrink:0;padding:5px 12px;border-radius:100px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--sub);transition:all 0.15s;-webkit-tap-highlight-color:transparent;}
+.filter-chip.active{background:rgba(46,196,182,0.12);border-color:var(--teal);color:var(--teal2);}
+/* ===== スクロール可能テーブルラッパー ===== */
+.scroll-x{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.scroll-x-inner{min-width:max-content;}
+/* ===== iPhone / モバイル対応 ===== */
+@media (max-width:640px){
+  /* event hero */
+  .event-name{font-size:17px;}
+  .stat-pill-val{font-size:18px;}
+  /* tab label を小さく */
+  .tab{padding:11px 12px;font-size:11px;}
+  /* モーダル → ボトムシート */
+  .modal-backdrop{padding:0;align-items:flex-end;}
+  .modal-box{border-radius:16px 16px 0 0;max-height:90vh;width:100%;max-width:100%;}
+  /* フォームグリッド → 1カラム */
+  .form-2col{grid-template-columns:1fr;}
+  .form-3col{grid-template-columns:1fr 1fr;}
+  /* judge モーダル (jm-sheet) の入力しやすさ */
+  .jm-dq-grid{grid-template-columns:1fr;}
+  .jm-dq-btn[data-code="DQOTHER"]{grid-column:span 1;}
+  /* SP timer */
+  .sp-clock{font-size:44px;}
+  /* カード picker */
+  .jm-card-btn{padding:9px 4px;font-size:11px;}
+  .jm-card-btn span{font-size:18px;}
+  /* btn-group */
+  .card-header{flex-wrap:wrap;gap:6px;}
+  /* AP list: dt列を省略 */
+  .ap-col-dt{display:none;}
+}
 </style>
 </head>
 <body>
@@ -479,14 +514,18 @@ body.role-readonly .role-judge-edit{pointer-events:none;opacity:0.45;cursor:not-
       </div>
       <div style="padding:10px 16px 4px;font-size:11px;color:var(--muted);">大会の開催日から逆算して実際の日付を自動計算します。</div>
       <div style="padding:8px 16px;">
-        <div style="display:grid;grid-template-columns:100px 80px 1fr 100px 32px;gap:6px;margin-bottom:6px;padding:0 2px;">
-          <span style="font-size:10px;color:var(--muted);">実際の日付</span>
-          <span style="font-size:10px;color:var(--muted);">何日前</span>
-          <span style="font-size:10px;color:var(--muted);">タスク</span>
-          <span style="font-size:10px;color:var(--muted);">担当</span>
-          <span></span>
+        <div class="scroll-x">
+          <div class="scroll-x-inner" style="padding:0 2px;">
+            <div style="display:grid;grid-template-columns:100px 80px 1fr 100px 32px;gap:6px;margin-bottom:6px;">
+              <span style="font-size:10px;color:var(--muted);">実際の日付</span>
+              <span style="font-size:10px;color:var(--muted);">何日前</span>
+              <span style="font-size:10px;color:var(--muted);">タスク</span>
+              <span style="font-size:10px;color:var(--muted);">担当</span>
+              <span></span>
+            </div>
+            <div id="milestoneRows"></div>
+          </div>
         </div>
-        <div id="milestoneRows"></div>
         <button class="role-org-only" style="width:100%;margin-top:8px;padding:7px;background:none;border:1px dashed var(--border);border-radius:6px;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit;" onclick="addMilestoneRow()">＋ 追加</button>
       </div>
       <div style="padding:0 16px 16px;">
@@ -501,13 +540,17 @@ body.role-readonly .role-judge-edit{pointer-events:none;opacity:0.45;cursor:not-
         <button class="btn btn-primary btn-sm role-org-only" onclick="addScheduleRow()">＋ 追加</button>
       </div>
       <div style="padding:8px 16px;">
-        <div style="display:grid;grid-template-columns:90px 1fr 120px 32px;gap:6px;margin-bottom:6px;padding:0 2px;">
-          <span style="font-size:10px;color:var(--muted);">時刻</span>
-          <span style="font-size:10px;color:var(--muted);">内容</span>
-          <span style="font-size:10px;color:var(--muted);">担当</span>
-          <span></span>
+        <div class="scroll-x">
+          <div class="scroll-x-inner" style="padding:0 2px;">
+            <div style="display:grid;grid-template-columns:90px 1fr 120px 32px;gap:6px;margin-bottom:6px;">
+              <span style="font-size:10px;color:var(--muted);">時刻</span>
+              <span style="font-size:10px;color:var(--muted);">内容</span>
+              <span style="font-size:10px;color:var(--muted);">担当</span>
+              <span></span>
+            </div>
+            <div id="scheduleRows"></div>
+          </div>
         </div>
-        <div id="scheduleRows"></div>
         <button class="role-org-only" style="width:100%;margin-top:8px;padding:7px;background:none;border:1px dashed var(--border);border-radius:6px;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit;" onclick="addScheduleRow()">＋ 追加</button>
       </div>
       <div style="padding:0 16px 16px;">
@@ -828,11 +871,11 @@ body.role-readonly .role-judge-edit{pointer-events:none;opacity:0.45;cursor:not-
       <button class="modal-close" onclick="closeEntryModal()">✕</button>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px;">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="form-2col">
         <div><div class="fld-label">選手名 *</div><input class="fi" id="em-name" placeholder="氏名（フルネーム）"></div>
         <div><div class="fld-label">Email</div><input class="fi" id="em-email" type="email" placeholder="example@email.com"></div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+      <div class="form-3col">
         <div><div class="fld-label">国籍</div><input class="fi" id="em-nat" value="JPN" placeholder="JPN"></div>
         <div><div class="fld-label">性別</div>
           <select class="fi" id="em-gender"><option value="Male">Male</option><option value="Female">Female</option></select>
@@ -840,7 +883,7 @@ body.role-readonly .role-judge-edit{pointer-events:none;opacity:0.45;cursor:not-
         <div><div class="fld-label">生年月日</div><input class="fi" id="em-dob" type="date"></div>
       </div>
       <div><div class="fld-label">緊急連絡先（氏名・電話番号）</div><input class="fi" id="em-emergency" placeholder="例：田中太郎 090-1234-5678"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+      <div class="form-3col">
         <div><div class="fld-label">種目</div>
           <select class="fi" id="em-disc">
             <option>CWT</option><option>CWTB</option><option>CNF</option><option>FIM</option>
@@ -855,7 +898,7 @@ body.role-readonly .role-judge-edit{pointer-events:none;opacity:0.45;cursor:not-
         <div class="fld-label" style="margin-bottom:6px;">参加日</div>
         <div id="em-days" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="form-2col">
         <div><div class="fld-label">支払状況</div>
           <select class="fi" id="em-payment">
             <option value="unpaid">未払い</option>
@@ -884,11 +927,11 @@ body.role-readonly .role-judge-edit{pointer-events:none;opacity:0.45;cursor:not-
       <button class="modal-close" onclick="closeStaffModal()">✕</button>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px;">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="form-2col">
         <div><div class="fld-label">氏名 *</div><input class="fi" id="sm-name" placeholder="氏名"></div>
         <div><div class="fld-label">Email</div><input class="fi" id="sm-email" type="email" placeholder="example@email.com"></div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+      <div class="form-3col">
         <div><div class="fld-label">役割</div>
           <select class="fi" id="sm-role">
             <option>Chief Judge</option><option>Judge</option><option>Safety Diver</option><option>Medic</option>
@@ -914,7 +957,7 @@ body.role-readonly .role-judge-edit{pointer-events:none;opacity:0.45;cursor:not-
           <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;"><input type="checkbox" value="潜水士">潜水士</label>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="form-2col">
         <div><div class="fld-label">英語レベル</div>
           <select class="fi" id="sm-english">
             <option value="">-</option>
@@ -929,7 +972,7 @@ body.role-readonly .role-judge-edit{pointer-events:none;opacity:0.45;cursor:not-
         <input type="checkbox" id="sm-safety" style="width:16px;height:16px;cursor:pointer;">
         <label for="sm-safety" style="font-size:13px;cursor:pointer;">セーフティコース受講済み</label>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="form-2col">
         <div><div class="fld-label">備考</div><input class="fi" id="sm-note" placeholder="担当エリアなど"></div>
         <div><div class="fld-label">このサイトの権限</div>
           <select class="fi" id="sm-site-role">
@@ -977,7 +1020,7 @@ body.role-readonly .role-judge-edit{pointer-events:none;opacity:0.45;cursor:not-
     <div style="margin-bottom:14px;">
       <div class="fld-label" style="margin-bottom:6px;">Event Info</div>
       <input class="fi" id="export-event-name" style="margin-bottom:6px;font-size:14px;font-weight:700;" placeholder="Event name">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+      <div class="form-2col" style="gap:6px;">
         <input class="fi" id="export-event-date" placeholder="Date" style="font-size:13px;">
         <input class="fi" id="export-event-location" placeholder="Location" style="font-size:13px;">
       </div>
