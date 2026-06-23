@@ -1315,6 +1315,8 @@ async function loadEventFromUrl() {
   _eventDateStr  = ev.date || '';
   _eventDateStart = ev.date || null;
   _eventDateEnd   = ev.date_end || ev.date || null;
+  // 日付確定後すぐにメインタブのDay ボタンを生成
+  if (typeof initDayTabs === 'function') initDayTabs();
 }
 
 var _eventLocation = '';
@@ -2277,13 +2279,75 @@ var defaultRules = [
 
 var apData = [];
 
+// 現在選択中の Day 番号とサブタブ
+var _currentDayNum = 1;
+var _currentDaySubTab = 'ap';
+
 function switchTab(tab) {
-  ['overview','staff','schedule','ap','startlist','results','protests','sponsors'].forEach(function(p) {
-    document.getElementById('tab-' + p).classList.toggle('active', p === tab);
-    document.getElementById('panel-' + p).classList.toggle('active', p === tab);
+  // メインタブの active 切り替え（overview/staff/schedule/sponsors のみ持つ tab-xxx 要素）
+  ['overview','staff','schedule','sponsors'].forEach(function(p) {
+    var el = document.getElementById('tab-' + p);
+    if (el) el.classList.toggle('active', p === tab);
+    var pe = document.getElementById('panel-' + p);
+    if (pe) pe.classList.toggle('active', p === tab);
   });
-  if (tab === 'results') jrRender();
-  if (tab === 'startlist') initSlDayTabs();
+  // Day タブの active 解除
+  document.querySelectorAll('#dayTabsContainer .tab').forEach(function(el) {
+    el.classList.remove('active');
+  });
+  // Day以外のパネル（ap/startlist/results/protests）を隠す
+  ['ap','startlist','results','protests'].forEach(function(p) {
+    var pe = document.getElementById('panel-' + p);
+    if (pe) pe.classList.remove('active');
+  });
+  // サブタブ行を隠す
+  var subRow = document.getElementById('daySubTabRow');
+  if (subRow) subRow.style.display = 'none';
+}
+
+function switchDayTab(dayNum) {
+  _currentDayNum = dayNum;
+  // メインタブ全解除
+  ['overview','staff','schedule','sponsors'].forEach(function(p) {
+    var el = document.getElementById('tab-' + p);
+    if (el) el.classList.remove('active');
+    var pe = document.getElementById('panel-' + p);
+    if (pe) pe.classList.remove('active');
+  });
+  // Day タブの active
+  document.querySelectorAll('#dayTabsContainer .tab').forEach(function(el) {
+    el.classList.remove('active');
+  });
+  var dayBtn = document.getElementById('tab-day-' + dayNum);
+  if (dayBtn) dayBtn.classList.add('active');
+  // サブタブ行を表示
+  var subRow = document.getElementById('daySubTabRow');
+  if (subRow) subRow.style.display = 'flex';
+  // 現在のサブタブを表示
+  switchDaySubTab(_currentDaySubTab);
+}
+
+function switchDaySubTab(subTab) {
+  _currentDaySubTab = subTab;
+  // サブタブボタンの active
+  ['ap','startlist','results','protests'].forEach(function(p) {
+    var el = document.getElementById('sub-tab-' + p);
+    if (el) el.classList.toggle('active', p === subTab);
+    var pe = document.getElementById('panel-' + p);
+    if (pe) pe.classList.toggle('active', p === subTab);
+  });
+  // Day フィルタを各機能に伝える
+  if (subTab === 'ap') {
+    _apFilterDay = _currentDayNum;
+    renderAPList();
+  }
+  if (subTab === 'startlist') {
+    _slSelectedDay = _currentDayNum;
+    initSlDayTabs();
+  }
+  if (subTab === 'results') {
+    jrRender();
+  }
 }
 
 function initPage() {
@@ -2507,7 +2571,8 @@ function loadAPList() {
       });
       renderAPList();
       jrLoadResults();
-      initSlDayTabs();
+      initDayTabs();   // メインタブの Day ボタン生成
+      initSlDayTabs(); // Start List 内の Day タブ
       // Entries stat 更新
       var entriesEl = document.getElementById('ev-stat-entries');
       if (entriesEl) entriesEl.textContent = apData.length;
@@ -2583,7 +2648,8 @@ function renderAPList() {
   var dayOpts = compDays.map(function(d, i) {
     return '<option value="'+(i+1)+'">Day '+(i+1)+(_eventDateStart?' ('+fmtDay(d)+')':'')+'</option>';
   }).join('');
-  var rows = apData.map(function(a, i) {
+  var filteredAP = (_apFilterDay != null) ? apData.filter(function(a){ return (a.day||1) === _apFilterDay; }) : apData;
+  var rows = filteredAP.map(function(a, i) {
     var selDay = compDays.map(function(d, idx) {
       var v = idx+1;
       return '<option value="'+v+'"'+(a.day===v?' selected':'')+'>Day '+v+(_eventDateStart?' ('+fmtDay(d)+')':'')+'</option>';
@@ -2970,7 +3036,21 @@ async function selectSafetyOption(entryId, date, position, safetyName) {
 }
 
 // =============================================
+// メインタブの Day タブ生成
+function initDayTabs() {
+  var container = document.getElementById('dayTabsContainer');
+  if (!container) return;
+  var days = getCompetitionDays();
+  container.innerHTML = days.map(function(d, i) {
+    var v = i + 1;
+    var label = 'Day ' + v + (_eventDateStart ? ' (' + fmtDay(d) + ')' : '');
+    return '<div class="tab" id="tab-day-' + v + '" onclick="switchDayTab(' + v + ')">' + label + '</div>';
+  }).join('');
+}
+
+// =============================================
 var _slSelectedDay = 1;
+var _apFilterDay = null; // null = 全表示
 
 function initSlDayTabs() {
   var el = document.getElementById('slDayTabs'); if (!el) return;
@@ -3107,12 +3187,15 @@ function jrSetFilter(mode, el) {
 function jrRender() {
   var el = document.getElementById('resultInputList');
   if (!el) return;
-  var list = apData;
-  if (jrFilter==='pending') list = apData.filter(function(a){ return !jrResults[a.id]; });
-  if (jrFilter==='done')    list = apData.filter(function(a){ return !!jrResults[a.id]; });
-  var done = apData.filter(function(a){ return !!jrResults[a.id]; }).length;
+  var dayData = (_currentDayNum && typeof _currentDayNum === 'number')
+    ? apData.filter(function(a){ return (a.day||1) === _currentDayNum; })
+    : apData;
+  var list = dayData;
+  if (jrFilter==='pending') list = dayData.filter(function(a){ return !jrResults[a.id]; });
+  if (jrFilter==='done')    list = dayData.filter(function(a){ return !!jrResults[a.id]; });
+  var done = dayData.filter(function(a){ return !!jrResults[a.id]; }).length;
   var prog = document.getElementById('jr-progress');
-  if (prog) prog.textContent = done+'/'+apData.length;
+  if (prog) prog.textContent = done+'/'+dayData.length;
   if (!list.length) { el.innerHTML='<div class="empty-state"><div class="empty-icon">✅</div>該当選手なし</div>'; jrRenderRankings(); return; }
   el.innerHTML = list.map(function(a) {
     var r = jrResults[a.id];
