@@ -1473,7 +1473,14 @@ function getDatesInRange(startStr, endStr) {
 function renderDayLabelList() {
   var dl = document.getElementById('day-label-list');
   if (!dl) return;
-  var n = getCompetitionDays().length || 4;
+  // _eventDateStart が未セットの場合はフォーム入力値から計算
+  var startStr = _eventDateStart || (document.getElementById('ov-date') ? document.getElementById('ov-date').value : '');
+  var endStr   = _eventDateEnd   || (document.getElementById('ov-date-end') ? document.getElementById('ov-date-end').value : startStr);
+  var n = 4;
+  if (startStr) {
+    var ds = getDatesInRange(startStr, endStr || startStr);
+    n = ds.length || 4;
+  }
   var fixed = ['設営日','開会式','レスト日','閉会式'];
   var trainings = Array.from({length: n}, function(_, i){ return 'Official Training Day ' + (i+1); });
   var compDays  = Array.from({length: n}, function(_, i){ return 'Competition Day ' + (i+1); });
