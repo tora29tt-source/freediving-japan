@@ -1367,7 +1367,11 @@ function getCompetitionDays() {
   var days = [], d = new Date(_eventDateStart + 'T00:00:00');
   var end = _eventDateEnd ? new Date(_eventDateEnd + 'T00:00:00') : d;
   while (d <= end) {
-    days.push(d.toISOString().slice(0,10));
+    // toISOString() はUTC変換でズレるため、ローカル日付で組む
+    var y = d.getFullYear();
+    var mo = String(d.getMonth()+1).padStart(2,'0');
+    var da = String(d.getDate()).padStart(2,'0');
+    days.push(y + '-' + mo + '-' + da);
     d.setDate(d.getDate() + 1);
   }
   return days;
@@ -1522,11 +1526,15 @@ function saveDayLabels(callback) {
     return { event_id: _currentEventId, type: 'day_label', time_label: d, content: _dayLabels[d], sort_order: idx };
   });
   _sb.from('event_schedule').delete().eq('event_id', _currentEventId).eq('type', 'day_label')
-    .then(function() {
-      if (!inserts.length) { if (callback) callback(); return; }
+    .then(function(delRes) {
+      if (delRes && delRes.error) {
+        showToast('日程ラベル削除失敗: ' + delRes.error.message, 'error');
+        if (callback) callback(); return;
+      }
+      if (!inserts.length) { if (typeof initDayTabs==='function') initDayTabs(); if (callback) callback(); return; }
       _sb.from('event_schedule').insert(inserts).then(function(res) {
-        if (res.error) { alert('日程ラベル保存失敗: ' + res.error.message); }
-        if (typeof initDayTabs === 'function') initDayTabs(); // タブラベルを同期
+        if (res.error) { showToast('日程ラベル保存失敗: ' + res.error.message, 'error'); }
+        else { if (typeof initDayTabs === 'function') initDayTabs(); }
         if (callback) callback();
       });
     });
