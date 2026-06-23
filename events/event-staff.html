@@ -370,17 +370,8 @@ body.role-readonly .role-judge-edit{pointer-events:none;opacity:0.45;cursor:not-
         </div>
 
         <!-- 日程ラベル -->
-        <datalist id="day-label-list">
-          <option value="設営日"></option>
-          <option value="開会式"></option>
-          <option value="公式練習"></option>
-          <option value="競技日1"></option>
-          <option value="競技日2"></option>
-          <option value="競技日3"></option>
-          <option value="競技日4"></option>
-          <option value="レスト日"></option>
-          <option value="閉会式"></option>
-        </datalist>
+        <!-- datalist は renderDayLabelList() で動的生成 -->
+        <datalist id="day-label-list"></datalist>
         <div id="day-labels-wrap" style="display:none;">
           <div class="fld-label" style="margin-bottom:8px;">日程ラベル <span style="font-size:10px;color:var(--muted);">（各日の種別）</span></div>
           <div id="day-labels-rows" style="display:flex;flex-direction:column;gap:6px;"></div>
@@ -1432,6 +1423,17 @@ function getDatesInRange(startStr, endStr) {
   return dates;
 }
 
+function renderDayLabelList() {
+  var dl = document.getElementById('day-label-list');
+  if (!dl) return;
+  var n = getCompetitionDays().length || 4;
+  var fixed = ['設営日','開会式','レスト日','閉会式'];
+  var trainings = Array.from({length: n}, function(_, i){ return 'Official Training Day ' + (i+1); });
+  var compDays  = Array.from({length: n}, function(_, i){ return 'Competition Day ' + (i+1); });
+  var all = fixed.slice(0,2).concat(trainings).concat(compDays).concat(fixed.slice(2));
+  dl.innerHTML = all.map(function(v){ return '<option value="'+v+'"></option>'; }).join('');
+}
+
 function renderDayLabelRows() {
   var g = function(i){ return document.getElementById(i); };
   var startStr = g('ov-date') ? g('ov-date').value : '';
@@ -1442,6 +1444,7 @@ function renderDayLabelRows() {
   if (!startStr) { wrap.style.display = 'none'; return; }
   if (!endStr) endStr = startStr;
   var dates = getDatesInRange(startStr, endStr);
+  renderDayLabelList(); // datalist を日数に合わせて再生成
   var weekDays = ['日','月','火','水','木','金','土'];
   wrap.style.display = '';
   rowsEl.innerHTML = dates.map(function(d) {
