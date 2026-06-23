@@ -371,13 +371,15 @@ body.role-readonly .role-judge-edit{pointer-events:none;opacity:0.45;cursor:not-
 
         <!-- 日程ラベル -->
         <datalist id="day-label-list">
-          <option value="準備日"></option><option value="設営日"></option>
-          <option value="開会式"></option><option value="閉会式"></option>
-          <option value="1日目"></option><option value="2日目"></option>
-          <option value="3日目"></option><option value="4日目"></option>
-          <option value="5日目"></option><option value="レスト日"></option>
-          <option value="競技日1"></option><option value="競技日2"></option>
+          <option value="設営日"></option>
+          <option value="開会式"></option>
+          <option value="公式練習"></option>
+          <option value="競技日1"></option>
+          <option value="競技日2"></option>
           <option value="競技日3"></option>
+          <option value="競技日4"></option>
+          <option value="レスト日"></option>
+          <option value="閉会式"></option>
         </datalist>
         <div id="day-labels-wrap" style="display:none;">
           <div class="fld-label" style="margin-bottom:8px;">日程ラベル <span style="font-size:10px;color:var(--muted);">（各日の種別）</span></div>
@@ -1460,6 +1462,7 @@ function loadDayLabels() {
       _dayLabels = {};
       (res.data || []).forEach(function(r) { if (r.time_label) _dayLabels[r.time_label] = r.content || ''; });
       renderDayLabelRows();
+      if (typeof initDayTabs === 'function') initDayTabs(); // タブラベルをロード後に同期
     });
 }
 
@@ -1477,6 +1480,7 @@ function saveDayLabels(callback) {
       if (!inserts.length) { if (callback) callback(); return; }
       _sb.from('event_schedule').insert(inserts).then(function(res) {
         if (res.error) { alert('日程ラベル保存失敗: ' + res.error.message); }
+        if (typeof initDayTabs === 'function') initDayTabs(); // タブラベルを同期
         if (callback) callback();
       });
     });
@@ -3041,9 +3045,13 @@ function initDayTabs() {
   var container = document.getElementById('dayTabsContainer');
   if (!container) return;
   var days = getCompetitionDays();
+  if (!days.length) return;
   container.innerHTML = days.map(function(d, i) {
     var v = i + 1;
-    var label = 'Day ' + v + (_eventDateStart ? ' (' + fmtDay(d) + ')' : '');
+    // _dayLabels があればラベルを使う（例: "競技日1", "開会式"）
+    var customLabel = (_dayLabels && _dayLabels[d]) ? _dayLabels[d] : null;
+    var dateStr = fmtDay(d); // "9/17"
+    var label = customLabel ? dateStr + ' ' + customLabel : 'Day ' + v + ' (' + dateStr + ')';
     return '<div class="tab" id="tab-day-' + v + '" onclick="switchDayTab(' + v + ')">' + label + '</div>';
   }).join('');
 }
