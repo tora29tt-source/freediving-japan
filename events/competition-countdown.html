@@ -6,6 +6,7 @@
 <title>Competition Countdown — Freediving Japan</title>
 <style>
 :root {
+  --ocean-deep: #0b2d45; --ocean-mid: #0e3d5c; --ocean-light: #1a5f82;
   --bg:       #04161f;
   --surface:  #0c2738;
   --surface2: #123146;
@@ -18,22 +19,28 @@
   --warn:     #f59e0b;
   --danger:   #ef4444;
   --success:  #22c55e;
-  --r: 12px;
+  --r: 14px; --rs: 9px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif;
-  background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  background: linear-gradient(180deg, #0e3d5c 0%, #0b2d45 22%, #06283a 55%, #04161f 100%);
+  background-attachment: fixed;
+  color: var(--text);
   min-height: 100vh; -webkit-font-smoothing: antialiased;
+  padding-bottom: 40px;
 }
 
 /* HEADER */
 .header {
-  background: rgba(6,32,46,0.9); border-bottom: 1px solid var(--border);
+  background: rgba(6,32,46,0.7);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
   padding: 0 20px; height: 52px;
   display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
 }
-.logo { font-size: 14px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;   text-decoration: none;
+.logo { font-size: 14px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; color: var(--text);
 }
 .logo span { color: var(--teal); }
 .header-right { display: flex; align-items: center; gap: 14px; }
@@ -97,23 +104,23 @@ body {
   color: var(--muted); font-size: 20px; cursor: pointer;
 }
 .modal-foot { display: flex; gap: 8px; margin-top: 20px; }
-.btn-modal-primary { flex:1; padding:10px; background:var(--teal); color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
-.btn-modal-cancel  { padding:10px 16px; background:var(--surface2); color:var(--sub); border:1px solid var(--border); border-radius:8px; font-size:14px; cursor:pointer; font-family:inherit; }
+.btn-modal-primary { flex:1; padding:10px; background:var(--teal); color:#fff; border:none; border-radius:var(--rs); font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
+.btn-modal-cancel  { padding:10px 16px; background:var(--surface2); color:var(--sub); border:1px solid var(--border); border-radius:var(--rs); font-size:14px; cursor:pointer; font-family:inherit; }
 
 /* INTERVAL RULES */
 .rule-row { display:grid; grid-template-columns:1fr 1fr 30px; gap:8px; margin-bottom:8px; align-items:center; }
 .rule-label { font-size:11px; color:var(--muted); margin-bottom:4px; }
 .fi {
   background:var(--surface2); border:1px solid var(--border);
-  border-radius:6px; color:var(--text); padding:7px 10px;
-  font-size:13px; font-family:inherit; width:100%;
+  border-radius:var(--rs); color:var(--text); padding:7px 10px;
+  font-size:13px; font-family:inherit; width:100%; -webkit-appearance:none;
 }
 .fi:focus { outline:none; border-color:var(--teal); }
 select.fi { cursor:pointer; }
 select.fi option { background:var(--surface2); color:var(--text); }
 .time-select-wrap { display:flex; gap:3px; align-items:center; }
 .time-sep { font-size:14px; color:var(--muted); font-weight:700; }
-.time-select { background:var(--surface2); border:1px solid var(--border); border-radius:6px; color:var(--text); padding:7px 4px; font-size:13px; font-family:inherit; text-align:center; cursor:pointer; flex:1; }
+.time-select { background:var(--surface2); border:1px solid var(--border); border-radius:var(--rs); color:var(--text); padding:7px 4px; font-size:13px; font-family:inherit; text-align:center; cursor:pointer; flex:1; -webkit-appearance:none; }
 .time-select:focus { outline:none; border-color:var(--teal); }
 .fi::placeholder { color:var(--muted); }
 .del-rule-btn { background:none; border:none; color:var(--muted); cursor:pointer; font-size:18px; padding:0; }
@@ -142,7 +149,7 @@ select.fi option { background:var(--surface2); color:var(--text); }
 .main { display:grid; grid-template-columns:1fr 340px; min-height:calc(100vh - 52px); }
 
 /* STAGE */
-.stage { padding:28px 24px; display:flex; flex-direction:column; gap:18px; border-right:1px solid var(--border); }
+.stage { padding:28px 24px; display:flex; flex-direction:column; gap:18px; border-right:1px solid var(--border); background:rgba(4,22,31,0.3); }
 .clock-wrap { text-align:center; padding:20px 0; }
 .realtime-clock {
   font-size:48px; font-weight:800; letter-spacing:-1px;
@@ -242,10 +249,10 @@ select.fi option { background:var(--surface2); color:var(--text); }
 .dive-timer.ht { color:var(--warn); text-shadow:0 0 20px rgba(245,158,11,0.5); }
 
 /* SIDEBAR */
-.sidebar { display:flex; flex-direction:column; background:var(--surface); }
+.sidebar { display:flex; flex-direction:column; background:rgba(12,39,56,0.85); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
 .sidebar-head { padding:14px 18px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:8px; }
 .sidebar-title { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--sub); flex-shrink:0; }
-.import-btn { padding:5px 10px; border-radius:6px; background:var(--teal); color:#fff; border:none; font-size:11px; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap; }
+.import-btn { padding:5px 10px; border-radius:var(--rs); background:var(--teal); color:#fff; border:none; font-size:11px; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap; }
 
 .drop-zone { margin:12px; border:1.5px dashed var(--border); border-radius:var(--r); padding:18px; text-align:center; cursor:pointer; transition:all 0.2s; font-size:12px; color:var(--muted); }
 .drop-zone:hover,.drop-zone.over { border-color:var(--teal); color:var(--teal2); }
@@ -256,7 +263,7 @@ select.fi option { background:var(--surface2); color:var(--text); }
 .setup-link { font-size:11px; color:var(--teal); cursor:pointer; font-weight:600; }
 .first-ot-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px; }
 .fld-label { font-size:10px; color:var(--muted); margin-bottom:4px; }
-.gen-btn { width:100%; padding:8px; background:var(--teal); color:#fff; border:none; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
+.gen-btn { width:100%; padding:8px; background:var(--teal); color:#fff; border:none; border-radius:var(--rs); font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
 .gen-btn:hover { background:var(--teal2); color:#0b2d45; }
 
 /* ATHLETE LIST */
@@ -282,7 +289,7 @@ select.fi option { background:var(--surface2); color:var(--text); }
 .manual-row-sublabel { font-size:10px; color:var(--sub); margin-bottom:4px; letter-spacing:0.03em; font-weight:600; }
 .add-row-btn { width:100%; padding:6px; background:none; border:1px dashed var(--border); border-radius:6px; color:var(--muted); font-size:12px; cursor:pointer; font-family:inherit; margin-top:2px; }
 .add-row-btn:hover { border-color:var(--teal); color:var(--teal2); }
-.load-btn { width:100%; padding:9px; margin-top:8px; background:var(--teal); color:#fff; border:none; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
+.load-btn { width:100%; padding:9px; margin-top:8px; background:var(--teal); color:#fff; border:none; border-radius:var(--rs); font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
 
 @media(max-width:768px){
   .main{grid-template-columns:1fr;}
