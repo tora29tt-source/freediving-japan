@@ -2252,13 +2252,13 @@ function switchTab(tab) {
 }
 
 function initPage() {
-  loadAPList();
+  initOverview();      // ← _currentEventId をここで同期セット
+  loadAPList();        // ← セット後に呼ぶ
   initRuleSelects();
   initOTSelects();
   initResultInputList();
   initRankRows();
   initBannerLayout();
-  initOverview();
   initStaffList();
   initSchedule();
 }
