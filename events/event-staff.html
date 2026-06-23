@@ -563,6 +563,10 @@ body.role-readonly .role-judge-edit{pointer-events:none;opacity:0.45;cursor:not-
             <select class="time-sel" id="firstOT-m"></select>
           </div>
         </div>
+        <div style="margin-top:14px;">
+          <div class="fld-label">競技日</div>
+          <div id="slDayTabs" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;"></div>
+        </div>
         <button class="btn btn-primary btn-full" style="margin-top:14px;" onclick="generateStartList()">Generate Start List</button>
       </div>
     </div>
@@ -1271,6 +1275,7 @@ async function loadEventFromUrl() {
     .eq('id', id)
     .single();
 
+
   if (result.error) { console.error('Event load error:', result.error); return; }
   var ev = result.data;
 
@@ -1300,11 +1305,32 @@ async function loadEventFromUrl() {
   // exportModal 初期値
   _eventLocation = ev.location || '';
   _eventDateStr  = ev.date || '';
+  _eventDateStart = ev.date || null;
+  _eventDateEnd   = ev.date_end || ev.date || null;
 }
 
 var _eventLocation = '';
 var _eventDateStr  = '';
 var _currentEventId = null;
+var _eventDateStart = null;  // 'YYYY-MM-DD'
+var _eventDateEnd   = null;  // 'YYYY-MM-DD'
+
+// 大会日程から日付配列を生成（例: ['2026-09-17','2026-09-18',...]）
+function getCompetitionDays() {
+  if (!_eventDateStart) return ['Day 1'];
+  var days = [], d = new Date(_eventDateStart + 'T00:00:00');
+  var end = _eventDateEnd ? new Date(_eventDateEnd + 'T00:00:00') : d;
+  while (d <= end) {
+    days.push(d.toISOString().slice(0,10));
+    d.setDate(d.getDate() + 1);
+  }
+  return days;
+}
+// 'YYYY-MM-DD' → '9/17' 形式
+function fmtDay(dateStr) {
+  var d = new Date(dateStr + 'T00:00:00');
+  return (d.getMonth()+1) + '/' + d.getDate();
+}
 
 // =============================================
 // OVERVIEW タブ
@@ -2468,10 +2494,11 @@ function loadAPList() {
       apData = (res.data || []).map(function(a) {
         return { id: a.id, no: a.entry_no, name: a.name, nationality: a.nationality,
                  gender: a.gender, disc: a.discipline, ap_m: a.ap_m, ap_t: a.ap_time,
-                 ot_time: a.ot_time, dns: a.dns };
+                 ot_time: a.ot_time, dns: a.dns, day: a.competition_day || 1 };
       });
       renderAPList();
       jrLoadResults();
+      initSlDayTabs();
       // Entries stat 更新
       var entriesEl = document.getElementById('ev-stat-entries');
       if (entriesEl) entriesEl.textContent = apData.length;
@@ -2540,9 +2567,18 @@ function renderAPList() {
     '<span class="ap-col-disc">Disc</span>' +
     '<span class="ap-col-depth">AP(m)</span>' +
     '<span class="ap-col-dt">DT</span>' +
+    '<span style="width:64px;flex-shrink:0;font-size:10px;color:var(--muted);">Day</span>' +
     '<span style="width:32px;flex-shrink:0;"></span>' +
   '</div>';
+  var compDays = getCompetitionDays();
+  var dayOpts = compDays.map(function(d, i) {
+    return '<option value="'+(i+1)+'">Day '+(i+1)+(_eventDateStart?' ('+fmtDay(d)+')':'')+'</option>';
+  }).join('');
   var rows = apData.map(function(a, i) {
+    var selDay = compDays.map(function(d, idx) {
+      var v = idx+1;
+      return '<option value="'+v+'"'+(a.day===v?' selected':'')+'>Day '+v+(_eventDateStart?' ('+fmtDay(d)+')':'')+'</option>';
+    }).join('');
     return '<div class="ap-row" style="' + (a.dns ? 'opacity:0.4;' : '') + '">' +
       '<span class="ap-col-no">' + (a.no || i+1) + '</span>' +
       '<span class="ap-col-name">' + a.name + '</span>' +
@@ -2551,10 +2587,22 @@ function renderAPList() {
       '<span class="ap-col-disc">' + (a.disc || '—') + '</span>' +
       '<span class="ap-col-depth">' + (a.ap_m || '—') + '</span>' +
       '<span class="ap-col-dt">' + (a.ap_t || '—') + '</span>' +
+      '<select style="width:64px;flex-shrink:0;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--teal2);padding:2px 4px;font-size:11px;font-family:inherit;" onchange="setAthleteDay(\''+a.id+'\',this.value,this)" class="role-org-only">'+selDay+'</select>' +
       '<button onclick="deleteEntry(' + i + ')" class="role-org-only" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px;width:32px;flex-shrink:0;">×</button>' +
     '</div>';
   }).join('');
   el.innerHTML = header + rows;
+}
+
+async function setAthleteDay(athleteId, day, selectEl) {
+  var d = parseInt(day);
+  var a = apData.find(function(a){ return a.id === athleteId; });
+  if (a) a.day = d;
+  if (athleteId && _sb) {
+    var res = await _sb.from('athlete_entries').update({ competition_day: d }).eq('id', athleteId);
+    if (res.error) { showToast('Day保存失敗: ' + res.error.message, 'error'); return; }
+  }
+  showToast('Day ' + d + ' に変更しました', 'success');
 }
 
 function deleteEntry(i) {
@@ -2913,13 +2961,37 @@ async function selectSafetyOption(entryId, date, position, safetyName) {
 }
 
 // =============================================
+var _slSelectedDay = 1;
+
+function initSlDayTabs() {
+  var el = document.getElementById('slDayTabs'); if (!el) return;
+  var days = getCompetitionDays();
+  el.innerHTML = days.map(function(d, i) {
+    var v = i+1;
+    return '<button onclick="selectSlDay('+v+',this)" style="padding:5px 12px;border-radius:8px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;border:1.5px solid var(--border);background:'+(v===1?'var(--teal)':'var(--surface2)')+';color:'+(v===1?'#000':'var(--text)')+';">Day '+v+(_eventDateStart?' ('+fmtDay(d)+')':'')+'</button>';
+  }).join('');
+  _slSelectedDay = 1;
+}
+
+function selectSlDay(day, btn) {
+  _slSelectedDay = day;
+  document.querySelectorAll('#slDayTabs button').forEach(function(b) {
+    b.style.background = 'var(--surface2)'; b.style.color = 'var(--text)';
+  });
+  if (btn) { btn.style.background = 'var(--teal)'; btn.style.color = '#000'; }
+}
+
 function generateStartList() {
   var h = document.getElementById('firstOT-h').value;
   var m = document.getElementById('firstOT-m').value;
   if (!h || !m) { alert('Please set first athlete OT.'); return; }
 
+  // 選択日の選手のみフィルタ
+  var dayAthletes = apData.filter(function(a){ return (a.day||1) === _slSelectedDay && !a.dns; });
+  if (!dayAthletes.length) { alert('Day ' + _slSelectedDay + ' に選手が割り当てられていません'); return; }
+
   var currentMin = otToMinutes(h + ':' + m);
-  startList = apData.map(function(a) {
+  startList = dayAthletes.map(function(a) {
     var ot = minutesToOT(currentMin);
     var wt = minutesToOT(currentMin - 45);
     currentMin += getInterval(a.ap_m);
