@@ -200,7 +200,7 @@ select.fi option{background:var(--surface2);}
 /* Judge Modal */
 .jm-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:600;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);}
 .jm-overlay.open{display:block;}
-.jm-sheet{position:fixed;bottom:0;left:0;right:0;z-index:601;background:#0c2d40;border-top:1px solid rgba(46,196,182,0.25);border-radius:20px 20px 0 0;max-height:92vh;overflow-y:auto;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);}
+.jm-sheet{position:fixed;bottom:0;left:0;right:0;z-index:601;background:#0c2d40;border-top:1px solid rgba(46,196,182,0.25);border-radius:20px 20px 0 0;max-height:92vh;overflow-y:auto;overflow-x:hidden;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);}
 .jm-sheet.open{transform:translateY(0);}
 .jm-handle{width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,0.2);margin:10px auto 0;}
 .jm-head{padding:14px 16px 12px;border-bottom:1px solid var(--border);}
@@ -229,11 +229,11 @@ select.fi option{background:var(--surface2);}
 .rp-time{display:flex;align-items:center;gap:4px;}
 .rp-tf{display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;}
 .rp-tf label{font-size:9px;color:var(--muted);text-transform:uppercase;}
-.rp-ti{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--rs);color:var(--text);padding:8px 4px;font-size:26px;font-weight:800;font-family:inherit;text-align:center;-webkit-appearance:none;-moz-appearance:textfield;}
+.rp-ti{flex:1;min-width:0;width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--rs);color:var(--text);padding:8px 4px;font-size:26px;font-weight:800;font-family:inherit;text-align:center;-webkit-appearance:none;-moz-appearance:textfield;}
 .rp-ti::-webkit-inner-spin-button,.rp-ti::-webkit-outer-spin-button{-webkit-appearance:none;}
 .rp-ti:focus{outline:none;border-color:var(--teal);}
 .rp-tsep{font-size:22px;font-weight:800;color:var(--muted);padding-top:14px;}
-.rp-num{flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--rs);color:var(--text);padding:10px 12px;font-size:34px;font-weight:800;font-family:inherit;text-align:center;-webkit-appearance:none;-moz-appearance:textfield;}
+.rp-num{flex:1;min-width:0;width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--rs);color:var(--text);padding:10px 12px;font-size:34px;font-weight:800;font-family:inherit;text-align:center;-webkit-appearance:none;-moz-appearance:textfield;}
 .rp-num::-webkit-inner-spin-button,.rp-num::-webkit-outer-spin-button{-webkit-appearance:none;}
 .rp-num:focus{outline:none;border-color:var(--teal);}
 .rp-unit{font-size:16px;color:var(--sub);font-weight:700;width:22px;}
@@ -1556,12 +1556,12 @@ async function saveOverview() {
   var payload = {
     name:            name,
     date:            date,
-    date_end:        g('ov-date-end').value || null,
-    location:        g('ov-location').value.trim() || null,
-    notes:           g('ov-notes').value.trim() || null,
-    venue_type:      g('ov-venue').value || 'sea',
-    max_depth:       g('ov-max-depth').value ? parseInt(g('ov-max-depth').value) : null,
-    organizer:       g('ov-organizer').value.trim() || null,
+    date_end:        g('ov-date-end') ? g('ov-date-end').value || null : null,
+    location:        g('ov-location') ? g('ov-location').value.trim() || null : null,
+    notes:           g('ov-notes') ? g('ov-notes').value.trim() || null : null,
+    venue_type:      g('ov-venue') ? g('ov-venue').value || 'sea' : 'sea',
+    max_depth:       g('ov-max-depth') && g('ov-max-depth').value ? parseInt(g('ov-max-depth').value) : null,
+    organizer:       g('ov-organizer') ? g('ov-organizer').value.trim() || null : null,
     entry_fee:       (function() {
       var f = {};
       if (g('ov-fee-1') && g('ov-fee-1').value) f['1'] = parseInt(g('ov-fee-1').value);
@@ -1570,8 +1570,8 @@ async function saveOverview() {
       if (g('ov-fee-4') && g('ov-fee-4').value) f['4'] = parseInt(g('ov-fee-4').value);
       return Object.keys(f).length ? JSON.stringify(f) : null;
     })(),
-    entry_deadline:  g('ov-entry-deadline').value || null,
-    aida_id:         g('ov-aida-id').value.trim() || null,
+    entry_deadline:  g('ov-entry-deadline') ? g('ov-entry-deadline').value || null : null,
+    aida_id:         g('ov-aida-id') ? g('ov-aida-id').value.trim() || null : null,
     disciplines:     discs.length ? discs : null,
   };
 
