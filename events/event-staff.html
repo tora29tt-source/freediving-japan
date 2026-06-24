@@ -3025,15 +3025,27 @@ function renderSafetyView() {
     return;
   }
 
-  var POS_W = 80; // px per position column
-  var _hdrStyle = 'font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:-apple-system,sans-serif;';
-  var posHeaderSpans = SAFETY_POSITIONS.map(function(p) {
-    return '<span style="width:' + POS_W + 'px;flex-shrink:0;text-align:center;' + _hdrStyle + '">' + p + '</span>';
+  var POS_W = 72; // px per position column
+  var _hdrSt = 'font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:-apple-system,sans-serif;flex-shrink:0;';
+  var _colWT = 'width:52px;flex-shrink:0;font-variant-numeric:tabular-nums;';
+  var _colOT = 'width:56px;flex-shrink:0;font-variant-numeric:tabular-nums;';
+
+  // セーフティポジション列の区切り線
+  var posDiv = '<span style="width:1px;flex-shrink:0;background:var(--border);margin:0 4px;align-self:stretch;"></span>';
+  var posHeaderSpans = posDiv + SAFETY_POSITIONS.map(function(p) {
+    return '<span style="width:' + POS_W + 'px;text-align:center;' + _hdrSt + '">' + p + '</span>';
   }).join('');
 
+  // Start List リストビューと同じカラム構成
   var header = '<div class="ap-row ap-header">' +
     '<span class="ap-col-no">#</span>' +
-    '<span class="ap-col-name" style="min-width:120px;">選手</span>' +
+    '<span class="ap-col-name">Name</span>' +
+    '<span class="ap-col-nat">NAT</span>' +
+    '<span class="ap-col-gender">Gen</span>' +
+    '<span style="' + _colWT + _hdrSt + '">WarmUp</span>' +
+    '<span style="' + _colOT + _hdrSt + '">OT</span>' +
+    '<span class="ap-col-disc">Disc</span>' +
+    '<span class="ap-col-depth">AP(m)</span>' +
     posHeaderSpans +
   '</div>';
 
@@ -3046,29 +3058,40 @@ function renderSafetyView() {
     return compDayNum == null || (a.day||1) === compDayNum;
   });
 
-  var bodyRows = filteredAthletes.map(function(a, i) {
-    var cells = SAFETY_POSITIONS.map(function(pos) {
+  var bodyRows = filteredAthletes.map(function(a) {
+    // WT = OT - 45分
+    var wtStr = '—';
+    if (a.ot_time) {
+      var _p = a.ot_time.split(':');
+      var _tot = parseInt(_p[0]||0)*60 + parseInt(_p[1]||0) - 45;
+      if (_tot >= 0) { var _wh = Math.floor(_tot/60); var _wm = _tot%60; wtStr = String(_wh).padStart(2,'0')+':'+String(_wm).padStart(2,'0'); }
+    }
+
+    var cells = posDiv + SAFETY_POSITIONS.map(function(pos) {
       var key    = a.id + '_' + _safetyDate + '_' + pos;
       var assign = _safetyAssignments[key];
       var name   = assign ? assign.safety_name : '';
       var inPool = name && poolNames.indexOf(name) !== -1;
-      var cellColor = name ? (inPool ? 'var(--teal2)' : 'var(--warn)') : 'var(--muted)';
-      var cellBg    = name ? (inPool ? 'rgba(46,196,182,0.12)' : 'rgba(245,158,11,0.12)') : 'transparent';
-      var cellBorder= name ? (inPool ? 'rgba(46,196,182,0.25)' : 'rgba(245,158,11,0.25)') : 'transparent';
-      return '<span style="width:' + POS_W + 'px;flex-shrink:0;padding:3px;">' +
+      var cellColor  = name ? (inPool ? 'var(--teal2)' : 'var(--warn)') : 'var(--muted)';
+      var cellBg     = name ? (inPool ? 'rgba(46,196,182,0.12)' : 'rgba(245,158,11,0.12)') : 'transparent';
+      var cellBorder = name ? (inPool ? 'rgba(46,196,182,0.25)' : 'rgba(245,158,11,0.25)') : 'transparent';
+      return '<span style="width:' + POS_W + 'px;flex-shrink:0;padding:2px;">' +
         '<span onclick="openSafetyPicker(\'' + a.id + '\',\'' + _safetyDate + '\',\'' + pos + '\',this)" ' +
-          'style="display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:6px;padding:5px 4px;font-size:11px;font-weight:' + (name?'700':'400') + ';color:' + cellColor + ';background:' + cellBg + ';min-height:28px;transition:opacity 0.12s;border:1px solid ' + cellBorder + ';" ' +
+          'style="display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:6px;padding:4px 3px;font-size:11px;font-weight:' + (name?'700':'400') + ';color:' + cellColor + ';background:' + cellBg + ';min-height:26px;transition:opacity 0.12s;border:1px solid ' + cellBorder + ';" ' +
           'onmouseover="this.style.opacity=\'0.65\'" onmouseout="this.style.opacity=\'1\'">' +
-          (name || '<span style="color:var(--border);font-size:14px;">—</span>') +
+          (name || '<span style="color:var(--border);font-size:13px;">—</span>') +
         '</span></span>';
     }).join('');
 
     return '<div class="ap-row">' +
       '<span class="ap-col-no">' + (a.no||'—') + '</span>' +
-      '<span class="ap-col-name" style="min-width:120px;">' +
-        '<span style="font-size:12px;font-weight:700;">' + a.name + '</span>' +
-        '<span style="display:block;font-size:10px;color:var(--sub);margin-top:1px;">OT <span style="color:var(--teal2);font-variant-numeric:tabular-nums;">' + (a.ot_time||'—') + '</span> · ' + (a.disc||'—') + ' · ' + (a.ap_m||'—') + 'm</span>' +
-      '</span>' +
+      '<span class="ap-col-name">' + a.name + '</span>' +
+      '<span class="ap-col-nat">' + (a.nationality||'—') + '</span>' +
+      '<span class="ap-col-gender">' + (a.gender||'—') + '</span>' +
+      '<span style="' + _colWT + 'font-size:12px;color:var(--sub);">' + wtStr + '</span>' +
+      '<span style="' + _colOT + 'font-size:13px;font-weight:800;color:var(--teal2);">' + (a.ot_time||'—') + '</span>' +
+      '<span class="ap-col-disc">' + (a.disc||'—') + '</span>' +
+      '<span class="ap-col-depth">' + (a.ap_m||'—') + '</span>' +
       cells +
     '</div>';
   }).join('');
