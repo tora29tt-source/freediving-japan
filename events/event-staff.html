@@ -3382,26 +3382,55 @@ function jrRender() {
   var prog = document.getElementById('jr-progress');
   if (prog) prog.textContent = done+'/'+dayData.length;
   if (!list.length) { el.innerHTML='<div class="empty-state"><div class="empty-icon">✅</div>該当選手なし</div>'; jrRenderRankings(); return; }
-  el.innerHTML = list.map(function(a) {
+
+  var header = '<div class="ap-row ap-header">' +
+    '<span class="ap-col-no">#</span>' +
+    '<span class="ap-col-name">Name</span>' +
+    '<span class="ap-col-nat">NAT</span>' +
+    '<span class="ap-col-disc">Disc</span>' +
+    '<span class="ap-col-depth">AP</span>' +
+    '<span class="ap-col-dt">OT</span>' +
+    '<span style="width:80px;flex-shrink:0;font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:-apple-system,sans-serif;">Card / RP</span>' +
+    '<span style="width:60px;flex-shrink:0;font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:-apple-system,sans-serif;text-align:right;">Points</span>' +
+  '</div>';
+
+  var rows = list.map(function(a) {
     var r = jrResults[a.id];
     var disc = a.disc||'CWT';
     var apLabel = jmFormatAP(disc==='STA'?(a.ap_t||0):(a.ap_m||0), disc);
-    var barClass='jr-bar-pending', itemClass='', resultHtml='';
+    // カード列 & ポイント列
+    var cardCell = '<span style="font-size:11px;color:var(--muted);">—</span>';
+    var ptsCell  = '<span style="font-size:13px;color:var(--muted);">—</span>';
+    // 左端ボーダーカラー用インラインスタイル
+    var borderColor = 'transparent';
     if (r) {
-      if (r.card==='white')   { barClass='jr-bar-white';   itemClass='jr-white';
-        resultHtml='<div class="jr-result-row"><span class="jr-chip jr-chip-w">✓ WHITE</span><span class="jr-rp">'+jmFormatAP(r.rp,disc)+'</span><span class="jr-pts">'+r.final_points.toFixed(1)+' pt</span></div>'; }
-      if (r.card==='penalty') { barClass='jr-bar-penalty'; itemClass='jr-penalty';
-        resultHtml='<div class="jr-result-row"><span class="jr-chip jr-chip-p">⚠ WHITE+PEN</span><span class="jr-rp">'+jmFormatAP(r.rp,disc)+'</span><span class="jr-pts">'+r.final_points.toFixed(1)+' pt</span></div>'; }
-      if (r.card==='dq')      { barClass='jr-bar-dq';      itemClass='jr-dq';
-        resultHtml='<div class="jr-result-row"><span class="jr-chip jr-chip-dq">✕ DQ</span><span style="font-size:10px;color:#f87171;margin-left:4px;">'+(r.dq_reason||'')+'</span></div>'; }
+      if (r.card==='white') {
+        borderColor = 'var(--success)';
+        cardCell = '<span class="jr-chip jr-chip-w" style="font-size:10px;">✓ WHITE</span> <span style="font-size:11px;color:var(--sub);">'+jmFormatAP(r.rp,disc)+'</span>';
+        ptsCell  = '<span style="font-size:14px;font-weight:800;color:#fff;">'+r.final_points.toFixed(1)+'</span>';
+      } else if (r.card==='penalty') {
+        borderColor = 'var(--warn)';
+        cardCell = '<span class="jr-chip jr-chip-p" style="font-size:10px;">⚠ PEN</span> <span style="font-size:11px;color:var(--sub);">'+jmFormatAP(r.rp,disc)+'</span>';
+        ptsCell  = '<span style="font-size:14px;font-weight:800;color:var(--warn);">'+r.final_points.toFixed(1)+'</span>';
+      } else if (r.card==='dq') {
+        borderColor = 'var(--danger)';
+        cardCell = '<span class="jr-chip jr-chip-dq" style="font-size:10px;">✕ DQ</span>';
+        ptsCell  = '<span style="font-size:13px;color:var(--danger);">0.0</span>';
+      }
     }
-    return '<div class="jr-item '+itemClass+'" onclick="jmOpen(\''+a.id+'\')">'+
-      '<div class="jr-bar '+barClass+'"></div>'+
-      '<div class="jr-row"><div class="jr-no">#'+(a.no||'—')+'</div>'+
-      '<div class="jr-info"><div class="jr-name">'+a.name+'</div><div class="jr-meta">'+(a.nationality||'—')+' · '+disc+'</div></div>'+
-      '<div class="jr-right"><div class="jr-ot">'+(a.ot_time||'—')+'</div><div class="jr-ap">AP: '+apLabel+'</div></div></div>'+
-      resultHtml+'</div>';
+    return '<div class="ap-row" style="cursor:pointer;border-left:3px solid '+borderColor+';padding-left:11px;" onclick="jmOpen(\''+a.id+'\')">'+
+      '<span class="ap-col-no">' + (a.no||'—') + '</span>' +
+      '<span class="ap-col-name">' + a.name + '</span>' +
+      '<span class="ap-col-nat">' + (a.nationality||'—') + '</span>' +
+      '<span class="ap-col-disc">' + disc + '</span>' +
+      '<span class="ap-col-depth">' + apLabel + '</span>' +
+      '<span class="ap-col-dt">' + (a.ot_time||'—') + '</span>' +
+      '<span style="width:80px;flex-shrink:0;display:flex;align-items:center;gap:4px;">' + cardCell + '</span>' +
+      '<span style="width:60px;flex-shrink:0;text-align:right;">' + ptsCell + '</span>' +
+    '</div>';
   }).join('');
+
+  el.innerHTML = header + rows;
   jrRenderRankings();
 }
 function jrRenderRankings() {
