@@ -3394,50 +3394,57 @@ function jrRender() {
   if (prog) prog.textContent = done+'/'+dayData.length;
   if (!list.length) { el.innerHTML='<div class="empty-state"><div class="empty-icon">✅</div>該当選手なし</div>'; jrRenderRankings(); return; }
 
+  var _hdr = 'font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:-apple-system,sans-serif;flex-shrink:0;';
   var header = '<div class="ap-row ap-header">' +
     '<span class="ap-col-no">#</span>' +
     '<span class="ap-col-name">Name</span>' +
     '<span class="ap-col-nat">NAT</span>' +
+    '<span class="ap-col-gender">Gen</span>' +
     '<span class="ap-col-disc">Disc</span>' +
     '<span class="ap-col-depth">AP</span>' +
-    '<span class="ap-col-dt">OT</span>' +
-    '<span style="width:80px;flex-shrink:0;font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:-apple-system,sans-serif;">Card / RP</span>' +
-    '<span style="width:60px;flex-shrink:0;font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:-apple-system,sans-serif;text-align:right;">Points</span>' +
+    '<span style="width:48px;text-align:right;' + _hdr + '">RP</span>' +
+    '<span style="width:60px;text-align:center;' + _hdr + '">Card</span>' +
+    '<span style="flex:0.8;min-width:0;' + _hdr + '">Notes</span>' +
   '</div>';
 
   var rows = list.map(function(a) {
     var r = jrResults[a.id];
     var disc = a.disc||'CWT';
     var apLabel = jmFormatAP(disc==='STA'?(a.ap_t||0):(a.ap_m||0), disc);
-    // カード列 & ポイント列
+    var rpCell   = '<span style="font-size:12px;color:var(--muted);">—</span>';
     var cardCell = '<span style="font-size:11px;color:var(--muted);">—</span>';
-    var ptsCell  = '<span style="font-size:13px;color:var(--muted);">—</span>';
-    // 左端ボーダーカラー用インラインスタイル
+    var notesCell= '';
     var borderColor = 'transparent';
     if (r) {
+      var rpLabel = r.rp != null ? jmFormatAP(r.rp, disc) : '—';
       if (r.card==='white') {
         borderColor = 'var(--success)';
-        cardCell = '<span class="jr-chip jr-chip-w" style="font-size:10px;">✓ WHITE</span> <span style="font-size:11px;color:var(--sub);">'+jmFormatAP(r.rp,disc)+'</span>';
-        ptsCell  = '<span style="font-size:14px;font-weight:800;color:#fff;">'+r.final_points.toFixed(1)+'</span>';
+        rpCell   = '<span style="font-size:13px;font-weight:700;color:var(--text);">' + rpLabel + '</span>';
+        cardCell = '<span class="jr-chip jr-chip-w" style="font-size:10px;">White</span>';
+        notesCell= r.notes ? '<span style="font-size:10px;color:var(--sub);">'+r.notes+'</span>' : '';
       } else if (r.card==='penalty') {
         borderColor = 'var(--warn)';
-        cardCell = '<span class="jr-chip jr-chip-p" style="font-size:10px;">⚠ PEN</span> <span style="font-size:11px;color:var(--sub);">'+jmFormatAP(r.rp,disc)+'</span>';
-        ptsCell  = '<span style="font-size:14px;font-weight:800;color:var(--warn);">'+r.final_points.toFixed(1)+'</span>';
+        rpCell   = '<span style="font-size:13px;font-weight:700;color:var(--warn);">' + rpLabel + '</span>';
+        cardCell = '<span class="jr-chip jr-chip-p" style="font-size:10px;">Yellow</span>';
+        notesCell= r.notes ? '<span style="font-size:10px;color:var(--warn);">'+r.notes+'</span>' : '';
       } else if (r.card==='dq') {
         borderColor = 'var(--danger)';
-        cardCell = '<span class="jr-chip jr-chip-dq" style="font-size:10px;">✕ DQ</span>';
-        ptsCell  = '<span style="font-size:13px;color:var(--danger);">0.0</span>';
+        rpCell   = '<span style="font-size:12px;color:var(--danger);">—</span>';
+        cardCell = '<span class="jr-chip jr-chip-dq" style="font-size:10px;">Red</span>';
+        var dqNote = r.dq_reason || r.notes || '';
+        notesCell= dqNote ? '<span style="font-size:10px;color:var(--danger);">'+dqNote+'</span>' : '';
       }
     }
     return '<div class="ap-row" style="cursor:pointer;border-left:3px solid '+borderColor+';padding-left:11px;" onclick="jmOpen(\''+a.id+'\')">'+
       '<span class="ap-col-no">' + (a.no||'—') + '</span>' +
       '<span class="ap-col-name">' + a.name + '</span>' +
       '<span class="ap-col-nat">' + (a.nationality||'—') + '</span>' +
+      '<span class="ap-col-gender">' + (a.gender||'—') + '</span>' +
       '<span class="ap-col-disc">' + disc + '</span>' +
       '<span class="ap-col-depth">' + apLabel + '</span>' +
-      '<span class="ap-col-dt">' + (a.ot_time||'—') + '</span>' +
-      '<span style="width:80px;flex-shrink:0;display:flex;align-items:center;gap:4px;">' + cardCell + '</span>' +
-      '<span style="width:60px;flex-shrink:0;text-align:right;">' + ptsCell + '</span>' +
+      '<span style="width:48px;flex-shrink:0;text-align:right;">' + rpCell + '</span>' +
+      '<span style="width:60px;flex-shrink:0;text-align:center;">' + cardCell + '</span>' +
+      '<span style="flex:0.8;min-width:0;overflow:hidden;">' + notesCell + '</span>' +
     '</div>';
   }).join('');
 
