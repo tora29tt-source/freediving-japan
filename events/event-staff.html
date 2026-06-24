@@ -2720,7 +2720,6 @@ function renderAPList() {
     '<span class="ap-col-disc">Disc</span>' +
     '<span class="ap-col-depth">AP(m)</span>' +
     '<span class="ap-col-dt">DT</span>' +
-    '<span style="width:64px;flex-shrink:0;font-size:10px;color:var(--muted);">Day</span>' +
     '<span style="width:32px;flex-shrink:0;"></span>' +
   '</div>';
   // Competition Day のみ連番でドロップダウンを生成
@@ -2748,7 +2747,6 @@ function renderAPList() {
       '<span class="ap-col-disc">' + (a.disc || '—') + '</span>' +
       '<span class="ap-col-depth">' + (a.ap_m || '—') + '</span>' +
       '<span class="ap-col-dt">' + (a.ap_t || '—') + '</span>' +
-      '<select style="width:64px;flex-shrink:0;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--teal2);padding:2px 4px;font-size:11px;font-family:inherit;" onchange="setAthleteDay(\''+a.id+'\',this.value,this)" class="role-org-only">'+selDay+'</select>' +
       '<button onclick="deleteEntry(' + i + ')" class="role-org-only" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px;width:32px;flex-shrink:0;">×</button>' +
     '</div>';
   }).join('');
@@ -2990,13 +2988,23 @@ function renderSafetyView() {
   if (!dateStr) { el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);">概要タブで開催日を設定してください</div>'; return; }
 
   var allDates = getDatesInRange(dateStr, dateEndStr || dateStr);
-  if (!_safetyDate || allDates.indexOf(_safetyDate) === -1) _safetyDate = allDates[0];
 
-  // ---- 日付タブ ----
+  // メインタブと同じく Competition Day のみに絞る
+  var compDates = []; var _scn = 0; var _dateToCompNum = {};
+  allDates.forEach(function(d) {
+    var lbl = (_dayLabels && _dayLabels[d]) ? _dayLabels[d] : '';
+    var isComp = lbl.indexOf('Competition Day') !== -1 || lbl.indexOf('競技日') !== -1 || !lbl;
+    if (isComp) { _scn++; compDates.push(d); _dateToCompNum[d] = _scn; }
+  });
+  if (!compDates.length) compDates = allDates; // フォールバック
+  if (!_safetyDate || compDates.indexOf(_safetyDate) === -1) _safetyDate = compDates[0];
+
+  // ---- 日付タブ（Competition Day のみ）----
   var dateTabs = '<div style="display:flex;gap:0;border-bottom:1px solid var(--border);overflow-x:auto;">' +
-    allDates.map(function(d) {
+    compDates.map(function(d) {
       var dt = new Date(d + 'T00:00:00');
-      var lbl = _dayLabels && _dayLabels[d] ? _dayLabels[d] : (dt.getMonth()+1) + '/' + dt.getDate();
+      var num = _dateToCompNum[d];
+      var lbl = (dt.getMonth()+1) + '/' + dt.getDate() + ' Day ' + num;
       var active = d === _safetyDate;
       return '<button onclick="setSafetyDate(\'' + d + '\')" style="padding:8px 14px;font-size:11px;font-weight:700;font-family:inherit;border:none;border-bottom:2px solid ' + (active ? 'var(--teal)' : 'transparent') + ';background:transparent;color:' + (active ? 'var(--teal2)' : 'var(--muted)') + ';cursor:pointer;white-space:nowrap;">' + lbl + '</button>';
     }).join('') +
