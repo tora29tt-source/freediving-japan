@@ -1,0 +1,38 @@
+name: Update AIDA Events
+
+on:
+  schedule:
+    # 毎日 JST 08:00 (UTC 23:00 前日) に実行
+    - cron: '0 23 * * *'
+  workflow_dispatch: # 手動実行も可能
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install playwright beautifulsoup4
+          playwright install chromium --with-deps
+
+      - name: Fetch AIDA events
+        run: python scripts/fetch_aida_events.py --year 2026
+
+      - name: Commit if changed
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add data/aida_events_2026.json
+          git diff --staged --quiet || git commit -m "chore: update AIDA events $(date -u +%Y-%m-%d)"
+          git push
