@@ -1,0 +1,755 @@
+{
+  "_note": "AIDA世界選手権に出場した日本代表選手の記録。pool=プール世界選手権、sea=深度世界選手権。過去年は確定済み。",
+  "_updatedAt": "2026-06-24",
+  "athletes": {
+    "Aki Shimoyama": {
+      "pool": [
+        "2025"
+      ],
+      "sea": [
+        "2019",
+        "2023"
+      ]
+    },
+    "Aruna Yamashita": {
+      "pool": [
+        "2022"
+      ],
+      "sea": []
+    },
+    "Asumi Ueno": {
+      "pool": [
+        "2016"
+      ],
+      "sea": []
+    },
+    "Atsushi Kawai": {
+      "pool": [
+        "2013"
+      ],
+      "sea": []
+    },
+    "Atsushi Nakano": {
+      "pool": [
+        "2022",
+        "2023"
+      ],
+      "sea": []
+    },
+    "Ayumi Ishizaka": {
+      "pool": [],
+      "sea": [
+        "2021"
+      ]
+    },
+    "Celina Jinguji": {
+      "pool": [
+        "2024"
+      ],
+      "sea": []
+    },
+    "Chisa Sanada": {
+      "pool": [
+        "2011"
+      ],
+      "sea": []
+    },
+    "Daichi Sugitani": {
+      "pool": [
+        "2022"
+      ],
+      "sea": []
+    },
+    "Etsuko Adachi": {
+      "pool": [
+        "2007"
+      ],
+      "sea": []
+    },
+    "Fumi Sonezaki": {
+      "pool": [],
+      "sea": [
+        "2021"
+      ]
+    },
+    "Hanako Hirose": {
+      "pool": [
+        "2009",
+        "2011",
+        "2012",
+        "2013",
+        "2023",
+        "2025"
+      ],
+      "sea": [
+        "2009",
+        "2015",
+        "2019"
+      ]
+    },
+    "Hideo Ishii": {
+      "pool": [
+        "2024",
+        "2025"
+      ],
+      "sea": []
+    },
+    "Hiroshi Sakai": {
+      "pool": [
+        "2013"
+      ],
+      "sea": []
+    },
+    "Hiroshi Sugawa": {
+      "pool": [],
+      "sea": [
+        "2011"
+      ]
+    },
+    "Hiroyuki Furukawa": {
+      "pool": [],
+      "sea": [
+        "2012"
+      ]
+    },
+    "Hisashi Fukui": {
+      "pool": [],
+      "sea": [
+        "2007"
+      ]
+    },
+    "Joma Kikumoto": {
+      "pool": [],
+      "sea": [
+        "2019",
+        "2021",
+        "2023"
+      ]
+    },
+    "Junko Kitahama": {
+      "pool": [
+        "2005",
+        "2007",
+        "2009",
+        "2011"
+      ],
+      "sea": [
+        "2005",
+        "2009",
+        "2013"
+      ]
+    },
+    "Katsumi Kaneda": {
+      "pool": [
+        "2009",
+        "2011",
+        "2013"
+      ],
+      "sea": []
+    },
+    "Katsuya Hamazaki": {
+      "pool": [
+        "2009"
+      ],
+      "sea": []
+    },
+    "Kazuaki Ichikawa": {
+      "pool": [
+        "2005"
+      ],
+      "sea": [
+        "2005"
+      ]
+    },
+    "Kazuaki Yonezawa": {
+      "pool": [
+        "2022",
+        "2024"
+      ],
+      "sea": []
+    },
+    "Kazuo Aoyama": {
+      "pool": [],
+      "sea": [
+        "2011"
+      ]
+    },
+    "Ken Kiriyama": {
+      "pool": [],
+      "sea": [
+        "2011"
+      ]
+    },
+    "Kohei Ishida": {
+      "pool": [],
+      "sea": [
+        "2013"
+      ]
+    },
+    "Kohei Takahashi": {
+      "pool": [
+        "2023"
+      ],
+      "sea": []
+    },
+    "Kousuke Okamoto": {
+      "pool": [
+        "2005"
+      ],
+      "sea": [
+        "2007",
+        "2009",
+        "2011",
+        "2015"
+      ]
+    },
+    "Kyoko Inaba": {
+      "pool": [
+        "2009"
+      ],
+      "sea": []
+    },
+    "Kyosuke Abe": {
+      "pool": [
+        "2022",
+        "2023",
+        "2025"
+      ],
+      "sea": []
+    },
+    "Madoka Okuyama": {
+      "pool": [
+        "2023",
+        "2024"
+      ],
+      "sea": []
+    },
+    "Mai Morimura": {
+      "pool": [
+        "2022",
+        "2023"
+      ],
+      "sea": []
+    },
+    "Maki Kanno": {
+      "pool": [
+        "2013"
+      ],
+      "sea": []
+    },
+    "Makiko Kimura": {
+      "pool": [
+        "2013"
+      ],
+      "sea": []
+    },
+    "Mariko Kaji": {
+      "pool": [
+        "2018"
+      ],
+      "sea": []
+    },
+    "Masako Ishikawa": {
+      "pool": [
+        "2005",
+        "2007",
+        "2009",
+        "2013"
+      ],
+      "sea": []
+    },
+    "Masayo Yoshida": {
+      "pool": [
+        "2011"
+      ],
+      "sea": []
+    },
+    "Megumi Matsumoto": {
+      "pool": [],
+      "sea": [
+        "2005",
+        "2007"
+      ]
+    },
+    "Megumi Suwa": {
+      "pool": [],
+      "sea": [
+        "2015"
+      ]
+    },
+    "Mio Kanemaki": {
+      "pool": [
+        "2015"
+      ],
+      "sea": []
+    },
+    "Misuzu Hirai": {
+      "pool": [
+        "2009",
+        "2012",
+        "2013"
+      ],
+      "sea": [
+        "2005",
+        "2009",
+        "2011"
+      ]
+    },
+    "Misuzu Okamoto": {
+      "pool": [
+        "2023",
+        "2025"
+      ],
+      "sea": [
+        "2013",
+        "2015",
+        "2019"
+      ]
+    },
+    "Mitsuhiro Kojima": {
+      "pool": [],
+      "sea": [
+        "2015",
+        "2017"
+      ]
+    },
+    "Miyako Ishida": {
+      "pool": [
+        "2015",
+        "2016",
+        "2018"
+      ],
+      "sea": []
+    },
+    "Miyako Yoneyama": {
+      "pool": [
+        "2011",
+        "2013"
+      ],
+      "sea": []
+    },
+    "Motoko Ishiwata": {
+      "pool": [],
+      "sea": [
+        "2009",
+        "2013"
+      ]
+    },
+    "Naoki Nokubo": {
+      "pool": [
+        "2007"
+      ],
+      "sea": []
+    },
+    "Naoko Morita": {
+      "pool": [
+        "2007"
+      ],
+      "sea": []
+    },
+    "Naomi Iwazawa": {
+      "pool": [],
+      "sea": [
+        "2025"
+      ]
+    },
+    "Naoto Yoshikawa": {
+      "pool": [],
+      "sea": [
+        "2017",
+        "2019"
+      ]
+    },
+    "Naoyuki Tominaga": {
+      "pool": [
+        "2007"
+      ],
+      "sea": []
+    },
+    "Natsuki Shimizu": {
+      "pool": [
+        "2011"
+      ],
+      "sea": []
+    },
+    "Natsumi Capdevila": {
+      "pool": [
+        "2022"
+      ],
+      "sea": [
+        "2019"
+      ]
+    },
+    "Nikka Morinaga": {
+      "pool": [],
+      "sea": [
+        "2005"
+      ]
+    },
+    "Nobuaki Matsuhashi": {
+      "pool": [],
+      "sea": [
+        "2007"
+      ]
+    },
+    "Norifumi Ibushi": {
+      "pool": [
+        "2015"
+      ],
+      "sea": []
+    },
+    "Noriyuki Yabe": {
+      "pool": [
+        "2025"
+      ],
+      "sea": [
+        "2023"
+      ]
+    },
+    "Ren Nakagomi": {
+      "pool": [
+        "2025"
+      ],
+      "sea": []
+    },
+    "Riya Sakakibara": {
+      "pool": [
+        "2022"
+      ],
+      "sea": []
+    },
+    "Ryosuke Suzuki": {
+      "pool": [
+        "2018"
+      ],
+      "sea": []
+    },
+    "Ryuta Nakanishi": {
+      "pool": [],
+      "sea": [
+        "2013"
+      ]
+    },
+    "Ryuzo Shinomiya": {
+      "pool": [
+        "2005",
+        "2007",
+        "2012"
+      ],
+      "sea": [
+        "2011"
+      ]
+    },
+    "Sachiko Iizuka": {
+      "pool": [],
+      "sea": [
+        "2013"
+      ]
+    },
+    "Sawako Maruyama": {
+      "pool": [
+        "2013"
+      ],
+      "sea": []
+    },
+    "Sayaka Oi": {
+      "pool": [
+        "2022",
+        "2024",
+        "2025"
+      ],
+      "sea": []
+    },
+    "Sayo Miura": {
+      "pool": [],
+      "sea": [
+        "2011"
+      ]
+    },
+    "Sayuri Kinoshita": {
+      "pool": [],
+      "sea": [
+        "2015",
+        "2017"
+      ]
+    },
+    "Shigeki Moriya": {
+      "pool": [
+        "2011"
+      ],
+      "sea": []
+    },
+    "Shinya Oi": {
+      "pool": [
+        "2015",
+        "2016",
+        "2018",
+        "2022",
+        "2023",
+        "2024"
+      ],
+      "sea": [
+        "2017"
+      ]
+    },
+    "Shoko Kobayashi": {
+      "pool": [
+        "2023",
+        "2024",
+        "2025"
+      ],
+      "sea": []
+    },
+    "Shuichi Goto": {
+      "pool": [
+        "2011",
+        "2013",
+        "2015",
+        "2016"
+      ],
+      "sea": [
+        "2013",
+        "2015"
+      ]
+    },
+    "Shun Oshima": {
+      "pool": [
+        "2007",
+        "2012"
+      ],
+      "sea": [
+        "2005",
+        "2009",
+        "2011",
+        "2012"
+      ]
+    },
+    "Syusuke Kubouchi": {
+      "pool": [],
+      "sea": [
+        "2007"
+      ]
+    },
+    "Tadahiro Kobayashi": {
+      "pool": [],
+      "sea": [
+        "2017"
+      ]
+    },
+    "Takanori Kumazawa": {
+      "pool": [],
+      "sea": [
+        "2011"
+      ]
+    },
+    "Takanori Mise": {
+      "pool": [],
+      "sea": [
+        "2011"
+      ]
+    },
+    "Takashi Ito": {
+      "pool": [
+        "2011"
+      ],
+      "sea": []
+    },
+    "Takashi Ohashi": {
+      "pool": [
+        "2025"
+      ],
+      "sea": []
+    },
+    "Takayuki Inui": {
+      "pool": [
+        "2022",
+        "2024"
+      ],
+      "sea": []
+    },
+    "Takeru Yasuda": {
+      "pool": [],
+      "sea": [
+        "2013"
+      ]
+    },
+    "Taro Oboshi": {
+      "pool": [],
+      "sea": [
+        "2015"
+      ]
+    },
+    "Taro Yokota": {
+      "pool": [
+        "2023"
+      ],
+      "sea": []
+    },
+    "Tatsuma Kitahara": {
+      "pool": [],
+      "sea": [
+        "2019"
+      ]
+    },
+    "Tetsu Ogushi": {
+      "pool": [
+        "2018"
+      ],
+      "sea": []
+    },
+    "Tetsuya Hara": {
+      "pool": [
+        "2009"
+      ],
+      "sea": []
+    },
+    "Tetsuya Inaba": {
+      "pool": [
+        "2009",
+        "2011"
+      ],
+      "sea": []
+    },
+    "Tetsuya Yokoyama": {
+      "pool": [],
+      "sea": [
+        "2009"
+      ]
+    },
+    "Tomoka Fukuda": {
+      "pool": [
+        "2012",
+        "2013"
+      ],
+      "sea": [
+        "2011",
+        "2013"
+      ]
+    },
+    "Tomoko Yamanouchi": {
+      "pool": [],
+      "sea": [
+        "2007"
+      ]
+    },
+    "Tomomi Hamazaki": {
+      "pool": [
+        "2016"
+      ],
+      "sea": []
+    },
+    "Tomomi Suga": {
+      "pool": [
+        "2009"
+      ],
+      "sea": []
+    },
+    "Toru Takenouchi": {
+      "pool": [],
+      "sea": [
+        "2013",
+        "2015"
+      ]
+    },
+    "Tsukasa Kimura": {
+      "pool": [],
+      "sea": [
+        "2011"
+      ]
+    },
+    "Yasuhiro Kondo": {
+      "pool": [
+        "2024"
+      ],
+      "sea": []
+    },
+    "Yasuko Ozeki": {
+      "pool": [
+        "2022",
+        "2023",
+        "2024",
+        "2025"
+      ],
+      "sea": []
+    },
+    "Yoko Ota": {
+      "pool": [
+        "2022"
+      ],
+      "sea": []
+    },
+    "Yoshiro Konno": {
+      "pool": [
+        "2007"
+      ],
+      "sea": [
+        "2007",
+        "2011"
+      ]
+    },
+    "Yosuke Sekiya": {
+      "pool": [
+        "2013"
+      ],
+      "sea": []
+    },
+    "Yui Wada": {
+      "pool": [],
+      "sea": [
+        "2011"
+      ]
+    },
+    "Yuka Otsuka": {
+      "pool": [],
+      "sea": [
+        "2023"
+      ]
+    },
+    "Yuki Hiraga": {
+      "pool": [
+        "2007"
+      ],
+      "sea": []
+    },
+    "Yuki Isogai": {
+      "pool": [
+        "2016"
+      ],
+      "sea": []
+    },
+    "Yuki Muto": {
+      "pool": [],
+      "sea": [
+        "2011",
+        "2015",
+        "2019"
+      ]
+    },
+    "Yukine Toshinaga": {
+      "pool": [],
+      "sea": [
+        "2021",
+        "2022",
+        "2023"
+      ]
+    },
+    "Yuko Hashizume": {
+      "pool": [],
+      "sea": [
+        "2007"
+      ]
+    },
+    "Yuriko Ichihara": {
+      "pool": [
+        "2015",
+        "2016",
+        "2018",
+        "2022",
+        "2023",
+        "2024",
+        "2025"
+      ],
+      "sea": []
+    }
+  }
+}
