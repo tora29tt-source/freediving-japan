@@ -3196,7 +3196,7 @@ async function loadStartListConfig(dayNum) {
   var targetDay = dayNum || 1;
   var saved = apData.filter(function(a){ return (a.day||1) === targetDay && !a.dns && a.ot_time; });
   if (saved.length) {
-    startList = saved.map(function(a){ return { id:a.id, no:a.no, name:a.name, disc:a.disc, ap_m:a.ap_m, ap_t:a.ap_t, ot:a.ot_time, wt:'—' }; });
+    startList = saved.map(function(a){ return { id:a.id, no:a.no, name:a.name, nat:a.nationality, disc:a.disc, ap_m:a.ap_m, ap_t:a.ap_t, ot:a.ot_time, wt:'—' }; });
     renderStartListUI();
   } else {
     // 保存済みなし → 生成フォームを表示
@@ -3208,20 +3208,31 @@ async function loadStartListConfig(dayNum) {
 
 function renderStartListUI() {
   var el = document.getElementById('slList');
-  el.innerHTML = startList.map(function(a) {
-    return '<div class="sl-row">' +
-      '<span class="sl-no">' + a.no + '</span>' +
-      '<div class="sl-info">' +
-        '<div class="sl-name">' + a.name + '</div>' +
-        '<div class="sl-detail">AP ' + (a.ap_m||'—') + (a.disc && ['CWT','CWTB','CNF','FIM'].indexOf(a.disc)!==-1?'m':'s') + ' / ' + (a.ap_t||'') + '</div>' +
-      '</div>' +
-      '<span class="sl-disc">' + (a.disc||'') + '</span>' +
-      '<div class="sl-ot">' +
-        '<div class="sl-ot-time">' + a.ot + '</div>' +
-        '<div class="sl-ot-wt">WT ' + a.wt + '</div>' +
-      '</div>' +
+  var header = '<div class="ap-row ap-header">' +
+    '<span class="ap-col-no">#</span>' +
+    '<span class="ap-col-name">Name</span>' +
+    '<span class="ap-col-nat">NAT</span>' +
+    '<span class="ap-col-disc">Disc</span>' +
+    '<span class="ap-col-depth">AP</span>' +
+    '<span class="ap-col-dt">DT</span>' +
+    '<span style="width:58px;flex-shrink:0;font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:-apple-system,sans-serif;">OT</span>' +
+    '<span style="width:54px;flex-shrink:0;font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:-apple-system,sans-serif;">WT</span>' +
+  '</div>';
+  var rows = startList.map(function(a, i) {
+    var isDepth = ['CWT','CWTB','CNF','FIM'].indexOf(a.disc||'') !== -1;
+    var apDisplay = a.ap_m ? a.ap_m + 'm' : (a.ap_t || '—');
+    return '<div class="ap-row">' +
+      '<span class="ap-col-no">' + (a.no || i+1) + '</span>' +
+      '<span class="ap-col-name">' + (a.name||'') + '</span>' +
+      '<span class="ap-col-nat">' + (a.nat||'—') + '</span>' +
+      '<span class="ap-col-disc">' + (a.disc||'—') + '</span>' +
+      '<span class="ap-col-depth">' + apDisplay + '</span>' +
+      '<span class="ap-col-dt">' + (a.ap_t||'—') + '</span>' +
+      '<span style="width:58px;flex-shrink:0;font-size:13px;font-weight:800;color:var(--teal2);font-variant-numeric:tabular-nums;">' + (a.ot||'—') + '</span>' +
+      '<span style="width:54px;flex-shrink:0;font-size:12px;color:var(--sub);font-variant-numeric:tabular-nums;">' + (a.wt||'—') + '</span>' +
     '</div>';
   }).join('');
+  el.innerHTML = header + rows;
   document.getElementById('slCard').style.display = 'block';
   document.getElementById('countdownLink').style.display = 'flex';
   document.getElementById('generateSection').style.display = 'none';
@@ -3242,7 +3253,7 @@ async function generateStartList() {
     var ot = minutesToOT(currentMin);
     var wt = minutesToOT(currentMin - 45);
     currentMin += getInterval(a.ap_m);
-    return { id:a.id, no:a.no, name:a.name, disc:a.disc, ap_m:a.ap_m, ap_t:a.ap_t, ot:ot, wt:wt };
+    return { id:a.id, no:a.no, name:a.name, nat:a.nationality, disc:a.disc, ap_m:a.ap_m, ap_t:a.ap_t, ot:ot, wt:wt };
   });
 
   renderStartListUI();
