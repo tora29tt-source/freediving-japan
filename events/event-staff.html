@@ -3017,34 +3017,34 @@ function renderSafetyView() {
     return;
   }
 
-  var thBase = 'font-size:10px;font-weight:700;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--border);white-space:nowrap;text-align:center;';
+  var thBase = 'font-size:10px;font-weight:700;color:var(--muted);letter-spacing:0.06em;padding:7px 8px;background:var(--surface2);white-space:nowrap;text-align:center;border-bottom:1px solid var(--border);';
   var posHeaders = SAFETY_POSITIONS.map(function(p) {
-    return '<th style="' + thBase + 'min-width:72px;">' + p + '</th>';
+    return '<th style="' + thBase + 'min-width:80px;">' + p + '</th>';
   }).join('');
 
   var poolNames = pool.map(function(s) { return s.name; });
 
-  var bodyRows = apData.filter(function(a) { return !a.dns; }).map(function(a) {
+  var bodyRows = apData.filter(function(a) { return !a.dns; }).map(function(a, i) {
     var cells = SAFETY_POSITIONS.map(function(pos) {
       var key    = a.id + '_' + _safetyDate + '_' + pos;
       var assign = _safetyAssignments[key];
       var name   = assign ? assign.safety_name : '';
-      // 色: プール外のセーフティーは amber、プール内は teal、空は –
       var inPool = name && poolNames.indexOf(name) !== -1;
-      var cellColor = name ? (inPool ? '#2ec4b6' : '#f59e0b') : 'var(--border)';
-      var cellBg    = name ? (inPool ? 'rgba(46,196,182,0.15)' : 'rgba(245,158,11,0.15)') : 'transparent';
-      return '<td style="padding:3px;border-bottom:1px solid var(--border);border-right:1px solid var(--border)22;text-align:center;">' +
+      var cellColor = name ? (inPool ? 'var(--teal2)' : 'var(--warn)') : 'var(--muted)';
+      var cellBg    = name ? (inPool ? 'rgba(46,196,182,0.12)' : 'rgba(245,158,11,0.12)') : 'transparent';
+      return '<td style="padding:4px;border-bottom:1px solid var(--border);text-align:center;">' +
         '<div onclick="openSafetyPicker(\'' + a.id + '\',\'' + _safetyDate + '\',\'' + pos + '\',this)" ' +
-          'style="cursor:pointer;border-radius:5px;padding:4px 5px;font-size:11px;font-weight:' + (name?'700':'400') + ';color:' + cellColor + ';background:' + cellBg + ';min-height:26px;transition:opacity 0.1s;" ' +
+          'style="cursor:pointer;border-radius:6px;padding:5px 6px;font-size:11px;font-weight:' + (name?'700':'400') + ';color:' + cellColor + ';background:' + cellBg + ';min-height:28px;display:flex;align-items:center;justify-content:center;transition:opacity 0.12s;border:1px solid ' + (name?(inPool?'rgba(46,196,182,0.25)':'rgba(245,158,11,0.25)'):'transparent') + ';" ' +
           'onmouseover="this.style.opacity=\'0.65\'" onmouseout="this.style.opacity=\'1\'">' +
-          (name || '<span style="font-size:13px;">—</span>') +
+          (name || '<span style="color:var(--border);font-size:14px;">—</span>') +
         '</div></td>';
     }).join('');
 
-    return '<tr>' +
-      '<td style="padding:6px 10px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);white-space:nowrap;">' +
-        '<div style="font-size:12px;font-weight:700;">' + a.name + '</div>' +
-        '<div style="font-size:10px;color:var(--muted);">OT ' + (a.ot_time||'—') + ' · ' + a.disc + ' · ' + (a.ap_m||'—') + 'm</div>' +
+    var rowBg = i % 2 === 0 ? '' : 'background:rgba(255,255,255,0.015);';
+    return '<tr style="' + rowBg + '">' +
+      '<td style="padding:8px 12px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);white-space:nowrap;min-width:160px;">' +
+        '<div style="font-size:12px;font-weight:700;color:var(--text);">' + (a.no ? '<span style="color:var(--muted);font-size:10px;margin-right:5px;">' + a.no + '</span>' : '') + a.name + '</div>' +
+        '<div style="font-size:10px;color:var(--sub);margin-top:2px;">OT <span style="color:var(--teal2);font-variant-numeric:tabular-nums;">' + (a.ot_time||'—') + '</span> · ' + (a.disc||'—') + ' · <span style="color:var(--foam);">' + (a.ap_m||'—') + 'm</span></div>' +
       '</td>' +
       cells +
     '</tr>';
@@ -3053,7 +3053,7 @@ function renderSafetyView() {
   var grid = '<div style="overflow-x:auto;">' +
     '<table style="width:100%;border-collapse:collapse;">' +
       '<thead><tr>' +
-        '<th style="' + thBase + 'text-align:left;min-width:140px;border-right:1px solid var(--border);">選手</th>' +
+        '<th style="' + thBase + 'text-align:left;min-width:160px;border-right:1px solid var(--border);">選手</th>' +
         posHeaders +
       '</tr></thead>' +
       '<tbody>' + bodyRows + '</tbody>' +
@@ -3196,7 +3196,15 @@ async function loadStartListConfig(dayNum) {
   var targetDay = dayNum || 1;
   var saved = apData.filter(function(a){ return (a.day||1) === targetDay && !a.dns && a.ot_time; });
   if (saved.length) {
-    startList = saved.map(function(a){ return { id:a.id, no:a.no, name:a.name, nat:a.nationality, disc:a.disc, ap_m:a.ap_m, ap_t:a.ap_t, ot:a.ot_time, wt:'—' }; });
+    startList = saved.map(function(a){
+      var wtStr = '—';
+      if (a.ot_time) {
+        var _p = a.ot_time.split(':');
+        var _tot = parseInt(_p[0]||0)*60 + parseInt(_p[1]||0) - 45;
+        if (_tot >= 0) { var _h = Math.floor(_tot/60); var _m = _tot%60; wtStr = String(_h).padStart(2,'0')+':'+String(_m).padStart(2,'0'); }
+      }
+      return { id:a.id, no:a.no, name:a.name, nat:a.nationality, gender:a.gender, disc:a.disc, ap_m:a.ap_m, ap_t:a.ap_t, ot:a.ot_time, wt:wtStr };
+    });
     renderStartListUI();
   } else {
     // 保存済みなし → 生成フォームを表示
@@ -3208,28 +3216,31 @@ async function loadStartListConfig(dayNum) {
 
 function renderStartListUI() {
   var el = document.getElementById('slList');
+  var colWT  = 'width:52px;flex-shrink:0;font-variant-numeric:tabular-nums;';
+  var colOT  = 'width:56px;flex-shrink:0;font-variant-numeric:tabular-nums;';
+  var colHdr = 'font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:-apple-system,sans-serif;';
   var header = '<div class="ap-row ap-header">' +
     '<span class="ap-col-no">#</span>' +
     '<span class="ap-col-name">Name</span>' +
     '<span class="ap-col-nat">NAT</span>' +
+    '<span class="ap-col-gender">Gen</span>' +
+    '<span style="' + colWT + colHdr + '">WarmUp</span>' +
+    '<span style="' + colOT + colHdr + '">OT</span>' +
     '<span class="ap-col-disc">Disc</span>' +
-    '<span class="ap-col-depth">AP</span>' +
-    '<span class="ap-col-dt">DT</span>' +
-    '<span style="width:58px;flex-shrink:0;font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:-apple-system,sans-serif;">OT</span>' +
-    '<span style="width:54px;flex-shrink:0;font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:-apple-system,sans-serif;">WT</span>' +
+    '<span class="ap-col-depth">AP(m)</span>' +
+    '<span class="ap-col-dt">AP(mm:ss)</span>' +
   '</div>';
   var rows = startList.map(function(a, i) {
-    var isDepth = ['CWT','CWTB','CNF','FIM'].indexOf(a.disc||'') !== -1;
-    var apDisplay = a.ap_m ? a.ap_m + 'm' : (a.ap_t || '—');
     return '<div class="ap-row">' +
       '<span class="ap-col-no">' + (a.no || i+1) + '</span>' +
       '<span class="ap-col-name">' + (a.name||'') + '</span>' +
       '<span class="ap-col-nat">' + (a.nat||'—') + '</span>' +
+      '<span class="ap-col-gender">' + (a.gender||'—') + '</span>' +
+      '<span style="' + colWT + 'font-size:12px;color:var(--sub);">' + (a.wt||'—') + '</span>' +
+      '<span style="' + colOT + 'font-size:13px;font-weight:800;color:var(--teal2);">' + (a.ot||'—') + '</span>' +
       '<span class="ap-col-disc">' + (a.disc||'—') + '</span>' +
-      '<span class="ap-col-depth">' + apDisplay + '</span>' +
+      '<span class="ap-col-depth">' + (a.ap_m ? a.ap_m + '' : '—') + '</span>' +
       '<span class="ap-col-dt">' + (a.ap_t||'—') + '</span>' +
-      '<span style="width:58px;flex-shrink:0;font-size:13px;font-weight:800;color:var(--teal2);font-variant-numeric:tabular-nums;">' + (a.ot||'—') + '</span>' +
-      '<span style="width:54px;flex-shrink:0;font-size:12px;color:var(--sub);font-variant-numeric:tabular-nums;">' + (a.wt||'—') + '</span>' +
     '</div>';
   }).join('');
   el.innerHTML = header + rows;
@@ -3253,7 +3264,7 @@ async function generateStartList() {
     var ot = minutesToOT(currentMin);
     var wt = minutesToOT(currentMin - 45);
     currentMin += getInterval(a.ap_m);
-    return { id:a.id, no:a.no, name:a.name, nat:a.nationality, disc:a.disc, ap_m:a.ap_m, ap_t:a.ap_t, ot:ot, wt:wt };
+    return { id:a.id, no:a.no, name:a.name, nat:a.nationality, gender:a.gender, disc:a.disc, ap_m:a.ap_m, ap_t:a.ap_t, ot:ot, wt:wt };
   });
 
   renderStartListUI();
