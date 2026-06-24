@@ -357,11 +357,7 @@ body.role-readonly .role-judge-edit{pointer-events:none;opacity:0.45;cursor:not-
   <div style="position:relative;z-index:1;">
   <div class="event-name" id="ev-name">読み込み中...</div>
   <div class="event-meta" id="ev-meta"></div>
-  <div class="event-stats">
-    <div class="stat-pill"><div class="stat-pill-val" id="ev-stat-entries">—</div><div class="stat-pill-lbl">Entries</div></div>
-    <div class="stat-pill"><div class="stat-pill-val" id="ev-stat-confirmed">—</div><div class="stat-pill-lbl">Confirmed</div></div>
-    <div class="stat-pill"><div class="stat-pill-val" id="ev-stat-protests">0</div><div class="stat-pill-lbl">Protests</div></div>
-  </div><!-- z-index wrapper -->
+  <!-- z-index wrapper -->
 </div>
 
 <div class="tabs" id="mainTabRow">
@@ -2370,6 +2366,17 @@ function switchTab(tab) {
   if (subRow) subRow.style.display = 'none';
 }
 
+function isCompetitionDay(dayNum) {
+  // _dayLabels から該当日のラベルを取得し "Competition Day" かどうか判定
+  var days = getCompetitionDays();
+  var dateStr = days[dayNum - 1];
+  if (!dateStr) return false;
+  var label = (_dayLabels && _dayLabels[dateStr]) ? _dayLabels[dateStr] : '';
+  // ラベルが空の場合はデフォルトで Competition Day 扱い（AP/Start List が使えるように）
+  if (!label) return true;
+  return label.indexOf('Competition Day') !== -1 || label.indexOf('競技日') !== -1;
+}
+
 function switchDayTab(dayNum) {
   _currentDayNum = dayNum;
   // メインタブ全解除
@@ -2385,11 +2392,20 @@ function switchDayTab(dayNum) {
   });
   var dayBtn = document.getElementById('tab-day-' + dayNum);
   if (dayBtn) dayBtn.classList.add('active');
-  // サブタブ行を表示
+
   var subRow = document.getElementById('daySubTabRow');
-  if (subRow) subRow.style.display = 'flex';
-  // 現在のサブタブを表示
-  switchDaySubTab(_currentDaySubTab);
+  if (isCompetitionDay(dayNum)) {
+    // Competition Day → サブタブ表示して現在のサブタブへ
+    if (subRow) subRow.style.display = 'flex';
+    switchDaySubTab(_currentDaySubTab);
+  } else {
+    // 開会式・レスト日・Official Training 等 → サブタブ非表示・全サブパネル隠す
+    if (subRow) subRow.style.display = 'none';
+    ['ap','startlist','results','protests'].forEach(function(p) {
+      var pe = document.getElementById('panel-' + p);
+      if (pe) pe.classList.remove('active');
+    });
+  }
 }
 
 function switchDaySubTab(subTab) {
