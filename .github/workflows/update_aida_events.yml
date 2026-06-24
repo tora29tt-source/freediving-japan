@@ -21,13 +21,18 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install dependencies
+      - name: Install Python dependencies
         run: |
           pip install playwright beautifulsoup4
           playwright install chromium --with-deps
 
-      - name: Fetch AIDA events
-        run: python scripts/fetch_aida_events.py --year 2026
+      - name: Install xvfb (仮想ディスプレイ)
+        run: sudo apt-get install -y xvfb
+
+      - name: Fetch AIDA events (headless=False + xvfb)
+        run: |
+          xvfb-run --auto-servernum --server-args="-screen 0 1280x900x24" \
+            python3 scripts/fetch_aida_events.py --year 2026
 
       - name: Commit if changed
         run: |

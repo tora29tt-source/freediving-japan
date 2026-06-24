@@ -2995,25 +2995,16 @@ function renderSafetyView() {
   var allDates = getDatesInRange(dateStr, dateEndStr || dateStr);
 
   // メインタブと同じく Competition Day のみに絞る
-  var compDates = []; var _scn = 0; var _dateToCompNum = {};
+  var compDates = []; var _scn = 0; var _dateToCompNum = {}; var _compNumToDate = {};
   allDates.forEach(function(d) {
     var lbl = (_dayLabels && _dayLabels[d]) ? _dayLabels[d] : '';
     var isComp = lbl.indexOf('Competition Day') !== -1 || lbl.indexOf('競技日') !== -1 || !lbl;
-    if (isComp) { _scn++; compDates.push(d); _dateToCompNum[d] = _scn; }
+    if (isComp) { _scn++; compDates.push(d); _dateToCompNum[d] = _scn; _compNumToDate[_scn] = d; }
   });
   if (!compDates.length) compDates = allDates; // フォールバック
-  if (!_safetyDate || compDates.indexOf(_safetyDate) === -1) _safetyDate = compDates[0];
 
-  // ---- 日付タブ（Competition Day のみ）----
-  var dateTabs = '<div style="display:flex;gap:0;border-bottom:1px solid var(--border);overflow-x:auto;">' +
-    compDates.map(function(d) {
-      var dt = new Date(d + 'T00:00:00');
-      var num = _dateToCompNum[d];
-      var lbl = (dt.getMonth()+1) + '/' + dt.getDate() + ' Day ' + num;
-      var active = d === _safetyDate;
-      return '<button onclick="setSafetyDate(\'' + d + '\')" style="padding:8px 14px;font-size:11px;font-weight:700;font-family:inherit;border:none;border-bottom:2px solid ' + (active ? 'var(--teal)' : 'transparent') + ';background:transparent;color:' + (active ? 'var(--teal2)' : 'var(--muted)') + ';cursor:pointer;white-space:nowrap;">' + lbl + '</button>';
-    }).join('') +
-  '</div>';
+  // メインタブの選択日（_currentDayNum）に連動させる
+  _safetyDate = _compNumToDate[_currentDayNum] || compDates[0];
 
   // ---- セーフティープール ----
   var pool = getSafetyDiversForDate(_safetyDate);
@@ -3026,7 +3017,7 @@ function renderSafetyView() {
 
   // ---- グリッド ----
   if (!apData.length) {
-    el.innerHTML = dateTabs + poolHtml + '<div style="padding:20px;text-align:center;color:var(--muted);">選手が登録されていません</div>';
+    el.innerHTML = poolHtml + '<div style="padding:20px;text-align:center;color:var(--muted);">選手が登録されていません</div>';
     return;
   }
 
@@ -3105,7 +3096,7 @@ function renderSafetyView() {
 
   var grid = '<div style="overflow-x:auto;">' + header + (bodyRows || '<div style="padding:20px;text-align:center;color:var(--muted);">このDayの選手が登録されていません</div>') + '</div>';
 
-  el.innerHTML = dateTabs + poolHtml + grid;
+  el.innerHTML = poolHtml + grid;
 }
 
 function setSafetyDate(date) {
