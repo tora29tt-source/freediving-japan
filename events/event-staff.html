@@ -2928,7 +2928,7 @@ function minutesToOT(min) {
 // =============================================
 // SAFETY ASSIGNMENT ビュー
 // =============================================
-var SAFETY_POSITIONS = ['1st', '2nd', '3rd', 'Rest', 'O2/Rest', 'Warm up'];
+var SAFETY_POSITIONS = ['1st', '2nd', '3rd', 'Rest', 'O2', 'Warm up 1', 'Warm up 2', 'Warm up 3'];
 var _safetyAssignments = {};  // key: "entryId_date_position" → safety_name
 var _safetyDate        = null;
 var _safetyLoaded      = false;
@@ -3116,9 +3116,26 @@ function setSafetyDate(date) {
 function openSafetyPicker(entryId, date, position, cellDiv) {
   closeSafetyPicker();
   var pool = getSafetyDiversForDate(date);
-  var options = [{ name: '', label: '— クリア' }].concat(pool.map(function(s) { return { name: s.name, label: s.name }; }));
+
+  // この行（同じentryId・date）で他のポジションに既に割り当てられている名前を収集
+  var usedInRow = new Set();
+  SAFETY_POSITIONS.forEach(function(pos) {
+    if (pos === position) return; // 現在選択中のポジションは除外しない
+    var key = entryId + '_' + date + '_' + pos;
+    var a = _safetyAssignments[key];
+    if (a && a.safety_name) usedInRow.add(a.safety_name);
+  });
+
+  var options = [{ name: '', label: '— クリア', disabled: false }].concat(pool.map(function(s) {
+    return { name: s.name, label: s.name, disabled: usedInRow.has(s.name) };
+  }));
 
   var items = options.map(function(o) {
+    if (o.disabled) {
+      return '<div style="display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:5px;font-size:12px;font-weight:600;color:var(--muted);opacity:0.4;cursor:not-allowed;">' +
+        '<div style="width:8px;height:8px;border-radius:50%;background:var(--muted);flex-shrink:0;"></div>' +
+        o.label + '<span style="font-size:9px;margin-left:auto;">使用中</span></div>';
+    }
     return '<div onclick="selectSafetyOption(\'' + entryId + '\',\'' + date + '\',\'' + position + '\',\'' + o.name + '\')" ' +
       'style="display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;border-radius:5px;font-size:12px;font-weight:600;color:' + (o.name ? 'var(--teal2)' : 'var(--muted)') + ';transition:background 0.1s;" ' +
       'onmouseover="this.style.background=\'rgba(255,255,255,0.09)\'" onmouseout="this.style.background=\'transparent\'">' +
