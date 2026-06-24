@@ -2943,6 +2943,9 @@ function setSlView(v) {
   if (btnSafety) { btnSafety.style.background = v === 'safety' ? 'var(--teal)' : 'transparent'; btnSafety.style.color = v === 'safety' ? '#fff' : 'var(--muted)'; }
   document.getElementById('slList').style.display     = v === 'list'   ? '' : 'none';
   document.getElementById('safetyGrid').style.display = v === 'safety' ? '' : 'none';
+  // Safety ビューは横に広いのでカードの overflow を切り替え
+  var slCard = document.getElementById('slCard');
+  if (slCard) slCard.style.overflowX = v === 'safety' ? 'auto' : '';
   if (v === 'safety') {
     if (!_safetyLoaded) {
       initSafetyData().then(renderSafetyView);
