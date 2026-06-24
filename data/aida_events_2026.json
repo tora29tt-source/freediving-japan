@@ -1,7 +1,7 @@
 {
   "year": 2026,
-  "updatedAt": "2026-06-24T10:33:34Z",
-  "source": "aida_chrome_scrape",
+  "updatedAt": "2026-06-24T10:51:13Z",
+  "source": "aida_playwright_scrape",
   "events": [
     {
       "title": "Malaysia Freediving Pool Games (MFPG) 2026",
@@ -10,6 +10,7 @@
       "cityCountry": "Selangor, Malaysia",
       "startDate": "2026-01-03",
       "endDate": "2026-01-04",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4732",
       "month": 1,
       "cat": "pool"
     },
@@ -20,6 +21,7 @@
       "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
       "startDate": "2026-01-04",
       "endDate": "2026-01-04",
+      "link": "https://www.aidainternational.org/EventPage/4888",
       "month": 1,
       "cat": "pool"
     },
@@ -30,6 +32,7 @@
       "cityCountry": "Ce, Philippines",
       "startDate": "2026-01-09",
       "endDate": "2026-01-12",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4926",
       "month": 1,
       "cat": "sea"
     },
@@ -40,6 +43,7 @@
       "cityCountry": "Orimattila, Finland",
       "startDate": "2026-01-10",
       "endDate": "2026-01-10",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4880",
       "month": 1,
       "cat": "pool"
     },
@@ -50,6 +54,7 @@
       "cityCountry": "Orimattila, Finland",
       "startDate": "2026-01-11",
       "endDate": "2026-01-11",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4877",
       "month": 1,
       "cat": "pool"
     },
@@ -60,6 +65,7 @@
       "cityCountry": "Tawau, Malaysia",
       "startDate": "2026-01-15",
       "endDate": "2026-01-16",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4699",
       "month": 1,
       "cat": "pool"
     },
@@ -70,6 +76,7 @@
       "cityCountry": "Suzuka, Japan",
       "startDate": "2026-01-17",
       "endDate": "2026-01-17",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4892",
       "month": 1,
       "cat": "pool"
     },
@@ -80,6 +87,7 @@
       "cityCountry": "Kävlinge, Sweden",
       "startDate": "2026-01-18",
       "endDate": "2026-01-18",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4792",
       "month": 1,
       "cat": "pool"
     },
@@ -90,6 +98,7 @@
       "cityCountry": "Anyang-Si, Republic of Korea",
       "startDate": "2026-01-18",
       "endDate": "2026-01-18",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4915",
       "month": 1,
       "cat": "pool"
     },
@@ -100,6 +109,7 @@
       "cityCountry": "Quepos, Costa Rica",
       "startDate": "2026-01-20",
       "endDate": "2026-01-25",
+      "link": "https://www.aidainternational.org/EventPage/4629",
       "month": 1,
       "cat": "sea"
     },
@@ -110,6 +120,7 @@
       "cityCountry": "Panglao, Philippines",
       "startDate": "2026-01-24",
       "endDate": "2026-01-26",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4919",
       "month": 1,
       "cat": "pool"
     },
@@ -120,6 +131,7 @@
       "cityCountry": "Punta Colorada, Uruguay",
       "startDate": "2026-01-24",
       "endDate": "2026-01-24",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4927",
       "month": 1,
       "cat": "pool"
     },
@@ -130,6 +142,7 @@
       "cityCountry": "Gwangju, Republic of Korea",
       "startDate": "2026-01-25",
       "endDate": "2026-01-25",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4938",
       "month": 1,
       "cat": "pool"
     },
@@ -140,6 +153,7 @@
       "cityCountry": "Jakarta, Indonesia",
       "startDate": "2026-01-25",
       "endDate": "2026-01-25",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4933",
       "month": 1,
       "cat": "pool"
     },
@@ -150,6 +164,7 @@
       "cityCountry": "Seoul, Republic of Korea",
       "startDate": "2026-01-25",
       "endDate": "2026-01-25",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4904",
       "month": 1,
       "cat": "pool"
     },
@@ -160,6 +175,7 @@
       "cityCountry": "Dubai, United Arab Emirates",
       "startDate": "2026-01-27",
       "endDate": "2026-01-27",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4941",
       "month": 1,
       "cat": "pool"
     },
@@ -170,6 +186,7 @@
       "cityCountry": "Rīga, Latvia",
       "startDate": "2026-01-31",
       "endDate": "2026-01-31",
+      "link": "https://www.aidainternational.org/EventPage/4916",
       "month": 1,
       "cat": "pool"
     },
@@ -180,6 +197,7 @@
       "cityCountry": "Dubai, United Arab Emirates",
       "startDate": "2026-01-31",
       "endDate": "2026-01-31",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4943",
       "month": 1,
       "cat": "sea"
     },
@@ -190,6 +208,7 @@
       "cityCountry": "Kusatsu, Japan",
       "startDate": "2026-01-31",
       "endDate": "2026-01-31",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4753",
       "month": 1,
       "cat": "pool"
     },
@@ -200,7 +219,85 @@
       "cityCountry": "Snohomish, United States",
       "startDate": "2026-01-31",
       "endDate": "2026-01-31",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4790",
       "month": 1,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA DOUBLE K IDA 21ST DEPTH CHALLENGE",
+      "type": "Depth Competition",
+      "venue": "Double K International Diving Academy",
+      "cityCountry": "Cebu, Philippines",
+      "startDate": "2026-02-02",
+      "endDate": "2026-02-07",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4918",
+      "month": 2,
+      "cat": "sea"
+    },
+    {
+      "title": "AIDA One Breath Challenge - Deep Calm Edition",
+      "type": "Pool Competition",
+      "venue": "Neom Hotel",
+      "cityCountry": "Dahab, Egypt",
+      "startDate": "2026-02-06",
+      "endDate": "2026-02-06",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4961",
+      "month": 2,
+      "cat": "pool"
+    },
+    {
+      "title": "Malaysia Apnea Warrior Championship 2026  - WR Ranking",
+      "type": "Pool Competition",
+      "venue": "Arena Sukan Kuala Lumpur",
+      "cityCountry": "Kuala Lumpur, Malaysia",
+      "startDate": "2026-02-07",
+      "endDate": "2026-02-08",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4903",
+      "month": 2,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA Altitude Apnea Challenge",
+      "type": "Pool Competition",
+      "venue": "Clear Creek Metropolitan Recreation District",
+      "cityCountry": "Idaho Springs, Co, United States",
+      "startDate": "2026-02-07",
+      "endDate": "2026-02-08",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4872",
+      "month": 2,
+      "cat": "pool"
+    },
+    {
+      "title": "PSA NEW YEAR AIDA COMP",
+      "type": "Depth Competition",
+      "venue": "Paradive",
+      "cityCountry": "Siheung-Si, Republic of Korea",
+      "startDate": "2026-02-07",
+      "endDate": "2026-02-07",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4955",
+      "month": 2,
+      "cat": "sea"
+    },
+    {
+      "title": "AIDA Just STA Challenge",
+      "type": "Pool Competition",
+      "venue": "Dit Sports Center",
+      "cityCountry": "Busan, Republic of Korea",
+      "startDate": "2026-02-07",
+      "endDate": "2026-02-07",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4956",
+      "month": 2,
+      "cat": "pool"
+    },
+    {
+      "title": "nOxyGAIN Challenge 4th Round AIDA",
+      "type": "Pool Competition",
+      "venue": "Alfred Hajos National Aquatics Complex",
+      "cityCountry": "Budapest, Hungary",
+      "startDate": "2026-02-08",
+      "endDate": "2026-02-08",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4962",
+      "month": 2,
       "cat": "pool"
     },
     {
@@ -210,6 +307,7 @@
       "cityCountry": "Suzuka, Japan",
       "startDate": "2026-02-11",
       "endDate": "2026-02-11",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4896",
       "month": 2,
       "cat": "pool"
     },
@@ -220,6 +318,7 @@
       "cityCountry": "Papudo, Chile",
       "startDate": "2026-02-12",
       "endDate": "2026-02-16",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4911",
       "month": 2,
       "cat": "sea"
     },
@@ -230,6 +329,7 @@
       "cityCountry": "Rijeka, Croatia",
       "startDate": "2026-02-12",
       "endDate": "2026-02-13",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4973",
       "month": 2,
       "cat": "pool"
     },
@@ -240,6 +340,7 @@
       "cityCountry": "San Miguel, Cozumel, Mexico",
       "startDate": "2026-02-13",
       "endDate": "2026-02-15",
+      "link": "https://www.aidainternational.org/EventPage/4762",
       "month": 2,
       "cat": "pool"
     },
@@ -250,6 +351,7 @@
       "cityCountry": "Riga, Latvia",
       "startDate": "2026-02-14",
       "endDate": "2026-02-15",
+      "link": "https://www.aidainternational.org/EventPage/4917",
       "month": 2,
       "cat": "pool"
     },
@@ -260,6 +362,7 @@
       "cityCountry": "San Juan, Siquijor Island, Philippines",
       "startDate": "2026-02-14",
       "endDate": "2026-02-15",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4952",
       "month": 2,
       "cat": "sea"
     },
@@ -270,6 +373,7 @@
       "cityCountry": "Rijeka, Croatia",
       "startDate": "2026-02-14",
       "endDate": "2026-02-15",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4974",
       "month": 2,
       "cat": "pool"
     },
@@ -280,6 +384,7 @@
       "cityCountry": "Nice, France",
       "startDate": "2026-02-14",
       "endDate": "2026-02-14",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4807",
       "month": 2,
       "cat": "pool"
     },
@@ -290,6 +395,7 @@
       "cityCountry": "Amami, Japan",
       "startDate": "2026-02-15",
       "endDate": "2026-02-15",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4948",
       "month": 2,
       "cat": "pool"
     },
@@ -300,6 +406,7 @@
       "cityCountry": "Vellinge, Sweden",
       "startDate": "2026-02-15",
       "endDate": "2026-02-15",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4884",
       "month": 2,
       "cat": "pool"
     },
@@ -310,6 +417,7 @@
       "cityCountry": "Jakarta, Indonesia",
       "startDate": "2026-02-15",
       "endDate": "2026-02-15",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4905",
       "month": 2,
       "cat": "pool"
     },
@@ -320,6 +428,7 @@
       "cityCountry": "Puerto Del Carmen, Spain",
       "startDate": "2026-02-15",
       "endDate": "2026-02-15",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4838",
       "month": 2,
       "cat": "pool"
     },
@@ -330,6 +439,7 @@
       "cityCountry": "Mszczonow, Poland",
       "startDate": "2026-02-19",
       "endDate": "2026-02-19",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4980",
       "month": 2,
       "cat": "sea"
     },
@@ -340,6 +450,7 @@
       "cityCountry": "Stockholm, Sweden",
       "startDate": "2026-02-21",
       "endDate": "2026-02-21",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4976",
       "month": 2,
       "cat": "pool"
     },
@@ -350,6 +461,7 @@
       "cityCountry": "Wakayama, Japan",
       "startDate": "2026-02-21",
       "endDate": "2026-02-21",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4754",
       "month": 2,
       "cat": "pool"
     },
@@ -360,6 +472,7 @@
       "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
       "startDate": "2026-02-22",
       "endDate": "2026-02-22",
+      "link": "https://www.aidainternational.org/EventPage/4889",
       "month": 2,
       "cat": "pool"
     },
@@ -370,6 +483,7 @@
       "cityCountry": "Ulsan, Republic of Korea",
       "startDate": "2026-02-25",
       "endDate": "2026-02-25",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4954",
       "month": 2,
       "cat": "pool"
     },
@@ -380,6 +494,7 @@
       "cityCountry": "Dubai, United Arab Emirates",
       "startDate": "2026-02-26",
       "endDate": "2026-02-26",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4942",
       "month": 2,
       "cat": "pool"
     },
@@ -390,6 +505,7 @@
       "cityCountry": "Pardubice, Czech Republic",
       "startDate": "2026-02-28",
       "endDate": "2026-02-28",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4834",
       "month": 2,
       "cat": "pool"
     },
@@ -400,8 +516,207 @@
       "cityCountry": "Dubai, United Arab Emirates",
       "startDate": "2026-02-28",
       "endDate": "2026-02-28",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4944",
       "month": 2,
       "cat": "sea"
+    },
+    {
+      "title": "AIDA KOREA National Championship 2026",
+      "type": "Pool Competition",
+      "venue": "Jamsil 1 Swimming Pool",
+      "cityCountry": "Seoul, Republic of Korea",
+      "startDate": "2026-03-01",
+      "endDate": "2026-03-01",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4950",
+      "month": 3,
+      "cat": "pool"
+    },
+    {
+      "title": "12th AIDA Tyrolean Apnea Cup",
+      "type": "Pool Competition",
+      "venue": "Usi - Universitäts-Sportinstitut Innsbruck",
+      "cityCountry": "Innsbruck, Austria",
+      "startDate": "2026-03-01",
+      "endDate": "2026-03-01",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4863",
+      "month": 3,
+      "cat": "pool"
+    },
+    {
+      "title": "Golfo Dulce Freediving Depth Competition",
+      "type": "Depth Competition",
+      "venue": "Marina Bahia Golfito",
+      "cityCountry": "Golfito, Costa Rica",
+      "startDate": "2026-03-03",
+      "endDate": "2026-03-08",
+      "link": "https://www.aidainternational.org/EventPage/4786",
+      "month": 3,
+      "cat": "sea"
+    },
+    {
+      "title": "AIDA Freediving New Zealand Depth Nationals 2026",
+      "type": "Depth Competition",
+      "venue": "Motutere Bay Top 10 Holiday Park",
+      "cityCountry": "Turangi 3382, New Zealand",
+      "startDate": "2026-03-06",
+      "endDate": "2026-03-08",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4989",
+      "month": 3,
+      "cat": "sea"
+    },
+    {
+      "title": "Aida Dianshan Lake Pool Champion",
+      "type": "Pool Competition",
+      "venue": "Swimming Pool Of Dianshan Lake National Fitness Center",
+      "cityCountry": "Kunshan, China",
+      "startDate": "2026-03-06",
+      "endDate": "2026-03-08",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4998",
+      "month": 3,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA Malaysia Freediving Pool Games (MFPG) Johor 2026",
+      "type": "Pool Competition",
+      "venue": "Pusat Akuatik Mbjb Arena Larkin",
+      "cityCountry": "Johor Bahru, Malaysia",
+      "startDate": "2026-03-07",
+      "endDate": "2026-03-08",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4931",
+      "month": 3,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA Bristol Blue 2026 - BFA UK National Pool Freediving Championships",
+      "type": "Pool Competition",
+      "venue": "Hengrove Leisure Centre",
+      "cityCountry": "Bristol, United Kingdom",
+      "startDate": "2026-03-07",
+      "endDate": "2026-03-08",
+      "link": "https://www.aidainternational.org/EventPage/4750",
+      "month": 3,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA JAPAN FREEDIVING POOL CHAMPIONSHIPS 2026",
+      "type": "Pool Competition",
+      "venue": "Infroneer Kusatsu Aquatics Center",
+      "cityCountry": "Kusatsu, Japan",
+      "startDate": "2026-03-07",
+      "endDate": "2026-03-08",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4706",
+      "month": 3,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA 2026 OneFreediving Taipei mini cup",
+      "type": "Pool Competition",
+      "venue": "Fh Junior High School.",
+      "cityCountry": "New Taipei City, Chinese Taipei",
+      "startDate": "2026-03-08",
+      "endDate": "2026-03-08",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4999",
+      "month": 3,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA, BFC & SCFC Sub Tropic Thunder Pool Comp",
+      "type": "Pool Competition",
+      "venue": "Musgrave Park Swim Centre",
+      "cityCountry": "South Brisbane, Australia",
+      "startDate": "2026-03-08",
+      "endDate": "2026-03-08",
+      "link": "https://www.aidainternational.org/EventPage/4997",
+      "month": 3,
+      "cat": "pool"
+    },
+    {
+      "title": "1er CAMPEONATO NACIONAL AIDA VENEZUELA DE APNEA INDOOR 2026",
+      "type": "Pool Competition",
+      "venue": "Alberto Figueredo \\\\``Parque Miranda\\\\``",
+      "cityCountry": "Caracas, Venezuela",
+      "startDate": "2026-03-10",
+      "endDate": "2026-03-11",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5004",
+      "month": 3,
+      "cat": "pool"
+    },
+    {
+      "title": "Campeonato Uruguayo de Apena Indoor AIDA",
+      "type": "Pool Competition",
+      "venue": "Campus De Maldonado",
+      "cityCountry": "Maldonado, Uruguay",
+      "startDate": "2026-03-14",
+      "endDate": "2026-03-15",
+      "link": "https://www.aidainternational.org/EventPage/4978",
+      "month": 3,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA Swiss Championships Indoor 2026",
+      "type": "Pool Competition",
+      "venue": "Epicentre Glâne",
+      "cityCountry": "Romont, Switzerland",
+      "startDate": "2026-03-14",
+      "endDate": "2026-03-14",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4992",
+      "month": 3,
+      "cat": "pool"
+    },
+    {
+      "title": "Nafas Min Dahab - AIDA Static Invitational",
+      "type": "Pool Competition",
+      "venue": "Neom Resort",
+      "cityCountry": "Dahab, Egypt",
+      "startDate": "2026-03-15",
+      "endDate": "2026-03-16",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5008",
+      "month": 3,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA Macau Freediving Pool Mini Competition - Spring 2026",
+      "type": "Pool Competition",
+      "venue": "Pool Of Escola Luso-Chinesa Tecnico-Professional, Macau, China",
+      "cityCountry": "Macau Sar, China",
+      "startDate": "2026-03-15",
+      "endDate": "2026-03-15",
+      "link": "https://www.aidainternational.org/EventPage/5007",
+      "month": 3,
+      "cat": "pool"
+    },
+    {
+      "title": "BB CUP Sp.01 | SUNDAY BREATH | AIDA Pool Competition",
+      "type": "Pool Competition",
+      "venue": "라움enc수영장 (Raum Swimming Pool)",
+      "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
+      "startDate": "2026-03-15",
+      "endDate": "2026-03-15",
+      "link": "https://www.aidainternational.org/EventPage/4964",
+      "month": 3,
+      "cat": "pool"
+    },
+    {
+      "title": "2026 AIDA SPRING SEASON CUP - STATIC",
+      "type": "Pool Competition",
+      "venue": "Seongnam Aqualine",
+      "cityCountry": "Seongnam, Republic of Korea",
+      "startDate": "2026-03-15",
+      "endDate": "2026-03-15",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5003",
+      "month": 3,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA NOT TO LOOSE APNEA STATIC CONTEST",
+      "type": "Pool Competition",
+      "venue": "Leo Lagrange Pool",
+      "cityCountry": "Toulouse, France",
+      "startDate": "2026-03-18",
+      "endDate": "2026-03-18",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4979",
+      "month": 3,
+      "cat": "pool"
     },
     {
       "title": "AIDA Blue Element March Mini",
@@ -410,6 +725,7 @@
       "cityCountry": "Soufriere, Dominica",
       "startDate": "2026-03-19",
       "endDate": "2026-03-23",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5000",
       "month": 3,
       "cat": "sea"
     },
@@ -420,6 +736,7 @@
       "cityCountry": "Stockholm, Sweden",
       "startDate": "2026-03-20",
       "endDate": "2026-03-22",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4859",
       "month": 3,
       "cat": "pool"
     },
@@ -430,6 +747,7 @@
       "cityCountry": "Durban, South Africa",
       "startDate": "2026-03-20",
       "endDate": "2026-03-22",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5013",
       "month": 3,
       "cat": "pool"
     },
@@ -440,6 +758,7 @@
       "cityCountry": "Shanghai, China",
       "startDate": "2026-03-20",
       "endDate": "2026-03-20",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5010",
       "month": 3,
       "cat": "pool"
     },
@@ -450,6 +769,7 @@
       "cityCountry": "Chiba, Japan",
       "startDate": "2026-03-20",
       "endDate": "2026-03-20",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4957",
       "month": 3,
       "cat": "pool"
     },
@@ -460,6 +780,7 @@
       "cityCountry": "Panglao, Philippines",
       "startDate": "2026-03-21",
       "endDate": "2026-03-25",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4975",
       "month": 3,
       "cat": "pool"
     },
@@ -470,6 +791,7 @@
       "cityCountry": "Espoo, Finland",
       "startDate": "2026-03-21",
       "endDate": "2026-03-22",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4928",
       "month": 3,
       "cat": "pool"
     },
@@ -480,6 +802,7 @@
       "cityCountry": "Anyang Si, Gyounggi Do, Republic of Korea",
       "startDate": "2026-03-22",
       "endDate": "2026-03-22",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5018",
       "month": 3,
       "cat": "pool"
     },
@@ -490,6 +813,7 @@
       "cityCountry": "Gosung-Gun, Republic of Korea",
       "startDate": "2026-03-22",
       "endDate": "2026-03-22",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5006",
       "month": 3,
       "cat": "pool"
     },
@@ -500,6 +824,7 @@
       "cityCountry": "Dahab, Egypt",
       "startDate": "2026-03-26",
       "endDate": "2026-03-30",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4898",
       "month": 3,
       "cat": "pool"
     },
@@ -510,6 +835,7 @@
       "cityCountry": "Wahroonga, Australia",
       "startDate": "2026-03-27",
       "endDate": "2026-03-30",
+      "link": "https://www.aidainternational.org/EventPage/4988",
       "month": 3,
       "cat": "pool"
     },
@@ -520,6 +846,7 @@
       "cityCountry": "Cancun, Mexico",
       "startDate": "2026-03-27",
       "endDate": "2026-03-29",
+      "link": "https://www.aidainternational.org/EventPage/5020",
       "month": 3,
       "cat": "pool"
     },
@@ -530,6 +857,7 @@
       "cityCountry": "Novato, Ca, United States",
       "startDate": "2026-03-28",
       "endDate": "2026-03-29",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4893",
       "month": 3,
       "cat": "pool"
     },
@@ -540,6 +868,7 @@
       "cityCountry": "Kab. Karangasem, Indonesia",
       "startDate": "2026-03-28",
       "endDate": "2026-03-29",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4949",
       "month": 3,
       "cat": "pool"
     },
@@ -550,6 +879,7 @@
       "cityCountry": "Taipei, Chinese Taipei",
       "startDate": "2026-03-28",
       "endDate": "2026-03-28",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5022",
       "month": 3,
       "cat": "pool"
     },
@@ -560,6 +890,7 @@
       "cityCountry": "Sofia, Bulgaria",
       "startDate": "2026-03-28",
       "endDate": "2026-03-28",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4565",
       "month": 3,
       "cat": "pool"
     },
@@ -570,6 +901,7 @@
       "cityCountry": "Gothenburg, Sweden",
       "startDate": "2026-03-28",
       "endDate": "2026-03-28",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5026",
       "month": 3,
       "cat": "pool"
     },
@@ -580,6 +912,7 @@
       "cityCountry": "Dubai, United Arab Emirates",
       "startDate": "2026-03-28",
       "endDate": "2026-03-28",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4946",
       "month": 3,
       "cat": "sea"
     },
@@ -590,6 +923,7 @@
       "cityCountry": "Kanagawa, Japan",
       "startDate": "2026-03-29",
       "endDate": "2026-03-29",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4813",
       "month": 3,
       "cat": "pool"
     },
@@ -600,7 +934,96 @@
       "cityCountry": "Gwangju, Republic of Korea",
       "startDate": "2026-03-29",
       "endDate": "2026-03-29",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5019",
       "month": 3,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA Spring Static Series",
+      "type": "Pool Competition",
+      "venue": "Neom Hotel",
+      "cityCountry": "Dahab, Egypt",
+      "startDate": "2026-04-03",
+      "endDate": "2026-04-05",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5027",
+      "month": 4,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA Jakarta Freedive Competition 2026",
+      "type": "Pool Competition",
+      "venue": "Stadion Akuatik Gbk",
+      "cityCountry": "Jakarta, Indonesia",
+      "startDate": "2026-04-04",
+      "endDate": "2026-04-05",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4746",
+      "month": 4,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA Emerald City Apnea Challenge - Pool Competition",
+      "type": "Pool Competition",
+      "venue": "Snohomish Aquatic Center",
+      "cityCountry": "Snohomish, United States",
+      "startDate": "2026-04-04",
+      "endDate": "2026-04-04",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4900",
+      "month": 4,
+      "cat": "pool"
+    },
+    {
+      "title": "BB CUP Ep.07 | SUNDAY BREATH | AIDA Pool Competition",
+      "type": "Pool Competition",
+      "venue": "라움enc수영장 (Raum Swimming Pool)",
+      "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
+      "startDate": "2026-04-05",
+      "endDate": "2026-04-05",
+      "link": "https://www.aidainternational.org/EventPage/4890",
+      "month": 4,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA BE National Cup C4 – Round 1",
+      "type": "Pool Competition",
+      "venue": "Piscine De Ciney",
+      "cityCountry": "Ciney, Belgium",
+      "startDate": "2026-04-05",
+      "endDate": "2026-04-05",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5011",
+      "month": 4,
+      "cat": "pool"
+    },
+    {
+      "title": "7th WHITE BALANCE Pool Competition AIDA",
+      "type": "Pool Competition",
+      "venue": "Balance Swimming Pool",
+      "cityCountry": "Anyang-Si, Republic of Korea",
+      "startDate": "2026-04-05",
+      "endDate": "2026-04-05",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5016",
+      "month": 4,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA BE National Cup CETMA – Round 2",
+      "type": "Pool Competition",
+      "venue": "Piscine Longchamp",
+      "cityCountry": "Brussels, Belgium",
+      "startDate": "2026-04-06",
+      "endDate": "2026-04-06",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5012",
+      "month": 4,
+      "cat": "pool"
+    },
+    {
+      "title": "Feel Free Freediving AIDA Club Competition",
+      "type": "Pool Competition",
+      "venue": "Ir. Ottenbad",
+      "cityCountry": "Eindhoven, Netherlands",
+      "startDate": "2026-04-09",
+      "endDate": "2026-04-09",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5035",
+      "month": 4,
       "cat": "pool"
     },
     {
@@ -610,6 +1033,7 @@
       "cityCountry": "Pingtung, Chinese Taipei",
       "startDate": "2026-04-11",
       "endDate": "2026-04-12",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5017",
       "month": 4,
       "cat": "sea"
     },
@@ -620,6 +1044,7 @@
       "cityCountry": "Zwickau, Germany",
       "startDate": "2026-04-11",
       "endDate": "2026-04-12",
+      "link": "https://www.aidainternational.org/EventPage/4994",
       "month": 4,
       "cat": "pool"
     },
@@ -630,6 +1055,7 @@
       "cityCountry": "Paimio, Finland",
       "startDate": "2026-04-12",
       "endDate": "2026-04-12",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5024",
       "month": 4,
       "cat": "pool"
     },
@@ -640,6 +1066,7 @@
       "cityCountry": "Nimes, France",
       "startDate": "2026-04-12",
       "endDate": "2026-04-12",
+      "link": "https://www.aidainternational.org/EventPage/5023",
       "month": 4,
       "cat": "pool"
     },
@@ -650,6 +1077,7 @@
       "cityCountry": "Anyang, Republic of Korea",
       "startDate": "2026-04-12",
       "endDate": "2026-04-12",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5025",
       "month": 4,
       "cat": "pool"
     },
@@ -660,6 +1088,7 @@
       "cityCountry": "Cenotillo, Mexico",
       "startDate": "2026-04-14",
       "endDate": "2026-04-19",
+      "link": "https://www.aidainternational.org/EventPage/4864",
       "month": 4,
       "cat": "sea"
     },
@@ -670,6 +1099,7 @@
       "cityCountry": "Kunshan, China",
       "startDate": "2026-04-15",
       "endDate": "2026-04-16",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5040",
       "month": 4,
       "cat": "pool"
     },
@@ -680,6 +1110,7 @@
       "cityCountry": "Mabini, Batangas, Philippines",
       "startDate": "2026-04-17",
       "endDate": "2026-04-18",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4907",
       "month": 4,
       "cat": "pool"
     },
@@ -690,6 +1121,7 @@
       "cityCountry": "Panglao, Philippines",
       "startDate": "2026-04-17",
       "endDate": "2026-04-17",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5041",
       "month": 4,
       "cat": "pool"
     },
@@ -700,6 +1132,7 @@
       "cityCountry": "Bohol, Philippines",
       "startDate": "2026-04-18",
       "endDate": "2026-04-18",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5030",
       "month": 4,
       "cat": "sea"
     },
@@ -710,6 +1143,7 @@
       "cityCountry": "Gyounggi Do, Republic of Korea",
       "startDate": "2026-04-19",
       "endDate": "2026-04-19",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5039",
       "month": 4,
       "cat": "pool"
     },
@@ -720,6 +1154,7 @@
       "cityCountry": "Bohol, Philippines",
       "startDate": "2026-04-19",
       "endDate": "2026-04-19",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5033",
       "month": 4,
       "cat": "sea"
     },
@@ -730,6 +1165,7 @@
       "cityCountry": "Mabini, Batangas, Philippines",
       "startDate": "2026-04-20",
       "endDate": "2026-04-26",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4906",
       "month": 4,
       "cat": "sea"
     },
@@ -740,6 +1176,7 @@
       "cityCountry": "Cenotillo, Mexico",
       "startDate": "2026-04-21",
       "endDate": "2026-04-22",
+      "link": "https://www.aidainternational.org/EventPage/5021",
       "month": 4,
       "cat": "pool"
     },
@@ -750,6 +1187,7 @@
       "cityCountry": "Dubai, United Arab Emirates",
       "startDate": "2026-04-21",
       "endDate": "2026-04-21",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5050",
       "month": 4,
       "cat": "pool"
     },
@@ -760,6 +1198,7 @@
       "cityCountry": "Taipei, Chinese Taipei",
       "startDate": "2026-04-25",
       "endDate": "2026-04-25",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5045",
       "month": 4,
       "cat": "pool"
     },
@@ -770,6 +1209,7 @@
       "cityCountry": "Dubai, United Arab Emirates",
       "startDate": "2026-04-25",
       "endDate": "2026-04-25",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5047",
       "month": 4,
       "cat": "sea"
     },
@@ -780,6 +1220,7 @@
       "cityCountry": "Seoul Gwanak-Gu, Republic of Korea",
       "startDate": "2026-04-25",
       "endDate": "2026-04-25",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5029",
       "month": 4,
       "cat": "pool"
     },
@@ -790,6 +1231,7 @@
       "cityCountry": "Cebu, Philippines",
       "startDate": "2026-04-29",
       "endDate": "2026-05-03",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4920",
       "month": 4,
       "cat": "sea"
     },
@@ -800,7 +1242,228 @@
       "cityCountry": "Budapest, Hungary",
       "startDate": "2026-04-30",
       "endDate": "2026-05-01",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5042",
       "month": 4,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA Copa Santa Teresa",
+      "type": "Pool Competition",
+      "venue": "Hermosa Valley School",
+      "cityCountry": "Santa Teresa, Costa Rica",
+      "startDate": "2026-05-02",
+      "endDate": "2026-05-03",
+      "link": "https://www.aidainternational.org/EventPage/4787",
+      "month": 5,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA MFPG Penang Mini Competition (May 2026 Edition)",
+      "type": "Pool Competition",
+      "venue": "Maple Gold Recreation Center",
+      "cityCountry": "Bayan Lepas, Malaysia",
+      "startDate": "2026-05-02",
+      "endDate": "2026-05-03",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4996",
+      "month": 5,
+      "cat": "pool"
+    },
+    {
+      "title": "RIGA SPRING - AIDA STATIC PERFORMANCES",
+      "type": "Pool Competition",
+      "venue": "Rtu Kipsala Swimming Pool",
+      "cityCountry": "Riga, Latvia",
+      "startDate": "2026-05-02",
+      "endDate": "2026-05-02",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5059",
+      "month": 5,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA One Breath Challenge 5",
+      "type": "Pool Competition",
+      "venue": "Neom Hotel",
+      "cityCountry": "Dahab, Egypt",
+      "startDate": "2026-05-02",
+      "endDate": "2026-05-02",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5058",
+      "month": 5,
+      "cat": "pool"
+    },
+    {
+      "title": "Coupe des Belugas AIDA DYN/DYNB 2026",
+      "type": "Pool Competition",
+      "venue": "Piscine Lucien-Flamand",
+      "cityCountry": "Quebec, Canada",
+      "startDate": "2026-05-02",
+      "endDate": "2026-05-02",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5002",
+      "month": 5,
+      "cat": "pool"
+    },
+    {
+      "title": "Queenstown Freediving Club 2026 AIDA Competition Series 1B",
+      "type": "Pool Competition",
+      "venue": "Alpine Aqualand",
+      "cityCountry": "Queenstown, New Zealand",
+      "startDate": "2026-05-03",
+      "endDate": "2026-05-03",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5048",
+      "month": 5,
+      "cat": "pool"
+    },
+    {
+      "title": "Queenstown Freediving Club 2026 AIDA Competition Series 1A",
+      "type": "Pool Competition",
+      "venue": "Alpine Aqualand",
+      "cityCountry": "Queenstown, New Zealand",
+      "startDate": "2026-05-03",
+      "endDate": "2026-05-03",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5049",
+      "month": 5,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA One Breath Challenge 6",
+      "type": "Pool Competition",
+      "venue": "Canyon Pool",
+      "cityCountry": "Dahab, Egypt",
+      "startDate": "2026-05-05",
+      "endDate": "2026-05-07",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5064",
+      "month": 5,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA Cairo Freedivers Championship - 2nd Edition",
+      "type": "Pool Competition",
+      "venue": "Vertex Club",
+      "cityCountry": "Cairo, Egypt",
+      "startDate": "2026-05-08",
+      "endDate": "2026-05-09",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5014",
+      "month": 5,
+      "cat": "pool"
+    },
+    {
+      "title": "Melbourne Freedivers AIDA Winter Games 2026",
+      "type": "Pool Competition",
+      "venue": "Melbourne Sports And Aquatic Centre - Msac",
+      "cityCountry": "Melbourne, Australia",
+      "startDate": "2026-05-09",
+      "endDate": "2026-05-10",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5031",
+      "month": 5,
+      "cat": "pool"
+    },
+    {
+      "title": "Eindhoven International AIDA Pool Competition 2026",
+      "type": "Pool Competition",
+      "venue": "Nationaal Zwemcentrum De Tongelreep",
+      "cityCountry": "Eindhoven, Netherlands",
+      "startDate": "2026-05-09",
+      "endDate": "2026-05-09",
+      "link": "https://www.aidainternational.org/EventPage/4982",
+      "month": 5,
+      "cat": "pool"
+    },
+    {
+      "title": "LSDKs STA+DYN-tävling",
+      "type": "Pool Competition",
+      "venue": "Tinnebäcksbadet",
+      "cityCountry": "Linköping, Sweden",
+      "startDate": "2026-05-10",
+      "endDate": "2026-05-10",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5066",
+      "month": 5,
+      "cat": "pool"
+    },
+    {
+      "title": "Aida Freediving World Cup May Competition",
+      "type": "Depth Competition",
+      "venue": "Sharm Club Hotel - Freediving World Center",
+      "cityCountry": "Sharm El Sheikh, Egypt",
+      "startDate": "2026-05-12",
+      "endDate": "2026-05-19",
+      "link": "https://www.aidainternational.org/EventPage/4913",
+      "month": 5,
+      "cat": "sea"
+    },
+    {
+      "title": "Test Event by WF",
+      "type": "Mixed Competition",
+      "venue": "Test Event By Wf",
+      "cityCountry": "Test Event By Wf, Romania",
+      "startDate": "2026-05-13",
+      "endDate": "2026-05-15",
+      "link": "https://www.aidainternational.org/EventPage/5005",
+      "month": 5,
+      "cat": "pool"
+    },
+    {
+      "title": "Aida Ocean cup 2026 competicion de apnea Outdoor",
+      "type": "Depth Competition",
+      "venue": "Lanzarote",
+      "cityCountry": "Puerto Del Carmen, Spain",
+      "startDate": "2026-05-15",
+      "endDate": "2026-05-16",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4846",
+      "month": 5,
+      "cat": "sea"
+    },
+    {
+      "title": "AIDA Road to Serbia 2026",
+      "type": "Pool Competition",
+      "venue": "Taichung North District Swimming Pool",
+      "cityCountry": "Taichung, Chinese Taipei",
+      "startDate": "2026-05-15",
+      "endDate": "2026-05-15",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5078",
+      "month": 5,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA Bora Abyss Contest",
+      "type": "Depth Competition",
+      "venue": "Bp521",
+      "cityCountry": "98730 Bora Bora, Polynésie Française, France",
+      "startDate": "2026-05-16",
+      "endDate": "2026-05-17",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4947",
+      "month": 5,
+      "cat": "sea"
+    },
+    {
+      "title": "2026 AIDA Freediving Series (1st Stop) in the Guangdong-Hong Kong-Macau Greater Bay Area",
+      "type": "Pool Competition",
+      "venue": "Guangdong Vocational Institute Of Sport Swimming Pool",
+      "cityCountry": "Guangzhou, China",
+      "startDate": "2026-05-16",
+      "endDate": "2026-05-17",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5069",
+      "month": 5,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA Freediving Dynamic Challenge 2026 Suzuka #1",
+      "type": "Pool Competition",
+      "venue": "Mie Koutsu Group Sports No Mori Suzuka",
+      "cityCountry": "Suzuka, Japan",
+      "startDate": "2026-05-16",
+      "endDate": "2026-05-16",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5044",
+      "month": 5,
+      "cat": "pool"
+    },
+    {
+      "title": "RIGA SPRING - AIDA DYN PERFORMANCES",
+      "type": "Pool Competition",
+      "venue": "Rtu Kipsala Swimming Pool",
+      "cityCountry": "Rīga, Latvia",
+      "startDate": "2026-05-16",
+      "endDate": "2026-05-16",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5065",
+      "month": 5,
       "cat": "pool"
     },
     {
@@ -810,6 +1473,7 @@
       "cityCountry": "Soufriere, Dominica",
       "startDate": "2026-05-17",
       "endDate": "2026-05-24",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5068",
       "month": 5,
       "cat": "sea"
     },
@@ -820,6 +1484,7 @@
       "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
       "startDate": "2026-05-17",
       "endDate": "2026-05-17",
+      "link": "https://www.aidainternational.org/EventPage/4891",
       "month": 5,
       "cat": "pool"
     },
@@ -830,6 +1495,7 @@
       "cityCountry": "Gothenburg, Sweden",
       "startDate": "2026-05-17",
       "endDate": "2026-05-17",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5086",
       "month": 5,
       "cat": "pool"
     },
@@ -840,6 +1506,7 @@
       "cityCountry": "Busan, Republic of Korea",
       "startDate": "2026-05-17",
       "endDate": "2026-05-17",
+      "link": "https://www.aidainternational.org/EventPage/5055",
       "month": 5,
       "cat": "pool"
     },
@@ -850,6 +1517,7 @@
       "cityCountry": "Pereira, Colombia",
       "startDate": "2026-05-18",
       "endDate": "2026-05-18",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5088",
       "month": 5,
       "cat": "pool"
     },
@@ -860,6 +1528,7 @@
       "cityCountry": "San Andres, Colombia",
       "startDate": "2026-05-19",
       "endDate": "2026-05-23",
+      "link": "https://www.aidainternational.org/EventPage/4841",
       "month": 5,
       "cat": "sea"
     },
@@ -870,6 +1539,7 @@
       "cityCountry": "Sharm El Sheikh, Egypt",
       "startDate": "2026-05-20",
       "endDate": "2026-05-24",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4940",
       "month": 5,
       "cat": "sea"
     },
@@ -880,6 +1550,7 @@
       "cityCountry": "San Andres, Colombia",
       "startDate": "2026-05-21",
       "endDate": "2026-05-21",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4895",
       "month": 5,
       "cat": "pool"
     },
@@ -890,6 +1561,7 @@
       "cityCountry": "Cebu, Philippines",
       "startDate": "2026-05-22",
       "endDate": "2026-05-26",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4921",
       "month": 5,
       "cat": "sea"
     },
@@ -900,6 +1572,7 @@
       "cityCountry": "Shanghi, China",
       "startDate": "2026-05-22",
       "endDate": "2026-05-22",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5075",
       "month": 5,
       "cat": "pool"
     },
@@ -910,6 +1583,7 @@
       "cityCountry": "Gimhae-Si, Republic of Korea",
       "startDate": "2026-05-24",
       "endDate": "2026-05-24",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5057",
       "month": 5,
       "cat": "pool"
     },
@@ -920,6 +1594,7 @@
       "cityCountry": "Beijing, China",
       "startDate": "2026-05-24",
       "endDate": "2026-05-24",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5070",
       "month": 5,
       "cat": "pool"
     },
@@ -930,6 +1605,7 @@
       "cityCountry": "Larnaca, Cyprus",
       "startDate": "2026-05-26",
       "endDate": "2026-05-30",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4875",
       "month": 5,
       "cat": "sea"
     },
@@ -940,6 +1616,7 @@
       "cityCountry": "Dubai, United Arab Emirates",
       "startDate": "2026-05-26",
       "endDate": "2026-05-28",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5051",
       "month": 5,
       "cat": "pool"
     },
@@ -950,6 +1627,7 @@
       "cityCountry": "Espoo, Finland",
       "startDate": "2026-05-26",
       "endDate": "2026-05-26",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5090",
       "month": 5,
       "cat": "pool"
     },
@@ -960,6 +1638,7 @@
       "cityCountry": "Budapest, Hungary",
       "startDate": "2026-05-30",
       "endDate": "2026-06-07",
+      "link": "https://www.aidainternational.org/EventPage/4852",
       "month": 5,
       "cat": "wc"
     },
@@ -970,6 +1649,7 @@
       "cityCountry": "Ajaccio, France",
       "startDate": "2026-05-30",
       "endDate": "2026-05-31",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4959",
       "month": 5,
       "cat": "sea"
     },
@@ -980,6 +1660,7 @@
       "cityCountry": "Dubai, United Arab Emirates",
       "startDate": "2026-05-30",
       "endDate": "2026-05-30",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5052",
       "month": 5,
       "cat": "sea"
     },
@@ -990,6 +1671,7 @@
       "cityCountry": "Gwangju, Republic of Korea",
       "startDate": "2026-05-31",
       "endDate": "2026-05-31",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5076",
       "month": 5,
       "cat": "pool"
     },
@@ -1000,8 +1682,119 @@
       "cityCountry": "Jakarta, Indonesia",
       "startDate": "2026-05-31",
       "endDate": "2026-05-31",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5063",
       "month": 5,
       "cat": "pool"
+    },
+    {
+      "title": "AIDA Eilat FreeDeep 4",
+      "type": "Depth Competition",
+      "venue": "Red Sea Eilat",
+      "cityCountry": "Eilat, Israel",
+      "startDate": "2026-06-04",
+      "endDate": "2026-06-06",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4951",
+      "month": 6,
+      "cat": "sea"
+    },
+    {
+      "title": "Wellington Winter Champs 2026",
+      "type": "Pool Competition",
+      "venue": "Te Rauparaha Arena And Aquatic Centre, Wellington, New Zealand",
+      "cityCountry": "Wellington, New Zealand",
+      "startDate": "2026-06-06",
+      "endDate": "2026-06-07",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5056",
+      "month": 6,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA Hong Kong Pool Competition 2026",
+      "type": "Pool Competition",
+      "venue": "Chinese Ymca Of Hong Kong - Lions - Ymca Junk Bay Youth Camp",
+      "cityCountry": "Hong Kong, Hong Kong, China",
+      "startDate": "2026-06-07",
+      "endDate": "2026-06-07",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5071",
+      "month": 6,
+      "cat": "pool"
+    },
+    {
+      "title": "CALIFORNIA - AIDA National Record Attempt 2026",
+      "type": "Depth Competition",
+      "venue": "Lake Berryessa",
+      "cityCountry": "Winters, United States",
+      "startDate": "2026-06-07",
+      "endDate": "2026-06-07",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5046",
+      "month": 6,
+      "cat": "sea"
+    },
+    {
+      "title": "World Apnea FOR JUJU Championship",
+      "type": "Depth Competition",
+      "venue": "Freediving World Sharm",
+      "cityCountry": "Sharm Elshikh, Egypt",
+      "startDate": "2026-06-12",
+      "endDate": "2026-06-14",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5124",
+      "month": 6,
+      "cat": "sea"
+    },
+    {
+      "title": "AIDA Panglao HUG Cup #4",
+      "type": "Depth Competition",
+      "venue": "Freedive Panglao",
+      "cityCountry": "Panglao, Bohol, Philippines",
+      "startDate": "2026-06-12",
+      "endDate": "2026-06-14",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4984",
+      "month": 6,
+      "cat": "sea"
+    },
+    {
+      "title": "CEBU IDA OFFICIAL WEEKEND",
+      "type": "Depth Competition",
+      "venue": "Double K International Academy",
+      "cityCountry": "Cebu Mactan, Philippines",
+      "startDate": "2026-06-13",
+      "endDate": "2026-06-14",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5105",
+      "month": 6,
+      "cat": "sea"
+    },
+    {
+      "title": "AIDA NakedBlue2026-NOVICE CUP",
+      "type": "Depth Competition",
+      "venue": "Moonseom",
+      "cityCountry": "Jeju, Republic of Korea",
+      "startDate": "2026-06-13",
+      "endDate": "2026-06-14",
+      "link": "https://www.aidainternational.org/EventPage/5115",
+      "month": 6,
+      "cat": "sea"
+    },
+    {
+      "title": "AIDA 2026 Floral Spring Cup",
+      "type": "Pool Competition",
+      "venue": "Taichung North District Swimming Pool",
+      "cityCountry": "Taichung City, Chinese Taipei",
+      "startDate": "2026-06-13",
+      "endDate": "2026-06-14",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5130",
+      "month": 6,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA Vedran Mrvos Memorial Competition",
+      "type": "Depth Competition",
+      "venue": "Krusija",
+      "cityCountry": "Krk, Croatia",
+      "startDate": "2026-06-15",
+      "endDate": "2026-06-15",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5095",
+      "month": 6,
+      "cat": "sea"
     },
     {
       "title": "AIDA Nicaragua Training Camp Mini Comp",
@@ -1010,6 +1803,7 @@
       "cityCountry": "Catarina, Nicaragua",
       "startDate": "2026-06-16",
       "endDate": "2026-06-20",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5129",
       "month": 6,
       "cat": "sea"
     },
@@ -1020,6 +1814,7 @@
       "cityCountry": "Krk, Croatia",
       "startDate": "2026-06-16",
       "endDate": "2026-06-20",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5135",
       "month": 6,
       "cat": "sea"
     },
@@ -1030,6 +1825,7 @@
       "cityCountry": "Krk, Croatia",
       "startDate": "2026-06-16",
       "endDate": "2026-06-20",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5015",
       "month": 6,
       "cat": "sea"
     },
@@ -1040,6 +1836,7 @@
       "cityCountry": "Johor Bahru, Malaysia",
       "startDate": "2026-06-17",
       "endDate": "2026-06-17",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5096",
       "month": 6,
       "cat": "pool"
     },
@@ -1050,6 +1847,7 @@
       "cityCountry": "Dahab, Egypt",
       "startDate": "2026-06-18",
       "endDate": "2026-06-20",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5101",
       "month": 6,
       "cat": "pool"
     },
@@ -1060,6 +1858,7 @@
       "cityCountry": "Praha, Czech Republic",
       "startDate": "2026-06-20",
       "endDate": "2026-06-20",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5100",
       "month": 6,
       "cat": "pool"
     },
@@ -1070,6 +1869,7 @@
       "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
       "startDate": "2026-06-21",
       "endDate": "2026-06-21",
+      "link": "https://www.aidainternational.org/EventPage/4965",
       "month": 6,
       "cat": "pool"
     },
@@ -1080,6 +1880,7 @@
       "cityCountry": "Seongnam-Si, Republic of Korea",
       "startDate": "2026-06-21",
       "endDate": "2026-06-21",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5133",
       "month": 6,
       "cat": "pool"
     },
@@ -1090,6 +1891,7 @@
       "cityCountry": "Yongin, Republic of Korea",
       "startDate": "2026-06-22",
       "endDate": "2026-06-22",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5139",
       "month": 6,
       "cat": "sea"
     },
@@ -1100,6 +1902,7 @@
       "cityCountry": "Dubai, United Arab Emirates",
       "startDate": "2026-06-23",
       "endDate": "2026-06-25",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5053",
       "month": 6,
       "cat": "pool"
     },
@@ -1110,6 +1913,7 @@
       "cityCountry": "Singapore, Singapore",
       "startDate": "2026-06-24",
       "endDate": "2026-06-24",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5136",
       "month": 6,
       "cat": "pool"
     },
@@ -1120,6 +1924,7 @@
       "cityCountry": "Bandar Abbas, Iran",
       "startDate": "2026-06-25",
       "endDate": "2026-07-07",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5126",
       "month": 6,
       "cat": "pool"
     },
@@ -1130,6 +1935,7 @@
       "cityCountry": "Suwon, Republic of Korea",
       "startDate": "2026-06-25",
       "endDate": "2026-06-25",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5097",
       "month": 6,
       "cat": "pool"
     },
@@ -1140,6 +1946,7 @@
       "cityCountry": "Panglao, Philippines",
       "startDate": "2026-06-26",
       "endDate": "2026-06-26",
+      "link": "https://www.aidainternational.org/EventPage/5089",
       "month": 6,
       "cat": "sea"
     },
@@ -1150,6 +1957,7 @@
       "cityCountry": "Cabo Rojo, Puerto Rico",
       "startDate": "2026-06-27",
       "endDate": "2026-06-28",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5067",
       "month": 6,
       "cat": "pool"
     },
@@ -1160,6 +1968,7 @@
       "cityCountry": "Gwangju, Republic of Korea",
       "startDate": "2026-06-27",
       "endDate": "2026-06-27",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5114",
       "month": 6,
       "cat": "pool"
     },
@@ -1170,6 +1979,7 @@
       "cityCountry": "Dubai, United Arab Emirates",
       "startDate": "2026-06-27",
       "endDate": "2026-06-27",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5054",
       "month": 6,
       "cat": "sea"
     },
@@ -1180,6 +1990,7 @@
       "cityCountry": "Anyang Si, Gyounggi Do, Republic of Korea",
       "startDate": "2026-06-28",
       "endDate": "2026-06-28",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5127",
       "month": 6,
       "cat": "pool"
     },
@@ -1190,6 +2001,7 @@
       "cityCountry": "Gimhae-Si, Republic of Korea",
       "startDate": "2026-06-28",
       "endDate": "2026-06-28",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5125",
       "month": 6,
       "cat": "pool"
     },
@@ -1200,6 +2012,7 @@
       "cityCountry": "Jakarta, Indonesia",
       "startDate": "2026-06-28",
       "endDate": "2026-06-28",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5103",
       "month": 6,
       "cat": "pool"
     },
@@ -1210,6 +2023,7 @@
       "cityCountry": "Cebu, Philippines",
       "startDate": "2026-07-03",
       "endDate": "2026-07-07",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4922",
       "month": 7,
       "cat": "sea"
     },
@@ -1220,6 +2034,7 @@
       "cityCountry": "Acitrezza, Italy",
       "startDate": "2026-07-03",
       "endDate": "2026-07-05",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5119",
       "month": 7,
       "cat": "sea"
     },
@@ -1230,6 +2045,7 @@
       "cityCountry": "Riga, Latvia",
       "startDate": "2026-07-04",
       "endDate": "2026-07-04",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5140",
       "month": 7,
       "cat": "pool"
     },
@@ -1240,6 +2056,7 @@
       "cityCountry": "Nice, France",
       "startDate": "2026-07-04",
       "endDate": "2026-07-04",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5084",
       "month": 7,
       "cat": "sea"
     },
@@ -1250,6 +2067,7 @@
       "cityCountry": "Nice, France",
       "startDate": "2026-07-05",
       "endDate": "2026-07-05",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5085",
       "month": 7,
       "cat": "sea"
     },
@@ -1260,6 +2078,7 @@
       "cityCountry": "Cabo San Lucas, Mexico",
       "startDate": "2026-07-09",
       "endDate": "2026-07-12",
+      "link": "https://www.aidainternational.org/EventPage/5072",
       "month": 7,
       "cat": "pool"
     },
@@ -1270,6 +2089,7 @@
       "cityCountry": "Manado, North Sulawesi, Indonesia",
       "startDate": "2026-07-11",
       "endDate": "2026-07-13",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5144",
       "month": 7,
       "cat": "sea"
     },
@@ -1280,6 +2100,7 @@
       "cityCountry": "Setapak Kuala Lumpur, Malaysia",
       "startDate": "2026-07-12",
       "endDate": "2026-07-12",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5146",
       "month": 7,
       "cat": "pool"
     },
@@ -1290,6 +2111,7 @@
       "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
       "startDate": "2026-07-12",
       "endDate": "2026-07-12",
+      "link": "https://www.aidainternational.org/EventPage/4966",
       "month": 7,
       "cat": "pool"
     },
@@ -1300,6 +2122,7 @@
       "cityCountry": "Panglao, Philippines",
       "startDate": "2026-07-13",
       "endDate": "2026-07-23",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4932",
       "month": 7,
       "cat": "sea"
     },
@@ -1310,6 +2133,7 @@
       "cityCountry": "Okinawa, Japan",
       "startDate": "2026-07-18",
       "endDate": "2026-07-19",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4958",
       "month": 7,
       "cat": "sea"
     },
@@ -1320,6 +2144,7 @@
       "cityCountry": "Suzuka, Japan",
       "startDate": "2026-07-18",
       "endDate": "2026-07-18",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5079",
       "month": 7,
       "cat": "pool"
     },
@@ -1330,6 +2155,7 @@
       "cityCountry": "Ajaccio, France",
       "startDate": "2026-07-23",
       "endDate": "2026-07-26",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4960",
       "month": 7,
       "cat": "sea"
     },
@@ -1340,6 +2166,7 @@
       "cityCountry": "Ettenheim, Germany",
       "startDate": "2026-07-24",
       "endDate": "2026-07-26",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4901",
       "month": 7,
       "cat": "pool"
     },
@@ -1350,6 +2177,7 @@
       "cityCountry": "Soufriere, Dominica, United States",
       "startDate": "2026-07-25",
       "endDate": "2026-08-01",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4995",
       "month": 7,
       "cat": "sea"
     },
@@ -1360,6 +2188,7 @@
       "cityCountry": "Mexico City, Mexico",
       "startDate": "2026-07-25",
       "endDate": "2026-07-26",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5151",
       "month": 7,
       "cat": "pool"
     },
@@ -1370,6 +2199,7 @@
       "cityCountry": "Victoria, Canada",
       "startDate": "2026-07-25",
       "endDate": "2026-07-25",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5141",
       "month": 7,
       "cat": "pool"
     },
@@ -1380,6 +2210,7 @@
       "cityCountry": "Utila, Honduras",
       "startDate": "2026-07-28",
       "endDate": "2026-07-28",
+      "link": "https://www.aidainternational.org/EventPage/5154",
       "month": 7,
       "cat": "pool"
     },
@@ -1390,6 +2221,7 @@
       "cityCountry": "Cebu Mactan, Philippines",
       "startDate": "2026-07-30",
       "endDate": "2026-08-07",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5108",
       "month": 7,
       "cat": "sea"
     },
@@ -1400,6 +2232,7 @@
       "cityCountry": "Barcelona, Spain",
       "startDate": "2026-07-30",
       "endDate": "2026-07-30",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5118",
       "month": 7,
       "cat": "pool"
     },
@@ -1410,6 +2243,7 @@
       "cityCountry": "Cairns, Australia",
       "startDate": "2026-08-01",
       "endDate": "2026-08-02",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5077",
       "month": 8,
       "cat": "pool"
     },
@@ -1420,6 +2254,7 @@
       "cityCountry": "900 42 Dunajská Lužná, Slovakia",
       "startDate": "2026-08-01",
       "endDate": "2026-08-01",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5117",
       "month": 8,
       "cat": "sea"
     },
@@ -1430,6 +2265,7 @@
       "cityCountry": "Amami, Japan",
       "startDate": "2026-08-02",
       "endDate": "2026-08-02",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5131",
       "month": 8,
       "cat": "sea"
     },
@@ -1440,6 +2276,7 @@
       "cityCountry": "Amami, Japan",
       "startDate": "2026-08-03",
       "endDate": "2026-08-03",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5132",
       "month": 8,
       "cat": "sea"
     },
@@ -1450,6 +2287,7 @@
       "cityCountry": "Manado, North Sulawesi, Indonesia",
       "startDate": "2026-08-07",
       "endDate": "2026-08-09",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4991",
       "month": 8,
       "cat": "sea"
     },
@@ -1460,6 +2298,7 @@
       "cityCountry": "Mabini, Batangas, Philippines",
       "startDate": "2026-08-07",
       "endDate": "2026-08-08",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5091",
       "month": 8,
       "cat": "sea"
     },
@@ -1470,6 +2309,7 @@
       "cityCountry": "Panglao, Bohol, Philippines",
       "startDate": "2026-08-14",
       "endDate": "2026-08-16",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4985",
       "month": 8,
       "cat": "sea"
     },
@@ -1480,6 +2320,7 @@
       "cityCountry": "Mabini, Batangas, Philippines",
       "startDate": "2026-08-14",
       "endDate": "2026-08-15",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5099",
       "month": 8,
       "cat": "pool"
     },
@@ -1490,6 +2331,7 @@
       "cityCountry": "Kuala Lumpur, Malaysia",
       "startDate": "2026-08-16",
       "endDate": "2026-08-16",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5138",
       "month": 8,
       "cat": "pool"
     },
@@ -1500,6 +2342,7 @@
       "cityCountry": "Cebu, Philippines",
       "startDate": "2026-08-19",
       "endDate": "2026-08-23",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4923",
       "month": 8,
       "cat": "sea"
     },
@@ -1510,6 +2353,7 @@
       "cityCountry": "Suzuka, Japan",
       "startDate": "2026-08-23",
       "endDate": "2026-08-23",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5080",
       "month": 8,
       "cat": "pool"
     },
@@ -1520,6 +2364,7 @@
       "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
       "startDate": "2026-08-23",
       "endDate": "2026-08-23",
+      "link": "https://www.aidainternational.org/EventPage/4967",
       "month": 8,
       "cat": "pool"
     },
@@ -1530,6 +2375,7 @@
       "cityCountry": "Mockrehna Ot Wildschütz, Germany",
       "startDate": "2026-08-29",
       "endDate": "2026-08-30",
+      "link": "https://www.aidainternational.org/EventPage/5143",
       "month": 8,
       "cat": "sea"
     },
@@ -1540,6 +2386,7 @@
       "cityCountry": "Catarina, Nicaragua",
       "startDate": "2026-09-01",
       "endDate": "2026-09-08",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5156",
       "month": 9,
       "cat": "sea"
     },
@@ -1550,6 +2397,7 @@
       "cityCountry": "Seattle, United States",
       "startDate": "2026-09-05",
       "endDate": "2026-09-06",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5061",
       "month": 9,
       "cat": "sea"
     },
@@ -1560,6 +2408,7 @@
       "cityCountry": "Sharm El Sheikh, Egypt",
       "startDate": "2026-09-09",
       "endDate": "2026-09-16",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4912",
       "month": 9,
       "cat": "sea"
     },
@@ -1570,6 +2419,7 @@
       "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
       "startDate": "2026-09-13",
       "endDate": "2026-09-13",
+      "link": "https://www.aidainternational.org/EventPage/4968",
       "month": 9,
       "cat": "pool"
     },
@@ -1580,6 +2430,7 @@
       "cityCountry": "Jeju, Republic of Korea",
       "startDate": "2026-09-17",
       "endDate": "2026-09-19",
+      "link": "https://www.aidainternational.org/EventPage/5073",
       "month": 9,
       "cat": "pool"
     },
@@ -1590,6 +2441,7 @@
       "cityCountry": "Singapore, Singapore",
       "startDate": "2026-09-19",
       "endDate": "2026-09-21",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5153",
       "month": 9,
       "cat": "pool"
     },
@@ -1600,6 +2452,7 @@
       "cityCountry": "Playa Del Carmen Centro-Solidaridad, Mexico",
       "startDate": "2026-09-21",
       "endDate": "2026-09-27",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5102",
       "month": 9,
       "cat": "pool"
     },
@@ -1610,6 +2463,7 @@
       "cityCountry": "Cebu Mactan, Philippines",
       "startDate": "2026-09-25",
       "endDate": "2026-09-27",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5109",
       "month": 9,
       "cat": "sea"
     },
@@ -1620,6 +2474,7 @@
       "cityCountry": "Limassol, Cyprus",
       "startDate": "2026-09-27",
       "endDate": "2026-10-10",
+      "link": "https://www.aidainternational.org/EventPage/4987",
       "month": 9,
       "cat": "wc"
     },
@@ -1630,6 +2485,7 @@
       "cityCountry": "Kuala Lumpur, Malaysia",
       "startDate": "2026-09-27",
       "endDate": "2026-09-27",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5145",
       "month": 9,
       "cat": "pool"
     },
@@ -1640,6 +2496,7 @@
       "cityCountry": "Suzuka, Japan",
       "startDate": "2026-09-27",
       "endDate": "2026-09-27",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5081",
       "month": 9,
       "cat": "pool"
     },
@@ -1650,6 +2507,7 @@
       "cityCountry": "Panglao, Bohol, Philippines",
       "startDate": "2026-10-02",
       "endDate": "2026-10-06",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4986",
       "month": 10,
       "cat": "sea"
     },
@@ -1660,6 +2518,7 @@
       "cityCountry": "Cebu Mactan, Philippines",
       "startDate": "2026-10-02",
       "endDate": "2026-10-04",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5110",
       "month": 10,
       "cat": "sea"
     },
@@ -1670,6 +2529,7 @@
       "cityCountry": "Jeju, Republic of Korea",
       "startDate": "2026-10-09",
       "endDate": "2026-10-11",
+      "link": "https://www.aidainternational.org/EventPage/5116",
       "month": 10,
       "cat": "sea"
     },
@@ -1680,6 +2540,7 @@
       "cityCountry": "Ciudad Autónoma De Buenos Aires, Argentina",
       "startDate": "2026-10-09",
       "endDate": "2026-10-11",
+      "link": "https://www.aidainternational.org/EventPage/5074",
       "month": 10,
       "cat": "pool"
     },
@@ -1690,6 +2551,7 @@
       "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
       "startDate": "2026-10-11",
       "endDate": "2026-10-11",
+      "link": "https://www.aidainternational.org/EventPage/4969",
       "month": 10,
       "cat": "pool"
     },
@@ -1700,6 +2562,7 @@
       "cityCountry": "Larnaca, Cyprus",
       "startDate": "2026-10-13",
       "endDate": "2026-10-22",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5009",
       "month": 10,
       "cat": "sea"
     },
@@ -1710,6 +2573,7 @@
       "cityCountry": "Sharm El Sheikh, Egypt",
       "startDate": "2026-10-13",
       "endDate": "2026-10-14",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5043",
       "month": 10,
       "cat": "pool"
     },
@@ -1720,6 +2584,7 @@
       "cityCountry": "Cebu, Philippines",
       "startDate": "2026-10-15",
       "endDate": "2026-10-18",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4924",
       "month": 10,
       "cat": "sea"
     },
@@ -1730,6 +2595,7 @@
       "cityCountry": "Maria Enzersdorf, Austria",
       "startDate": "2026-10-17",
       "endDate": "2026-10-18",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4885",
       "month": 10,
       "cat": "pool"
     },
@@ -1740,6 +2606,7 @@
       "cityCountry": "Hayama, Japan",
       "startDate": "2026-10-17",
       "endDate": "2026-10-18",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5150",
       "month": 10,
       "cat": "sea"
     },
@@ -1750,6 +2617,7 @@
       "cityCountry": "Suzuka, Japan",
       "startDate": "2026-10-17",
       "endDate": "2026-10-17",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5082",
       "month": 10,
       "cat": "pool"
     },
@@ -1760,6 +2628,7 @@
       "cityCountry": "Dahab, Egypt",
       "startDate": "2026-10-18",
       "endDate": "2026-10-22",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5094",
       "month": 10,
       "cat": "pool"
     },
@@ -1770,6 +2639,7 @@
       "cityCountry": "Cairo, Egypt",
       "startDate": "2026-10-30",
       "endDate": "2026-11-03",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5034",
       "month": 10,
       "cat": "pool"
     },
@@ -1780,6 +2650,7 @@
       "cityCountry": "Cebu Mactan, Philippines",
       "startDate": "2026-10-31",
       "endDate": "2026-11-01",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5111",
       "month": 10,
       "cat": "sea"
     },
@@ -1790,6 +2661,7 @@
       "cityCountry": "Soufriere, Dominica",
       "startDate": "2026-11-08",
       "endDate": "2026-11-17",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5128",
       "month": 11,
       "cat": "sea"
     },
@@ -1800,6 +2672,7 @@
       "cityCountry": "Mabini, Batangas, Philippines",
       "startDate": "2026-11-13",
       "endDate": "2026-11-15",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5107",
       "month": 11,
       "cat": "sea"
     },
@@ -1810,6 +2683,7 @@
       "cityCountry": "Budapest, Hungary",
       "startDate": "2026-11-14",
       "endDate": "2026-11-15",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5087",
       "month": 11,
       "cat": "pool"
     },
@@ -1820,6 +2694,7 @@
       "cityCountry": "Soufriere, United States",
       "startDate": "2026-11-21",
       "endDate": "2026-11-28",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5062",
       "month": 11,
       "cat": "sea"
     },
@@ -1830,6 +2705,7 @@
       "cityCountry": "Cebu Mactan, Philippines",
       "startDate": "2026-11-21",
       "endDate": "2026-11-22",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5112",
       "month": 11,
       "cat": "sea"
     },
@@ -1840,6 +2716,7 @@
       "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
       "startDate": "2026-11-22",
       "endDate": "2026-11-22",
+      "link": "https://www.aidainternational.org/EventPage/4970",
       "month": 11,
       "cat": "pool"
     },
@@ -1850,6 +2727,7 @@
       "cityCountry": "Chisinau, Moldova, Republic of",
       "startDate": "2026-11-27",
       "endDate": "2026-11-29",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4902",
       "month": 11,
       "cat": "pool"
     },
@@ -1860,6 +2738,7 @@
       "cityCountry": "Sofia, Bulgaria",
       "startDate": "2026-11-28",
       "endDate": "2026-11-28",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5038",
       "month": 11,
       "cat": "pool"
     },
@@ -1870,6 +2749,7 @@
       "cityCountry": "Suzuka, Japan",
       "startDate": "2026-11-28",
       "endDate": "2026-11-28",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5083",
       "month": 11,
       "cat": "pool"
     },
@@ -1880,6 +2760,7 @@
       "cityCountry": "Cebu Mactan, Philippines",
       "startDate": "2026-12-05",
       "endDate": "2026-12-06",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5113",
       "month": 12,
       "cat": "sea"
     },
@@ -1890,6 +2771,7 @@
       "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
       "startDate": "2026-12-13",
       "endDate": "2026-12-13",
+      "link": "https://www.aidainternational.org/EventPage/4971",
       "month": 12,
       "cat": "pool"
     },
@@ -1900,6 +2782,7 @@
       "cityCountry": "Cebu, Philippines",
       "startDate": "2026-12-27",
       "endDate": "2026-12-30",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4925",
       "month": 12,
       "cat": "sea"
     }
