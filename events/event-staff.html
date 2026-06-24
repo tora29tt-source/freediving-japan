@@ -365,7 +365,7 @@ body.role-readonly .role-judge-edit{pointer-events:none;opacity:0.45;cursor:not-
   <div class="tab role-org-only" id="tab-staff"     onclick="switchTab('staff')">スタッフ</div>
   <div class="tab" id="tab-schedule"  onclick="switchTab('schedule')">スケジュール</div>
   <!-- Day tabs (動的生成) -->
-  <span id="dayTabsContainer"></span>
+  <span id="dayTabsContainer" style="display:contents;"></span>
   <div class="tab role-org-only" id="tab-sponsors"  onclick="switchTab('sponsors')">Sponsors</div>
 </div>
 <!-- Day サブタブ行 -->
@@ -3123,13 +3123,16 @@ function initDayTabs() {
   if (!container) return;
   var days = getCompetitionDays();
   if (!days.length) return;
+  var compNum = 0; // Competition Day 連番
   container.innerHTML = days.map(function(d, i) {
-    var v = i + 1;
-    // _dayLabels があればラベルを使う（例: "競技日1", "開会式"）
-    var customLabel = (_dayLabels && _dayLabels[d]) ? _dayLabels[d] : null;
-    var dateStr = fmtDay(d); // "9/17"
-    var label = customLabel ? dateStr + ' ' + customLabel : 'Day ' + v + ' (' + dateStr + ')';
-    return '<div class="tab" id="tab-day-' + v + '" onclick="switchDayTab(' + v + ')">' + label + '</div>';
+    var v = i + 1; // 全日インデックス（switchDayTab に渡す）
+    var label = (_dayLabels && _dayLabels[d]) ? _dayLabels[d] : '';
+    var isComp = label.indexOf('Competition Day') !== -1 || label.indexOf('競技日') !== -1 || !label;
+    if (!isComp) return ''; // Competition Day 以外はタブを生成しない
+    compNum++;
+    var dateStr = fmtDay(d); // "9/18"
+    var tabLabel = dateStr + ' Day ' + compNum;
+    return '<div class="tab" id="tab-day-' + v + '" onclick="switchDayTab(' + v + ')">' + tabLabel + '</div>';
   }).join('');
 }
 
