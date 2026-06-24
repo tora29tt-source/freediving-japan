@@ -3036,10 +3036,12 @@ function renderSafetyView() {
     return '<span style="width:' + POS_W + 'px;text-align:center;' + _hdrSt + '">' + p + '</span>';
   }).join('');
 
+  var _nameW = 'width:130px;flex-shrink:0;font-weight:600;font-family:-apple-system,sans-serif;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+
   // Start List リストビューと同じカラム構成
-  var header = '<div class="ap-row ap-header">' +
+  var header = '<div class="ap-row ap-header" style="min-width:max-content;">' +
     '<span class="ap-col-no">#</span>' +
-    '<span class="ap-col-name">Name</span>' +
+    '<span style="' + _nameW + _hdrSt + '">Name</span>' +
     '<span class="ap-col-nat">NAT</span>' +
     '<span class="ap-col-gender">Gen</span>' +
     '<span style="' + _colWT + _hdrSt + '">WarmUp</span>' +
@@ -3083,9 +3085,9 @@ function renderSafetyView() {
         '</span></span>';
     }).join('');
 
-    return '<div class="ap-row">' +
+    return '<div class="ap-row" style="min-width:max-content;">' +
       '<span class="ap-col-no">' + (a.no||'—') + '</span>' +
-      '<span class="ap-col-name">' + a.name + '</span>' +
+      '<span style="' + _nameW + '">' + a.name + '</span>' +
       '<span class="ap-col-nat">' + (a.nationality||'—') + '</span>' +
       '<span class="ap-col-gender">' + (a.gender||'—') + '</span>' +
       '<span style="' + _colWT + 'font-size:12px;color:var(--sub);">' + wtStr + '</span>' +
