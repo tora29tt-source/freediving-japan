@@ -603,10 +603,6 @@ body.role-readonly .role-judge-edit{pointer-events:none;opacity:0.45;cursor:not-
             <select class="time-sel" id="firstOT-m"></select>
           </div>
         </div>
-        <div style="margin-top:14px;">
-          <div class="fld-label">競技日</div>
-          <div id="slDayTabs" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;"></div>
-        </div>
         <button class="btn btn-primary btn-full" style="margin-top:14px;" onclick="generateStartList()">Generate Start List</button>
       </div>
     </div>
@@ -1731,7 +1727,14 @@ function renderShiftView() {
     el.innerHTML = roleManager + '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">概要タブで開催日を設定してください</div>';
     return;
   }
-  var allDates = getDatesInRange(dateStr, dateEndStr || dateStr);
+  var allDates = getDatesInRange(dateStr, dateEndStr || dateStr).filter(function(d) {
+    var lbl = (_dayLabels && _dayLabels[d]) ? _dayLabels[d] : '';
+    return lbl.toLowerCase().indexOf('competition') !== -1;
+  });
+  if (!allDates.length) {
+    // Competitionラベルが付いた日がなければ全日程を表示
+    allDates = getDatesInRange(dateStr, dateEndStr || dateStr);
+  }
 
   var thStyle = 'font-size:10px;font-weight:700;color:var(--muted);text-align:center;padding:6px 4px;border-bottom:1px solid var(--border);white-space:nowrap;min-width:82px;';
   var headerCols = allDates.map(function(d) {
@@ -2419,7 +2422,7 @@ function switchDaySubTab(subTab) {
   }
   if (subTab === 'startlist') {
     _slSelectedDay = _currentDayNum;
-    initSlDayTabs();
+    loadStartListConfig(_currentDayNum);
   }
   if (subTab === 'results') {
     jrRender();
@@ -3164,42 +3167,112 @@ function selectSlDay(day, btn) {
   if (btn) { btn.style.background = 'var(--teal)'; btn.style.color = '#000'; }
 }
 
-function generateStartList() {
-  var h = document.getElementById('firstOT-h').value;
-  var m = document.getElementById('firstOT-m').value;
-  if (!h || !m) { alert('Please set first athlete OT.'); return; }
+async function loadStartListConfig(dayNum) {
+  // ① 保存済みルール・First OT を復元
+  if (_sb && _currentEventId) {
+    try {
+      var res = await _sb.from('event_schedule')
+        .select('content').eq('event_id', _currentEventId)
+        .eq('type', 'startlist_config').eq('time_label', String(dayNum)).single();
+      if (!res.error && res.data && res.data.content) {
+        var cfg = JSON.parse(res.data.content);
+        // First OT セット
+        if (cfg.firstOT) {
+          var parts = cfg.firstOT.split(':');
+          var hEl = document.getElementById('firstOT-h');
+          var mEl = document.getElementById('firstOT-m');
+          if (hEl) hEl.value = parts[0];
+          if (mEl) mEl.value = (parts[1]||'00');
+        }
+        // ルール復元
+        if (cfg.rules && cfg.rules.length) {
+          document.getElementById('ruleRows').innerHTML = '';
+          cfg.rules.forEach(function(r) { addRule(r.ap, r.interval); });
+        }
+      }
+    } catch(e) {}
+  }
+  // ② athlete_entries の ot_time から既存 Start List を復元
+  var targetDay = dayNum || 1;
+  var saved = apData.filter(function(a){ return (a.day||1) === targetDay && !a.dns && a.ot_time; });
+  if (saved.length) {
+    startList = saved.map(function(a){ return { id:a.id, no:a.no, name:a.name, disc:a.disc, ap_m:a.ap_m, ap_t:a.ap_t, ot:a.ot_time, wt:'—' }; });
+    renderStartListUI();
+  } else {
+    // 保存済みなし → 生成フォームを表示
+    document.getElementById('slCard').style.display = 'none';
+    document.getElementById('countdownLink').style.display = 'none';
+    document.getElementById('generateSection').style.display = 'block';
+  }
+}
 
-  // 選択日の選手のみフィルタ
-  var dayAthletes = apData.filter(function(a){ return (a.day||1) === _slSelectedDay && !a.dns; });
-  if (!dayAthletes.length) { alert('Day ' + _slSelectedDay + ' に選手が割り当てられていません'); return; }
-
-  var currentMin = otToMinutes(h + ':' + m);
-  startList = dayAthletes.map(function(a) {
-    var ot = minutesToOT(currentMin);
-    var wt = minutesToOT(currentMin - 45);
-    currentMin += getInterval(a.ap_m);
-    return { no:a.no, name:a.name, disc:a.disc, ap_m:a.ap_m, ap_t:a.ap_t, ot:ot, wt:wt };
-  });
-
+function renderStartListUI() {
   var el = document.getElementById('slList');
   el.innerHTML = startList.map(function(a) {
     return '<div class="sl-row">' +
       '<span class="sl-no">' + a.no + '</span>' +
       '<div class="sl-info">' +
         '<div class="sl-name">' + a.name + '</div>' +
-        '<div class="sl-detail">AP ' + a.ap_m + 'm / ' + a.ap_t + '</div>' +
+        '<div class="sl-detail">AP ' + (a.ap_m||'—') + (a.disc && ['CWT','CWTB','CNF','FIM'].indexOf(a.disc)!==-1?'m':'s') + ' / ' + (a.ap_t||'') + '</div>' +
       '</div>' +
-      '<span class="sl-disc">' + a.disc + '</span>' +
+      '<span class="sl-disc">' + (a.disc||'') + '</span>' +
       '<div class="sl-ot">' +
         '<div class="sl-ot-time">' + a.ot + '</div>' +
         '<div class="sl-ot-wt">WT ' + a.wt + '</div>' +
       '</div>' +
     '</div>';
   }).join('');
-
   document.getElementById('slCard').style.display = 'block';
   document.getElementById('countdownLink').style.display = 'flex';
   document.getElementById('generateSection').style.display = 'none';
+}
+
+async function generateStartList() {
+  var h = document.getElementById('firstOT-h').value;
+  var m = document.getElementById('firstOT-m').value;
+  if (!h || !m) { alert('Please set first athlete OT.'); return; }
+
+  // Day タブで選択中の日でフィルタ（競技日ボタン不要）
+  var targetDay = _currentDayNum || 1;
+  var dayAthletes = apData.filter(function(a){ return (a.day||1) === targetDay && !a.dns; });
+  if (!dayAthletes.length) { alert('Day ' + targetDay + ' に選手が割り当てられていません。AP List で選手の Day を設定してください。'); return; }
+
+  var currentMin = otToMinutes(h + ':' + m);
+  startList = dayAthletes.map(function(a) {
+    var ot = minutesToOT(currentMin);
+    var wt = minutesToOT(currentMin - 45);
+    currentMin += getInterval(a.ap_m);
+    return { id:a.id, no:a.no, name:a.name, disc:a.disc, ap_m:a.ap_m, ap_t:a.ap_t, ot:ot, wt:wt };
+  });
+
+  renderStartListUI();
+
+  // Supabase に保存
+  if (_sb && _currentEventId) {
+    try {
+      // ① 各選手の ot_time を athlete_entries に保存
+      for (var i = 0; i < startList.length; i++) {
+        var s = startList[i];
+        if (s.id) {
+          await _sb.from('athlete_entries').update({ ot_time: s.ot }).eq('id', s.id);
+        }
+      }
+      // ② ルール設定と First OT を event_schedule に保存
+      var rules = [];
+      document.querySelectorAll('#ruleRows .rule-row').forEach(function(row) {
+        var inps = row.querySelectorAll('input');
+        if (inps[0] && inps[1]) rules.push({ ap: parseFloat(inps[0].value)||0, interval: parseFloat(inps[1].value)||0 });
+      });
+      var config = JSON.stringify({ firstOT: h+':'+m, rules: rules, day: targetDay });
+      await _sb.from('event_schedule')
+        .delete().eq('event_id', _currentEventId).eq('type', 'startlist_config').eq('time_label', String(targetDay));
+      await _sb.from('event_schedule')
+        .insert({ event_id: _currentEventId, type: 'startlist_config', time_label: String(targetDay), content: config, sort_order: 0 });
+      showToast('Start List を保存しました ✓', 'success');
+    } catch(e) {
+      showToast('保存失敗: ' + e.message, 'error');
+    }
+  }
 }
 
 function regenerate() {
