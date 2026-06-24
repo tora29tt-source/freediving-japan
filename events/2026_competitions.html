@@ -280,7 +280,7 @@ function parseLocation(cityCountry) {
   return { city: cityCountry, country: '' };
 }
 
-function buildMonths() {
+function buildMonths(INTL_EVENTS) {
   const container = document.getElementById('months-intl');
   container.innerHTML = '';
   let totalCount = 0;
