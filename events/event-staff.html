@@ -2366,15 +2366,10 @@ function switchTab(tab) {
   if (subRow) subRow.style.display = 'none';
 }
 
+// dayNum は Competition Day 連番（initDayTabs が生成する番号）
+// タブが Competition Day かどうかは initDayTabs 生成時に保証済みなので常に true
 function isCompetitionDay(dayNum) {
-  // _dayLabels から該当日のラベルを取得し "Competition Day" かどうか判定
-  var days = getCompetitionDays();
-  var dateStr = days[dayNum - 1];
-  if (!dateStr) return false;
-  var label = (_dayLabels && _dayLabels[dateStr]) ? _dayLabels[dateStr] : '';
-  // ラベルが空の場合はデフォルトで Competition Day 扱い（AP/Start List が使えるように）
-  if (!label) return true;
-  return label.indexOf('Competition Day') !== -1 || label.indexOf('競技日') !== -1;
+  return true;
 }
 
 function switchDayTab(dayNum) {
@@ -2725,15 +2720,22 @@ function renderAPList() {
     '<span style="width:64px;flex-shrink:0;font-size:10px;color:var(--muted);">Day</span>' +
     '<span style="width:32px;flex-shrink:0;"></span>' +
   '</div>';
-  var compDays = getCompetitionDays();
-  var dayOpts = compDays.map(function(d, i) {
-    return '<option value="'+(i+1)+'">Day '+(i+1)+(_eventDateStart?' ('+fmtDay(d)+')':'')+'</option>';
+  // Competition Day のみ連番でドロップダウンを生成
+  var allDays = getCompetitionDays();
+  var compDayList = []; // { num, date } のみ Competition Day
+  var _cn = 0;
+  allDays.forEach(function(d) {
+    var lbl = (_dayLabels && _dayLabels[d]) ? _dayLabels[d] : '';
+    var isComp = lbl.indexOf('Competition Day') !== -1 || lbl.indexOf('競技日') !== -1 || !lbl;
+    if (isComp) { _cn++; compDayList.push({ num: _cn, date: d }); }
+  });
+  var dayOpts = compDayList.map(function(c) {
+    return '<option value="'+c.num+'">Day '+c.num+(_eventDateStart?' ('+fmtDay(c.date)+')':'')+'</option>';
   }).join('');
   var filteredAP = (_apFilterDay != null) ? apData.filter(function(a){ return (a.day||1) === _apFilterDay; }) : apData;
   var rows = filteredAP.map(function(a, i) {
-    var selDay = compDays.map(function(d, idx) {
-      var v = idx+1;
-      return '<option value="'+v+'"'+(a.day===v?' selected':'')+'>Day '+v+(_eventDateStart?' ('+fmtDay(d)+')':'')+'</option>';
+    var selDay = compDayList.map(function(c) {
+      return '<option value="'+c.num+'"'+(a.day===c.num?' selected':'')+'>Day '+c.num+(_eventDateStart?' ('+fmtDay(c.date)+')':'')+'</option>';
     }).join('');
     return '<div class="ap-row" style="' + (a.dns ? 'opacity:0.4;' : '') + '">' +
       '<span class="ap-col-no">' + (a.no || i+1) + '</span>' +
@@ -3123,16 +3125,15 @@ function initDayTabs() {
   if (!container) return;
   var days = getCompetitionDays();
   if (!days.length) return;
-  var compNum = 0; // Competition Day 連番
-  container.innerHTML = days.map(function(d, i) {
-    var v = i + 1; // 全日インデックス（switchDayTab に渡す）
+  var compNum = 0; // Competition Day 連番（これを switchDayTab に渡す）
+  container.innerHTML = days.map(function(d) {
     var label = (_dayLabels && _dayLabels[d]) ? _dayLabels[d] : '';
     var isComp = label.indexOf('Competition Day') !== -1 || label.indexOf('競技日') !== -1 || !label;
     if (!isComp) return ''; // Competition Day 以外はタブを生成しない
     compNum++;
     var dateStr = fmtDay(d); // "9/18"
     var tabLabel = dateStr + ' Day ' + compNum;
-    return '<div class="tab" id="tab-day-' + v + '" onclick="switchDayTab(' + v + ')">' + tabLabel + '</div>';
+    return '<div class="tab" id="tab-day-' + compNum + '" onclick="switchDayTab(' + compNum + ')">' + tabLabel + '</div>';
   }).join('');
 }
 
@@ -3143,8 +3144,13 @@ var _apFilterDay = null; // null = 全表示
 function initSlDayTabs() {
   var el = document.getElementById('slDayTabs'); if (!el) return;
   var days = getCompetitionDays();
-  el.innerHTML = days.map(function(d, i) {
-    var v = i+1;
+  var sn = 0;
+  el.innerHTML = days.map(function(d) {
+    var lbl = (_dayLabels && _dayLabels[d]) ? _dayLabels[d] : '';
+    var isComp = lbl.indexOf('Competition Day') !== -1 || lbl.indexOf('競技日') !== -1 || !lbl;
+    if (!isComp) return '';
+    sn++;
+    var v = sn;
     return '<button onclick="selectSlDay('+v+',this)" style="padding:5px 12px;border-radius:8px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;border:1.5px solid var(--border);background:'+(v===1?'var(--teal)':'var(--surface2)')+';color:'+(v===1?'#000':'var(--text)')+';">Day '+v+(_eventDateStart?' ('+fmtDay(d)+')':'')+'</button>';
   }).join('');
   _slSelectedDay = 1;
