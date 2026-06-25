@@ -32,6 +32,6 @@ jobs:
         run: |
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
-          git add data/rankings_*.json data/jp_official_records.json
+          git add data/rankings_*.json data/jp_official_records.json data/national_team.json
           git diff --staged --quiet || git commit -m "chore: update rankings & records $(date -u +%Y-%m-%d)"
           git push
