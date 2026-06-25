@@ -28,10 +28,13 @@ jobs:
       - name: 日本記録を更新
         run: python3 scripts/fetch_jp_records.py
 
+      - name: all_rankings_data.json を再生成
+        run: python3 scripts/merge_rankings.py
+
       - name: Commit if changed
         run: |
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
-          git add data/rankings_*.json data/jp_official_records.json data/national_team.json
+          git add data/rankings_*.json data/jp_official_records.json data/national_team.json data/all_rankings_data.json
           git diff --staged --quiet || git commit -m "chore: update rankings & records $(date -u +%Y-%m-%d)"
           git push
