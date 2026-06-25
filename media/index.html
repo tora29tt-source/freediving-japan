@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>メディア — Freediving Japan</title>
 <style>
@@ -368,6 +369,113 @@ body {
 
 
 <script>
+// ── Supabase 動的読み込み ──
+const _SURL = 'https://bbhqvbpsuccbdcnhnobm.supabase.co';
+const _SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJiaHF2YnBzdWNjYmRjbmhub2JtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyODQwMzksImV4cCI6MjA5NTg2MDAzOX0.MexR8_hY56m3XRff0EJOQM3uQShXr2L9kGyYXLSzKbs';
+
+const CAT_LABELS = { A:'入門・体験', B:'身体・科学', C:'海・スポット', D:'競技・大会', E:'インタビュー', P:'人物メディア', Q:'業界×期待感', S:'シリーズ連載', T:'エンタメ' };
+
+// カテゴリ → フィルタータブのマッピング
+const CAT_TO_TAB = { E:'interview', P:'interview', D:'news', Q:'news', A:'tips', B:'tips', C:'tips', S:'tips', T:'tips' };
+
+async function loadArticlesFromDB() {
+  try {
+    const { createClient } = window.supabase;
+    if (!createClient) return; // ライブラリ未読み込み時はスキップ
+    const sb = createClient(_SURL, _SKEY);
+    const { data, error } = await sb
+      .from('articles')
+      .select('id, title, slug, category, author_type, lead_text, read_time_min, thumbnail_url, published_at, tags')
+      .eq('is_published', true)
+      .order('published_at', { ascending: false })
+      .limit(20);
+
+    if (error || !data || data.length === 0) return; // エラー or 記事なし → 静的表示のまま
+
+    renderDBArticles(data);
+  } catch(e) {
+    console.warn('DB読み込みスキップ:', e);
+  }
+}
+
+function renderDBArticles(articles) {
+  if (articles.length === 0) return;
+
+  // 最新1件を看板記事に
+  const featured = articles[0];
+  const rest = articles.slice(1);
+
+  const featuredEl = document.querySelector('.featured');
+  if (featuredEl) {
+    const tab = CAT_TO_TAB[featured.category] || 'tips';
+    const dateStr = featured.published_at ? new Date(featured.published_at).toLocaleDateString('ja-JP', {year:'numeric',month:'2-digit',day:'2-digit'}).replace(/\//g,'.') : '';
+    const readTime = featured.read_time_min ? featured.read_time_min + '分' : '';
+    featuredEl.href = `article.html?slug=${featured.slug}`;
+    featuredEl.dataset.category = tab;
+    if (featured.thumbnail_url) {
+      const img = featuredEl.querySelector('.featured-img');
+      if (img) img.style.backgroundImage = `url('${featured.thumbnail_url}')`;
+    }
+    const title = featuredEl.querySelector('.featured-title');
+    if (title) title.textContent = featured.title;
+    const excerpt = featuredEl.querySelector('.featured-excerpt');
+    if (excerpt && featured.lead_text) excerpt.textContent = featured.lead_text;
+    const metaEls = featuredEl.querySelectorAll('.article-meta-item, .meta-dot, .article-meta span');
+    const meta = featuredEl.querySelector('.article-meta');
+    if (meta) meta.innerHTML = `
+      ${readTime ? `<span class="article-meta-item"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>${readTime}</span><span class="meta-dot"></span>` : ''}
+      <span>${dateStr}</span><span class="meta-dot"></span>
+      <span>${featured.author_type}</span>
+    `;
+  }
+
+  // 残り記事をカテゴリに振り分けてリストに追加
+  const lists = { interview: document.getElementById('list-interview'), news: document.getElementById('list-news'), tips: document.getElementById('list-tips') };
+  // 既存のダミーデータをクリア
+  Object.values(lists).forEach(el => { if(el) el.innerHTML = ''; });
+  const grids = { news: document.getElementById('list-news') };
+
+  rest.forEach(a => {
+    const tab = CAT_TO_TAB[a.category] || 'tips';
+    const catLabel = CAT_LABELS[a.category] || a.category;
+    const dateStr = a.published_at ? new Date(a.published_at).toLocaleDateString('ja-JP', {year:'numeric',month:'2-digit',day:'2-digit'}).replace(/\//g,'.') : '';
+    const readTime = a.read_time_min ? a.read_time_min + '分' : '';
+    const thumb = a.thumbnail_url || '';
+    const url = `article.html?slug=${a.slug}`;
+
+    if (tab === 'news') {
+      const el = document.getElementById('list-news');
+      if (el) el.insertAdjacentHTML('beforeend', `
+        <a class="article-card" href="${url}" data-category="news">
+          ${thumb ? `<div class="article-card-img" style="background-image:url('${thumb}');background-position:center;"></div>` : '<div class="article-card-img"></div>'}
+          <div class="article-card-body">
+            <div class="article-card-tag">${catLabel}</div>
+            <div class="article-card-title">${escHtml(a.title)}</div>
+            <div class="article-card-meta">${dateStr}</div>
+          </div>
+        </a>`);
+    } else {
+      const listId = tab === 'interview' ? 'list-interview' : 'list-tips';
+      const el = document.getElementById(listId);
+      if (el) el.insertAdjacentHTML('beforeend', `
+        <a class="article-row" href="${url}" data-category="${tab}">
+          ${thumb ? `<div class="article-thumb" style="background-image:url('${thumb}');background-position:center;"></div>` : '<div class="article-thumb"></div>'}
+          <div class="article-row-body">
+            <div class="article-row-tag">${catLabel}</div>
+            <div class="article-row-title">${escHtml(a.title)}</div>
+            <div class="article-row-meta">
+              <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
+              ${readTime ? readTime + ' · ' : ''}${dateStr}
+            </div>
+          </div>
+        </a>`);
+    }
+  });
+}
+
+function escHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── 既存フィルター ──
 function filterArticles(category, btn) {
   document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
@@ -391,5 +499,9 @@ function filterArticles(category, btn) {
 }
 </script>
 
+<script>
+// DOMContentLoaded 後に DB から記事を読み込む
+document.addEventListener('DOMContentLoaded', loadArticlesFromDB);
+</script>
 </body>
 </html>

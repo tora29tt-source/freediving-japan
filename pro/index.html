@@ -65,6 +65,17 @@ body {
 .tab:hover { color: var(--on-dark-mid); }
 .tab.active { color: var(--teal); border-bottom-color: var(--teal); }
 
+/* ── 承認待ち: 非プロフィールタブをロック ── */
+body.status-pending .tab:not([data-tab="profile"]) {
+  opacity: 0.3;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+#pending-banner { display: none; }
+body.status-pending #pending-banner { display: flex; }
+#rejected-banner { display: none; }
+body.status-rejected #rejected-banner { display: flex; }
+
 /* ── Main ── */
 .main { max-width: 860px; margin: 0 auto; padding: 0 20px 80px; }
 
@@ -259,6 +270,19 @@ td.primary { color: var(--on-dark); font-weight: 500; }
 
 <!-- メイン -->
 <div id="app" style="display:none;">
+
+  <!-- 承認待ちバナー -->
+  <div id="pending-banner" style="align-items:center;gap:12px;background:rgba(245,158,11,0.1);border-bottom:1px solid rgba(245,158,11,0.25);padding:12px 20px;font-size:13px;color:#f59e0b;">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <span>承認待ちです。運営チームが内容を確認後、コース管理・予約管理などの機能が解放されます。プロフィール情報は今のうちに入力しておけます。</span>
+  </div>
+
+  <!-- 却下バナー -->
+  <div id="rejected-banner" style="align-items:center;gap:12px;background:rgba(239,68,68,0.1);border-bottom:1px solid rgba(239,68,68,0.25);padding:12px 20px;font-size:13px;color:#ef4444;">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+    <span>申請が承認されませんでした。内容を修正の上、運営チームまでお問い合わせください。</span>
+  </div>
+
   <div class="tabs-wrap">
     <div class="tabs">
       <button class="tab active"  data-tab="profile"   onclick="switchTab('profile')">プロフィール</button>
@@ -760,6 +784,12 @@ async function boot() {
   if (inst) {
     myInstructor = inst;
     myRole = 'instructor';
+    // status に応じてページ状態を制御
+    if (inst.status === 'pending') {
+      document.body.classList.add('status-pending');
+    } else if (inst.status === 'rejected') {
+      document.body.classList.add('status-rejected');
+    }
   } else if (shop) {
     myShop = shop;
     myRole = 'shop';

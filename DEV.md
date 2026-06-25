@@ -107,6 +107,54 @@ reviews            — レビュー
 
 -----
 
+## 権限管理設計（RBAC）
+
+*策定：2026-06-25*
+
+### ロール体系
+
+| ロール | 管理場所 | 説明 |
+|---|---|---|
+| **未ログイン** | — | 公開ページ閲覧のみ |
+| **ログイン済み**（選手・愛好家） | Supabase Auth | 登録後デフォルト。トレーニングログ・大会情報等 |
+| **インストラクター（承認済み）** | `instructors.status = 'approved'` | 管理者承認後にリスティング・CRM・予約管理が使える。選手との兼任あり |
+| **インストラクター（審査中）** | `instructors.status = 'pending'` | pro/index.html でプロフィール申請後・承認待ち。リスティング等は不可 |
+| **サイト管理者** | `user_roles` テーブル | `admin` / `editor` / `engineer` / `tester` 等を複数追加可能 |
+| **大会ロール** | `event_staff` テーブル | 大会ごとに主催者が任命。`organizer` / `staff` / `readonly` |
+
+### ページ別アクセス制御
+
+| ページ | 未ログイン | ログイン済み | インストラクター承認済み | 管理者 |
+|---|:---:|:---:|:---:|:---:|
+| index / explore / learn / articles | ✅ | ✅ | ✅ | ✅ |
+| mypage.html | → auth | ✅ | ✅ | ✅ |
+| tools/training-log.html | → auth | ✅ | ✅ | ✅ |
+| tools/sta-timer.html | → auth | ✅ | ✅ | ✅ |
+| events/event-athlete.html | ✅（URLシェア公開） | ✅ | ✅ | ✅ |
+| events/event-staff.html | readonly | 大会ロール依存 | 大会ロール依存 | ✅全権 |
+| pro/index.html | → auth | ✅申請フォームのみ | ✅フル機能 | ✅ |
+| admin/index.html | → auth → 弾く | ❌ | ❌ | ✅ |
+| media/admin-mobile.html | → auth → 弾く | ❌ | ❌ | ✅（editor以上） |
+
+### インストラクター承認フロー
+
+```
+ユーザー登録（Supabase Auth）
+    ↓
+選手・愛好家として利用開始（デフォルト）
+    ↓（pro/index.html でプロフィール入力・申請）
+instructors.status = 'pending'（審査中バナー表示）
+    ↓（管理者が admin/index.html で承認）
+instructors.status = 'approved'（リスティング・CRM・予約管理が解放）
+```
+
+### DB変更が必要なもの
+
+- `instructors` テーブルに `status TEXT DEFAULT 'pending'` カラム追加（`pending` / `approved` / `rejected`）
+- `user_roles` テーブル：既存。`role` に `editor` / `engineer` / `tester` も使用可能とする
+
+-----
+
 ## Stripe 設定メモ
 
 - **モード**：サンドボックス（テスト環境）
