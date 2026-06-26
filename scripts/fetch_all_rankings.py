@@ -83,7 +83,7 @@ def parse_records_rows(html, year, disc_name, gender_name):
             rank = int(re.sub(r"\D", "", cells[0]))
         except ValueError:
             continue
-        result = re.sub(r"\s*(NR|WR|CR|AR)\s*", "", cells[2]).strip()
+        result = re.sub(r"\s*(NR|WR|CR|AR|PEN)\s*", "", cells[2]).strip()
         try:
             points = float(cells[4])
         except (ValueError, IndexError):
