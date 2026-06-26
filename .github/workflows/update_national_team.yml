@@ -1,0 +1,54 @@
+name: Update National Team
+
+on:
+  workflow_dispatch:
+    inputs:
+      event_id:
+        description: 'AIDAイベントID（例: 4852）'
+        required: true
+      category:
+        description: '種別'
+        required: true
+        default: 'pool'
+        type: choice
+        options:
+          - pool
+          - sea
+      year:
+        description: '出場年（省略時は今年）'
+        required: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4
+
+      - name: 日本代表データを更新
+        run: |
+          YEAR_OPT=""
+          if [ -n "${{ github.event.inputs.year }}" ]; then
+            YEAR_OPT="--year ${{ github.event.inputs.year }}"
+          fi
+          python3 scripts/update_national_team.py \
+            --event ${{ github.event.inputs.event_id }} \
+            --category ${{ github.event.inputs.category }} \
+            $YEAR_OPT
+
+      - name: Commit if changed
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add data/national_team.json
+          git diff --staged --quiet || git commit -m "chore: update national team from event ${{ github.event.inputs.event_id }} $(date -u +%Y-%m-%d)"
+          git push

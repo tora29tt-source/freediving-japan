@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>記事 — Freediving Japan</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --ocean-deep:  #0b2d45;
+  --ocean-mid:   #0e3d5c;
+  --ocean-light: #1a5f82;
+  --teal:        #2ec4b6;
+  --teal-light:  #a8ece8;
+  --foam:        #f0f9fb;
+  --warm:        #f97316;
+  --sand:        #fdf8f2;
+  --text:        #1a2b38;
+  --text-mid:    #3d5166;
+  --text-light:  #6b8091;
+  --font-body:   -apple-system, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-body); color: var(--text); background: white; line-height: 1.8; font-size: 16px; }
+
+/* HEADER */
+.site-header {
+  background: var(--ocean-deep); padding: 0 20px; height: 52px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.site-logo { color: white; font-size: 14px; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.site-logo .dot { width: 6px; height: 6px; background: var(--teal); border-radius: 50%; }
+.site-nav a { color: rgba(255,255,255,.6); font-size: 13px; text-decoration: none; margin-left: 20px; }
+.site-nav a:hover { color: white; }
+
+/* BREADCRUMB */
+.breadcrumb { padding: 12px 20px; font-size: 12px; color: var(--text-light); border-bottom: 1px solid #eef2f6; background: var(--sand); }
+.breadcrumb a { color: var(--ocean-light); text-decoration: none; }
+.breadcrumb span { margin: 0 6px; opacity: .4; }
+
+/* HERO */
+.hero { background: var(--ocean-deep); padding: 48px 20px 40px; position: relative; overflow: hidden; }
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 70% 50%, rgba(46,196,182,.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-inner { max-width: 680px; margin: 0 auto; position: relative; }
+.hero-category {
+  display: inline-block; background: rgba(46,196,182,.2); color: var(--teal);
+  font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  padding: 4px 12px; border-radius: 20px; margin-bottom: 16px; border: 1px solid rgba(46,196,182,.3);
+}
+.hero h1 { font-size: clamp(22px, 5vw, 32px); font-weight: 700; color: white; line-height: 1.35; margin-bottom: 16px; letter-spacing: -.01em; }
+.hero-meta { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.hero-meta .by { color: rgba(255,255,255,.5); font-size: 13px; }
+.hero-meta .by strong { color: rgba(255,255,255,.8); }
+.hero-meta .date { color: rgba(255,255,255,.4); font-size: 12px; }
+.hero-meta .read-time { color: var(--teal); font-size: 12px; background: rgba(46,196,182,.1); padding: 3px 10px; border-radius: 10px; }
+
+/* ARTICLE */
+.article-wrap { max-width: 680px; margin: 0 auto; padding: 0 20px 80px; }
+.lead { font-size: 17px; line-height: 1.85; color: var(--text-mid); padding: 32px 0 24px; border-bottom: 1px solid #eef2f6; margin-bottom: 36px; }
+
+/* ARTICLE BODY */
+.article-body h2 {
+  font-size: 22px; font-weight: 700; color: var(--ocean-deep);
+  margin: 48px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--teal-light); line-height: 1.4;
+}
+.article-body h3 { font-size: 17px; font-weight: 700; color: var(--ocean-mid); margin: 32px 0 12px; }
+.article-body p  { margin-bottom: 20px; color: var(--text); line-height: 1.9; }
+.article-body strong { color: var(--ocean-deep); font-weight: 700; }
+.article-body ul, .article-body ol { padding-left: 24px; margin-bottom: 20px; }
+.article-body li { margin-bottom: 8px; color: var(--text); line-height: 1.8; }
+
+/* PULLQUOTE */
+.pullquote { border-left: 4px solid var(--teal); margin: 32px 0; padding: 16px 20px; background: var(--foam); border-radius: 0 10px 10px 0; }
+.pullquote p { font-size: 17px; font-weight: 500; color: var(--ocean-mid); line-height: 1.7; margin: 0; font-style: italic; }
+.pullquote cite { display: block; margin-top: 10px; font-size: 12px; color: var(--text-light); font-style: normal; }
+
+/* TABLE */
+.compare-table { width: 100%; border-collapse: collapse; margin: 28px 0; font-size: 14px; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(11,45,69,.08); }
+.compare-table thead { background: var(--ocean-deep); color: white; }
+.compare-table th { padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.compare-table td { padding: 12px 16px; border-bottom: 1px solid #eef2f6; color: var(--text-mid); line-height: 1.6; }
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table tbody tr:nth-child(odd) { background: var(--foam); }
+.compare-table .label-col { font-weight: 600; color: var(--ocean-mid); }
+
+/* INFO BOX */
+.info-box { background: #fff8f3; border: 1.5px solid #fddcbb; border-radius: 10px; padding: 20px 22px; margin: 32px 0; }
+.info-box-title { font-size: 13px; font-weight: 700; color: var(--warm); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.info-box p { font-size: 14px; color: var(--text-mid); margin-bottom: 10px; }
+.info-box p:last-child { margin-bottom: 0; }
+
+/* STEP LIST */
+.step-list { list-style: none; margin: 20px 0 28px; }
+.step-list li { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; }
+.step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--ocean-deep); color: white; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.step-body { flex: 1; }
+.step-body strong { display: block; font-size: 15px; margin-bottom: 4px; color: var(--ocean-deep); }
+.step-body span { font-size: 14px; color: var(--text-mid); line-height: 1.7; }
+
+/* TAGS */
+.tags { margin: 32px 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.tag { font-size: 12px; color: var(--ocean-light); background: var(--foam); border: 1px solid #d4e8f0; border-radius: 20px; padding: 4px 12px; }
+
+/* CTA */
+.cta-box { background: var(--ocean-deep); border-radius: 14px; padding: 28px 24px; margin: 48px 0 0; text-align: center; position: relative; overflow: hidden; }
+.cta-box::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0%, rgba(46,196,182,.2) 0%, transparent 60%); }
+.cta-box h3 { color: white; font-size: 18px; margin-bottom: 8px; position: relative; }
+.cta-box p { color: rgba(255,255,255,.6); font-size: 14px; margin-bottom: 20px; position: relative; }
+.cta-btn { display: inline-block; background: var(--teal); color: white; padding: 13px 28px; border-radius: 8px; font-size: 15px; font-weight: 700; text-decoration: none; position: relative; }
+
+/* AUTHOR */
+.author-box { display: flex; gap: 16px; align-items: flex-start; background: var(--foam); border-radius: 12px; padding: 20px; margin: 48px 0 0; }
+.author-icon { width: 48px; height: 48px; border-radius: 50%; background: var(--ocean-mid); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 20px; }
+.author-info .name { font-size: 14px; font-weight: 700; color: var(--ocean-deep); margin-bottom: 4px; }
+.author-info .desc { font-size: 13px; color: var(--text-light); line-height: 1.6; }
+
+/* FOOTER */
+.site-footer { background: var(--ocean-deep); padding: 28px 20px; text-align: center; margin-top: 60px; }
+.site-footer p { color: rgba(255,255,255,.35); font-size: 12px; }
+.site-footer a { color: var(--teal); text-decoration: none; }
+
+/* ERROR / LOADING */
+.page-message { max-width: 680px; margin: 60px auto; padding: 0 20px; text-align: center; color: var(--text-light); }
+.page-message h2 { font-size: 20px; color: var(--ocean-deep); margin-bottom: 12px; }
+
+@media (max-width: 600px) {
+  .hero { padding: 32px 16px 28px; }
+  .article-wrap { padding: 0 16px 60px; }
+  .compare-table { font-size: 13px; }
+  .compare-table th, .compare-table td { padding: 10px 12px; }
+  .site-nav { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="../index.html" class="site-logo"><div class="dot"></div>Freediving Japan</a>
+  <nav class="site-nav">
+    <a href="index.html">メディア</a>
+    <a href="../explore/">スクールを探す</a>
+    <a href="../learn/">学ぶ</a>
+  </nav>
+</header>
+
+<div class="breadcrumb">
+  <a href="../index.html">ホーム</a><span>›</span>
+  <a href="index.html">メディア</a><span>›</span>
+  <span id="breadcrumbTitle">記事</span>
+</div>
+
+<div id="pageContent">
+  <div class="page-message"><p>読み込み中…</p></div>
+</div>
+
+<footer class="site-footer">
+  <p>© 2026 <a href="../index.html">Freediving Japan</a> — すべての人に、海への入口を。</p>
+</footer>
+
+<script>
+const SUPABASE_URL      = 'https://bbhqvbpsuccbdcnhnobm.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJiaHF2YnBzdWNjYmRjbmhub2JtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyODQwMzksImV4cCI6MjA5NTg2MDAzOX0.MexR8_hY56m3XRff0EJOQM3uQShXr2L9kGyYXLSzKbs';
+const { createClient } = window.supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const CAT_LABELS = { A:'入門・体験', B:'身体・科学', C:'海・スポット', D:'競技・大会', E:'インタビュー', P:'人物メディア', Q:'業界×期待感', S:'シリーズ連載', T:'エンタメ' };
+
+async function loadArticle() {
+  const params = new URLSearchParams(location.search);
+  const slug = params.get('slug');
+  const id   = params.get('id');
+
+  if (!slug && !id) {
+    showError('URLにスラッグまたはIDが指定されていません');
+    return;
+  }
+
+  let query = sb.from('articles').select('*').eq('is_published', true);
+  if (slug) query = query.eq('slug', slug);
+  else      query = query.eq('id', id);
+
+  const { data, error } = await query.single();
+
+  if (error || !data) {
+    showError('記事が見つかりません');
+    return;
+  }
+
+  renderArticle(data);
+}
+
+function renderArticle(a) {
+  // ページタイトル
+  document.title = a.title + ' — Freediving Japan';
+  document.getElementById('breadcrumbTitle').textContent = a.title;
+
+  // メタ情報
+  const catLabel  = CAT_LABELS[a.category] || a.category;
+  const dateStr   = a.published_at ? new Date(a.published_at).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long' }) : '';
+  const readTime  = a.read_time_min ? `約${a.read_time_min}分で読めます` : '';
+  const authorDisplay = a.author_type === 'ゲスト' && a.author_name ? a.author_name : a.author_type;
+
+  // タグ HTML
+  const tagsHtml = (a.tags || []).length
+    ? `<div class="tags">${a.tags.map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div>`
+    : '';
+
+  // 著者ボックス
+  const authorIcon = a.author_type.includes('寺島') ? '🌊' : '📝';
+  const authorDesc = a.author_type === '編集部'
+    ? '日本記録保持者・寺島拓哉が設立したフリーダイビングプラットフォーム「Freediving Japan」の編集部。'
+    : 'Freediving Japan 代表・日本STAフリーダイビング記録保持者。';
+
+  document.getElementById('pageContent').innerHTML = `
+    <div class="hero">
+      <div class="hero-inner">
+        <div class="hero-category">${esc(catLabel)}</div>
+        <h1>${esc(a.title)}</h1>
+        <div class="hero-meta">
+          <span class="by">By <strong>${esc(authorDisplay)}</strong></span>
+          ${dateStr ? `<span class="date">${dateStr}</span>` : ''}
+          ${readTime ? `<span class="read-time">${readTime}</span>` : ''}
+        </div>
+      </div>
+    </div>
+
+    <div class="article-wrap">
+      ${a.lead_text ? `<p class="lead">${esc(a.lead_text)}</p>` : ''}
+
+      <div class="article-body">
+        ${a.content || '<p>本文準備中です。</p>'}
+      </div>
+
+      ${tagsHtml}
+
+      <div class="cta-box">
+        <h3>スクール・インストラクターを探す</h3>
+        <p>全国のフリーダイビングスクール・インストラクターをFreediving Japanで検索できます。</p>
+        <a href="../explore/" class="cta-btn">スクールを探してみる →</a>
+      </div>
+
+      <div class="author-box">
+        <div class="author-icon">${authorIcon}</div>
+        <div class="author-info">
+          <div class="name">${esc(authorDisplay)}</div>
+          <div class="desc">${authorDesc}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function showError(msg) {
+  document.getElementById('pageContent').innerHTML = `
+    <div class="page-message">
+      <h2>記事が見つかりません</h2>
+      <p>${msg}</p>
+      <p style="margin-top:16px"><a href="index.html" style="color:var(--ocean-light)">← メディア一覧に戻る</a></p>
+    </div>`;
+}
+
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+loadArticle();
+</script>
+</body>
+</html>
