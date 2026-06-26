@@ -2,8 +2,8 @@ name: Update Rankings & Records
 
 on:
   schedule:
-    # 毎週月曜 JST 06:00 (UTC 日曜 21:00)
-    - cron: '0 21 * * 0'
+    # 毎日 JST 06:00 (UTC 前日 21:00)
+    - cron: '0 21 * * *'
   workflow_dispatch:
 
 jobs:
