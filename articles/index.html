@@ -143,12 +143,20 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sa
 <script>
 const catLabels = {
   beginner: '初心者向け', technique: 'テクニック', gear: 'ギア・道具',
-  competition: '大会・競技', interview: 'インタビュー', news: 'ニュース'
+  competition: '大会・競技', interview: 'インタビュー', news: 'ニュース',
+  A: '入門・体験', B: '身体・科学', C: '海・スポット', D: '競技・大会',
+  E: 'インタビュー', P: '人物メディア', Q: '業界×期待感', S: 'シリーズ連載', T: 'エンタメ'
 };
 const catClass = {
   beginner: 'cat-beginner', technique: 'cat-technique', gear: 'cat-gear',
-  competition: 'cat-competition', interview: 'cat-interview', news: 'cat-news'
+  competition: 'cat-competition', interview: 'cat-interview', news: 'cat-news',
+  A: 'cat-beginner', B: 'cat-technique', C: 'cat-news', D: 'cat-competition',
+  E: 'cat-interview', P: 'cat-interview', Q: 'cat-news', S: 'cat-news', T: 'cat-gear'
 };
+
+function escHtml(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
 
 let allArticles = [];
 let currentCat = '';
@@ -178,21 +186,24 @@ function renderArticles() {
   }
 
   container.innerHTML = filtered.map(a => {
-    const thumb = a.cover_image_url
-      ? `<div class="article-thumb"><img src="${a.cover_image_url}" alt="${a.title}" loading="lazy"></div>`
+    const coverUrl = a.thumbnail_url || a.cover_image_url;
+    const excerpt = a.lead_text || a.excerpt;
+    const href = a.slug ? `article.html?slug=${encodeURIComponent(a.slug)}` : `article.html?id=${a.id}`;
+    const thumb = coverUrl
+      ? `<div class="article-thumb"><img src="${escHtml(coverUrl)}" alt="${escHtml(a.title)}" loading="lazy"></div>`
       : `<div class="article-thumb-ph"><svg class="icon" viewBox="0 0 24 24" style="width:28px;height:28px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>`;
     const catBadge = a.category
-      ? `<span class="article-cat-badge ${catClass[a.category] || ''}">${catLabels[a.category] || a.category}</span>` : '';
+      ? `<span class="article-cat-badge ${catClass[a.category] || ''}">${escHtml(catLabels[a.category] || a.category)}</span>` : '';
     const dateStr = a.published_at
       ? new Date(a.published_at).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
     const readTime = a.read_time_min ? `<span class="article-read-time"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${a.read_time_min}分で読める</span>` : '';
 
-    return `<a class="article-card" href="article.html?id=${a.id}">
+    return `<a class="article-card" href="${href}">
       ${thumb}
       <div class="article-body">
         ${catBadge}
-        <p class="article-title">${a.title}</p>
-        ${a.excerpt ? `<p class="article-excerpt">${a.excerpt}</p>` : ''}
+        <p class="article-title">${escHtml(a.title)}</p>
+        ${excerpt ? `<p class="article-excerpt">${escHtml(excerpt)}</p>` : ''}
         <div class="article-meta">
           ${dateStr ? `<span class="article-date">${dateStr}</span>` : ''}
           ${readTime}
@@ -206,7 +217,7 @@ async function loadArticles() {
   try {
     const { data, error } = await _sb
       .from('articles')
-      .select('id, title, excerpt, cover_image_url, category, tags, read_time_min, published_at')
+      .select('id, title, slug, lead_text, thumbnail_url, category, tags, read_time_min, published_at')
       .eq('is_published', true)
       .order('published_at', { ascending: false });
     if (error) throw error;

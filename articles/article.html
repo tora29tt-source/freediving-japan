@@ -70,6 +70,30 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sa
 .article-body td { padding: 10px 12px; border-bottom: 1px solid var(--hairline); color: var(--on-dark-mid); }
 .article-body hr { border: none; border-top: 1px solid var(--hairline); margin: 28px 0; }
 .article-body code { background: rgba(255,255,255,0.07); border: 1px solid var(--hairline); border-radius: 4px; padding: 2px 6px; font-size: 13px; font-family: ui-monospace, monospace; color: var(--teal-light); }
+.article-lead { font-size: 16px; line-height: 1.85; color: var(--on-dark-mid); padding-bottom: 24px; margin-bottom: 28px; border-bottom: 1px solid var(--hairline); }
+.article-body .toc { background: rgba(46,196,182,0.06); border-left: 3px solid var(--teal); border-radius: 0 10px 10px 0; padding: 18px 18px 18px 22px; margin-bottom: 32px; }
+.article-body .toc-title { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--teal-light); margin-bottom: 10px; }
+.article-body .toc ol { padding-left: 18px; margin: 0; }
+.article-body .toc li { margin-bottom: 6px; }
+.article-body .toc a { font-size: 14px; color: var(--on-dark-mid); text-decoration: none; }
+.article-body .toc a:hover { color: var(--teal-light); }
+.article-body .pullquote { border-left: 3px solid var(--teal); margin: 24px 0; padding: 14px 18px; background: rgba(46,196,182,0.06); border-radius: 0 8px 8px 0; }
+.article-body .pullquote p { font-size: 16px; font-weight: 500; color: var(--on-dark); line-height: 1.7; margin: 0; font-style: italic; }
+.article-body .pullquote cite { display: block; margin-top: 8px; font-size: 12px; color: var(--on-dark-soft); font-style: normal; }
+.article-body .compare-table { width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 13px; border-radius: 10px; overflow: hidden; }
+.article-body .compare-table thead { background: rgba(46,196,182,0.15); }
+.article-body .compare-table th { padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--teal-light); border-bottom: 1px solid rgba(46,196,182,0.2); }
+.article-body .compare-table td { padding: 10px 12px; border-bottom: 1px solid var(--hairline); color: var(--on-dark-mid); line-height: 1.6; }
+.article-body .compare-table tbody tr:nth-child(odd) { background: rgba(255,255,255,0.02); }
+.article-body .compare-table .label-col { font-weight: 600; color: var(--on-dark); }
+.article-body .info-box { background: rgba(249,115,22,0.08); border: 1px solid rgba(249,115,22,0.25); border-radius: 10px; padding: 18px 20px; margin: 24px 0; }
+.article-body .info-box-title { font-size: 13px; font-weight: 700; color: #fdba74; margin-bottom: 8px; }
+.article-body .info-box p { font-size: 14px; color: var(--on-dark-mid); margin-bottom: 8px; }
+.article-body .step-list { list-style: none; margin: 16px 0 24px; padding: 0; }
+.article-body .step-list li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px; }
+.article-body .step-num { width: 26px; height: 26px; border-radius: 50%; background: var(--teal); color: var(--ocean-deep); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+.article-body .step-body strong { display: block; font-size: 14px; margin-bottom: 4px; color: var(--on-dark); }
+.article-body .step-body span { font-size: 14px; color: var(--on-dark-mid); line-height: 1.7; }
 
 /* back to list */
 .back-to-list { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 40px; padding: 14px; border: 1px solid var(--hairline); border-radius: 12px; color: var(--on-dark-mid); font-size: 13px; text-decoration: none; transition: border-color 0.2s; }
@@ -112,12 +136,33 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sa
 <script>
 const catLabels = {
   beginner: '初心者向け', technique: 'テクニック', gear: 'ギア・道具',
-  competition: '大会・競技', interview: 'インタビュー', news: 'ニュース'
+  competition: '大会・競技', interview: 'インタビュー', news: 'ニュース',
+  A: '入門・体験', B: '身体・科学', C: '海・スポット', D: '競技・大会',
+  E: 'インタビュー', P: '人物メディア', Q: '業界×期待感', S: 'シリーズ連載', T: 'エンタメ'
 };
 const catClass = {
   beginner: 'cat-beginner', technique: 'cat-technique', gear: 'cat-gear',
-  competition: 'cat-competition', interview: 'cat-interview', news: 'cat-news'
+  competition: 'cat-competition', interview: 'cat-interview', news: 'cat-news',
+  A: 'cat-beginner', B: 'cat-technique', C: 'cat-news', D: 'cat-competition',
+  E: 'cat-interview', P: 'cat-interview', Q: 'cat-news', S: 'cat-news', T: 'cat-gear'
 };
+
+function escHtml(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function articleBodyHtml(a) {
+  if (a.content) return a.content;
+  if (a.body_md) return marked.parse(a.body_md);
+  return '<p style="color:var(--on-dark-soft)">本文がありません</p>';
+}
+
+function articleAuthor(a) {
+  if (a.author_name) return a.author_name;
+  if (a.author) return a.author;
+  if (a.author_type && a.author_type !== '編集部') return a.author_type;
+  return 'Freediving Japan 編集部';
+}
 
 const params = new URLSearchParams(location.search);
 const articleId = params.get('id');
@@ -145,34 +190,39 @@ async function loadArticle() {
 function renderArticle(a) {
   document.title = `${a.title} — Freediving Japan`;
 
-  const coverHtml = a.cover_image_url
-    ? `<div class="cover"><img src="${a.cover_image_url}" alt="${a.title}"><div class="cover-grad"></div></div>` : '';
+  const coverUrl = a.thumbnail_url || a.cover_image_url;
+  const coverHtml = coverUrl
+    ? `<div class="cover"><img src="${escHtml(coverUrl)}" alt="${escHtml(a.title)}"><div class="cover-grad"></div></div>` : '';
 
   const catBadge = a.category
-    ? `<span class="article-cat-badge ${catClass[a.category] || ''}">${catLabels[a.category] || a.category}</span>` : '';
+    ? `<span class="article-cat-badge ${catClass[a.category] || ''}">${escHtml(catLabels[a.category] || a.category)}</span>` : '';
 
   const dateStr = a.published_at
     ? new Date(a.published_at).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
 
   const tagsHtml = (a.tags || []).length
-    ? `<div class="tags-row">${a.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>` : '';
+    ? `<div class="tags-row">${a.tags.map(t => `<span class="tag">${escHtml(t)}</span>`).join('')}</div>` : '';
 
-  const bodyHtml = a.body_md
-    ? marked.parse(a.body_md) : '<p style="color:var(--on-dark-soft)">本文がありません</p>';
+  const leadHtml = (a.lead_text || a.excerpt)
+    ? `<p class="article-lead">${escHtml(a.lead_text || a.excerpt)}</p>` : '';
+
+  const bodyHtml = articleBodyHtml(a);
+  const author = articleAuthor(a);
 
   document.getElementById('pageContent').innerHTML = `
     ${coverHtml}
     <div class="main">
       <div class="article-header">
         ${catBadge}
-        <h1 class="article-title">${a.title}</h1>
+        <h1 class="article-title">${escHtml(a.title)}</h1>
         <div class="article-meta-row">
-          ${a.author ? `<span class="meta-item"><svg class="icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${a.author}</span>` : ''}
+          ${author ? `<span class="meta-item"><svg class="icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${escHtml(author)}</span>` : ''}
           ${dateStr ? `<span class="meta-item"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${dateStr}</span>` : ''}
           ${a.read_time_min ? `<span class="meta-item"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${a.read_time_min}分で読める</span>` : ''}
         </div>
         ${tagsHtml}
       </div>
+      ${leadHtml}
       <div class="article-body">${bodyHtml}</div>
       <!-- 探す CTA -->
       <div style="margin-top:40px;background:linear-gradient(135deg,rgba(46,196,182,0.10) 0%,rgba(26,95,130,0.12) 100%);border:1px solid rgba(46,196,182,0.22);border-radius:20px;padding:28px 24px;text-align:center;">
