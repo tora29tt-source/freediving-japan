@@ -101,7 +101,7 @@ def main():
                 "discipline": disc,
                 "gender": gender,
                 "name": name,
-                "result": cells[2],
+                "result": re.sub(r"\s*(NR|WR|CR|AR|PEN)\s*", " ", cells[2]).strip(),
                 "points": cells[4],
                 "date": cells[6] if len(cells) > 6 else "",
                 "event": cells[7] if len(cells) > 7 else "",
