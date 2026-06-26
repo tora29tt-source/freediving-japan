@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-06-25T10:25:55Z",
+  "updatedAt": "2026-06-26T10:39:01Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -1731,17 +1731,6 @@
       "cat": "sea"
     },
     {
-      "title": "World Apnea FOR JUJU Championship",
-      "type": "Depth Competition",
-      "venue": "Freediving World Sharm",
-      "cityCountry": "Sharm Elshikh, Egypt",
-      "startDate": "2026-06-12",
-      "endDate": "2026-06-14",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5124",
-      "month": 6,
-      "cat": "sea"
-    },
-    {
       "title": "AIDA Panglao HUG Cup #4",
       "type": "Depth Competition",
       "venue": "Freedive Panglao",
@@ -1749,6 +1738,17 @@
       "startDate": "2026-06-12",
       "endDate": "2026-06-14",
       "link": "https://www.aidainternational.org/Events/EventDetails-4984",
+      "month": 6,
+      "cat": "sea"
+    },
+    {
+      "title": "World Apnea FOR JUJU Championship",
+      "type": "Depth Competition",
+      "venue": "Freediving World Sharm",
+      "cityCountry": "Sharm Elshikh, Egypt",
+      "startDate": "2026-06-12",
+      "endDate": "2026-06-14",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5124",
       "month": 6,
       "cat": "sea"
     },
@@ -1764,17 +1764,6 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA NakedBlue2026-NOVICE CUP",
-      "type": "Depth Competition",
-      "venue": "Moonseom",
-      "cityCountry": "Jeju, Republic of Korea",
-      "startDate": "2026-06-13",
-      "endDate": "2026-06-14",
-      "link": "https://www.aidainternational.org/EventPage/5115",
-      "month": 6,
-      "cat": "sea"
-    },
-    {
       "title": "AIDA 2026 Floral Spring Cup",
       "type": "Pool Competition",
       "venue": "Taichung North District Swimming Pool",
@@ -1786,6 +1775,17 @@
       "cat": "pool"
     },
     {
+      "title": "AIDA NakedBlue2026-NOVICE CUP",
+      "type": "Depth Competition",
+      "venue": "Moonseom",
+      "cityCountry": "Jeju, Republic of Korea",
+      "startDate": "2026-06-13",
+      "endDate": "2026-06-14",
+      "link": "https://www.aidainternational.org/EventPage/5115",
+      "month": 6,
+      "cat": "sea"
+    },
+    {
       "title": "AIDA Vedran Mrvos Memorial Competition",
       "type": "Depth Competition",
       "venue": "Krusija",
@@ -1793,17 +1793,6 @@
       "startDate": "2026-06-15",
       "endDate": "2026-06-15",
       "link": "https://www.aidainternational.org/Events/EventDetails-5095",
-      "month": 6,
-      "cat": "sea"
-    },
-    {
-      "title": "AIDA Nicaragua Training Camp Mini Comp",
-      "type": "Depth Competition",
-      "venue": "Freediving Nicaragua",
-      "cityCountry": "Catarina, Nicaragua",
-      "startDate": "2026-06-16",
-      "endDate": "2026-06-20",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5129",
       "month": 6,
       "cat": "sea"
     },
@@ -1826,6 +1815,17 @@
       "startDate": "2026-06-16",
       "endDate": "2026-06-20",
       "link": "https://www.aidainternational.org/Events/EventDetails-5015",
+      "month": 6,
+      "cat": "sea"
+    },
+    {
+      "title": "AIDA Nicaragua Training Camp Mini Comp",
+      "type": "Depth Competition",
+      "venue": "Freediving Nicaragua",
+      "cityCountry": "Catarina, Nicaragua",
+      "startDate": "2026-06-16",
+      "endDate": "2026-06-20",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5129",
       "month": 6,
       "cat": "sea"
     },
@@ -1962,17 +1962,6 @@
       "cat": "pool"
     },
     {
-      "title": "KSU AIDA FREEDIVING POOL COMPETITION",
-      "type": "Pool Competition",
-      "venue": "Diving Pool",
-      "cityCountry": "Gwangju, Republic of Korea",
-      "startDate": "2026-06-27",
-      "endDate": "2026-06-27",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5114",
-      "month": 6,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA UAE CWT Performance Night 2026 | Spring Phase",
       "type": "Depth Competition",
       "venue": "Deep Dive Dubai",
@@ -1982,6 +1971,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5054",
       "month": 6,
       "cat": "sea"
+    },
+    {
+      "title": "KSU AIDA FREEDIVING POOL COMPETITION",
+      "type": "Pool Competition",
+      "venue": "Diving Pool",
+      "cityCountry": "Gwangju, Republic of Korea",
+      "startDate": "2026-06-27",
+      "endDate": "2026-06-27",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5114",
+      "month": 6,
+      "cat": "pool"
     },
     {
       "title": "World Apnea 6월 좌충우돌 대회(Rush & Crush)",
@@ -2094,6 +2094,17 @@
       "cat": "sea"
     },
     {
+      "title": "CARACAS FREEDIVING CUP",
+      "type": "Pool Competition",
+      "venue": "Piscina Tcnel. Eliezer Otaiza (Sedefanb)",
+      "cityCountry": "Caracas, Venezuela",
+      "startDate": "2026-07-11",
+      "endDate": "2026-07-12",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5160",
+      "month": 7,
+      "cat": "pool"
+    },
+    {
       "title": "AIDA Malaysia Apnea Warrior Meet Challenge 2.0",
       "type": "Pool Competition",
       "venue": "Arena Sukan Kuala Lumour",
@@ -2125,6 +2136,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-4932",
       "month": 7,
       "cat": "sea"
+    },
+    {
+      "title": "World apnea sukoon competition",
+      "type": "Pool Competition",
+      "venue": "Vertex",
+      "cityCountry": "Cairo, Egypt",
+      "startDate": "2026-07-17",
+      "endDate": "2026-07-17",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5157",
+      "month": 7,
+      "cat": "pool"
     },
     {
       "title": "AIDA Okinawa Freediving Cup 2026",
@@ -2191,6 +2213,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5151",
       "month": 7,
       "cat": "pool"
+    },
+    {
+      "title": "AIDA Tour of Taiwan 2026 - Northeast",
+      "type": "Depth Competition",
+      "venue": "Chillhihi Freediving",
+      "cityCountry": "New Taipei City, Chinese Taipei",
+      "startDate": "2026-07-25",
+      "endDate": "2026-07-26",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5159",
+      "month": 7,
+      "cat": "sea"
     },
     {
       "title": "AIDA Garden City Friendly",
@@ -2629,6 +2662,17 @@
       "startDate": "2026-10-18",
       "endDate": "2026-10-22",
       "link": "https://www.aidainternational.org/Events/EventDetails-5094",
+      "month": 10,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA Malaysia Apnea Warrior Meet Challenge 5.0",
+      "type": "Pool Competition",
+      "venue": "Arena Sukan Kuala Lumpur",
+      "cityCountry": "Kuala Lumpur, Malaysia",
+      "startDate": "2026-10-18",
+      "endDate": "2026-10-18",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5152",
       "month": 10,
       "cat": "pool"
     },
