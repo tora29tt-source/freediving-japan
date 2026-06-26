@@ -642,6 +642,17 @@
   },
   {
    "year": "2026",
+   "discipline": "CNF",
+   "gender": "Male",
+   "rank": 1,
+   "name": "Ken Kiriyama",
+   "result": "50 m",
+   "points": 38.0,
+   "date": "2026-06-26",
+   "event": "AIDA Official Friday #13"
+  },
+  {
+   "year": "2026",
    "discipline": "STA",
    "gender": "Female",
    "rank": 1,
@@ -1636,7 +1647,7 @@
    "gender": "Female",
    "rank": 1,
    "name": "Mariko Kaji",
-   "result": "73 mPEN",
+   "result": "73 m",
    "points": 73.0,
    "date": "2026-06-14",
    "event": "AIDA Panglao HUG Cup #4"
