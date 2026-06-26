@@ -372,4 +372,59 @@ RLSポリシー（`storage.objects`）：INSERT/UPDATE/DELETE は `auth.uid()::t
 
 -----
 
-*最終更新：2026-06-17（mypage.html Supabase接続完了：トレーニングカレンダー・今月のサマリー・予約履歴・大会管理）*
+## 既知のバグ・セキュリティ課題
+
+*調査日：2026-06-26（コードベース全体レビュー + Bugbot 差分レビュー）*
+
+**Bugbot（ブランチ差分）**：指摘なし  
+**手動レビュー**：予約・RLS・決済まわりに 11 件（高 4 / 中 4 / 低 3）
+
+### サマリー
+
+| 重要度 | 件数 | 主な領域 |
+|--------|------|----------|
+| 高 | 4 | DB 権限（RLS）、予約完了ページ |
+| 中 | 4 | 満席管理、Webhook |
+| 低 | 3 | UX、表示の誤り |
+
+### 高（優先対応）
+
+| # | 内容 | 該当ファイル | 想定修正 |
+|---|------|-------------|----------|
+| 1 | **予約データがログインユーザー全員に読める** — `bookings_select_auth` が `auth.role() = 'authenticated'` のみ。名前・メール・電話・金額が漏洩しうる | `sql/bookings_schema.sql` L92-93 | インストラクター本人・管理者・予約者本人（メール一致）のみ SELECT 可にする |
+| 2 | **予約の更新もログインユーザー全員に許可** — 任意ユーザーが `booking.id` を知っていればステータス変更可能 | `sql/bookings_schema.sql` L100-101 | インストラクター本人・管理者のみ UPDATE 可にする |
+| 3 | **予約完了ページが未ログインだと失敗** — `booking/success.html` は anon キーで SELECT するが、RLS 上は未ログイン SELECT 不可。Stripe 決済後のゲスト予約者がエラーになる | `booking/success.html`, `sql/bookings_schema.sql` | ゲスト向け読み取り API（`booking_id` + `session_id` 検証）を追加、または RLS にゲスト用ポリシーを追加 |
+| 4 | **空き枠の書き込み権限が広すぎる** — `availability_slots` の INSERT/UPDATE/DELETE が認証済みなら誰でも可能（`listings` は本人チェックあり） | `sql/bookings_schema.sql` L35-42 | インストラクター本人・管理者のみに制限 |
+
+### 中
+
+| # | 内容 | 該当ファイル | 想定修正 |
+|---|------|-------------|----------|
+| 5 | **同時予約で満席超過** — 残席チェックは `booked_count` のみ。`pending` 予約はカウントに含まれず、同時 Checkout で定員超過の `pending` が複数作られる | `api/create-checkout-session.js` L54-58 | `pending` を定員計算に含める、または DB 側で排他ロック / トランザクション |
+| 6 | **Webhook の二重処理** — `checkout.session.completed` 受信時に既に `paid` か確認せず `increment_booked_count` を呼ぶ。Stripe 再送で定員カウントが二重加算されうる | `api/stripe-webhook.js` L56-87 | 冪等性チェック（`status !== 'paid'` のときのみ更新） |
+| 7 | **Webhook の DB エラーを無視** — Supabase `update` / `rpc` の `{ error }` を確認せず Stripe に 200 を返す。決済成功・予約 `pending` のまま、という不整合が起きうる | `api/stripe-webhook.js` | エラー時は 500 を返して Stripe 再送を促す |
+| 8 | **非アクティブ枠も予約可能** — `slot.is_active` のチェックがない | `api/create-checkout-session.js` | `is_active = false` の枠は 409 / 404 を返す |
+
+### 低
+
+| # | 内容 | 該当ファイル | 想定修正 |
+|---|------|-------------|----------|
+| 9 | **存在しない確認メール表示** — 「確認メールを送信しました」と表示するが、メール送信処理は未実装 | `booking/success.html` L109 | 文言修正、または Resend / SendGrid 等で送信実装 |
+| 10 | **Stripe キャンセル URL でリスティング情報が消える** — `cancel_url` に `listing` パラメータがない | `api/create-checkout-session.js` L120 | `?id=...&listing=...` を付与 |
+| 11 | **XSS の余地** — `client_email` や `listing.title` が `innerHTML` にエスケープなし | `booking/success.html` L101-115 | `escHtml()` 等でエスケープ |
+
+### 問題なし・軽微
+
+- **`guest_*` vs `client_*` カラム名** — `sql/rename_guest_to_client.sql` 適用済み。API・フロントと整合
+- **`media/admin-mobile.html` 認証なし** — localStorage のみで本番 DB には触れない（Phase 2 本番化時に要対応）
+
+### 推奨対応順
+
+1. RLS 修正（bookings / availability_slots）— セキュリティ上最優先
+2. 予約完了ページ — ゲスト向け読み取り方法の設計
+3. 満席ロジック — `pending` を定員に含める or DB 排他
+4. Webhook — 冪等性 + エラーハンドリング
+
+-----
+
+*最終更新：2026-06-26（既知のバグ・セキュリティ課題セクション追加）*
