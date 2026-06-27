@@ -24,11 +24,14 @@
 .hero-bg {
   position: absolute;
   inset: 0;
-  background-image: url('images/hero_cnf_dive.jpg');
-  background-size: cover;
-  background-position: center 30%;
   opacity: 0.3;
   filter: saturate(0.85);
+  overflow: hidden;
+}
+.hero-bg video {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
 }
 /* 水面からの自然光：上から差し込むやわらかいグロー */
 .hero-glow {
@@ -228,7 +231,11 @@
 
 <!-- hero -->
 <div class="hero">
-  <div class="hero-bg"></div>
+  <div class="hero-bg">
+    <video autoplay loop muted playsinline>
+      <source src="images/hero_ummyvideo.MOV" type="video/mp4">
+    </video>
+  </div>
   <div class="hero-glow"></div>
   <div class="hero-inner">
     <div class="hero-tag">
@@ -280,6 +287,13 @@
           <span class="card-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
         </a>
       </div>
+      <div style="grid-column:1/-1;">
+        <a class="card wide" href="articles/index.html">
+          <div class="card-thumb" style="background-image:url('images/index_記事コラム.JPG');background-position:center 50%;"></div>
+          <div class="card-body"><h3>記事・コラム</h3><p>フリーダイビングをもっと深く知るための記事</p></div>
+          <span class="card-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+        </a>
+      </div>
     </div>
   </div>
 
@@ -317,20 +331,13 @@
         </div>
       </a>
       <a class="photo-card" href="learn/index.html?cat=inst">
-        <div class="photo-card-img" style="background-image:url('images/index_インストラクター.JPG');background-position:center 20%;"></div>
+        <div class="photo-card-img" style="background-image:url('images/index_インストラクターカード.JPG');background-position:center 20%;"></div>
         <div class="photo-card-overlay"></div>
         <div class="photo-card-body">
           <h3><svg class="icon" viewBox="0 0 24 24"><path d="M3 9l9-4 9 4-9 4-9-4z"/><path d="M7 11v5c0 1 2.5 2.5 5 2.5s5-1.5 5-2.5v-5"/></svg>インストラクター</h3>
           <p>資格・指導法を学ぶ</p>
         </div>
       </a>
-      <div style="grid-column:1/-1;">
-        <a class="card wide" href="articles/index.html">
-          <div class="card-thumb" style="background-image:url('images/index_記事.JPG');background-position:center 50%;"></div>
-          <div class="card-body"><h3>記事・コラム</h3><p>フリーダイビングをもっと深く知るための記事</p></div>
-          <span class="card-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
-        </a>
-      </div>
     </div>
   </div>
 
