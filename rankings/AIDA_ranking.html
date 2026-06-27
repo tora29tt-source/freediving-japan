@@ -437,11 +437,8 @@ function renderHero(){
         return '<div class="hrow" onclick="showAthlete(\''+esc(rec.name)+'\',false)">'+av(rec.name,'av')+'<div><div class="gtag">'+(g==='Male'?'男子':'女子')+'</div><div class="hn">'+rec.name+'</div></div><div class="hr"><div class="v">'+cleanRes(rec.result)+'</div>'+(t?'<div class="nr">'+t+'</div>':'')+'</div></div>';
       }).join('');
       const disc0=d[0];
-      const bs='flex:1;text-align:center;font-size:10px;color:var(--gold);cursor:pointer;padding:4px 0;border-radius:6px;border:1px solid rgba(255,210,74,.2);background:rgba(255,210,74,.06);transition:.15s';
-      const footer='<div style="display:flex;gap:4px;margin-top:9px;padding-top:9px;border-top:1px solid rgba(255,255,255,.06)">'
-        +'<span onclick="event.stopPropagation();showTl(\''+disc0+'\',\'list\',\'Male\')" style="'+bs+'">📋 リスト</span>'
-        +'<span onclick="event.stopPropagation();showTl(\''+disc0+'\',\'race\',\'Male\')" style="'+bs+'">📊 推移</span>'
-        +'<span onclick="event.stopPropagation();showTl(\''+disc0+'\',\'chart\',\'Male\')" style="'+bs+'">📈 チャート</span>'
+      const footer='<div style="margin-top:9px;padding-top:9px;border-top:1px solid rgba(255,255,255,.06)">'
+        +'<span onclick="event.stopPropagation();showTl(\''+disc0+'\',null,\'Male\')" style="display:block;width:100%;text-align:center;font-size:10px;color:var(--gold);cursor:pointer;padding:4px 0;border-radius:6px;border:1px solid rgba(255,210,74,.2);background:rgba(255,210,74,.06);box-sizing:border-box">📅 歴代記録</span>'
         +'</div>';
       return '<div class="hcard '+cat+'"><div class="dh"><span class="ja">'+d[1]+'</span><span class="en">'+d[0]+'</span></div>'+rows+footer+'</div>';
     }).join('');
