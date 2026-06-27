@@ -119,7 +119,7 @@ reviews            — レビュー
 | **ログイン済み**（選手・愛好家） | Supabase Auth | 登録後デフォルト。トレーニングログ・大会情報等 |
 | **インストラクター（承認済み）** | `instructors.status = 'approved'` | 管理者承認後にリスティング・CRM・予約管理が使える。選手との兼任あり |
 | **インストラクター（審査中）** | `instructors.status = 'pending'` | pro/index.html でプロフィール申請後・承認待ち。リスティング等は不可 |
-| **サイト管理者** | `user_roles` テーブル | `admin` / `editor` / `engineer` / `tester` 等を複数追加可能 |
+| **サイト管理者** | `user_roles` テーブル | `admin`（全権限）/ `staff`（予約・インストラクター・メディア）/ `editor`（メディアのみ） |
 | **大会ロール** | `event_staff` テーブル | 大会ごとに主催者が任命。`organizer` / `staff` / `readonly` |
 
 ### ページ別アクセス制御
@@ -151,7 +151,7 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 ### DB変更が必要なもの
 
 - `instructors` テーブルに `status TEXT DEFAULT 'pending'` カラム追加（`pending` / `approved` / `rejected`）
-- `user_roles` テーブル：既存。`role` に `editor` / `engineer` / `tester` も使用可能とする
+- `user_roles` テーブル：既存。`role` の値は `admin` / `staff` / `editor` の3種類
 
 -----
 

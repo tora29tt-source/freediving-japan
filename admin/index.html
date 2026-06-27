@@ -49,8 +49,9 @@ body {
   font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
   padding: 3px 8px; border-radius: 100px; margin-left: 10px;
 }
-.role-badge.admin { background: rgba(249,115,22,0.2); border: 1px solid rgba(249,115,22,0.4); color: var(--warm); }
-.role-badge.staff { background: rgba(46,196,182,0.15); border: 1px solid rgba(46,196,182,0.35); color: var(--teal); }
+.role-badge.admin  { background: rgba(249,115,22,0.2);  border: 1px solid rgba(249,115,22,0.4);  color: var(--warm); }
+.role-badge.staff  { background: rgba(46,196,182,0.15); border: 1px solid rgba(46,196,182,0.35); color: var(--teal); }
+.role-badge.editor { background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.35); color: #a78bfa; }
 .header-right { display: flex; align-items: center; gap: 12px; }
 .user-info { font-size: 12px; color: var(--on-dark-soft); }
 .logout-btn { font-size: 12px; color: var(--on-dark-mid); background: none; border: 1px solid var(--hairline); border-radius: 8px; padding: 6px 12px; cursor: pointer; transition: border-color 0.2s; }
@@ -785,13 +786,14 @@ async function boot() {
   const roleList = (roles || []).map(r => r.role);
   const isAdmin  = roleList.includes('admin');
   const isStaff  = roleList.includes('staff');
+  const isEditor = roleList.includes('editor');
 
-  if (!isAdmin && !isStaff) {
+  if (!isAdmin && !isStaff && !isEditor) {
     showAccessDenied('アクセス権限がありません', 'このページを表示する権限がありません。', '../index.html', 'トップへ戻る');
     return;
   }
 
-  currentRole = isAdmin ? 'admin' : 'staff';
+  currentRole = isAdmin ? 'admin' : isStaff ? 'staff' : 'editor';
 
   // ヘッダー表示
   document.getElementById('user-email').textContent = currentUser.email;
@@ -799,9 +801,22 @@ async function boot() {
   badge.textContent = currentRole.toUpperCase();
   badge.classList.add(currentRole);
 
-  // adminのみユーザー管理タブを表示
+  // タブ表示制御
+  // admin: 全タブ表示（ユーザー管理含む）
+  // staff: 空き枠・予約・インストラクター・リスティング・メディア（ユーザー管理なし）
+  // editor: メディアのみ
   if (isAdmin) {
     document.getElementById('tab-btn-users').style.display = '';
+  }
+  if (isEditor && !isAdmin && !isStaff) {
+    ['slots', 'bookings', 'instructors', 'listings'].forEach(t => {
+      document.getElementById(`tab-btn-${t}`).style.display = 'none';
+    });
+    // デフォルトタブをメディアに変更
+    document.querySelector('.tab.active')?.classList.remove('active');
+    document.getElementById('tab-btn-media').classList.add('active');
+    document.getElementById('tab-slots').style.display = 'none';
+    document.getElementById('tab-media').style.display = '';
   }
 
   document.getElementById('app').style.display = 'block';
