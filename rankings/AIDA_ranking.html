@@ -193,17 +193,16 @@ footer{color:var(--muted);font-size:11px;text-align:center;padding:20px;border-t
     </div>
     <div class="sel-period">
       <b>選考対象期間</b>：2025年3月15日（2025年日本選手権初日）〜 2027年日本選手権最終日（未確定）<br>
-      <b>選考基準</b>：各プール種目（STA/DYN/DYNB/DNF）男女別 上位4名。<br>
-      ※ 現在データは2026年5月末時点。名前クリックで選手詳細。
+      <b>選考基準</b>：各プール種目（STA/DYN/DYNB/DNF）男女別 上位4名。
     </div>
     <div class="sel-gtabs">
       <div class="sel-gtab active" onclick="setSelGender('Male',this)">男子</div>
       <div class="sel-gtab" onclick="setSelGender('Female',this)">女子</div>
     </div>
     <div class="sel-disc-grid" id="selGrid"></div>
-    <div class="sel-wc-note">
-      <b>ワイルドカードについて</b>：2026年AIDA種目別世界ランキング1〜10位に入った日本人選手に付与される特別参加権。選考4名は常に固定で、WC保有者のうちポイント上位2名までが別枠として追加（最大計6名）。WC保有者が3名以上の場合、3位以降のWC保有者は通常の選考枠として扱われます。<br>
-      2026年シーズン終了後にAIDA公式サイトで確定 → <a href="https://www.aidainternational.org/Ranking/WildCards" target="_blank" style="color:#60a5fa">AIDA WildCards</a>
+    <div class="sel-wc-note" id="selWcNote">
+      <b>ワイルドカードについて</b>：AIDA世界ランキング1〜10位に入った日本人選手に付与される特別参加権。選考4名は固定で、WC保有者のうち上位2名が別枠追加（最大計6名）。<br>
+      出典 → <a href="https://www.aidainternational.org/Ranking/WildCards" target="_blank" style="color:#60a5fa">AIDA WildCards</a>
     </div>
   </div>
 </div>
@@ -217,17 +216,16 @@ footer{color:var(--muted);font-size:11px;text-align:center;padding:20px;border-t
     </div>
     <div class="sel-period">
       <b>選考対象期間</b>：2025年6月11日 〜 2027年6月10日<br>
-      <b>選考基準</b>：各深度種目（CWT/CWTB/CNF/FIM）男女別 上位4名。<br>
-      ※ 現在データは2026年5月末時点。名前クリックで選手詳細。
+      <b>選考基準</b>：各深度種目（CWT/CWTB/CNF/FIM）男女別 上位4名。
     </div>
     <div class="sel-gtabs">
       <div class="sel-gtab active" onclick="setSelSeaGender('Male',this)">男子</div>
       <div class="sel-gtab" onclick="setSelSeaGender('Female',this)">女子</div>
     </div>
     <div class="sel-disc-grid" id="selSeaGrid"></div>
-    <div class="sel-wc-note">
-      <b>ワイルドカードについて</b>：AIDA種目別世界ランキング1〜10位に入った日本人選手に付与される特別参加権。選考4名は常に固定で、WC保有者のうちポイント上位2名までが別枠として追加（最大計6名）。WC保有者が3名以上の場合、3位以降は通常の選考枠として扱われます。<br>
-      シーズン終了後にAIDA公式サイトで確定 → <a href="https://www.aidainternational.org/Ranking/WildCards" target="_blank" style="color:#60a5fa">AIDA WildCards</a>
+    <div class="sel-wc-note" id="selSeaWcNote">
+      <b>ワイルドカードについて</b>：AIDA世界ランキング1〜10位に入った日本人選手に付与される特別参加権。選考4名は固定で、WC保有者のうち上位2名が別枠追加（最大計6名）。<br>
+      出典 → <a href="https://www.aidainternational.org/Ranking/WildCards" target="_blank" style="color:#60a5fa">AIDA WildCards</a>
     </div>
   </div>
 </div>
@@ -956,6 +954,12 @@ function renderSelGrid(){
     const dJa = dInfo ? dInfo[1] : disc;
     const cat = dInfo ? dInfo[4] : 'pool';
 
+    const wcKey = disc + '|' + selGender;
+    const jpWC = (WC_DATA.japan && WC_DATA.japan[wcKey]) || [];
+    const wcNames = new Set(jpWC.map(w => w.name));
+    const selectedNames = new Set(sorted.slice(0, quotaPerDisc).map(r => r.name));
+    const wcExtra = jpWC.filter(w => !selectedNames.has(w.name)).slice(0, 2);
+
     const rows = sorted.slice(0, Math.min(8, sorted.length)).map((r, i) => {
       const rank = i + 1;
       const isSelected = rank <= quotaPerDisc;
@@ -965,15 +969,27 @@ function renderSelGrid(){
         : '<span class="sel-badge out">圏外</span>';
       const tag = resTag(r.result);
       const tagBadge = tag ? '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:5px;margin-left:4px;background:'+(tag==='NR'?'rgba(255,210,74,.2)':'rgba(30,200,166,.2)')+';color:'+(tag==='NR'?'var(--gold)':'var(--accent2)')+'">'+tag+'</span>' : '';
+      const wcBadge = wcNames.has(r.name) ? '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:5px;margin-left:4px;background:rgba(96,165,250,.18);color:#60a5fa;border:1px solid rgba(96,165,250,.35)">WC</span>' : '';
       return '<div class="sel-row'+(isSelected?' selected':'')+'">'+
         '<span class="sel-rk '+rkCls+'">'+rank+'</span>'+
         av(r.name,'savatar')+
-        '<span class="sel-name" onclick="hideSelModal();showAthlete(\''+esc(r.name)+'\',false)">'+r.name+'</span>'+
+        '<span class="sel-name" onclick="hideSelModal();showAthlete(\''+esc(r.name)+'\',false)">'+r.name+wcBadge+'</span>'+
         '<span class="sel-res">'+cleanRes(r.result)+tagBadge+'</span>'+
         '<span class="sel-date">'+r.date.slice(0,7)+'</span>'+
         badge+
         '</div>';
     }).join('');
+
+    const wcExtraRows = wcExtra.map(w =>
+      '<div class="sel-row selected" style="border-left:2px solid rgba(96,165,250,.6);background:rgba(96,165,250,.06)">'+
+      '<span class="sel-rk" style="color:#60a5fa;font-size:9px">WC</span>'+
+      av(w.name,'savatar')+
+      '<span class="sel-name" onclick="hideSelModal();showAthlete(\''+esc(w.name)+'\',false)">'+w.name+'</span>'+
+      '<span class="sel-res">世界'+w.rank+'位</span>'+
+      '<span class="sel-date">'+w.date.slice(0,7)+'</span>'+
+      '<span class="sel-badge ok" style="background:rgba(96,165,250,.18);color:#60a5fa;border-color:rgba(96,165,250,.4)">WC枠</span>'+
+      '</div>'
+    ).join('');
 
     const emptyMsg = sorted.length === 0
       ? '<div style="padding:14px;font-size:12px;color:var(--muted)">選考期間中のデータなし</div>'
@@ -982,7 +998,7 @@ function renderSelGrid(){
     return '<div class="sel-disc-block">'+
       '<div class="sel-disc-label"><span class="dn'+(cat==='sea'?' sea':'')+'">'+dJa+' <span style="font-size:9px;opacity:.7">'+disc+'</span></span>'+
       '<span class="dq">上位'+quotaPerDisc+'名選考</span></div>'+
-      rows + emptyMsg +
+      rows + wcExtraRows + emptyMsg +
       '</div>';
   }).join('');
 
@@ -1039,6 +1055,12 @@ function renderSelSeaGrid(){
     const dInfo = DISC.find(d=>d[0]===disc);
     const dJa = dInfo ? dInfo[1] : disc;
 
+    const wcKey = disc + '|' + selSeaGender;
+    const jpWC = (WC_DATA.japan && WC_DATA.japan[wcKey]) || [];
+    const wcNames = new Set(jpWC.map(w => w.name));
+    const selectedNames = new Set(sorted.slice(0, quotaPerDisc).map(r => r.name));
+    const wcExtra = jpWC.filter(w => !selectedNames.has(w.name)).slice(0, 2);
+
     const rows = sorted.slice(0, Math.min(8, sorted.length)).map((r, i) => {
       const rank = i + 1;
       const isSelected = rank <= quotaPerDisc;
@@ -1048,15 +1070,27 @@ function renderSelSeaGrid(){
         : '<span class="sel-badge out">圏外</span>';
       const tag = resTag(r.result);
       const tagBadge = tag ? '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:5px;margin-left:4px;background:'+(tag==='NR'?'rgba(255,210,74,.2)':'rgba(30,200,166,.2)')+';color:'+(tag==='NR'?'var(--gold)':'var(--accent2)')+'">'+tag+'</span>' : '';
+      const wcBadge = wcNames.has(r.name) ? '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:5px;margin-left:4px;background:rgba(96,165,250,.18);color:#60a5fa;border:1px solid rgba(96,165,250,.35)">WC</span>' : '';
       return '<div class="sel-row'+(isSelected?' selected':'')+'">'+
         '<span class="sel-rk '+rkCls+'">'+rank+'</span>'+
         av(r.name,'savatar')+
-        '<span class="sel-name" onclick="hideSelSeaModal();showAthlete(\''+esc(r.name)+'\',false)">'+r.name+'</span>'+
+        '<span class="sel-name" onclick="hideSelSeaModal();showAthlete(\''+esc(r.name)+'\',false)">'+r.name+wcBadge+'</span>'+
         '<span class="sel-res">'+cleanRes(r.result)+tagBadge+'</span>'+
         '<span class="sel-date">'+r.date.slice(0,7)+'</span>'+
         badge+
         '</div>';
     }).join('');
+
+    const wcExtraRows = wcExtra.map(w =>
+      '<div class="sel-row selected" style="border-left:2px solid rgba(96,165,250,.6);background:rgba(96,165,250,.06)">'+
+      '<span class="sel-rk" style="color:#60a5fa;font-size:9px">WC</span>'+
+      av(w.name,'savatar')+
+      '<span class="sel-name" onclick="hideSelSeaModal();showAthlete(\''+esc(w.name)+'\',false)">'+w.name+'</span>'+
+      '<span class="sel-res">世界'+w.rank+'位</span>'+
+      '<span class="sel-date">'+w.date.slice(0,7)+'</span>'+
+      '<span class="sel-badge ok" style="background:rgba(96,165,250,.18);color:#60a5fa;border-color:rgba(96,165,250,.4)">WC枠</span>'+
+      '</div>'
+    ).join('');
 
     const emptyMsg = sorted.length === 0
       ? '<div style="padding:14px;font-size:12px;color:var(--muted)">選考期間中のデータなし</div>'
@@ -1065,7 +1099,7 @@ function renderSelSeaGrid(){
     return '<div class="sel-disc-block">'+
       '<div class="sel-disc-label"><span class="dn sea">'+dJa+' <span style="font-size:9px;opacity:.7">'+disc+'</span></span>'+
       '<span class="dq">上位'+quotaPerDisc+'名選考</span></div>'+
-      rows + emptyMsg +
+      rows + wcExtraRows + emptyMsg +
       '</div>';
   }).join('');
 
