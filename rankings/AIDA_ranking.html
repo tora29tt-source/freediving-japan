@@ -957,20 +957,25 @@ function renderSelGrid(){
     const wcKey = disc + '|' + selGender;
     const jpWC = (WC_DATA.japan && WC_DATA.japan[wcKey]) || [];
     const wcNames = new Set(jpWC.map(w => w.name));
-    const selectedNames = new Set(sorted.slice(0, quotaPerDisc).map(r => r.name));
-    const wcExtra = jpWC.filter(w => !selectedNames.has(w.name)).slice(0, 2);
+    // WC保有者の人数（最大2）が追加枠数を決定
+    const wcSlots = Math.min(jpWC.length, 2);
+    const totalSelected = quotaPerDisc + wcSlots; // 4, 5, or 6
 
     const rows = sorted.slice(0, Math.min(8, sorted.length)).map((r, i) => {
       const rank = i + 1;
-      const isSelected = rank <= quotaPerDisc;
+      const isRegular = rank <= quotaPerDisc;
+      const isWcUpgrade = !isRegular && rank <= totalSelected;
+      const isSelected = isRegular || isWcUpgrade;
       const rkCls = ['','r1','r2','r3','r4'][rank] || '';
-      const badge = isSelected
+      const badge = isRegular
         ? '<span class="sel-badge ok">選考圏内</span>'
-        : '<span class="sel-badge out">圏外</span>';
+        : isWcUpgrade
+          ? '<span class="sel-badge ok" style="background:rgba(96,165,250,.18);color:#60a5fa;border-color:rgba(96,165,250,.4)">繰上（WC枠）</span>'
+          : '<span class="sel-badge out">圏外</span>';
       const tag = resTag(r.result);
       const tagBadge = tag ? '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:5px;margin-left:4px;background:'+(tag==='NR'?'rgba(255,210,74,.2)':'rgba(30,200,166,.2)')+';color:'+(tag==='NR'?'var(--gold)':'var(--accent2)')+'">'+tag+'</span>' : '';
       const wcBadge = wcNames.has(r.name) ? '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:5px;margin-left:4px;background:rgba(96,165,250,.18);color:#60a5fa;border:1px solid rgba(96,165,250,.35)">WC</span>' : '';
-      return '<div class="sel-row'+(isSelected?' selected':'')+'">'+
+      return '<div class="sel-row'+(isSelected?' selected':'')+(isWcUpgrade?' style="border-left:2px solid rgba(96,165,250,.5)"':'')+'">'+
         '<span class="sel-rk '+rkCls+'">'+rank+'</span>'+
         av(r.name,'savatar')+
         '<span class="sel-name" onclick="hideSelModal();showAthlete(\''+esc(r.name)+'\',false)">'+r.name+wcBadge+'</span>'+
@@ -980,25 +985,18 @@ function renderSelGrid(){
         '</div>';
     }).join('');
 
-    const wcExtraRows = wcExtra.map(w =>
-      '<div class="sel-row selected" style="border-left:2px solid rgba(96,165,250,.6);background:rgba(96,165,250,.06)">'+
-      '<span class="sel-rk" style="color:#60a5fa;font-size:9px">WC</span>'+
-      av(w.name,'savatar')+
-      '<span class="sel-name" onclick="hideSelModal();showAthlete(\''+esc(w.name)+'\',false)">'+w.name+'</span>'+
-      '<span class="sel-res">世界'+w.rank+'位</span>'+
-      '<span class="sel-date">'+w.date.slice(0,7)+'</span>'+
-      '<span class="sel-badge ok" style="background:rgba(96,165,250,.18);color:#60a5fa;border-color:rgba(96,165,250,.4)">WC枠</span>'+
-      '</div>'
-    ).join('');
-
     const emptyMsg = sorted.length === 0
       ? '<div style="padding:14px;font-size:12px;color:var(--muted)">選考期間中のデータなし</div>'
       : '';
 
+    const quota = wcSlots > 0
+      ? '上位'+quotaPerDisc+'名 + WC枠'+wcSlots+'名'
+      : '上位'+quotaPerDisc+'名選考';
+
     return '<div class="sel-disc-block">'+
       '<div class="sel-disc-label"><span class="dn'+(cat==='sea'?' sea':'')+'">'+dJa+' <span style="font-size:9px;opacity:.7">'+disc+'</span></span>'+
-      '<span class="dq">上位'+quotaPerDisc+'名選考</span></div>'+
-      rows + wcExtraRows + emptyMsg +
+      '<span class="dq">'+quota+'</span></div>'+
+      rows + emptyMsg +
       '</div>';
   }).join('');
 
@@ -1058,20 +1056,24 @@ function renderSelSeaGrid(){
     const wcKey = disc + '|' + selSeaGender;
     const jpWC = (WC_DATA.japan && WC_DATA.japan[wcKey]) || [];
     const wcNames = new Set(jpWC.map(w => w.name));
-    const selectedNames = new Set(sorted.slice(0, quotaPerDisc).map(r => r.name));
-    const wcExtra = jpWC.filter(w => !selectedNames.has(w.name)).slice(0, 2);
+    const wcSlots = Math.min(jpWC.length, 2);
+    const totalSelected = quotaPerDisc + wcSlots;
 
     const rows = sorted.slice(0, Math.min(8, sorted.length)).map((r, i) => {
       const rank = i + 1;
-      const isSelected = rank <= quotaPerDisc;
+      const isRegular = rank <= quotaPerDisc;
+      const isWcUpgrade = !isRegular && rank <= totalSelected;
+      const isSelected = isRegular || isWcUpgrade;
       const rkCls = ['','r1','r2','r3','r4'][rank] || '';
-      const badge = isSelected
+      const badge = isRegular
         ? '<span class="sel-badge ok">選考圏内</span>'
-        : '<span class="sel-badge out">圏外</span>';
+        : isWcUpgrade
+          ? '<span class="sel-badge ok" style="background:rgba(96,165,250,.18);color:#60a5fa;border-color:rgba(96,165,250,.4)">繰上（WC枠）</span>'
+          : '<span class="sel-badge out">圏外</span>';
       const tag = resTag(r.result);
       const tagBadge = tag ? '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:5px;margin-left:4px;background:'+(tag==='NR'?'rgba(255,210,74,.2)':'rgba(30,200,166,.2)')+';color:'+(tag==='NR'?'var(--gold)':'var(--accent2)')+'">'+tag+'</span>' : '';
       const wcBadge = wcNames.has(r.name) ? '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:5px;margin-left:4px;background:rgba(96,165,250,.18);color:#60a5fa;border:1px solid rgba(96,165,250,.35)">WC</span>' : '';
-      return '<div class="sel-row'+(isSelected?' selected':'')+'">'+
+      return '<div class="sel-row'+(isSelected?' selected':'')+(isWcUpgrade?' style="border-left:2px solid rgba(96,165,250,.5)"':'')+'">'+
         '<span class="sel-rk '+rkCls+'">'+rank+'</span>'+
         av(r.name,'savatar')+
         '<span class="sel-name" onclick="hideSelSeaModal();showAthlete(\''+esc(r.name)+'\',false)">'+r.name+wcBadge+'</span>'+
@@ -1081,25 +1083,18 @@ function renderSelSeaGrid(){
         '</div>';
     }).join('');
 
-    const wcExtraRows = wcExtra.map(w =>
-      '<div class="sel-row selected" style="border-left:2px solid rgba(96,165,250,.6);background:rgba(96,165,250,.06)">'+
-      '<span class="sel-rk" style="color:#60a5fa;font-size:9px">WC</span>'+
-      av(w.name,'savatar')+
-      '<span class="sel-name" onclick="hideSelSeaModal();showAthlete(\''+esc(w.name)+'\',false)">'+w.name+'</span>'+
-      '<span class="sel-res">世界'+w.rank+'位</span>'+
-      '<span class="sel-date">'+w.date.slice(0,7)+'</span>'+
-      '<span class="sel-badge ok" style="background:rgba(96,165,250,.18);color:#60a5fa;border-color:rgba(96,165,250,.4)">WC枠</span>'+
-      '</div>'
-    ).join('');
-
     const emptyMsg = sorted.length === 0
       ? '<div style="padding:14px;font-size:12px;color:var(--muted)">選考期間中のデータなし</div>'
       : '';
 
+    const quota = wcSlots > 0
+      ? '上位'+quotaPerDisc+'名 + WC枠'+wcSlots+'名'
+      : '上位'+quotaPerDisc+'名選考';
+
     return '<div class="sel-disc-block">'+
       '<div class="sel-disc-label"><span class="dn sea">'+dJa+' <span style="font-size:9px;opacity:.7">'+disc+'</span></span>'+
-      '<span class="dq">上位'+quotaPerDisc+'名選考</span></div>'+
-      rows + wcExtraRows + emptyMsg +
+      '<span class="dq">'+quota+'</span></div>'+
+      rows + emptyMsg +
       '</div>';
   }).join('');
 
