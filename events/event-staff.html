@@ -4350,14 +4350,8 @@ async function orgLogout() {
 async function deleteEvent() {
   if (!_currentEventId) { alert('大会IDが不明です。'); return; }
 
-  // 大会名を取得して確認ダイアログ
   var evName = (document.getElementById('ov-name') && document.getElementById('ov-name').value.trim()) || '（名称不明）';
-  var input = window.prompt('この大会を完全に削除します。\n\n「' + evName + '」\n\nすべてのデータ（スタッフ・スケジュール・AP・リザルト等）が削除されます。\n\n確認のため大会名を入力してください：');
-  if (input === null) return; // キャンセル
-  if (input.trim() !== evName) {
-    alert('大会名が一致しません。削除を中止しました。');
-    return;
-  }
+  if (!confirm('「' + evName + '」を削除しますか？\n\nスタッフ・スケジュール・AP・リザルト等すべてのデータが完全に削除されます。この操作は取り消せません。')) return;
 
   try {
     var id = _currentEventId;
@@ -4373,7 +4367,7 @@ async function deleteEvent() {
     if (res.error) throw res.error;
 
     alert('大会を削除しました。');
-    location.href = '../events/2026_competitions.html';
+    location.href = '../mypage.html';
   } catch(e) {
     alert('削除中にエラーが発生しました: ' + (e.message || e));
   }

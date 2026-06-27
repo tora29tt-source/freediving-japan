@@ -16,8 +16,12 @@ BASE    = "https://www.aidainternational.org"
 WC_URL  = f"{BASE}/Ranking/WildCards"
 YEAR    = str(datetime.date.today().year)
 
-DISCIPLINES = ["STA", "DYN", "DYNB", "DNF", "CWT", "CWTB", "CNF", "FIM"]
-GENDERS     = ["Male", "Female"]
+# (label, form value) — same numeric IDs as fetch_jp_records.py
+DISCIPLINES = [
+    ("STA","8"), ("DYN","6"), ("DYNB","11"), ("DNF","7"),
+    ("CWT","3"), ("CWTB","12"), ("CNF","4"), ("FIM","5"),
+]
+GENDERS = [("Male","0"), ("Female","1")]
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (compatible; FreedivingJapan/1.0)",
@@ -39,12 +43,13 @@ def parse_name_nationality(cell_html):
         return m.group(1).strip(), m.group(2).strip()
     return text.strip(), ""
 
-def fetch_wc_page(session, disc, gender, year):
+def fetch_wc_page(session, disc_id, gender_id, year):
+    # WildCards page uses "disc" (not "discipline") with numeric IDs
     payload = {
-        "discipline": disc,
-        "gender":     gender,
-        "year":       year,
-        "apply":      "Apply",
+        "disc":   disc_id,
+        "gender": gender_id,
+        "year":   year,
+        "apply":  "Apply",
     }
     r = session.post(WC_URL, data=payload, headers=HEADERS, timeout=30)
     r.raise_for_status()
@@ -90,12 +95,12 @@ def main():
     japan_wc = {}   # key: "DISC|Gender" → list of JP WC holders (all top-10)
     all_wc   = {}   # full top-10 for every disc/gender (for reference)
 
-    for disc in DISCIPLINES:
-        for gender in GENDERS:
-            key = f"{disc}|{gender}"
+    for disc_label, disc_id in DISCIPLINES:
+        for gender_label, gender_id in GENDERS:
+            key = f"{disc_label}|{gender_label}"
             print(f"  Fetching WC {key} ({YEAR})...")
             try:
-                html = fetch_wc_page(session, disc, gender, YEAR)
+                html = fetch_wc_page(session, disc_id, gender_id, YEAR)
                 rows = parse_wc_table(html)
                 all_wc[key] = rows
                 jp = [r for r in rows if is_japan(r["nationality"])]
