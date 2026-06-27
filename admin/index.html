@@ -351,6 +351,14 @@ td.name { color: var(--on-dark); font-weight: 500; }
           追加
         </button>
       </div>
+      <div class="filters">
+        <select class="filter-select" id="instructor-filter-status" onchange="loadInstructors()">
+          <option value="">すべて</option>
+          <option value="pending">承認待ち</option>
+          <option value="approved">承認済み</option>
+          <option value="rejected">却下</option>
+        </select>
+      </div>
       <div id="instructors-content">
         <div class="spinner-wrap"><div class="spinner"></div></div>
       </div>
@@ -1170,24 +1178,43 @@ async function loadInstructors() {
   const el = document.getElementById('instructors-content');
   el.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
 
-  const { data, error } = await _sb
+  const statusFilter = document.getElementById('instructor-filter-status')?.value || '';
+
+  let query = _sb
     .from('instructors')
-    .select('id, name, prefecture, city, is_verified, is_public, experience_years')
+    .select('id, name, prefecture, city, is_verified, is_public, experience_years, status')
+    .order('status', { ascending: true })   // pending が先頭に来るようにソート
     .order('created_at', { ascending: false });
+
+  if (statusFilter) query = query.eq('status', statusFilter);
+
+  const { data, error } = await query;
 
   if (error) { el.innerHTML = `<div class="empty">取得エラー: ${error.message}</div>`; return; }
   if (!data || data.length === 0) { el.innerHTML = '<div class="empty">インストラクターがいません</div>'; return; }
+
+  const statusBadge = s => {
+    if (s === 'approved') return '<span class="badge badge-confirmed">承認済み</span>';
+    if (s === 'pending')  return '<span class="badge" style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.35);color:#f59e0b;">承認待ち</span>';
+    if (s === 'rejected') return '<span class="badge badge-danger">却下</span>';
+    return '<span class="badge badge-inactive">—</span>';
+  };
+
+  const approveBtn = inst => inst.status !== 'approved'
+    ? `<button class="btn-edit" style="background:rgba(34,197,94,0.15);border-color:rgba(34,197,94,0.4);color:#22c55e;" onclick="setInstructorStatus('${inst.id}','${escHtml(inst.name)}','approved')">承認</button>`
+    : '';
+  const rejectBtn = inst => inst.status !== 'rejected'
+    ? `<button class="btn-danger" onclick="setInstructorStatus('${inst.id}','${escHtml(inst.name)}','rejected')">却下</button>`
+    : '';
 
   el.innerHTML = `
     <div class="table-wrap">
       <table>
         <thead>
           <tr>
-            <th>ID</th>
             <th>名前</th>
             <th>エリア</th>
-            <th>指導歴</th>
-            <th>認証</th>
+            <th>申請ステータス</th>
             <th>公開</th>
             <th>操作</th>
           </tr>
@@ -1195,15 +1222,15 @@ async function loadInstructors() {
         <tbody>
           ${data.map(inst => `
             <tr>
-              <td><span title="${inst.id}" style="font-family:monospace;font-size:11px;color:var(--on-dark-soft);cursor:default;">${inst.id.slice(0,8)}</span></td>
               <td class="name">${escHtml(inst.name)}</td>
               <td>${escHtml([inst.prefecture, inst.city].filter(Boolean).join(' ') || '—')}</td>
-              <td>${inst.experience_years ? inst.experience_years + '年' : '—'}</td>
-              <td>${inst.is_verified ? '<span class="badge badge-confirmed">✓ 済</span>' : '<span class="badge badge-inactive">未</span>'}</td>
+              <td>${statusBadge(inst.status)}</td>
               <td>${inst.is_public ? '<span class="badge badge-active">公開</span>' : '<span class="badge badge-inactive">非公開</span>'}</td>
               <td>
                 <div class="actions">
-                  <button class="btn-edit"   onclick="openInstructorModal('${inst.id}')">編集</button>
+                  ${approveBtn(inst)}
+                  ${rejectBtn(inst)}
+                  <button class="btn-edit" onclick="openInstructorModal('${inst.id}')">編集</button>
                   <button class="btn-danger" onclick="deleteInstructor('${inst.id}', '${escHtml(inst.name)}')">削除</button>
                 </div>
               </td>
@@ -1214,6 +1241,20 @@ async function loadInstructors() {
 
   // マスタデータも更新（空き枠モーダルのプルダウンに反映）
   await loadMasterData();
+}
+
+async function setInstructorStatus(id, name, newStatus) {
+  const label = newStatus === 'approved' ? '承認' : '却下';
+  if (!confirm(`${name} を${label}しますか？`)) return;
+
+  const { error } = await _sb
+    .from('instructors')
+    .update({ status: newStatus })
+    .eq('id', id);
+
+  if (error) { showToast(`更新失敗: ${error.message}`, 'error'); return; }
+  showToast(`${name} を${label}しました`, 'success');
+  loadInstructors();
 }
 
 function openInstructorModal(instId = null) {
