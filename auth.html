@@ -335,8 +335,9 @@ body {
 </a>
 
 <script>
-_sb.auth.getSession().then(({ data: { session } }) => {
-  if (session) window.location.href = 'mypage.html';
+// OAuthコールバック含めセッション確立を待ってからリダイレクト
+_sb.auth.onAuthStateChange((event, session) => {
+  if (session) window.location.replace('mypage.html');
 });
 
 function switchTab(tab) {
@@ -371,7 +372,7 @@ async function signInGoogle() {
   }
   const { error } = await _sb.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: window.location.origin + '/mypage.html' }
+    options: { redirectTo: window.location.origin + '/auth.html' }
   });
   if (error) showMessage(error.message || 'Googleログインに失敗しました', 'error');
 }
@@ -379,7 +380,7 @@ async function signInGoogle() {
 async function signInApple() {
   const { error } = await _sb.auth.signInWithOAuth({
     provider: 'apple',
-    options: { redirectTo: window.location.origin + '/mypage.html' }
+    options: { redirectTo: window.location.origin + '/auth.html' }
   });
   if (error) showMessage(error.message, 'error');
 }
