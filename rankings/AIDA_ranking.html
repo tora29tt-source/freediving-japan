@@ -436,7 +436,7 @@ function renderHero(){
         const t=resTag(rec.result);
         return '<div class="hrow" onclick="showAthlete(\''+esc(rec.name)+'\',false)">'+av(rec.name,'av')+'<div><div class="gtag">'+(g==='Male'?'男子':'女子')+'</div><div class="hn">'+rec.name+'</div></div><div class="hr"><div class="v">'+cleanRes(rec.result)+'</div>'+(t?'<div class="nr">'+t+'</div>':'')+'</div></div>';
       }).join('');
-      return '<div class="hcard '+cat+'"><div class="dh"><span class="ja">'+d[1]+'</span><span class="en">'+d[0]+'</span></div>'+rows+'</div>';
+      return '<div class="hcard '+cat+'"><div class="dh"><span class="ja">'+d[1]+'</span><span class="en">'+d[0]+'</span><span onclick="event.stopPropagation();showTl(\''+d[0]+'\')" title="歴代記録" style="margin-left:auto;font-size:10px;color:var(--gold);opacity:.75;cursor:pointer;padding:2px 7px;border-radius:8px;border:1px solid rgba(255,210,74,.25);background:rgba(255,210,74,.07);white-space:nowrap;flex-shrink:0">📅 履歴</span></div>'+rows+'</div>';
     }).join('');
     return '<div class="grouphd '+cat+'"><span class="dot"></span>'+label+' <small>'+sub+'</small></div><div class="hgrid">'+cards+'</div>';
   }
@@ -1057,7 +1057,8 @@ function renderSelSeaGrid(){
 let tlDisc = 'STA';
 let tlGender = 'Male';
 
-function showTl(){
+function showTl(disc){
+  if(disc) tlDisc = disc;
   // 種目タブ: プール行 / 海行 の2段構成
   const tabs = DISC.filter(d=>d[0]!=='OVERALL');
   const poolTabs = tabs.filter(d=>d[4]==='pool');
