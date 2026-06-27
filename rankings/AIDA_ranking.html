@@ -32,18 +32,19 @@ header p{color:var(--muted);font-size:12.5px;margin-top:4px}
 .hr{margin-left:auto;text-align:right}.hr .v{font-size:15px;font-weight:800;color:var(--accent2)}.hr .nr{font-size:8.5px;color:var(--gold);font-weight:700}
 /* controls */
 .controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:18px 0 4px}
-.tabs{display:flex;flex-direction:column;gap:6px}
-.tab-row{display:flex;flex-wrap:nowrap;gap:6px;align-items:center}
-.tab{padding:7px 12px;border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:20px;cursor:pointer;font-size:12.5px;transition:.15s;text-align:center;white-space:nowrap}
-.tab small{display:block;font-size:9px;letter-spacing:.5px;opacity:.7}
-.tab:hover{border-color:var(--accent)}
-.tab.active{color:#fff;font-weight:600}
-.tab.pool.active{background:var(--pool);border-color:var(--pool)}
-.tab.sea.active{background:var(--sea);border-color:var(--sea);color:#06231c}
-.tab.overall.active{background:var(--accent);border-color:var(--accent)}
-.tab.pool{border-left:3px solid var(--pool)}.tab.sea{border-left:3px solid var(--sea)}
-.tab-cat{font-size:9px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;padding:0 4px;pointer-events:none;user-select:none;flex-shrink:0;opacity:.45;color:var(--muted);min-width:28px}
+.tabs{display:flex;flex-direction:column;gap:4px}
+.tab-row{display:flex;flex-wrap:nowrap;gap:2px;align-items:center}
+.tab{padding:5px 10px;border:0;background:transparent;color:var(--muted);border-radius:6px;cursor:pointer;font-size:12.5px;transition:.12s;text-align:center;white-space:nowrap}
+.tab small{display:block;font-size:8.5px;letter-spacing:.4px;opacity:.6}
+.tab:hover{color:var(--text);background:rgba(255,255,255,.05)}
+.tab.active{color:var(--text);font-weight:600;background:rgba(255,255,255,.08)}
+.tab.pool.active{color:var(--pool)}
+.tab.sea.active{color:var(--sea)}
+.tab.overall.active{color:var(--accent)}
+.tab-cat{font-size:9px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;padding:0 6px;pointer-events:none;user-select:none;flex-shrink:0;opacity:.35;color:var(--muted);min-width:30px}
 .spacer{flex:1}
+.more-btn{display:block;width:100%;margin:14px 0;padding:10px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:8px;color:var(--muted);font-size:13px;cursor:pointer;text-align:center;transition:.15s}
+.more-btn:hover{background:rgba(255,255,255,.08);color:var(--text)}
 select{padding:7px 10px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;font-size:13px}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
 .seg button{padding:7px 14px;background:var(--panel);color:var(--muted);border:0;cursor:pointer;font-size:13px}
@@ -376,7 +377,7 @@ const DISC=[
 ];
 const DJA=Object.fromEntries(DISC.map(d=>[d[0],d[1]]));
 const DCAT=Object.fromEntries(DISC.map(d=>[d[0],d[4]]));
-let state={disc:'OVERALL',gender:'Male',year:'all'};
+let state={disc:'DYN',gender:'Male',year:'all'};
 const tabs=document.getElementById('tabs');
 const TAB_GROUPS=[{cat:'pool',label:'プール'},{cat:'sea',label:'海'},{cat:'overall',label:'総合'}];
 TAB_GROUPS.forEach(g=>{
@@ -493,28 +494,42 @@ function render(){
   }).join('')+'</div>';
   const rest=rows.slice(3);
   if(!rest.length){area.innerHTML='';return;}
-  if(isOv){
-    area.innerHTML='<div class="listhd">4位以降</div>'
-      +rest.map(r=>'<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)">'
-        +'<span class="rk" style="width:28px;flex:none">'+r.rank+'</span>'
-        +'<div class="nmcell" style="flex:1;min-width:0">'+av(r.name,'savatar')+'<span class="nm" onclick="showAthlete(\''+esc(r.name)+'\',state.disc===\'OVERALL\')" style="white-space:normal;line-height:1.25;word-break:break-word">'+r.name+'</span></div>'
-        +'</div>').join('');
-  }else{
-    area.innerHTML='<div class="listhd">4位以降</div>'
-      +rest.map(r=>'<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)">'
-        +'<span class="rk" style="width:28px;flex:none;font-size:12px">'+r.rank+'</span>'
-        +'<div class="nmcell" style="flex:1;min-width:0;gap:7px">'+av(r.name,'savatar')
-          +'<div style="min-width:0">'
-            +'<div class="nm" onclick="showAthlete(\''+esc(r.name)+'\',state.disc===\'OVERALL\')" style="white-space:normal;line-height:1.25;word-break:break-word;font-size:12.5px">'+r.name+'</div>'
-            +(r.event?'<div style="font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px">'+r.event+'</div>':'')
+  window._tableRest=rest;window._tableOffset=0;
+  const PAGE=50;
+  window.renderRows=function(){
+    const tableOffset=window._tableOffset;
+    const rest=window._tableRest;
+    const slice=rest.slice(tableOffset,tableOffset+PAGE);
+    const hasMore=tableOffset+PAGE<rest.length;
+    const rowsHtml=isOv
+      ?slice.map(r=>'<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)">'
+          +'<span class="rk" style="width:28px;flex:none">'+r.rank+'</span>'
+          +'<div class="nmcell" style="flex:1;min-width:0">'+av(r.name,'savatar')+'<span class="nm" onclick="showAthlete(\''+esc(r.name)+'\',state.disc===\'OVERALL\')" style="white-space:normal;line-height:1.25;word-break:break-word">'+r.name+'</span></div>'
+          +'</div>').join('')
+      :slice.map(r=>'<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)">'
+          +'<span class="rk" style="width:28px;flex:none;font-size:12px">'+r.rank+'</span>'
+          +'<div class="nmcell" style="flex:1;min-width:0;gap:7px">'+av(r.name,'savatar')
+            +'<div style="min-width:0">'
+              +'<div class="nm" onclick="showAthlete(\''+esc(r.name)+'\',state.disc===\'OVERALL\')" style="white-space:normal;line-height:1.25;word-break:break-word;font-size:12.5px">'+r.name+'</div>'
+              +(r.event?'<div style="font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px">'+r.event+'</div>':'')
+            +'</div>'
           +'</div>'
-        +'</div>'
-        +'<div style="flex:none;text-align:right">'
-          +'<div class="res2" style="font-size:13px">'+cleanRes(r.result)+'</div>'
-          +'<div style="font-size:10px;color:var(--muted);white-space:nowrap">'+r.date.slice(0,7)+'</div>'
-        +'</div>'
-        +'</div>').join('');
-  }
+          +'<div style="flex:none;text-align:right">'
+            +'<div class="res2" style="font-size:13px">'+cleanRes(r.result)+'</div>'
+            +'<div style="font-size:10px;color:var(--muted);white-space:nowrap">'+r.date.slice(0,7)+'</div>'
+          +'</div>'
+          +'</div>').join('');
+    const moreBtn=hasMore?'<button class="more-btn" onclick="window._tableOffset+='+PAGE+';renderRows()">'+(tableOffset+PAGE+3+1)+'位〜'+(Math.min(tableOffset+PAGE*2,rest.length)+3)+'位を表示</button>':'';
+    if(tableOffset===0){
+      area.innerHTML='<div class="listhd">4位以降</div><div id="rowsContainer">'+rowsHtml+'</div>'+moreBtn;
+    } else {
+      document.getElementById('rowsContainer').insertAdjacentHTML('beforeend',rowsHtml);
+      const btn=area.querySelector('.more-btn');
+      if(btn) btn.outerHTML=moreBtn;
+      else if(moreBtn) area.insertAdjacentHTML('beforeend',moreBtn);
+    }
+  };
+  window.renderRows();
 }
 
 function showAthlete(name,fromOverall){
