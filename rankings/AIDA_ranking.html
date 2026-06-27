@@ -436,7 +436,14 @@ function renderHero(){
         const t=resTag(rec.result);
         return '<div class="hrow" onclick="showAthlete(\''+esc(rec.name)+'\',false)">'+av(rec.name,'av')+'<div><div class="gtag">'+(g==='Male'?'男子':'女子')+'</div><div class="hn">'+rec.name+'</div></div><div class="hr"><div class="v">'+cleanRes(rec.result)+'</div>'+(t?'<div class="nr">'+t+'</div>':'')+'</div></div>';
       }).join('');
-      return '<div class="hcard '+cat+'"><div class="dh"><span class="ja">'+d[1]+'</span><span class="en">'+d[0]+'</span><span onclick="event.stopPropagation();showTl(\''+d[0]+'\')" title="歴代記録" style="margin-left:auto;font-size:10px;color:var(--gold);opacity:.75;cursor:pointer;padding:2px 7px;border-radius:8px;border:1px solid rgba(255,210,74,.25);background:rgba(255,210,74,.07);white-space:nowrap;flex-shrink:0">📅 履歴</span></div>'+rows+'</div>';
+      const disc0=d[0];
+      const bs='flex:1;text-align:center;font-size:10px;color:var(--gold);cursor:pointer;padding:4px 0;border-radius:6px;border:1px solid rgba(255,210,74,.2);background:rgba(255,210,74,.06);transition:.15s';
+      const footer='<div style="display:flex;gap:4px;margin-top:9px;padding-top:9px;border-top:1px solid rgba(255,255,255,.06)">'
+        +'<span onclick="event.stopPropagation();showTl(\''+disc0+'\',\'list\')" style="'+bs+'">📋 リスト</span>'
+        +'<span onclick="event.stopPropagation();showTl(\''+disc0+'\',\'race\')" style="'+bs+'">📊 推移</span>'
+        +'<span onclick="event.stopPropagation();showTl(\''+disc0+'\',\'chart\')" style="'+bs+'">📈 チャート</span>'
+        +'</div>';
+      return '<div class="hcard '+cat+'"><div class="dh"><span class="ja">'+d[1]+'</span><span class="en">'+d[0]+'</span></div>'+rows+footer+'</div>';
     }).join('');
     return '<div class="grouphd '+cat+'"><span class="dot"></span>'+label+' <small>'+sub+'</small></div><div class="hgrid">'+cards+'</div>';
   }
@@ -1057,8 +1064,9 @@ function renderSelSeaGrid(){
 let tlDisc = 'STA';
 let tlGender = 'Male';
 
-function showTl(disc){
+function showTl(disc, view){
   if(disc) tlDisc = disc;
+  if(view) tlView = view;
   // 種目タブ: プール行 / 海行 の2段構成
   const tabs = DISC.filter(d=>d[0]!=='OVERALL');
   const poolTabs = tabs.filter(d=>d[4]==='pool');
@@ -1080,6 +1088,7 @@ function showTl(disc){
       + seaTabs.map(makeTab).join('')
     + '</div>';
   renderTl();
+  document.querySelectorAll('#tlOverlay .tl-vtab').forEach(t=>t.classList.toggle('active',t.dataset.v===tlView));
   document.getElementById('tlOverlay').classList.add('show');
 }
 function hideTl(){ stopTlRace(); document.getElementById('tlOverlay').classList.remove('show'); }
