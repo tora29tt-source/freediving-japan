@@ -126,7 +126,7 @@ footer{color:var(--muted);font-size:11px;text-align:center;padding:20px;border-t
 <header>
   <div class="wrap">
     <h1>AIDA <span>Japan</span> 大会情報</h1>
-    <p>2026年度 公式競技大会一覧（出典: AIDA International）<span style="margin-left:12px;font-size:.8em;opacity:.6">※ AIDAより自動取得（毎日 08:00 JST）。リアルタイムデータではありません。</span><span id="data-updated" style="margin-left:10px;opacity:.7;font-size:.85em"></span></p>
+    <p>2026年度 公式競技大会一覧（出典: AIDA International）<span style="margin-left:12px;font-size:.8em;opacity:.6">※ AIDAより自動取得（毎日 08:00 JST）。リアルタイムデータではありません。</span></p>
   </div>
 </header>
 
@@ -386,12 +386,6 @@ function initPage(INTL_EVENTS) {
       const json = await res.json();
       if (json.events && json.events.length > 0) {
         events = json.events;
-        // 更新日時を表示
-        const el = document.getElementById('data-updated');
-        if (el && json.updatedAt) {
-          const d = new Date(json.updatedAt);
-          el.textContent = `データ取得日時: ${d.toLocaleString('ja-JP', {timeZone:'Asia/Tokyo', year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'})} JST`;
-        }
       }
     }
   } catch(e) {
