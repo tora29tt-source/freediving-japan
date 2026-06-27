@@ -411,7 +411,7 @@ async function handleSignup() {
   const btn = document.querySelector('#signupForm .btn');
   btn.disabled = true; btn.textContent = '登録中...';
 
-  const { error } = await _sb.auth.signUp({
+  const { data, error } = await _sb.auth.signUp({
     email, password,
     options: { data: { name } }
   });
@@ -419,8 +419,12 @@ async function handleSignup() {
     const msg = error.message || (error.code ? `エラー: ${error.code}` : 'アカウント作成に失敗しました');
     showMessage(msg, 'error');
     btn.disabled = false; btn.textContent = 'アカウント作成';
-  } else {
+  } else if (data.session) {
+    // メール確認不要 → すぐログイン
     window.location.href = 'mypage.html';
+  } else {
+    // メール確認が必要な場合
+    showMessage(`${email} に確認メールを送信しました。メール内のリンクをクリックしてください。`, 'success');
     btn.disabled = false; btn.textContent = 'アカウント作成';
   }
 }
