@@ -177,7 +177,7 @@ footer{color:var(--muted);font-size:11px;text-align:center;padding:20px;border-t
 <div class="hero" id="hero"></div>
 <div class="controls"><div class="tabs" id="tabs"></div><span class="spacer"></span>
 <div class="seg" id="genderSeg"><button data-g="Male" class="active">男子</button><button data-g="Female">女子</button></div>
-<select id="yearSel"></select></div>
+<select id="yearSel"></select><button onclick="showCmp()" title="選手比較" style="padding:7px 11px;background:rgba(168,236,232,.07);border:1px solid rgba(168,236,232,.25);border-radius:8px;color:var(--accent2);font-size:15px;cursor:pointer;line-height:1;transition:.15s" onmouseover="this.style.background='rgba(168,236,232,.15)'" onmouseout="this.style.background='rgba(168,236,232,.07)'">⚖️</button></div>
 <div class="discHead" id="discHead"></div><div class="ctx" id="ctx"></div>
 <div id="podiumArea"></div><div id="tableArea"></div>
 </div>
@@ -447,7 +447,18 @@ function renderHero(){
   document.getElementById('hero').innerHTML='<h2>現在の<b>日本記録</b></h2>'
     +group('pool','プール種目','水平距離・時間を競う')
     +group('sea','海（深度）種目','ロープ沿いに深さを競う')
-    +'<div style="margin-top:18px;display:flex;flex-wrap:wrap;gap:8px"><span class="sel-btn" onclick="showSelModal()">🏅 プール代表選考</span><span class="sel-btn" onclick="showSelSeaModal()" style="border-color:rgba(42,169,224,.5);background:linear-gradient(135deg,rgba(42,169,224,.15),rgba(26,122,138,.1));color:var(--accent2)">🌊 深度代表選考</span><span class="sel-btn" onclick="showCmp()" style="border-color:rgba(168,236,232,.4);background:linear-gradient(135deg,rgba(168,236,232,.1),rgba(46,196,182,.07));color:var(--accent2)">⚖️ 選手比較</span></div>';
+    +'<div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:10px">'
+    +'<div onclick="showSelModal()" style="cursor:pointer;padding:12px 18px;border-radius:14px;background:linear-gradient(135deg,rgba(255,210,74,.18),rgba(255,150,20,.08));border:1px solid rgba(255,210,74,.35);transition:.15s" onmouseover="this.style.borderColor=\'rgba(255,210,74,.7)\'" onmouseout="this.style.borderColor=\'rgba(255,210,74,.35)\'">'
+    +'<div style="font-size:18px;margin-bottom:3px">🏅</div>'
+    +'<div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.6px;margin-bottom:2px">2027 POOL WORLDS</div>'
+    +'<div style="font-size:13px;color:var(--gold);font-weight:800">代表選考シミュレーター</div>'
+    +'</div>'
+    +'<div onclick="showSelSeaModal()" style="cursor:pointer;padding:12px 18px;border-radius:14px;background:linear-gradient(135deg,rgba(42,169,224,.18),rgba(26,122,138,.08));border:1px solid rgba(42,169,224,.35);transition:.15s" onmouseover="this.style.borderColor=\'rgba(42,169,224,.7)\'" onmouseout="this.style.borderColor=\'rgba(42,169,224,.35)\'">'
+    +'<div style="font-size:18px;margin-bottom:3px">🌊</div>'
+    +'<div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.6px;margin-bottom:2px">2027 DEPTH WORLDS</div>'
+    +'<div style="font-size:13px;color:var(--accent2);font-weight:800">代表選考シミュレーター</div>'
+    +'</div>'
+    +'</div>';
 }
 
 function render(){
