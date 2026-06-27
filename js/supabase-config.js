@@ -9,5 +9,8 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 // グローバルに _sb を公開（全ページで共有）
 // 読み込み順：CDN (@supabase/supabase-js) → このファイル → ページ固有スクリプト
+// flowType: 'implicit' → 静的サイト向け。トークンをURLハッシュで受け取りクライアントで即処理
 const { createClient } = window.supabase;
-const _sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const _sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: { flowType: 'implicit' }
+});
