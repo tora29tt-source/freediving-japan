@@ -340,6 +340,7 @@ Promise.all([
       })
     };
     buildYearSel();
+    buildJPRecords();
     renderHero();
     render();
   })
@@ -399,6 +400,23 @@ function av(name,cls){
 function cleanRes(r){return (r||'').replace(/\s*\n?\s*(NR|CR)\s*$/,'').trim();}
 function resTag(r){const m=(r||'').match(/(NR|CR)/);return m?m[1]:'';}
 const MEDAL=['🥇','🥈','🥉'];
+
+function buildJPRecords(){
+  // DATA.records（全年度）から種目×性別ごとの最高ポイント記録でJP_RECORDSを上書き
+  DATA.records.forEach(r=>{
+    if(r.points==null) return;
+    const key=r.discipline+'|'+r.gender;
+    const cur=JP_RECORDS[key];
+    if(!cur||parseFloat(r.points)>parseFloat(cur.points)){
+      JP_RECORDS[key]={
+        discipline:r.discipline, gender:r.gender,
+        name:r.name, result:r.result+' NR',
+        points:r.points, date:r.date,
+        photo:PHOTOS[r.name]||(cur&&cur.photo)||''
+      };
+    }
+  });
+}
 
 function renderHero(){
   function group(cat,label,sub){
