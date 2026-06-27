@@ -32,8 +32,9 @@ header p{color:var(--muted);font-size:12.5px;margin-top:4px}
 .hr{margin-left:auto;text-align:right}.hr .v{font-size:15px;font-weight:800;color:var(--accent2)}.hr .nr{font-size:8.5px;color:var(--gold);font-weight:700}
 /* controls */
 .controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:18px 0 4px}
-.tabs{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.tab{padding:7px 12px;border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:20px;cursor:pointer;font-size:12.5px;transition:.15s;text-align:center}
+.tabs{display:flex;flex-direction:column;gap:6px}
+.tab-row{display:flex;flex-wrap:nowrap;gap:6px;align-items:center}
+.tab{padding:7px 12px;border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:20px;cursor:pointer;font-size:12.5px;transition:.15s;text-align:center;white-space:nowrap}
 .tab small{display:block;font-size:9px;letter-spacing:.5px;opacity:.7}
 .tab:hover{border-color:var(--accent)}
 .tab.active{color:#fff;font-weight:600}
@@ -41,8 +42,7 @@ header p{color:var(--muted);font-size:12.5px;margin-top:4px}
 .tab.sea.active{background:var(--sea);border-color:var(--sea);color:#06231c}
 .tab.overall.active{background:var(--accent);border-color:var(--accent)}
 .tab.pool{border-left:3px solid var(--pool)}.tab.sea{border-left:3px solid var(--sea)}
-.tab-cat{font-size:9px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;padding:0 4px;pointer-events:none;user-select:none;flex-shrink:0;opacity:.45;color:var(--muted)}
-.tab-sep{width:1px;height:22px;background:var(--line);margin:0 4px;flex-shrink:0;opacity:.3}
+.tab-cat{font-size:9px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;padding:0 4px;pointer-events:none;user-select:none;flex-shrink:0;opacity:.45;color:var(--muted);min-width:28px}
 .spacer{flex:1}
 select{padding:7px 10px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;font-size:13px}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
