@@ -232,10 +232,19 @@
 <!-- hero -->
 <div class="hero">
   <div class="hero-bg">
-    <video autoplay loop muted playsinline>
+    <video id="hero-video" autoplay loop muted playsinline>
       <source src="images/hero_ummyvideo.MOV" type="video/mp4">
     </video>
   </div>
+  <script>
+    (function(){
+      var v = document.getElementById('hero-video');
+      if (window.innerWidth >= 700) {
+        v.querySelector('source').src = 'images/Hero_horizontal.MOV';
+        v.load();
+      }
+    })();
+  </script>
   <div class="hero-glow"></div>
   <div class="hero-inner">
     <div class="hero-tag">
@@ -331,7 +340,7 @@
         </div>
       </a>
       <a class="photo-card" href="learn/index.html?cat=inst">
-        <div class="photo-card-img" style="background-image:url('images/index_インストラクターカード.JPG');background-position:center 20%;"></div>
+        <div class="photo-card-img" style="background-image:url('images/index_インストラクターカード.JPG');background-position:center bottom;"></div>
         <div class="photo-card-overlay"></div>
         <div class="photo-card-body">
           <h3><svg class="icon" viewBox="0 0 24 24"><path d="M3 9l9-4 9 4-9 4-9-4z"/><path d="M7 11v5c0 1 2.5 2.5 5 2.5s5-1.5 5-2.5v-5"/></svg>インストラクター</h3>
