@@ -434,7 +434,6 @@ function renderHero(){
     return '<div class="grouphd '+cat+'"><span class="dot"></span>'+label+' <small>'+sub+'</small></div><div class="hgrid">'+cards+'</div>';
   }
   document.getElementById('hero').innerHTML='<h2>現在の<b>日本記録</b></h2>'
-    +'<div class="sub">AIDA公式ランキング（日本・全年）の各種目1位＝現在の日本記録 · 更新 '+(DATA.updatedAt||'')+' · 名前クリックで全記録</div>'
     +group('pool','プール種目','水平距離・時間を競う')
     +group('sea','海（深度）種目','ロープ沿いに深さを競う')
     +'<div style="margin-top:18px;display:flex;flex-wrap:wrap;gap:8px"><span class="sel-btn" onclick="showSelModal()">🏅 2027年プール世界選手権 代表選考シミュレーター</span><span class="sel-btn" onclick="showSelSeaModal()" style="border-color:rgba(42,169,224,.5);background:linear-gradient(135deg,rgba(42,169,224,.15),rgba(26,122,138,.1));color:var(--accent2)">🌊 2027年深度世界選手権 代表選考シミュレーター</span><span class="sel-btn" onclick="showCmp()" style="border-color:rgba(168,236,232,.4);background:linear-gradient(135deg,rgba(168,236,232,.1),rgba(46,196,182,.07));color:var(--accent2)">⚖️ 選手比較</span><span class="sel-btn" onclick="showTl()" style="border-color:rgba(255,210,74,.4);background:linear-gradient(135deg,rgba(255,210,74,.12),rgba(255,180,40,.07));color:var(--gold)">📅 日本記録タイムライン</span><span class="sel-btn" onclick="showDist()" style="border-color:rgba(168,236,232,.4);background:linear-gradient(135deg,rgba(168,236,232,.08),rgba(46,196,182,.05));color:var(--accent2)">📊 分布分析</span></div>';
