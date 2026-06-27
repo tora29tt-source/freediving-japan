@@ -312,12 +312,16 @@ let DATA = {records:[], overall:[]};
 // ローディング
 document.getElementById('hero').innerHTML='<p style="color:var(--muted);padding:20px">データ読み込み中...</p>';
 
+let WC_DATA = { japan: {}, updated: '', year: 0 };
+
 Promise.all([
   fetch('../data/all_rankings_data.json').then(r => r.json()),
   fetch('../data/national_team.json').then(r => r.json()).catch(() => ({})),
-  fetch('../data/jp_official_records.json').then(r => r.json()).catch(() => ({}))
+  fetch('../data/jp_official_records.json').then(r => r.json()).catch(() => ({})),
+  fetch('../data/wildcard_data.json').then(r => r.json()).catch(() => ({ japan: {}, updated: '', year: 0 }))
 ])
-  .then(([json, ntJson, jpRecJson]) => {
+  .then(([json, ntJson, jpRecJson, wcJson]) => {
+    WC_DATA = wcJson;
     NATIONAL_TEAM = ntJson.athletes || {};
     (jpRecJson.records || []).forEach(rec => {
       JP_RECORDS[rec.discipline + '|' + rec.gender] = rec;
