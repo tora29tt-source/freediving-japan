@@ -32,15 +32,15 @@ header p{color:var(--muted);font-size:12.5px;margin-top:4px}
 .hr{margin-left:auto;text-align:right}.hr .v{font-size:15px;font-weight:800;color:var(--accent2)}.hr .nr{font-size:8.5px;color:var(--gold);font-weight:700}
 /* controls */
 .controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:18px 0 4px}
-.tabs{display:flex;flex-direction:column;gap:3px}
-.tab-row{display:flex;flex-wrap:nowrap;gap:2px;align-items:center}
-.tab{padding:5px 11px;border:0;background:transparent;color:var(--muted);border-radius:6px;cursor:pointer;font-size:12.5px;transition:.12s;text-align:center;white-space:nowrap;line-height:1.3}
-.tab small{display:block;font-size:8px;letter-spacing:.5px;opacity:.55;margin-top:1px}
+.tabs{display:flex;flex-direction:column;gap:0}
+.tab-row{display:flex;flex-wrap:nowrap;gap:0;align-items:flex-end}
+.tab{padding:6px 12px 5px;border:0;border-bottom:2px solid transparent;background:transparent;color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;letter-spacing:.4px;transition:.12s;text-align:center;white-space:nowrap}
 .tab:hover{color:var(--text)}
-.tab.pool.active{color:var(--pool);background:rgba(46,196,182,.1);font-weight:600}
-.tab.sea.active{color:var(--sea);background:rgba(42,169,224,.1);font-weight:600}
-.tab.overall.active{color:var(--accent);background:rgba(255,210,74,.1);font-weight:600}
-.tab-cat{font-size:9px;font-weight:600;letter-spacing:.4px;padding:0 5px;pointer-events:none;user-select:none;flex-shrink:0;opacity:.3;color:var(--muted);min-width:30px}
+.tab.pool.active{color:var(--pool);border-bottom-color:var(--pool)}
+.tab.sea.active{color:var(--sea);border-bottom-color:var(--sea)}
+.tab.overall.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-cat{font-size:8.5px;font-weight:600;letter-spacing:.4px;padding:0 6px 7px;pointer-events:none;user-select:none;flex-shrink:0;opacity:.3;color:var(--muted);min-width:30px}
+.tab-row-wrap{border-bottom:1px solid var(--line)}
 .spacer{flex:1}
 .more-btn{display:block;width:100%;margin:14px 0;padding:10px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:8px;color:var(--muted);font-size:13px;cursor:pointer;text-align:center;transition:.15s}
 .more-btn:hover{background:rgba(255,255,255,.08);color:var(--text)}
@@ -380,9 +380,9 @@ let state={disc:'DYN',gender:'Male',year:'all'};
 const tabs=document.getElementById('tabs');
 const TAB_GROUPS=[{cat:'pool',label:'プール'},{cat:'sea',label:'海'},{cat:'overall',label:'総合'}];
 TAB_GROUPS.forEach(g=>{
-  const row=document.createElement('div');row.className='tab-row';
+  const row=document.createElement('div');row.className='tab-row tab-row-wrap';
   const lbl=document.createElement('span');lbl.className='tab-cat '+g.cat;lbl.textContent=g.label;row.appendChild(lbl);
-  DISC.filter(d=>d[4]===g.cat).forEach(([k,ja,en,desc,cat])=>{const b=document.createElement('div');b.className='tab '+cat+(k===state.disc?' active':'');b.innerHTML=ja+'<small>'+k+'</small>';b.dataset.k=k;b.onclick=()=>{state.disc=k;render();};row.appendChild(b);});
+  DISC.filter(d=>d[4]===g.cat).forEach(([k,ja,en,desc,cat])=>{const b=document.createElement('div');b.className='tab '+cat+(k===state.disc?' active':'');b.textContent=k;b.title=ja;b.dataset.k=k;b.onclick=()=>{state.disc=k;render();};row.appendChild(b);});
   tabs.appendChild(row);
 });
 const yearSel=document.getElementById('yearSel');
