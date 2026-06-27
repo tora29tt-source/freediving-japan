@@ -172,7 +172,7 @@ footer{color:var(--muted);font-size:11px;text-align:center;padding:20px;border-t
 @media(max-width:640px){.sel-disc-grid{grid-template-columns:1fr}}</style></head>
 <body>
 <header><div class="wrap"><h1>AIDA <span>Japan</span> ランキング</h1>
-<p>2000–2026 日本記録データベース<span style="margin-left:12px;font-size:.8em;opacity:.6">※ AIDAより自動取得（毎日 08:00 JST）。リアルタイムデータではありません。</span></p></div></header>
+<p>2000–2026 日本記録データベース<span style="margin-left:12px;font-size:.8em;opacity:.6">※ AIDAより自動取得（毎日 06:00 JST）。リアルタイムデータではありません。</span></p></div></header>
 <div class="wrap">
 <div class="hero" id="hero"></div>
 <div class="controls"><div class="tabs" id="tabs"></div><span class="spacer"></span>
@@ -970,7 +970,7 @@ function renderSelGrid(){
       const badge = isRegular
         ? '<span class="sel-badge ok">選考圏内</span>'
         : isWcUpgrade
-          ? '<span class="sel-badge ok" style="background:rgba(96,165,250,.18);color:#60a5fa;border-color:rgba(96,165,250,.4)">繰上（WC枠）</span>'
+          ? '<span class="sel-badge ok" style="background:rgba(96,165,250,.18);color:#60a5fa;border-color:rgba(96,165,250,.4)">繰上</span>'
           : '<span class="sel-badge out">圏外</span>';
       const tag = resTag(r.result);
       const tagBadge = tag ? '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:5px;margin-left:4px;background:'+(tag==='NR'?'rgba(255,210,74,.2)':'rgba(30,200,166,.2)')+';color:'+(tag==='NR'?'var(--gold)':'var(--accent2)')+'">'+tag+'</span>' : '';
@@ -1068,7 +1068,7 @@ function renderSelSeaGrid(){
       const badge = isRegular
         ? '<span class="sel-badge ok">選考圏内</span>'
         : isWcUpgrade
-          ? '<span class="sel-badge ok" style="background:rgba(96,165,250,.18);color:#60a5fa;border-color:rgba(96,165,250,.4)">繰上（WC枠）</span>'
+          ? '<span class="sel-badge ok" style="background:rgba(96,165,250,.18);color:#60a5fa;border-color:rgba(96,165,250,.4)">繰上</span>'
           : '<span class="sel-badge out">圏外</span>';
       const tag = resTag(r.result);
       const tagBadge = tag ? '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:5px;margin-left:4px;background:'+(tag==='NR'?'rgba(255,210,74,.2)':'rgba(30,200,166,.2)')+';color:'+(tag==='NR'?'var(--gold)':'var(--accent2)')+'">'+tag+'</span>' : '';

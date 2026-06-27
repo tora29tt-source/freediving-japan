@@ -124,7 +124,7 @@ def categorize(event: dict) -> str:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--year", type=int, default=2026)
+    parser.add_argument("--year", type=int, default=datetime.now().year)
     args = parser.parse_args()
     year = args.year
 
@@ -135,7 +135,7 @@ def main():
 
     with sync_playwright() as p:
         browser = p.chromium.launch(
-            headless=False,
+            headless=True,
             args=["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
         )
         context = browser.new_context(

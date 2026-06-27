@@ -24,22 +24,21 @@
 | 機能 | 主要ファイル | 設計書 | 最終更新 |
 |---|---|---|---|
 | 認証（ログイン・新規登録・OAuth） | `auth.html`<br>`js/supabase-config.js`<br>`mypage.html` | [AUTH_DESIGN.md](./AUTH_DESIGN.md) | 2026-06-28 |
+| 権限管理（RBAC・ロール・RLS） | `admin/index.html`<br>`sql/rls_update_20260625.sql` | [RBAC_DESIGN.md](./RBAC_DESIGN.md) | 2026-06-28 |
+| 予約・決済フロー | `explore/listing.html`<br>`api/create-checkout-session.js`<br>`api/stripe-webhook.js`<br>`booking/success.html` | [BOOKING_DESIGN.md](./BOOKING_DESIGN.md) | 2026-06-28 |
+| トレーニングログ | `tools/training-log.html` | [TRAINING_LOG_DESIGN.md](./TRAINING_LOG_DESIGN.md) | 2026-06-28 |
+| 大会・イベント機能 | `events/event-athlete.html`<br>`events/event-staff.html`<br>`events/2026_competitions.html` | [EVENTS_DESIGN.md](./EVENTS_DESIGN.md) | 2026-06-28 |
+| プロダッシュボード | `pro/index.html` | [PRO_DASHBOARD_DESIGN.md](./PRO_DASHBOARD_DESIGN.md) | 2026-06-28 |
+| 管理画面 | `admin/index.html` | [ADMIN_DESIGN.md](./ADMIN_DESIGN.md) | 2026-06-28 |
+| マッチング（探す） | `explore/index.html`<br>`explore/listing.html` | [EXPLORE_DESIGN.md](./EXPLORE_DESIGN.md) | 2026-06-28 |
+| DB スキーマ設計 | `sql/` | [DB_SCHEMA_DESIGN.md](./DB_SCHEMA_DESIGN.md) | 2026-06-28 |
+| Supabase Storage（アバター） | `mypage.html`<br>`pro/index.html` | [STORAGE_DESIGN.md](./STORAGE_DESIGN.md) | 2026-06-28 |
 
 ---
 
 ### 📝 設計書なし（実装済み・要作成）
 
-| 機能 | 主要ファイル | 備考 |
-|---|---|---|
-| 権限管理（RBAC・ロール・RLS） | `admin/index.html`<br>`sql/rls_update_20260625.sql` | DEV.md の「権限管理設計」セクションに概要あり。専用設計書に昇格推奨 |
-| 予約・決済フロー | `explore/listing.html`<br>`api/create-checkout-session.js`<br>`api/stripe-webhook.js`<br>`booking/success.html` | Stripe + Supabase 連携。バグ一覧は DEV.md に記載 |
-| トレーニングログ | `tools/training-log.html` | Supabase 接続・保存・編集・URLシェア実装済み |
-| 大会・イベント機能 | `events/event-athlete.html`<br>`events/event-staff.html`<br>`events/2026_competitions.html` | マルチデイナビ・Day別タブ・スタートリスト・リザルト実装済み |
-| プロダッシュボード | `pro/index.html` | 予約管理・クライアント管理・売上管理・リスティング管理タブ |
-| 管理画面 | `admin/index.html` | 空き枠管理・予約一覧・インストラクター承認・メディア管理 |
-| マッチング（探す） | `explore/index.html`<br>`explore/listing.html` | Phase 2 本格公開予定。検索・フィルタ・ソート実装済み |
-| DB スキーマ設計 | `sql/` | DEV.md の「DBテーブル一覧」に概要。詳細 SQL は `sql/` 以下 |
-| Supabase Storage（アバター） | `mypage.html`<br>`pro/index.html` | DEV.md の「Supabase Storage」セクションに概要あり |
+なし — すべての実装済み機能の設計書が揃っています。
 
 ---
 

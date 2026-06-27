@@ -20,7 +20,9 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install requests
+        run: |
+          pip install requests playwright beautifulsoup4
+          python3 -m playwright install chromium --with-deps
 
       - name: 今年のランキングを更新
         run: python3 scripts/fetch_all_rankings.py
@@ -34,10 +36,13 @@ jobs:
       - name: ワイルドカードを更新
         run: python3 scripts/fetch_wildcards.py
 
+      - name: 大会カレンダーを更新
+        run: python3 scripts/fetch_aida_events.py
+
       - name: Commit if changed
         run: |
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
-          git add data/rankings_*.json data/jp_official_records.json data/national_team.json data/all_rankings_data.json data/wildcard_data.json
+          git add data/rankings_*.json data/jp_official_records.json data/national_team.json data/all_rankings_data.json data/wildcard_data.json data/aida_events_*.json
           git diff --staged --quiet || git commit -m "chore: update rankings & records $(date -u +%Y-%m-%d)"
           git push
