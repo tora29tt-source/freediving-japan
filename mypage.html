@@ -455,9 +455,6 @@ body { padding-bottom: 72px; }
     <div class="hero-info">
       <div class="hero-name" id="heroName">読み込み中...</div>
       <div class="hero-email" id="heroEmail"></div>
-      <div class="hero-badges">
-        <span class="badge badge-teal" id="heroRole"></span>
-      </div>
     </div>
   </div>
 </div>
@@ -1368,9 +1365,6 @@ async function handleLogout() {
   const avatarUrl = meta.avatar_url || meta.picture || null;
   // アバター：名前の最初の2文字（または1文字）
   const initials = name.replace(/\s+/g, '').slice(0, 2).toUpperCase();
-  // ロール
-  const role = meta.role === 'instructor' ? 'インストラクター' : '選手・愛好家';
-
   const heroAvatar = document.getElementById('heroAvatar');
   if (avatarUrl) {
     heroAvatar.innerHTML = `<img src="${avatarUrl}" alt="${name}" style="width:72px;height:72px;border-radius:50%;object-fit:cover;">`;
@@ -1379,7 +1373,6 @@ async function handleLogout() {
   }
   document.getElementById('heroName').textContent  = name;
   document.getElementById('heroEmail').textContent = user.email;
-  document.getElementById('heroRole').textContent  = role;
 
   // admin / staff / editor チェック → 管理画面ボタンを表示（一般ユーザーには非表示）
   const { data: roles } = await _sb
