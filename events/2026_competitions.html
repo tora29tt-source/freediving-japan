@@ -199,7 +199,7 @@ footer{color:var(--muted);font-size:11px;text-align:center;padding:20px;border-t
   </div>
 
   <div class="info-note">
-    ※ AIDAカレンダーより取得。月ごとに折りたたんで表示しています。全リストは <a href="https://www.aidainternational.org/Events/EventCalendar" target="_blank">AIDA公式サイト</a> でご確認ください。
+    ※ AIDAカレンダーより自動取得（毎日 08:00 JST 更新）。リアルタイムデータではありません。最新情報は <a href="https://www.aidainternational.org/Events/EventCalendar" target="_blank">AIDA公式サイト</a> でご確認ください。
     <span id="data-updated" style="margin-left:8px;color:var(--muted)"></span>
   </div>
 
@@ -394,7 +394,7 @@ function initPage(INTL_EVENTS) {
         const el = document.getElementById('data-updated');
         if (el && json.updatedAt) {
           const d = new Date(json.updatedAt);
-          el.textContent = `（最終更新: ${d.toLocaleDateString('ja-JP')}）`;
+          el.textContent = `データ取得日時: ${d.toLocaleString('ja-JP', {timeZone:'Asia/Tokyo', year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'})} JST`;
         }
       }
     }

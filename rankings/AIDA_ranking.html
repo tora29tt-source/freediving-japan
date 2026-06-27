@@ -173,6 +173,10 @@ footer{color:var(--muted);font-size:11px;text-align:center;padding:20px;border-t
 <p>2000–2026 日本記録データベース</p></div></header>
 <div class="wrap">
 <div class="hero" id="hero"></div>
+<div id="data-note" style="display:none;background:rgba(30,155,215,.07);border:1px solid rgba(30,155,215,.18);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--muted)">
+  ※ AIDAランキングより自動取得（毎日 08:00 JST 更新）。リアルタイムデータではありません。最新情報は <a href="https://www.aidainternational.org/Rankings" target="_blank" style="color:var(--accent)">AIDA公式サイト</a> でご確認ください。
+  <span id="ranking-updated" style="margin-left:8px"></span>
+</div>
 <div class="controls"><div class="tabs" id="tabs"></div><span class="spacer"></span>
 <div class="seg" id="genderSeg"><button data-g="Male" class="active">男子</button><button data-g="Female">女子</button></div>
 <select id="yearSel"></select></div>
@@ -343,6 +347,14 @@ Promise.all([
     buildJPRecords();
     renderHero();
     render();
+    // データ取得日時を表示
+    const noteEl = document.getElementById('data-note');
+    const updEl = document.getElementById('ranking-updated');
+    if (noteEl) noteEl.style.display = '';
+    if (updEl && DATA.updatedAt) {
+      const d = new Date(DATA.updatedAt);
+      updEl.textContent = `データ取得日時: ${d.toLocaleString('ja-JP', {timeZone:'Asia/Tokyo', year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'})} JST`;
+    }
   })
   .catch(err => {
     document.getElementById('hero').innerHTML='<p style="color:#e55;padding:20px">データ読み込みに失敗しました: '+err.message+'</p>';
