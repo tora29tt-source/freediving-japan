@@ -148,10 +148,37 @@ instructors.status = 'pending'（審査中バナー表示）
 instructors.status = 'approved'（リスティング・CRM・予約管理が解放）
 ```
 
-### DB変更が必要なもの
+### admin/index.html タブ権限
 
-- `instructors` テーブルに `status TEXT DEFAULT 'pending'` カラム追加（`pending` / `approved` / `rejected`）
-- `user_roles` テーブル：既存。`role` の値は `admin` / `staff` / `editor` の3種類
+| タブ | admin | staff | editor |
+|---|:---:|:---:|:---:|
+| 空き枠管理 | ✅ | ✅ | ❌ |
+| 予約一覧 | ✅ | ✅ | ❌ |
+| インストラクター（承認操作含む） | ✅ | ✅ | ❌ |
+| リスティング | ✅ | ✅ | ❌ |
+| メディア | ✅ | ✅ | ✅ |
+| ユーザー管理 | ✅ | ❌ | ❌ |
+
+### DB・RLS 実装済み（2026-06-25完了）
+
+- `instructors.status` カラム追加済み（`pending` / `approved` / `rejected`）
+- `user_roles.role` の値：`admin` / `staff` / `editor`
+- `is_site_admin()` ヘルパー関数作成済み（SECURITY DEFINER で user_roles を参照）
+- RLS更新スクリプト：`sql/rls_update_20260625.sql`（実行済み）
+
+### Supabase RLS 実装状況
+
+| テーブル | RLS | 主なポリシー |
+|---|:---:|---|
+| `training_sessions` | ✅ | 本人 or is_public=true |
+| `training_dives` | ✅ | 本人 or 公開セッション紐づき |
+| `instructors` | ✅ | 公開: approved+is_public / 本人 / 管理者 |
+| `listings` | ✅ | 公開: is_public / 本人（approved必須） / 管理者 |
+| `availability_slots` | ✅ | 誰でも読み / 本人インストラクターのみ書き込み |
+| `bookings` | ✅ | インストラクター本人 or 管理者のみ閲覧 / 誰でも新規作成 |
+| `shops` | ✅ | 公開 / 本人 / 管理者 |
+| `reviews` | ✅ | 公開 / 本人書き込み |
+| `user_roles` | ✅ | 管理者のみ全操作 |
 
 -----
 

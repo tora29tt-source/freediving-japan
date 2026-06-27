@@ -202,31 +202,6 @@ body {
 .btn:active  { transform: translateY(0); }
 .btn:disabled { background: rgba(46,196,182,0.3); color: rgba(11,45,69,0.6); cursor: not-allowed; transform: none; }
 
-/* ロール選択 */
-.role-selector {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 14px;
-}
-.role-btn {
-  flex: 1;
-  padding: 11px 8px;
-  border: 1px solid var(--hairline);
-  border-radius: var(--r);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--on-dark-soft);
-  cursor: pointer;
-  background: var(--glass);
-  text-align: center;
-  transition: border-color var(--t-base), color var(--t-base), background var(--t-base);
-  font-family: inherit;
-}
-.role-btn.active {
-  border-color: var(--teal);
-  background: rgba(46,196,182,0.10);
-  color: var(--on-dark);
-}
 
 /* メッセージ */
 .message {
@@ -292,12 +267,14 @@ body {
       </svg>
       Googleでログイン
     </button>
+    <!-- Apple login: disabled until Apple Developer credentials are configured
     <button class="social-btn" onclick="signInApple()">
       <svg width="17" height="17" viewBox="0 0 18 18" fill="rgba(255,255,255,0.85)">
         <path d="M13.18 9.5c-.02-1.96 1.6-2.9 1.67-2.95-1.6-2.34-2.56-.9-3.22-.86-.83.08-1.64.5-2.07.5-.44 0-1.12-.48-1.84-.47-1.44.02-2.74.84-3.47 2.13-1.48 2.57-.38 6.36 1.06 8.44.7 1.02 1.54 2.16 2.63 2.12 1.06-.04 1.46-.68 2.74-.68 1.28 0 1.64.68 2.76.66 1.14-.02 1.86-1.04 2.55-2.06.51-.74.9-1.57 1.14-2.43-2.5-.96-2.95-4.4-.95-4.4zM11.1 4.1C11.67 3.42 12 2.5 11.9 1.6c-.8.04-1.77.53-2.34 1.2-.51.6-.96 1.55-.84 2.46.9.07 1.82-.46 2.38-1.16z"/>
       </svg>
       Appleでログイン
     </button>
+    -->
 
     <div class="divider">または</div>
 
@@ -323,22 +300,17 @@ body {
       </svg>
       Googleで登録
     </button>
+    <!-- Apple signup: disabled until Apple Developer credentials are configured
     <button class="social-btn" onclick="signInApple()">
       <svg width="17" height="17" viewBox="0 0 18 18" fill="rgba(255,255,255,0.85)">
         <path d="M13.18 9.5c-.02-1.96 1.6-2.9 1.67-2.95-1.6-2.34-2.56-.9-3.22-.86-.83.08-1.64.5-2.07.5-.44 0-1.12-.48-1.84-.47-1.44.02-2.74.84-3.47 2.13-1.48 2.57-.38 6.36 1.06 8.44.7 1.02 1.54 2.16 2.63 2.12 1.06-.04 1.46-.68 2.74-.68 1.28 0 1.64.68 2.76.66 1.14-.02 1.86-1.04 2.55-2.06.51-.74.9-1.57 1.14-2.43-2.5-.96-2.95-4.4-.95-4.4zM11.1 4.1C11.67 3.42 12 2.5 11.9 1.6c-.8.04-1.77.53-2.34 1.2-.51.6-.96 1.55-.84 2.46.9.07 1.82-.46 2.38-1.16z"/>
       </svg>
       Appleで登録
     </button>
+    -->
 
     <div class="divider">または</div>
 
-    <div class="form-group">
-      <label>ロールを選択</label>
-      <div class="role-selector">
-        <button class="role-btn active" onclick="selectRole('athlete')" id="role-athlete">🏊 選手・愛好家</button>
-        <button class="role-btn" onclick="selectRole('instructor')" id="role-instructor">🎓 インストラクター</button>
-      </div>
-    </div>
     <div class="form-group">
       <label>お名前</label>
       <input type="text" id="signupName" placeholder="山田 太郎" autocomplete="name">
@@ -363,8 +335,6 @@ body {
 </a>
 
 <script>
-let selectedRole = 'athlete';
-
 _sb.auth.getSession().then(({ data: { session } }) => {
   if (session) window.location.href = 'mypage.html';
 });
@@ -376,12 +346,6 @@ function switchTab(tab) {
   document.getElementById('loginForm').style.display  = tab === 'login'  ? 'block' : 'none';
   document.getElementById('signupForm').style.display = tab === 'signup' ? 'block' : 'none';
   clearMessage();
-}
-
-function selectRole(role) {
-  selectedRole = role;
-  document.getElementById('role-athlete').classList.toggle('active', role === 'athlete');
-  document.getElementById('role-instructor').classList.toggle('active', role === 'instructor');
 }
 
 function showMessage(text, type) {
@@ -397,11 +361,19 @@ function clearMessage() {
 }
 
 async function signInGoogle() {
+  // in-app browser (LINE, Instagram等) ではGoogle OAuthがブロックされるため警告
+  const ua = navigator.userAgent;
+  const isInAppBrowser = /FBAN|FBAV|Instagram|Line\/|MicroMessenger|GSA\//.test(ua)
+    || (ua.includes('Safari') === false && ua.includes('Chrome') === false && /iPhone|iPad/.test(ua));
+  if (isInAppBrowser) {
+    showMessage('このブラウザではGoogleログインできません。SafariまたはChromeで開いてください。', 'error');
+    return;
+  }
   const { error } = await _sb.auth.signInWithOAuth({
     provider: 'google',
     options: { redirectTo: window.location.origin + '/mypage.html' }
   });
-  if (error) showMessage(error.message, 'error');
+  if (error) showMessage(error.message || 'Googleログインに失敗しました', 'error');
 }
 
 async function signInApple() {
@@ -441,10 +413,11 @@ async function handleSignup() {
 
   const { error } = await _sb.auth.signUp({
     email, password,
-    options: { data: { name, role: selectedRole } }
+    options: { data: { name } }
   });
   if (error) {
-    showMessage(error.message, 'error');
+    const msg = error.message || (error.code ? `エラー: ${error.code}` : 'アカウント作成に失敗しました');
+    showMessage(msg, 'error');
     btn.disabled = false; btn.textContent = 'アカウント作成';
   } else {
     window.location.href = 'mypage.html';
