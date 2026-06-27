@@ -495,12 +495,13 @@ function render(){
   const rest=rows.slice(3);
   if(!rest.length){area.innerHTML='';return;}
   window._tableRest=rest;window._tableOffset=0;
-  const PAGE=50;
+  const FIRST=47,PAGE=50; // podium(3)+FIRST=50件
   window.renderRows=function(){
     const tableOffset=window._tableOffset;
     const rest=window._tableRest;
-    const slice=rest.slice(tableOffset,tableOffset+PAGE);
-    const hasMore=tableOffset+PAGE<rest.length;
+    const limit=tableOffset===0?FIRST:PAGE;
+    const slice=rest.slice(tableOffset,tableOffset+limit);
+    const hasMore=tableOffset+limit<rest.length;
     const rowsHtml=isOv
       ?slice.map(r=>'<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)">'
           +'<span class="rk" style="width:28px;flex:none">'+r.rank+'</span>'
