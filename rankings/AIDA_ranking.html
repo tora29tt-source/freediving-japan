@@ -277,7 +277,7 @@ footer{color:var(--muted);font-size:11px;text-align:center;padding:20px;border-t
       <h2>📅 日本記録推移</h2>
       <span class="sclose" onclick="hideTl()">×</span>
     </div>
-    <div style="display:flex;flex-direction:column;gap:0;margin-bottom:14px" id="tlDiscTabs"></div>
+    <div style="display:none" id="tlDiscTabs"></div>
     <div style="display:flex;gap:6px;margin-bottom:10px;align-items:center">
       <div class="sel-gtab active" onclick="setTlGender('Male',this)">男子</div>
       <div class="sel-gtab" onclick="setTlGender('Female',this)">女子</div>
@@ -439,9 +439,9 @@ function renderHero(){
       const disc0=d[0];
       const bs='flex:1;text-align:center;font-size:10px;color:var(--gold);cursor:pointer;padding:4px 0;border-radius:6px;border:1px solid rgba(255,210,74,.2);background:rgba(255,210,74,.06);transition:.15s';
       const footer='<div style="display:flex;gap:4px;margin-top:9px;padding-top:9px;border-top:1px solid rgba(255,255,255,.06)">'
-        +'<span onclick="event.stopPropagation();showTl(\''+disc0+'\',\'list\')" style="'+bs+'">📋 リスト</span>'
-        +'<span onclick="event.stopPropagation();showTl(\''+disc0+'\',\'race\')" style="'+bs+'">📊 推移</span>'
-        +'<span onclick="event.stopPropagation();showTl(\''+disc0+'\',\'chart\')" style="'+bs+'">📈 チャート</span>'
+        +'<span onclick="event.stopPropagation();showTl(\''+disc0+'\',\'list\',\'Male\')" style="'+bs+'">📋 リスト</span>'
+        +'<span onclick="event.stopPropagation();showTl(\''+disc0+'\',\'race\',\'Male\')" style="'+bs+'">📊 推移</span>'
+        +'<span onclick="event.stopPropagation();showTl(\''+disc0+'\',\'chart\',\'Male\')" style="'+bs+'">📈 チャート</span>'
         +'</div>';
       return '<div class="hcard '+cat+'"><div class="dh"><span class="ja">'+d[1]+'</span><span class="en">'+d[0]+'</span></div>'+rows+footer+'</div>';
     }).join('');
@@ -450,7 +450,7 @@ function renderHero(){
   document.getElementById('hero').innerHTML='<h2>現在の<b>日本記録</b></h2>'
     +group('pool','プール種目','水平距離・時間を競う')
     +group('sea','海（深度）種目','ロープ沿いに深さを競う')
-    +'<div style="margin-top:18px;display:flex;flex-wrap:wrap;gap:8px"><span class="sel-btn" onclick="showSelModal()">🏅 2027年プール世界選手権 代表選考シミュレーター</span><span class="sel-btn" onclick="showSelSeaModal()" style="border-color:rgba(42,169,224,.5);background:linear-gradient(135deg,rgba(42,169,224,.15),rgba(26,122,138,.1));color:var(--accent2)">🌊 2027年深度世界選手権 代表選考シミュレーター</span><span class="sel-btn" onclick="showCmp()" style="border-color:rgba(168,236,232,.4);background:linear-gradient(135deg,rgba(168,236,232,.1),rgba(46,196,182,.07));color:var(--accent2)">⚖️ 選手比較</span><span class="sel-btn" onclick="showDist()" style="border-color:rgba(168,236,232,.4);background:linear-gradient(135deg,rgba(168,236,232,.08),rgba(46,196,182,.05));color:var(--accent2)">📊 分布分析</span></div>';
+    +'<div style="margin-top:18px;display:flex;flex-wrap:wrap;gap:8px"><span class="sel-btn" onclick="showSelModal()">🏅 プール代表選考</span><span class="sel-btn" onclick="showSelSeaModal()" style="border-color:rgba(42,169,224,.5);background:linear-gradient(135deg,rgba(42,169,224,.15),rgba(26,122,138,.1));color:var(--accent2)">🌊 深度代表選考</span><span class="sel-btn" onclick="showCmp()" style="border-color:rgba(168,236,232,.4);background:linear-gradient(135deg,rgba(168,236,232,.1),rgba(46,196,182,.07));color:var(--accent2)">⚖️ 選手比較</span></div>';
 }
 
 function render(){
@@ -1064,9 +1064,10 @@ function renderSelSeaGrid(){
 let tlDisc = 'STA';
 let tlGender = 'Male';
 
-function showTl(disc, view){
+function showTl(disc, view, gender){
   if(disc) tlDisc = disc;
   if(view) tlView = view;
+  if(gender) tlGender = gender;
   // 種目タブ: プール行 / 海行 の2段構成
   const tabs = DISC.filter(d=>d[0]!=='OVERALL');
   const poolTabs = tabs.filter(d=>d[4]==='pool');
@@ -1089,6 +1090,7 @@ function showTl(disc, view){
     + '</div>';
   renderTl();
   document.querySelectorAll('#tlOverlay .tl-vtab').forEach(t=>t.classList.toggle('active',t.dataset.v===tlView));
+  document.querySelectorAll('#tlOverlay .sel-gtab').forEach(t=>t.classList.toggle('active',t.textContent===(tlGender==='Male'?'男子':'女子')));
   document.getElementById('tlOverlay').classList.add('show');
 }
 function hideTl(){ stopTlRace(); document.getElementById('tlOverlay').classList.remove('show'); }
