@@ -24,7 +24,7 @@
 .hero-bg {
   position: absolute;
   inset: 0;
-  opacity: 0.3;
+  opacity: 0.47;
   filter: saturate(0.85);
   overflow: hidden;
 }
@@ -207,14 +207,29 @@
   flex-shrink: 0;
 }
 
+/* ── スクロールフェードイン ── */
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+.fade-in.visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── tips アコーディオン ── */
+.tips-toggle { cursor: pointer; user-select: none; justify-content: space-between; }
+.tips-chevron { width: 16px; height: 16px; color: var(--on-dark-soft); transition: transform 0.3s ease; flex-shrink: 0; }
+.tips-body { overflow: hidden; transition: max-height 0.35s ease, opacity 0.3s ease; max-height: 0; opacity: 0; }
+.tips-body.open { max-height: 300px; opacity: 1; }
+
 /* ── PC（広い画面）向け調整 ── */
 @media (min-width: 700px) {
   .hero { padding: 96px 24px 110px; }
-  .hero-bg { background-position: center 32%; opacity: 0.34; }
   .hero-title { font-size: 40px; }
   .hero-desc { font-size: 14px; max-width: 360px; }
   .hero-glow { height: 110%; }
-  /* モバイルアプリのレイアウトを中央のシェルに収め、間延びを防ぐ */
   .content { padding-top: 16px; }
 }
 </style>
@@ -264,7 +279,7 @@
 <div class="content">
 
   <!-- 初めての方へ -->
-  <div class="section">
+  <div class="section fade-in">
     <a href="articles/article.html?slug=what-is-freediving" style="text-decoration:none;color:inherit;display:block;">
       <div class="beginner-banner">
         <div class="beginner-photo"></div>
@@ -281,12 +296,11 @@
   </div>
 
   <!-- 探す -->
-  <div class="section">
+  <div class="section fade-in">
     <div class="sec-header">
       <span class="sec-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
       <span class="sec-title">探す</span>
       <span class="sec-sub">ショップ・講習を見つける</span>
-      <span class="depth"><span class="depth-line"></span><span class="depth-num">−5m</span></span>
     </div>
     <div class="cards-row">
       <div style="grid-column:1/-1;">
@@ -307,12 +321,11 @@
   </div>
 
   <!-- 学ぶ -->
-  <div class="section">
+  <div class="section fade-in">
     <div class="sec-header">
       <span class="sec-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h7v16H6a2 2 0 0 0-2 2z"/><path d="M20 5a2 2 0 0 0-2-2h-5v16h5a2 2 0 0 1 2 2z"/></svg></span>
       <span class="sec-title">学ぶ</span>
       <span class="sec-sub">レベル別コンテンツ</span>
-      <span class="depth"><span class="depth-line"></span><span class="depth-num">−15m</span></span>
     </div>
     <div class="cards-row">
       <a class="photo-card" href="learn/index.html?cat=beginner">
@@ -332,7 +345,7 @@
         </div>
       </a>
       <a class="photo-card" href="learn/index.html?cat=comp">
-        <div class="photo-card-img" style="background-image:url('images/hero_cnf_dive.jpg');background-position:center 35%;"></div>
+        <div class="photo-card-img" style="background-image:url('images/pool_dynb.jpg');background-position:center 35%;"></div>
         <div class="photo-card-overlay"></div>
         <div class="photo-card-body">
           <h3><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M8.5 12.5L7 21l5-3 5 3-1.5-8.5"/></svg>競技</h3>
@@ -351,11 +364,10 @@
   </div>
 
   <!-- 大会 / 国内ランキング -->
-  <div class="section">
+  <div class="section fade-in">
     <div class="sec-header">
       <span class="sec-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M8.5 12.5L7 21l5-3 5 3-1.5-8.5"/></svg></span>
       <span class="sec-title">大会 / 国内ランキング</span>
-      <span class="depth"><span class="depth-line"></span><span class="depth-num">−30m</span></span>
     </div>
     <a class="event-card" href="events/2026_competitions.html">
       <div class="event-thumb" style="background-image:url('images/index_Competition_Volcano_cup.JPG');background-position:center 40%;"></div>
@@ -375,39 +387,55 @@
     </a>
   </div>
 
-  <!-- インストラクター向け導線 -->
-  <div style="padding:0 16px 20px">
-    <div style="display:flex;align-items:center;gap:12px;background:rgba(46,196,182,0.04);border:1px solid rgba(46,196,182,0.15);border-radius:12px;padding:14px 16px;color:inherit;opacity:0.5;cursor:default;position:relative;">
-      <span style="font-size:24px;flex-shrink:0">🤿</span>
-      <div>
-        <div style="font-size:14px;font-weight:700;color:#2ec4b6;margin-bottom:2px">インストラクターの方へ</div>
-        <div style="font-size:12px;color:rgba(255,255,255,0.6)">Freediving Japan への参加について</div>
-      </div>
-      <span style="margin-left:auto;display:inline-flex;align-items:center;gap:6px;background:rgba(4,22,31,0.6);border:1px solid rgba(168,236,232,0.2);color:rgba(168,236,232,0.6);font-size:10px;font-weight:500;padding:4px 10px;border-radius:100px;letter-spacing:0.08em;white-space:nowrap">開発中</span>
-    </div>
-  </div>
 
   <!-- はじめての人向けヒント -->
-  <div class="tips-strip">
-    <div class="tips-title">
-      <svg class="icon" viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.3 1 2.5h6c0-1.2.2-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
-      フリーダイビングを始める前に
+  <div class="tips-strip fade-in">
+    <div class="tips-title tips-toggle" id="tips-toggle">
+      <span style="display:flex;align-items:center;gap:8px;">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.3 1 2.5h6c0-1.2.2-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
+        フリーダイビングを始める前に
+      </span>
+      <svg class="tips-chevron" id="tips-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
     </div>
-    <div class="tip-item">
-      <div class="tip-num">1</div>
-      <div class="tip-text"><strong>必ず認定インストラクターと一緒に</strong>潜りましょう。一人での練習は危険です。</div>
-    </div>
-    <div class="tip-item">
-      <div class="tip-num">2</div>
-      <div class="tip-text"><strong>体験コースから始める</strong>のがおすすめ。道具も技術も不要で、2〜3時間で体験できます。</div>
-    </div>
-    <div class="tip-item">
-      <div class="tip-num">3</div>
-      <div class="tip-text">深さより<strong>リラックス</strong>が大切。焦らず、自分のペースで楽しみましょう。</div>
+    <div class="tips-body" id="tips-body">
+      <div style="padding-top:14px;">
+        <div class="tip-item">
+          <div class="tip-num">1</div>
+          <div class="tip-text"><strong>必ず認定インストラクターと一緒に</strong>潜りましょう。一人での練習は危険です。</div>
+        </div>
+        <div class="tip-item">
+          <div class="tip-num">2</div>
+          <div class="tip-text"><strong>体験コースから始める</strong>のがおすすめ。道具も技術も不要で、2〜3時間で体験できます。</div>
+        </div>
+        <div class="tip-item">
+          <div class="tip-num">3</div>
+          <div class="tip-text">深さより<strong>リラックス</strong>が大切。焦らず、自分のペースで楽しみましょう。</div>
+        </div>
+      </div>
     </div>
   </div>
 
 </div>
+
+<script>
+// スクロールフェードイン
+(function(){
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('visible'); obs.unobserve(e.target); }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-in').forEach(function(el){ obs.observe(el); });
+})();
+
+// tips アコーディオン
+document.getElementById('tips-toggle').addEventListener('click', function(){
+  var body = document.getElementById('tips-body');
+  var chevron = document.getElementById('tips-chevron');
+  var isOpen = body.classList.toggle('open');
+  chevron.style.transform = isOpen ? 'rotate(180deg)' : '';
+});
+</script>
 
 </body>
 </html>
