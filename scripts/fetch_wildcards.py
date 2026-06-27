@@ -44,12 +44,11 @@ def parse_name_nationality(cell_html):
     return text.strip(), ""
 
 def fetch_wc_page(session, disc_id, gender_id, year):
-    # WildCards page uses "disc" (not "discipline") with numeric IDs
     payload = {
-        "disc":   disc_id,
-        "gender": gender_id,
-        "year":   year,
-        "apply":  "Apply",
+        "discipline": disc_id,
+        "gender":     gender_id,
+        "year":       year,
+        "apply":      "",
     }
     r = session.post(WC_URL, data=payload, headers=HEADERS, timeout=30)
     r.raise_for_status()

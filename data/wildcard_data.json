@@ -1,6 +1,115 @@
 {
- "updated": "",
+ "updated": "2026-06-27",
  "year": 2026,
- "japan": {},
+ "japan": {
+  "STA|Female": [
+   {
+    "rank": 2,
+    "name": "Yuriko Ichihara",
+    "nationality": "Japan",
+    "result": "07:41",
+    "points": 92.2,
+    "date": "2026-06-05"
+   }
+  ],
+  "DYN|Female": [
+   {
+    "rank": 2,
+    "name": "Hanako Hirose",
+    "nationality": "Japan",
+    "result": "270 m",
+    "points": 135,
+    "date": "2026-02-15"
+   },
+   {
+    "rank": 6,
+    "name": "Yasuko Ozeki",
+    "nationality": "Japan",
+    "result": "240 m",
+    "points": 120,
+    "date": "2026-06-06"
+   }
+  ],
+  "DYNB|Female": [
+   {
+    "rank": 9,
+    "name": "Yasuko Ozeki",
+    "nationality": "Japan",
+    "result": "215 m",
+    "points": 107.5,
+    "date": "2026-06-02"
+   },
+   {
+    "rank": 10,
+    "name": "Yuriko Ichihara",
+    "nationality": "Japan",
+    "result": "215 m",
+    "points": 107.5,
+    "date": "2026-06-02"
+   }
+  ],
+  "DNF|Female": [
+   {
+    "rank": 5,
+    "name": "Mariko Kaji",
+    "nationality": "Japan",
+    "result": "185 m",
+    "points": 92.5,
+    "date": "2026-01-24"
+   },
+   {
+    "rank": 6,
+    "name": "Yasuko Ozeki",
+    "nationality": "Japan",
+    "result": "178 m",
+    "points": 89,
+    "date": "2026-06-03"
+   },
+   {
+    "rank": 7,
+    "name": "Naomi Iwazawa",
+    "nationality": "Japan",
+    "result": "178 m",
+    "points": 89,
+    "date": "2026-03-25"
+   },
+   {
+    "rank": 8,
+    "name": "Celina Jinguji",
+    "nationality": "Japan",
+    "result": "175 m",
+    "points": 87.5,
+    "date": "2026-03-29"
+   }
+  ],
+  "CWT|Female": [
+   {
+    "rank": 3,
+    "name": "Hanako Hirose",
+    "nationality": "Japan",
+    "result": "107 m",
+    "points": 107,
+    "date": "2026-04-26"
+   }
+  ],
+  "CNF|Female": [
+   {
+    "rank": 2,
+    "name": "Mariko Kaji",
+    "nationality": "Japan",
+    "result": "73 m",
+    "points": 73,
+    "date": "2026-06-14"
+   },
+   {
+    "rank": 4,
+    "name": "Celina Jinguji",
+    "nationality": "Japan",
+    "result": "65 m",
+    "points": 65,
+    "date": "2026-04-22"
+   }
+  ]
+ },
  "all": {}
 }
