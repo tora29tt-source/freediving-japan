@@ -1351,22 +1351,8 @@ async function handleLogout() {
 <script>
 // ── 認証ガード＋ユーザーデータ表示 ──
 (async () => {
-  // OAuth コールバック（PKCE: URLに ?code= がある場合、非同期でセッション確立を待つ）
-  let { data: { session } } = await _sb.auth.getSession();
-
-  if (!session) {
-    const urlParams = new URLSearchParams(window.location.search);
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    if (urlParams.has('code') || hashParams.has('access_token')) {
-      // OAuthコールバック — onAuthStateChange でセッション確立を最大5秒待つ
-      session = await new Promise((resolve) => {
-        const timer = setTimeout(() => resolve(null), 5000);
-        const { data: { subscription } } = _sb.auth.onAuthStateChange((_event, s) => {
-          if (s) { clearTimeout(timer); subscription.unsubscribe(); resolve(s); }
-        });
-      });
-    }
-  }
+  // implicit フロー: URLハッシュのトークンをSupabaseクライアントが自動処理
+  const { data: { session } } = await _sb.auth.getSession();
 
   if (!session) {
     // 未ログイン → ログイン画面へ
