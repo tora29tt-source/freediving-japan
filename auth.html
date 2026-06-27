@@ -335,9 +335,11 @@ body {
 </a>
 
 <script>
-// OAuthコールバック含めセッション確立を待ってからリダイレクト
+// OAuthコールバック・メール確認リンク含め、セッション確立を検知してリダイレクト
 _sb.auth.onAuthStateChange((event, session) => {
-  if (session) window.location.replace('mypage.html');
+  if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
+    window.location.replace('mypage.html');
+  }
 });
 
 function switchTab(tab) {
@@ -397,9 +399,8 @@ async function handleLogin() {
   if (error) {
     showMessage('メールアドレスまたはパスワードが正しくありません', 'error');
     btn.disabled = false; btn.textContent = 'ログイン';
-  } else {
-    window.location.href = 'mypage.html';
   }
+  // 成功時: onAuthStateChange の SIGNED_IN がリダイレクトを処理する
 }
 
 async function handleSignup() {
@@ -414,15 +415,21 @@ async function handleSignup() {
 
   const { data, error } = await _sb.auth.signUp({
     email, password,
-    options: { data: { name } }
+    options: {
+      data: { name },
+      // メール確認リンクのリダイレクト先を明示。
+      // 未設定だと Supabase が SITE_URL（index.html）へ飛ばし、
+      // Supabase が読み込まれないためトークンが処理されずログインできない。
+      emailRedirectTo: window.location.origin + '/auth.html',
+    }
   });
   if (error) {
     const msg = error.message || (error.code ? `エラー: ${error.code}` : 'アカウント作成に失敗しました');
     showMessage(msg, 'error');
     btn.disabled = false; btn.textContent = 'アカウント作成';
   } else if (data.session) {
-    // メール確認不要 → すぐログイン
-    window.location.href = 'mypage.html';
+    // メール確認不要 → onAuthStateChange の SIGNED_IN がリダイレクト
+    // (window.location.href は onAuthStateChange に任せる)
   } else {
     // メール確認が必要な場合
     showMessage(`${email} に確認メールを送信しました。メール内のリンクをクリックしてください。`, 'success');
