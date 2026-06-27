@@ -379,10 +379,11 @@ const DCAT=Object.fromEntries(DISC.map(d=>[d[0],d[4]]));
 let state={disc:'OVERALL',gender:'Male',year:'all'};
 const tabs=document.getElementById('tabs');
 const TAB_GROUPS=[{cat:'pool',label:'プール'},{cat:'sea',label:'海'},{cat:'overall',label:'総合'}];
-TAB_GROUPS.forEach((g,gi)=>{
-  if(gi>0){const sep=document.createElement('span');sep.className='tab-sep';tabs.appendChild(sep);}
-  const lbl=document.createElement('span');lbl.className='tab-cat '+g.cat;lbl.textContent=g.label;tabs.appendChild(lbl);
-  DISC.filter(d=>d[4]===g.cat).forEach(([k,ja,en,desc,cat])=>{const b=document.createElement('div');b.className='tab '+cat+(k===state.disc?' active':'');b.innerHTML=ja+'<small>'+k+'</small>';b.dataset.k=k;b.onclick=()=>{state.disc=k;render();};tabs.appendChild(b);});
+TAB_GROUPS.forEach(g=>{
+  const row=document.createElement('div');row.className='tab-row';
+  const lbl=document.createElement('span');lbl.className='tab-cat '+g.cat;lbl.textContent=g.label;row.appendChild(lbl);
+  DISC.filter(d=>d[4]===g.cat).forEach(([k,ja,en,desc,cat])=>{const b=document.createElement('div');b.className='tab '+cat+(k===state.disc?' active':'');b.innerHTML=ja+'<small>'+k+'</small>';b.dataset.k=k;b.onclick=()=>{state.disc=k;render();};row.appendChild(b);});
+  tabs.appendChild(row);
 });
 const yearSel=document.getElementById('yearSel');
 yearSel.onchange=()=>{state.year=yearSel.value;render();};
