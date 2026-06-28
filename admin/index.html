@@ -830,8 +830,13 @@ async function boot() {
 
   document.getElementById('app').style.display = 'block';
 
-  await loadMasterData();
-  await loadSlots();
+  if (isEditor && !isAdmin && !isStaff) {
+    // editor はメディアのみ — slots/masterdata不要
+    await loadArticles();
+  } else {
+    await loadMasterData();
+    await loadSlots();
+  }
 }
 
 function showAccessDenied(title, msg, href, label) {
