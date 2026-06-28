@@ -680,24 +680,35 @@ td.name { color: var(--on-dark); font-weight: 500; }
     <div id="tab-media" style="display:none;">
       <div class="section-header">
         <span class="section-title">記事一覧</span>
-        <button class="btn-primary" onclick="openArticleModal()">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg>
-          記事を追加
-        </button>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <a href="../media/article-editor.html" target="_blank"
+             style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:6px;border:1.5px solid var(--border);background:transparent;color:var(--on-dark);font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap;">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            記事エディター
+          </a>
+          <button class="btn-primary" onclick="openArticleModal()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg>
+            記事を追加
+          </button>
+        </div>
       </div>
       <div class="filters">
         <select class="filter-select" id="article-filter-category" onchange="loadArticles()">
           <option value="">すべてのカテゴリ</option>
-          <option value="beginner">初心者</option>
-          <option value="technique">テクニック</option>
-          <option value="gear">ギア</option>
-          <option value="competition">大会</option>
-          <option value="interview">インタビュー</option>
-          <option value="news">ニュース</option>
+          <option value="A">A. 入門・体験</option>
+          <option value="B">B. 身体・科学</option>
+          <option value="C">C. 海・スポット</option>
+          <option value="D">D. 競技・大会</option>
+          <option value="E">E. インタビュー</option>
+          <option value="P">P. 人物メディア</option>
+          <option value="Q">Q. 業界×期待感</option>
+          <option value="S">S. シリーズ連載</option>
+          <option value="T">T. エンタメ</option>
         </select>
         <select class="filter-select" id="article-filter-status" onchange="loadArticles()">
           <option value="">すべて</option>
           <option value="published">公開中</option>
+          <option value="review">レビュー待ち</option>
           <option value="draft">下書き</option>
         </select>
       </div>
@@ -1921,19 +1932,32 @@ function articleRow(a) {
     : '<span style="color:var(--on-dark-soft);">—</span>';
   const statusBadge = a.is_published
     ? '<span class="badge badge-active">公開中</span>'
-    : '<span class="badge badge-inactive">下書き</span>';
+    : a.status === 'review'
+      ? '<span class="badge" style="background:#fef3c7;color:#d97706;">レビュー待ち</span>'
+      : '<span class="badge badge-inactive">下書き</span>';
   const pubDate = a.published_at ? fmtDate(a.published_at.slice(0,10)) : '—';
+  const isEditorOnly = currentRole === 'editor';
+  const reviewComment = a.review_comment
+    ? `<div style="font-size:11px;color:#d97706;margin-top:4px;">💬 ${escHtml(a.review_comment)}</div>` : '';
   return `
     <tr>
       <td><span title="${a.id}" style="font-family:monospace;font-size:11px;color:var(--on-dark-soft);cursor:default;">${a.id.slice(0,8)}</span></td>
-      <td class="name" style="max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(a.title)}</td>
+      <td class="name" style="max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(a.title)}${reviewComment}</td>
       <td>${catBadge}</td>
       <td>${statusBadge}</td>
       <td style="font-size:12px;">${pubDate}</td>
       <td>
         <div class="actions">
-          <button class="btn-edit"   onclick="openArticleModal('${a.id}')">編集</button>
-          <button class="btn-danger" onclick="deleteArticle('${a.id}')">削除</button>
+          <button class="btn-edit" onclick="openArticleModal('${a.id}')">編集</button>
+          ${!isEditorOnly && a.status === 'review'
+            ? `<button class="btn-edit" style="background:#d1fae5;color:#065f46;" onclick="approveArticleAdmin('${a.id}')">✓ 承認</button>
+               <button class="btn-danger" style="background:#fef3c7;color:#92400e;border:none;" onclick="rejectArticleAdmin('${a.id}')">差し戻す</button>`
+            : ''
+          }
+          ${!isEditorOnly
+            ? `<button class="btn-danger" onclick="deleteArticle('${a.id}')">削除</button>`
+            : ''
+          }
         </div>
       </td>
     </tr>`;
@@ -2152,6 +2176,31 @@ async function deleteArticle(articleId) {
   const { error } = await _sb.from('articles').delete().eq('id', articleId);
   if (error) { showToast('削除できませんでした: ' + error.message, 'error'); return; }
   showToast('削除しました', 'success');
+  loadArticles();
+}
+
+async function approveArticleAdmin(articleId) {
+  if (!confirm('この記事を承認して公開しますか？')) return;
+  const { error } = await _sb.from('articles').update({
+    is_published:   true,
+    status:         'published',
+    published_at:   new Date().toISOString(),
+    review_comment: null,
+  }).eq('id', articleId);
+  if (error) { showToast('エラー: ' + error.message, 'error'); return; }
+  showToast('承認・公開しました', 'success');
+  loadArticles();
+}
+
+async function rejectArticleAdmin(articleId) {
+  const reason = prompt('差し戻しコメント（任意。記事カードに表示されます）:');
+  if (reason === null) return; // キャンセル
+  const { error } = await _sb.from('articles').update({
+    status:         'draft',
+    review_comment: reason || null,
+  }).eq('id', articleId);
+  if (error) { showToast('エラー: ' + error.message, 'error'); return; }
+  showToast('下書きに差し戻しました', 'success');
   loadArticles();
 }
 
