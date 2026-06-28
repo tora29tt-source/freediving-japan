@@ -182,12 +182,13 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 | メディア | ✅ | ✅ | ✅ |
 | ユーザー管理 | ✅ | ❌ | ❌ |
 
-### DB・RLS 実装済み（2026-06-25完了）
+### DB・RLS 実装済み（2026-06-25完了・2026-06-28追記）
 
 - `instructors.status` カラム追加済み（`pending` / `approved` / `rejected`）
 - `user_roles.role` の値：`admin` / `staff` / `editor`（check constraint 適用済み）
-- `is_site_admin()` ヘルパー関数作成済み（SECURITY DEFINER で user_roles を参照）
+- `is_site_admin()` ヘルパー関数作成済み（SECURITY DEFINER + `SET row_security = off` で user_roles の RLS をバイパス）
 - RLS更新スクリプト：`sql/rls_update_20260625.sql`（実行済み）
+- 2026-06-28：`is_site_admin()` に `SET row_security = off` 追加（user_roles RLS との無限ループ回避）
 
 ### Supabase RLS 実装状況
 
@@ -201,7 +202,8 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 | `bookings` | ✅ | インストラクター本人 or 管理者のみ閲覧 / 誰でも新規作成 |
 | `shops` | ✅ | 公開 / 本人 / 管理者 |
 | `reviews` | ✅ | 公開 / 本人書き込み |
-| `user_roles` | ✅ | 管理者のみ全操作 |
+| `articles` | ✅ | 公開済み: 全員 / 認証済み: 全件 / 管理者: 全件（`articles_select` ポリシー） |
+| `user_roles` | ✅ | is_site_admin()=true のみ全操作（admin/staff/editor） |
 
 -----
 
@@ -472,11 +474,11 @@ RLSポリシー（`storage.objects`）：INSERT/UPDATE/DELETE は `auth.uid()::t
 
 ### 推奨対応順
 
-1. ~~RLS 修正（bookings / availability_slots）~~ ✅ `sql/rls_fix_20260628.sql` を Supabase SQL Editorで実行して完了
-2. 予約完了ページ — ゲスト向け読み取り方法の設計
-3. 満席ロジック — `pending` を定員に含める or DB 排他
-4. Webhook — 冪等性 + エラーハンドリング
+1. ~~RLS 修正（bookings / availability_slots）~~ ✅ 完了（2026-06-28）
+2. ~~予約完了ページ — ゲスト向け読み取り方法の設計~~ ✅ 完了（2026-06-28）
+3. 満席ロジック — `pending` を定員に含める or DB 排他（Bug #5）
+4. Webhook — 冪等性 + エラーハンドリング（Bug #6・#7）
 
 -----
 
-*最終更新：2026-06-28（メディア基盤完成・articles テーブル追加・user_roles editor 追加・RLS修正SQL作成）*
+*最終更新：2026-06-28（高優先度バグ #1〜#4 すべて解消・RLS修正SQL実行済み・booking/success.html ゲスト対応・api/booking-result.js 追加・E2Eテスト完了）*
