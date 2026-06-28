@@ -118,7 +118,7 @@ instructors        — インストラクターマスタ（id, name, bio, photo_
 listings           — 体験・コース（id, title, instructor_id, category, intent, prefecture, area, price, price_unit, price_includes, price_excludes, duration, season, min_participants, max_participants, age_min, age_max, meeting_point, booking_deadline, has_shuttle, cancellation_policy, what_to_bring, notes, tags, facilities, rental_gear, flow_steps, image_url, gallery_urls, is_public, ...）
 availability_slots — 空き枠（id, instructor_id, listing_id, slot_date, start_time, end_time, max_participants, booked_count, is_active）
 bookings           — 予約（id, slot_id, instructor_id, listing_id, guest_name, guest_email, guest_phone, participant_count, unit_price, total_amount, platform_fee, instructor_payout, status, stripe_session_id, stripe_payment_intent_id, rental_requests, ...）
-articles           — メディア記事（id, slug, title, category[A-T], author_type, author_name, lead_text, content[HTML], tags[], read_time_min, status, is_published, published_at, thumbnail_url）
+articles           — メディア記事（id, slug, title, category[A-T], author_type, author_name, lead_text, content[HTML], tags[], read_time_min, status[draft/review/published], is_published, published_at, thumbnail_url, created_by[UUID], review_comment）
 training_sessions  — トレーニングセッション
 dives              — ダイブ記録
 events             — 大会・イベント
@@ -202,7 +202,7 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 | `bookings` | ✅ | インストラクター本人 or 管理者のみ閲覧 / 誰でも新規作成 |
 | `shops` | ✅ | 公開 / 本人 / 管理者 |
 | `reviews` | ✅ | 公開 / 本人書き込み |
-| `articles` | ✅ | 公開済み: 全員 / 認証済み: 全件 / 管理者: 全件（`articles_select` ポリシー） |
+| `articles` | ✅ | 公開済み: 全員 / 認証済み: 全件 / 管理者: 全件（`articles_select` ポリシー）/ UPDATE: admin/staff は全件・editor は自分の記事のみ（published 変更不可）/ DELETE: admin/staff は全件・editor は自分の下書きのみ（`articles_review_flow_20260629.sql`） |
 | `user_roles` | ✅ | is_site_admin()=true のみ全操作（admin/staff/editor） |
 
 -----
