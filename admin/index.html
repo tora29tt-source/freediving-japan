@@ -1523,7 +1523,7 @@ async function loadArticles() {
 
   let query = _sb
     .from('articles')
-    .select('id, title, slug, category, is_published, published_at, read_time_min, author, created_at')
+    .select('id, title, slug, category, is_published, published_at, read_time_min, author_type, author_name, created_at')
     .order('created_at', { ascending: false });
 
   if (catFilter)              query = query.eq('category', catFilter);
@@ -1596,12 +1596,12 @@ function openArticleModal(articleId = null) {
       if (!d) return;
       document.getElementById('art-title').value      = d.title || '';
       document.getElementById('art-slug').value       = d.slug || '';
-      document.getElementById('art-excerpt').value    = d.excerpt || '';
-      document.getElementById('art-body').value       = d.body_md || '';
-      document.getElementById('art-cover').value      = d.cover_image_url || '';
+      document.getElementById('art-excerpt').value    = d.lead_text || '';
+      document.getElementById('art-body').value       = d.content || '';
+      document.getElementById('art-cover').value      = d.thumbnail_url || '';
       document.getElementById('art-tags').value       = (d.tags || []).join(', ');
       document.getElementById('art-read-time').value  = d.read_time_min || '';
-      document.getElementById('art-author').value     = d.author || '';
+      document.getElementById('art-author').value     = d.author_type || '';
       document.getElementById('art-category').value   = d.category || '';
       document.getElementById('art-published').checked = d.is_published === true;
     });
@@ -1623,14 +1623,15 @@ async function saveArticle() {
   const payload = {
     title,
     slug:            document.getElementById('art-slug').value.trim() || null,
-    excerpt:         document.getElementById('art-excerpt').value.trim() || null,
-    body_md:         document.getElementById('art-body').value || null,
-    cover_image_url: document.getElementById('art-cover').value.trim() || null,
+    lead_text:       document.getElementById('art-excerpt').value.trim() || null,
+    content:         document.getElementById('art-body').value || null,
+    thumbnail_url:   document.getElementById('art-cover').value.trim() || null,
     category:        document.getElementById('art-category').value || null,
     tags:            splitTrim(document.getElementById('art-tags').value),
     read_time_min:   parseInt(document.getElementById('art-read-time').value) || null,
-    author:          document.getElementById('art-author').value.trim() || 'FreeDive Japan編集部',
+    author_type:     document.getElementById('art-author').value.trim() || '編集部',
     is_published:    isPublished,
+    status:          isPublished ? 'published' : 'draft',
     published_at:    isPublished ? (editingArticleId ? undefined : new Date().toISOString()) : null,
     updated_at:      new Date().toISOString(),
   };

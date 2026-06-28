@@ -414,13 +414,13 @@ RLSポリシー（`storage.objects`）：INSERT/UPDATE/DELETE は `auth.uid()::t
 *調査日：2026-06-26（コードベース全体レビュー + Bugbot 差分レビュー）*
 
 **Bugbot（ブランチ差分）**：指摘なし  
-**手動レビュー**：予約・RLS・決済まわりに 11 件（高 4 / 中 4 / 低 3）
+**手動レビュー**：予約・RLS・決済まわりに 11 件 → 高 #1 #2 #4 は 2026-06-28 に SQL 修正済み（`sql/rls_fix_20260628.sql` を Supabase で実行すること）
 
 ### サマリー
 
 | 重要度 | 件数 | 主な領域 |
 |--------|------|----------|
-| 高 | 4 | DB 権限（RLS）、予約完了ページ |
+| 高 | 1 | 予約完了ページ（未ログインゲスト） |
 | 中 | 4 | 満席管理、Webhook |
 | 低 | 3 | UX、表示の誤り |
 
@@ -428,10 +428,10 @@ RLSポリシー（`storage.objects`）：INSERT/UPDATE/DELETE は `auth.uid()::t
 
 | # | 内容 | 該当ファイル | 想定修正 |
 |---|------|-------------|----------|
-| 1 | **予約データがログインユーザー全員に読める** — `bookings_select_auth` が `auth.role() = 'authenticated'` のみ。名前・メール・電話・金額が漏洩しうる | `sql/bookings_schema.sql` L92-93 | インストラクター本人・管理者・予約者本人（メール一致）のみ SELECT 可にする |
-| 2 | **予約の更新もログインユーザー全員に許可** — 任意ユーザーが `booking.id` を知っていればステータス変更可能 | `sql/bookings_schema.sql` L100-101 | インストラクター本人・管理者のみ UPDATE 可にする |
+| ~~1~~ | ~~予約データがログインユーザー全員に読める~~ | — | ✅ `sql/rls_fix_20260628.sql` で修正済み（要実行） |
+| ~~2~~ | ~~予約の更新もログインユーザー全員に許可~~ | — | ✅ `sql/rls_fix_20260628.sql` で修正済み（要実行） |
 | 3 | **予約完了ページが未ログインだと失敗** — `booking/success.html` は anon キーで SELECT するが、RLS 上は未ログイン SELECT 不可。Stripe 決済後のゲスト予約者がエラーになる | `booking/success.html`, `sql/bookings_schema.sql` | ゲスト向け読み取り API（`booking_id` + `session_id` 検証）を追加、または RLS にゲスト用ポリシーを追加 |
-| 4 | **空き枠の書き込み権限が広すぎる** — `availability_slots` の INSERT/UPDATE/DELETE が認証済みなら誰でも可能（`listings` は本人チェックあり） | `sql/bookings_schema.sql` L35-42 | インストラクター本人・管理者のみに制限 |
+| ~~4~~ | ~~空き枠の書き込み権限が広すぎる~~ | — | ✅ `sql/rls_fix_20260628.sql` で修正済み（要実行） |
 
 ### 中
 
@@ -457,11 +457,11 @@ RLSポリシー（`storage.objects`）：INSERT/UPDATE/DELETE は `auth.uid()::t
 
 ### 推奨対応順
 
-1. RLS 修正（bookings / availability_slots）— セキュリティ上最優先
+1. ~~RLS 修正（bookings / availability_slots）~~ ✅ `sql/rls_fix_20260628.sql` を Supabase SQL Editorで実行して完了
 2. 予約完了ページ — ゲスト向け読み取り方法の設計
 3. 満席ロジック — `pending` を定員に含める or DB 排他
 4. Webhook — 冪等性 + エラーハンドリング
 
 -----
 
-*最終更新：2026-06-28（メディア基盤完成・articles テーブル追加・user_roles editor 追加）*
+*最終更新：2026-06-28（メディア基盤完成・articles テーブル追加・user_roles editor 追加・RLS修正SQL作成）*
