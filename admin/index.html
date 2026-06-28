@@ -1518,6 +1518,7 @@ async function loadArticles() {
   const el = document.getElementById('articles-content');
   el.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
 
+  try {
   const catFilter    = document.getElementById('article-filter-category').value;
   const statusFilter = document.getElementById('article-filter-status').value;
 
@@ -1532,7 +1533,7 @@ async function loadArticles() {
 
   const { data, error } = await query;
 
-  if (error) { el.innerHTML = `<div class="empty">取得エラー: ${error.message}<br><small style="color:var(--on-dark-soft);">※ Supabase の RLS ポリシーに認証済みユーザーの全件読み取り設定が必要です</small></div>`; return; }
+  if (error) { el.innerHTML = `<div class="empty">取得エラー: ${error.message}</div>`; return; }
   if (!data || data.length === 0) { el.innerHTML = '<div class="empty">記事がありません</div>'; return; }
 
   el.innerHTML = `
@@ -1553,6 +1554,10 @@ async function loadArticles() {
         </tbody>
       </table>
     </div>`;
+  } catch(e) {
+    el.innerHTML = `<div class="empty">JS エラー: ${e.message}</div>`;
+    console.error('loadArticles error:', e);
+  }
 }
 
 function articleRow(a) {
