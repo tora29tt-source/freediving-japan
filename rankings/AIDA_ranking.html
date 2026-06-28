@@ -958,22 +958,29 @@ function renderSelGrid(){
     const jpWC = (WC_DATA.japan && WC_DATA.japan[wcKey]) || [];
     const wcNames = new Set(jpWC.map(w => w.name));
 
-    // 表示リスト：上位8名 + トップ8圏外のWC保有者（WCは人数制限なく別枠出場）
-    const top8 = sorted.slice(0, Math.min(8, sorted.length));
-    const top8Names = new Set(top8.map(r => r.name));
-    const wcExtra = sorted.slice(8).filter(r => wcNames.has(r.name));
-    const displayList = [...top8, ...wcExtra];
+    // 表示リスト：上位10名固定
+    const displayList = sorted.slice(0, 10);
+
+    // 非WC選手の順位カウント（WC保有者は選考枠4を消費しない）
+    let nonWCCounter = 0;
+    const nonWCRankMap = {};
+    displayList.forEach(r => {
+      if (!wcNames.has(r.name)) {
+        nonWCCounter++;
+        nonWCRankMap[r.name] = nonWCCounter;
+      }
+    });
 
     const rows = displayList.map(r => {
       const rank = sorted.findIndex(s => s.name === r.name) + 1;
-      const isRegular = rank <= quotaPerDisc;
-      const isWC = !isRegular && wcNames.has(r.name);
-      const isSelected = isRegular || isWC;
+      const isWC = wcNames.has(r.name);
+      const isRegular = !isWC && nonWCRankMap[r.name] <= quotaPerDisc;
+      const isSelected = isWC || isRegular;
       const rkCls = ['','r1','r2','r3','r4'][rank] || '';
-      const badge = isRegular
-        ? '<span class="sel-badge ok">選考圏内</span>'
-        : isWC
-          ? '<span class="sel-badge ok" style="background:rgba(96,165,250,.18);color:#60a5fa;border-color:rgba(96,165,250,.4)">ワイルドカード</span>'
+      const badge = isWC
+        ? '<span class="sel-badge ok" style="background:rgba(96,165,250,.18);color:#60a5fa;border-color:rgba(96,165,250,.4)">ワイルドカード</span>'
+        : isRegular
+          ? '<span class="sel-badge ok">選考圏内</span>'
           : '<span class="sel-badge out">圏外</span>';
       const tag = resTag(r.result);
       const tagBadge = tag ? '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:5px;margin-left:4px;background:'+(tag==='NR'?'rgba(255,210,74,.2)':'rgba(30,200,166,.2)')+';color:'+(tag==='NR'?'var(--gold)':'var(--accent2)')+'">'+tag+'</span>' : '';
@@ -1059,22 +1066,29 @@ function renderSelSeaGrid(){
     const jpWC = (WC_DATA.japan && WC_DATA.japan[wcKey]) || [];
     const wcNames = new Set(jpWC.map(w => w.name));
 
-    // 表示リスト：上位8名 + トップ8圏外のWC保有者（WCは人数制限なく別枠出場）
-    const top8 = sorted.slice(0, Math.min(8, sorted.length));
-    const top8Names = new Set(top8.map(r => r.name));
-    const wcExtra = sorted.slice(8).filter(r => wcNames.has(r.name));
-    const displayList = [...top8, ...wcExtra];
+    // 表示リスト：上位10名固定
+    const displayList = sorted.slice(0, 10);
+
+    // 非WC選手の順位カウント（WC保有者は選考枠4を消費しない）
+    let nonWCCounter = 0;
+    const nonWCRankMap = {};
+    displayList.forEach(r => {
+      if (!wcNames.has(r.name)) {
+        nonWCCounter++;
+        nonWCRankMap[r.name] = nonWCCounter;
+      }
+    });
 
     const rows = displayList.map(r => {
       const rank = sorted.findIndex(s => s.name === r.name) + 1;
-      const isRegular = rank <= quotaPerDisc;
-      const isWC = !isRegular && wcNames.has(r.name);
-      const isSelected = isRegular || isWC;
+      const isWC = wcNames.has(r.name);
+      const isRegular = !isWC && nonWCRankMap[r.name] <= quotaPerDisc;
+      const isSelected = isWC || isRegular;
       const rkCls = ['','r1','r2','r3','r4'][rank] || '';
-      const badge = isRegular
-        ? '<span class="sel-badge ok">選考圏内</span>'
-        : isWC
-          ? '<span class="sel-badge ok" style="background:rgba(96,165,250,.18);color:#60a5fa;border-color:rgba(96,165,250,.4)">ワイルドカード</span>'
+      const badge = isWC
+        ? '<span class="sel-badge ok" style="background:rgba(96,165,250,.18);color:#60a5fa;border-color:rgba(96,165,250,.4)">ワイルドカード</span>'
+        : isRegular
+          ? '<span class="sel-badge ok">選考圏内</span>'
           : '<span class="sel-badge out">圏外</span>';
       const tag = resTag(r.result);
       const tagBadge = tag ? '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:5px;margin-left:4px;background:'+(tag==='NR'?'rgba(255,210,74,.2)':'rgba(30,200,166,.2)')+';color:'+(tag==='NR'?'var(--gold)':'var(--accent2)')+'">'+tag+'</span>' : '';
