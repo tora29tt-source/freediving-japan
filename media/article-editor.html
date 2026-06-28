@@ -388,6 +388,7 @@ const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE
 
 const CAT_LABELS = { A:'入門・体験', B:'身体・科学', C:'海・スポット', D:'競技・大会', E:'インタビュー', P:'人物メディア', Q:'業界×期待感', S:'シリーズ連載', T:'エンタメ' };
 let currentUser = null;
+let userRole    = null; // 'admin' | 'staff' | 'editor' | null
 let currentFilter = 'all';
 let articles = [];
 
@@ -400,8 +401,18 @@ async function init() {
     return;
   }
   currentUser = session.user;
-  document.getElementById('app').style.display = 'block';
   document.getElementById('headerUser').textContent = session.user.email;
+
+  // ロール取得（user_roles テーブル）
+  const { data: roleRow } = await sb
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', currentUser.id)
+    .maybeSingle();
+  userRole = roleRow?.role || null;
+
+  document.getElementById('app').style.display = 'block';
+  updateFabForRole();
   loadArticles();
 }
 
@@ -430,6 +441,15 @@ function openEditor(id = null) {
   // タブ切り替え
   document.querySelectorAll('.tab-btn')[1].click();
   window.scrollTo(0, 0);
+}
+
+// ── ROLE UI ──
+function updateFabForRole() {
+  if (userRole !== 'editor') return; // admin/staff はデフォルト（公開する）のまま
+  document.getElementById('fabBar').innerHTML = `
+    <button class="btn-save-draft" onclick="saveArticle('draft')">下書き保存</button>
+    <button class="btn-publish"    onclick="saveArticle('review')">承認依頼を送る</button>
+  `;
 }
 
 // ── ARTICLES LIST ──
@@ -472,12 +492,22 @@ function renderList() {
       </div>
       <div class="card-actions">
         <button class="btn-sm btn-edit" onclick="openEditor('${a.id}')">編集</button>
-        ${a.is_published
-          ? `<button class="btn-sm btn-unpub" onclick="togglePublish('${a.id}', false)">非公開に</button>`
-          : `<button class="btn-sm btn-pub"   onclick="togglePublish('${a.id}', true)">公開する</button>`}
-        <button class="btn-sm btn-delete" onclick="deleteArticle('${a.id}')">削除</button>
+        ${userRole === 'editor'
+          ? '' // editor: 公開・削除ボタンなし
+          : `
+            ${a.status === 'review'
+              ? `<button class="btn-sm btn-pub"   onclick="approveArticle('${a.id}')">✓ 承認・公開</button>
+                 <button class="btn-sm btn-unpub" onclick="rejectArticle('${a.id}')">差し戻す</button>`
+              : (a.is_published
+                  ? `<button class="btn-sm btn-unpub" onclick="togglePublish('${a.id}', false)">非公開に</button>`
+                  : `<button class="btn-sm btn-pub"   onclick="togglePublish('${a.id}', true)">公開する</button>`
+                )
+            }
+            <button class="btn-sm btn-delete" onclick="deleteArticle('${a.id}')">削除</button>
+          `}
         ${a.is_published ? `<a class="btn-sm btn-edit" href="article.html?slug=${a.slug}" target="_blank" style="text-decoration:none">表示 ↗</a>` : ''}
       </div>
+      ${a.review_comment ? `<div style="margin-top:8px;padding:8px 10px;background:#fef3c7;border-radius:6px;font-size:11px;color:#92400e;">💬 差し戻しコメント：${esc(a.review_comment)}</div>` : ''}
     </div>
   `).join('');
 }
@@ -575,6 +605,31 @@ async function saveArticle(publishStatus) {
   showToast(isPublished ? '公開しました！' : '下書きを保存しました');
   resetForm();
   document.querySelectorAll('.tab-btn')[0].click();
+}
+
+// ── APPROVE / REJECT ──
+async function approveArticle(id) {
+  if (!confirm('この記事を承認して公開しますか？')) return;
+  const { error } = await sb.from('articles').update({
+    is_published:   true,
+    status:         'published',
+    published_at:   new Date().toISOString(),
+    review_comment: null,
+  }).eq('id', id);
+  if (error) { showToast('エラー: ' + error.message); return; }
+  showToast('承認・公開しました');
+  loadArticles();
+}
+
+async function rejectArticle(id) {
+  const reason = prompt('差し戻しコメント（任意。editor に表示されます）:') ?? null;
+  const { error } = await sb.from('articles').update({
+    status:         'draft',
+    review_comment: reason || null,
+  }).eq('id', id);
+  if (error) { showToast('エラー: ' + error.message); return; }
+  showToast('下書きに差し戻しました');
+  loadArticles();
 }
 
 // ── TOGGLE PUBLISH ──
