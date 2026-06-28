@@ -40,11 +40,19 @@ body { font-family: var(--font-body); color: var(--text); background: white; lin
 .breadcrumb span { margin: 0 6px; opacity: .4; }
 
 /* HERO */
-.hero { background: var(--ocean-deep); padding: 48px 20px 40px; position: relative; overflow: hidden; }
+.hero {
+  background: var(--ocean-deep); padding: 48px 20px 40px;
+  position: relative; overflow: hidden;
+  background-size: cover; background-position: center;
+}
 .hero::before {
   content: ''; position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 70% 50%, rgba(46,196,182,.15) 0%, transparent 70%);
+  background: linear-gradient(to bottom, rgba(11,45,69,.72) 0%, rgba(11,45,69,.88) 100%);
   pointer-events: none;
+}
+/* サムネなし時はティールグラデ */
+.hero.no-thumb::before {
+  background: radial-gradient(ellipse at 70% 50%, rgba(46,196,182,.15) 0%, transparent 70%);
 }
 .hero-inner { max-width: 680px; margin: 0 auto; position: relative; }
 .hero-category {
@@ -87,6 +95,13 @@ body { font-family: var(--font-body); color: var(--text); background: white; lin
 .compare-table tr:last-child td { border-bottom: none; }
 .compare-table tbody tr:nth-child(odd) { background: var(--foam); }
 .compare-table .label-col { font-weight: 600; color: var(--ocean-mid); }
+
+/* ARTICLE BODY IMAGES */
+.article-body img {
+  width: 100%; height: auto; border-radius: 10px;
+  margin: 28px 0; display: block;
+  box-shadow: 0 4px 16px rgba(11,45,69,.12);
+}
 
 /* INFO BOX */
 .info-box { background: #fff8f3; border: 1.5px solid #fddcbb; border-radius: 10px; padding: 20px 22px; margin: 32px 0; }
@@ -216,8 +231,13 @@ function renderArticle(a) {
     ? '日本記録保持者・寺島拓哉が設立したフリーダイビングプラットフォーム「Freediving Japan」の編集部。'
     : 'Freediving Japan 代表・日本STAフリーダイビング記録保持者。';
 
+  const heroStyle = a.thumbnail_url
+    ? `style="background-image:url('${a.thumbnail_url}')"`
+    : '';
+  const heroClass = a.thumbnail_url ? 'hero' : 'hero no-thumb';
+
   document.getElementById('pageContent').innerHTML = `
-    <div class="hero">
+    <div class="${heroClass}" ${heroStyle}>
       <div class="hero-inner">
         <div class="hero-category">${esc(catLabel)}</div>
         <h1>${esc(a.title)}</h1>
