@@ -103,6 +103,7 @@ instructors        — インストラクターマスタ（id, name, bio, photo_
 listings           — 体験・コース（id, title, instructor_id, category, intent, prefecture, area, price, price_unit, price_includes, price_excludes, duration, season, min_participants, max_participants, age_min, age_max, meeting_point, booking_deadline, has_shuttle, cancellation_policy, what_to_bring, notes, tags, facilities, rental_gear, flow_steps, image_url, gallery_urls, is_public, ...）
 availability_slots — 空き枠（id, instructor_id, listing_id, slot_date, start_time, end_time, max_participants, booked_count, is_active）
 bookings           — 予約（id, slot_id, instructor_id, listing_id, guest_name, guest_email, guest_phone, participant_count, unit_price, total_amount, platform_fee, instructor_payout, status, stripe_session_id, stripe_payment_intent_id, rental_requests, ...）
+articles           — メディア記事（id, slug, title, category[A-T], author_type, author_name, lead_text, content[HTML], tags[], read_time_min, status, is_published, published_at, thumbnail_url）
 training_sessions  — トレーニングセッション
 dives              — ダイブ記録
 events             — 大会・イベント
@@ -169,7 +170,7 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 ### DB・RLS 実装済み（2026-06-25完了）
 
 - `instructors.status` カラム追加済み（`pending` / `approved` / `rejected`）
-- `user_roles.role` の値：`admin` / `staff` / `editor`
+- `user_roles.role` の値：`admin` / `staff` / `editor`（check constraint 適用済み）
 - `is_site_admin()` ヘルパー関数作成済み（SECURITY DEFINER で user_roles を参照）
 - RLS更新スクリプト：`sql/rls_update_20260625.sql`（実行済み）
 
@@ -229,8 +230,10 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
   article.html
   article-what-is-freediving.html
 /media/                   # メディア（Phase 2〜）
-  index.html
-  admin-mobile.html
+  index.html              # 記事一覧（Supabase動的取得）
+  article.html            # 記事詳細（?slug= で動的表示）
+  article-editor.html     # 記事作成・編集CMS（editor以上ログイン必須）
+  admin-mobile.html       # アイデアリスト専用（運用しない）
 /tools/                   # ツール類
   mouthfill-calculator.html
   session-planner.html
@@ -364,7 +367,7 @@ TOP (index.html)
 |クライアント管理タブ（pro/index.html）                           |✅ 実装済み（bookingsから自動集約・検索・詳細・メモ保存）|
 |売り上げ管理タブ（pro/index.html）                              |✅ 実装済み（月次サマリー・棒グラフ・明細一覧・期間フィルタ）|
 |/learn/ 有料講座ページ                                      |✅ learn/index.html 骨格完成・トップからリンク済み（先行通知機能なし・購入ボタンは準備中表示。Stripe/Vimeo接続は撮影後）|
-|メディア（/media/）                                        |❌ 未着手（Phase 2）|
+|メディア（/media/）                                        |✅ 基盤完成（2026-06-28）index.html Supabase動的取得・article.html 記事詳細・article-editor.html CMS実装。articles テーブル・カテゴリ9区分・RLS設定・初記事投入済み|
 |iOSアプリ（React Native）                                 |🔄 開発中（環境構築済み・Expo Go動作確認済み。タブバー・ログ・Supabase連携・SNSシェアが未実装）|
 
 -----
@@ -461,4 +464,4 @@ RLSポリシー（`storage.objects`）：INSERT/UPDATE/DELETE は `auth.uid()::t
 
 -----
 
-*最終更新：2026-06-26（既知のバグ・セキュリティ課題セクション追加）*
+*最終更新：2026-06-28（メディア基盤完成・articles テーブル追加・user_roles editor 追加）*
