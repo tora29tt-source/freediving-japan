@@ -1,7 +1,7 @@
 # AIDA Japan ランキング画面 設計書
 
 > 対象ファイル: `rankings/AIDA_ranking.html`
-> 最終更新: 2026-06-27
+> 最終更新: 2026-06-28
 
 ---
 
@@ -32,7 +32,8 @@ AIDA International (aidainternational.org)
 | `data/all_rankings_data.json` | `merge_rankings.py` | 毎日 | historical + 今年をマージした全データ |
 | `data/jp_official_records.json` | `fetch_jp_records.py` | 毎日 | 種目×性別の全年度1位（日本記録） |
 | `data/national_team.json` | 手動 or `update_national_team.py` | 大会後 | AIDA世界選手権に出場した日本代表選手の記録 |
-| `data/athlete_photos.json` | `fetch_jp_records.py`（副産物） | 毎日 | 選手名→プロフィール写真URL |
+| `data/athlete_photos.json` | `fetch_jp_records.py`（副産物） | 毎週月曜 | 選手名→プロフィール写真URL（ページロード時に動的fetch） |
+| `data/wildcard_data.json` | 手動 | 随時 | AIDA世界ランキング上位10位の日本人選手（WC保有者） |
 
 ### 2-1. `all_rankings_data.json` スキーマ
 
@@ -214,11 +215,16 @@ URL: https://www.aidainternational.org/Events/EventRanking-{event_id}
 
 ```javascript
 Promise.all([
-  fetch('../data/all_rankings_data.json'),   // メインランキングデータ
-  fetch('../data/national_team.json'),        // 日本代表データ
-  fetch('../data/jp_official_records.json')  // 日本記録（バックアップ用）
+  fetch('../data/all_rankings_data.json'),    // メインランキングデータ
+  fetch('../data/national_team.json'),         // 日本代表データ
+  fetch('../data/jp_official_records.json'),  // 日本記録（バックアップ用）
+  fetch('../data/wildcard_data.json'),         // WC保有者データ
+  fetch('../data/athlete_photos.json'),        // 選手写真URL（週次更新）
 ])
-.then(([json, ntJson, jpRecJson]) => {
+.then(([json, ntJson, jpRecJson, wcJson, photosJson]) => {
+  // 動的写真データでハードコードPHOTOSを上書き（毎週月曜バッチが最新URLを反映）
+  Object.assign(PHOTOS, photosJson);
+  WC_DATA = wcJson;
   NATIONAL_TEAM = ntJson.athletes || {};
   // jp_official_records.json の内容で JP_RECORDS を初期化
   (jpRecJson.records || []).forEach(rec => {
@@ -326,14 +332,26 @@ let JP_RECORDS = {
 ### 6-2. `PHOTOS`（選手写真マップ）
 
 ```javascript
-const PHOTOS = {
+// ハードコード（フォールバック）：athlete_photos.json のfetch失敗時に使用
+let PHOTOS = {
   "Takuya Terajima": "https://s3...webp",
   "Shinya Oi":       "https://s3...webp",
-  // 約45名分ハードコード
+  // 約45名分
 };
+
+// Promise.all 内で動的データを上書きマージ
+Object.assign(PHOTOS, photosJson);  // photosJson = athlete_photos.json の内容
 ```
 
-> `fetch_jp_records.py` が `jp_official_records.json` に写真URLを含めているが、HTML側の `PHOTOS` は手動で追加された値が中心。新選手が追加された場合は `athlete_photos.json` または `jp_official_records.json` の photo フィールドを参照する。
+**写真更新フロー**:
+- `fetch_jp_records.py`（毎週月曜）が `data/athlete_photos.json` を更新
+- ページロード時に `athlete_photos.json` を fetch し、`Object.assign` でハードコード値を上書き
+- AIDA 側で写真変更 → 翌週月曜バッチ → 次回ページロードで自動反映
+
+**⚠️ 自動取得できない選手**（AIDAの国籍が Japan 以外に設定されている場合）:
+- `athlete_photos.json` のバッチに含まれない
+- 手動で AIDA プロフィールから URL を取得し、`athlete_photos.json` と `PHOTOS` 定数の両方に追加する
+- 例: Hanako Hirose（2026-06-28 手動追加済み）
 
 ### 6-3. AIDA APIパラメータ
 
@@ -384,16 +402,25 @@ const PHOTOS = {
     │       ↓
     │  all_rankings_data.json → ランキングテーブル + buildJPRecords()
     │
-    └─ year フィルタなし ← fetch_jp_records.py（毎日）
-            ↓
-       jp_official_records.json
-            ↓
-       JP_RECORDS の初期値（buildJPRecords で上書き）
+    └─ year フィルタなし ← fetch_jp_records.py（毎週月曜）
+            ├─→ jp_official_records.json → JP_RECORDS の初期値（buildJPRecords で上書き）
+            └─→ athlete_photos.json     → PHOTOS にマージ（ページロード時に fetch）
+
+[AIDA プロフィール写真更新]
+    │ 翌週月曜バッチで自動検出 → athlete_photos.json 更新
+    │ ※ 国籍 Japan 以外の選手は手動で athlete_photos.json + PHOTOS に追加
+    ▼
+次回ページロード時に反映
 
 [AIDA世界選手権参加]
     │ 手動: update_national_team.py --event {id}
     ▼
 national_team.json → 日本代表バッジ表示
+
+[WC（ワイルドカード）更新]
+    │ 手動: wildcard_data.json を更新
+    ▼
+代表選考シミュレーターに反映（選考4名固定 + WC保有者は別枠・人数制限なし）
 ```
 
 ---
@@ -403,7 +430,8 @@ national_team.json → 日本代表バッジ表示
 | 項目 | 状況 | 対処方針 |
 |---|---|---|
 | `JP_RECORDS` ハードコード | 残存（フォールバック）| `buildJPRecords()` で上書きされるため実害なし。年1回程度手動更新 |
-| `PHOTOS` ハードコード | 約45名分 | `athlete_photos.json` または `jp_official_records.json` の photo フィールドを優先参照するよう改善余地あり |
+| `PHOTOS` 動的fetch化 | ✅ 対応済み（2026-06-28） | ページロード時に `athlete_photos.json` を fetch し `Object.assign` でマージ。ハードコードはfetch失敗時のフォールバック |
+| AIDA国籍 Japan 以外の選手の写真 | 手動対応が必要 | `fetch_jp_records.py` が取得できないため、AIDAプロフィールから手動でURLを取得（例: Hanako Hirose 対応済み） |
 | PEN結果の年フィルタ除外 | 確認済み | 翌日の全年度フェッチ（`fetch_jp_records.py`）で補完される |
 | Node.js 20 deprecation警告 | GitHub Actions | `actions/checkout@v4` / `setup-python@v5` を v6 等に更新で解消 |
 | `rankings_historical.json` 手動固定 | 2000〜前年分 | 毎年1月に前年分を historical に移行するオペレーションが必要 |

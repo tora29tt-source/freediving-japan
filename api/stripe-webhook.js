@@ -60,8 +60,25 @@ export default async function handler(req, res) {
 
         if (!bookingId) break;
 
+        // 冪等性チェック: 既に paid なら二重処理をスキップ
+        const { data: existing, error: fetchErr } = await supabase
+          .from('bookings')
+          .select('status, participant_count')
+          .eq('id', bookingId)
+          .single();
+
+        if (fetchErr) {
+          console.error('Failed to fetch booking:', fetchErr.message);
+          return res.status(500).json({ error: 'Failed to fetch booking' });
+        }
+
+        if (existing.status === 'paid') {
+          console.log(`⏭️ Already paid, skipping: ${bookingId}`);
+          break;
+        }
+
         // 予約ステータスを paid に更新
-        await supabase
+        const { error: updateErr } = await supabase
           .from('bookings')
           .update({
             status:                    'paid',
@@ -70,19 +87,21 @@ export default async function handler(req, res) {
           })
           .eq('id', bookingId);
 
-        // 空き枠の booked_count をインクリメント
-        if (slotId) {
-          const { data: booking } = await supabase
-            .from('bookings')
-            .select('participant_count')
-            .eq('id', bookingId)
-            .single();
+        if (updateErr) {
+          console.error('Failed to update booking status:', updateErr.message);
+          return res.status(500).json({ error: 'Failed to update booking' });
+        }
 
-          if (booking) {
-            await supabase.rpc('increment_booked_count', {
-              p_slot_id: slotId,
-              p_count:   booking.participant_count,
-            });
+        // 空き枠の booked_count をインクリメント
+        if (slotId && existing.participant_count) {
+          const { error: rpcErr } = await supabase.rpc('increment_booked_count', {
+            p_slot_id: slotId,
+            p_count:   existing.participant_count,
+          });
+
+          if (rpcErr) {
+            console.error('Failed to increment booked_count:', rpcErr.message);
+            return res.status(500).json({ error: 'Failed to update slot count' });
           }
         }
 

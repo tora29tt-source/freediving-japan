@@ -62,6 +62,17 @@ h1 { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../js/supabase-config.js"></script>
 <script>
+// XSS対策: HTMLエスケープ
+function escHtml(str) {
+  if (str == null) return '—';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 const params    = new URLSearchParams(location.search);
 const bookingId = params.get('booking_id');
 
@@ -106,9 +117,9 @@ async function loadBooking() {
       </svg>
     </div>
     <h1>予約が完了しました！</h1>
-    <p class="sub">ご予約ありがとうございます。<br>確認メールを <strong>${booking.client_email}</strong> に送信しました。</p>
+    <p class="sub">ご予約ありがとうございます。<br>確認メールを <strong>${escHtml(booking.client_email)}</strong> に送信しました。</p>
     <div class="detail-box">
-      <div class="detail-row"><span class="detail-key">プラン</span><span class="detail-val">${listing?.title || '—'}</span></div>
+      <div class="detail-row"><span class="detail-key">プラン</span><span class="detail-val">${escHtml(listing?.title)}</span></div>
       <div class="detail-row"><span class="detail-key">日時</span><span class="detail-val">${dateStr} ${timeStr}</span></div>
       <div class="detail-row"><span class="detail-key">参加人数</span><span class="detail-val">${booking.participant_count}名</span></div>
       <div class="detail-row"><span class="detail-key">合計金額</span><span class="detail-val">¥${booking.total_amount.toLocaleString()}</span></div>

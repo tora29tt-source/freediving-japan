@@ -2,7 +2,7 @@
 
 バッチ処理（定期自動実行・手動実行）の一覧と仕様をまとめたドキュメント。
 
-*最終更新：2026-06-24*
+*最終更新：2026-06-28*
 
 ---
 
@@ -12,7 +12,7 @@
 |---|---|---|---|---|---|
 | 1 | AIDA 2026大会データ更新 | `scripts/fetch_aida_events.py` | 毎日 | ✅ GitHub Actions | `data/aida_events_2026.json` |
 | 2 | 今年のランキング更新 | `scripts/fetch_all_rankings.py` | 毎週月曜 | ✅ GitHub Actions | `data/rankings_{year}.json` |
-| 3 | 日本記録更新 | `scripts/fetch_jp_records.py` | 毎週月曜 | ✅ GitHub Actions | `data/jp_official_records.json` |
+| 3 | 日本記録・選手写真更新 | `scripts/fetch_jp_records.py` | 毎週月曜 | ✅ GitHub Actions | `data/jp_official_records.json` / `data/athlete_photos.json` |
 
 ---
 
@@ -169,15 +169,47 @@ python3 scripts/fetch_all_rankings.py --all
 
 ---
 
-## 3. 日本記録更新
+## 3. 日本記録・選手写真更新
 
 ### 概要
 
-各種目の日本記録（AIDA 公式ランキング 1 位）と記録保持者のプロフィール写真を取得する。
+各種目の日本記録（AIDA 公式ランキング 1 位）と、日本人全ランク選手のプロフィール写真URLを取得する。
 
 ### 取得種目
 
 STA / DYN / DYNB / DNF / CWT / CWTB / CNF / FIM × 男女 = 16 件
+
+### 出力ファイル
+
+| ファイル | 内容 |
+|---|---|
+| `data/jp_official_records.json` | 各種目日本記録（種目×性別 × 16件） |
+| `data/athlete_photos.json` | 選手名 → AIDA プロフィール写真URL のマップ |
+
+### 写真の反映フロー
+
+```
+AIDA側で写真を更新
+  └→ 翌週月曜 JST 06:00 の GitHub Actions バッチで自動検出
+       └→ data/athlete_photos.json を更新
+            └→ ランキング画面が次回ページロード時に反映
+```
+
+`rankings/AIDA_ranking.html` は起動時に `athlete_photos.json` を動的 fetch して `PHOTOS` オブジェクトにマージする。
+ハードコードされた `PHOTOS` 定数はフォールバック（fetch 失敗時の保険）として残してある。
+
+### 注意：バッチが写真を取得できない選手
+
+`fetch_jp_records.py` は AIDA の「日本国籍」選手リストをスクレイプするため、
+AIDA の国籍設定が Japan 以外の選手（例：Hanako Hirose）は自動取得されない。
+その場合は AIDA プロフィールページから手動でURLを取得し、以下の2箇所に追加する：
+
+1. `data/athlete_photos.json` にエントリ追加
+2. `rankings/AIDA_ranking.html` の `PHOTOS` 定数にフォールバックとして追加
+
+AIDA プロフィールURL: `https://www.aidainternational.org/Athletes/Profile-{UUID}`
+写真URL形式: `https://s3.eu-central-1.amazonaws.com/aida-international/avatar/170x170/{UUID}.webp`
+（og:image または `<img>` タグから取得可能）
 
 ### スクリプトの使い方
 
