@@ -6,6 +6,7 @@
 <title>管理画面 — Freediving Japan</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../js/supabase-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -250,6 +251,245 @@ td.name { color: var(--on-dark); font-weight: 500; }
   th, td { padding: 10px 10px; }
   .role-badge { display: none; }
   .user-info { display: none; }
+}
+
+/* ════════════════════════════════════════════
+   Article Full-Page Editor
+   ════════════════════════════════════════════ */
+#article-editor-page {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: var(--abyss);
+  flex-direction: column;
+  overflow: hidden;
+}
+#article-editor-page.open { display: flex; }
+
+/* Top bar */
+.ae-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  height: 52px;
+  background: rgba(6,32,46,0.97);
+  border-bottom: 1px solid var(--hairline);
+  flex-shrink: 0;
+  gap: 12px;
+}
+.ae-back-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: none; border: 1px solid var(--hairline);
+  border-radius: 8px; padding: 6px 12px;
+  color: var(--on-dark-mid); font-size: 13px; cursor: pointer;
+  font-family: inherit; white-space: nowrap; transition: all 0.2s;
+}
+.ae-back-btn:hover { border-color: rgba(255,255,255,0.3); color: var(--on-dark); }
+.ae-mode-tabs {
+  display: flex;
+  background: rgba(255,255,255,0.07);
+  border-radius: 8px; padding: 3px; gap: 2px;
+}
+.ae-mode-tab {
+  padding: 5px 14px; border-radius: 6px; font-size: 12px; font-weight: 500;
+  color: var(--on-dark-soft); background: none; border: none;
+  cursor: pointer; font-family: inherit; transition: all 0.15s;
+}
+.ae-mode-tab.active { background: rgba(255,255,255,0.14); color: var(--on-dark); }
+.ae-topbar-right { display: flex; gap: 8px; align-items: center; }
+.ae-settings-btn {
+  background: rgba(255,255,255,0.06); border: 1px solid var(--hairline);
+  border-radius: 8px; padding: 7px 12px; color: var(--on-dark-mid);
+  cursor: pointer; font-size: 12px; font-family: inherit; transition: all 0.2s;
+}
+.ae-settings-btn:hover { border-color: rgba(255,255,255,0.3); color: var(--on-dark); }
+.ae-settings-btn.active { border-color: var(--teal); color: var(--teal); background: rgba(46,196,182,0.1); }
+.ae-draft-btn {
+  background: rgba(255,255,255,0.06); border: 1px solid var(--hairline);
+  border-radius: 8px; padding: 7px 14px; color: var(--on-dark-mid);
+  font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit;
+  transition: all 0.2s; white-space: nowrap;
+}
+.ae-draft-btn:hover { border-color: rgba(255,255,255,0.3); color: var(--on-dark); }
+.ae-publish-btn {
+  background: var(--teal); border: none; border-radius: 8px; padding: 7px 16px;
+  color: var(--ocean-deep); font-size: 13px; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: background 0.2s; white-space: nowrap;
+}
+.ae-publish-btn:hover { background: var(--teal-light); }
+.ae-publish-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Toolbar */
+.ae-toolbar {
+  display: flex; align-items: center; gap: 2px;
+  padding: 5px 14px;
+  background: rgba(255,255,255,0.025);
+  border-bottom: 1px solid var(--hairline);
+  flex-shrink: 0; flex-wrap: wrap;
+}
+.ae-tool {
+  background: none; border: none; border-radius: 5px;
+  padding: 4px 8px; color: var(--on-dark-soft); font-size: 12px; font-weight: 600;
+  cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap;
+}
+.ae-tool:hover { background: rgba(255,255,255,0.09); color: var(--on-dark); }
+.ae-tool-sep { width: 1px; height: 16px; background: var(--hairline); margin: 0 3px; flex-shrink: 0; }
+
+/* Main editor area */
+.ae-main {
+  display: flex; flex: 1; overflow: hidden; position: relative;
+}
+
+/* Editor pane */
+.ae-editor-pane {
+  display: flex; flex-direction: column; flex: 1; overflow: hidden; min-width: 0;
+}
+.ae-title-input {
+  width: 100%; background: none; border: none; outline: none;
+  color: var(--on-dark); font-size: 26px; font-weight: 700;
+  padding: 24px 32px 14px; font-family: inherit;
+  border-bottom: 1px solid var(--hairline); flex-shrink: 0;
+}
+.ae-title-input::placeholder { color: var(--on-dark-soft); }
+.ae-meta-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 32px; flex-shrink: 0;
+  border-bottom: 1px solid var(--hairline);
+}
+.ae-word-count { font-size: 11px; color: var(--on-dark-soft); }
+.ae-pub-badge {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 100px;
+}
+.ae-pub-badge.draft     { background: rgba(148,163,184,0.12); color: #94a3b8; border: 1px solid rgba(148,163,184,0.2); }
+.ae-pub-badge.published { background: rgba(34,197,94,0.12);  color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+.ae-body-textarea {
+  flex: 1; width: 100%; background: none; border: none; outline: none;
+  color: rgba(255,255,255,0.88);
+  font-family: 'JetBrains Mono', 'Fira Code', 'Menlo', monospace;
+  font-size: 14px; line-height: 1.85; padding: 20px 32px;
+  resize: none; overflow-y: auto;
+  caret-color: var(--teal);
+}
+.ae-body-textarea::placeholder { color: var(--on-dark-soft); }
+
+/* Preview pane */
+.ae-preview-pane {
+  border-left: 1px solid var(--hairline);
+  overflow-y: auto;
+  padding: 24px 32px;
+  background: rgba(255,255,255,0.012);
+  display: none; min-width: 0;
+}
+/* Markdown styles inside preview */
+.ae-preview-pane h1 { font-size: 26px; font-weight: 700; margin: 0 0 16px; line-height: 1.3; }
+.ae-preview-pane h2 { font-size: 20px; font-weight: 700; margin: 32px 0 12px; color: var(--teal); padding-bottom: 8px; border-bottom: 1px solid var(--hairline); }
+.ae-preview-pane h3 { font-size: 17px; font-weight: 600; margin: 24px 0 10px; }
+.ae-preview-pane h4 { font-size: 15px; font-weight: 600; margin: 20px 0 8px; }
+.ae-preview-pane p { margin: 0 0 16px; line-height: 1.85; color: var(--on-dark-mid); }
+.ae-preview-pane strong { color: var(--on-dark); font-weight: 700; }
+.ae-preview-pane em { color: var(--teal-light); font-style: italic; }
+.ae-preview-pane ul, .ae-preview-pane ol { margin: 0 0 16px 20px; }
+.ae-preview-pane li { margin: 5px 0; color: var(--on-dark-mid); line-height: 1.75; }
+.ae-preview-pane blockquote {
+  border-left: 3px solid var(--teal); margin: 0 0 16px; padding: 12px 18px;
+  background: rgba(46,196,182,0.06); border-radius: 0 8px 8px 0;
+}
+.ae-preview-pane blockquote p { margin: 0; color: var(--on-dark); }
+.ae-preview-pane code {
+  background: rgba(255,255,255,0.1); border-radius: 4px; padding: 2px 6px;
+  font-family: monospace; font-size: 12px; color: var(--teal-light);
+}
+.ae-preview-pane pre {
+  background: rgba(255,255,255,0.06); border-radius: 10px;
+  padding: 16px 18px; margin: 0 0 16px; overflow-x: auto;
+  border: 1px solid var(--hairline);
+}
+.ae-preview-pane pre code { background: none; padding: 0; color: inherit; }
+.ae-preview-pane a { color: var(--teal); text-decoration: underline; }
+.ae-preview-pane img { max-width: 100%; border-radius: 10px; margin: 8px 0; }
+.ae-preview-pane hr { border: none; border-top: 1px solid var(--hairline); margin: 24px 0; }
+.ae-preview-pane table { width: 100%; border-collapse: collapse; margin: 0 0 16px; }
+.ae-preview-pane th, .ae-preview-pane td { padding: 8px 12px; border: 1px solid var(--hairline); text-align: left; }
+.ae-preview-pane th { background: rgba(255,255,255,0.05); font-size: 12px; font-weight: 600; }
+
+/* Mode variants */
+.ae-mode-write .ae-editor-pane { max-width: 780px; margin: 0 auto; border-right: none; }
+.ae-mode-write .ae-preview-pane { display: none; }
+.ae-mode-write .ae-sidebar { display: none !important; }
+.ae-mode-split .ae-editor-pane { width: 50%; flex: none; border-right: none; }
+.ae-mode-split .ae-preview-pane { display: block; flex: 1; }
+.ae-mode-preview .ae-editor-pane { display: none; }
+.ae-mode-preview .ae-preview-pane { display: block; flex: 1; max-width: 780px; margin: 0 auto; border-left: none; }
+
+/* Sidebar */
+.ae-sidebar {
+  width: 290px; flex-shrink: 0;
+  border-left: 1px solid var(--hairline);
+  background: rgba(255,255,255,0.018);
+  overflow-y: auto; display: none;
+}
+.ae-sidebar.open { display: block; }
+.ae-sidebar-inner { padding: 20px; }
+.ae-sidebar-section-title {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--on-dark-soft);
+  margin: 0 0 14px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--hairline);
+}
+.ae-sidebar .form-group { margin-bottom: 14px; }
+.ae-sidebar .form-group label {
+  font-size: 11px; font-weight: 600; color: var(--on-dark-soft);
+  letter-spacing: 0.04em; margin-bottom: 5px; display: block;
+}
+.ae-sidebar .form-group input,
+.ae-sidebar .form-group select,
+.ae-sidebar .form-group textarea {
+  width: 100%; padding: 9px 11px;
+  background: rgba(255,255,255,0.07); border: 1px solid var(--hairline);
+  border-radius: 9px; color: var(--on-dark); font-size: 13px;
+  font-family: inherit; outline: none; transition: border-color 0.2s;
+  -webkit-appearance: none;
+}
+.ae-sidebar .form-group input:focus,
+.ae-sidebar .form-group select:focus,
+.ae-sidebar .form-group textarea:focus { border-color: var(--teal); background: rgba(255,255,255,0.1); }
+.ae-sidebar .form-group select option { background: var(--ocean-mid); }
+.ae-sidebar .form-group textarea { resize: vertical; min-height: 72px; }
+.ae-slug-row { display: flex; gap: 6px; }
+.ae-slug-row input { flex: 1; }
+.ae-slug-gen {
+  background: rgba(46,196,182,0.12); border: 1px solid rgba(46,196,182,0.3);
+  color: var(--teal); border-radius: 8px; padding: 0 10px;
+  font-size: 11px; font-weight: 600; cursor: pointer; font-family: inherit;
+  white-space: nowrap; transition: all 0.2s;
+}
+.ae-slug-gen:hover { background: rgba(46,196,182,0.22); }
+.ae-cover-preview {
+  width: 100%; height: 110px; object-fit: cover;
+  border-radius: 8px; margin-top: 8px; display: none;
+  background: rgba(255,255,255,0.06); border: 1px solid var(--hairline);
+}
+.ae-cover-preview.visible { display: block; }
+.ae-pub-toggle-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 0;
+  border-top: 1px solid var(--hairline);
+  margin-top: 8px;
+}
+.ae-pub-toggle-label { font-size: 13px; font-weight: 600; color: var(--on-dark-mid); }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ae-mode-split .ae-preview-pane { display: none; }
+  .ae-mode-split .ae-editor-pane { width: 100%; }
+  .ae-sidebar { width: 100%; position: absolute; right: 0; top: 0; bottom: 0; z-index: 10; border-radius: 0; }
+  .ae-title-input { font-size: 20px; padding: 16px; }
+  .ae-body-textarea { padding: 16px; }
+  .ae-preview-pane { padding: 16px; }
+  .ae-mode-tabs { display: none; }
 }
 </style>
 </head>
@@ -683,78 +923,143 @@ td.name { color: var(--on-dark); font-weight: 500; }
   </div>
 </div>
 
-<!-- ── 記事 モーダル ── -->
-<div class="modal-backdrop" id="article-modal">
-  <div class="modal" style="max-width:680px;">
-    <div class="modal-title" id="article-modal-title">記事を追加</div>
+<!-- ── 記事 フルページエディタ ── -->
+<div id="article-editor-page">
 
-    <div class="form-group">
-      <label>タイトル *</label>
-      <input type="text" id="art-title" placeholder="フリーダイビングとは？">
+  <!-- Top bar -->
+  <div class="ae-topbar">
+    <button class="ae-back-btn" onclick="closeArticleEditor()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 2 3 8 9 14"/></svg>
+      記事一覧
+    </button>
+
+    <div class="ae-mode-tabs">
+      <button class="ae-mode-tab active" id="ae-tab-write"   onclick="setEditorMode('write')">書く</button>
+      <button class="ae-mode-tab"        id="ae-tab-split"   onclick="setEditorMode('split')">分割</button>
+      <button class="ae-mode-tab"        id="ae-tab-preview" onclick="setEditorMode('preview')">プレビュー</button>
     </div>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label>スラッグ（URL用）</label>
-        <input type="text" id="art-slug" placeholder="what-is-freediving">
+    <div class="ae-topbar-right">
+      <button class="ae-settings-btn" id="ae-settings-toggle" onclick="toggleAeSidebar()">⚙ 設定</button>
+      <button class="ae-draft-btn"    onclick="saveArticleFromEditor(false)">下書き保存</button>
+      <button class="ae-publish-btn"  id="ae-publish-btn"     onclick="saveArticleFromEditor(true)">公開する</button>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="ae-toolbar">
+    <button class="ae-tool" onclick="aeTool('# ','')">H1</button>
+    <button class="ae-tool" onclick="aeTool('## ','')">H2</button>
+    <button class="ae-tool" onclick="aeTool('### ','')">H3</button>
+    <div class="ae-tool-sep"></div>
+    <button class="ae-tool" onclick="aeWrap('**','**')"><strong>B</strong></button>
+    <button class="ae-tool" onclick="aeWrap('*','*')"><em>I</em></button>
+    <button class="ae-tool" onclick="aeWrap('~~','~~')">~~S~~</button>
+    <div class="ae-tool-sep"></div>
+    <button class="ae-tool" onclick="aeLink()">🔗 Link</button>
+    <button class="ae-tool" onclick="aeImage()">🖼 Image</button>
+    <div class="ae-tool-sep"></div>
+    <button class="ae-tool" onclick="aeWrap('`','`')">` Code</button>
+    <button class="ae-tool" onclick="aeCodeBlock()">```</button>
+    <div class="ae-tool-sep"></div>
+    <button class="ae-tool" onclick="aeTool('- ','')">• List</button>
+    <button class="ae-tool" onclick="aeTool('1. ','')">1. List</button>
+    <button class="ae-tool" onclick="aeTool('> ','')">❝ Quote</button>
+    <div class="ae-tool-sep"></div>
+    <button class="ae-tool" onclick="aeTool('\n---\n','')">― HR</button>
+  </div>
+
+  <!-- Main -->
+  <div class="ae-main ae-mode-write" id="ae-main">
+
+    <!-- Editor pane -->
+    <div class="ae-editor-pane" id="ae-editor-pane">
+      <input type="text" id="ae-title" class="ae-title-input" placeholder="タイトルを入力...">
+      <div class="ae-meta-bar">
+        <span class="ae-word-count" id="ae-word-count">0 文字</span>
+        <span class="ae-pub-badge draft" id="ae-pub-badge">下書き</span>
       </div>
-      <div class="form-group">
-        <label>カテゴリ</label>
-        <select id="art-category">
-          <option value="">未設定</option>
-          <option value="beginner">初心者</option>
-          <option value="technique">テクニック</option>
-          <option value="gear">ギア</option>
-          <option value="competition">大会</option>
-          <option value="interview">インタビュー</option>
-          <option value="news">ニュース</option>
-        </select>
+      <textarea id="ae-body" class="ae-body-textarea"
+        placeholder="本文を Markdown で書いてください...
+
+## 見出し（H2）
+
+段落テキストはここに書きます。**太字**、*斜体*、[リンク](https://example.com) が使えます。
+
+### 小見出し（H3）
+
+> ブロック引用はこのように書きます。
+
+- リストアイテム 1
+- リストアイテム 2"></textarea>
+    </div>
+
+    <!-- Preview pane -->
+    <div class="ae-preview-pane" id="ae-preview-pane">
+      <div id="ae-preview-content"></div>
+    </div>
+
+    <!-- Settings sidebar -->
+    <div class="ae-sidebar" id="ae-sidebar">
+      <div class="ae-sidebar-inner">
+        <p class="ae-sidebar-section-title">記事設定</p>
+
+        <div class="form-group">
+          <label>カテゴリ</label>
+          <select id="ae-category">
+            <option value="">未設定</option>
+            <option value="beginner">初心者</option>
+            <option value="technique">テクニック</option>
+            <option value="gear">ギア</option>
+            <option value="competition">大会</option>
+            <option value="interview">インタビュー</option>
+            <option value="news">ニュース</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>スラッグ（URL）</label>
+          <div class="ae-slug-row">
+            <input type="text" id="ae-slug" placeholder="what-is-freediving">
+            <button class="ae-slug-gen" onclick="aeAutoSlug()" title="タイトルから自動生成">自動</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>概要（カード表示用）</label>
+          <textarea id="ae-excerpt" placeholder="記事の短い説明文（SNSシェア・一覧カードに使用）"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>カバー画像URL</label>
+          <input type="text" id="ae-cover" placeholder="../images/photo.jpg" oninput="aeUpdateCover()">
+          <img id="ae-cover-preview" class="ae-cover-preview" alt="カバー画像プレビュー">
+        </div>
+
+        <div class="form-group">
+          <label>タグ（カンマ区切り）</label>
+          <input type="text" id="ae-tags" placeholder="初心者, 入門, フリーダイビング">
+        </div>
+
+        <div class="form-group">
+          <label>読了時間（分）</label>
+          <input type="number" id="ae-read-time" min="1" placeholder="自動計算">
+        </div>
+
+        <div class="form-group">
+          <label>著者</label>
+          <input type="text" id="ae-author" placeholder="FreeDive Japan編集部">
+        </div>
+
+        <div class="ae-pub-toggle-row">
+          <span class="ae-pub-toggle-label">公開する</span>
+          <label class="toggle">
+            <input type="checkbox" id="ae-published" onchange="aeUpdatePubBadge()">
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+
       </div>
-    </div>
-
-    <div class="form-group">
-      <label>概要（カード表示用）</label>
-      <textarea id="art-excerpt" placeholder="記事の短い説明文..." style="min-height:60px;"></textarea>
-    </div>
-
-    <div class="form-group">
-      <label>本文（Markdown）</label>
-      <textarea id="art-body" placeholder="## 見出し&#10;&#10;本文を Markdown で書く..." style="min-height:180px;font-family:monospace;font-size:13px;"></textarea>
-    </div>
-
-    <div class="form-group">
-      <label>カバー画像URL</label>
-      <input type="text" id="art-cover" placeholder="https://...">
-    </div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label>タグ（カンマ区切り）</label>
-        <input type="text" id="art-tags" placeholder="初心者, 入門">
-      </div>
-      <div class="form-group">
-        <label>読了時間（分）</label>
-        <input type="number" id="art-read-time" min="1" placeholder="5">
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label>著者</label>
-      <input type="text" id="art-author" placeholder="FreeDive Japan編集部">
-    </div>
-
-    <div class="form-group">
-      <div class="toggle-wrap">
-        <label class="toggle"><input type="checkbox" id="art-published"><span class="toggle-track"></span></label>
-        <span class="toggle-label">公開する</span>
-      </div>
-    </div>
-
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeArticleModal()">キャンセル</button>
-      <button class="btn-primary" onclick="saveArticle()">
-        <span id="article-save-label">保存する</span>
-      </button>
     </div>
   </div>
 </div>
@@ -1589,64 +1894,213 @@ function articleRow(a) {
     </tr>`;
 }
 
+// ============================================================
+// Article Full-Page Editor
+// ============================================================
+let _aeMode = 'write';
+let _aeDebounce = null;
+
 function openArticleModal(articleId = null) {
   editingArticleId = articleId;
-  document.getElementById('article-modal-title').textContent = articleId ? '記事を編集' : '記事を追加';
-  document.getElementById('article-save-label').textContent  = articleId ? '更新する' : '保存する';
 
-  ['art-title','art-slug','art-excerpt','art-body','art-cover','art-tags','art-author'].forEach(id => {
+  // Reset fields
+  ['ae-title','ae-excerpt','ae-slug','ae-cover','ae-tags','ae-author'].forEach(id => {
     document.getElementById(id).value = '';
   });
-  document.getElementById('art-read-time').value = '';
-  document.getElementById('art-category').value  = '';
-  document.getElementById('art-published').checked = false;
+  document.getElementById('ae-body').value        = '';
+  document.getElementById('ae-read-time').value   = '';
+  document.getElementById('ae-category').value    = '';
+  document.getElementById('ae-published').checked = false;
+  document.getElementById('ae-cover-preview').classList.remove('visible');
+  document.getElementById('ae-word-count').textContent = '0 文字';
+  aeUpdatePubBadge();
+
+  const pubBtn = document.getElementById('ae-publish-btn');
+  pubBtn.textContent = articleId ? '更新する' : '公開する';
 
   if (articleId) {
     _sb.from('articles').select('*').eq('id', articleId).single().then(({ data: d }) => {
       if (!d) return;
-      document.getElementById('art-title').value      = d.title || '';
-      document.getElementById('art-slug').value       = d.slug || '';
-      document.getElementById('art-excerpt').value    = d.lead_text || '';
-      document.getElementById('art-body').value       = d.content || '';
-      document.getElementById('art-cover').value      = d.thumbnail_url || '';
-      document.getElementById('art-tags').value       = (d.tags || []).join(', ');
-      document.getElementById('art-read-time').value  = d.read_time_min || '';
-      document.getElementById('art-author').value     = d.author_type || '';
-      document.getElementById('art-category').value   = d.category || '';
-      document.getElementById('art-published').checked = d.is_published === true;
+      document.getElementById('ae-title').value     = d.title || '';
+      document.getElementById('ae-body').value      = d.content || '';
+      document.getElementById('ae-excerpt').value   = d.lead_text || '';
+      document.getElementById('ae-slug').value      = d.slug || '';
+      document.getElementById('ae-cover').value     = d.thumbnail_url || '';
+      document.getElementById('ae-tags').value      = (d.tags || []).join(', ');
+      document.getElementById('ae-read-time').value = d.read_time_min || '';
+      document.getElementById('ae-author').value    = d.author_type || 'FreeDive Japan編集部';
+      document.getElementById('ae-category').value  = d.category || '';
+      document.getElementById('ae-published').checked = d.is_published === true;
+      aeUpdateCover();
+      aeUpdateWordCount();
+      aeUpdatePubBadge();
+      aeRenderPreview();
     });
   }
 
-  document.getElementById('article-modal').classList.add('open');
+  // Open editor
+  setEditorMode('write');
+  document.getElementById('ae-sidebar').classList.remove('open');
+  document.getElementById('ae-settings-toggle').classList.remove('active');
+  document.getElementById('article-editor-page').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  _isDirty = false;
+
+  setTimeout(() => document.getElementById('ae-title').focus(), 80);
 }
 
-function closeArticleModal() {
-  document.getElementById('article-modal').classList.remove('open');
+function closeArticleModal() { closeArticleEditor(); }
+
+function closeArticleEditor() {
+  if (_isDirty && !confirm('未保存の変更があります。閉じますか？')) return;
+  document.getElementById('article-editor-page').classList.remove('open');
+  document.body.style.overflow = '';
   editingArticleId = null;
+  _isDirty = false;
 }
 
-async function saveArticle() {
-  const title = document.getElementById('art-title').value.trim();
+function setEditorMode(mode) {
+  _aeMode = mode;
+  const main = document.getElementById('ae-main');
+  main.className = `ae-main ae-mode-${mode}`;
+  document.getElementById('ae-tab-write').classList.toggle('active',   mode === 'write');
+  document.getElementById('ae-tab-split').classList.toggle('active',   mode === 'split');
+  document.getElementById('ae-tab-preview').classList.toggle('active', mode === 'preview');
+  if (mode !== 'write') aeRenderPreview();
+}
+
+function toggleAeSidebar() {
+  document.getElementById('ae-sidebar').classList.toggle('open');
+  document.getElementById('ae-settings-toggle').classList.toggle('active');
+}
+
+function aeRenderPreview() {
+  if (typeof marked === 'undefined') return;
+  const title = document.getElementById('ae-title').value;
+  const body  = document.getElementById('ae-body').value;
+  let html = '';
+  if (title) html += `<h1>${escHtml(title)}</h1>`;
+  html += marked.parse(body || '');
+  document.getElementById('ae-preview-content').innerHTML = html;
+}
+
+function aeUpdateWordCount() {
+  const body  = document.getElementById('ae-body').value;
+  const chars = body.length;
+  const mins  = Math.max(1, Math.round(chars / 500));
+  document.getElementById('ae-word-count').textContent = `${chars.toLocaleString()} 文字 · 推定 ${mins} 分`;
+  // Auto-fill read-time placeholder
+  const rt = document.getElementById('ae-read-time');
+  if (!rt.value) rt.placeholder = `自動: ${mins} 分`;
+}
+
+function aeUpdateCover() {
+  const url = document.getElementById('ae-cover').value.trim();
+  const img = document.getElementById('ae-cover-preview');
+  if (url) {
+    img.src = url;
+    img.classList.add('visible');
+    img.onerror = () => img.classList.remove('visible');
+  } else {
+    img.classList.remove('visible');
+  }
+}
+
+function aeUpdatePubBadge() {
+  const published = document.getElementById('ae-published').checked;
+  const badge = document.getElementById('ae-pub-badge');
+  badge.textContent = published ? '公開中' : '下書き';
+  badge.className = `ae-pub-badge ${published ? 'published' : 'draft'}`;
+}
+
+function aeAutoSlug() {
+  const title = document.getElementById('ae-title').value.trim();
+  if (!title) { showToast('タイトルを先に入力してください', 'error'); return; }
+  document.getElementById('ae-slug').value = aeSlugify(title);
+}
+
+function aeSlugify(str) {
+  return str
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80) || 'article';
+}
+
+// ── Toolbar helpers ──
+function aeTool(before, after) {
+  const ta = document.getElementById('ae-body');
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  const sel = ta.value.slice(s, e);
+  ta.value = ta.value.slice(0, s) + before + sel + after + ta.value.slice(e);
+  ta.selectionStart = s + before.length;
+  ta.selectionEnd   = s + before.length + sel.length;
+  ta.focus();
+  aeRenderPreview();
+  _isDirty = true;
+}
+
+function aeWrap(before, after) { aeTool(before, after); }
+
+function aeLink() {
+  const ta  = document.getElementById('ae-body');
+  const s   = ta.selectionStart, e = ta.selectionEnd;
+  const sel = ta.value.slice(s, e) || 'リンクテキスト';
+  const url = prompt('URL を入力:', 'https://');
+  if (!url) return;
+  ta.value = ta.value.slice(0, s) + `[${sel}](${url})` + ta.value.slice(e);
+  ta.focus(); aeRenderPreview(); _isDirty = true;
+}
+
+function aeImage() {
+  const url = prompt('画像 URL を入力:', 'https://');
+  if (!url) return;
+  const alt = prompt('代替テキスト（任意）:', '') || '画像';
+  const ta  = document.getElementById('ae-body');
+  const pos = ta.selectionStart;
+  ta.value  = ta.value.slice(0, pos) + `\n![${alt}](${url})\n` + ta.value.slice(pos);
+  ta.focus(); aeRenderPreview(); _isDirty = true;
+}
+
+function aeCodeBlock() {
+  const ta  = document.getElementById('ae-body');
+  const pos = ta.selectionStart;
+  const ins = '\n```\n\n```\n';
+  ta.value  = ta.value.slice(0, pos) + ins + ta.value.slice(pos);
+  ta.selectionStart = ta.selectionEnd = pos + 5;
+  ta.focus(); aeRenderPreview(); _isDirty = true;
+}
+
+async function saveArticleFromEditor(publish) {
+  const title = document.getElementById('ae-title').value.trim();
   if (!title) { showToast('タイトルは必須です', 'error'); return; }
 
-  const isPublished = document.getElementById('art-published').checked;
+  const pubBtn = document.getElementById('ae-publish-btn');
+  pubBtn.disabled = true;
+  pubBtn.textContent = '保存中...';
+
+  const body = document.getElementById('ae-body').value;
+  const rtVal = parseInt(document.getElementById('ae-read-time').value);
+  const autoRT = Math.max(1, Math.round(body.length / 500));
+
+  const isPublished = publish || document.getElementById('ae-published').checked;
+
   const payload = {
     title,
-    slug:            document.getElementById('art-slug').value.trim() || null,
-    lead_text:       document.getElementById('art-excerpt').value.trim() || null,
-    content:         document.getElementById('art-body').value || null,
-    thumbnail_url:   document.getElementById('art-cover').value.trim() || null,
-    category:        document.getElementById('art-category').value || null,
-    tags:            splitTrim(document.getElementById('art-tags').value),
-    read_time_min:   parseInt(document.getElementById('art-read-time').value) || null,
-    author_type:     document.getElementById('art-author').value.trim() || '編集部',
-    is_published:    isPublished,
-    status:          isPublished ? 'published' : 'draft',
-    published_at:    isPublished ? (editingArticleId ? undefined : new Date().toISOString()) : null,
-    updated_at:      new Date().toISOString(),
+    slug:          document.getElementById('ae-slug').value.trim() || aeSlugify(title),
+    lead_text:     document.getElementById('ae-excerpt').value.trim() || null,
+    content:       body || null,
+    thumbnail_url: document.getElementById('ae-cover').value.trim() || null,
+    category:      document.getElementById('ae-category').value || null,
+    tags:          splitTrim(document.getElementById('ae-tags').value),
+    read_time_min: rtVal || autoRT,
+    author_type:   document.getElementById('ae-author').value.trim() || '編集部',
+    is_published:  isPublished,
+    status:        isPublished ? 'published' : 'draft',
+    updated_at:    new Date().toISOString(),
   };
 
-  // published_at: 新規公開のときのみセット、更新時は既存値を維持
   if (editingArticleId || !isPublished) delete payload.published_at;
   if (!editingArticleId && isPublished) payload.published_at = new Date().toISOString();
 
@@ -1657,12 +2111,29 @@ async function saveArticle() {
     ({ error } = await _sb.from('articles').insert(payload));
   }
 
+  pubBtn.disabled = false;
+  pubBtn.textContent = editingArticleId ? '更新する' : '公開する';
+
   if (error) { showToast('保存に失敗しました: ' + error.message, 'error'); return; }
+
   _isDirty = false;
-  showToast(editingArticleId ? '記事を更新しました' : '記事を追加しました', 'success');
-  closeArticleModal();
+  document.getElementById('ae-published').checked = isPublished;
+  aeUpdatePubBadge();
+
+  const msg = editingArticleId
+    ? (isPublished ? '記事を更新しました' : '下書きを保存しました')
+    : (isPublished ? '記事を公開しました 🎉' : '下書きを保存しました');
+  showToast(msg, 'success');
+
   loadArticles();
+
+  if (!editingArticleId && isPublished) {
+    setTimeout(() => closeArticleEditor(), 1200);
+  }
 }
+
+// Keep old name for compatibility
+function saveArticle() { saveArticleFromEditor(document.getElementById('ae-published')?.checked || false); }
 
 async function deleteArticle(articleId) {
   if (!confirm('この記事を削除しますか？')) return;
@@ -1777,8 +2248,41 @@ document.getElementById('instructor-modal').addEventListener('click', function(e
 document.getElementById('listing-modal').addEventListener('click', function(e) {
   if (e.target === this) closeListingModal();
 });
-document.getElementById('article-modal').addEventListener('click', function(e) {
-  if (e.target === this) closeArticleModal();
+
+// ── Article editor live events ──
+document.getElementById('ae-title').addEventListener('input', () => {
+  _isDirty = true;
+  aeRenderPreview();
+});
+document.getElementById('ae-body').addEventListener('input', () => {
+  _isDirty = true;
+  aeUpdateWordCount();
+  clearTimeout(_aeDebounce);
+  _aeDebounce = setTimeout(aeRenderPreview, 300);
+});
+
+// Keyboard shortcuts in editor
+document.getElementById('ae-body').addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
+    if (e.key === 'b') { e.preventDefault(); aeWrap('**', '**'); }
+    if (e.key === 'i') { e.preventDefault(); aeWrap('*', '*'); }
+    if (e.key === 'k') { e.preventDefault(); aeLink(); }
+    if (e.key === 's') { e.preventDefault(); saveArticleFromEditor(false); }
+  }
+  // Tab → 2 spaces
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const s = this.selectionStart;
+    this.value = this.value.slice(0, s) + '  ' + this.value.slice(this.selectionEnd);
+    this.selectionStart = this.selectionEnd = s + 2;
+  }
+});
+
+// Escape closes sidebar
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('ae-sidebar').classList.contains('open')) {
+    toggleAeSidebar();
+  }
 });
 
 // ============================================================
