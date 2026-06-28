@@ -431,15 +431,15 @@ RLSポリシー（`storage.objects`）：INSERT/UPDATE/DELETE は `auth.uid()::t
 *調査日：2026-06-26（コードベース全体レビュー + Bugbot 差分レビュー）*
 
 **Bugbot（ブランチ差分）**：指摘なし  
-**手動レビュー**：予約・RLS・決済まわりに 11 件 → **高優先度 4 件すべて 2026-06-28 対応済み**
+**手動レビュー**：予約・RLS・決済まわりに 11 件 → **全件 2026-06-28 対応済み**
 
 ### サマリー
 
 | 重要度 | 件数 | 主な領域 |
 |--------|------|----------|
 | 高 | ~~4~~ → **0** | ✅ すべて対応済み |
-| 中 | 4 | 満席管理、Webhook |
-| 低 | 3 | UX、表示の誤り |
+| 中 | ~~4~~ → **0** | ✅ すべて対応済み |
+| 低 | ~~3~~ → **0** | ✅ すべて対応済み |
 
 ### ✅ 高（対応済み）
 
@@ -450,35 +450,28 @@ RLSポリシー（`storage.objects`）：INSERT/UPDATE/DELETE は `auth.uid()::t
 | ~~3~~ | ~~予約完了ページが未ログインだと失敗~~ | 2026-06-28 | `api/booking-result.js` 追加・`success.html` API経由に変更・E2Eテスト済み |
 | ~~4~~ | ~~空き枠の書き込み権限が広すぎる~~ | 2026-06-28 | `sql/rls_fix_20260628.sql` 実行済み |
 
-### 中
+### ✅ 中（対応済み）
 
-| # | 内容 | 該当ファイル | 想定修正 |
-|---|------|-------------|----------|
-| 5 | **同時予約で満席超過** — 残席チェックは `booked_count` のみ。`pending` 予約はカウントに含まれず、同時 Checkout で定員超過の `pending` が複数作られる | `api/create-checkout-session.js` L54-58 | `pending` を定員計算に含める、または DB 側で排他ロック / トランザクション |
-| 6 | **Webhook の二重処理** — `checkout.session.completed` 受信時に既に `paid` か確認せず `increment_booked_count` を呼ぶ。Stripe 再送で定員カウントが二重加算されうる | `api/stripe-webhook.js` L56-87 | 冪等性チェック（`status !== 'paid'` のときのみ更新） |
-| 7 | **Webhook の DB エラーを無視** — Supabase `update` / `rpc` の `{ error }` を確認せず Stripe に 200 を返す。決済成功・予約 `pending` のまま、という不整合が起きうる | `api/stripe-webhook.js` | エラー時は 500 を返して Stripe 再送を促す |
-| 8 | **非アクティブ枠も予約可能** — `slot.is_active` のチェックがない | `api/create-checkout-session.js` | `is_active = false` の枠は 409 / 404 を返す |
+| # | 内容 | 対応日 | 対応内容 |
+|---|------|--------|----------|
+| ~~5~~ | ~~同時予約で満席超過~~ | 2026-06-28 | `pending` の `participant_count` 合計を残席計算に含める |
+| ~~6~~ | ~~Webhook の二重処理~~ | 2026-06-28 | 冪等性チェック（`status === 'paid'` ならスキップ）実装済み |
+| ~~7~~ | ~~Webhook の DB エラーを無視~~ | 2026-06-28 | `updateErr` / `rpcErr` 時に 500 を返す実装済み |
+| ~~8~~ | ~~非アクティブ枠も予約可能~~ | 2026-06-28 | `is_active` チェック追加、false なら 409 を返す |
 
-### 低
+### ✅ 低（対応済み）
 
-| # | 内容 | 該当ファイル | 想定修正 |
-|---|------|-------------|----------|
-| 9 | **存在しない確認メール表示** — 「確認メールを送信しました」と表示するが、メール送信処理は未実装 | `booking/success.html` L109 | 文言修正、または Resend / SendGrid 等で送信実装 |
-| 10 | **Stripe キャンセル URL でリスティング情報が消える** — `cancel_url` に `listing` パラメータがない | `api/create-checkout-session.js` L120 | `?id=...&listing=...` を付与 |
-| 11 | **XSS の余地** — `client_email` や `listing.title` が `innerHTML` にエスケープなし | `booking/success.html` L101-115 | `escHtml()` 等でエスケープ |
+| # | 内容 | 対応日 | 対応内容 |
+|---|------|--------|----------|
+| ~~9~~ | ~~存在しない確認メール表示~~ | 2026-06-28 | 「インストラクターからご連絡をお送りします」に文言修正 |
+| ~~10~~ | ~~Stripe キャンセル URL でリスティング情報が消える~~ | 2026-06-28 | `cancel_url` に `&listing=<listing_id>` を付与 |
+| ~~11~~ | ~~XSS の余地~~ | 2026-06-28 | `escHtml()` で対応済み（コードレビューで確認） |
 
 ### 問題なし・軽微
 
 - **`guest_*` vs `client_*` カラム名** — `sql/rename_guest_to_client.sql` 適用済み。API・フロントと整合
 - **`media/admin-mobile.html` 認証なし** — localStorage のみで本番 DB には触れない（Phase 2 本番化時に要対応）
 
-### 推奨対応順
-
-1. ~~RLS 修正（bookings / availability_slots）~~ ✅ 完了（2026-06-28）
-2. ~~予約完了ページ — ゲスト向け読み取り方法の設計~~ ✅ 完了（2026-06-28）
-3. 満席ロジック — `pending` を定員に含める or DB 排他（Bug #5）
-4. Webhook — 冪等性 + エラーハンドリング（Bug #6・#7）
-
 -----
 
-*最終更新：2026-06-28（高優先度バグ #1〜#4 すべて解消・RLS修正SQL実行済み・booking/success.html ゲスト対応・api/booking-result.js 追加・E2Eテスト完了）*
+*最終更新：2026-06-28（高優先度バグ #1〜#4 すべて解消・RLS修正SQL実行済み・booking/success.html ゲスト対応・api/booking-result.js 追加・E2Eテスト完了・中優先度 #5/#8・低優先度 #9/#10 対応済み・全11件クローズ）*

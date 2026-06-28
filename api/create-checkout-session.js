@@ -51,8 +51,37 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: '指定された空き枠が見つかりません' });
     }
 
-    // 2. 満席チェック
-    const remaining = slot.max_participants - slot.booked_count;
+    // 2a. 非アクティブ枠チェック（Bug #8）
+    if (!slot.is_active) {
+      return res.status(409).json({ error: 'この枠は現在受け付けていません' });
+    }
+
+    // 2b. 満席チェック — pending 予約も含めて計算（Bug #5）
+    const { count: pendingCount, error: pendingErr } = await supabase
+      .from('bookings')
+      .select('id', { count: 'exact', head: true })
+      .eq('slot_id', slotId)
+      .eq('status', 'pending');
+
+    if (pendingErr) {
+      console.error('Failed to count pending bookings:', pendingErr.message);
+      return res.status(500).json({ error: '予約状況の確認に失敗しました' });
+    }
+
+    // pending の人数合計を取得（count は件数なので participant_count の合計が必要）
+    const { data: pendingRows, error: pendingSumErr } = await supabase
+      .from('bookings')
+      .select('participant_count')
+      .eq('slot_id', slotId)
+      .eq('status', 'pending');
+
+    if (pendingSumErr) {
+      console.error('Failed to sum pending bookings:', pendingSumErr.message);
+      return res.status(500).json({ error: '予約状況の確認に失敗しました' });
+    }
+
+    const pendingParticipants = (pendingRows || []).reduce((sum, r) => sum + (r.participant_count || 0), 0);
+    const remaining = slot.max_participants - slot.booked_count - pendingParticipants;
     if (participantCount > remaining) {
       return res.status(409).json({ error: `残り${remaining}名分しか予約できません` });
     }
@@ -117,7 +146,7 @@ export default async function handler(req, res) {
       mode: 'payment',
       customer_email: guestEmail,
       success_url: `${siteUrl}/booking/success.html?booking_id=${booking.id}&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url:  `${siteUrl}/explore/listing.html?id=${instructorId || slot.instructor_id}`,
+      cancel_url:  `${siteUrl}/explore/listing.html?id=${instructorId || slot.instructor_id}&listing=${listingId || slot.listing_id}`,
       metadata: {
         booking_id:    booking.id,
         slot_id:       slotId,

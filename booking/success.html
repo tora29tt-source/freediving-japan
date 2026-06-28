@@ -112,7 +112,7 @@ async function loadBooking() {
       </svg>
     </div>
     <h1>予約が完了しました！</h1>
-    <p class="sub">ご予約ありがとうございます。<br>確認メールを <strong>${escHtml(booking.client_email)}</strong> に送信しました。</p>
+    <p class="sub">ご予約ありがとうございます。<br>インストラクターから <strong>${escHtml(booking.client_email)}</strong> 宛にご連絡をお送りします。</p>
     <div class="detail-box">
       <div class="detail-row"><span class="detail-key">プラン</span><span class="detail-val">${escHtml(listing?.title)}</span></div>
       <div class="detail-row"><span class="detail-key">日時</span><span class="detail-val">${dateStr} ${timeStr}</span></div>
