@@ -175,8 +175,8 @@ articles テーブルの `category` フィールドはアルファベット 1 �
 
 ### STEP 3：CMS 入稿
 
-**アクセス方法**：`https://freediving-japan.vercel.app/media/article-editor.html`  
-※ editor 以上のロールでログインが必要。
+**アクセス方法**：`https://freediving-japan.vercel.app/admin/`  
+※ editor 以上のロールでログインが必要。ログイン後、自動的にメディアタブが表示される。
 
 #### 入稿手順
 
@@ -368,12 +368,13 @@ Phase 2 開始時に公開する最初の記事。**すべて公開済みの状�
 
 ## 10. CMS URL クイックリファレンス
 
-| 操作 | URL |
-|---|---|
-| 記事エディター（入稿・編集） | `/media/article-editor.html` |
-| 記事一覧（公開ページ） | `/media/index.html` |
-| 記事詳細プレビュー | `/media/article.html?slug={スラッグ}` |
-| 管理画面（メディアタブ） | `/admin/index.html`（staff 以上） |
+| 操作 | URL | アクセス権限 |
+|---|---|---|
+| **記事入稿・編集・承認** | `/admin/` → メディアタブ | editor 以上 |
+| 記事一覧（公開ページ） | `/media/` | 全員 |
+| 記事詳細プレビュー | `/media/article.html?slug={スラッグ}` | 全員 |
+
+editor ロールでログインすると自動的にメディアタブのみ表示される。
 
 ---
 
