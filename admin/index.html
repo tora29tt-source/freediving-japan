@@ -6,7 +6,8 @@
 <title>管理画面 — Freediving Japan</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../js/supabase-config.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.snow.css">
+<script src="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -254,6 +255,60 @@ td.name { color: var(--on-dark); font-weight: 500; }
   .user-info { display: none; }
 }
 
+/* ── Quill dark-theme overrides ── */
+.ql-toolbar.ql-snow {
+  border: none !important;
+  border-bottom: 1px solid var(--hairline) !important;
+  background: rgba(255,255,255,0.025);
+  padding: 6px 14px;
+  flex-shrink: 0;
+}
+.ql-toolbar.ql-snow .ql-formats { margin-right: 10px; }
+.ql-toolbar .ql-stroke { stroke: var(--on-dark-soft) !important; }
+.ql-toolbar .ql-fill   { fill:   var(--on-dark-soft) !important; }
+.ql-toolbar .ql-picker-label { color: var(--on-dark-soft) !important; border-color: var(--hairline) !important; border-radius: 5px !important; }
+.ql-toolbar button { border-radius: 5px !important; }
+.ql-toolbar button:hover .ql-stroke, .ql-toolbar button.ql-active .ql-stroke { stroke: var(--teal) !important; }
+.ql-toolbar button:hover .ql-fill,   .ql-toolbar button.ql-active .ql-fill   { fill:   var(--teal) !important; }
+.ql-toolbar button:hover, .ql-toolbar button.ql-active { background: rgba(46,196,182,0.1) !important; }
+.ql-toolbar .ql-picker-label:hover { color: var(--teal) !important; }
+.ql-toolbar .ql-picker-label:hover .ql-stroke { stroke: var(--teal) !important; }
+.ql-snow .ql-picker-options {
+  background: var(--ocean-mid) !important; border-color: var(--hairline) !important;
+  border-radius: 8px !important; box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+}
+.ql-snow .ql-picker-item { color: var(--on-dark-mid) !important; }
+.ql-snow .ql-picker-item:hover { color: var(--teal) !important; }
+.ql-container.ql-snow { border: none !important; display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+.ql-editor {
+  flex: 1; padding: 20px 32px !important;
+  color: rgba(255,255,255,0.88) !important; font-size: 15px !important;
+  line-height: 1.85 !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif !important;
+  overflow-y: auto;
+}
+.ql-editor.ql-blank::before { color: var(--on-dark-soft) !important; font-style: normal !important; }
+.ql-editor h1 { font-size: 24px; font-weight: 700; margin: 0 0 12px; }
+.ql-editor h2 { font-size: 19px; font-weight: 700; margin: 28px 0 10px; color: var(--teal); padding-bottom: 6px; border-bottom: 1px solid var(--hairline); }
+.ql-editor h3 { font-size: 16px; font-weight: 600; margin: 20px 0 8px; }
+.ql-editor p  { margin-bottom: 14px; }
+.ql-editor a  { color: var(--teal); }
+.ql-editor img { max-width: 100%; border-radius: 8px; margin: 6px 0; }
+.ql-editor blockquote { border-left: 3px solid var(--teal) !important; padding: 10px 18px !important; background: rgba(46,196,182,0.06) !important; border-radius: 0 8px 8px 0 !important; margin: 14px 0 !important; }
+.ql-editor pre.ql-syntax { background: rgba(255,255,255,0.07) !important; border-radius: 8px !important; padding: 14px 18px !important; border: 1px solid var(--hairline) !important; color: var(--teal-light) !important; }
+.ql-editor ul li, .ql-editor ol li { color: rgba(255,255,255,0.82) !important; }
+.ql-snow .ql-tooltip {
+  background: var(--ocean-mid) !important; border-color: var(--hairline) !important;
+  color: var(--on-dark) !important; box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+  border-radius: 8px !important; z-index: 9999;
+}
+.ql-snow .ql-tooltip input[type=text] {
+  background: rgba(255,255,255,0.1) !important; border-color: var(--hairline) !important;
+  color: var(--on-dark) !important; border-radius: 6px !important;
+}
+.ql-snow .ql-tooltip a.ql-action::after { color: var(--teal) !important; }
+.ql-snow .ql-tooltip a.ql-remove::before { color: rgba(239,68,68,0.8) !important; }
+
 /* ════════════════════════════════════════════
    Article Full-Page Editor
    ════════════════════════════════════════════ */
@@ -366,15 +421,6 @@ td.name { color: var(--on-dark); font-weight: 500; }
 }
 .ae-pub-badge.draft     { background: rgba(148,163,184,0.12); color: #94a3b8; border: 1px solid rgba(148,163,184,0.2); }
 .ae-pub-badge.published { background: rgba(34,197,94,0.12);  color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
-.ae-body-textarea {
-  flex: 1; width: 100%; background: none; border: none; outline: none;
-  color: rgba(255,255,255,0.88);
-  font-family: 'JetBrains Mono', 'Fira Code', 'Menlo', monospace;
-  font-size: 14px; line-height: 1.85; padding: 20px 32px;
-  resize: none; overflow-y: auto;
-  caret-color: var(--teal);
-}
-.ae-body-textarea::placeholder { color: var(--on-dark-soft); }
 
 /* Preview pane */
 .ae-preview-pane {
@@ -417,13 +463,14 @@ td.name { color: var(--on-dark); font-weight: 500; }
 .ae-preview-pane th { background: rgba(255,255,255,0.05); font-size: 12px; font-weight: 600; }
 
 /* Mode variants */
-.ae-mode-write .ae-editor-pane { max-width: 780px; margin: 0 auto; border-right: none; }
+.ae-mode-write .ae-editor-pane { flex: 1; }
 .ae-mode-write .ae-preview-pane { display: none; }
-.ae-mode-write .ae-sidebar { display: none !important; }
-.ae-mode-split .ae-editor-pane { width: 50%; flex: none; border-right: none; }
+.ae-mode-split .ae-editor-pane { width: 50%; flex: none; }
 .ae-mode-split .ae-preview-pane { display: block; flex: 1; }
 .ae-mode-preview .ae-editor-pane { display: none; }
-.ae-mode-preview .ae-preview-pane { display: block; flex: 1; max-width: 780px; margin: 0 auto; border-left: none; }
+.ae-mode-preview .ae-preview-pane { display: block; flex: 1; max-width: 820px; margin: 0 auto; border-left: none; }
+/* Quill editor fills its pane */
+.ae-editor-pane #ae-body-quill { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
 /* Sidebar */
 .ae-sidebar {
@@ -488,7 +535,6 @@ td.name { color: var(--on-dark); font-weight: 500; }
   .ae-mode-split .ae-editor-pane { width: 100%; }
   .ae-sidebar { width: 100%; position: absolute; right: 0; top: 0; bottom: 0; z-index: 10; border-radius: 0; }
   .ae-title-input { font-size: 20px; padding: 16px; }
-  .ae-body-textarea { padding: 16px; }
   .ae-preview-pane { padding: 16px; }
   .ae-mode-tabs { display: none; }
 }
@@ -947,27 +993,37 @@ td.name { color: var(--on-dark); font-weight: 500; }
     </div>
   </div>
 
-  <!-- Toolbar -->
-  <div class="ae-toolbar">
-    <button class="ae-tool" onclick="aeTool('# ','')">H1</button>
-    <button class="ae-tool" onclick="aeTool('## ','')">H2</button>
-    <button class="ae-tool" onclick="aeTool('### ','')">H3</button>
-    <div class="ae-tool-sep"></div>
-    <button class="ae-tool" onclick="aeWrap('**','**')"><strong>B</strong></button>
-    <button class="ae-tool" onclick="aeWrap('*','*')"><em>I</em></button>
-    <button class="ae-tool" onclick="aeWrap('~~','~~')">~~S~~</button>
-    <div class="ae-tool-sep"></div>
-    <button class="ae-tool" onclick="aeLink()">🔗 Link</button>
-    <button class="ae-tool" onclick="aeImage()">🖼 Image</button>
-    <div class="ae-tool-sep"></div>
-    <button class="ae-tool" onclick="aeWrap('`','`')">` Code</button>
-    <button class="ae-tool" onclick="aeCodeBlock()">```</button>
-    <div class="ae-tool-sep"></div>
-    <button class="ae-tool" onclick="aeTool('- ','')">• List</button>
-    <button class="ae-tool" onclick="aeTool('1. ','')">1. List</button>
-    <button class="ae-tool" onclick="aeTool('> ','')">❝ Quote</button>
-    <div class="ae-tool-sep"></div>
-    <button class="ae-tool" onclick="aeTool('\n---\n','')">― HR</button>
+  <!-- Quill Toolbar (rendered by Quill) -->
+  <div id="ae-quill-toolbar">
+    <span class="ql-formats">
+      <select class="ql-header">
+        <option value="1">見出し 1</option>
+        <option value="2">見出し 2</option>
+        <option value="3">見出し 3</option>
+        <option selected>本文</option>
+      </select>
+    </span>
+    <span class="ql-formats">
+      <button class="ql-bold"></button>
+      <button class="ql-italic"></button>
+      <button class="ql-underline"></button>
+      <button class="ql-strike"></button>
+    </span>
+    <span class="ql-formats">
+      <button class="ql-link"></button>
+      <button class="ql-image"></button>
+    </span>
+    <span class="ql-formats">
+      <button class="ql-blockquote"></button>
+      <button class="ql-code-block"></button>
+    </span>
+    <span class="ql-formats">
+      <button class="ql-list" value="ordered"></button>
+      <button class="ql-list" value="bullet"></button>
+    </span>
+    <span class="ql-formats">
+      <button class="ql-clean"></button>
+    </span>
   </div>
 
   <!-- Main -->
@@ -980,24 +1036,12 @@ td.name { color: var(--on-dark); font-weight: 500; }
         <span class="ae-word-count" id="ae-word-count">0 文字</span>
         <span class="ae-pub-badge draft" id="ae-pub-badge">下書き</span>
       </div>
-      <textarea id="ae-body" class="ae-body-textarea"
-        placeholder="本文を Markdown で書いてください...
-
-## 見出し（H2）
-
-段落テキストはここに書きます。**太字**、*斜体*、[リンク](https://example.com) が使えます。
-
-### 小見出し（H3）
-
-> ブロック引用はこのように書きます。
-
-- リストアイテム 1
-- リストアイテム 2"></textarea>
+      <div id="ae-body-quill"></div>
     </div>
 
-    <!-- Preview pane -->
+    <!-- Preview pane (site-style preview) -->
     <div class="ae-preview-pane" id="ae-preview-pane">
-      <div id="ae-preview-content"></div>
+      <div id="ae-preview-content" class="ae-preview-inner"></div>
     </div>
 
     <!-- Settings sidebar -->
@@ -1896,34 +1940,53 @@ function articleRow(a) {
 }
 
 // ============================================================
-// Article Full-Page Editor
+// Article Full-Page Editor  (Quill WYSIWYG)
 // ============================================================
 let _aeMode = 'write';
 let _aeDebounce = null;
+let quill = null;
+
+function initQuill() {
+  if (quill) return;
+  quill = new Quill('#ae-body-quill', {
+    theme: 'snow',
+    modules: {
+      toolbar: '#ae-quill-toolbar',
+      history: { delay: 1000, maxStack: 200 },
+    },
+    placeholder: '本文をここに入力してください...\n\nツールバーから見出し・太字・リスト・リンクなどを挿入できます。',
+  });
+
+  quill.on('text-change', () => {
+    _isDirty = true;
+    aeUpdateWordCount();
+    clearTimeout(_aeDebounce);
+    _aeDebounce = setTimeout(aeRenderPreview, 300);
+  });
+}
 
 function openArticleModal(articleId = null) {
   editingArticleId = articleId;
+  initQuill();
 
   // Reset fields
   ['ae-title','ae-excerpt','ae-slug','ae-cover','ae-tags','ae-author'].forEach(id => {
     document.getElementById(id).value = '';
   });
-  document.getElementById('ae-body').value        = '';
   document.getElementById('ae-read-time').value   = '';
   document.getElementById('ae-category').value    = '';
   document.getElementById('ae-published').checked = false;
   document.getElementById('ae-cover-preview').classList.remove('visible');
-  document.getElementById('ae-word-count').textContent = '0 文字';
+  quill.setContents([]);
+  aeUpdateWordCount();
   aeUpdatePubBadge();
 
-  const pubBtn = document.getElementById('ae-publish-btn');
-  pubBtn.textContent = articleId ? '更新する' : '公開する';
+  document.getElementById('ae-publish-btn').textContent = articleId ? '更新する' : '公開する';
 
   if (articleId) {
     _sb.from('articles').select('*').eq('id', articleId).single().then(({ data: d }) => {
       if (!d) return;
       document.getElementById('ae-title').value     = d.title || '';
-      document.getElementById('ae-body').value      = d.content || '';
       document.getElementById('ae-excerpt').value   = d.lead_text || '';
       document.getElementById('ae-slug').value      = d.slug || '';
       document.getElementById('ae-cover').value     = d.thumbnail_url || '';
@@ -1932,14 +1995,14 @@ function openArticleModal(articleId = null) {
       document.getElementById('ae-author').value    = d.author_type || 'FreeDive Japan編集部';
       document.getElementById('ae-category').value  = d.category || '';
       document.getElementById('ae-published').checked = d.is_published === true;
+      // Load content into Quill
+      if (d.content) quill.clipboard.dangerouslyPasteHTML(0, d.content);
       aeUpdateCover();
       aeUpdateWordCount();
       aeUpdatePubBadge();
-      aeRenderPreview();
     });
   }
 
-  // Open editor
   setEditorMode('write');
   document.getElementById('ae-sidebar').classList.remove('open');
   document.getElementById('ae-settings-toggle').classList.remove('active');
@@ -1962,12 +2025,12 @@ function closeArticleEditor() {
 
 function setEditorMode(mode) {
   _aeMode = mode;
-  const main = document.getElementById('ae-main');
-  main.className = `ae-main ae-mode-${mode}`;
+  document.getElementById('ae-main').className = `ae-main ae-mode-${mode}`;
   document.getElementById('ae-tab-write').classList.toggle('active',   mode === 'write');
   document.getElementById('ae-tab-split').classList.toggle('active',   mode === 'split');
   document.getElementById('ae-tab-preview').classList.toggle('active', mode === 'preview');
   if (mode !== 'write') aeRenderPreview();
+  if (quill) quill.focus();
 }
 
 function toggleAeSidebar() {
@@ -1976,21 +2039,21 @@ function toggleAeSidebar() {
 }
 
 function aeRenderPreview() {
-  if (typeof marked === 'undefined') return;
+  if (!quill) return;
   const title = document.getElementById('ae-title').value;
-  const body  = document.getElementById('ae-body').value;
-  let html = '';
-  if (title) html += `<h1>${escHtml(title)}</h1>`;
-  html += marked.parse(body || '');
-  document.getElementById('ae-preview-content').innerHTML = html;
+  const html  = quill.getSemanticHTML ? quill.getSemanticHTML() : quill.root.innerHTML;
+  let out = '';
+  if (title) out += `<h1 style="font-size:26px;font-weight:700;margin:0 0 16px;line-height:1.3;">${escHtml(title)}</h1>`;
+  out += html;
+  document.getElementById('ae-preview-content').innerHTML = out;
 }
 
 function aeUpdateWordCount() {
-  const body  = document.getElementById('ae-body').value;
-  const chars = body.length;
+  if (!quill) return;
+  const text  = quill.getText();
+  const chars = Math.max(0, text.length - 1); // Quill adds trailing \n
   const mins  = Math.max(1, Math.round(chars / 500));
   document.getElementById('ae-word-count').textContent = `${chars.toLocaleString()} 文字 · 推定 ${mins} 分`;
-  // Auto-fill read-time placeholder
   const rt = document.getElementById('ae-read-time');
   if (!rt.value) rt.placeholder = `自動: ${mins} 分`;
 }
@@ -2021,56 +2084,9 @@ function aeAutoSlug() {
 }
 
 function aeSlugify(str) {
-  return str
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/[\s_]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 80) || 'article';
-}
-
-// ── Toolbar helpers ──
-function aeTool(before, after) {
-  const ta = document.getElementById('ae-body');
-  const s = ta.selectionStart, e = ta.selectionEnd;
-  const sel = ta.value.slice(s, e);
-  ta.value = ta.value.slice(0, s) + before + sel + after + ta.value.slice(e);
-  ta.selectionStart = s + before.length;
-  ta.selectionEnd   = s + before.length + sel.length;
-  ta.focus();
-  aeRenderPreview();
-  _isDirty = true;
-}
-
-function aeWrap(before, after) { aeTool(before, after); }
-
-function aeLink() {
-  const ta  = document.getElementById('ae-body');
-  const s   = ta.selectionStart, e = ta.selectionEnd;
-  const sel = ta.value.slice(s, e) || 'リンクテキスト';
-  const url = prompt('URL を入力:', 'https://');
-  if (!url) return;
-  ta.value = ta.value.slice(0, s) + `[${sel}](${url})` + ta.value.slice(e);
-  ta.focus(); aeRenderPreview(); _isDirty = true;
-}
-
-function aeImage() {
-  const url = prompt('画像 URL を入力:', 'https://');
-  if (!url) return;
-  const alt = prompt('代替テキスト（任意）:', '') || '画像';
-  const ta  = document.getElementById('ae-body');
-  const pos = ta.selectionStart;
-  ta.value  = ta.value.slice(0, pos) + `\n![${alt}](${url})\n` + ta.value.slice(pos);
-  ta.focus(); aeRenderPreview(); _isDirty = true;
-}
-
-function aeCodeBlock() {
-  const ta  = document.getElementById('ae-body');
-  const pos = ta.selectionStart;
-  const ins = '\n```\n\n```\n';
-  ta.value  = ta.value.slice(0, pos) + ins + ta.value.slice(pos);
-  ta.selectionStart = ta.selectionEnd = pos + 5;
-  ta.focus(); aeRenderPreview(); _isDirty = true;
+  return str.toLowerCase()
+    .replace(/[^\w\s-]/g, '').replace(/[\s_]+/g, '-')
+    .replace(/^-+|-+$/g, '').slice(0, 80) || 'article';
 }
 
 async function saveArticleFromEditor(publish) {
@@ -2081,17 +2097,17 @@ async function saveArticleFromEditor(publish) {
   pubBtn.disabled = true;
   pubBtn.textContent = '保存中...';
 
-  const body = document.getElementById('ae-body').value;
-  const rtVal = parseInt(document.getElementById('ae-read-time').value);
-  const autoRT = Math.max(1, Math.round(body.length / 500));
-
+  const html    = quill ? (quill.getSemanticHTML ? quill.getSemanticHTML() : quill.root.innerHTML) : '';
+  const rtVal   = parseInt(document.getElementById('ae-read-time').value);
+  const chars   = quill ? Math.max(0, quill.getText().length - 1) : 0;
+  const autoRT  = Math.max(1, Math.round(chars / 500));
   const isPublished = publish || document.getElementById('ae-published').checked;
 
   const payload = {
     title,
     slug:          document.getElementById('ae-slug').value.trim() || aeSlugify(title),
     lead_text:     document.getElementById('ae-excerpt').value.trim() || null,
-    content:       body || null,
+    content:       html || null,
     thumbnail_url: document.getElementById('ae-cover').value.trim() || null,
     category:      document.getElementById('ae-category').value || null,
     tags:          splitTrim(document.getElementById('ae-tags').value),
@@ -2125,15 +2141,10 @@ async function saveArticleFromEditor(publish) {
     ? (isPublished ? '記事を更新しました' : '下書きを保存しました')
     : (isPublished ? '記事を公開しました 🎉' : '下書きを保存しました');
   showToast(msg, 'success');
-
   loadArticles();
-
-  if (!editingArticleId && isPublished) {
-    setTimeout(() => closeArticleEditor(), 1200);
-  }
+  if (!editingArticleId && isPublished) setTimeout(() => closeArticleEditor(), 1200);
 }
 
-// Keep old name for compatibility
 function saveArticle() { saveArticleFromEditor(document.getElementById('ae-published')?.checked || false); }
 
 async function deleteArticle(articleId) {
@@ -2276,32 +2287,15 @@ document.getElementById('ae-title').addEventListener('input', () => {
   _isDirty = true;
   aeRenderPreview();
 });
-document.getElementById('ae-body').addEventListener('input', () => {
-  _isDirty = true;
-  aeUpdateWordCount();
-  clearTimeout(_aeDebounce);
-  _aeDebounce = setTimeout(aeRenderPreview, 300);
-});
 
-// Keyboard shortcuts in editor
-document.getElementById('ae-body').addEventListener('keydown', function(e) {
-  if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
-    if (e.key === 'b') { e.preventDefault(); aeWrap('**', '**'); }
-    if (e.key === 'i') { e.preventDefault(); aeWrap('*', '*'); }
-    if (e.key === 'k') { e.preventDefault(); aeLink(); }
-    if (e.key === 's') { e.preventDefault(); saveArticleFromEditor(false); }
-  }
-  // Tab → 2 spaces
-  if (e.key === 'Tab') {
-    e.preventDefault();
-    const s = this.selectionStart;
-    this.value = this.value.slice(0, s) + '  ' + this.value.slice(this.selectionEnd);
-    this.selectionStart = this.selectionEnd = s + 2;
-  }
-});
-
-// Escape closes sidebar
+// ⌘S saves draft when editor is open
 document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's'
+      && document.getElementById('article-editor-page').classList.contains('open')) {
+    e.preventDefault();
+    saveArticleFromEditor(false);
+  }
+  // Escape closes sidebar
   if (e.key === 'Escape' && document.getElementById('ae-sidebar').classList.contains('open')) {
     toggleAeSidebar();
   }
