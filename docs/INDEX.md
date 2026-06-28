@@ -33,7 +33,7 @@
 | マッチング（探す） | `explore/index.html`<br>`explore/listing.html` | [EXPLORE_DESIGN.md](./EXPLORE_DESIGN.md) | 2026-06-28 |
 | DB スキーマ設計 | `sql/` | [DB_SCHEMA_DESIGN.md](./DB_SCHEMA_DESIGN.md) | 2026-06-28 |
 | Supabase Storage（アバター） | `mypage.html`<br>`pro/index.html` | [STORAGE_DESIGN.md](./STORAGE_DESIGN.md) | 2026-06-28 |
-| メディア（記事管理・CMS・公開フロー） | `media/index.html`<br>`media/article.html`<br>`media/article-editor.html` | [MEDIA_DESIGN.md](./MEDIA_DESIGN.md) | 2026-06-29 |
+| メディア（記事管理・CMS・公開フロー・SEO・SNS・技術仕様） | `media/index.html`<br>`media/article.html`<br>`media/article-editor.html` | [MEDIA_OPS.md](../MEDIA_OPS.md) | 2026-06-29 |
 
 ---
 
