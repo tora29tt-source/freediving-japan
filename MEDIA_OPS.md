@@ -3,7 +3,7 @@
 > このドキュメントは **Takuya（編集長）・スタッフ・エディター全員の共通規範** です。
 > 記事を作る前に一読し、判断に迷ったときは必ずここに戻ること。
 
-*最終更新：2026-06-29*
+*最終更新：2026-06-29（メディア関連情報を全集約）*
 
 ---
 
@@ -375,6 +375,183 @@ Phase 2 開始時に公開する最初の記事。**すべて公開済みの状�
 | 記事詳細プレビュー | `/media/article.html?slug={スラッグ}` | 全員 |
 
 editor ロールでログインすると自動的にメディアタブのみ表示される。
+
+---
+
+---
+
+## 11. SEO・ドメイン評価戦略
+
+### フェーズ感
+
+- **0〜6ヶ月**：SNS拡散＋固有名詞検索（Takuya・大会名・Volcano Cup等）で受け止める。SEOを集客の期待値にしない
+- **6ヶ月〜1年**：一般キーワードが効き始める（「フリーダイビング スクール {地名}」等）
+- **1年以降**：SEOが本格的な集客エンジンになる
+
+ローンチ直後はSNSで存在を知った人が「後から検索する」流れ。新ドメインのGoogle評価は最低3〜6ヶ月かかる。
+
+### ドメイン評価を上げる施策（優先順）
+
+1. **被リンクを取りにいく**：AIDAジャパン・国内団体サイトへの掲載、フリーダイビング関連メディアへの記事提供
+2. **プレスリリース**（PR TIMES等）：「日本記録保持者がプラットフォームを立ち上げた」角度。記事5本＋マッチング機能が揃ったタイミングで出す
+3. **Googleサーチコンソール登録**：ローンチ時に即実施（必須）
+4. **SNSプロフィールからのリンク**：X・Instagram・YouTubeのプロフィールURLを freediving-japan.vercel.app に統一
+
+### 被リンク構造の考え方
+
+マッチングサイトという構造上、インストラクターへのリンク依頼はプラットフォーム外流出リスクがある。解決策は**メディアを被リンクの受け皿にすること**。記事への被リンクはコンテンツとして自然に集まり、そのドメイン評価がプラットフォーム全体に波及する。マッチングサイトへの直接被リンクは諦め、メディアで稼いだ評価を間接活用する。
+
+---
+
+## 12. YouTube × Freediving Japan 連携方針
+
+| プラットフォーム | 役割 | コンテンツ |
+|---|---|---|
+| **YouTube** | 新規獲得・海外にも届く | ドキュメンタリー・インタビュー・無料コンテンツ |
+| **Freediving Japan** | 収益化 | 有料講座・詳細コンテンツ |
+
+連携の仕組みはシンプル：YouTubeで公開 → 概要欄に「フル講座はFreediving Japanで」と入れるだけで導線完成。
+
+個人アカウント（Takuya）を主役にしてYouTubeから流入させ、Freediving Japanで収益化する構造。
+
+### 世界トップ選手インタビュー（フランス人2名・世界ランキングトップ10）
+
+| フェーズ | 使い方 |
+|---|---|
+| **Phase 1** | 各競技講座のChapterに組み込む（権威性向上） |
+| **Phase 2** | 単体コンテンツとして無料公開。海外向けコーチング問い合わせの導線・インバウンド対応（字幕付き）。英語/仏語インタビューなのでそのままインバウンドコンテンツになる |
+
+---
+
+## 13. 個人アカウントとプラットフォームの使い分け
+
+| アカウント | キャラクター | 内容 |
+|---|---|---|
+| **個人X（寺島拓哉）** | 「日本記録保持者が言っている」文脈で拡散力が高い | 思想・体験・本音・日常 |
+| **Freediving Japan** | プラットフォームブランド | 記事・大会情報・機能告知 |
+
+**1素材→2アカウント展開**：個人XでスレッドとしてFB出し → Freediving Japanで記事リンクをシェア。
+
+**個人アカウントを育てることがFreediving Japanへの最安マーケティング投資。**
+
+### インストラクタープロフィールのSNS表示方針
+
+- **YouTubeのみ表示**：動画＝ポートフォリオとして機能。直接DM・問い合わせが起きにくい
+- **Instagram・個人Webサイトは非表示**：DM・問い合わせフォーム経由で直接取引に流れ、プラットフォーム手数料（30%）が取れなくなるリスクが高い
+
+Phase 2以降にレビュー蓄積・ブランド認知が上がった段階で方針を見直す。
+
+---
+
+## 14. 対象層の横断方針（スキン/ファンダイバーを必ず受け皿に）
+
+Takuya自身が競技フリーダイバーであるため、設計が無意識に競技フリーダイビング寄りになりやすい。これを意図的に補正する。
+
+**記事作成時のチェック**：「これは競技者にしか嬉しくないか？」を毎回確認し、スキン/ファンダイバー層の視点を必ず1つ含める。
+
+送客先の3分類：
+
+| 層 | 状態 | 送客先 |
+|---|---|---|
+| ①やってみたい | 完全初心者・体験重視 | 体験ダイビング・フリーダイビング体験コース（/explore/） |
+| ②ちゃんと学びたい | 資格取得・スクール探し | インストラクター検索（/explore/） |
+| ③もっと潜りたい | 資格持ち・上級者 | ツアー・スポット情報・有料教材（/learn/） |
+
+---
+
+## 15. 技術仕様
+
+### articles テーブル（Supabase）
+
+```sql
+articles (
+  id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  slug            text UNIQUE NOT NULL,          -- URL識別子（例: "my-record-story"）
+  title           text NOT NULL,
+  category        text NOT NULL,                 -- カテゴリコード（A〜T）
+  author_type     text NOT NULL,                 -- 'named' | 'editorial'
+  author_name     text NOT NULL,
+  lead_text       text,                          -- リード文（一覧カードに表示）
+  content         text,                          -- 本文HTML
+  tags            text[],
+  read_time_min   int,
+  status          text DEFAULT 'draft',          -- 'draft' | 'review' | 'published'
+  is_published    boolean DEFAULT false,
+  published_at    timestamptz,
+  thumbnail_url   text,
+  created_by      uuid REFERENCES auth.users(id),
+  review_comment  text                           -- 差し戻しコメント
+)
+```
+
+### RLS ポリシー（`sql/articles_review_flow_20260629.sql` 実行済み）
+
+| 操作 | 権限 |
+|---|---|
+| SELECT（公開記事） | 全員（未ログイン含む） |
+| SELECT（全件） | 認証済みユーザー全員 |
+| SELECT（管理用全件） | admin / staff / editor |
+| INSERT | admin / staff / editor |
+| UPDATE（全件） | admin / staff |
+| UPDATE（自分の下書きのみ） | editor かつ status ≠ 'published' |
+| DELETE（全件） | admin / staff |
+| DELETE（自分の下書きのみ） | editor かつ status = 'draft' |
+
+### データフロー（公開まで）
+
+```
+記事入稿（article-editor.html）
+    ↓ INSERT → articles テーブル（status = 'draft'）
+    ↓ 「公開する」ボタン → is_published = true + published_at = now()
+    ↓
+media/index.html が Supabase から is_published=true を取得・一覧表示
+    ↓
+ユーザーがカードをクリック
+    ↓
+media/article.html?slug={slug} で記事詳細を動的レンダリング
+```
+
+Supabaseはリアルタイムにデータを返すため、**公開操作だけでエンドユーザーへ即時配信。Vercelの再デプロイは不要。**
+
+### 主要Supabaseクエリ
+
+```javascript
+// 記事一覧
+const { data } = await supabase
+  .from('articles')
+  .select('id, slug, title, category, author_name, lead_text, tags, read_time_min, published_at, thumbnail_url')
+  .eq('is_published', true)
+  .order('published_at', { ascending: false });
+
+// 記事詳細
+const { data } = await supabase
+  .from('articles')
+  .select('*')
+  .eq('slug', slug)
+  .eq('is_published', true)
+  .single();
+```
+
+### 関連ファイル
+
+| ファイル | 役割 |
+|---|---|
+| `media/index.html` | 記事一覧（Supabase動的取得） |
+| `media/article.html` | 記事詳細（?slug= で動的表示） |
+| `media/article-editor.html` | CMS（editor以上ログイン必須） |
+| `media/admin-mobile.html` | アイデアリスト用・本番DB未接続・運用しない |
+| `js/supabase-config.js` | Supabase接続設定 |
+| `sql/articles_review_flow_20260629.sql` | articlesテーブルのRLSポリシー |
+| `docs/RBAC_DESIGN.md` | ロール設計・is_site_admin()関数 |
+
+### 今後の課題
+
+| 項目 | 現状 | 対応予定 |
+|---|---|---|
+| 画像アップロード | URL直接入力のみ | Supabase Storageアップロード機能（Phase 2） |
+| OGP/SEOメタタグ | 静的のみ | 記事詳細のdynamic OGP（Vercel Edge Function） |
+| 英語対応 | 未対応 | Phase 2でi18n導入 |
+| 全文検索 | 未実装 | pg_trgm or Algolia（Phase 3） |
 
 ---
 
