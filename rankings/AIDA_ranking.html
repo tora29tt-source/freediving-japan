@@ -977,11 +977,10 @@ function renderSelGrid(){
           : '<span class="sel-badge out">圏外</span>';
       const tag = resTag(r.result);
       const tagBadge = tag ? '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:5px;margin-left:4px;background:'+(tag==='NR'?'rgba(255,210,74,.2)':'rgba(30,200,166,.2)')+';color:'+(tag==='NR'?'var(--gold)':'var(--accent2)')+'">'+tag+'</span>' : '';
-      const wcBadge = wcNames.has(r.name) ? '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:5px;margin-left:4px;background:rgba(96,165,250,.18);color:#60a5fa;border:1px solid rgba(96,165,250,.35)">WC</span>' : '';
       return '<div class="sel-row'+(isSelected?' selected':'')+(isWC?' style="border-left:2px solid rgba(96,165,250,.5)"':'')+'">'+
         '<span class="sel-rk '+rkCls+'">'+rank+'</span>'+
         av(r.name,'savatar')+
-        '<span class="sel-name" onclick="hideSelModal();showAthlete(\''+esc(r.name)+'\',false)">'+r.name+wcBadge+'</span>'+
+        '<span class="sel-name" onclick="hideSelModal();showAthlete(\''+esc(r.name)+'\',false)">'+r.name+'</span>'+
         '<span class="sel-res">'+cleanRes(r.result)+tagBadge+'</span>'+
         '<span class="sel-date">'+r.date.slice(0,7)+'</span>'+
         badge+
@@ -1079,11 +1078,10 @@ function renderSelSeaGrid(){
           : '<span class="sel-badge out">圏外</span>';
       const tag = resTag(r.result);
       const tagBadge = tag ? '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:5px;margin-left:4px;background:'+(tag==='NR'?'rgba(255,210,74,.2)':'rgba(30,200,166,.2)')+';color:'+(tag==='NR'?'var(--gold)':'var(--accent2)')+'">'+tag+'</span>' : '';
-      const wcBadge = wcNames.has(r.name) ? '<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:5px;margin-left:4px;background:rgba(96,165,250,.18);color:#60a5fa;border:1px solid rgba(96,165,250,.35)">WC</span>' : '';
       return '<div class="sel-row'+(isSelected?' selected':'')+(isWC?' style="border-left:2px solid rgba(96,165,250,.5)"':'')+'">'+
         '<span class="sel-rk '+rkCls+'">'+rank+'</span>'+
         av(r.name,'savatar')+
-        '<span class="sel-name" onclick="hideSelSeaModal();showAthlete(\''+esc(r.name)+'\',false)">'+r.name+wcBadge+'</span>'+
+        '<span class="sel-name" onclick="hideSelSeaModal();showAthlete(\''+esc(r.name)+'\',false)">'+r.name+'</span>'+
         '<span class="sel-res">'+cleanRes(r.result)+tagBadge+'</span>'+
         '<span class="sel-date">'+r.date.slice(0,7)+'</span>'+
         badge+
