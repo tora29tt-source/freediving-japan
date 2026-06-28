@@ -1,7 +1,7 @@
 # 設計書インデックス — Freediving Japan
 
 > 機能と設計書のマッピング。機能追加・仕様変更時はこのファイルも更新すること。  
-> 最終更新：2026-06-28
+> 最終更新：2026-06-29
 
 ---
 
@@ -33,6 +33,7 @@
 | マッチング（探す） | `explore/index.html`<br>`explore/listing.html` | [EXPLORE_DESIGN.md](./EXPLORE_DESIGN.md) | 2026-06-28 |
 | DB スキーマ設計 | `sql/` | [DB_SCHEMA_DESIGN.md](./DB_SCHEMA_DESIGN.md) | 2026-06-28 |
 | Supabase Storage（アバター） | `mypage.html`<br>`pro/index.html` | [STORAGE_DESIGN.md](./STORAGE_DESIGN.md) | 2026-06-28 |
+| メディア（記事管理・CMS・公開フロー） | `media/index.html`<br>`media/article.html`<br>`media/article-editor.html` | [MEDIA_DESIGN.md](./MEDIA_DESIGN.md) | 2026-06-29 |
 
 ---
 
@@ -46,7 +47,6 @@
 
 | 機能 | 予定ファイル | 備考 |
 |---|---|---|
-| メディア（記事管理・投稿） | `media/index.html`<br>`media/admin-mobile.html` | Phase 2 |
 | パスワードリセット | `auth.html` | 未実装 |
 | Magic Link ログイン | `auth.html` | オプション |
 | Apple ログイン | `auth.html` | Apple Developer 設定後に有効化 |

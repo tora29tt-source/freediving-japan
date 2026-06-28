@@ -1942,6 +1942,10 @@ function articleRow(a) {
       <td>
         <div class="actions">
           <button class="btn-edit" onclick="openArticleModal('${a.id}')">編集</button>
+          ${a.is_published && a.slug
+            ? `<a href="../media/article.html?slug=${encodeURIComponent(a.slug)}" target="_blank" class="btn-edit" style="background:rgba(46,196,182,0.15);color:var(--ocean-light);text-decoration:none;display:inline-flex;align-items:center;gap:4px;">↗ 公開ページ</a>`
+            : ''
+          }
           ${!isEditorOnly && a.status === 'review'
             ? `<button class="btn-edit" style="background:#d1fae5;color:#065f46;" onclick="approveArticleAdmin('${a.id}')">✓ 承認</button>
                <button class="btn-danger" style="background:#fef3c7;color:#92400e;border:none;" onclick="rejectArticleAdmin('${a.id}')">差し戻す</button>`
