@@ -440,14 +440,15 @@ function renderArticle(a) {
   const catLabel      = CAT_LABELS[a.category] || a.category;
   const dateStr       = a.published_at ? new Date(a.published_at).toLocaleDateString('ja-JP', { year:'numeric', month:'long', day:'numeric' }) : '';
   const readTime      = a.read_time_min ? `約${a.read_time_min}分` : '';
-  const authorDisplay = a.author_type === 'ゲスト' && a.author_name ? a.author_name : a.author_type;
+  const authorTypeNorm = a.author_type === 'editorial' ? '編集部' : (a.author_type || '編集部');
+  const authorDisplay = authorTypeNorm === 'ゲスト' && a.author_name ? a.author_name : authorTypeNorm;
 
   const tagsHtml = (a.tags || []).length
     ? `<div class="tags">${a.tags.map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div>`
     : '';
 
-  const authorIcon = a.author_type && a.author_type.includes('寺島') ? '🌊' : '📝';
   const isEditorial = a.author_type === '編集部' || a.author_type === 'editorial';
+  const authorIcon = isEditorial ? '📝' : '🌊';
   const authorDesc  = isEditorial
     ? '日本記録保持者・寺島拓哉が設立したフリーダイビングプラットフォーム「Freediving Japan」の編集部。'
     : 'Freediving Japan 代表・日本STAフリーダイビング記録保持者。';
@@ -484,7 +485,7 @@ function renderArticle(a) {
     <div class="article-wrap">
       ${a.lead_text ? `<p class="lead">${esc(a.lead_text)}</p>` : ''}
 
-      ${a.content || '<div class="article-body"><p>本文準備中です。</p></div>'}
+      ${sanitizeContent(a.content) || '<div class="article-body"><p>本文準備中です。</p></div>'}
 
       ${tagsHtml}
 
@@ -568,6 +569,20 @@ function showError(msg) {
 }
 
 function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── コンテンツから旧テンプレートの残骸を除去 ──
+function sanitizeContent(html) {
+  if (!html) return html;
+  // </div><!-- /.article-body --> 以降は旧テンプレートのゴミ（CTA・関連記事・フッター等）
+  const cutMarker = '<!-- /.article-body -->';
+  const cutIdx = html.indexOf(cutMarker);
+  if (cutIdx !== -1) {
+    // </div><!-- /.article-body --> を含む位置まで残す
+    const divClose = html.lastIndexOf('</div>', cutIdx);
+    html = html.slice(0, divClose + 6); // '</div>'.length = 6
+  }
+  return html;
+}
 
 loadArticle();
 </script>

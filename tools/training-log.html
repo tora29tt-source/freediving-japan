@@ -493,11 +493,14 @@ tr:last-child td { border-bottom: none; }
   <div class="ph"><h1>ログ <span>登録</span></h1></div>
 
   <div class="entry-grid">
-    <!-- LEFT: FORM -->
-    <div class="card">
+    <!-- LEFT: TWO CARDS -->
+    <div style="display:flex;flex-direction:column;gap:14px">
 
-      <!-- パネル：入力 -->
-      <div id="epanel-input">
+    <!-- ▼ カード1: セッション情報 -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">セッション情報</span>
+      </div>
       <div class="card-body">
 
         <!-- 環境 -->
@@ -510,9 +513,8 @@ tr:last-child td { border-bottom: none; }
           </div>
         </div>
 
-        <!-- セッション情報 -->
+        <!-- 日付 + UDDF一括 -->
         <div class="sec">
-          <div class="sec-title">セッション情報</div>
           <div style="display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap">
             <div class="fld" style="max-width:200px">
               <label>日付</label>
@@ -531,6 +533,51 @@ tr:last-child td { border-bottom: none; }
           </div>
         </div>
 
+        <!-- コンディション + 安静時心拍数 -->
+        <div class="sec">
+          <div class="sec-title">コンディション</div>
+          <div class="scale-group">
+            <div class="scale-item">
+              <div class="scale-label">今日の体調</div>
+              <div class="cond-row" id="cond-stars">
+                <span class="cond-star on" onclick="setCond(1)">●</span>
+                <span class="cond-star on" onclick="setCond(2)">●</span>
+                <span class="cond-star on" onclick="setCond(3)">●</span>
+                <span class="cond-star" onclick="setCond(4)">●</span>
+                <span class="cond-star" onclick="setCond(5)">●</span>
+              </div>
+            </div>
+            <div class="scale-item">
+              <div class="scale-label">安静時心拍数 (bpm)</div>
+              <input type="number" class="fi" id="f-rhr" placeholder="例：48" min="20" max="120" style="max-width:140px">
+            </div>
+          </div>
+        </div>
+
+        <!-- メモ -->
+        <div class="sec">
+          <div class="sec-title">メモ・感想・課題</div>
+          <textarea class="fi" id="f-note" placeholder="今日の感覚、うまくいったこと、課題、次回への気づきなど..."></textarea>
+        </div>
+
+        <div class="form-foot">
+          <button class="btn btn-ghost" onclick="resetForm()">リセット</button>
+          <button class="btn btn-primary" onclick="saveSession()">💾 保存する</button>
+        </div>
+
+      </div>
+    </div><!-- /カード1 -->
+
+    <!-- ▼ カード2: ダイブ -->
+    <div class="card">
+      <div class="entry-tabs">
+        <button class="entry-tab active" id="etab-input" onclick="switchEntryTab('input')">ダイブ入力</button>
+        <button class="entry-tab" id="etab-list" onclick="switchEntryTab('list')">ダイブ一覧 <span class="entry-tab-badge" id="etab-badge" style="display:none">0</span></button>
+      </div>
+
+      <!-- パネル：入力 -->
+      <div class="entry-tab-panel active" id="epanel-input">
+      <div class="card-body">
 
         <!-- ダイブ追加 -->
         <div class="sec">
@@ -779,42 +826,9 @@ tr:last-child td { border-bottom: none; }
         </div>
       </div><!-- /epanel-list -->
 
-      <!-- 常時表示：セッションデータ＋保存 -->
-      <div class="card-body" style="border-top:1px solid var(--border)">
-        <!-- 主観データ（セッション全体） -->
-        <div class="sec">
-          <div class="sec-title">主観データ（セッション）</div>
-          <div class="scale-group">
-            <div class="scale-item">
-              <div class="scale-label">コンディション</div>
-              <div class="cond-row" id="cond-stars">
-                <span class="cond-star on" onclick="setCond(1)">●</span>
-                <span class="cond-star on" onclick="setCond(2)">●</span>
-                <span class="cond-star on" onclick="setCond(3)">●</span>
-                <span class="cond-star" onclick="setCond(4)">●</span>
-                <span class="cond-star" onclick="setCond(5)">●</span>
-              </div>
-            </div>
-            <div class="scale-item">
-              <div class="scale-label">朝の安静時心拍数 (bpm)</div>
-              <input type="number" class="fi" id="f-rhr" placeholder="例：48" min="20" max="120" style="max-width:140px">
-            </div>
-          </div>
-        </div>
+    </div><!-- /カード2 -->
 
-        <!-- メモ -->
-        <div class="sec">
-          <div class="sec-title">メモ・感想・課題</div>
-          <textarea class="fi" id="f-note" placeholder="今日の感覚、うまくいったこと、課題、次回への気づきなど..."></textarea>
-        </div>
-
-        <div class="form-foot">
-          <button class="btn btn-ghost" onclick="resetForm()">リセット</button>
-          <button class="btn btn-primary" onclick="saveSession()">💾 保存する</button>
-        </div>
-      </div><!-- /常時表示 -->
-
-    </div><!-- card (left) -->
+    </div><!-- /left -->
 
     <!-- RIGHT: UDDF PANEL -->
     <div style="display:flex;flex-direction:column;gap:14px">
@@ -861,7 +875,6 @@ tr:last-child td { border-bottom: none; }
     </div><!-- right -->
   </div><!-- entry-grid -->
 </div><!-- /page-inner -->
-</div><!-- /page-entry (extra close for missing div inside entry-grid) -->
 </div><!-- /page-entry -->
 
 <!-- ==================== LIST PAGE ==================== -->
@@ -892,9 +905,9 @@ tr:last-child td { border-bottom: none; }
     <table style="min-width:1000px">
       <thead><tr>
         <th onclick="sortBy('date')">日付 ↕</th>
-        <th>場所</th><th>種目</th><th>環境</th>
-        <th onclick="sortBy('bestDepth')">深度 ↕</th>
-        <th onclick="sortBy('bestTime')">タイム ↕</th>
+        <th>場所</th><th>環境</th><th>種目</th>
+        <th onclick="sortBy('bestDepth')">深度/距離 ↕</th>
+        <th onclick="sortBy('bestTime')">ベストタイム ↕</th>
         <th onclick="sortBy('dives')">本数 ↕</th>
         <th>状態</th>
         <th>酸欠</th>
@@ -1144,8 +1157,10 @@ async function loadSessionsFromDB() {
     return data.map(s => {
       const dives = (s.training_dives || []).sort((a,b) => a.dive_number - b.dive_number)
       const seaDives  = dives.filter(d => SEA.includes(d.discipline))
+      const poolDives = dives.filter(d => POOL.includes(d.discipline))
       const allTimes  = dives.filter(d => d.result_time).map(d => d.result_time)
-      const bestDepth = seaDives.length ? Math.max(...seaDives.map(d => d.result_depth||0)) : null
+      const bestDepth = seaDives.length  ? Math.max(...seaDives.map(d => d.result_depth||0))  : null
+      const bestDist  = poolDives.length ? Math.max(...poolDives.map(d => d.result_depth||0)) : null
       const bestTimeSec = allTimes.length ? Math.max(...allTimes) : null
       return {
         id:          s.id,
@@ -1161,6 +1176,7 @@ async function loadSessionsFromDB() {
         dives:       dives.length,
         discipline:  dives[0]?.discipline || null,
         bestDepth:   bestDepth || null,
+        bestDist:    bestDist  || null,
         bestTime:    bestTimeSec ? secToFmt(bestTimeSec) : null,
         diveLog: dives.map(d => ({
           id:         d.id,
@@ -2327,6 +2343,7 @@ function resetForm() {
   setCond(3);
   resetDiveScales();
   clearUDDF();
+  switchEntryTab('input');
 }
 
 // ===== SAVE =====
@@ -3162,8 +3179,8 @@ function renderList() {
     <tr class="trow" data-id="${s.id}" onclick="editSession('${s.id}')">
       <td>${s.date}</td>
       <td style="color:var(--sub)">${s.location||'—'}</td>
-      <td style="font-size:12px;color:var(--sub);font-weight:600">${s.discipline||'—'}</td>
       <td style="font-size:12px;color:var(--muted)">${s.env==='sea'?'海':s.env==='pool'?'プール':'ドライ'}</td>
+      <td style="font-size:12px;color:var(--sub);font-weight:600">${s.discipline||'—'}</td>
       <td style="font-weight:700;color:var(--accent2)">${s.bestDepth!=null?s.bestDepth+'m':s.bestDist!=null?s.bestDist+'m':'—'}</td>
       <td>${s.bestTime||'—'}</td>
       <td>${s.dives||'—'}</td>

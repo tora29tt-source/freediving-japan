@@ -2066,8 +2066,8 @@ function openArticleModal(articleId = null) {
       document.getElementById('ae-author').value      = d.author_type || '編集部';
       document.getElementById('ae-category').value    = d.category || '';
       document.getElementById('ae-published').checked = d.is_published === true;
-      // HTMLをそのままcontenteditable divにセット（クラス保持）
-      getLiveEditor().innerHTML = d.content || '';
+      // HTMLをセット（旧テンプレート残骸を除去してからロード）
+      getLiveEditor().innerHTML = sanitizeArticleContent(d.content || '');
       aeUpdateCover();
       aeUpdateWordCount();
       aeUpdatePubBadge();
@@ -2138,6 +2138,36 @@ function aeHtmlSourceChange() {
 function toggleAeSidebar() {
   document.getElementById('ae-sidebar').classList.toggle('open');
   document.getElementById('ae-settings-toggle').classList.toggle('active');
+}
+
+// article.html のテンプレート要素（CTA・関連記事・フッター・タグ等）が
+// コンテンツに混入しないよう除去する。ロード時・保存時の両方で使用。
+function sanitizeArticleContent(html) {
+  if (!html) return html;
+  // ① <!-- /.article-body --> より後はすべてゴミ
+  const cutMarker = '<!-- /.article-body -->';
+  const cutIdx = html.indexOf(cutMarker);
+  if (cutIdx !== -1) {
+    const divClose = html.lastIndexOf('</div>', cutIdx);
+    html = divClose !== -1 ? html.slice(0, divClose + 6) : html.slice(0, cutIdx);
+  }
+  // ② DOMパーサで不要要素を除去
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const junkSelectors = [
+    '.cta-box', '.related-section', '.related-list', '.related-item',
+    '.author-box', '.share-bar', '.site-footer', 'footer',
+    '.tags > a[href="#"]',  // href="#" の旧ダミータグのみ除去
+  ];
+  junkSelectors.forEach(sel => {
+    doc.querySelectorAll(sel).forEach(el => el.remove());
+  });
+  // ③ <!-- CTA --> / <!-- /.article-wrap --> などテンプレートコメントを除去
+  const walker = document.createTreeWalker(doc.body, NodeFilter.SHOW_COMMENT);
+  const comments = [];
+  while (walker.nextNode()) comments.push(walker.currentNode);
+  comments.forEach(c => c.remove());
+
+  return doc.body.innerHTML;
 }
 
 function aeGetContentHTML() {
@@ -2247,7 +2277,7 @@ async function saveArticleFromEditor(publish) {
   pubBtn.disabled = true;
   pubBtn.textContent = '保存中...';
 
-  const html    = aeGetContentHTML();
+  const html    = sanitizeArticleContent(aeGetContentHTML());
   const rtVal   = parseInt(document.getElementById('ae-read-time').value);
   const chars   = (getLiveEditor().textContent || '').trim().length;
   const autoRT  = Math.max(1, Math.round(chars / 500));
