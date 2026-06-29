@@ -225,6 +225,13 @@ textarea.fi { resize: vertical; min-height: 72px; }
 .upload-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
 .upload-sub { font-size: 11px; color: var(--muted); }
 
+/* Photo upload */
+.photo-add-btn { display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--rs);border:1.5px dashed var(--border);color:var(--muted);font-size:13px;cursor:pointer;transition:all .2s; }
+.photo-add-btn:hover { border-color:var(--accent);color:var(--accent2); }
+.photo-thumb { position:relative;width:76px;height:76px;border-radius:var(--rs);overflow:hidden;flex-shrink:0;background:var(--surface2); }
+.photo-thumb img { width:100%;height:100%;object-fit:cover;display:block; }
+.photo-del { position:absolute;top:3px;right:3px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.65);color:#fff;font-size:10px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0; }
+
 /* Session summary */
 .sess-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; margin-bottom: 10px; }
 .ss { background: var(--surface2); border-radius: var(--rs); padding: 8px 10px; text-align: center; }
@@ -589,6 +596,23 @@ tr:last-child td { border-bottom: none; }
               <input type="number" class="fi" id="f-rhr" placeholder="例：48" min="20" max="120" style="max-width:140px">
             </div>
           </div>
+        </div>
+
+        <!-- バディ -->
+        <div class="sec">
+          <div class="sec-title">バディ</div>
+          <input type="text" class="fi" id="f-buddy" placeholder="バディ名を入力（任意）" autocomplete="off">
+        </div>
+
+        <!-- 写真 -->
+        <div class="sec">
+          <div class="sec-title">写真</div>
+          <div id="photo-preview-list" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px"></div>
+          <label class="photo-add-btn" for="f-photos-input">
+            <input type="file" id="f-photos-input" accept="image/*,image/heic,image/heif" multiple style="display:none" onchange="addPhotos(this.files)">
+            📷 写真を追加
+          </label>
+          <div style="font-size:11px;color:var(--muted);margin-top:6px">最大10枚・各10MB以内</div>
         </div>
 
         <div class="form-foot">
@@ -1111,7 +1135,7 @@ async function loadSessionsFromDB() {
     const { data, error } = await _sb
       .from('training_sessions')
       .select(`
-        id, date, env, location, condition, rhr, note, is_public, share_token, created_at,
+        id, date, env, location, condition, rhr, note, is_public, share_token, created_at, buddy, photo_urls,
         training_dives ( id, dive_number, discipline,
           result_depth, result_time, target_depth, target_time,
           hold_time, interval_rest, interval_sets,
@@ -1154,6 +1178,8 @@ async function loadSessionsFromDB() {
         rhr:         s.rhr,
         note:        s.note,
         is_public:   s.is_public,
+        buddy:       s.buddy || null,
+        photo_urls:  s.photo_urls || [],
         dives:       dives.length,
         discipline:  dives[0]?.discipline || null,
         bestDepth:   bestDepth || null,
@@ -1199,6 +1225,57 @@ let state = { env: 'sea', disc: '', cond: 3, poolSize: 25 };
 let diveState = { hypoxia: 0, squeeze: 0, dcs: 0, narcosis: 0 };
 let sessionDives = [];
 let pendingUDDFData = null; // profile/speed from UDDF fill
+let sessionPhotoFiles = []; // { file: File|null, previewUrl: string, storedUrl: string|null }
+
+// ===== PHOTO MANAGEMENT =====
+function addPhotos(files) {
+  const remaining = 10 - sessionPhotoFiles.length;
+  const toAdd = Array.from(files).slice(0, remaining);
+  for (const file of toAdd) {
+    if (!file.type.startsWith('image/')) continue;
+    if (file.size > 10 * 1024 * 1024) { showToast('⚠️ ' + file.name + ' は10MBを超えています'); continue; }
+    sessionPhotoFiles.push({ file, previewUrl: URL.createObjectURL(file), storedUrl: null });
+  }
+  renderPhotoPreviews();
+  document.getElementById('f-photos-input').value = '';
+}
+
+function removePhoto(idx) {
+  const p = sessionPhotoFiles[idx];
+  if (p.previewUrl && !p.storedUrl) URL.revokeObjectURL(p.previewUrl);
+  sessionPhotoFiles.splice(idx, 1);
+  renderPhotoPreviews();
+}
+
+function renderPhotoPreviews() {
+  const container = document.getElementById('photo-preview-list');
+  if (!container) return;
+  container.innerHTML = sessionPhotoFiles.map((p, i) => `
+    <div class="photo-thumb">
+      <img src="${p.previewUrl || p.storedUrl}" loading="lazy">
+      <button class="photo-del" onclick="removePhoto(${i})" type="button">✕</button>
+    </div>
+  `).join('');
+}
+
+async function uploadSessionPhotos(sessionId) {
+  if (!_currentUser || sessionPhotoFiles.length === 0) return [];
+  const urls = [];
+  for (const p of sessionPhotoFiles) {
+    if (p.storedUrl) { urls.push(p.storedUrl); continue; }
+    if (!p.file) continue;
+    try {
+      const ext = (p.file.name.split('.').pop() || 'jpg').toLowerCase();
+      const path = `${_currentUser.id}/${sessionId}/${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
+      const { error: upErr } = await _sb.storage.from('training-photos').upload(path, p.file, { cacheControl: '3600', upsert: false });
+      if (upErr) { console.error('photo upload error:', upErr); continue; }
+      const { data: { publicUrl } } = _sb.storage.from('training-photos').getPublicUrl(path);
+      urls.push(publicUrl);
+      p.storedUrl = publicUrl;
+    } catch(e) { console.error('photo upload exception:', e); }
+  }
+  return urls;
+}
 
 // ===== ENTRY TABS =====
 function switchEntryTab(tab) {

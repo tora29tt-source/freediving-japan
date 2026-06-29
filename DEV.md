@@ -424,6 +424,19 @@ RLSポリシー（`storage.objects`）：INSERT/UPDATE/DELETE は `auth.uid()::t
 
 -----
 
+### Supabase Storage（article-imagesバケット）
+
+記事用画像を管理するパブリックバケット（2026-06-29 作成）。
+
+| 用途 | パス | 保存先 |
+|---|---|---|
+| カバー画像 | `covers/{timestamp}_{filename}.{ext}` | `articles.thumbnail_url` |
+| 本文内画像 | `inline/{timestamp}_{filename}.{ext}` | 記事 HTML に直接 `<img src="...">` |
+
+RLSポリシー（`storage.objects`）：INSERT は `is_site_admin()` のみ。SELECT は public。バケット作成・RLSは Supabase ダッシュボードから手動実施済み。
+
+-----
+
 ## training-log.html 実装仕様メモ
 
 ### ベストタイム（bestTime）計算ルール
