@@ -1,4 +1,4 @@
--- ステータス: 未実行
+-- ステータス: 実行済み（2026-06-29）
 -- 目的: training_sessions に buddy / photo_urls カラム追加
 
 ALTER TABLE training_sessions
