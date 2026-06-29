@@ -447,7 +447,8 @@ function renderArticle(a) {
     : '';
 
   const authorIcon = a.author_type && a.author_type.includes('寺島') ? '🌊' : '📝';
-  const authorDesc  = a.author_type === '編集部'
+  const isEditorial = a.author_type === '編集部' || a.author_type === 'editorial';
+  const authorDesc  = isEditorial
     ? '日本記録保持者・寺島拓哉が設立したフリーダイビングプラットフォーム「Freediving Japan」の編集部。'
     : 'Freediving Japan 代表・日本STAフリーダイビング記録保持者。';
 
@@ -510,14 +511,16 @@ function renderArticle(a) {
 
 // ── 関連記事 ──
 async function loadRelated(category, currentId) {
-  const { data } = await sb
+  let q = sb
     .from('articles')
     .select('id, slug, title, category, thumbnail_url')
     .eq('is_published', true)
-    .eq('category', category)
     .neq('id', currentId)
     .order('published_at', { ascending: false })
     .limit(3);
+  // category が設定されている場合のみ同カテゴリに絞る
+  if (category) q = q.eq('category', category);
+  const { data } = await q;
 
   const section = document.getElementById('relatedSection');
   if (!section || !data || data.length === 0) return;
