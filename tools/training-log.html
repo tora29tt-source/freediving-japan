@@ -720,6 +720,215 @@ tr:last-child td { border-bottom: none; }
 </div>
 </div>
 
+<!-- DIVE INPUT MODAL -->
+<div class="overlay" id="dive-input-overlay">
+  <div class="modal" style="max-width:560px;width:94%;max-height:90vh;overflow-y:auto">
+    <div class="modal-head" style="position:sticky;top:0;background:var(--surface);z-index:1;padding-bottom:12px">
+      <h2 class="modal-title" id="dive-modal-title">ダイブ入力</h2>
+      <button class="close" onclick="closeDiveModal()">✕</button>
+    </div>
+
+    <!-- UDDF（この1本） -->
+    <div id="inline-uddf-zone" style="margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">UDDF（この1本のプロファイル）</span>
+        <div id="inline-uddf-loaded-tag" style="display:none;font-size:10px;color:var(--success);font-weight:700"></div>
+      </div>
+      <div id="inline-upload-zone"
+        style="border:1.5px dashed var(--border);border-radius:var(--rs);padding:10px 14px;text-align:center;cursor:pointer;transition:all .2s;font-size:12px;color:var(--muted)"
+        onclick="document.getElementById('uddf-file-inline').click()"
+        ondragover="event.preventDefault();this.style.borderColor='var(--accent)'"
+        ondragleave="this.style.borderColor=''"
+        ondrop="event.preventDefault();this.style.borderColor='';handleInlineUDDF(event.dataTransfer.files[0])">
+        <input type="file" id="uddf-file-inline" accept=".uddf,.xml" style="display:none"
+          onchange="handleInlineUDDF(this.files[0])">
+        📂 UDDFをドロップ or クリック
+      </div>
+      <div id="inline-dive-list" style="margin-top:8px;display:none">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:4px">ダイブを選んで追加してください</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <span id="inline-progress" style="font-size:11px;font-weight:700;color:var(--accent2)"></span>
+          <button onclick="skipAllInline()" style="font-size:10px;color:var(--muted);background:none;border:none;cursor:pointer">全てスキップ ›</button>
+        </div>
+        <div id="inline-dive-rows" style="display:flex;flex-direction:column;gap:3px;max-height:160px;overflow-y:auto"></div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+      <span style="font-size:10px;color:var(--muted)">または手動入力</span>
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+    </div>
+
+    <!-- 種目 -->
+    <div class="fld" style="margin-bottom:12px">
+      <label>種目</label>
+      <div class="chips" id="disc-chips">
+        <button class="chip" data-disc="CWT"   onclick="setDisc('CWT',this)">CWT</button>
+        <button class="chip" data-disc="CWTB"  onclick="setDisc('CWTB',this)">CWTB</button>
+        <button class="chip" data-disc="CNF"   onclick="setDisc('CNF',this)">CNF</button>
+        <button class="chip" data-disc="FIM"   onclick="setDisc('FIM',this)">FIM</button>
+        <button class="chip" data-disc="STA"   onclick="setDisc('STA',this)">STA</button>
+        <button class="chip" data-disc="DYN"   onclick="setDisc('DYN',this)">DYN</button>
+        <button class="chip" data-disc="DNF"   onclick="setDisc('DNF',this)">DNF</button>
+        <button class="chip" data-disc="DYNB"  onclick="setDisc('DYNB',this)" style="display:none">DYNB</button>
+        <button class="chip" data-disc="RVSTA"  onclick="setDisc('RVSTA',this)"  style="display:none">RV STA</button>
+        <button class="chip" data-disc="FRCSTA" onclick="setDisc('FRCSTA',this)" style="display:none">FRC STA</button>
+        <button class="chip" data-disc="WALK"   onclick="setDisc('WALK',this)"   style="display:none">アプネアウォーク</button>
+        <button class="chip" data-disc="STR"    onclick="setDisc('STR',this)"    style="display:none">ストレッチ</button>
+        <button class="chip" data-disc="GYM"    onclick="setDisc('GYM',this)"    style="display:none">筋トレ</button>
+        <button class="chip" data-disc="CARDIO" onclick="setDisc('CARDIO',this)" style="display:none">有酸素</button>
+        <button class="chip" data-disc="EQ"     onclick="setDisc('EQ',this)"     style="display:none">耳抜き</button>
+      </div>
+    </div>
+
+    <!-- モード切り替え -->
+    <div id="dive-mode-toggle" style="display:none;margin-bottom:14px">
+      <div id="mode-target-label" style="display:none;padding:10px;border-radius:var(--rs);background:var(--accent);color:#fff;font-size:13px;font-weight:700;text-align:center;width:50%">1本目のダイブ</div>
+      <div class="env-btns" id="mode-toggle-btns" style="display:none">
+        <button class="env-btn sel" id="mode-target-btn" onclick="setDiveMode('target',this)">1本目のダイブ</button>
+        <button class="env-btn" id="mode-interval" onclick="setDiveMode('interval',this)">🔁 インターバル</button>
+      </div>
+    </div>
+
+    <!-- 目標 → 結果 -->
+    <div id="sec-target-dive">
+      <div class="row4" style="margin-bottom:10px">
+        <div class="fld" id="fld-target-dist">
+          <label id="lbl-target-dist" style="color:var(--muted)">🎯 目標深度 (m)</label>
+          <input type="text" inputmode="numeric" class="fi" id="f-target" placeholder="80" maxlength="3" oninput="toHalf(this,'num',event)">
+        </div>
+        <div class="fld">
+          <label id="lbl-target-time" style="color:var(--muted)">🎯 目標タイム</label>
+          <input type="text" inputmode="numeric" class="fi" id="f-target-time" placeholder="3:00" oninput="toHalf(this,'time',event)">
+        </div>
+        <div class="fld" id="fld-result-dist">
+          <label id="lbl-result-dist">✅ 深度 (m)</label>
+          <input type="text" inputmode="numeric" class="fi" id="f-best-depth" placeholder="—" maxlength="3" oninput="toHalf(this,'num',event); onResultDistInput()">
+        </div>
+        <div class="fld">
+          <label id="lbl-result-time">✅ 実際のタイム</label>
+          <input type="text" inputmode="numeric" class="fi" id="f-best-time" placeholder="—" oninput="toHalf(this,'time',event)">
+        </div>
+      </div>
+      <div class="row4" id="fld-sta-metrics" style="margin-bottom:10px;display:none">
+        <div class="fld">
+          <label style="color:var(--muted)">💓 FC（収縮開始）</label>
+          <input type="text" inputmode="numeric" class="fi" id="f-fc" placeholder="—" oninput="toHalf(this,'time',event)">
+        </div>
+        <div class="fld">
+          <label style="color:var(--muted)">🩸 Min SpO₂ (%)</label>
+          <input type="text" inputmode="numeric" class="fi" id="f-min-spo2" placeholder="—" maxlength="3" oninput="this.value=this.value.replace(/[^\d]/g,'').slice(0,3)">
+        </div>
+      </div>
+    </div>
+
+    <!-- インターバル -->
+    <div id="sec-interval" style="display:none;margin-bottom:14px">
+      <div class="row3" style="margin-bottom:10px">
+        <div class="fld" id="fld-iv-dist">
+          <label id="lbl-iv-dist">距離 (m)</label>
+          <input type="text" inputmode="numeric" class="fi" id="f-interval-dist" placeholder="" oninput="toHalf(this,'num',event);calcInterval()">
+        </div>
+        <div class="fld" id="fld-iv-hold-sel" style="display:none">
+          <label>Hold Time（デフォルト）</label>
+          <select class="fi" id="f-interval-hold-sel" onchange="applyHoldDefault()" style="height:38px"><option value="">Manual</option></select>
+        </div>
+        <div class="fld">
+          <label>Rest Time</label>
+          <select class="fi" id="f-rest-time-sel" onchange="applyRestDefault();syncRestInput();calcInterval()" style="height:38px"><option value="">—</option></select>
+          <input type="hidden" id="f-rest-time" value="">
+        </div>
+        <div class="fld">
+          <label>本数</label>
+          <select class="fi" id="f-iv-sets" onchange="calcInterval()" style="height:38px"><option value="">—</option></select>
+        </div>
+      </div>
+      <div id="iv-sta-extra" style="display:none;margin-bottom:8px">
+        <div class="fld">
+          <label>ホールド時間</label>
+          <input type="text" inputmode="numeric" class="fi" id="f-hold-time" placeholder="2:30" oninput="toHalf(this,'time',event);calcInterval()">
+        </div>
+      </div>
+      <div id="iv-dyn-extra" style="display:none"></div>
+      <div id="interval-preview" style="font-size:12px;color:var(--sub);padding:8px;background:var(--surface2);border-radius:var(--rs);line-height:1.8;margin-bottom:10px"></div>
+      <div id="iv-sets-table" style="display:none"></div>
+    </div>
+
+    <!-- ラップ -->
+    <div id="sec-laps" style="display:none;margin-bottom:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span class="sec-title" id="lap-title" style="margin-bottom:0">ラップタイム（25m単位）</span>
+        <span style="font-size:10px;color:var(--muted)">✅ 結果距離を入力すると自動生成</span>
+      </div>
+      <div id="lap-table"></div>
+    </div>
+
+    <!-- プロファイルチャート -->
+    <div id="dive-preview-chart-sec" style="display:none;margin-bottom:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">📉 ダイブプロファイル</span>
+        <button onclick="hideDivePreviewChart()" style="font-size:10px;color:var(--muted);background:none;border:none;cursor:pointer">✕</button>
+      </div>
+      <div style="background:var(--surface2);border-radius:var(--rs);overflow:hidden;padding:8px">
+        <canvas id="dive-preview-canvas" style="max-height:200px"></canvas>
+      </div>
+    </div>
+
+    <!-- 主観スケール -->
+    <div id="dive-sea-scales" style="margin-bottom:14px">
+      <div class="sec-title" style="margin-bottom:10px">主観データ（このダイブ）</div>
+      <div class="scale-group">
+        <div class="scale-item">
+          <div class="scale-label">酸欠感</div>
+          <div class="scale-btns" id="dive-scale-hypoxia">
+            <button class="scale-btn sel" onclick="setDiveScale('hypoxia',0,this)">なし</button>
+            <button class="scale-btn" onclick="setDiveScale('hypoxia',1,this)">わずか</button>
+            <button class="scale-btn" data-warn onclick="setDiveScale('hypoxia',2,this)">あり</button>
+            <button class="scale-btn" data-danger onclick="setDiveScale('hypoxia',3,this)">強い</button>
+          </div>
+        </div>
+        <div class="scale-item" id="dive-scale-wrap-squeeze">
+          <div class="scale-label">スクイズ感</div>
+          <div class="scale-btns" id="dive-scale-squeeze">
+            <button class="scale-btn sel" onclick="setDiveScale('squeeze',0,this)">なし</button>
+            <button class="scale-btn" onclick="setDiveScale('squeeze',1,this)">わずか</button>
+            <button class="scale-btn" data-warn onclick="setDiveScale('squeeze',2,this)">あり</button>
+            <button class="scale-btn" data-danger onclick="setDiveScale('squeeze',3,this)">強い</button>
+          </div>
+        </div>
+        <div class="scale-item" id="dive-scale-wrap-dcs">
+          <div class="scale-label">DCS感</div>
+          <div class="scale-btns" id="dive-scale-dcs">
+            <button class="scale-btn sel" onclick="setDiveScale('dcs',0,this)">なし</button>
+            <button class="scale-btn" data-warn onclick="setDiveScale('dcs',1,this)">気になる</button>
+            <button class="scale-btn" data-danger onclick="setDiveScale('dcs',2,this)">あり</button>
+          </div>
+        </div>
+        <div class="scale-item" id="dive-scale-wrap-narcosis">
+          <div class="scale-label">ナーコシス感</div>
+          <div class="scale-btns" id="dive-scale-narcosis">
+            <button class="scale-btn sel" onclick="setDiveScale('narcosis',0,this)">なし</button>
+            <button class="scale-btn" data-warn onclick="setDiveScale('narcosis',1,this)">わずか</button>
+            <button class="scale-btn" data-danger onclick="setDiveScale('narcosis',2,this)">あり</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- メモ -->
+    <div class="fld" style="margin-bottom:14px">
+      <textarea class="fi" id="f-dive-note" placeholder="このダイブのメモ..." style="min-height:52px;resize:vertical;font-size:13px"></textarea>
+    </div>
+
+    <!-- フッターボタン -->
+    <div style="display:flex;gap:8px;position:sticky;bottom:0;background:var(--surface);padding-top:12px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeDiveModal()">キャンセル</button>
+      <button class="btn btn-primary" style="flex:2" id="add-dive-btn" onclick="addDive()">＋ このダイブを追加</button>
+    </div>
+  </div>
+</div>
+
 <!-- UDDF SELECT MODAL -->
 <div class="overlay" id="uddf-modal-overlay">
   <div class="modal" style="max-width:640px;width:94%">
@@ -1710,10 +1919,10 @@ function addDive() {
   } else {
     currentInlineDiveIdx = -1;
     clearDiveInput();
+    closeDiveModal();
     if (inlineDives.length) {
       const prog = document.getElementById('inline-progress');
       if (prog) prog.textContent = `全 ${inlineDives.length}本 確認済み`;
-      document.getElementById('add-dive-btn').textContent = '＋ このダイブを追加';
     }
   }
 }
@@ -1810,7 +2019,30 @@ function editDive(id) {
   showDivePreviewChart(d);
   document.getElementById('add-dive-btn').textContent = '✅ このダイブを更新';
   updateDiveNumLabel();
-  document.getElementById('dive-num-label')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  openDiveModal(id, true); // open without re-calling editDive
+}
+
+function openDiveModal(id, _skipEdit) {
+  if (id != null && !_skipEdit) {
+    editDive(id);
+    return;
+  }
+  if (id == null) {
+    // 新規
+    editingDiveId = null;
+    clearDiveInput();
+    document.getElementById('add-dive-btn').textContent = '＋ このダイブを追加';
+    document.getElementById('dive-modal-title').textContent = 'ダイブ入力';
+  } else {
+    const i = sessionDives.findIndex(d => d.id === id);
+    document.getElementById('dive-modal-title').textContent = `ダイブ ${i+1} を編集`;
+  }
+  document.getElementById('dive-input-overlay').classList.add('open');
+}
+
+function closeDiveModal() {
+  document.getElementById('dive-input-overlay').classList.remove('open');
+  hideDivePreviewChart();
 }
 
 function removeDive(id) {
@@ -1826,6 +2058,30 @@ function renderDiveLog() {
   const empty = document.getElementById('etab-empty');
   if (badge) { badge.style.display = n ? '' : 'none'; badge.textContent = n + '本'; }
   if (empty) empty.style.display = n ? 'none' : '';
+
+  // コンパクトリスト
+  const compactList = document.getElementById('dive-compact-list');
+  const compactEmpty = document.getElementById('dive-compact-empty');
+  if (compactList) {
+    compactList.style.display = n ? '' : 'none';
+    compactList.innerHTML = sessionDives.map((d, i) => {
+      const val = d.depth != null ? d.depth + 'm' : d.dist != null ? d.dist + 'm' : '—';
+      const hasProfile = d.profile?.length ? '📉 ' : '';
+      return `<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface2);border-radius:var(--rs);border:1px solid transparent">
+        <span style="font-size:11px;color:var(--muted);min-width:18px">${i+1}</span>
+        <span style="font-weight:700;color:var(--accent2);min-width:40px">${d.disc}</span>
+        <span style="font-weight:700">${val}</span>
+        <span style="color:var(--sub);font-size:12px">${d.time||''}</span>
+        <span style="font-size:10px;color:var(--muted)">${hasProfile}</span>
+        <div style="margin-left:auto;display:flex;gap:6px">
+          <button onclick="openDiveModal(${d.id})" style="font-size:11px;color:var(--accent2);background:none;border:none;cursor:pointer;padding:2px 6px">編集</button>
+          <button onclick="removeDive(${d.id})" style="font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;padding:2px 6px">✕</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  if (compactEmpty) compactEmpty.style.display = n ? 'none' : '';
+
   updateDiveNumLabel();
   if (!n) return;
 

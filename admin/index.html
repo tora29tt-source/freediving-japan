@@ -513,8 +513,14 @@ td.name { color: var(--on-dark); font-weight: 500; }
 .ae-mode-split .ae-editor-pane { width: 50%; flex: none; }
 .ae-mode-split .ae-preview-pane { display: block; flex: 1; }
 .ae-mode-preview .ae-editor-pane { display: none; }
-.ae-mode-preview { background: white; }
-.ae-mode-preview .ae-preview-pane { display: block; flex: 1; max-width: 820px; margin: 0 auto; border-left: none; }
+.ae-mode-preview .ae-sidebar { display: none !important; }
+.ae-mode-preview { background: #f5f7fa; }
+.ae-mode-preview .ae-preview-pane {
+  display: block; flex: 1; max-width: 760px;
+  margin: 32px auto; border-left: none;
+  border-radius: 12px; box-shadow: 0 2px 20px rgba(11,45,69,.1);
+  padding: 40px 48px;
+}
 .ae-editor-pane #ae-body-live,
 .ae-editor-pane #ae-html-source { flex: 1; overflow-y: auto; }
 
@@ -2125,6 +2131,13 @@ function setEditorMode(mode) {
   document.getElementById('ae-tab-preview').classList.toggle('active', mode === 'preview');
   if (mode !== 'write') aeRenderPreview();
   if (mode === 'write' && !_htmlMode) getLiveEditor().focus();
+  // プレビュー時はサイドバーを閉じる（設定パネルが邪魔しないよう）
+  if (mode === 'preview') {
+    const sidebar = document.getElementById('ae-sidebar');
+    const settingsBtn = document.getElementById('ae-settings-toggle');
+    if (sidebar) sidebar.classList.remove('open');
+    if (settingsBtn) settingsBtn.classList.remove('active');
+  }
 }
 
 function toggleHtmlMode() {
