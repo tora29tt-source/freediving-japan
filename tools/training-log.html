@@ -944,10 +944,23 @@ tr:last-child td { border-bottom: none; }
       <h2 class="modal-title">📁 UDDFダイブ選択</h2>
       <button class="close" onclick="closeUDDFModal()">✕</button>
     </div>
-    <div class="sess-stats" style="margin-bottom:14px">
+    <div class="sess-stats" style="margin-bottom:12px">
       <div class="ss"><div class="ss-val" id="um-dives">—</div><div class="ss-lbl">本数</div></div>
       <div class="ss"><div class="ss-val" id="um-maxdepth">—</div><div class="ss-lbl">最大深度</div></div>
       <div class="ss"><div class="ss-val" id="um-besttime">—</div><div class="ss-lbl">タイム</div></div>
+    </div>
+    <!-- 種目セレクター -->
+    <div style="margin-bottom:14px">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px">追加時の種目</div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap" id="um-disc-btns">
+        <button class="chip sel" onclick="setUDDFModalDisc('CWT',this)">CWT</button>
+        <button class="chip" onclick="setUDDFModalDisc('CWTB',this)">CWTB</button>
+        <button class="chip" onclick="setUDDFModalDisc('CNF',this)">CNF</button>
+        <button class="chip" onclick="setUDDFModalDisc('FIM',this)">FIM</button>
+        <button class="chip" onclick="setUDDFModalDisc('STA',this)">STA</button>
+        <button class="chip" onclick="setUDDFModalDisc('DYN',this)">DYN</button>
+        <button class="chip" onclick="setUDDFModalDisc('DNF',this)">DNF</button>
+      </div>
     </div>
     <div style="display:flex;gap:14px;align-items:flex-start">
       <!-- Left: dive list -->
@@ -1179,6 +1192,7 @@ let sessions = [];
 let uddfDives = [];
 let miniChart = null, modalChart = null, chD = null, chT = null;
 let uddfModalChart = null, uddfModalView = 'time', uddfModalCurrentIdx = -1;
+let uddfModalDisc = 'CWT';
 let sortKey = 'date', sortAsc = false;
 const SEA_DISCS  = ['CWT','CWTB','CNF','FIM'];
 const POOL_DISCS = ['STA','DYN','DNF','DYNB'];
@@ -1257,8 +1271,13 @@ function setEnv(v, el) {
   if (modeToggle) modeToggle.style.display = 'none';
   const ivTable = document.getElementById('iv-sets-table');
   if (ivTable) ivTable.innerHTML = '';
-  document.getElementById('dive-sea-scales').style.display = isSea ? '' : 'none';
-  if (!isSea) { diveState.squeeze=0; diveState.dcs=0; diveState.narcosis=0; }
+  // 酸欠は海・プール両方で表示。スクイズ/DCS/ナーコシスは海のみ
+  document.getElementById('dive-sea-scales').style.display = (isSea || isPool) ? '' : 'none';
+  ['squeeze','dcs','narcosis'].forEach(key => {
+    const el = document.getElementById('dive-scale-wrap-' + key);
+    if (el) el.style.display = isSea ? '' : 'none';
+  });
+  if (isDry) { diveState.squeeze=0; diveState.dcs=0; diveState.narcosis=0; }
 }
 
 function setDisc(v, el) {
@@ -2198,7 +2217,7 @@ function hideDivePreviewChart() {
 function importUDDFDive(idx) {
   const d = uddfDives[idx];
   if (!d) return;
-  const disc = state.disc || 'CWT';
+  const disc = uddfModalDisc || state.disc || 'CWT';
   const dive = {
     id: Date.now() + idx,
     disc,
@@ -2569,6 +2588,13 @@ function openUDDFModal() {
         style="margin-left:auto;background:var(--accent-dim);border:1px solid var(--accent);color:var(--accent2);border-radius:5px;font-size:10px;font-weight:700;padding:3px 8px;cursor:pointer">追加</button>
     </div>`).join('');
 
+  // フォームの現在種目を初期値に同期
+  const formDisc = state.disc || 'CWT';
+  uddfModalDisc = formDisc;
+  document.querySelectorAll('#um-disc-btns .chip').forEach(b => {
+    b.classList.toggle('sel', b.textContent.trim() === formDisc);
+  });
+
   document.getElementById('uddf-modal-overlay').classList.add('open');
   // 自動で best ダイブをプレビュー
   previewDiveInModal(uddfDives.indexOf(best));
@@ -2599,6 +2625,12 @@ function renderUDDFModalChart(d) {
     : speedDepthCfg(d.speed);
   if (!cfg) return;
   uddfModalChart = new Chart(ctx, cfg);
+}
+
+function setUDDFModalDisc(disc, el) {
+  uddfModalDisc = disc;
+  document.querySelectorAll('#um-disc-btns .chip').forEach(b => b.classList.remove('sel'));
+  el.classList.add('sel');
 }
 
 function switchUDDFModalView(mode) {
