@@ -3170,6 +3170,80 @@ function profileCfg(profile, color, speed=null) {
 function t2s(t) { if(!t)return 0; const[m,s]=t.split(':').map(Number); return m*60+(s||0); }
 function sortBy(k) { if(sortKey===k)sortAsc=!sortAsc;else{sortKey=k;sortAsc=false;} renderList(); }
 
+// ===== LIST VIEW TOGGLE =====
+let listView = 'table';
+let calYear, calMonth;
+
+function setListView(v) {
+  listView = v;
+  document.getElementById('lvbtn-table').classList.toggle('active', v === 'table');
+  document.getElementById('lvbtn-cal').classList.toggle('active', v === 'cal');
+  document.getElementById('list-table-view').style.display = v === 'table' ? '' : 'none';
+  document.getElementById('list-cal-view').style.display  = v === 'cal'   ? '' : 'none';
+  if (v === 'cal') renderCalendar();
+}
+
+function calMove(dir) {
+  calMonth += dir;
+  if (calMonth < 0)  { calMonth = 11; calYear--; }
+  if (calMonth > 11) { calMonth = 0;  calYear++; }
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const today = new Date();
+  const todayStr = today.toISOString().slice(0, 10);
+  if (calYear === undefined) {
+    calYear  = today.getFullYear();
+    calMonth = today.getMonth();
+  }
+  document.getElementById('cal-month-label').textContent = calYear + '年' + (calMonth + 1) + '月';
+
+  // date → sessions[] マップ
+  const sessMap = {};
+  sessions.forEach(s => {
+    if (!sessMap[s.date]) sessMap[s.date] = [];
+    sessMap[s.date].push(s);
+  });
+
+  const DOWS = ['日','月','火','水','木','金','土'];
+  const first = new Date(calYear, calMonth, 1);
+  const last  = new Date(calYear, calMonth + 1, 0);
+
+  let html = DOWS.map(d => `<div class="cal-dow">${d}</div>`).join('');
+
+  // グリッド開始日（月初の週の日曜）
+  const cur = new Date(first);
+  cur.setDate(1 - first.getDay());
+
+  while (true) {
+    const dateStr   = cur.getFullYear() + '-' + String(cur.getMonth()+1).padStart(2,'0') + '-' + String(cur.getDate()).padStart(2,'0');
+    const isToday   = dateStr === todayStr;
+    const isOther   = cur.getMonth() !== calMonth;
+    const daySess   = sessMap[dateStr] || [];
+
+    const chips = daySess.map(s => {
+      const disc = s.discipline || (s.env==='sea'?'海':s.env==='pool'?'プール':'ドライ');
+      const val  = s.bestDepth ? s.bestDepth+'m' : s.bestDist ? s.bestDist+'m' : s.bestTime || '';
+      return `<div class="cal-chip" onclick="event.stopPropagation();editSession('${s.id}')">
+        <div class="cal-chip-disc">${disc}</div>
+        ${val ? `<div class="cal-chip-val">${val}</div>` : ''}
+      </div>`;
+    }).join('');
+
+    html += `<div class="cal-cell${isToday?' today':''}${isOther?' other-month':''}">
+      <div class="cal-day-num">${cur.getDate()}</div>
+      ${chips}
+    </div>`;
+
+    cur.setDate(cur.getDate() + 1);
+    // 月末を過ぎて、かつ次の日曜に達したら終了
+    if (cur > last && cur.getDay() === 0) break;
+  }
+
+  document.getElementById('cal-grid').innerHTML = html;
+}
+
 function renderList() {
   const q=(document.getElementById('search')?.value||'').toLowerCase();
   const disc=document.getElementById('f-disc-f')?.value||'';
