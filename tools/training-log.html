@@ -1137,10 +1137,20 @@ async function loadSessionsFromDB() {
       const dives = (s.training_dives || []).sort((a,b) => a.dive_number - b.dive_number)
       const seaDives  = dives.filter(d => SEA.includes(d.discipline))
       const poolDives = dives.filter(d => POOL.includes(d.discipline))
-      const allTimes  = dives.filter(d => d.result_time).map(d => d.result_time)
+      const STA_DISCS = ['STA','RVSTA','FRCSTA']
+      const staDivesDB = dives.filter(d => STA_DISCS.includes(d.discipline))
       const bestDepth = seaDives.length  ? Math.max(...seaDives.map(d => d.result_depth||0))  : null
       const bestDist  = poolDives.length ? Math.max(...poolDives.map(d => d.result_depth||0)) : null
-      const bestTimeSec = allTimes.length ? Math.max(...allTimes) : null
+      let bestTimeSec = null
+      if (staDivesDB.length) {
+        const staTimes = staDivesDB.filter(d => d.result_time).map(d => d.result_time)
+        bestTimeSec = staTimes.length ? Math.max(...staTimes) : null
+      } else {
+        const bestSeaDive  = seaDives.length  ? seaDives.reduce((a,b)  => (b.result_depth||0)>(a.result_depth||0)?b:a)  : null
+        const bestPoolDive = poolDives.length ? poolDives.reduce((a,b) => (b.result_depth||0)>(a.result_depth||0)?b:a) : null
+        const bestDive     = bestSeaDive || bestPoolDive
+        bestTimeSec = bestDive?.result_time || null
+      }
       return {
         id:          s.id,
         _fromDB:     true,
@@ -2385,7 +2395,18 @@ async function saveSession() {
   // Derive best results from sessionDives
   const seaDives  = sessionDives.filter(d=>d.depth!=null);
   const poolDives = sessionDives.filter(d=>d.dist!=null);
-  const allTimes  = sessionDives.map(d=>d.time).filter(Boolean);
+  const STA_DISCS_L = ['STA','RVSTA','FRCSTA']
+  const staDivesL   = sessionDives.filter(d => STA_DISCS_L.includes(d.disc))
+  let bestTime_calc = null
+  if (staDivesL.length) {
+    const staTimes = staDivesL.map(d => d.time).filter(Boolean)
+    bestTime_calc  = staTimes.sort((a,b) => t2s(b)-t2s(a))[0] || null
+  } else {
+    const bestSeaDiveL  = seaDives.length  ? seaDives.reduce((a,b)  => b.depth>a.depth?b:a)  : null
+    const bestPoolDiveL = poolDives.length ? poolDives.reduce((a,b) => b.dist>a.dist?b:a)    : null
+    const bestDiveL     = bestSeaDiveL || bestPoolDiveL
+    bestTime_calc = bestDiveL?.time || null
+  }
   const s = {
     id: Date.now().toString(),
     date: document.getElementById('f-date').value || today(),
@@ -2399,7 +2420,7 @@ async function saveSession() {
     targetTime: document.getElementById('f-target-time').value.trim() || null,
     bestDepth: seaDives.length  ? Math.max(...seaDives.map(d=>d.depth))  : null,
     bestDist:  poolDives.length ? Math.max(...poolDives.map(d=>d.dist))  : null,
-    bestTime:  allTimes.sort((a,b)=>t2s(b)-t2s(a))[0] || null,
+    bestTime:  bestTime_calc,
     diveLog: sessionDives,
     condition: state.cond,
     hypoxia: state.hypoxia,
