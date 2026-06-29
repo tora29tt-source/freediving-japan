@@ -588,13 +588,12 @@ tr:last-child td { border-bottom: none; }
 
     <!-- ▼ カード2: ダイブ -->
     <div class="card">
-      <div class="entry-tabs">
-        <button class="entry-tab active" id="etab-input" onclick="switchEntryTab('input')">ダイブ入力</button>
-        <button class="entry-tab" id="etab-list" onclick="switchEntryTab('list')">ダイブ一覧 <span class="entry-tab-badge" id="etab-badge" style="display:none">0</span></button>
+      <div class="card-head">
+        <span class="card-title">ダイブ入力</span>
+        <span id="etab-badge" style="display:none;font-size:11px;color:var(--accent2);font-weight:700"></span>
       </div>
 
-      <!-- パネル：入力 -->
-      <div class="entry-tab-panel active" id="epanel-input">
+      <div id="epanel-input">
       <div class="card-body">
 
         <!-- ダイブ追加 -->
@@ -827,28 +826,15 @@ tr:last-child td { border-bottom: none; }
             <textarea class="fi" id="f-dive-note" placeholder="このダイブのメモ..." style="min-height:52px;resize:vertical;font-size:13px"></textarea>
           </div>
           <button class="btn btn-primary" style="width:100%" id="add-dive-btn" onclick="addDive()">＋ このダイブを追加</button>
-        </div>
+        </div><!-- /sec -->
+      </div><!-- /card-body -->
       </div><!-- /epanel-input -->
-
-      <!-- パネル：ダイブ一覧 -->
-      <div class="entry-tab-panel" id="epanel-list">
-        <div class="card-body">
-          <div id="sec-dive-list">
-            <div id="etab-empty" style="padding:32px;text-align:center;color:var(--muted);font-size:13px">
-              <div style="font-size:28px;margin-bottom:8px">🤿</div>
-              まだダイブが登録されていません
-            </div>
-            <div id="dive-log-list"></div>
-            <div id="dive-log-summary" style="margin-top:10px;padding:10px;background:var(--surface2);border-radius:var(--rs);font-size:12px;color:var(--sub)"></div>
-          </div>
-        </div>
-      </div><!-- /epanel-list -->
 
     </div><!-- /カード2 -->
 
     </div><!-- /left -->
 
-    <!-- hidden UDDF elements (JS references) -->
+    <!-- hidden elements (JS references) -->
     <div style="display:none">
       <input type="file" id="uddf-file" accept=".uddf,.xml" onchange="handleFile(this.files[0])">
       <div id="upload-zone"></div>
@@ -859,6 +845,9 @@ tr:last-child td { border-bottom: none; }
       <span id="compare-count"></span>
       <button id="compare-btn"></button>
       <div id="profile-card"><canvas id="mini-chart"></canvas></div>
+      <div id="etab-empty"></div>
+      <div id="dive-log-list"></div>
+      <div id="dive-log-summary"></div>
     </div>
   </div><!-- entry-grid -->
 </div><!-- /page-inner -->
@@ -2058,7 +2047,7 @@ function renderDiveLog() {
   const n = sessionDives.length;
   const badge = document.getElementById('etab-badge');
   const empty = document.getElementById('etab-empty');
-  if (badge) { badge.style.display = n ? '' : 'none'; badge.textContent = n; }
+  if (badge) { badge.style.display = n ? '' : 'none'; badge.textContent = n + '本'; }
   if (empty) empty.style.display = n ? 'none' : '';
   updateDiveNumLabel();
   if (!n) return;
