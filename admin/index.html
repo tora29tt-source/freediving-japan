@@ -2142,12 +2142,13 @@ async function deleteListing(listingId) {
 // Articles (Media)
 // ============================================================
 const ARTICLE_CATEGORY_LABEL = {
-  beginner: '初心者', technique: 'テクニック', gear: 'ギア',
-  competition: '大会', interview: 'インタビュー', news: 'ニュース',
+  A:'入門・体験', B:'身体・科学', C:'海・スポット', D:'競技・大会',
+  E:'インタビュー', P:'人物メディア', Q:'業界×期待感', S:'シリーズ連載', T:'エンタメ',
 };
 const ARTICLE_CATEGORY_BADGE = {
-  beginner: 'badge-paid', technique: 'badge-confirmed', gear: 'badge-pending',
-  competition: 'badge-admin', interview: 'badge-staff', news: 'badge-active',
+  A:'badge-paid', B:'badge-confirmed', C:'badge-pending',
+  D:'badge-admin', E:'badge-staff', P:'badge-staff',
+  Q:'badge-active', S:'badge-active', T:'badge-active',
 };
 
 async function loadArticles() {
@@ -2180,6 +2181,7 @@ async function loadArticles() {
             <th>ID</th>
             <th>タイトル</th>
             <th>カテゴリ</th>
+            <th>担当者</th>
             <th>ステータス</th>
             <th>公開日</th>
             <th>操作</th>
@@ -2214,6 +2216,7 @@ function articleRow(a) {
       <td><span title="${a.id}" style="font-family:monospace;font-size:11px;color:var(--on-dark-soft);cursor:default;">${a.id.slice(0,8)}</span></td>
       <td class="name" style="max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(a.title)}${reviewComment}</td>
       <td>${catBadge}</td>
+      <td style="font-size:12px;color:var(--on-dark-mid);">${escHtml(a.author_name || a.author_type || '—')}</td>
       <td>${statusBadge}</td>
       <td style="font-size:12px;">${pubDate}</td>
       <td>
