@@ -98,18 +98,23 @@ articles テーブルの `category` フィールドはアルファベット 1 �
 
 ### 4-1. 全体像（スマホ完結）
 
-**Takuya / admin / staff が書く場合**
+**Takuya が書く場合（推奨：Claude チャット → DB 直接 INSERT）**
+
+> CMS エディタは使わない。Claude とチャットしながら MD を作り、スクリプトで Supabase に直接入れる。
 
 ```
 ① 素材収集（Takuya）
     ↓
-② Claude に渡して記事に整形
+② Claude とチャットしながら記事 MD を作成
+   （本文 + タイトル案・スラッグ・リード・タグ・SNS 文を同時生成）
     ↓
-③ CMS で入稿・下書き保存
+③ 画像を Supabase Storage にアップ → URL を MD に確定
     ↓
-④「公開する」で即時公開
+④ Claude が insert_article.js でそのまま Supabase INSERT（下書き状態）
     ↓
-⑤ SNS 展開
+⑤ admin 画面で表示確認 →「公開する」ボタン
+    ↓
+⑥ SNS 展開
 ```
 
 **外部 editor（ライター・翻訳担当）が書く場合**
@@ -141,21 +146,23 @@ articles テーブルの `category` フィールドはアルファベット 1 �
 
 ---
 
-### STEP 2：Claude に整形依頼
+### STEP 2：Claude とチャットして記事 MD を作成（Takuya 専用フロー）
 
 **渡すもの**：
 - 素材テキスト（文字起こし or メモ）
 - カテゴリ（A〜T）
 - 想定読者（初心者 / 競技者 / 一般）
 - 署名（誰名義か）
+- 使う画像ファイル（あれば）
 
 **Claude が出力するもの**：
-1. 記事本文（HTML 形式）
+1. 記事本文（Markdown 形式）
 2. タイトル案（3案）
-3. リード文（2〜3 文）
-4. タグ候補（5個程度）
-5. X 投稿文（Takuya 個人アカウント用）
-6. Freediving Japan 公式用 投稿文
+3. スラッグ案
+4. リード文（2〜3 文）
+5. タグ候補（5個程度）
+6. X 投稿文（Takuya 個人アカウント用）
+7. Freediving Japan 公式用 投稿文
 
 **Claude への依頼テンプレート**：
 
@@ -168,37 +175,29 @@ articles テーブルの `category` フィールドはアルファベット 1 �
 （ここに音声文字起こしやメモを貼る）
 
 上記を元に、Freediving Japan のメディア思想（人物メディア・一次情報重視）に沿った
-記事を HTML 形式で作成してください。
+記事を Markdown 形式で作成してください。
+タイトル案・スラッグ・リード文・タグ・SNS投稿文もセットで出してください。
 ```
 
 ---
 
-### STEP 3：CMS 入稿
+### STEP 3：画像アップ → DB INSERT（Takuya 専用フロー）
 
-**アクセス方法**：`https://freediving-japan.vercel.app/admin/`  
-※ editor 以上のロールでログインが必要。ログイン後、自動的にメディアタブが表示される。
+#### 3-1. 画像アップ
+- Supabase Storage `article-images` バケットにアップ
+  - カバー画像 → `covers/` フォルダ
+  - 本文内画像 → `inline/` フォルダ
+- 取得した URL を MD の該当箇所に確定して Claude に伝える
 
-#### 入稿手順
+#### 3-2. Supabase INSERT
+- Claude が `insert_article.js`（Node.js スクリプト）を実行し、MD → HTML 変換 + 全フィールドを Supabase に INSERT（`is_published = false` の下書き状態）
 
-1. **「新規作成」ボタン**をタップ
-2. 以下のフィールドを埋める：
+#### 3-3. admin 画面で確認・公開
+1. `https://freediving-japan.vercel.app/admin/` を開く
+2. 下書き記事をプレビューで確認（`/media/article.html?slug=スラッグ名`）
+3. 問題なければ**「公開する」**をタップ（`is_published = true`、`published_at` が自動記録）
 
-| フィールド | 内容 | 必須 |
-|---|---|---|
-| タイトル | 32文字以内推奨（モバイル表示に最適） | ✅ |
-| スラッグ | URL になる文字列（半角英数・ハイフン区切り）例：`interview-yamada-apnea-philosophy` | ✅ |
-| カテゴリ | A〜T から選択 | ✅ |
-| 著者タイプ | `named` or `editorial` | ✅ |
-| 著者名 | 署名ルール参照 | ✅ |
-| リード文 | 記事の要約。SNS シェア時の説明文にもなる（80〜120文字） | ✅ |
-| 本文（HTML） | Claude が出力した HTML を貼り付け | ✅ |
-| 読了時間（分） | 本文の文字数 ÷ 400 で概算 | 推奨 |
-| タグ | カンマ区切り or 配列（例：「フリーダイビング,耳抜き,初心者」） | 推奨 |
-| サムネイル URL | Supabase Storage または外部画像の URL | 推奨 |
-
-3. **「下書き保存」**で保存（`is_published = false`）
-4. プレビューで表示確認（`/media/article.html?slug=スラッグ名`）
-5. 問題なければ**「公開する」**をタップ（`is_published = true`、`published_at` が自動記録）
+> **admin エディタ画面**は外部 editor（ライター・翻訳担当）の入稿用として残す。Takuya は原則使わない。
 
 #### スラッグの命名規則
 
