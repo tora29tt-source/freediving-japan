@@ -1218,8 +1218,8 @@ let pendingUDDFData = null; // profile/speed from UDDF fill
 function switchEntryTab(tab) {
   document.querySelectorAll('.entry-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.entry-tab-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('etab-' + tab).classList.add('active');
-  document.getElementById('epanel-' + tab).classList.add('active');
+  document.getElementById('etab-' + tab)?.classList.add('active');
+  document.getElementById('epanel-' + tab)?.classList.add('active');
 }
 
 // ===== NAV =====
@@ -2031,6 +2031,7 @@ function editDive(id) {
     });
   });
   pendingUDDFData = d.profile ? { profile: d.profile, speed: d.speed } : null;
+  showDivePreviewChart(d);
   document.getElementById('add-dive-btn').textContent = '✅ このダイブを更新';
   updateDiveNumLabel();
   document.getElementById('dive-num-label')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
