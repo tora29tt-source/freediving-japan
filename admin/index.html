@@ -302,6 +302,89 @@ td.name { color: var(--on-dark); font-weight: 500; }
   background: #0e3d5c !important; color: white !important;
   font-weight: 700; font-size: 13px;
 }
+/* ブロック要素（article.html と同スタイル） */
+#ae-body-live .pullquote,
+.ae-preview-pane .pullquote {
+  border-left: 4px solid #2ec4b6; margin: 36px 0;
+  padding: 20px 24px; background: #f0f9fb; border-radius: 0 12px 12px 0;
+}
+#ae-body-live .pullquote p,
+.ae-preview-pane .pullquote p { font-size: 17px; font-weight: 500; color: #0e3d5c; line-height: 1.75; margin: 0; font-style: italic; }
+#ae-body-live .pullquote cite,
+.ae-preview-pane .pullquote cite { display: block; margin-top: 12px; font-size: 12px; color: #6b8091; font-style: normal; }
+
+#ae-body-live .info-box,
+.ae-preview-pane .info-box {
+  background: #fff8f3; border: 1.5px solid #fddcbb; border-radius: 12px;
+  padding: 20px 22px; margin: 32px 0;
+}
+#ae-body-live .info-box-title,
+.ae-preview-pane .info-box-title {
+  font-size: 13px; font-weight: 700; color: #f97316;
+  margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+}
+#ae-body-live .info-box p,
+.ae-preview-pane .info-box p { font-size: 14px; color: #3d5166; margin-bottom: 10px; }
+#ae-body-live .info-box p:last-child,
+.ae-preview-pane .info-box p:last-child { margin-bottom: 0; }
+
+#ae-body-live .step-list,
+.ae-preview-pane .step-list { list-style: none; margin: 20px 0 28px; padding: 0; }
+#ae-body-live .step-list li,
+.ae-preview-pane .step-list li { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; }
+#ae-body-live .step-num,
+.ae-preview-pane .step-num {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: #0b2d45; color: white; font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 2px;
+}
+#ae-body-live .step-body,
+.ae-preview-pane .step-body { flex: 1; }
+#ae-body-live .step-body strong,
+.ae-preview-pane .step-body strong { display: block; font-size: 15px; margin-bottom: 4px; color: #0b2d45; }
+
+#ae-body-live .compare-table,
+.ae-preview-pane .compare-table {
+  width: 100%; border-collapse: collapse; margin: 28px 0;
+  font-size: 14px; box-shadow: 0 1px 6px rgba(11,45,69,.1);
+  border-radius: 10px; overflow: hidden; display: table;
+}
+#ae-body-live .compare-table thead th,
+.ae-preview-pane .compare-table thead th {
+  background: #0b2d45; color: white;
+  padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600;
+}
+#ae-body-live .compare-table td,
+.ae-preview-pane .compare-table td {
+  padding: 11px 14px; border-bottom: 1px solid #eef2f6; color: #3d5166; vertical-align: top;
+}
+#ae-body-live .compare-table tr:last-child td,
+.ae-preview-pane .compare-table tr:last-child td { border-bottom: none; }
+#ae-body-live .compare-table tbody tr:nth-child(even) td,
+.ae-preview-pane .compare-table tbody tr:nth-child(even) td { background: #f0f9fb; }
+#ae-body-live .compare-table .label-col,
+.ae-preview-pane .compare-table .label-col { font-weight: 600; color: #0e3d5c; }
+
+/* ブロック挿入ドロップダウン */
+.tb-block-wrap { position: relative; }
+.tb-block-menu {
+  display: none; position: absolute; top: calc(100% + 6px); left: 0; z-index: 200;
+  background: var(--surface); border: 1px solid var(--hairline);
+  border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.3);
+  padding: 6px; min-width: 200px;
+}
+.tb-block-menu.open { display: block; }
+.tb-block-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: 7px; cursor: pointer;
+  font-size: 13px; color: var(--on-dark-soft);
+  transition: background .15s;
+}
+.tb-block-item:hover { background: var(--hover); color: var(--on-dark); }
+.tb-block-item .tb-block-icon { font-size: 16px; width: 22px; text-align: center; }
+.tb-block-item .tb-block-label { font-weight: 600; }
+.tb-block-item .tb-block-desc { font-size: 11px; color: var(--on-dark-muted); margin-left: auto; }
 /* HTMLモードテキストエリア */
 #ae-html-source {
   flex:1; width:100%; min-height:400px;
@@ -1179,6 +1262,39 @@ td.name { color: var(--on-dark); font-weight: 500; }
     <button onclick="tbExec('insertOrderedList')"   title="番号リスト">1. リスト</button>
     <div class="tb-sep"></div>
     <button onclick="tbExec('formatBlock','blockquote')" title="引用">❝ 引用</button>
+    <div class="tb-sep"></div>
+    <button onclick="tbInsertImage()" title="本文に写真を挿入">📷 写真</button>
+    <input type="file" id="ae-inline-img-file" accept="image/*" style="display:none" onchange="aeUploadInlineImage(this)">
+    <div class="tb-block-wrap">
+      <button onclick="tbToggleBlockMenu(event)" title="ブロックを挿入">＋ ブロック ▾</button>
+      <div class="tb-block-menu" id="tb-block-menu">
+        <div class="tb-block-item" onclick="tbInsertBlock('table')">
+          <span class="tb-block-icon">📋</span>
+          <span class="tb-block-label">テーブル</span>
+          <span class="tb-block-desc">3×3</span>
+        </div>
+        <div class="tb-block-item" onclick="tbInsertBlock('compare')">
+          <span class="tb-block-icon">📊</span>
+          <span class="tb-block-label">比較テーブル</span>
+          <span class="tb-block-desc">○△×形式</span>
+        </div>
+        <div class="tb-block-item" onclick="tbInsertBlock('infobox')">
+          <span class="tb-block-icon">ℹ️</span>
+          <span class="tb-block-label">インフォボックス</span>
+          <span class="tb-block-desc">注意・補足</span>
+        </div>
+        <div class="tb-block-item" onclick="tbInsertBlock('steps')">
+          <span class="tb-block-icon">📝</span>
+          <span class="tb-block-label">ステップリスト</span>
+          <span class="tb-block-desc">手順・ステップ</span>
+        </div>
+        <div class="tb-block-item" onclick="tbInsertBlock('pullquote')">
+          <span class="tb-block-icon">💬</span>
+          <span class="tb-block-label">プルクォート</span>
+          <span class="tb-block-desc">引用・強調</span>
+        </div>
+      </div>
+    </div>
     <div class="tb-sep"></div>
     <button onclick="tbExec('removeFormat')"   title="書式クリア">✕ 書式</button>
     <button id="ae-html-toggle-btn" onclick="toggleHtmlMode()" title="HTMLで直接編集">&lt;/&gt; HTML</button>
@@ -2148,6 +2264,133 @@ function tbLink() {
   if (_htmlMode) return;
   const url = prompt('URLを入力してください:', 'https://');
   if (url) { getLiveEditor().focus(); document.execCommand('createLink', false, url); }
+}
+
+// ── ブロック挿入 ──
+function tbToggleBlockMenu(e) {
+  if (_htmlMode) return;
+  e.stopPropagation();
+  _savedRange = _saveSelection();
+  const menu = document.getElementById('tb-block-menu');
+  menu.classList.toggle('open');
+}
+document.addEventListener('click', () => {
+  document.getElementById('tb-block-menu')?.classList.remove('open');
+});
+
+const _BLOCK_TEMPLATES = {
+  table: `<table>
+  <thead><tr><th>項目</th><th>内容</th><th>備考</th></tr></thead>
+  <tbody>
+    <tr><td>　</td><td>　</td><td>　</td></tr>
+    <tr><td>　</td><td>　</td><td>　</td></tr>
+    <tr><td>　</td><td>　</td><td>　</td></tr>
+  </tbody>
+</table>`,
+  compare: `<table class="compare-table">
+  <thead><tr><th class="label-col">比較項目</th><th>Aプラン</th><th>Bプラン</th></tr></thead>
+  <tbody>
+    <tr><td class="label-col">価格</td><td>　</td><td>　</td></tr>
+    <tr><td class="label-col">特徴</td><td>　</td><td>　</td></tr>
+    <tr><td class="label-col">対象</td><td>　</td><td>　</td></tr>
+  </tbody>
+</table>`,
+  infobox: `<div class="info-box">
+  <div class="info-box-title">💡 ポイント</div>
+  <p>ここに補足情報を入力してください。</p>
+</div>`,
+  steps: `<ol class="step-list">
+  <li><span class="step-num">1</span><div class="step-body"><strong>ステップタイトル</strong>説明文を入力してください。</div></li>
+  <li><span class="step-num">2</span><div class="step-body"><strong>ステップタイトル</strong>説明文を入力してください。</div></li>
+  <li><span class="step-num">3</span><div class="step-body"><strong>ステップタイトル</strong>説明文を入力してください。</div></li>
+</ol>`,
+  pullquote: `<div class="pullquote">
+  <p>ここに引用文や強調したい文章を入力してください。</p>
+  <cite>— 出典・著者名（省略可）</cite>
+</div>`,
+};
+
+function tbInsertBlock(type) {
+  document.getElementById('tb-block-menu').classList.remove('open');
+  if (_htmlMode) return;
+  const html = _BLOCK_TEMPLATES[type];
+  if (!html) return;
+  const editor = getLiveEditor();
+  editor.focus();
+  if (_savedRange) _restoreSelection(_savedRange);
+  document.execCommand('insertHTML', false, html);
+  _isDirty = true;
+  clearTimeout(_aeDebounce);
+  _aeDebounce = setTimeout(aeRenderPreview, 400);
+}
+
+// ── 本文内画像挿入 ──
+let _savedRange = null;
+
+function _saveSelection() {
+  const sel = window.getSelection();
+  return sel && sel.rangeCount > 0 ? sel.getRangeAt(0).cloneRange() : null;
+}
+function _restoreSelection(range) {
+  if (!range) return;
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
+function tbInsertImage() {
+  if (_htmlMode) return;
+  // ファイルダイアログを開くとフォーカスが外れるのでカーソル位置を先に保存
+  _savedRange = _saveSelection();
+  document.getElementById('ae-inline-img-file').click();
+}
+
+async function aeUploadInlineImage(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  if (file.size > 5 * 1024 * 1024) {
+    alert('ファイルサイズは5MB以下にしてください');
+    input.value = '';
+    return;
+  }
+
+  const ext  = file.name.split('.').pop().toLowerCase();
+  const safe = file.name.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\-_.]/g, '').replace(/\.[^.]+$/, '');
+  const path = `inline/${Date.now()}_${safe}.${ext}`;
+
+  // アップロード中はボタンを一時的に無効化
+  const btn = document.querySelector('[onclick="tbInsertImage()"]');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
+
+  const { error } = await _sb.storage
+    .from('article-images')
+    .upload(path, file, { contentType: file.type, upsert: false });
+
+  if (btn) { btn.disabled = false; btn.textContent = '📷 写真'; }
+
+  if (error) {
+    alert('アップロード失敗: ' + error.message);
+    input.value = '';
+    return;
+  }
+
+  const { data: { publicUrl } } = _sb.storage
+    .from('article-images')
+    .getPublicUrl(path);
+
+  // カーソル位置に img を挿入
+  const editor = getLiveEditor();
+  editor.focus();
+  if (_savedRange) _restoreSelection(_savedRange);
+  document.execCommand('insertHTML', false,
+    `<img src="${publicUrl}" alt="" loading="lazy">`);
+
+  input.value = '';
+  _savedRange = null;
+  _isDirty = true;
+  clearTimeout(_aeDebounce);
+  _aeDebounce = setTimeout(aeRenderPreview, 400);
 }
 
 function initEditor() {
