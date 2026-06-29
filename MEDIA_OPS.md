@@ -184,10 +184,11 @@ articles テーブルの `category` フィールドはアルファベット 1 �
 ### STEP 3：画像アップ → DB INSERT（Takuya 専用フロー）
 
 #### 3-1. 画像アップ
-- Supabase Storage `article-images` バケットにアップ
-  - カバー画像 → `covers/` フォルダ
-  - 本文内画像 → `inline/` フォルダ
-- 取得した URL を MD の該当箇所に確定して Claude に伝える
+- チャットに画像ファイルを添付して Claude に渡す
+- Claude が `upload_image.js` で Supabase Storage にアップし URL を返す
+  - カバー画像 → `covers/` フォルダ → `articles.thumbnail_url` に使用
+  - 本文内画像 → `inline/` フォルダ → MD の該当箇所に自動挿入
+- URL の確認・修正があれば Claude に伝えてから次へ進む
 
 #### 3-2. Supabase INSERT
 - Claude が `insert_article.js`（Node.js スクリプト）を実行し、MD → HTML 変換 + 全フィールドを Supabase に INSERT（`is_published = false` の下書き状態）
