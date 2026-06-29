@@ -514,7 +514,28 @@ tr:last-child td { border-bottom: none; }
     <!-- LEFT: TWO CARDS -->
     <div style="display:flex;flex-direction:column;gap:14px">
 
-    <!-- ▼ カード1: セッション情報 -->
+    <!-- ▼ カード1: ダイブ入力 -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">ダイブ入力</span>
+        <span id="etab-badge" style="display:none;font-size:11px;color:var(--accent2);font-weight:700"></span>
+      </div>
+
+      <div id="epanel-input">
+      <div class="card-body">
+        <!-- 追加済みダイブ一覧 -->
+        <div id="dive-compact-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px"></div>
+        <div id="dive-compact-empty" style="text-align:center;padding:24px 0;color:var(--muted);font-size:13px">
+          🤿 まだダイブがありません
+        </div>
+        <!-- 新規作成ボタン -->
+        <button class="btn btn-primary" style="width:100%" onclick="openDiveModal()">＋ 新規作成</button>
+      </div>
+      </div><!-- /epanel-input -->
+
+    </div><!-- /カード1 -->
+
+    <!-- ▼ カード2: セッション情報 -->
     <div class="card">
       <div class="card-head">
         <span class="card-title">セッション情報</span>
@@ -574,7 +595,7 @@ tr:last-child td { border-bottom: none; }
 
         <!-- メモ -->
         <div class="sec">
-          <div class="sec-title">メモ・感想・課題</div>
+          <div class="sec-title">セッション全体のメモ・感想・課題</div>
           <textarea class="fi" id="f-note" placeholder="今日の感覚、うまくいったこと、課題、次回への気づきなど..."></textarea>
         </div>
 
@@ -584,27 +605,6 @@ tr:last-child td { border-bottom: none; }
         </div>
 
       </div>
-    </div><!-- /カード1 -->
-
-    <!-- ▼ カード2: ダイブ -->
-    <div class="card">
-      <div class="card-head">
-        <span class="card-title">ダイブ入力</span>
-        <span id="etab-badge" style="display:none;font-size:11px;color:var(--accent2);font-weight:700"></span>
-      </div>
-
-      <div id="epanel-input">
-      <div class="card-body">
-        <!-- 追加済みダイブ一覧 -->
-        <div id="dive-compact-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px"></div>
-        <div id="dive-compact-empty" style="text-align:center;padding:24px 0;color:var(--muted);font-size:13px">
-          🤿 まだダイブがありません
-        </div>
-        <!-- 新規作成ボタン -->
-        <button class="btn btn-primary" style="width:100%" onclick="openDiveModal()">＋ 新規作成</button>
-      </div>
-      </div><!-- /epanel-input -->
-
     </div><!-- /カード2 -->
 
     </div><!-- /left -->
