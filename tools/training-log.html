@@ -513,9 +513,21 @@ tr:last-child td { border-bottom: none; }
         <!-- セッション情報 -->
         <div class="sec">
           <div class="sec-title">セッション情報</div>
-          <div class="fld" style="max-width:200px">
-            <label>日付</label>
-            <input type="date" class="fi" id="f-date">
+          <div style="display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap">
+            <div class="fld" style="max-width:200px">
+              <label>日付</label>
+              <input type="date" class="fi" id="f-date">
+            </div>
+            <div style="flex:1;min-width:180px;padding-bottom:1px">
+              <label style="font-size:11px;font-weight:700;color:var(--sub);display:block;margin-bottom:4px">📁 UDDF 一括インポート</label>
+              <div style="border:1.5px dashed var(--border);border-radius:var(--rs);padding:9px 14px;text-align:center;cursor:pointer;font-size:12px;color:var(--muted);transition:all .2s"
+                onclick="document.getElementById('uddf-file').click()"
+                ondragover="event.preventDefault();this.style.borderColor='var(--accent)'"
+                ondragleave="this.style.borderColor=''"
+                ondrop="event.preventDefault();this.style.borderColor='';handleFile(event.dataTransfer.files[0])">
+                📂 ドロップ or クリック
+              </div>
+            </div>
           </div>
         </div>
 
@@ -809,16 +821,13 @@ tr:last-child td { border-bottom: none; }
 
       <div class="card">
         <div class="card-head">
-          <span class="card-title">📁 UDDF（全ダイブ一括インポート）</span>
+          <span class="card-title">📁 UDDF インポート結果</span>
           <button class="btn btn-ghost btn-sm" onclick="clearUDDF()">クリア</button>
         </div>
         <div class="card-body">
-          <div class="upload-zone" id="upload-zone" onclick="document.getElementById('uddf-file').click()">
-            <input type="file" id="uddf-file" accept=".uddf,.xml" onchange="handleFile(this.files[0])">
-            <div class="upload-icon">📂</div>
-            <div class="upload-title">UDDFをドロップ</div>
-            <div class="upload-sub">ATMOS Mission2 など対応</div>
-          </div>
+          <!-- hidden file input (triggered from date row) -->
+          <input type="file" id="uddf-file" accept=".uddf,.xml" onchange="handleFile(this.files[0])" style="display:none">
+          <div id="upload-zone" style="display:none"></div>
 
           <div id="uddf-loaded" style="display:none">
             <div class="sess-stats" style="margin-top:10px">
