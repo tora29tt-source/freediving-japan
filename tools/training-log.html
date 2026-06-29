@@ -800,9 +800,9 @@ tr:last-child td { border-bottom: none; }
 
     <!-- モード切り替え -->
     <div id="dive-mode-toggle" style="display:none;margin-bottom:14px">
-      <div id="mode-target-label" style="display:none;padding:10px;border-radius:var(--rs);background:var(--accent);color:#fff;font-size:13px;font-weight:700;text-align:center;width:50%">1本目のダイブ</div>
+      <div id="mode-target-label" style="display:none;padding:10px;border-radius:var(--rs);background:var(--accent);color:#fff;font-size:13px;font-weight:700;text-align:center;width:50%">ダイブ</div>
       <div class="env-btns" id="mode-toggle-btns" style="display:none">
-        <button class="env-btn sel" id="mode-target-btn" onclick="setDiveMode('target',this)">1本目のダイブ</button>
+        <button class="env-btn sel" id="mode-target-btn" onclick="setDiveMode('target',this)">ダイブ</button>
         <button class="env-btn" id="mode-interval" onclick="setDiveMode('interval',this)">🔁 インターバル</button>
       </div>
     </div>
@@ -1878,16 +1878,6 @@ function calcLapSpeed(idx, lapDist, total) {
 let editingDiveId = null; // currently editing
 
 function updateDiveNumLabel() {
-  const n = sessionDives.length + (editingDiveId ? 0 : 1);
-  const el = document.getElementById('dive-num-label');
-  if (el) el.textContent = editingDiveId
-    ? `✏️ ${sessionDives.findIndex(d=>d.id===editingDiveId)+1}本目を編集中`
-    : `${n}本目を入力`;
-  const label = `${n}本目のダイブ`;
-  const mtLabel = document.getElementById('mode-target-label');
-  if (mtLabel) mtLabel.textContent = label;
-  const mtBtn = document.getElementById('mode-target-btn');
-  if (mtBtn) mtBtn.textContent = label;
   renderDiveTabs();
 }
 
@@ -2450,6 +2440,11 @@ function resetForm() {
   setCond(3);
   resetDiveScales();
   clearUDDF();
+  // バディ・写真リセット
+  const buddyEl = document.getElementById('f-buddy');
+  if (buddyEl) buddyEl.value = '';
+  sessionPhotoFiles = [];
+  renderPhotoPreviews();
   switchEntryTab('input');
 }
 
@@ -2498,6 +2493,8 @@ async function saveSession() {
     narcosis: state.narcosis,
     rhr: parseInt(document.getElementById('f-rhr').value) || null,
     note: document.getElementById('f-note').value.trim() || null,
+    buddy: document.getElementById('f-buddy')?.value.trim() || null,
+    photo_urls: [],
     uddfDives: uddfDives.length ? uddfDives : null,
     source: uddfDives.length ? 'uddf' : 'manual'
   };
@@ -2521,11 +2518,19 @@ async function saveSession() {
           condition: s.condition || null,
           rhr:       s.rhr || null,
           note:      s.note || null,
+          buddy:     s.buddy || null,
           is_public: false,
         })
         .select('id, share_token')
         .single()
       if (sessErr) throw sessErr
+
+      // 写真アップロード（Storage → photo_urls更新）
+      const photoUrls = await uploadSessionPhotos(sessionRow.id);
+      if (photoUrls.length > 0) {
+        await _sb.from('training_sessions').update({ photo_urls: photoUrls }).eq('id', sessionRow.id);
+        s.photo_urls = photoUrls;
+      }
 
       // 2. training_dives に保存（1ダイブ1行）
       if (sessionDives.length > 0) {
@@ -3427,6 +3432,14 @@ function editSession(id) {
   document.getElementById('f-date').value = s.date || today();
   document.getElementById('f-note').value = s.note || '';
   document.getElementById('f-rhr').value  = s.rhr || '';
+
+  // バディ
+  const buddyEl = document.getElementById('f-buddy');
+  if (buddyEl) buddyEl.value = s.buddy || '';
+
+  // 写真（既存URLを復元）
+  sessionPhotoFiles = (s.photo_urls || []).map(url => ({ file: null, previewUrl: url, storedUrl: url }));
+  renderPhotoPreviews();
 
   // 環境
   const envBtn = document.querySelector(`.env-btns .env-btn[onclick*="${s.env}"]`);
