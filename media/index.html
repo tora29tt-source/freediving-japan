@@ -42,9 +42,15 @@ body {
   background: rgba(6,32,46,0.65);
   backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--hairline);
-  padding: 0 18px; height: 52px;
-  display: flex; align-items: center; gap: 10px;
+  padding: 0 20px; height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
 }
+.logo {
+  font-size: 16px; font-weight: 600;
+  color: var(--on-dark); letter-spacing: 0.18em;
+  text-transform: uppercase; text-decoration: none;
+}
+.logo span { color: var(--teal); }
 .back-btn {
   display: flex; align-items: center; justify-content: center;
   width: 34px; height: 34px; border-radius: 50%;
@@ -54,8 +60,6 @@ body {
 }
 .back-btn:hover { color: var(--on-dark); border-color: rgba(168,236,232,0.28); }
 .back-btn .icon { width:17px;height:17px; }
-.header-title { font-size: 15px; font-weight: 600; color: var(--on-dark); letter-spacing: 0.04em; flex: 1; }
-.header-title span { color: var(--teal); font-size: 11px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; display: block; margin-bottom: 1px; }
 
 /* ── page top ── */
 .page-top { padding: 28px 18px 20px; max-width: 640px; margin: 0 auto; }
@@ -205,8 +209,8 @@ body {
 <body>
 
 <header class="header">
-  <a class="back-btn" href="../index.html"><svg class="icon" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>ホーム</a>
   <a class="logo" href="../index.html">Freediving <span>Japan</span></a>
+  <a class="back-btn" href="../index.html" title="ホームへ戻る"><svg class="icon" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></a>
 </header>
 
 <div class="page-top">
