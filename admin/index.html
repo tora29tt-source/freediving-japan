@@ -457,7 +457,6 @@ td.name { color: var(--on-dark); font-weight: 500; }
   color: #1a2b38;
   font-family: -apple-system, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
   font-size: 16px; line-height: 1.9;
-  background: rgba(255,255,255,0.012);
   display: none; min-width: 0;
 }
 /* エディタと完全一致スタイル（article.html準拠） */
@@ -514,6 +513,7 @@ td.name { color: var(--on-dark); font-weight: 500; }
 .ae-mode-split .ae-editor-pane { width: 50%; flex: none; }
 .ae-mode-split .ae-preview-pane { display: block; flex: 1; }
 .ae-mode-preview .ae-editor-pane { display: none; }
+.ae-mode-preview { background: white; }
 .ae-mode-preview .ae-preview-pane { display: block; flex: 1; max-width: 820px; margin: 0 auto; border-left: none; }
 .ae-editor-pane #ae-body-live,
 .ae-editor-pane #ae-html-source { flex: 1; overflow-y: auto; }

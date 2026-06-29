@@ -1233,8 +1233,9 @@ function goto(page, _el) {
   document.getElementById('page-' + page).classList.add('active');
   const tab = document.getElementById('tab-' + page);
   if (tab) tab.classList.add('active');
-  if (page === 'list') renderList();
-  if (page === 'dash') renderDash();
+  if (page === 'list')  renderList();
+  if (page === 'dash')  renderDash();
+  if (page === 'entry') resetForm();
 }
 
 // ===== FORM CONTROLS =====
