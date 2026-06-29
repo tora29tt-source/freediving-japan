@@ -273,9 +273,9 @@ textarea.fi { resize: vertical; min-height: 72px; }
 
 /* ===== LOG LIST ===== */
 table { width: 100%; border-collapse: collapse; }
-th { padding: 9px 13px; text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); background: var(--surface2); cursor: pointer; }
+th { padding: 9px 12px; text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); background: var(--surface2); cursor: pointer; white-space: nowrap; }
 th:hover { color: var(--accent2); }
-td { padding: 10px 13px; font-size: 13px; border-bottom: 1px solid rgba(30,58,95,.4); }
+td { padding: 9px 12px; font-size: 13px; border-bottom: 1px solid rgba(30,58,95,.4); white-space: nowrap; vertical-align: middle; }
 tr:last-child td { border-bottom: none; }
 .trow:hover td { background: var(--accent-dim); cursor: pointer; }
 .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 700; }
@@ -835,12 +835,11 @@ tr:last-child td { border-bottom: none; }
               <div class="ss"><div class="ss-val" id="p-maxdepth">—</div><div class="ss-lbl">最大深度</div></div>
               <div class="ss"><div class="ss-val" id="p-besttime">—</div><div class="ss-lbl">タイム</div></div>
             </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
-              <span style="font-size:10px;color:var(--muted)">クリック：表示 / ⌘クリック：比較選択</span>
-              <span id="compare-count" style="font-size:10px;color:var(--accent2);font-weight:700;display:none"></span>
-            </div>
-            <div class="dive-list" id="dive-list"></div>
-            <button id="compare-btn" onclick="openCompare()" style="display:none;width:100%;margin-top:8px;padding:7px;background:var(--accent);border:none;border-radius:var(--rs);color:#fff;font-size:12px;font-weight:700;cursor:pointer">📊 選択ダイブを比較</button>
+            <button onclick="openUDDFModal()" style="width:100%;margin-top:10px;padding:8px;background:var(--accent-dim);border:1px solid var(--accent);color:var(--accent2);border-radius:var(--rs);font-size:12px;font-weight:700;cursor:pointer">📋 ダイブ一覧を選択…</button>
+            <!-- hidden dive-list kept for compare compatibility -->
+            <div class="dive-list" id="dive-list" style="display:none"></div>
+            <span id="compare-count" style="display:none"></span>
+            <button id="compare-btn" style="display:none"></button>
           </div>
         </div>
       </div>
@@ -890,19 +889,19 @@ tr:last-child td { border-bottom: none; }
       </div>
     </div>
     <div style="overflow-x:auto">
-    <table style="min-width:900px">
+    <table style="min-width:1000px">
       <thead><tr>
         <th onclick="sortBy('date')">日付 ↕</th>
         <th>場所</th><th>種目</th><th>環境</th>
         <th onclick="sortBy('bestDepth')">深度 ↕</th>
         <th onclick="sortBy('bestTime')">タイム ↕</th>
         <th onclick="sortBy('dives')">本数 ↕</th>
-        <th>コンディション</th>
-        <th>酸欠感</th>
-        <th>スクイズ感</th>
-        <th>DCS感</th>
-        <th>ナーコシス感</th>
-        <th>安静心拍</th>
+        <th>状態</th>
+        <th>酸欠</th>
+        <th>スクイズ</th>
+        <th>DCS</th>
+        <th>ナーコ</th>
+        <th>安静HR</th>
         <th></th>
       </tr></thead>
       <tbody id="list-body"></tbody>
@@ -936,6 +935,26 @@ tr:last-child td { border-bottom: none; }
     <div class="card-body" id="pb-body"></div>
   </div>
 </div>
+</div>
+
+<!-- UDDF SELECT MODAL -->
+<div class="overlay" id="uddf-modal-overlay">
+  <div class="modal" style="max-width:480px;width:92%">
+    <div class="modal-head">
+      <h2 class="modal-title">📁 UDDFダイブ選択</h2>
+      <button class="close" onclick="closeUDDFModal()">✕</button>
+    </div>
+    <div class="sess-stats" style="margin-bottom:14px">
+      <div class="ss"><div class="ss-val" id="um-dives">—</div><div class="ss-lbl">本数</div></div>
+      <div class="ss"><div class="ss-val" id="um-maxdepth">—</div><div class="ss-lbl">最大深度</div></div>
+      <div class="ss"><div class="ss-val" id="um-besttime">—</div><div class="ss-lbl">タイム</div></div>
+    </div>
+    <div id="uddf-modal-list" style="display:flex;flex-direction:column;gap:4px;max-height:340px;overflow-y:auto;margin-bottom:14px"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="closeUDDFModal()">閉じる</button>
+      <button class="btn btn-primary" onclick="importAllUDDF()">全て追加</button>
+    </div>
+  </div>
 </div>
 
 <!-- SESSION MODAL -->
@@ -2519,19 +2538,73 @@ function parseUDDF(xml) {
   document.getElementById('p-maxdepth').textContent = maxD+'m';
   document.getElementById('p-besttime').textContent = bestT?.time||'—';
 
+  // keep dive-list in sync for compare compat
   const dl = document.getElementById('dive-list');
-  selectedDiveIdxs.clear();
-  updateCompareUI();
   dl.innerHTML = uddfDives.map((d,idx)=>`
-    <div class="dive-row ${d===best?'active':''}" onclick="previewDive(${idx},event)" title="⌘クリックで比較に追加">
+    <div class="dive-row ${d===best?'active':''}" onclick="previewDive(${idx},event)">
       <span class="dive-n">${idx+1}</span>
       <span class="dive-depth">${d.depth!=null?d.depth+'m':'—'}</span>
       <span class="dive-time">${d.time||'—'}</span>
-      ${d===best?'<span class="dive-best">★BEST</span>':''}
-      <button onclick="event.stopPropagation();importUDDFDive(${idx})" style="margin-left:auto;background:var(--accent-dim);border:1px solid var(--accent);color:var(--accent2);border-radius:5px;font-size:10px;font-weight:700;padding:2px 7px;cursor:pointer">追加</button>
     </div>`).join('');
 
-  previewDive(uddfDives.indexOf(best));
+  openUDDFModal();
+}
+
+function openUDDFModal() {
+  if (!uddfDives.length) return;
+  const best = [...uddfDives].sort((a,b)=>(b.depth||0)-(a.depth||0))[0];
+  const maxD = Math.max(...uddfDives.map(d=>d.depth||0));
+  const bestT = [...uddfDives].sort((a,b)=>b.dur-a.dur)[0];
+  document.getElementById('um-dives').textContent = uddfDives.length;
+  document.getElementById('um-maxdepth').textContent = maxD + 'm';
+  document.getElementById('um-besttime').textContent = bestT?.time || '—';
+
+  const list = document.getElementById('uddf-modal-list');
+  list.innerHTML = uddfDives.map((d,idx)=>`
+    <div class="dive-row" id="uddf-mrow-${idx}">
+      <span class="dive-n">${idx+1}</span>
+      <span class="dive-depth">${d.depth!=null?d.depth+'m':'—'}</span>
+      <span class="dive-time">${d.time||'—'}</span>
+      <span style="font-size:10px;color:var(--muted);flex:1">${d.date||''}</span>
+      ${d===best?'<span class="dive-best">★BEST</span>':''}
+      <button onclick="importUDDFDiveFromModal(${idx})" id="uddf-mbtn-${idx}"
+        style="background:var(--accent-dim);border:1px solid var(--accent);color:var(--accent2);border-radius:5px;font-size:10px;font-weight:700;padding:3px 10px;cursor:pointer">追加</button>
+    </div>`).join('');
+
+  document.getElementById('uddf-modal-overlay').classList.add('open');
+}
+
+function closeUDDFModal() {
+  document.getElementById('uddf-modal-overlay').classList.remove('open');
+}
+
+function importUDDFDiveFromModal(idx) {
+  importUDDFDive(idx);
+  // ボタンを「追加済」に変更
+  const btn = document.getElementById(`uddf-mbtn-${idx}`);
+  if (btn) {
+    btn.textContent = '✓ 追加済';
+    btn.style.background = 'var(--surface2)';
+    btn.style.borderColor = 'var(--border)';
+    btn.style.color = 'var(--muted)';
+    btn.disabled = true;
+  }
+}
+
+function importAllUDDF() {
+  uddfDives.forEach((_, idx) => {
+    importUDDFDive(idx);
+    const btn = document.getElementById(`uddf-mbtn-${idx}`);
+    if (btn) {
+      btn.textContent = '✓ 追加済';
+      btn.style.background = 'var(--surface2)';
+      btn.style.borderColor = 'var(--border)';
+      btn.style.color = 'var(--muted)';
+      btn.disabled = true;
+    }
+  });
+  showToast(`✅ ${uddfDives.length}本のダイブを追加しました`);
+  closeUDDFModal();
 }
 
 let currentDive = null;
@@ -2721,6 +2794,7 @@ function renderCompareChart() {
 
 function clearUDDF() {
   uddfDives = [];
+  closeUDDFModal();
   document.getElementById('uddf-loaded').style.display = 'none';
   document.getElementById('profile-card').style.display = 'none';
   document.getElementById('uddf-file').value = '';
