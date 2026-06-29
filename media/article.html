@@ -150,14 +150,48 @@ body { font-family: var(--font-body); color: var(--text); background: white; lin
 .pullquote p { font-size: 17px; font-weight: 500; color: var(--ocean-mid); line-height: 1.75; margin: 0; font-style: italic; }
 .pullquote cite { display: block; margin-top: 12px; font-size: 12px; color: var(--text-light); font-style: normal; }
 
-/* TABLE */
-.compare-table { width: 100%; border-collapse: collapse; margin: 28px 0; font-size: 14px; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(11,45,69,.08); }
-.compare-table thead { background: var(--ocean-deep); color: white; }
-.compare-table th { padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
-.compare-table td { padding: 12px 16px; border-bottom: 1px solid #eef2f6; color: var(--text-mid); line-height: 1.6; }
-.compare-table tr:last-child td { border-bottom: none; }
-.compare-table tbody tr:nth-child(odd) { background: var(--foam); }
+/* TABLE — generic (クラス名問わず全テーブルに適用) */
+.article-body table,
+.compare-table,
+.level-table {
+  width: 100%; border-collapse: collapse; margin: 28px 0;
+  font-size: 14px; border-radius: 10px; overflow: hidden;
+  box-shadow: 0 1px 4px rgba(11,45,69,.08); display: table;
+}
+.article-body table thead th,
+.compare-table thead th,
+.level-table thead th {
+  background: var(--ocean-deep); color: white;
+  padding: 12px 16px; text-align: left;
+  font-size: 12px; font-weight: 600; letter-spacing: .06em;
+}
+.article-body table td,
+.compare-table td,
+.level-table td {
+  padding: 12px 16px; border-bottom: 1px solid #eef2f6;
+  color: var(--text-mid); line-height: 1.6; vertical-align: top;
+}
+.article-body table tr:last-child td,
+.compare-table tr:last-child td,
+.level-table tr:last-child td { border-bottom: none; }
+.article-body table tbody tr:nth-child(even),
+.level-table tbody tr:nth-child(even) { background: var(--foam); }
 .compare-table .label-col { font-weight: 600; color: var(--ocean-mid); }
+
+/* ORG ROW (団体名の区切り行) */
+.org-row td {
+  background: var(--ocean-mid) !important;
+  color: white !important; font-weight: 700;
+  font-size: 13px; padding: 9px 16px !important;
+  border-bottom: none !important;
+}
+.org-badge {
+  display: inline-block; margin-left: 8px;
+  background: rgba(46,196,182,.25); color: var(--teal-light);
+  font-size: 10px; font-weight: 600; letter-spacing: .06em;
+  padding: 2px 8px; border-radius: 10px;
+  vertical-align: middle;
+}
 
 /* ARTICLE BODY IMAGES */
 .article-body img {
@@ -290,8 +324,12 @@ body { font-family: var(--font-body); color: var(--text); background: white; lin
   .article-body h2 { font-size: 19px; margin: 40px 0 14px; }
   .article-body h3 { font-size: 16px; }
   .article-body p { font-size: 15px; line-height: 1.9; }
-  .compare-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; font-size: 13px; }
-  .compare-table th, .compare-table td { padding: 10px 12px; white-space: nowrap; }
+  .article-body table, .compare-table, .level-table {
+    display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; font-size: 13px;
+  }
+  .article-body table th, .article-body table td,
+  .compare-table th, .compare-table td,
+  .level-table th, .level-table td { padding: 10px 12px; white-space: nowrap; }
   .pullquote p { font-size: 15px; }
   .author-box { flex-direction: column; align-items: flex-start; gap: 12px; }
   .cta-box { padding: 26px 18px; }
@@ -433,9 +471,7 @@ function renderArticle(a) {
     <div class="article-wrap">
       ${a.lead_text ? `<p class="lead">${esc(a.lead_text)}</p>` : ''}
 
-      <div class="article-body">
-        ${a.content || '<p>本文準備中です。</p>'}
-      </div>
+      ${a.content || '<div class="article-body"><p>本文準備中です。</p></div>'}
 
       ${tagsHtml}
 
