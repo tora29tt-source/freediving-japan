@@ -193,9 +193,9 @@ textarea.fi { resize: vertical; min-height: 72px; }
 .scale-btn.sel.danger { background: var(--danger); border-color: var(--danger); }
 
 /* Condition stars */
-.cond-row { display: flex; align-items: center; gap: 8px; }
-.cond-star { font-size: 20px; cursor: pointer; opacity: .3; transition: opacity .15s; }
-.cond-star.on { opacity: 1; }
+.cond-row { display: flex; align-items: center; gap: 5px; }
+.cond-star { font-size: 13px; cursor: pointer; color: var(--muted); opacity: .35; transition: color .15s, opacity .15s; user-select: none; }
+.cond-star.on { color: var(--accent2); opacity: 1; }
 
 /* Target bar */
 .target-bar {
@@ -776,11 +776,11 @@ tr:last-child td { border-bottom: none; }
             <div class="scale-item">
               <div class="scale-label">コンディション</div>
               <div class="cond-row" id="cond-stars">
-                <span class="cond-star on" onclick="setCond(1)">⭐</span>
-                <span class="cond-star on" onclick="setCond(2)">⭐</span>
-                <span class="cond-star on" onclick="setCond(3)">⭐</span>
-                <span class="cond-star" onclick="setCond(4)">⭐</span>
-                <span class="cond-star" onclick="setCond(5)">⭐</span>
+                <span class="cond-star on" onclick="setCond(1)">●</span>
+                <span class="cond-star on" onclick="setCond(2)">●</span>
+                <span class="cond-star on" onclick="setCond(3)">●</span>
+                <span class="cond-star" onclick="setCond(4)">●</span>
+                <span class="cond-star" onclick="setCond(5)">●</span>
               </div>
             </div>
             <div class="scale-item">
@@ -3031,8 +3031,8 @@ function renderList() {
 }
 
 function stars(v) {
-  if(!v)return'—';
-  return Array.from({length:5},(_,i)=>`<span style="opacity:${i<v?1:.2}">⭐</span>`).join('');
+  if(!v)return'<span style="color:var(--muted);font-size:11px">—</span>';
+  return Array.from({length:5},(_,i)=>`<span style="font-size:11px;color:${i<v?'var(--accent2)':'var(--muted)'};opacity:${i<v?1:.35}">●</span>`).join('');
 }
 function scaleBadge(val, labels, colors) {
   if(val==null||val===0)return'<span style="color:var(--muted);font-size:11px">—</span>';
