@@ -1178,6 +1178,7 @@ async function loadSessionsFromDB() {
 let sessions = [];
 let uddfDives = [];
 let miniChart = null, modalChart = null, chD = null, chT = null;
+let uddfModalChart = null, uddfModalView = 'time', uddfModalCurrentIdx = -1;
 let sortKey = 'date', sortAsc = false;
 const SEA_DISCS  = ['CWT','CWTB','CNF','FIM'];
 const POOL_DISCS = ['STA','DYN','DNF','DYNB'];
@@ -2559,21 +2560,60 @@ function openUDDFModal() {
 
   const list = document.getElementById('uddf-modal-list');
   list.innerHTML = uddfDives.map((d,idx)=>`
-    <div class="dive-row" id="uddf-mrow-${idx}">
+    <div class="dive-row" id="uddf-mrow-${idx}" onclick="previewDiveInModal(${idx})" style="cursor:pointer">
       <span class="dive-n">${idx+1}</span>
       <span class="dive-depth">${d.depth!=null?d.depth+'m':'—'}</span>
       <span class="dive-time">${d.time||'—'}</span>
-      <span style="font-size:10px;color:var(--muted);flex:1">${d.date||''}</span>
-      ${d===best?'<span class="dive-best">★BEST</span>':''}
-      <button onclick="importUDDFDiveFromModal(${idx})" id="uddf-mbtn-${idx}"
-        style="background:var(--accent-dim);border:1px solid var(--accent);color:var(--accent2);border-radius:5px;font-size:10px;font-weight:700;padding:3px 10px;cursor:pointer">追加</button>
+      ${d===best?'<span class="dive-best">★</span>':''}
+      <button onclick="event.stopPropagation();importUDDFDiveFromModal(${idx})" id="uddf-mbtn-${idx}"
+        style="margin-left:auto;background:var(--accent-dim);border:1px solid var(--accent);color:var(--accent2);border-radius:5px;font-size:10px;font-weight:700;padding:3px 8px;cursor:pointer">追加</button>
     </div>`).join('');
 
   document.getElementById('uddf-modal-overlay').classList.add('open');
+  // 自動で best ダイブをプレビュー
+  previewDiveInModal(uddfDives.indexOf(best));
+}
+
+function previewDiveInModal(idx) {
+  const d = uddfDives[idx];
+  if (!d) return;
+  uddfModalCurrentIdx = idx;
+
+  // アクティブ行をハイライト
+  document.querySelectorAll('#uddf-modal-list .dive-row').forEach((r, i) => {
+    r.classList.toggle('active', i === idx);
+  });
+
+  document.getElementById('uddf-modal-chart-empty').style.display = 'none';
+  const area = document.getElementById('uddf-modal-chart-area');
+  area.style.display = 'block';
+  document.getElementById('um-chart-title').textContent = `Dive ${idx+1} — ${d.depth??'?'}m / ${d.time??'?'}`;
+  renderUDDFModalChart(d);
+}
+
+function renderUDDFModalChart(d) {
+  if (uddfModalChart) { uddfModalChart.destroy(); uddfModalChart = null; }
+  const ctx = document.getElementById('uddf-modal-canvas').getContext('2d');
+  const cfg = uddfModalView === 'time'
+    ? profileWithSpeedCfg(d.profile, d.speed, '#2ec4b6')
+    : speedDepthCfg(d.speed);
+  if (!cfg) return;
+  uddfModalChart = new Chart(ctx, cfg);
+}
+
+function switchUDDFModalView(mode) {
+  uddfModalView = mode;
+  document.getElementById('um-btn-time').classList.toggle('active', mode==='time');
+  document.getElementById('um-btn-speed').classList.toggle('active', mode==='speed');
+  if (uddfModalCurrentIdx >= 0) renderUDDFModalChart(uddfDives[uddfModalCurrentIdx]);
 }
 
 function closeUDDFModal() {
   document.getElementById('uddf-modal-overlay').classList.remove('open');
+  if (uddfModalChart) { uddfModalChart.destroy(); uddfModalChart = null; }
+  uddfModalCurrentIdx = -1;
+  document.getElementById('uddf-modal-chart-area').style.display = 'none';
+  document.getElementById('uddf-modal-chart-empty').style.display = 'flex';
 }
 
 function importUDDFDiveFromModal(idx) {
