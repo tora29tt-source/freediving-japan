@@ -1038,6 +1038,9 @@ td.name { color: var(--on-dark); font-weight: 500; }
     <span class="ql-formats">
       <button class="ql-clean"></button>
     </span>
+    <span class="ql-formats" style="margin-left:auto">
+      <button id="ae-html-toggle" onclick="toggleHtmlMode()" title="HTMLで直接編集" style="font-size:11px;font-weight:700;color:var(--teal,#2ec4b6);background:none;border:1px solid rgba(46,196,182,.3);border-radius:6px;padding:2px 8px;cursor:pointer;font-family:monospace;">&lt;/&gt;</button>
+    </span>
   </div>
 
   <!-- Main -->
@@ -1051,6 +1054,7 @@ td.name { color: var(--on-dark); font-weight: 500; }
         <span class="ae-pub-badge draft" id="ae-pub-badge">下書き</span>
       </div>
       <div id="ae-body-quill"></div>
+      <textarea id="ae-html-source" style="display:none;flex:1;width:100%;min-height:400px;font-family:monospace;font-size:13px;line-height:1.6;padding:16px;background:#0b1a24;color:#a8ece8;border:none;resize:none;outline:none;" placeholder="HTMLを直接編集できます。クラス名・テーブル構造などが保持されます。" oninput="aeHtmlSourceChange()"></textarea>
     </div>
 
     <!-- Preview pane (site-style preview) -->
@@ -2040,6 +2044,9 @@ function openArticleModal(articleId = null) {
     });
   }
 
+  // HTMLモードをリセット
+  if (_htmlMode) toggleHtmlMode();
+
   setEditorMode('write');
   document.getElementById('ae-sidebar').classList.remove('open');
   document.getElementById('ae-settings-toggle').classList.remove('active');
@@ -2070,15 +2077,56 @@ function setEditorMode(mode) {
   if (quill) quill.focus();
 }
 
+let _htmlMode = false;
+
+function toggleHtmlMode() {
+  _htmlMode = !_htmlMode;
+  const btn       = document.getElementById('ae-html-toggle');
+  const quillEl   = document.getElementById('ae-body-quill');
+  const textarea  = document.getElementById('ae-html-source');
+
+  if (_htmlMode) {
+    // QuillのHTMLをテキストエリアにコピー
+    const html = quill ? (quill.getSemanticHTML ? quill.getSemanticHTML() : quill.root.innerHTML) : '';
+    textarea.value = html;
+    quillEl.style.display  = 'none';
+    textarea.style.display = 'flex';
+    btn.style.background   = 'rgba(46,196,182,.2)';
+    btn.style.color        = '#fff';
+    textarea.focus();
+  } else {
+    // テキストエリアの内容をQuillに戻す
+    const html = textarea.value;
+    if (quill) {
+      quill.setContents([]);
+      if (html) quill.clipboard.dangerouslyPasteHTML(0, html);
+    }
+    textarea.style.display = 'none';
+    quillEl.style.display  = '';
+    btn.style.background   = 'none';
+    btn.style.color        = 'var(--teal, #2ec4b6)';
+  }
+}
+
+function aeHtmlSourceChange() {
+  _isDirty = true;
+  clearTimeout(_aeDebounce);
+  _aeDebounce = setTimeout(aeRenderPreview, 400);
+}
+
 function toggleAeSidebar() {
   document.getElementById('ae-sidebar').classList.toggle('open');
   document.getElementById('ae-settings-toggle').classList.toggle('active');
 }
 
+function aeGetContentHTML() {
+  if (_htmlMode) return document.getElementById('ae-html-source').value;
+  return quill ? (quill.getSemanticHTML ? quill.getSemanticHTML() : quill.root.innerHTML) : '';
+}
+
 function aeRenderPreview() {
-  if (!quill) return;
   const title = document.getElementById('ae-title').value;
-  const html  = quill.getSemanticHTML ? quill.getSemanticHTML() : quill.root.innerHTML;
+  const html  = aeGetContentHTML();
   let out = '';
   if (title) out += `<h1 style="font-size:26px;font-weight:700;margin:0 0 16px;line-height:1.3;">${escHtml(title)}</h1>`;
   out += html;
@@ -2176,7 +2224,7 @@ async function saveArticleFromEditor(publish) {
   pubBtn.disabled = true;
   pubBtn.textContent = '保存中...';
 
-  const html    = quill ? (quill.getSemanticHTML ? quill.getSemanticHTML() : quill.root.innerHTML) : '';
+  const html    = aeGetContentHTML();
   const rtVal   = parseInt(document.getElementById('ae-read-time').value);
   const chars   = quill ? Math.max(0, quill.getText().length - 1) : 0;
   const autoRT  = Math.max(1, Math.round(chars / 500));
