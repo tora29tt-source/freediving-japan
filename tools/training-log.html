@@ -3196,6 +3196,11 @@ function editSession(id) {
   sessionDives = (s.diveLog || []).map(d => ({ ...d, id: Date.now() + Math.random() }));
   renderDiveLog();
 
+  // 1本目のダイブを選択状態にする
+  if (sessionDives.length > 0) {
+    selectDiveTab(sessionDives[0].id);
+  }
+
   showToast('✏️ セッションを読み込みました。編集して保存してください。');
 }
 
