@@ -157,7 +157,7 @@ reviews            — レビュー
 | events/event-staff.html | readonly | 大会ロール依存 | 大会ロール依存 | ✅全権 |
 | pro/index.html | → auth | ✅申請フォームのみ | ✅フル機能 | ✅ |
 | admin/index.html | → auth → 弾く | ❌ | ❌ | ✅ |
-| media/admin-mobile.html | → auth → 弾く | ❌ | ❌ | ✅（editor以上） |
+| admin/admin-mobile.html | → auth → 弾く | ❌ | ❌ | ✅（editor以上） |
 
 ### インストラクター承認フロー
 
@@ -242,15 +242,13 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
   listing.html            # リスティング詳細（旧instructor.html）
 /booking/
   success.html
-/articles/                # 記事
-  index.html
-  article.html
-  article-what-is-freediving.html
 /media/                   # メディア（Phase 2〜）
   index.html              # 記事一覧（Supabase動的取得）
   article.html            # 記事詳細（?slug= で動的表示）
-  article-editor.html     # 記事作成・編集CMS（editor以上ログイン必須）
+/admin/
+  index.html              # 管理画面（メディアタブで記事入稿・編集・承認）
   admin-mobile.html       # アイデアリスト専用（運用しない）
+/_old/articles/           # 旧静的記事（2026-06-29 退避・参照のみ）
 /tools/                   # ツール類
   mouthfill-calculator.html
   session-planner.html
@@ -384,7 +382,7 @@ TOP (index.html)
 |クライアント管理タブ（pro/index.html）                           |✅ 実装済み（bookingsから自動集約・検索・詳細・メモ保存）|
 |売り上げ管理タブ（pro/index.html）                              |✅ 実装済み（月次サマリー・棒グラフ・明細一覧・期間フィルタ）|
 |/learn/ 有料講座ページ                                      |✅ learn/index.html 骨格完成・トップからリンク済み（先行通知機能なし・購入ボタンは準備中表示。Stripe/Vimeo接続は撮影後）|
-|メディア（/media/）                                        |✅ 基盤完成（2026-06-28）index.html Supabase動的取得・article.html 記事詳細・article-editor.html CMS実装。articles テーブル・カテゴリ9区分・RLS設定・初記事投入済み|
+|メディア（/media/）                                        |✅ 基盤完成・media/ 一本化（2026-06-29）index.html Supabase動的取得・article.html 記事詳細。CMS は admin/index.html メディアタブに統合。articles テーブル・カテゴリ9区分・RLS設定・初記事2本投入済み。articles/ → _old/ 退避済み。スマホ対応・ヘッダー統一済み|
 |iOSアプリ（React Native）                                 |🔄 開発中（環境構築済み・Expo Go動作確認済み。タブバー・ログ・Supabase連携・SNSシェアが未実装）|
 
 -----
@@ -470,8 +468,8 @@ RLSポリシー（`storage.objects`）：INSERT/UPDATE/DELETE は `auth.uid()::t
 ### 問題なし・軽微
 
 - **`guest_*` vs `client_*` カラム名** — `sql/rename_guest_to_client.sql` 適用済み。API・フロントと整合
-- **`media/admin-mobile.html` 認証なし** — localStorage のみで本番 DB には触れない（Phase 2 本番化時に要対応）
+- **`admin/admin-mobile.html` 認証なし** — localStorage のみで本番 DB には触れない（Phase 2 本番化時に要対応）
 
 -----
 
-*最終更新：2026-06-28（高優先度バグ #1〜#4 すべて解消・RLS修正SQL実行済み・booking/success.html ゲスト対応・api/booking-result.js 追加・E2Eテスト完了・中優先度 #5/#8・低優先度 #9/#10 対応済み・全11件クローズ）*
+*最終更新：2026-06-29（articles/ → _old/ 退避・media/ 一本化・admin-mobile.html を admin/ に移動・記事2本Supabase移行・スマホ対応強化・ヘッダー統一）*

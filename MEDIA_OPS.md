@@ -306,7 +306,7 @@ competition-volcano-cup-2026     ← 大会レポート
 
 ### editor ロールの操作範囲
 
-editor は `media/article-editor.html` のみアクセス可能。以下に限定される：
+editor は `admin/index.html` のメディアタブのみアクセス可能（他のタブは非表示）。以下に限定される：
 
 | 操作 | editor | admin / staff |
 |---|:---:|:---:|
@@ -502,7 +502,7 @@ articles (
 ### データフロー（公開まで）
 
 ```
-記事入稿（article-editor.html）
+記事入稿（admin/index.html メディアタブ）
     ↓ INSERT → articles テーブル（status = 'draft'）
     ↓ 「公開する」ボタン → is_published = true + published_at = now()
     ↓
@@ -540,8 +540,8 @@ const { data } = await supabase
 |---|---|
 | `media/index.html` | 記事一覧（Supabase動的取得） |
 | `media/article.html` | 記事詳細（?slug= で動的表示） |
-| `media/article-editor.html` | CMS（editor以上ログイン必須） |
-| `media/admin-mobile.html` | アイデアリスト用・本番DB未接続・運用しない |
+| `admin/index.html` | CMS兼管理画面（メディアタブで記事入稿・編集・承認） |
+| `admin/admin-mobile.html` | アイデアリスト用・本番DB未接続・運用しない |
 | `js/supabase-config.js` | Supabase接続設定 |
 | `sql/articles_review_flow_20260629.sql` | articlesテーブルのRLSポリシー |
 | `docs/RBAC_DESIGN.md` | ロール設計・is_site_admin()関数 |
