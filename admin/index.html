@@ -617,9 +617,11 @@ td.name { color: var(--on-dark); font-weight: 500; }
 .ae-mode-preview .ae-preview-pane {
   display: block; flex: 1; max-width: 760px;
   margin: 32px auto; border-left: none;
-  border-radius: 12px; box-shadow: 0 2px 20px rgba(11,45,69,.1);
-  padding: 40px 48px;
+  border-radius: 12px; overflow: hidden;
+  box-shadow: 0 2px 20px rgba(11,45,69,.1);
+  padding: 0;
 }
+.ae-mode-split .ae-preview-pane { border-radius: 0; box-shadow: none; }
 .ae-editor-pane #ae-body-live,
 .ae-editor-pane #ae-html-source { flex: 1; overflow-y: auto; }
 
@@ -2307,36 +2309,107 @@ function aeGetContentHTML() {
   return getLiveEditor().innerHTML;
 }
 
+// カテゴリ表示名（article.html と完全一致）
+const AE_CAT_LABELS = {
+  beginner:     '初心者ガイド',
+  technique:    'テクニック',
+  gear:         'ギア・機材',
+  safety:       '安全・知識',
+  competition:  '競技・大会',
+  ocean:        '海・環境',
+  lifestyle:    'ライフスタイル',
+  interview:    'インタビュー',
+};
+
 function aeRenderPreview() {
-  const title    = document.getElementById('ae-title').value;
-  const excerpt  = document.getElementById('ae-excerpt')?.value?.trim();
-  const coverUrl = document.getElementById('ae-cover')?.value?.trim();
-  const html     = aeGetContentHTML();
+  const title     = document.getElementById('ae-title').value.trim();
+  const excerpt   = document.getElementById('ae-excerpt')?.value?.trim();
+  const coverUrl  = document.getElementById('ae-cover')?.value?.trim();
+  const category  = document.getElementById('ae-category')?.value;
+  const tagsRaw   = document.getElementById('ae-tags')?.value?.trim();
+  const authorVal = document.getElementById('ae-author')?.value?.trim() || '編集部';
+  const rtVal     = document.getElementById('ae-read-time')?.value;
+  const html      = sanitizeArticleContent(aeGetContentHTML());
 
-  let out = '';
+  const catLabel   = AE_CAT_LABELS[category] || category || '';
+  const tags       = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+  const isEditorial = (authorVal === '編集部' || authorVal === 'editorial');
+  const authorDisplay = isEditorial ? '編集部' : authorVal;
+  const authorIcon    = isEditorial ? '📝' : '🌊';
+  const authorDesc    = isEditorial
+    ? '日本記録保持者・寺島拓哉が設立したフリーダイビングプラットフォーム「Freediving Japan」の編集部。初心者から競技者まで役立つコンテンツを発信しています。'
+    : 'Freediving Japan 代表・日本 STA フリーダイビング記録保持者。';
 
-  // カバー画像ヒーロー
-  if (coverUrl) {
-    out += `<div style="
-      margin: -40px -48px 32px; height: 220px;
-      background: linear-gradient(to bottom, rgba(4,22,31,.3) 0%, rgba(4,22,31,.75) 100%),
-                  url('${coverUrl}') center/cover no-repeat;
-      border-radius: 12px 12px 0 0;
-      display: flex; align-items: flex-end; padding: 24px 32px;
-    ">
-      ${title ? `<h1 style="color:white;font-size:24px;font-weight:800;line-height:1.3;margin:0;text-shadow:0 2px 8px rgba(0,0,0,.4);">${escHtml(title)}</h1>` : ''}
+  // 読了時間（手動 or 自動計算）
+  const autoMins = (() => {
+    const el = _htmlMode ? document.getElementById('ae-html-source') : getLiveEditor();
+    const chars = (el ? (el.textContent || el.value || '') : '').trim().length;
+    return Math.max(1, Math.round(chars / 500));
+  })();
+  const readTime = rtVal ? `約${rtVal}分` : `約${autoMins}分`;
+
+  // HERO
+  const heroClass = coverUrl ? 'pv-hero' : 'pv-hero no-thumb';
+  const heroStyle = coverUrl ? `style="background-image:url('${escHtml(coverUrl)}')"` : '';
+
+  const heroHtml = `
+    <div class="${heroClass}" ${heroStyle}>
+      <div class="pv-hero-inner">
+        ${catLabel ? `<span class="pv-cat">${escHtml(catLabel)}</span>` : ''}
+        ${title ? `<h1>${escHtml(title)}</h1>` : '<h1 style="color:rgba(255,255,255,.3)">タイトルなし</h1>'}
+        <div class="pv-meta">
+          <span class="by">by <strong>${escHtml(authorDisplay)}</strong></span>
+          <span class="date">プレビュー</span>
+          <span class="rt">⏱ ${readTime}</span>
+        </div>
+      </div>
     </div>`;
-  } else if (title) {
-    out += `<h1 style="font-size:26px;font-weight:800;margin:0 0 20px;line-height:1.3;color:#0b2d45;">${escHtml(title)}</h1>`;
-  }
 
-  // リード文
-  if (excerpt) {
-    out += `<p style="font-size:16px;color:#3d5166;line-height:1.9;padding:20px 0;border-bottom:2px solid #eef2f6;margin-bottom:28px;">${escHtml(excerpt)}</p>`;
-  }
+  // SHARE BAR
+  const shareHtml = `
+    <div class="pv-share">
+      <span class="pv-share-label">シェア：</span>
+      <span class="pv-share-btn pv-share-x">𝕏 Twitter</span>
+      <span class="pv-share-btn pv-share-line">LINE</span>
+      <span class="pv-share-btn pv-share-copy">🔗 コピー</span>
+    </div>`;
 
-  out += html;
-  document.getElementById('ae-preview-content').innerHTML = out;
+  // ARTICLE WRAP
+  const leadHtml = excerpt
+    ? `<p class="pv-lead">${escHtml(excerpt)}</p>`
+    : '';
+
+  const tagsHtml = tags.length
+    ? `<div class="pv-tags">${tags.map(t => `<span class="pv-tag">${escHtml(t)}</span>`).join('')}</div>`
+    : '';
+
+  const ctaHtml = `
+    <div class="pv-cta">
+      <h3>🌊 フリーダイビングを始めよう</h3>
+      <p>Freediving Japan では初心者から上級者まで、フリーダイビングのあらゆる情報を提供しています。</p>
+      <span class="pv-cta-btn">コースを見る →</span>
+    </div>`;
+
+  const authorHtml = `
+    <div class="pv-author">
+      <div class="pv-author-icon">${authorIcon}</div>
+      <div>
+        <div class="pv-author-name">${escHtml(authorDisplay)}</div>
+        <div class="pv-author-desc">${escHtml(authorDesc)}</div>
+      </div>
+    </div>`;
+
+  const wrapHtml = `
+    <div class="pv-wrap">
+      ${leadHtml}
+      <div class="article-body">${html}</div>
+      ${tagsHtml}
+      <hr class="pv-divider">
+      ${ctaHtml}
+      ${authorHtml}
+    </div>`;
+
+  document.getElementById('ae-preview-content').innerHTML = heroHtml + shareHtml + wrapHtml;
 }
 
 function aeUpdateWordCount() {

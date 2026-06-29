@@ -572,6 +572,12 @@ tr:last-child td { border-bottom: none; }
           </div>
         </div>
 
+        <!-- メモ -->
+        <div class="sec">
+          <div class="sec-title">セッション全体のメモ・感想・課題</div>
+          <textarea class="fi" id="f-note" placeholder="今日の感覚、うまくいったこと、課題、次回への気づきなど..."></textarea>
+        </div>
+
         <!-- コンディション + 安静時心拍数 -->
         <div class="sec">
           <div class="sec-title">コンディション</div>
@@ -591,12 +597,6 @@ tr:last-child td { border-bottom: none; }
               <input type="number" class="fi" id="f-rhr" placeholder="例：48" min="20" max="120" style="max-width:140px">
             </div>
           </div>
-        </div>
-
-        <!-- メモ -->
-        <div class="sec">
-          <div class="sec-title">セッション全体のメモ・感想・課題</div>
-          <textarea class="fi" id="f-note" placeholder="今日の感覚、うまくいったこと、課題、次回への気づきなど..."></textarea>
         </div>
 
         <div class="form-foot">
@@ -665,7 +665,7 @@ tr:last-child td { border-bottom: none; }
         <th onclick="sortBy('date')">日付 ↕</th>
         <th>場所</th><th>環境</th><th>種目</th>
         <th onclick="sortBy('bestDepth')">深度/距離 ↕</th>
-        <th onclick="sortBy('bestTime')">ベストタイム ↕</th>
+        <th onclick="sortBy('bestTime')">タイム ↕</th>
         <th onclick="sortBy('dives')">本数 ↕</th>
         <th>状態</th>
         <th>酸欠</th>
@@ -2125,7 +2125,7 @@ function renderDiveLog() {
   const parts = [];
   if (depths.length) parts.push(`最大深度 <strong>${Math.max(...depths)}m</strong>`);
   if (dists.length)  parts.push(`最大距離 <strong>${Math.max(...dists)}m</strong>`);
-  if (bestTime)      parts.push(`ベストタイム <strong>${bestTime}</strong>`);
+  if (bestTime)      parts.push(`タイム <strong>${bestTime}</strong>`);
   parts.push(`計 <strong>${sessionDives.length}本</strong>`);
   document.getElementById('dive-log-summary').innerHTML = parts.join('　·　');
 

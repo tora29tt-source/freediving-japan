@@ -359,7 +359,7 @@ TOP (index.html)
 |トップページ（index.html）                                  |✅ 完成（※二層化に向けて要再設計）          |
 |ランキング（AIDA_ranking_prototype.html / site/index.html）|✅ 完成                        |
 |大会情報（2026_competitions.html）                        |✅ 完成                        |
-|トレーニングログ（training-log.html）                         |✅ Supabase接続・保存・読み込み・編集・URLシェア実装済み（動作確認要）|
+|トレーニングログ（training-log.html）                         |✅ Supabase接続・保存・読み込み・編集・URLシェア・カレンダー表示実装済み。バグ修正済み（2026-06-29：一覧表示崩れ・編集フォーム空白・タブ遷移時フォームリセット・ベストタイム計算）|
 |マイページ（mypage.html）                                  |✅ Supabase接続完了（トレーニングカレンダー・今月のサマリー・予約履歴・大会管理 すべて実データ表示）|
 |STAタイマー（sta-timer.html）                             |✅ 大幅機能追加・デプロイ済み              |
 |Mouthfill Calculator（mouthfill-calculator.html）     |✅ 完成・push済み                  |
@@ -421,6 +421,40 @@ window.addEventListener('beforeunload', e => {
 | プロ写真 | `{user_id}/instructor.{ext}` | `instructors.photo_url` |
 
 RLSポリシー（`storage.objects`）：INSERT/UPDATE/DELETE は `auth.uid()::text = split_part(name, '/', 1)` で本人のみ。SELECT は public。
+
+-----
+
+## training-log.html 実装仕様メモ
+
+### ベストタイム（bestTime）計算ルール
+
+セッションに STA系種目（STA / RVSTA / FRCSTA）が含まれるかどうかで分岐する。
+
+| 条件 | bestTime |
+|---|---|
+| STA系ダイブがある | STA系ダイブの中で最長の保持時間（`hold_time` / `result_time`） |
+| STA系なし・海ダイブあり（CWT/CWTB/CNF/FIM） | 最大深度ダイブの `result_time`（実際の潜水時間） |
+| STA系なし・プールダイブのみ（DYN/DNF/DYNB） | 最大距離ダイブの `result_time` |
+
+**背景**：インターバルモードの DYN/DNF ダイブは `result_time` にレスト時間が格納されるため、全ダイブの `max(result_time)` でベストタイムを計算するとレスト時間が混入するバグがあった（2026-06-29 修正）。
+
+### ページ遷移・フォーム管理
+
+- `goto(page)` — ページ切り替え。`entry` に遷移するたびに `resetForm()` を呼んでフォームをクリア
+- `editSession(id)` — セッションをフォームに展開して編集モードにする（`goto` は呼ばない）
+- `switchEntryTab(tab)` — タブ切り替え。`?.` で null-safe に
+
+### インターバルモード（`applyIntervalToDives`）
+
+インターバルテーブルの行を個別ダイブレコードに変換。
+
+| 種目 | `time` フィールド | `holdTime` フィールド |
+|---|---|---|
+| STA系 | ホールド時間（文字列） | 同じ値（秒数） |
+| 非STA（DYN等） | レスト時間（文字列） | null |
+
+DB 保存時：`result_time = t2s(d.time)`、`hold_time = d.holdTime`。
+非STA インターバルダイブでは `result_time` = レスト時間（秒）になるため、bestTime 計算では「最大深度/距離ダイブの result_time」ロジックで対処している。
 
 -----
 
