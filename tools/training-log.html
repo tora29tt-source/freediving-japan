@@ -978,26 +978,7 @@ tr:last-child td { border-bottom: none; }
   </div>
 </div>
 
-<div class="overlay" id="overlay">
-  <div class="modal">
-    <div class="modal-head">
-      <h2 class="modal-title" id="m-title">セッション詳細</h2>
-      <div style="display:flex;gap:6px;align-items:center">
-        <button class="view-toggle active" id="m-btn-time" onclick="switchModalView('time')">Time vs Depth</button>
-        <button class="view-toggle" id="m-btn-speed" onclick="switchModalView('speed')">Speed vs Depth</button>
-        <button class="close" onclick="closeModal()">✕</button>
-      </div>
-    </div>
-    <div class="modal-meta" id="m-meta"></div>
-    <canvas id="m-chart" style="max-height:240px;margin-bottom:12px;display:none"></canvas>
-    <div class="subj-grid" id="m-subj"></div>
-    <div id="m-note" style="margin-top:12px;font-size:13px;color:var(--sub);line-height:1.8"></div>
-    <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px">
-      <button class="btn btn-ghost btn-sm" onclick="closeModal()">閉じる</button>
-      <button class="btn btn-sm" id="m-edit-btn" style="background:var(--accent-dim);color:var(--accent2);border:1px solid rgba(14,165,233,.3);" onclick="editSessionFromModal()">✏️ 編集する</button>
-    </div>
-  </div>
-</div>
+<!-- SESSION MODAL REMOVED: row click goes directly to editSession() -->
 
 <div class="toast" id="toast"></div>
 
@@ -3089,7 +3070,7 @@ function renderList() {
     const mD = maxVal('dcs');
     const mN = maxVal('narcosis');
     return `
-    <tr class="trow" data-id="${s.id}" onclick="openModal('${s.id}')">
+    <tr class="trow" data-id="${s.id}" onclick="editSession('${s.id}')">
       <td>${s.date}</td>
       <td style="color:var(--sub)">${s.location||'—'}</td>
       <td>${s.discipline?`<span class="badge b-${s.discipline.toLowerCase()}">${s.discipline}</span>`:'—'}</td>
@@ -3104,7 +3085,6 @@ function renderList() {
       <td>${scaleBadge(mN,['','違和感','明確'],['','var(--warn)','var(--danger)'])}</td>
       <td style="color:var(--sub);font-size:12px">${s.rhr?s.rhr+'bpm':'—'}</td>
       <td onclick="event.stopPropagation()" style="white-space:nowrap;display:flex;gap:6px;align-items:center;padding:10px 13px">
-        <button class="btn btn-sm" style="font-size:11px;padding:4px 10px;color:var(--accent2);border:1px solid rgba(14,165,233,.3);background:transparent;border-radius:6px;cursor:pointer" onclick="editSession('${s.id}')">✏️ 編集</button>
         <button class="btn btn-sm" style="font-size:11px;padding:4px 10px;color:#a78bfa;border:1px solid rgba(167,139,250,.3);background:transparent;border-radius:6px;cursor:pointer" onclick="openShareCard('${s.id}')">📸 シェア</button>
         <button class="btn btn-sm" style="font-size:11px;padding:4px 8px;color:var(--danger);border:1px solid rgba(239,68,68,.3);background:transparent;border-radius:6px;cursor:pointer" onclick="delSess('${s.id}')">削除</button>
       </td>

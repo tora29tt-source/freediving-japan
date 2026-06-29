@@ -1033,40 +1033,28 @@ td.name { color: var(--on-dark); font-weight: 500; }
     </div>
   </div>
 
-  <!-- Quill Toolbar (rendered by Quill) -->
-  <div id="ae-quill-toolbar">
-    <span class="ql-formats">
-      <select class="ql-header">
-        <option value="1">見出し 1</option>
-        <option value="2">見出し 2</option>
-        <option value="3">見出し 3</option>
-        <option selected>本文</option>
-      </select>
-    </span>
-    <span class="ql-formats">
-      <button class="ql-bold"></button>
-      <button class="ql-italic"></button>
-      <button class="ql-underline"></button>
-      <button class="ql-strike"></button>
-    </span>
-    <span class="ql-formats">
-      <button class="ql-link"></button>
-      <button class="ql-image"></button>
-    </span>
-    <span class="ql-formats">
-      <button class="ql-blockquote"></button>
-      <button class="ql-code-block"></button>
-    </span>
-    <span class="ql-formats">
-      <button class="ql-list" value="ordered"></button>
-      <button class="ql-list" value="bullet"></button>
-    </span>
-    <span class="ql-formats">
-      <button class="ql-clean"></button>
-    </span>
-    <span class="ql-formats" style="margin-left:auto">
-      <button id="ae-html-toggle" onclick="toggleHtmlMode()" title="HTMLで直接編集" style="font-size:11px;font-weight:700;color:var(--teal,#2ec4b6);background:none;border:1px solid rgba(46,196,182,.3);border-radius:6px;padding:2px 8px;cursor:pointer;font-family:monospace;">&lt;/&gt;</button>
-    </span>
+  <!-- ライブエディタ ツールバー -->
+  <div id="ae-live-toolbar">
+    <select onchange="tbFormat(this)" title="スタイル">
+      <option value="">本文</option>
+      <option value="h2">見出し 2</option>
+      <option value="h3">見出し 3</option>
+    </select>
+    <div class="tb-sep"></div>
+    <button onclick="tbExec('bold')"           title="太字"><b>B</b></button>
+    <button onclick="tbExec('italic')"         title="斜体"><i>I</i></button>
+    <button onclick="tbExec('underline')"      title="下線"><u>U</u></button>
+    <button onclick="tbExec('strikeThrough')"  title="取り消し線"><s>S</s></button>
+    <div class="tb-sep"></div>
+    <button onclick="tbLink()"                 title="リンク">🔗</button>
+    <div class="tb-sep"></div>
+    <button onclick="tbExec('insertUnorderedList')" title="箇条書き">• リスト</button>
+    <button onclick="tbExec('insertOrderedList')"   title="番号リスト">1. リスト</button>
+    <div class="tb-sep"></div>
+    <button onclick="tbExec('formatBlock','blockquote')" title="引用">❝ 引用</button>
+    <div class="tb-sep"></div>
+    <button onclick="tbExec('removeFormat')"   title="書式クリア">✕ 書式</button>
+    <button id="ae-html-toggle-btn" onclick="toggleHtmlMode()" title="HTMLで直接編集">&lt;/&gt; HTML</button>
   </div>
 
   <!-- Main -->
@@ -1079,8 +1067,8 @@ td.name { color: var(--on-dark); font-weight: 500; }
         <span class="ae-word-count" id="ae-word-count">0 文字</span>
         <span class="ae-pub-badge draft" id="ae-pub-badge">下書き</span>
       </div>
-      <div id="ae-body-quill"></div>
-      <textarea id="ae-html-source" style="display:none;flex:1;width:100%;min-height:400px;font-family:monospace;font-size:13px;line-height:1.6;padding:16px;background:#0b1a24;color:#a8ece8;border:none;resize:none;outline:none;" placeholder="HTMLを直接編集できます。クラス名・テーブル構造などが保持されます。" oninput="aeHtmlSourceChange()"></textarea>
+      <div id="ae-body-live" contenteditable="true" spellcheck="true"></div>
+      <textarea id="ae-html-source" placeholder="HTMLを直接編集できます。クラス名・テーブル構造などが保持されます。" oninput="aeHtmlSourceChange()"></textarea>
     </div>
 
     <!-- Preview pane (site-style preview) -->
@@ -2007,34 +1995,50 @@ function articleRow(a) {
 }
 
 // ============================================================
-// Article Full-Page Editor  (Quill WYSIWYG)
+// Article Full-Page Editor  (contenteditable WYSIWYG)
 // ============================================================
 let _aeMode = 'write';
 let _aeDebounce = null;
-let quill = null;
+let _htmlMode = false;
 
-function initQuill() {
-  if (quill) return;
-  quill = new Quill('#ae-body-quill', {
-    theme: 'snow',
-    modules: {
-      toolbar: '#ae-quill-toolbar',
-      history: { delay: 1000, maxStack: 200 },
-    },
-    placeholder: '本文をここに入力してください...\n\nツールバーから見出し・太字・リスト・リンクなどを挿入できます。',
-  });
+function getLiveEditor() { return document.getElementById('ae-body-live'); }
 
-  quill.on('text-change', () => {
+// ── ツールバー ──
+function tbExec(cmd, val) {
+  if (_htmlMode) return;
+  getLiveEditor().focus();
+  document.execCommand(cmd, false, val || null);
+}
+function tbFormat(sel) {
+  if (_htmlMode) return;
+  const val = sel.value;
+  getLiveEditor().focus();
+  if (val) document.execCommand('formatBlock', false, val);
+  else     document.execCommand('formatBlock', false, 'p');
+  sel.value = '';
+}
+function tbLink() {
+  if (_htmlMode) return;
+  const url = prompt('URLを入力してください:', 'https://');
+  if (url) { getLiveEditor().focus(); document.execCommand('createLink', false, url); }
+}
+
+function initEditor() {
+  const el = getLiveEditor();
+  el.addEventListener('input', () => {
     _isDirty = true;
     aeUpdateWordCount();
     clearTimeout(_aeDebounce);
     _aeDebounce = setTimeout(aeRenderPreview, 300);
   });
+  // ペースト時にプレーンテキスト化（Wordなどからの余分な書式を除去）
+  el.addEventListener('paste', (e) => {
+    // HTMLペーストはそのまま許可（構造を保持するため）
+  });
 }
 
 function openArticleModal(articleId = null) {
   editingArticleId = articleId;
-  initQuill();
 
   // Reset fields
   ['ae-title','ae-excerpt','ae-slug','ae-cover','ae-tags','ae-author'].forEach(id => {
@@ -2044,7 +2048,7 @@ function openArticleModal(articleId = null) {
   document.getElementById('ae-category').value    = '';
   document.getElementById('ae-published').checked = false;
   document.getElementById('ae-cover-preview').classList.remove('visible');
-  quill.setContents([]);
+  getLiveEditor().innerHTML = '';
   aeUpdateWordCount();
   aeUpdatePubBadge();
 
@@ -2053,17 +2057,17 @@ function openArticleModal(articleId = null) {
   if (articleId) {
     _sb.from('articles').select('*').eq('id', articleId).single().then(({ data: d }) => {
       if (!d) return;
-      document.getElementById('ae-title').value     = d.title || '';
-      document.getElementById('ae-excerpt').value   = d.lead_text || '';
-      document.getElementById('ae-slug').value      = d.slug || '';
-      document.getElementById('ae-cover').value     = d.thumbnail_url || '';
-      document.getElementById('ae-tags').value      = (d.tags || []).join(', ');
-      document.getElementById('ae-read-time').value = d.read_time_min || '';
-      document.getElementById('ae-author').value    = d.author_type || 'FreeDive Japan編集部';
-      document.getElementById('ae-category').value  = d.category || '';
+      document.getElementById('ae-title').value       = d.title || '';
+      document.getElementById('ae-excerpt').value     = d.lead_text || '';
+      document.getElementById('ae-slug').value        = d.slug || '';
+      document.getElementById('ae-cover').value       = d.thumbnail_url || '';
+      document.getElementById('ae-tags').value        = (d.tags || []).join(', ');
+      document.getElementById('ae-read-time').value   = d.read_time_min || '';
+      document.getElementById('ae-author').value      = d.author_type || '編集部';
+      document.getElementById('ae-category').value    = d.category || '';
       document.getElementById('ae-published').checked = d.is_published === true;
-      // Load content into Quill
-      if (d.content) quill.clipboard.dangerouslyPasteHTML(0, d.content);
+      // HTMLをそのままcontenteditable divにセット（クラス保持）
+      getLiveEditor().innerHTML = d.content || '';
       aeUpdateCover();
       aeUpdateWordCount();
       aeUpdatePubBadge();
@@ -2100,38 +2104,29 @@ function setEditorMode(mode) {
   document.getElementById('ae-tab-split').classList.toggle('active',   mode === 'split');
   document.getElementById('ae-tab-preview').classList.toggle('active', mode === 'preview');
   if (mode !== 'write') aeRenderPreview();
-  if (quill) quill.focus();
+  if (mode === 'write' && !_htmlMode) getLiveEditor().focus();
 }
-
-let _htmlMode = false;
 
 function toggleHtmlMode() {
   _htmlMode = !_htmlMode;
-  const btn       = document.getElementById('ae-html-toggle');
-  const quillEl   = document.getElementById('ae-body-quill');
-  const textarea  = document.getElementById('ae-html-source');
+  const btn      = document.getElementById('ae-html-toggle-btn');
+  const liveEl   = getLiveEditor();
+  const textarea = document.getElementById('ae-html-source');
 
   if (_htmlMode) {
-    // QuillのHTMLをテキストエリアにコピー
-    const html = quill ? (quill.getSemanticHTML ? quill.getSemanticHTML() : quill.root.innerHTML) : '';
-    textarea.value = html;
-    quillEl.style.display  = 'none';
+    textarea.value        = liveEl.innerHTML;
+    liveEl.style.display  = 'none';
     textarea.style.display = 'flex';
-    btn.style.background   = 'rgba(46,196,182,.2)';
-    btn.style.color        = '#fff';
+    btn.classList.add('active');
     textarea.focus();
   } else {
-    // テキストエリアの内容をQuillに戻す
-    const html = textarea.value;
-    if (quill) {
-      quill.setContents([]);
-      if (html) quill.clipboard.dangerouslyPasteHTML(0, html);
-    }
+    liveEl.innerHTML      = textarea.value;
     textarea.style.display = 'none';
-    quillEl.style.display  = '';
-    btn.style.background   = 'none';
-    btn.style.color        = 'var(--teal, #2ec4b6)';
+    liveEl.style.display  = '';
+    btn.classList.remove('active');
+    liveEl.focus();
   }
+  aeUpdateWordCount();
 }
 
 function aeHtmlSourceChange() {
@@ -2147,7 +2142,7 @@ function toggleAeSidebar() {
 
 function aeGetContentHTML() {
   if (_htmlMode) return document.getElementById('ae-html-source').value;
-  return quill ? (quill.getSemanticHTML ? quill.getSemanticHTML() : quill.root.innerHTML) : '';
+  return getLiveEditor().innerHTML;
 }
 
 function aeRenderPreview() {
@@ -2160,9 +2155,11 @@ function aeRenderPreview() {
 }
 
 function aeUpdateWordCount() {
-  if (!quill) return;
-  const text  = quill.getText();
-  const chars = Math.max(0, text.length - 1); // Quill adds trailing \n
+  const el = _htmlMode
+    ? document.getElementById('ae-html-source')
+    : getLiveEditor();
+  const text  = el ? (el.textContent || el.value || '') : '';
+  const chars = text.trim().length;
   const mins  = Math.max(1, Math.round(chars / 500));
   document.getElementById('ae-word-count').textContent = `${chars.toLocaleString()} 文字 · 推定 ${mins} 分`;
   const rt = document.getElementById('ae-read-time');
@@ -2252,7 +2249,7 @@ async function saveArticleFromEditor(publish) {
 
   const html    = aeGetContentHTML();
   const rtVal   = parseInt(document.getElementById('ae-read-time').value);
-  const chars   = quill ? Math.max(0, quill.getText().length - 1) : 0;
+  const chars   = (getLiveEditor().textContent || '').trim().length;
   const autoRT  = Math.max(1, Math.round(chars / 500));
   const isPublished = publish || document.getElementById('ae-published').checked;
 
