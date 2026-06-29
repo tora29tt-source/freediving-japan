@@ -114,10 +114,8 @@ body {
 
 /* ===== ENTRY LAYOUT ===== */
 .entry-grid {
-  display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 16px;
-  align-items: start;
+  display: block;
+  max-width: 680px;
 }
 
 /* ===== FORM ===== */
@@ -850,49 +848,18 @@ tr:last-child td { border-bottom: none; }
 
     </div><!-- /left -->
 
-    <!-- RIGHT: UDDF PANEL -->
-    <div style="display:flex;flex-direction:column;gap:14px">
-
-      <div class="card">
-        <div class="card-head">
-          <span class="card-title">📁 UDDF インポート結果</span>
-          <button class="btn btn-ghost btn-sm" onclick="clearUDDF()">クリア</button>
-        </div>
-        <div class="card-body">
-          <!-- hidden file input (triggered from date row) -->
-          <input type="file" id="uddf-file" accept=".uddf,.xml" onchange="handleFile(this.files[0])" style="display:none">
-          <div id="upload-zone" style="display:none"></div>
-
-          <div id="uddf-loaded" style="display:none">
-            <div class="sess-stats" style="margin-top:10px">
-              <div class="ss"><div class="ss-val" id="p-dives">—</div><div class="ss-lbl">本数</div></div>
-              <div class="ss"><div class="ss-val" id="p-maxdepth">—</div><div class="ss-lbl">最大深度</div></div>
-              <div class="ss"><div class="ss-val" id="p-besttime">—</div><div class="ss-lbl">タイム</div></div>
-            </div>
-            <button onclick="openUDDFModal()" style="width:100%;margin-top:10px;padding:8px;background:var(--accent-dim);border:1px solid var(--accent);color:var(--accent2);border-radius:var(--rs);font-size:12px;font-weight:700;cursor:pointer">📋 ダイブ一覧を選択…</button>
-            <!-- hidden dive-list kept for compare compatibility -->
-            <div class="dive-list" id="dive-list" style="display:none"></div>
-            <span id="compare-count" style="display:none"></span>
-            <button id="compare-btn" style="display:none"></button>
-          </div>
-        </div>
+    <!-- hidden UDDF elements (JS references) -->
+    <div style="display:none">
+      <input type="file" id="uddf-file" accept=".uddf,.xml" onchange="handleFile(this.files[0])">
+      <div id="upload-zone"></div>
+      <div id="uddf-loaded">
+        <div id="p-dives"></div><div id="p-maxdepth"></div><div id="p-besttime"></div>
       </div>
-
-      <!-- Profile chart -->
-      <div class="card" id="profile-card" style="display:none">
-        <div class="card-head">
-          <span class="card-title" id="profile-card-title">プロファイル</span>
-          <div style="display:flex;gap:4px">
-            <button class="view-toggle active" id="btn-time" onclick="switchProfileView('time')">Time vs Depth</button>
-            <button class="view-toggle" id="btn-speed" onclick="switchProfileView('speed')">Speed vs Depth</button>
-          </div>
-        </div>
-        <div class="mini-chart">
-          <canvas id="mini-chart"></canvas>
-        </div>
-      </div>
-
-    </div><!-- right -->
+      <div id="dive-list"></div>
+      <span id="compare-count"></span>
+      <button id="compare-btn"></button>
+      <div id="profile-card"><canvas id="mini-chart"></canvas></div>
+    </div>
   </div><!-- entry-grid -->
 </div><!-- /page-inner -->
 </div><!-- /page-entry -->
