@@ -240,140 +240,36 @@ body {
   </div>
 </div>
 
-<div class="content">
+<div class="content" id="main-content">
 
-  <a class="featured" href="article.html" data-category="interview">
-    <div class="featured-img" style="background-image:url('../images/pool_portrait.jpg');background-position:center 20%;"></div>
-    <div class="featured-overlay"></div>
-    <div class="featured-body">
-      <div class="article-badge badge-interview">
-        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/></svg>
-        インタビュー
-      </div>
-      <div class="featured-title">「深さじゃなく、静けさを求めて潜る」<br>— 山田 誠・AIDA Japan 代表選手</div>
-      <div class="featured-excerpt">フリーダイビングを始めて10年。競技歴8年の山田選手が語る、記録との向き合い方、身体の使い方、そして海との関係。</div>
-      <div class="article-meta">
-        <span class="article-meta-item">
-          <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
-          5分
-        </span>
-        <span class="meta-dot"></span>
-        <span>2026.06.05</span>
-        <span class="meta-dot"></span>
-        <span>Takuya Terajima</span>
-      </div>
-    </div>
-  </a>
+  <!-- 看板記事（DB から動的挿入） -->
+  <a class="featured" href="#" data-category="" style="display:none;"></a>
 
-  <div class="sec-label" id="section-interview">
+  <div class="sec-label" id="section-interview" style="display:none;">
     <span class="sec-label-text">インタビュー</span>
     <span class="sec-label-line"></span>
   </div>
-  <div class="article-list" id="list-interview">
-    <a class="article-row" href="article.html" data-category="interview">
-      <div class="article-thumb" style="background-image:url('../images/pool_portrait.jpg');background-position:center 20%;"></div>
-      <div class="article-row-body">
-        <div class="article-row-tag">インタビュー</div>
-        <div class="article-row-title">「深さじゃなく、静けさを求めて潜る」— 山田 誠</div>
-        <div class="article-row-meta">
-          <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
-          5分 · 2026.06.05
-        </div>
-      </div>
-    </a>
-    <a class="article-row" href="article.html" data-category="interview">
-      <div class="article-thumb" style="background-image:url('../images/dive_deep_rope.jpg');background-position:center 30%;"></div>
-      <div class="article-row-body">
-        <div class="article-row-tag">インタビュー</div>
-        <div class="article-row-title">「息を止めることは、考えをやめること」— 鈴木 凛</div>
-        <div class="article-row-meta">
-          <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
-          7分 · 2026.05.20
-        </div>
-      </div>
-    </a>
-  </div>
+  <div class="article-list" id="list-interview"></div>
 
-  <div class="sec-label" id="section-news">
+  <div class="sec-label" id="section-news" style="display:none;">
     <span class="sec-label-text">海外ニュース</span>
     <span class="sec-label-line"></span>
   </div>
-  <div class="article-grid" id="list-news">
-    <a class="article-card" href="article.html" data-category="news">
-      <div class="article-card-img" style="background-image:url('../images/dive_deep_rope.jpg');background-position:center 30%;"></div>
-      <div class="article-card-body">
-        <div class="article-card-tag">海外ニュース</div>
-        <div class="article-card-title">2026世界選手権、フランス代表の最終調整が明らかに</div>
-        <div class="article-card-meta">2026.06.03</div>
-      </div>
-    </a>
-    <a class="article-card" href="article.html" data-category="news">
-      <div class="article-card-img" style="background-image:url('../images/surface_boat_view.jpg');background-position:center top;"></div>
-      <div class="article-card-body">
-        <div class="article-card-tag">海外ニュース</div>
-        <div class="article-card-title">Alexey Molchanov、DNF新記録を樹立</div>
-        <div class="article-card-meta">2026.05.28</div>
-      </div>
-    </a>
-    <a class="article-card" href="article.html" data-category="news">
-      <div class="article-card-img" style="background-image:url('../images/gear_fins_beach.jpg');"></div>
-      <div class="article-card-body">
-        <div class="article-card-tag">海外ニュース</div>
-        <div class="article-card-title">AIDA国際大会、エジプト・ダハブで開催決定</div>
-        <div class="article-card-meta">2026.05.15</div>
-      </div>
-    </a>
-    <a class="article-card" href="article.html" data-category="news">
-      <div class="article-card-img" style="background-image:url('../images/beginner_pair.jpg');"></div>
-      <div class="article-card-body">
-        <div class="article-card-tag">海外ニュース</div>
-        <div class="article-card-title">世界のフリーダイビング人口、5年で2倍に</div>
-        <div class="article-card-meta">2026.05.08</div>
-      </div>
-    </a>
-  </div>
+  <div class="article-grid" id="list-news"></div>
 
-  <div class="sec-label" id="section-tips">
+  <div class="sec-label" id="section-tips" style="display:none;">
     <span class="sec-label-text">技術・安全</span>
     <span class="sec-label-line"></span>
   </div>
-  <div class="article-list" id="list-tips">
-    <a class="article-row" href="article.html" data-category="tips">
-      <div class="article-thumb" style="background-image:url('../images/surface_boat_view.jpg');background-position:center top;"></div>
-      <div class="article-row-body">
-        <div class="article-row-tag">技術・安全</div>
-        <div class="article-row-title">耳抜きができない理由と、正しい練習法</div>
-        <div class="article-row-meta">
-          <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
-          4分 · 2026.05.12
-        </div>
-      </div>
-    </a>
-    <a class="article-row" href="article.html" data-category="tips">
-      <div class="article-thumb" style="background-image:url('../images/hero_cnf_dive.jpg');background-position:center 30%;"></div>
-      <div class="article-row-body">
-        <div class="article-row-tag">技術・安全</div>
-        <div class="article-row-title">ブラックアウトの仕組みと、一人で潜ってはいけない理由</div>
-        <div class="article-row-meta">
-          <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
-          6分 · 2026.04.30
-        </div>
-      </div>
-    </a>
-    <a class="article-row" href="article.html" data-category="tips">
-      <div class="article-thumb" style="background-image:url('../images/gear_fins_beach.jpg');"></div>
-      <div class="article-row-body">
-        <div class="article-row-tag">技術・安全</div>
-        <div class="article-row-title">初めてのフリーダイビング、何を揃えればいい？</div>
-        <div class="article-row-meta">
-          <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
-          3分 · 2026.04.18
-        </div>
-      </div>
-    </a>
+  <div class="article-list" id="list-tips"></div>
+
+  <!-- 記事なし表示 -->
+  <div id="empty-state" style="display:none; text-align:center; padding: 60px 0; color: rgba(255,255,255,0.4);">
+    <svg style="width:40px;height:40px;stroke:currentColor;fill:none;stroke-width:1.4;margin-bottom:16px;" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+    <div style="font-size:14px;">記事を準備中です</div>
   </div>
 
-  <button class="load-more">
+  <button class="load-more" style="display:none;">
     <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12l7 7 7-7"/></svg>
     もっと読む
   </button>
@@ -403,7 +299,10 @@ async function loadArticlesFromDB() {
       .order('published_at', { ascending: false })
       .limit(20);
 
-    if (error || !data || data.length === 0) return; // エラー or 記事なし → 静的表示のまま
+    if (error || !data || data.length === 0) {
+      document.getElementById('empty-state').style.display = '';
+      return;
+    }
 
     renderDBArticles(data);
   } catch(e) {
@@ -412,7 +311,13 @@ async function loadArticlesFromDB() {
 }
 
 function renderDBArticles(articles) {
-  if (articles.length === 0) return;
+  if (articles.length === 0) {
+    document.getElementById('empty-state').style.display = '';
+    return;
+  }
+
+  // load-more ボタンを表示
+  document.querySelector('.load-more').style.display = '';
 
   // 最新1件を看板記事に
   const featured = articles[0];
@@ -420,6 +325,7 @@ function renderDBArticles(articles) {
 
   const featuredEl = document.querySelector('.featured');
   if (featuredEl) {
+    featuredEl.style.display = '';
     const tab = CAT_TO_TAB[featured.category] || 'tips';
     const dateStr = featured.published_at ? new Date(featured.published_at).toLocaleDateString('ja-JP', {year:'numeric',month:'2-digit',day:'2-digit'}).replace(/\//g,'.') : '';
     const readTime = featured.read_time_min ? featured.read_time_min + '分' : '';
@@ -444,9 +350,9 @@ function renderDBArticles(articles) {
 
   // 残り記事をカテゴリに振り分けてリストに追加
   const lists = { interview: document.getElementById('list-interview'), news: document.getElementById('list-news'), tips: document.getElementById('list-tips') };
-  // 既存のダミーデータをクリア
   Object.values(lists).forEach(el => { if(el) el.innerHTML = ''; });
-  const grids = { news: document.getElementById('list-news') };
+  const sections = { interview: document.getElementById('section-interview'), news: document.getElementById('section-news'), tips: document.getElementById('section-tips') };
+  const shownSections = new Set();
 
   rest.forEach(a => {
     const tab = CAT_TO_TAB[a.category] || 'tips';
@@ -455,6 +361,12 @@ function renderDBArticles(articles) {
     const readTime = a.read_time_min ? a.read_time_min + '分' : '';
     const thumb = a.thumbnail_url || '';
     const url = `article.html?slug=${a.slug}`;
+
+    // セクションラベルを初回表示
+    if (!shownSections.has(tab)) {
+      shownSections.add(tab);
+      if (sections[tab]) sections[tab].style.display = '';
+    }
 
     if (tab === 'news') {
       const el = document.getElementById('list-news');
