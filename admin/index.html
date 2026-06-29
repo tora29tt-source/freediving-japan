@@ -2236,7 +2236,7 @@ async function aeUploadCover(input) {
   const safe = file.name.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\-_.]/g, '').replace(/\.[^.]+$/, '');
   const path = `covers/${Date.now()}_${safe}.${ext}`;
 
-  const { data, error } = await sb.storage
+  const { data, error } = await _sb.storage
     .from('article-images')
     .upload(path, file, { contentType: file.type, upsert: false });
 
@@ -2249,7 +2249,7 @@ async function aeUploadCover(input) {
     return;
   }
 
-  const { data: { publicUrl } } = sb.storage
+  const { data: { publicUrl } } = _sb.storage
     .from('article-images')
     .getPublicUrl(path);
 
