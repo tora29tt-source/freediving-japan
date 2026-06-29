@@ -864,20 +864,20 @@ tr:last-child td { border-bottom: none; }
     <div class="card-head">
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
         <input class="fi" id="search" placeholder="🔍 検索..." oninput="renderList()" style="width:150px;padding:6px 10px;font-size:12px">
-        <select class="fi" id="f-disc-f" onchange="renderList()" style="width:auto;padding:6px 10px;font-size:12px">
-          <option value="">全種目</option>
-          <option>CWT</option><option>CWTB</option><option>CNF</option>
-          <option>FIM</option><option>STA</option><option>DYN</option><option>DNF</option>
-        </select>
         <select class="fi" id="f-env-f" onchange="renderList()" style="width:auto;padding:6px 10px;font-size:12px">
           <option value="">全環境</option>
           <option value="sea">🌊 海</option>
           <option value="pool">🏊 プール</option>
           <option value="dry">🏠 ドライ</option>
         </select>
-        <div class="list-view-btns" style="margin-left:auto">
-          <button class="list-view-btn active" id="lvbtn-table" onclick="setListView('table')">☰ テーブル</button>
-          <button class="list-view-btn" id="lvbtn-cal" onclick="setListView('cal')">📅 カレンダー</button>
+        <select class="fi" id="f-disc-f" onchange="renderList()" style="width:auto;padding:6px 10px;font-size:12px">
+          <option value="">全種目</option>
+          <option>CWT</option><option>CWTB</option><option>CNF</option>
+          <option>FIM</option><option>STA</option><option>DYN</option><option>DNF</option>
+        </select>
+        <div style="margin-left:auto;display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden">
+          <button id="lvbtn-table" onclick="setListView('table')" style="padding:4px 12px;font-size:11px;font-weight:700;font-family:inherit;border:none;cursor:pointer;background:var(--accent);color:#fff;transition:all .15s">テーブル</button>
+          <button id="lvbtn-cal"   onclick="setListView('cal')"   style="padding:4px 12px;font-size:11px;font-weight:700;font-family:inherit;border:none;cursor:pointer;background:transparent;color:var(--muted);transition:all .15s">カレンダー</button>
         </div>
       </div>
     </div>
@@ -3133,8 +3133,12 @@ let calYear, calMonth;
 
 function setListView(v) {
   listView = v;
-  document.getElementById('lvbtn-table').classList.toggle('active', v === 'table');
-  document.getElementById('lvbtn-cal').classList.toggle('active', v === 'cal');
+  const btnTable = document.getElementById('lvbtn-table');
+  const btnCal   = document.getElementById('lvbtn-cal');
+  btnTable.style.background = v === 'table' ? 'var(--accent)' : 'transparent';
+  btnTable.style.color      = v === 'table' ? '#fff'          : 'var(--muted)';
+  btnCal.style.background   = v === 'cal'   ? 'var(--accent)' : 'transparent';
+  btnCal.style.color        = v === 'cal'   ? '#fff'          : 'var(--muted)';
   document.getElementById('list-table-view').style.display = v === 'table' ? '' : 'none';
   document.getElementById('list-cal-view').style.display  = v === 'cal'   ? '' : 'none';
   if (v === 'cal') renderCalendar();
