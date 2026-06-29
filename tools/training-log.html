@@ -3073,8 +3073,8 @@ function renderList() {
     <tr class="trow" data-id="${s.id}" onclick="editSession('${s.id}')">
       <td>${s.date}</td>
       <td style="color:var(--sub)">${s.location||'—'}</td>
-      <td>${s.discipline?`<span class="badge b-${s.discipline.toLowerCase()}">${s.discipline}</span>`:'—'}</td>
-      <td>${s.env==='sea'?`<span class="badge b-sea">🌊 海</span>`:s.env==='pool'?`<span class="badge b-pool">🏊 プール</span>`:`<span class="badge b-dry">🏠 ドライ</span>`}</td>
+      <td style="font-size:12px;color:var(--sub);font-weight:600">${s.discipline||'—'}</td>
+      <td style="font-size:12px;color:var(--muted)">${s.env==='sea'?'海':s.env==='pool'?'プール':'ドライ'}</td>
       <td style="font-weight:700;color:var(--accent2)">${s.bestDepth!=null?s.bestDepth+'m':s.bestDist!=null?s.bestDist+'m':'—'}</td>
       <td>${s.bestTime||'—'}</td>
       <td>${s.dives||'—'}</td>

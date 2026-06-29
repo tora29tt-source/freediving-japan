@@ -2457,7 +2457,8 @@ document.getElementById('listing-modal').addEventListener('click', function(e) {
   if (e.target === this) closeListingModal();
 });
 
-// ── Article editor live events ──
+// ── Article editor init & live events ──
+initEditor();
 document.getElementById('ae-title').addEventListener('input', () => {
   _isDirty = true;
   aeRenderPreview();
