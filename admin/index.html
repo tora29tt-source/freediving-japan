@@ -2214,7 +2214,7 @@ function articleRow(a) {
   return `
     <tr>
       <td><span title="${a.id}" style="font-family:monospace;font-size:11px;color:var(--on-dark-soft);cursor:default;">${a.id.slice(0,8)}</span></td>
-      <td class="name" style="max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(a.title)}${reviewComment}</td>
+      <td class="name">${escHtml(a.title)}${reviewComment}</td>
       <td>${catBadge}</td>
       <td style="font-size:12px;color:var(--on-dark-mid);">${escHtml(a.author_name || a.author_type || '—')}</td>
       <td>${statusBadge}</td>
