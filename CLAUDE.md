@@ -10,6 +10,10 @@
 | `APP.md` | iOSアプリの方針・機能スコープ・画面設計・ロードマップ（アプリ作業時は必読） |
 | `MEDIA_OPS.md` | メディアに関する全情報（思想・カテゴリ・制作フロー・SNS・SEO・技術仕様・ロール設計）。**メディア関連の作業時は必読** |
 
+## ツール使用制限
+
+**computer-use ツール（`mcp__computer-use__*`）は一切使用しない。**
+
 ## Git 運用ルール
 
 **Claude は git コマンドを一切実行しない。**
@@ -22,4 +26,4 @@ cd ~/Desktop/10.Freediving/30.Freediving\ Japan/freediving-japan
 gcp "commit message"
 ```
 
-*最終更新：2026-06-29*
+*最終更新：2026-06-30*

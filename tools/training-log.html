@@ -797,7 +797,6 @@ tr:last-child td { border-bottom: none; }
 
     <!-- モード切り替え -->
     <div id="dive-mode-toggle" style="display:none;margin-bottom:14px">
-      <div id="mode-target-label" style="display:none;padding:10px;border-radius:var(--rs);background:var(--accent);color:#fff;font-size:13px;font-weight:700;text-align:center;width:50%">ダイブ</div>
       <div class="env-btns" id="mode-toggle-btns" style="display:none">
         <button class="env-btn sel" id="mode-target-btn" onclick="setDiveMode('target',this)">ダイブ</button>
         <button class="env-btn" id="mode-interval" onclick="setDiveMode('interval',this)">🔁 インターバル</button>
@@ -1503,15 +1502,11 @@ function updateIntervalFields(disc) {
 
 // ===== INTERVAL CALC =====
 function showIntervalSection(disc) {
-  const SEA_DISCS = ['CWT','CWTB','CNF','FIM'];
   const IV_DISCS = ['DYN','DNF','DYNB','STA','RVSTA','FRCSTA','WALK'];
   const isSea = state.env === 'sea';
-  const showSeaLabel  = SEA_DISCS.includes(disc);
   const showIvToggle  = !isSea && IV_DISCS.includes(disc);
-  const showAny = showSeaLabel || showIvToggle;
 
-  document.getElementById('dive-mode-toggle').style.display = showAny ? '' : 'none';
-  document.getElementById('mode-target-label').style.display = showSeaLabel ? '' : 'none';
+  document.getElementById('dive-mode-toggle').style.display = showIvToggle ? '' : 'none';
   document.getElementById('mode-toggle-btns').style.display  = showIvToggle ? '' : 'none';
 
   // Reset to target mode on disc change
