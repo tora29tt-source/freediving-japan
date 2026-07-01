@@ -1,3 +1,7 @@
+---
+tags: [strategy, core-doc]
+---
+
 # Freediving Japan — 戦略・ビジョン
 
 ## 概要

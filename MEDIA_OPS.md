@@ -1,3 +1,7 @@
+---
+tags: [media, core-doc]
+---
+
 # Freediving Japan — メディア運用ルール
 
 > このドキュメントは **Takuya（編集長）・スタッフ・エディター全員の共通規範** です。

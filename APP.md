@@ -1,3 +1,7 @@
+---
+tags: [app, core-doc]
+---
+
 # Freediving Japan — アプリ方針
 
 ## 基本思想

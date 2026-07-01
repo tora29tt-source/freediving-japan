@@ -1,3 +1,7 @@
+---
+tags: [dev, core-doc]
+---
+
 # Freediving Japan — 開発・技術仕様
 
 ## 環境・作業フロー
