@@ -249,6 +249,7 @@ select.fi option{background:var(--surface2);}
 .jm-dq-btn{padding:9px 8px;border-radius:var(--rs);border:1.5px solid var(--border);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;background:var(--surface2);color:var(--muted);text-align:center;line-height:1.3;transition:all .15s;}
 .jm-dq-btn .dqcode{font-size:9px;opacity:.7;display:block;margin-top:2px;}
 .jm-dq-btn.active{background:rgba(239,68,68,0.15);border-color:var(--danger);color:#f87171;}
+.jm-pen-reason-btn.active{background:rgba(245,158,11,0.15)!important;border-color:var(--warn)!important;color:#fbbf24!important;}
 /* Penalty items */
 .jm-pen-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
 .jm-pen-item:last-child{border-bottom:none;}
@@ -331,6 +332,7 @@ body.role-readonly .role-judge-edit{pointer-events:none;opacity:0.45;cursor:not-
   /* judge モーダル (jm-sheet) の入力しやすさ */
   .jm-dq-grid{grid-template-columns:1fr;}
   .jm-dq-btn[data-code="DQOTHER"]{grid-column:span 1;}
+  .jm-pen-reason-btn[data-code="YPENOTHER"]{grid-column:span 1;}
   /* SP timer */
   .sp-clock{font-size:44px;}
   /* カード picker */
@@ -741,17 +743,33 @@ body.role-readonly .role-judge-edit{pointer-events:none;opacity:0.45;cursor:not-
 
 
 
-  <!-- DQ reasons -->
+  <!-- DQ reasons (Red) — 複数選択可 -->
   <div class="jm-sec" id="jmDqSec" style="display:none;">
-    <div class="jm-sec-label">DQ理由</div>
+    <div class="jm-sec-label">DQ理由 <span style="font-size:9px;font-weight:400;color:var(--muted);">複数選択可</span></div>
     <div class="jm-dq-grid">
-      <button class="jm-dq-btn" data-code="DQSP"       onclick="jmSelectDQ(this)">Surface Protocol<span class="dqcode">DQSP</span></button>
-      <button class="jm-dq-btn" data-code="DQBO"       onclick="jmSelectDQ(this)">ブラックアウト<span class="dqcode">DQBO</span></button>
-      <button class="jm-dq-btn" data-code="DQAIRWAYS"  onclick="jmSelectDQ(this)">Airways潜水<span class="dqcode">DQAIRWAYS</span></button>
-      <button class="jm-dq-btn" data-code="DQTOUCH"    onclick="jmSelectDQ(this)">不正タッチ<span class="dqcode">DQTOUCH</span></button>
-      <button class="jm-dq-btn" data-code="DQPULL"     onclick="jmSelectDQ(this)">ライン引き<span class="dqcode">DQPULL</span></button>
+      <button class="jm-dq-btn" data-code="DQSP"        onclick="jmSelectDQ(this)">Surface Protocol<span class="dqcode">DQSP</span></button>
+      <button class="jm-dq-btn" data-code="DQBO"        onclick="jmSelectDQ(this)">ブラックアウト<span class="dqcode">DQBO</span></button>
+      <button class="jm-dq-btn" data-code="DQAIRWAYS"   onclick="jmSelectDQ(this)">Airways潜水<span class="dqcode">DQAIRWAYS</span></button>
+      <button class="jm-dq-btn" data-code="DQTOUCH"     onclick="jmSelectDQ(this)">不正タッチ<span class="dqcode">DQTOUCH</span></button>
+      <button class="jm-dq-btn" data-code="DQPULL"      onclick="jmSelectDQ(this)">ライン引き<span class="dqcode">DQPULL</span></button>
       <button class="jm-dq-btn" data-code="DQLATESTART" onclick="jmSelectDQ(this)">30秒超え遅刻<span class="dqcode">DQ LATE START</span></button>
-      <button class="jm-dq-btn" data-code="DQOTHER"    onclick="jmSelectDQ(this)" style="grid-column:span 2;">その他<span class="dqcode">DQOTHER</span></button>
+      <button class="jm-dq-btn" data-code="DQOTHER"     onclick="jmSelectDQ(this)" style="grid-column:span 2;">その他<span class="dqcode">DQOTHER</span></button>
+    </div>
+  </div>
+
+  <!-- Yellow reasons (Penalty) — 複数選択可 -->
+  <div class="jm-sec" id="jmPenReasonSec" style="display:none;">
+    <div class="jm-sec-label">イエロー理由 <span style="font-size:9px;font-weight:400;color:var(--muted);">複数選択可</span></div>
+    <div class="jm-dq-grid">
+      <button class="jm-dq-btn jm-pen-reason-btn" data-code="YPENSP"       onclick="jmSelectYellowReason(this)">Surface Protocol<span class="dqcode">SP</span></button>
+      <button class="jm-dq-btn jm-pen-reason-btn" data-code="YPENES"       onclick="jmSelectYellowReason(this)">Early Start<span class="dqcode">EARLY START</span></button>
+      <button class="jm-dq-btn jm-pen-reason-btn" data-code="YPENLS"       onclick="jmSelectYellowReason(this)">Late Start<span class="dqcode">LATE START</span></button>
+      <button class="jm-dq-btn jm-pen-reason-btn" data-code="YPENUAP"      onclick="jmSelectYellowReason(this)">Under AP<span class="dqcode">UNDER AP</span></button>
+      <button class="jm-dq-btn jm-pen-reason-btn" data-code="YPENTURN"     onclick="jmSelectYellowReason(this)">Turn Miss<span class="dqcode">TURN</span></button>
+      <button class="jm-dq-btn jm-pen-reason-btn" data-code="YPENPULL"     onclick="jmSelectYellowReason(this)">Pull / Grab<span class="dqcode">PULL/GRAB</span></button>
+      <button class="jm-dq-btn jm-pen-reason-btn" data-code="YPENTAG"      onclick="jmSelectYellowReason(this)">Tag Missing<span class="dqcode">TAG</span></button>
+      <button class="jm-dq-btn jm-pen-reason-btn" data-code="YPENLAN"      onclick="jmSelectYellowReason(this)">Lanyard<span class="dqcode">LANYARD</span></button>
+      <button class="jm-dq-btn jm-pen-reason-btn" data-code="YPENOTHER"    onclick="jmSelectYellowReason(this)" style="grid-column:span 2;">その他<span class="dqcode">OTHER</span></button>
     </div>
   </div>
 
@@ -3419,9 +3437,10 @@ function setCard(btn, type) {
 // =============================================
 var jrResults  = {};
 var jrFilter   = 'all';
-var jmEntry    = null;
-var jmCard     = null;
-var jmDQ       = null;
+var jmEntry          = null;
+var jmCard           = null;
+var jmDQs            = [];   // Red: 複数選択
+var jmYellowReasons  = [];   // Yellow: 複数選択
 var jmCounters = { es:0, ls:0, tu:0, pu:0, gr:0 };
 var jmChecks   = { tag:false, lan:false };
 var jmSpInterval = null;
@@ -3494,13 +3513,14 @@ function jrRender() {
         borderColor = 'var(--warn)';
         rpCell   = '<span style="font-size:13px;font-weight:700;color:var(--warn);">' + rpLabel + '</span>';
         cardCell = '<span class="jr-chip jr-chip-p" style="font-size:10px;">Yellow</span>';
-        notesCell= r.notes ? '<span style="font-size:10px;color:var(--warn);">'+r.notes+'</span>' : '';
+        var penNote = (r.dq_reason ? '['+r.dq_reason+'] ' : '') + (r.notes || '');
+        notesCell= penNote.trim() ? '<span style="font-size:10px;color:var(--warn);">'+penNote.trim()+'</span>' : '';
       } else if (r.card==='dq') {
         borderColor = 'var(--danger)';
         rpCell   = '<span style="font-size:12px;color:var(--danger);">—</span>';
         cardCell = '<span class="jr-chip jr-chip-dq" style="font-size:10px;">Red</span>';
-        var dqNote = r.dq_reason || r.notes || '';
-        notesCell= dqNote ? '<span style="font-size:10px;color:var(--danger);">'+dqNote+'</span>' : '';
+        var dqNote = (r.dq_reason ? r.dq_reason+' ' : '') + (r.notes || '');
+        notesCell= dqNote.trim() ? '<span style="font-size:10px;color:var(--danger);">'+dqNote.trim()+'</span>' : '';
       }
     }
     return '<div class="ap-row" style="cursor:pointer;border-left:3px solid '+borderColor+';padding-left:11px;" onclick="jmOpen(\''+a.id+'\')">'+
@@ -3547,7 +3567,7 @@ function jmOpen(athleteId) {
   var isDepth=['CWT','CWTB','CNF','FIM','VWT'].includes(disc);
   var isGrab=['CWT','CWTB','CNF'].includes(disc);
   var isSTA=disc==='STA';
-  jmCard=null; jmDQ=null;
+  jmCard=null; jmDQs=[]; jmYellowReasons=[];
   jmCounters={es:0,ls:0,tu:0,pu:0,gr:0}; jmChecks={tag:false,lan:false};
   jmSpReset();
   document.getElementById('jmNum').textContent='START #'+(jmEntry.no||'—');
@@ -3566,6 +3586,7 @@ function jmOpen(athleteId) {
   document.querySelectorAll('.jm-grab-only').forEach(function(e){ e.style.display=isGrab?'':'none'; });
   ['jmCardW','jmCardP','jmCardDQ'].forEach(function(id){ document.getElementById(id).className='jm-card-btn'; });
   document.getElementById('jmDqSec').style.display='none';
+  document.getElementById('jmPenReasonSec').style.display='none';
   document.getElementById('jmPenSec').style.display='none';
   document.querySelectorAll('.jm-dq-btn').forEach(function(b){ b.classList.remove('active'); });
   jmUpdateCounters();
@@ -3578,7 +3599,17 @@ function jmOpen(athleteId) {
 }
 function jmPrefill(r) {
   jmSelectCard(r.card,true);
-  if(r.dq_reason){ var b=document.querySelector('.jm-dq-btn[data-code="'+r.dq_reason+'"]'); if(b) jmSelectDQ(b,true); }
+  if(r.card==='dq'&&r.dq_reason){
+    r.dq_reason.split(',').forEach(function(code){
+      var b=document.querySelector('.jm-dq-btn:not(.jm-pen-reason-btn)[data-code="'+code.trim()+'"]');
+      if(b) jmSelectDQ(b,true);
+    });
+  } else if(r.card==='penalty'&&r.dq_reason){
+    r.dq_reason.split(',').forEach(function(code){
+      var b=document.querySelector('.jm-pen-reason-btn[data-code="'+code.trim()+'"]');
+      if(b) jmSelectYellowReason(b,true);
+    });
+  }
   if(r.penalty_early_start) jmCounters.es=r.penalty_early_start;
   if(r.penalty_late_start)  jmCounters.ls=r.penalty_late_start;
   if(r.penalty_turn)  jmCounters.tu=r.penalty_turn;
@@ -3626,10 +3657,22 @@ function jmSelectCard(type,silent) {
   document.getElementById('jmCardP').className='jm-card-btn'+(type==='penalty'?' sel-p':'');
   document.getElementById('jmCardDQ').className='jm-card-btn'+(type==='dq'?' sel-dq':'');
   document.getElementById('jmDqSec').style.display=type==='dq'?'':'none';
+  document.getElementById('jmPenReasonSec').style.display=type==='penalty'?'':'none';
   document.getElementById('jmPenSec').style.display=(type==='white'||type==='penalty')?'':'none';
   if(!silent) jmCalc();
 }
-function jmSelectDQ(btn,silent) { document.querySelectorAll('.jm-dq-btn').forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active'); jmDQ=btn.dataset.code; if(!silent) jmCalc(); }
+function jmSelectDQ(btn,silent) {
+  var code=btn.dataset.code;
+  if(btn.classList.contains('active')){ btn.classList.remove('active'); jmDQs=jmDQs.filter(function(c){return c!==code;}); }
+  else { btn.classList.add('active'); jmDQs.push(code); }
+  if(!silent) jmCalc();
+}
+function jmSelectYellowReason(btn,silent) {
+  var code=btn.dataset.code;
+  if(btn.classList.contains('active')){ btn.classList.remove('active'); jmYellowReasons=jmYellowReasons.filter(function(c){return c!==code;}); }
+  else { btn.classList.add('active'); jmYellowReasons.push(code); }
+  if(!silent) jmCalc();
+}
 function jmAdj(key,delta) { jmCounters[key]=Math.max(0,(jmCounters[key]||0)+delta); jmUpdateCounters(); jmCalc(); }
 function jmToggleCheck(key) { jmChecks[key]=!jmChecks[key]; var id='jmCb'+key.charAt(0).toUpperCase()+key.slice(1); var e=document.getElementById(id); if(e) e.className='jm-check'+(jmChecks[key]?' chk':''); jmCalc(); }
 function jmUpdateCounters() {
@@ -3664,15 +3707,15 @@ function jmCalc() {
   document.getElementById('jmScRp').textContent=base.toFixed(1);
   document.getElementById('jmScPen').textContent=totalPen>0?'-'+totalPen.toFixed(1):'0';
   var tv=document.getElementById('jmScTotal'),tl=document.getElementById('jmScLabel');
-  if(jmCard==='dq'){ tv.textContent='DQ'; tv.className='jm-score-total-val is-dq'; tl.textContent=jmDQ||'DQ'; }
-  else if(jmCard){ tv.textContent=final.toFixed(1)+' pt'; tv.className='jm-score-total-val'; tl.textContent='Final Score'; }
+  if(jmCard==='dq'){ tv.textContent='DQ'; tv.className='jm-score-total-val is-dq'; tl.textContent=jmDQs.length?jmDQs.join(' + '):'DQ'; }
+  else if(jmCard){ tv.textContent=final.toFixed(1)+' pt'; tv.className='jm-score-total-val'; tl.textContent='Final Score'+(jmCard==='penalty'&&jmYellowReasons.length?' ['+jmYellowReasons.join('+')+']':''); }
   else{ tv.textContent='—'; tv.className='jm-score-total-val'; tl.textContent='Final Score'; }
   return {rp:rp,base:base,totalPen:totalPen,final:final,uapPts:uapPts};
 }
 async function jmSave() {
   if(!jmEntry) return;
   if(!jmCard){ alert('カードを選択してください'); return; }
-  if(jmCard==='dq'&&!jmDQ){ alert('DQ理由を選択してください'); return; }
+  if(jmCard==='dq'&&!jmDQs.length){ alert('DQ理由を1つ以上選択してください'); return; }
   var disc=jmEntry.disc||'CWT', rp=disc==='STA'?jmGetRpSec():jmGetRpM(), sc=jmCalc();
   // ログイン中ユーザーの ID を取得（RLS: auth.uid() = judge_id に必須）
   var _judgeId = null, _judgeName = 'Judge';
@@ -3684,7 +3727,7 @@ async function jmSave() {
 
   var payload={ event_id:_currentEventId, entry_id:jmEntry.id, athlete_name:jmEntry.name, discipline:disc,
     ap:disc==='STA'?(jmEntry.ap_t||0):(jmEntry.ap_m||0), rp:rp, card:jmCard, is_valid:jmCard!=='dq',
-    dq_reason:jmCard==='dq'?jmDQ:null,
+    dq_reason:jmCard==='dq'?(jmDQs.join(',')||null):jmCard==='penalty'?(jmYellowReasons.join(',')||null):null,
     penalty_early_start:jmCounters.es, penalty_late_start:jmCounters.ls, penalty_under_ap:sc?sc.uapPts:0,
     penalty_turn:jmCounters.tu, penalty_pull:jmCounters.pu, penalty_grab:jmCounters.gr,
     penalty_tag:jmChecks.tag, penalty_lanyard:jmChecks.lan,
