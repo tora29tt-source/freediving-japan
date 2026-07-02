@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Freediving Japan</title>
+<!-- タイトル：ブランド名確定後に差し替え -->
+<title>素潜りポータル｜シュノーケルからフリーダイビングまで</title>
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#04161f">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -186,6 +187,43 @@
 .tip-text { font-size: 12px; color: var(--on-dark-mid); line-height: 1.75; }
 .tip-text strong { color: var(--on-dark); font-weight: 600; }
 
+/* ── 3ピラー階段（素潜りのレベル） ── */
+.ladder { display: flex; flex-direction: column; gap: 10px; }
+.ladder-step {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  background: var(--glass);
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  text-decoration: none;
+  color: inherit;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: border-color 0.25s, background 0.25s, transform 0.2s;
+}
+.ladder-step:hover { border-color: rgba(46,196,182,0.4); background: rgba(46,196,182,0.06); transform: translateY(-2px); }
+/* 段が進むほど右に沈む＝深くなる表現 */
+.ladder-step.s2 { margin-left: 16px; }
+.ladder-step.s3 { margin-left: 32px; }
+.ladder-depth {
+  width: 42px; flex-shrink: 0; text-align: center;
+  color: var(--teal-light);
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
+}
+.ladder-body { flex: 1; min-width: 0; }
+.ladder-body h3 { font-size: 14px; font-weight: 600; color: var(--on-dark); margin-bottom: 3px; letter-spacing: 0.03em; }
+.ladder-body p  { font-size: 11px; color: var(--on-dark-mid); line-height: 1.6; }
+.ladder-arrow { color: var(--on-dark-soft); flex-shrink: 0; }
+.ladder-arrow .icon { width: 18px; height: 18px; }
+@media (min-width: 700px) {
+  .ladder-step.s2 { margin-left: 40px; }
+  .ladder-step.s3 { margin-left: 80px; }
+}
+
 /* ── bottom nav ── */
 .bnav-item .icon { width: 21px; height: 21px; }
 
@@ -238,7 +276,8 @@
 
 <!-- header -->
 <header class="header">
-  <a class="logo" href="index.html">Freediving <span>Japan</span></a>
+  <!-- ロゴ：ブランド名確定後はこの1行だけ差し替える -->
+  <a class="logo" href="index.html">素潜り<span>ポータル</span></a>
   <div class="header-icons">
     <a class="icon-btn" href="mypage.html"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/></svg>マイページ</a>
   </div>
@@ -264,10 +303,10 @@
   <div class="hero-inner">
     <div class="hero-tag">
       <svg class="icon" viewBox="0 0 24 24"><path d="M2 12s3-5 10-5 10 5 10 5-3 5-10 5-10-5-10-5z"/></svg>
-      フリーダイビング専門プラットフォーム
+      シュノーケルから、フリーダイビングまで
     </div>
-    <div class="hero-title">海と、もっと<br><em>深くつながろう。</em></div>
-    <div class="hero-desc">道具も資格も不要。まずは息を整えることから。あなたのペースで、海の世界へ。</div>
+    <div class="hero-title">息を止めて、<br><em>海の中へ。</em></div>
+    <div class="hero-desc">タンクを背負わず、素潜りで海とつながる。シュノーケリング・スキンダイビング・フリーダイビング——あなたのペースで、一歩ずつ深く。</div>
     <a class="hero-cta" href="explore/index.html">
       体験・スクールを探す
       <svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
@@ -278,6 +317,41 @@
 <!-- content -->
 <div class="content">
 
+  <!-- 3ピラー階段：素潜りのレベル -->
+  <div class="section fade-in">
+    <div class="sec-header">
+      <span class="sec-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M2 12s3-5 10-5 10 5 10 5-3 5-10 5-10-5-10-5z"/><circle cx="12" cy="12" r="2.5"/></svg></span>
+      <span class="sec-title">潜り方をえらぶ</span>
+      <span class="sec-sub">シュノーケル → フリーダイビング</span>
+    </div>
+    <div class="ladder">
+      <a class="ladder-step s1" href="explore/index.html">
+        <span class="ladder-depth">水面</span>
+        <div class="ladder-body">
+          <h3>シュノーケリング</h3>
+          <p>顔をつけて浮かび、海の中をのぞく。はじめての海遊びに。</p>
+        </div>
+        <span class="ladder-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+      </a>
+      <a class="ladder-step s2" href="explore/index.html">
+        <span class="ladder-depth">−3m</span>
+        <div class="ladder-body">
+          <h3>スキンダイビング</h3>
+          <p>ひと息でもぐってみる。もっと近くで海を感じたい人へ。</p>
+        </div>
+        <span class="ladder-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+      </a>
+      <a class="ladder-step s3" href="learn/index.html">
+        <span class="ladder-depth">−30m</span>
+        <div class="ladder-body">
+          <h3>フリーダイビング</h3>
+          <p>もっと深く、もっと長く。上達・競技の世界へ。</p>
+        </div>
+        <span class="ladder-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+      </a>
+    </div>
+  </div>
+
   <!-- 初めての方へ -->
   <div class="section fade-in">
     <a href="media/article.html?slug=what-is-freediving" style="text-decoration:none;color:inherit;display:block;">
@@ -285,8 +359,8 @@
         <div class="beginner-photo"></div>
         <div class="beginner-overlay"></div>
         <div class="beginner-body">
-          <h2>フリーダイビングって何？</h2>
-          <p>器具なしで海に潜るスポーツ。<br>初心者でも安全に楽しめます。</p>
+          <h2>素潜りって、なに？</h2>
+          <p>タンクを使わず、息を止めて潜る。<br>シュノーケルからフリーダイビングまで、初心者でも安全に始められます。</p>
           <span class="beginner-btn">初めての方はこちら
             <svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
           </span>
@@ -306,14 +380,14 @@
       <div style="grid-column:1/-1;">
         <a class="card wide" href="explore/index.html">
           <div class="card-thumb" style="background-image:url('images/index_explore.JPG');background-position:center 60%;"></div>
-          <div class="card-body"><h3>インストラクター・体験を探す</h3><p>全国のフリーダイビング体験・スクール・資格取得コース</p></div>
+          <div class="card-body"><h3>インストラクター・体験を探す</h3><p>全国のシュノーケル・スキンダイビング体験、フリーダイビングのスクール・資格取得コース</p></div>
           <span class="card-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
         </a>
       </div>
       <div style="grid-column:1/-1;">
         <a class="card wide" href="media/index.html">
           <div class="card-thumb" style="background-image:url('images/index_記事コラム.JPG');background-position:center 50%;"></div>
-          <div class="card-body"><h3>記事・コラム</h3><p>フリーダイビングをもっと深く知るための記事</p></div>
+          <div class="card-body"><h3>記事・コラム</h3><p>素潜りと海を、もっと深く知るための記事</p></div>
           <span class="card-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
         </a>
       </div>
@@ -368,6 +442,7 @@
     <div class="sec-header">
       <span class="sec-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M8.5 12.5L7 21l5-3 5 3-1.5-8.5"/></svg></span>
       <span class="sec-title">大会 / 国内ランキング</span>
+      <span class="sec-sub">トップ選手と大会のいまを覗く</span>
     </div>
     <a class="event-card" href="events/2026_competitions.html">
       <div class="event-thumb" style="background-image:url('images/index_Competition_Volcano_cup.JPG');background-position:center 40%;"></div>
@@ -393,7 +468,7 @@
     <div class="tips-title tips-toggle" id="tips-toggle">
       <span style="display:flex;align-items:center;gap:8px;">
         <svg class="icon" viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.3 1 2.5h6c0-1.2.2-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
-        フリーダイビングを始める前に
+        素潜りを始める前に
       </span>
       <svg class="tips-chevron" id="tips-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
     </div>
