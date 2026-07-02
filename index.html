@@ -2,219 +2,168 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- タイトル：ブランド名確定後に差し替え -->
 <title>素潜りポータル｜シュノーケルからフリーダイビングまで</title>
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#eaf7fa">
+<meta name="theme-color" content="#cbe6ee">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="FJ Timer">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <style>
 :root{
-  --ink:#0c2f38; --ink-mid:#4d6b72; --ink-soft:#88a1a7;
-  --teal:#0fa3b1; --teal-deep:#0b6b7a;
-  --aqua:#cfe8f0; --aqua-2:#a9d6e3; --hair:#c3e0e8;
+  --ink:#0b2e37; --ink-mid:#4d6b72; --ink-soft:#8aa3a9;
+  --teal:#0f9fb2; --teal-deep:#0a6474;
+  --aqua:#cfe8f0; --aqua-2:#a9d6e3; --hair:#bfdde6;
   --coral:#ef6c40; --coral-soft:#ffe6db; --coral-ink:#c04c22;
-  --sand:#efeae1; --sand-line:#ddd3c4; --sand-ink:#4a4234; --sand-mid:#7b7059;
+  --sand:#efeae1; --sand-line:#ddd3c4; --sand-ink:#463f31; --sand-mid:#7b7059;
   --navy:#062431; --navy-teal:#5dcaa5;
   --surface:#ffffff; --page:#cbe6ee;
-  --shadow:0 8px 24px rgba(18,86,96,.09);
-  --shadow-sm:0 3px 12px rgba(18,86,96,.07);
+  --shadow:0 12px 34px rgba(14,80,92,.12);
+  --shadow-sm:0 4px 16px rgba(14,80,92,.09);
 }
 *{ box-sizing:border-box; }
 html,body{ margin:0; }
 body{
-  background:var(--page);
-  color:var(--ink);
-  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;
-  -webkit-font-smoothing:antialiased;
+  background:var(--page); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro JP","SF Pro","Hiragino Sans","Noto Sans JP",sans-serif;
+  -webkit-font-smoothing:antialiased; letter-spacing:.01em;
 }
-a{ color:inherit; }
+a{ color:inherit; text-decoration:none; }
+.icon{ display:inline-block; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; vertical-align:middle; }
 
 /* ── header ── */
 .hdr{
   position:sticky; top:0; z-index:20;
-  display:flex; align-items:center; justify-content:space-between;
-  padding:14px 18px;
-  background:rgba(203,230,238,.82);
-  backdrop-filter:saturate(1.4) blur(10px);
-  -webkit-backdrop-filter:saturate(1.4) blur(10px);
-  border-bottom:1px solid var(--hair);
+  display:flex; align-items:center; justify-content:space-between; padding:13px 20px;
+  background:rgba(203,230,238,.78);
+  backdrop-filter:saturate(1.5) blur(14px); -webkit-backdrop-filter:saturate(1.5) blur(14px);
+  border-bottom:1px solid rgba(11,46,55,.06);
 }
-.logo{ font-size:18px; font-weight:700; letter-spacing:.02em; color:var(--ink); text-decoration:none; }
+.logo{ font-size:18px; font-weight:700; letter-spacing:-.01em; color:var(--ink); }
 .logo span{ color:var(--teal); font-weight:400; }
-.hdr-link{
-  display:inline-flex; align-items:center; gap:6px;
-  font-size:12px; font-weight:600; color:var(--teal-deep); text-decoration:none;
-  padding:7px 13px; border-radius:100px; border:1px solid var(--hair); background:var(--surface);
-}
+.hdr-link{ display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--teal-deep); padding:7px 14px; border-radius:100px; background:var(--surface); box-shadow:var(--shadow-sm); }
 .hdr-link .icon{ width:15px; height:15px; }
-.icon{ display:inline-block; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; vertical-align:middle; }
 
 /* ── hero ── */
-.hero{ position:relative; overflow:hidden; min-height:460px; display:flex; align-items:flex-end; }
+.hero{ position:relative; overflow:hidden; min-height:540px; display:flex; align-items:center; justify-content:center; text-align:center; }
 .hero-media{ position:absolute; inset:0; }
 .hero-media video{ width:100%; height:100%; object-fit:cover; object-position:center 35%; }
-.hero-scrim{
-  position:absolute; inset:0;
-  background:linear-gradient(to bottom, rgba(203,230,238,.10) 0%, rgba(203,230,238,0) 28%, rgba(203,230,238,.74) 72%, var(--page) 100%);
-}
-.hero-copy{ position:relative; z-index:2; width:100%; max-width:640px; margin:0 auto; padding:0 22px 40px; }
-.hero-tag{
-  display:inline-flex; align-items:center; gap:7px;
-  font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
-  color:var(--teal-deep); background:rgba(255,255,255,.78);
-  padding:6px 12px; border-radius:100px; margin-bottom:14px;
-}
-.hero-tag .icon{ width:14px; height:14px; }
-.hero-title{ font-size:32px; font-weight:700; line-height:1.35; letter-spacing:.01em; margin:0 0 12px; color:var(--ink); }
+.hero-scrim{ position:absolute; inset:0; background:linear-gradient(to bottom, rgba(203,230,238,.15) 0%, rgba(203,230,238,0) 30%, rgba(203,230,238,.72) 78%, var(--page) 100%); }
+.hero-copy{ position:relative; z-index:2; padding:0 24px 20px; }
+.hero-eyebrow{ font-size:13px; font-weight:600; letter-spacing:.02em; color:var(--teal-deep); margin:0 0 12px; }
+.hero-title{ font-size:40px; font-weight:700; line-height:1.12; letter-spacing:-.03em; margin:0 0 14px; color:var(--ink); }
 .hero-title em{ font-style:normal; color:var(--teal); }
-.hero-desc{ font-size:13.5px; line-height:1.85; color:var(--ink-mid); max-width:330px; margin:0 0 22px; }
-.hero-actions{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
-.btn-pop{
-  display:inline-flex; align-items:center; gap:9px;
-  background:var(--coral); color:#fff; font-size:14px; font-weight:700; letter-spacing:.02em;
-  padding:14px 24px; border-radius:100px; text-decoration:none;
-  box-shadow:0 8px 20px rgba(239,108,64,.32); transition:transform .18s, box-shadow .18s;
-}
-.btn-pop:hover{ transform:translateY(-2px); box-shadow:0 12px 26px rgba(239,108,64,.4); }
-.btn-pop .icon{ width:17px; height:17px; }
-.link-ghost{ font-size:13px; font-weight:600; color:var(--teal-deep); text-decoration:none; display:inline-flex; align-items:center; gap:5px; }
-.link-ghost .icon{ width:15px; height:15px; }
+.hero-desc{ font-size:16px; line-height:1.55; color:var(--ink-mid); max-width:340px; margin:0 auto 22px; }
+.hero-actions{ display:flex; align-items:center; justify-content:center; gap:20px; flex-wrap:wrap; }
+.btn-pop{ display:inline-flex; align-items:center; gap:8px; background:var(--coral); color:#fff; font-size:15px; font-weight:600; padding:13px 26px; border-radius:100px; box-shadow:0 10px 24px rgba(239,108,64,.34); transition:transform .18s, box-shadow .18s; }
+.btn-pop:hover{ transform:translateY(-2px); box-shadow:0 14px 30px rgba(239,108,64,.42); }
+.btn-pop .icon{ width:16px; height:16px; }
+.link-chev{ font-size:15px; font-weight:600; color:var(--teal-deep); display:inline-flex; align-items:center; gap:3px; }
+.link-chev .icon{ width:16px; height:16px; }
 
-/* ── layout ── */
-.wrap{ max-width:640px; margin:0 auto; padding:34px 18px 60px; }
-.block{ margin-bottom:38px; }
-.block-head{ margin-bottom:16px; }
-.block-head h2{ font-size:19px; font-weight:700; letter-spacing:.02em; margin:0 0 3px; color:var(--ink); }
-.block-head p{ font-size:12.5px; color:var(--ink-soft); margin:0; letter-spacing:.02em; }
+/* ── section ── */
+.wrap{ max-width:700px; margin:0 auto; padding:16px 18px 64px; }
+.sec{ margin:56px 0; }
+.sec:first-child{ margin-top:40px; }
+.sec-head{ text-align:center; margin-bottom:26px; }
+.sec-eyebrow{ font-size:13px; font-weight:600; color:var(--teal); margin:0 0 6px; letter-spacing:.02em; }
+.sec-title{ font-size:29px; font-weight:700; letter-spacing:-.025em; margin:0 0 8px; color:var(--ink); }
+.sec-sub{ font-size:15px; color:var(--ink-mid); margin:0 auto; max-width:360px; line-height:1.55; }
 
-/* ── 階段（潜り方をえらぶ） ── */
-.ladder{ display:flex; flex-direction:column; gap:12px; }
-.step{
-  position:relative; display:flex; align-items:center; gap:15px;
-  padding:18px; border-radius:18px; text-decoration:none;
-  transition:transform .18s, box-shadow .22s;
-}
-.step:hover{ transform:translateY(-2px); }
-.step-depth{ width:46px; flex-shrink:0; text-align:center; font-family:ui-monospace,"SF Mono",Menlo,monospace; font-size:12px; font-weight:700; letter-spacing:.02em; }
-.step-body{ flex:1; min-width:0; }
-.step-body h3{ font-size:16px; font-weight:700; margin:0 0 3px; letter-spacing:.01em; display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
-.step-body p{ font-size:12px; line-height:1.6; margin:0; }
-.step-arrow{ flex-shrink:0; }
-.step-arrow .icon{ width:19px; height:19px; }
-.badge{ font-size:10px; font-weight:700; padding:3px 9px; border-radius:100px; letter-spacing:.04em; }
-/* s1 シュノーケル = ポップ */
-.step.snorkel{ background:var(--surface); border:1.5px solid var(--aqua-2); box-shadow:var(--shadow); }
-.step.snorkel .step-depth{ color:var(--coral); }
-.step.snorkel h3{ color:var(--teal-deep); }
-.step.snorkel p{ color:var(--ink-mid); }
-.step.snorkel .step-arrow{ color:var(--coral); }
-.step.snorkel .badge{ background:var(--coral-soft); color:var(--coral-ink); }
-/* s2 スキン = おしゃれ */
-.step.skin{ background:var(--sand); border:1px solid var(--sand-line); }
-.step.skin .step-depth{ color:var(--sand-mid); }
-.step.skin h3{ color:var(--sand-ink); font-weight:600; }
-.step.skin p{ color:var(--sand-mid); }
-.step.skin .step-arrow{ color:var(--sand-mid); }
-/* s3 フリー = 洗練 */
-.step.free{ background:var(--navy); border:1px solid rgba(93,202,165,.32); }
-.step.free .step-depth{ color:var(--navy-teal); }
-.step.free h3{ color:#eaf6f3; font-weight:600; }
-.step.free p{ color:#8fb3ad; }
-.step.free .step-arrow{ color:var(--navy-teal); }
+/* ── feature tiles（潜り方をえらぶ） ── */
+.ftiles{ display:flex; flex-direction:column; gap:16px; }
+.ftile{ position:relative; text-align:center; padding:30px 24px 26px; border-radius:26px; transition:transform .2s, box-shadow .22s; }
+.ftile:hover{ transform:translateY(-3px); }
+.ftile-depth{ font-family:ui-monospace,"SF Mono",Menlo,monospace; font-size:12px; font-weight:700; letter-spacing:.06em; margin:0 0 8px; }
+.ftile-title{ font-size:24px; font-weight:700; letter-spacing:-.02em; margin:0 0 6px; display:inline-flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:center; }
+.ftile-sub{ font-size:14px; line-height:1.6; margin:0 auto 16px; max-width:320px; }
+.ftile-link{ font-size:14px; font-weight:600; display:inline-flex; align-items:center; gap:3px; }
+.ftile-link .icon{ width:15px; height:15px; }
+.badge{ font-size:11px; font-weight:700; padding:3px 10px; border-radius:100px; letter-spacing:.03em; }
+.ftile.snorkel{ background:var(--surface); box-shadow:var(--shadow); }
+.ftile.snorkel .ftile-depth{ color:var(--coral); }
+.ftile.snorkel .ftile-title{ color:var(--teal-deep); }
+.ftile.snorkel .ftile-sub{ color:var(--ink-mid); }
+.ftile.snorkel .ftile-link{ color:var(--coral-ink); }
+.ftile.snorkel .badge{ background:var(--coral-soft); color:var(--coral-ink); }
+.ftile.skin{ background:var(--sand); }
+.ftile.skin .ftile-depth{ color:var(--sand-mid); }
+.ftile.skin .ftile-title{ color:var(--sand-ink); font-weight:600; }
+.ftile.skin .ftile-sub{ color:var(--sand-mid); }
+.ftile.skin .ftile-link{ color:var(--sand-ink); }
+.ftile.free{ background:var(--navy); }
+.ftile.free .ftile-depth{ color:var(--navy-teal); }
+.ftile.free .ftile-title{ color:#eef8f5; font-weight:600; }
+.ftile.free .ftile-sub{ color:#8fb3ad; }
+.ftile.free .ftile-link{ color:var(--navy-teal); }
 
-/* ── intro（素潜りって？） ── */
-.intro{
-  display:flex; align-items:center; gap:15px;
-  background:var(--surface); border:1px solid var(--hair); border-radius:18px;
-  padding:16px; text-decoration:none; box-shadow:var(--shadow-sm);
-  transition:transform .18s, box-shadow .22s;
-}
-.intro:hover{ transform:translateY(-2px); box-shadow:var(--shadow); }
-.intro-thumb{ width:76px; height:76px; border-radius:14px; flex-shrink:0; background-size:cover; background-position:center 30%; }
-.intro-body h3{ font-size:15px; font-weight:700; margin:0 0 3px; color:var(--ink); }
-.intro-body p{ font-size:12px; color:var(--ink-mid); margin:0; line-height:1.55; }
-.intro .step-arrow{ color:var(--teal); }
+/* ── image tiles ── */
+.itile{ position:relative; display:block; border-radius:24px; overflow:hidden; min-height:230px; box-shadow:var(--shadow-sm); transition:transform .2s, box-shadow .22s; }
+.itile:hover{ transform:translateY(-3px); box-shadow:var(--shadow); }
+.itile-bg{ position:absolute; inset:0; background-size:cover; background-position:center; transition:transform .4s ease; }
+.itile:hover .itile-bg{ transform:scale(1.04); }
+.itile-scrim{ position:absolute; inset:0; background:linear-gradient(to bottom, rgba(4,20,28,.62) 0%, rgba(4,20,28,.12) 42%, rgba(4,20,28,0) 70%); }
+.itile-cap{ position:relative; z-index:2; padding:22px 22px 0; }
+.itile-cap h3{ font-size:21px; font-weight:700; letter-spacing:-.02em; margin:0 0 4px; color:#fff; }
+.itile-cap p{ font-size:13px; line-height:1.5; margin:0; color:rgba(255,255,255,.9); max-width:88%; }
+.itile-chev{ position:absolute; z-index:2; right:20px; bottom:18px; color:#fff; opacity:.9; }
+.itile-chev .icon{ width:22px; height:22px; }
 
-/* ── photo cards ── */
-.stack{ display:flex; flex-direction:column; gap:14px; }
-.grid2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-.pcard{
-  display:block; background:var(--surface); border:1px solid var(--hair);
-  border-radius:18px; overflow:hidden; text-decoration:none; box-shadow:var(--shadow-sm);
-  transition:transform .18s, box-shadow .22s;
-}
-.pcard:hover{ transform:translateY(-3px); box-shadow:var(--shadow); }
-/* 横型（探す） */
-.pcard.row{ display:flex; align-items:stretch; }
-.pcard.row .pcard-img{ width:136px; flex-shrink:0; }
-.pcard.row .pcard-cap{ flex:1; display:flex; flex-direction:column; justify-content:center; padding-right:38px; }
-.pcard-img{ background-size:cover; background-position:center; min-height:116px; }
-.pcard-cap{ padding:16px 18px; position:relative; }
-.pcard-cap h3{ font-size:14px; font-weight:700; margin:0 0 4px; color:var(--ink); letter-spacing:.01em; display:flex; align-items:center; gap:7px; }
-.pcard-cap h3 .icon{ width:16px; height:16px; color:var(--teal); }
-.pcard-cap p{ font-size:11.5px; color:var(--ink-mid); margin:0; line-height:1.55; }
-.pcard.row .pcard-cap .go{ position:absolute; right:14px; top:50%; transform:translateY(-50%); color:var(--ink-soft); }
-.pcard.row .pcard-cap .go .icon{ width:18px; height:18px; }
-/* 縦型（学ぶ） */
-.grid2 .pcard .pcard-img{ height:126px; }
-.grid2 .pcard-cap{ padding:13px 14px; }
+.two{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.two .itile{ min-height:176px; }
+.two .itile-cap{ padding:18px 18px 0; }
+.two .itile-cap h3{ font-size:18px; }
 
-/* ── プロブロック（大会・ランキング＝濃紺） ── */
-.pro{ background:var(--navy); border-radius:22px; padding:24px 18px 20px; }
-.pro .block-head h2{ color:#eef8f5; }
-.pro .block-head p{ color:#7fa8a0; }
-.pro-tag{ display:inline-flex; align-items:center; gap:6px; font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--navy-teal); margin-bottom:10px; }
-.pro-tag .icon{ width:13px; height:13px; }
-.erow{
-  display:flex; align-items:center; gap:14px;
-  background:rgba(255,255,255,.04); border:1px solid rgba(93,202,165,.16);
-  border-radius:14px; overflow:hidden; text-decoration:none; margin-bottom:11px;
-  transition:border-color .22s, background .22s;
-}
+/* ── pro block（大会・ランキング＝濃紺） ── */
+.pro{ background:var(--navy); border-radius:28px; padding:34px 20px 24px; }
+.pro .sec-head{ margin-bottom:22px; }
+.pro .sec-eyebrow{ color:var(--navy-teal); text-transform:uppercase; letter-spacing:.12em; font-size:11px; }
+.pro .sec-title{ color:#eef8f5; }
+.pro .sec-sub{ color:#7fa8a0; }
+.erow{ display:flex; align-items:center; gap:14px; background:rgba(255,255,255,.04); border:1px solid rgba(93,202,165,.16); border-radius:16px; overflow:hidden; margin-bottom:12px; transition:border-color .22s, background .22s; }
 .erow:last-child{ margin-bottom:0; }
-.erow:hover{ border-color:rgba(93,202,165,.4); background:rgba(93,202,165,.08); }
-.erow-thumb{ width:84px; height:72px; flex-shrink:0; background-size:cover; background-position:center; }
-.erow-body{ flex:1; padding:12px 14px; min-width:0; }
-.erow-body h3{ font-size:13.5px; font-weight:700; margin:0 0 3px; color:#eaf6f3; letter-spacing:.02em; }
-.erow-body p{ font-size:11px; color:#8fb3ad; margin:0; }
-.erow-arrow{ color:#6f938c; padding-right:14px; }
-.erow-arrow .icon{ width:18px; height:18px; }
+.erow:hover{ border-color:rgba(93,202,165,.42); background:rgba(93,202,165,.08); }
+.erow-thumb{ width:92px; height:78px; flex-shrink:0; background-size:cover; background-position:center; }
+.erow-body{ flex:1; padding:13px 15px; min-width:0; }
+.erow-body h3{ font-size:15px; font-weight:700; letter-spacing:-.01em; margin:0 0 3px; color:#eaf6f3; }
+.erow-body p{ font-size:11.5px; margin:0; color:#8fb3ad; }
+.erow-arrow{ color:#6f938c; padding-right:16px; }
+.erow-arrow .icon{ width:19px; height:19px; }
 
 /* ── tips ── */
-.tips{ background:var(--surface); border:1px solid var(--hair); border-radius:18px; padding:18px 20px; box-shadow:var(--shadow-sm); }
+.tips{ background:var(--surface); border-radius:24px; padding:22px 24px; box-shadow:var(--shadow-sm); }
 .tips-toggle{ display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none; }
-.tips-toggle .t-label{ display:flex; align-items:center; gap:9px; font-size:13.5px; font-weight:700; color:var(--ink); }
-.tips-toggle .t-label .icon{ width:17px; height:17px; color:var(--teal); }
-.tips-chevron{ width:17px; height:17px; color:var(--ink-soft); transition:transform .3s ease; }
+.tips-toggle .t-label{ display:flex; align-items:center; gap:10px; font-size:16px; font-weight:700; letter-spacing:-.01em; color:var(--ink); }
+.tips-toggle .t-label .icon{ width:18px; height:18px; color:var(--teal); }
+.tips-chevron{ width:18px; height:18px; color:var(--ink-soft); transition:transform .3s ease; }
 .tips-body{ overflow:hidden; max-height:0; opacity:0; transition:max-height .35s ease, opacity .3s ease; }
-.tips-body.open{ max-height:340px; opacity:1; }
-.tip{ display:flex; align-items:flex-start; gap:12px; margin-top:15px; }
-.tip-num{ width:23px; height:23px; border-radius:50%; background:var(--aqua); color:var(--teal-deep); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-family:ui-monospace,"SF Mono",Menlo,monospace; }
-.tip-text{ font-size:12.5px; color:var(--ink-mid); line-height:1.7; }
+.tips-body.open{ max-height:360px; opacity:1; }
+.tip{ display:flex; align-items:flex-start; gap:13px; margin-top:16px; }
+.tip-num{ width:24px; height:24px; border-radius:50%; background:var(--aqua); color:var(--teal-deep); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-family:ui-monospace,"SF Mono",Menlo,monospace; }
+.tip-text{ font-size:13.5px; color:var(--ink-mid); line-height:1.7; }
 .tip-text strong{ color:var(--ink); font-weight:700; }
 
 /* ── fade-in ── */
-.fade-in{ opacity:0; transform:translateY(18px); transition:opacity .55s ease, transform .55s ease; }
+.fade-in{ opacity:0; transform:translateY(20px); transition:opacity .6s ease, transform .6s ease; }
 .fade-in.visible{ opacity:1; transform:none; }
 
 /* ── PC ── */
 @media (min-width:700px){
-  .hero{ min-height:560px; }
-  .hero-title{ font-size:44px; }
-  .hero-desc{ font-size:15px; max-width:400px; }
-  .wrap{ padding-top:46px; }
-  .grid2{ grid-template-columns:1fr 1fr 1fr 1fr; }
-  .grid2 .pcard .pcard-img{ height:132px; }
+  .hero{ min-height:620px; }
+  .hero-title{ font-size:56px; }
+  .hero-desc{ font-size:19px; max-width:440px; }
+  .sec-title{ font-size:40px; }
+  .sec-sub{ font-size:17px; max-width:460px; }
+  .ftiles{ flex-direction:row; }
+  .ftiles .ftile{ flex:1; }
+  .two{ grid-template-columns:1fr 1fr 1fr 1fr; }
 }
 </style>
 </head>
 <body>
 
-<!-- header -->
 <header class="hdr">
   <!-- ロゴ：ブランド名確定後はこの1行だけ差し替える -->
   <a class="logo" href="index.html">素潜り<span>ポータル</span></a>
@@ -233,10 +182,7 @@ a{ color:inherit; }
   </div>
   <div class="hero-scrim"></div>
   <div class="hero-copy">
-    <span class="hero-tag">
-      <svg class="icon" viewBox="0 0 24 24"><path d="M2 12s3-5 10-5 10 5 10 5-3 5-10 5-10-5-10-5z"/></svg>
-      シュノーケルから、フリーダイビングまで
-    </span>
+    <p class="hero-eyebrow">シュノーケルから、フリーダイビングまで</p>
     <h1 class="hero-title">息を止めて、<br><em>海の中へ。</em></h1>
     <p class="hero-desc">タンクを背負わず、素潜りで海とつながる。あなたのペースで、一歩ずつ深く。</p>
     <div class="hero-actions">
@@ -244,9 +190,9 @@ a{ color:inherit; }
         体験・スクールを探す
         <svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
       </a>
-      <a class="link-ghost" href="media/article.html?slug=what-is-freediving">
+      <a class="link-chev" href="media/article.html?slug=what-is-freediving">
         素潜りって？
-        <svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+        <svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
       </a>
     </div>
   </div>
@@ -254,114 +200,102 @@ a{ color:inherit; }
 
 <main class="wrap">
 
-  <!-- 潜り方をえらぶ（階段） -->
-  <section class="block fade-in">
-    <div class="block-head">
-      <h2>潜り方をえらぶ</h2>
-      <p>浅いところから、深いところまで</p>
+  <!-- 潜り方をえらぶ -->
+  <section class="sec fade-in">
+    <div class="sec-head">
+      <p class="sec-eyebrow">Levels</p>
+      <h2 class="sec-title">潜り方をえらぶ。</h2>
+      <p class="sec-sub">浅いところから深いところまで。今の自分に合う一歩を。</p>
     </div>
-    <div class="ladder">
-      <a class="step snorkel" href="explore/index.html">
-        <span class="step-depth">水面</span>
-        <div class="step-body">
-          <h3>シュノーケリング <span class="badge">はじめてOK</span></h3>
-          <p>顔をつけて浮かび、海の中をのぞく。まずは気軽に海遊びから。</p>
-        </div>
-        <span class="step-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+    <div class="ftiles">
+      <a class="ftile snorkel" href="explore/index.html">
+        <p class="ftile-depth">水面</p>
+        <h3 class="ftile-title">シュノーケリング <span class="badge">はじめてOK</span></h3>
+        <p class="ftile-sub">顔をつけて浮かび、海の中をのぞく。まずは気軽に海遊びから。</p>
+        <span class="ftile-link">はじめてみる <svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
       </a>
-      <a class="step skin" href="explore/index.html">
-        <span class="step-depth">−3m</span>
-        <div class="step-body">
-          <h3>スキンダイビング</h3>
-          <p>ひと息でもぐってみる。もっと近くで海を感じたい人へ。</p>
-        </div>
-        <span class="step-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+      <a class="ftile skin" href="explore/index.html">
+        <p class="ftile-depth">−3m</p>
+        <h3 class="ftile-title">スキンダイビング</h3>
+        <p class="ftile-sub">ひと息でもぐってみる。もっと近くで海を感じたい人へ。</p>
+        <span class="ftile-link">コースを見る <svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
       </a>
-      <a class="step free" href="learn/index.html">
-        <span class="step-depth">−30m</span>
-        <div class="step-body">
-          <h3>フリーダイビング</h3>
-          <p>もっと深く、もっと長く。上達・競技の世界へ。</p>
-        </div>
-        <span class="step-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+      <a class="ftile free" href="learn/index.html">
+        <p class="ftile-depth">−30m</p>
+        <h3 class="ftile-title">フリーダイビング</h3>
+        <p class="ftile-sub">もっと深く、もっと長く。上達・競技の世界へ。</p>
+        <span class="ftile-link">深く学ぶ <svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
       </a>
     </div>
-  </section>
-
-  <!-- 素潜りって？（intro） -->
-  <section class="block fade-in">
-    <a class="intro" href="media/article.html?slug=what-is-freediving">
-      <div class="intro-thumb" style="background-image:url('images/beginner_pair.jpg');"></div>
-      <div class="intro-body">
-        <h3>素潜りって、なに？</h3>
-        <p>タンクを使わず、息を止めて潜る。初心者でも安全に始められます。</p>
-      </div>
-      <span class="step-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
-    </a>
   </section>
 
   <!-- 探す -->
-  <section class="block fade-in">
-    <div class="block-head">
-      <h2>探す</h2>
-      <p>ショップ・講習・記事を見つける</p>
+  <section class="sec fade-in">
+    <div class="sec-head">
+      <p class="sec-eyebrow">Find</p>
+      <h2 class="sec-title">探す。</h2>
+      <p class="sec-sub">通えるショップ・講習と、読み物を見つける。</p>
     </div>
-    <div class="stack">
-      <a class="pcard row" href="explore/index.html">
-        <div class="pcard-img" style="background-image:url('images/index_explore.JPG');background-position:center 60%;"></div>
-        <div class="pcard-cap">
-          <h3><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>インストラクター・体験を探す</h3>
+    <div style="display:flex; flex-direction:column; gap:16px;">
+      <a class="itile" href="explore/index.html">
+        <div class="itile-bg" style="background-image:url('images/index_explore.JPG');background-position:center 60%;"></div>
+        <div class="itile-scrim"></div>
+        <div class="itile-cap">
+          <h3>インストラクター・体験を探す</h3>
           <p>シュノーケル・スキンダイビング体験、フリーダイビングのスクール・資格取得コース</p>
-          <span class="go"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
         </div>
+        <span class="itile-chev"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
       </a>
-      <a class="pcard row" href="media/index.html">
-        <div class="pcard-img" style="background-image:url('images/index_記事コラム.JPG');background-position:center 50%;"></div>
-        <div class="pcard-cap">
-          <h3><svg class="icon" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h9v18H6a2 2 0 0 0-2 2z"/></svg>記事・コラム</h3>
+      <a class="itile" href="media/index.html">
+        <div class="itile-bg" style="background-image:url('images/index_記事コラム.JPG');background-position:center 50%;"></div>
+        <div class="itile-scrim"></div>
+        <div class="itile-cap">
+          <h3>記事・コラム</h3>
           <p>素潜りと海を、もっと深く知るための読み物</p>
-          <span class="go"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
         </div>
+        <span class="itile-chev"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
       </a>
     </div>
   </section>
 
   <!-- 学ぶ -->
-  <section class="block fade-in">
-    <div class="block-head">
-      <h2>学ぶ</h2>
-      <p>レベル別の動画コンテンツ</p>
+  <section class="sec fade-in">
+    <div class="sec-head">
+      <p class="sec-eyebrow">Learn</p>
+      <h2 class="sec-title">学ぶ。</h2>
+      <p class="sec-sub">レベル別の動画コンテンツで、着実に上達する。</p>
     </div>
-    <div class="grid2">
-      <a class="pcard" href="learn/index.html?cat=beginner">
-        <div class="pcard-img" style="background-image:url('images/index_初心者.JPG');background-position:center 30%;"></div>
-        <div class="pcard-cap"><h3>初心者</h3><p>呼吸・イコライズの基本から</p></div>
+    <div class="two">
+      <a class="itile" href="learn/index.html?cat=beginner">
+        <div class="itile-bg" style="background-image:url('images/index_初心者.JPG');background-position:center 30%;"></div>
+        <div class="itile-scrim"></div>
+        <div class="itile-cap"><h3>初心者</h3><p>呼吸・イコライズの基本から</p></div>
       </a>
-      <a class="pcard" href="learn/index.html?cat=mid">
-        <div class="pcard-img" style="background-image:url('images/index_中級_Depth_training_dahab_2.JPG');background-position:center 40%;"></div>
-        <div class="pcard-cap"><h3>中級</h3><p>FRC・ノーフィン技術</p></div>
+      <a class="itile" href="learn/index.html?cat=mid">
+        <div class="itile-bg" style="background-image:url('images/index_中級_Depth_training_dahab_2.JPG');background-position:center 40%;"></div>
+        <div class="itile-scrim"></div>
+        <div class="itile-cap"><h3>中級</h3><p>FRC・ノーフィン技術</p></div>
       </a>
-      <a class="pcard" href="learn/index.html?cat=comp">
-        <div class="pcard-img" style="background-image:url('images/pool_dynb.jpg');background-position:center 35%;"></div>
-        <div class="pcard-cap"><h3>競技</h3><p>大会・記録を伸ばす</p></div>
+      <a class="itile" href="learn/index.html?cat=comp">
+        <div class="itile-bg" style="background-image:url('images/pool_dynb.jpg');background-position:center 35%;"></div>
+        <div class="itile-scrim"></div>
+        <div class="itile-cap"><h3>競技</h3><p>大会・記録を伸ばす</p></div>
       </a>
-      <a class="pcard" href="learn/index.html?cat=inst">
-        <div class="pcard-img" style="background-image:url('images/index_インストラクターカード.JPG');background-position:center bottom;"></div>
-        <div class="pcard-cap"><h3>インストラクター</h3><p>資格・指導法を学ぶ</p></div>
+      <a class="itile" href="learn/index.html?cat=inst">
+        <div class="itile-bg" style="background-image:url('images/index_インストラクターカード.JPG');background-position:center bottom;"></div>
+        <div class="itile-scrim"></div>
+        <div class="itile-cap"><h3>インストラクター</h3><p>資格・指導法を学ぶ</p></div>
       </a>
     </div>
   </section>
 
-  <!-- 大会・国内ランキング（プロブロック＝濃紺） -->
-  <section class="block fade-in">
+  <!-- 大会・国内ランキング -->
+  <section class="sec fade-in">
     <div class="pro">
-      <span class="pro-tag">
-        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M8.5 12.5L7 21l5-3 5 3-1.5-8.5"/></svg>
-        for freedivers
-      </span>
-      <div class="block-head">
-        <h2>大会 / 国内ランキング</h2>
-        <p>トップ選手と大会のいまを覗く</p>
+      <div class="sec-head">
+        <p class="sec-eyebrow">for freedivers</p>
+        <h2 class="sec-title">大会 / 国内ランキング。</h2>
+        <p class="sec-sub">トップ選手と大会のいまを覗く。</p>
       </div>
       <a class="erow" href="events/2026_competitions.html">
         <div class="erow-thumb" style="background-image:url('images/index_Competition_Volcano_cup.JPG');background-position:center 40%;"></div>
@@ -376,8 +310,8 @@ a{ color:inherit; }
     </div>
   </section>
 
-  <!-- はじめる前のヒント -->
-  <section class="block fade-in">
+  <!-- はじめる前に -->
+  <section class="sec fade-in">
     <div class="tips">
       <div class="tips-toggle" id="tips-toggle">
         <span class="t-label">
@@ -387,18 +321,9 @@ a{ color:inherit; }
         <svg class="tips-chevron" id="tips-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
       </div>
       <div class="tips-body" id="tips-body">
-        <div class="tip">
-          <div class="tip-num">1</div>
-          <div class="tip-text"><strong>必ず認定インストラクターと一緒に</strong>潜りましょう。一人での練習は危険です。</div>
-        </div>
-        <div class="tip">
-          <div class="tip-num">2</div>
-          <div class="tip-text"><strong>体験コースから始める</strong>のがおすすめ。道具も技術も不要で、2〜3時間で体験できます。</div>
-        </div>
-        <div class="tip">
-          <div class="tip-num">3</div>
-          <div class="tip-text">深さより<strong>リラックス</strong>が大切。焦らず、自分のペースで楽しみましょう。</div>
-        </div>
+        <div class="tip"><div class="tip-num">1</div><div class="tip-text"><strong>必ず認定インストラクターと一緒に</strong>潜りましょう。一人での練習は危険です。</div></div>
+        <div class="tip"><div class="tip-num">2</div><div class="tip-text"><strong>体験コースから始める</strong>のがおすすめ。道具も技術も不要で、2〜3時間で体験できます。</div></div>
+        <div class="tip"><div class="tip-num">3</div><div class="tip-text">深さより<strong>リラックス</strong>が大切。焦らず、自分のペースで楽しみましょう。</div></div>
       </div>
     </div>
   </section>
@@ -406,31 +331,20 @@ a{ color:inherit; }
 </main>
 
 <script>
-// レスポンシブ：PCは横型ヒーロー動画
 (function(){
   var v = document.getElementById('hero-video');
-  if (v && window.innerWidth >= 700) {
-    v.querySelector('source').src = 'images/Hero_horizontal.MOV';
-    v.load();
-  }
+  if (v && window.innerWidth >= 700) { v.querySelector('source').src = 'images/Hero_horizontal.MOV'; v.load(); }
 })();
-
-// スクロールフェードイン
 (function(){
   var obs = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      if(e.isIntersecting){ e.target.classList.add('visible'); obs.unobserve(e.target); }
-    });
-  }, { threshold: 0.1 });
+    entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('visible'); obs.unobserve(e.target); } });
+  }, { threshold: 0.12 });
   document.querySelectorAll('.fade-in').forEach(function(el){ obs.observe(el); });
 })();
-
-// tips アコーディオン
 document.getElementById('tips-toggle').addEventListener('click', function(){
   var body = document.getElementById('tips-body');
   var chevron = document.getElementById('tips-chevron');
-  var isOpen = body.classList.toggle('open');
-  chevron.style.transform = isOpen ? 'rotate(180deg)' : '';
+  chevron.style.transform = body.classList.toggle('open') ? 'rotate(180deg)' : '';
 });
 </script>
 
