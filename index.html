@@ -6,531 +6,414 @@
 <!-- タイトル：ブランド名確定後に差し替え -->
 <title>素潜りポータル｜シュノーケルからフリーダイビングまで</title>
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#04161f">
+<meta name="theme-color" content="#eaf7fa">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="FJ Timer">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-<link rel="stylesheet" href="css/design-system.css">
 <style>
-.header-icons { display: flex; align-items: center; gap: 16px; }
+:root{
+  --ink:#0c2f38; --ink-mid:#4d6b72; --ink-soft:#88a1a7;
+  --teal:#0fa3b1; --teal-deep:#0b6b7a;
+  --aqua:#e9f7fa; --aqua-2:#d4eef3; --hair:#e0edef;
+  --coral:#ef6c40; --coral-soft:#ffe6db; --coral-ink:#c04c22;
+  --sand:#efeae1; --sand-line:#ddd3c4; --sand-ink:#4a4234; --sand-mid:#7b7059;
+  --navy:#062431; --navy-teal:#5dcaa5;
+  --surface:#ffffff; --page:#f4fbfc;
+  --shadow:0 8px 24px rgba(18,86,96,.09);
+  --shadow-sm:0 3px 12px rgba(18,86,96,.07);
+}
+*{ box-sizing:border-box; }
+html,body{ margin:0; }
+body{
+  background:var(--page);
+  color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+a{ color:inherit; }
+
+/* ── header ── */
+.hdr{
+  position:sticky; top:0; z-index:20;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 18px;
+  background:rgba(244,251,252,.82);
+  backdrop-filter:saturate(1.4) blur(10px);
+  -webkit-backdrop-filter:saturate(1.4) blur(10px);
+  border-bottom:1px solid var(--hair);
+}
+.logo{ font-size:18px; font-weight:700; letter-spacing:.02em; color:var(--ink); text-decoration:none; }
+.logo span{ color:var(--teal); font-weight:400; }
+.hdr-link{
+  display:inline-flex; align-items:center; gap:6px;
+  font-size:12px; font-weight:600; color:var(--teal-deep); text-decoration:none;
+  padding:7px 13px; border-radius:100px; border:1px solid var(--hair); background:var(--surface);
+}
+.hdr-link .icon{ width:15px; height:15px; }
+.icon{ display:inline-block; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; vertical-align:middle; }
 
 /* ── hero ── */
-.hero {
-  position: relative;
-  overflow: hidden;
-  text-align: center;
-  padding: 64px 24px 78px;
+.hero{ position:relative; overflow:hidden; min-height:460px; display:flex; align-items:flex-end; }
+.hero-media{ position:absolute; inset:0; }
+.hero-media video{ width:100%; height:100%; object-fit:cover; object-position:center 35%; }
+.hero-scrim{
+  position:absolute; inset:0;
+  background:linear-gradient(to bottom, rgba(244,251,252,.10) 0%, rgba(244,251,252,0) 30%, rgba(244,251,252,.72) 74%, var(--page) 100%);
 }
-.hero-bg {
-  position: absolute;
-  inset: 0;
-  opacity: 0.47;
-  filter: saturate(0.85);
-  overflow: hidden;
+.hero-copy{ position:relative; z-index:2; width:100%; max-width:640px; margin:0 auto; padding:0 22px 40px; }
+.hero-tag{
+  display:inline-flex; align-items:center; gap:7px;
+  font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--teal-deep); background:rgba(255,255,255,.78);
+  padding:6px 12px; border-radius:100px; margin-bottom:14px;
 }
-.hero-bg video {
-  width: 100%; height: 100%;
-  object-fit: cover;
-  object-position: center 30%;
+.hero-tag .icon{ width:14px; height:14px; }
+.hero-title{ font-size:32px; font-weight:700; line-height:1.35; letter-spacing:.01em; margin:0 0 12px; color:var(--ink); }
+.hero-title em{ font-style:normal; color:var(--teal); }
+.hero-desc{ font-size:13.5px; line-height:1.85; color:var(--ink-mid); max-width:330px; margin:0 0 22px; }
+.hero-actions{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+.btn-pop{
+  display:inline-flex; align-items:center; gap:9px;
+  background:var(--coral); color:#fff; font-size:14px; font-weight:700; letter-spacing:.02em;
+  padding:14px 24px; border-radius:100px; text-decoration:none;
+  box-shadow:0 8px 20px rgba(239,108,64,.32); transition:transform .18s, box-shadow .18s;
 }
-/* 水面からの自然光：上から差し込むやわらかいグロー */
-.hero-glow {
-  position: absolute;
-  top: -40%; left: 50%;
-  width: 130%; height: 90%;
-  transform: translateX(-50%);
-  background: radial-gradient(ellipse at center, rgba(168,236,232,0.22) 0%, rgba(168,236,232,0.06) 35%, transparent 65%);
-  pointer-events: none;
-}
-.hero-inner { position: relative; z-index: 2; }
-.hero-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  color: var(--teal-light);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  margin-bottom: 22px;
-}
-.hero-tag .icon { width: 14px; height: 14px; }
-.hero-title {
-  font-size: 30px;
-  font-weight: 300;
-  color: var(--on-dark);
-  line-height: 1.5;
-  letter-spacing: 0.04em;
-  margin-bottom: 16px;
-}
-.hero-title em { font-style: normal; font-weight: 500; color: var(--teal-light); }
-.hero-desc {
-  font-size: 13px;
-  color: var(--on-dark-mid);
-  line-height: 1.95;
-  letter-spacing: 0.03em;
-  max-width: 300px;
-  margin: 0 auto 30px;
-}
-.hero-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  background: transparent;
-  color: var(--on-dark);
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  padding: 13px 28px;
-  border-radius: 100px;
-  border: 1px solid rgba(168,236,232,0.45);
-  text-decoration: none;
-  transition: background 0.25s, border-color 0.25s;
-}
-.hero-cta:hover { background: rgba(46,196,182,0.12); border-color: var(--teal); }
-.hero-cta .icon { width: 16px; height: 16px; color: var(--teal-light); }
+.btn-pop:hover{ transform:translateY(-2px); box-shadow:0 12px 26px rgba(239,108,64,.4); }
+.btn-pop .icon{ width:17px; height:17px; }
+.link-ghost{ font-size:13px; font-weight:600; color:var(--teal-deep); text-decoration:none; display:inline-flex; align-items:center; gap:5px; }
+.link-ghost .icon{ width:15px; height:15px; }
 
-/* ── content ── */
-.content {
-  padding: 8px 18px 48px;
-  max-width: 640px;
-  margin: 0 auto;
-}
+/* ── layout ── */
+.wrap{ max-width:640px; margin:0 auto; padding:34px 18px 60px; }
+.block{ margin-bottom:38px; }
+.block-head{ margin-bottom:16px; }
+.block-head h2{ font-size:19px; font-weight:700; letter-spacing:.02em; margin:0 0 3px; color:var(--ink); }
+.block-head p{ font-size:12.5px; color:var(--ink-soft); margin:0; letter-spacing:.02em; }
 
-/* ── beginner banner ── */
-.beginner-banner {
-  border-radius: 16px;
-  overflow: hidden;
-  position: relative;
-  min-height: 168px;
-  display: flex;
-  align-items: flex-end;
-  border: 1px solid var(--hairline);
+/* ── 階段（潜り方をえらぶ） ── */
+.ladder{ display:flex; flex-direction:column; gap:12px; }
+.step{
+  position:relative; display:flex; align-items:center; gap:15px;
+  padding:18px; border-radius:18px; text-decoration:none;
+  transition:transform .18s, box-shadow .22s;
 }
-.beginner-photo {
-  position: absolute; inset: 0;
-  background-image: url('images/beginner_pair.jpg');
-  background-size: cover; background-position: center 30%;
-}
-.beginner-overlay {
-  position: absolute; inset: 0;
-  background: linear-gradient(to top, rgba(4,22,31,0.94) 35%, rgba(4,22,31,0.15) 100%);
-}
-.beginner-body { position: relative; z-index: 1; padding: 22px; }
-.beginner-body h2 { font-size: 16px; font-weight: 500; color: var(--on-dark); margin-bottom: 6px; letter-spacing: 0.03em; }
-.beginner-body p  { font-size: 12px; color: var(--on-dark-mid); line-height: 1.7; }
-.beginner-btn {
-  display: inline-flex; align-items: center; gap: 7px;
-  margin-top: 14px;
-  background: transparent;
-  color: var(--teal-light);
-  font-size: 12px; font-weight: 500; letter-spacing: 0.05em;
-  padding: 8px 18px;
-  border-radius: 100px;
-  border: 1px solid rgba(168,236,232,0.4);
-  text-decoration: none; cursor: pointer;
-}
-.beginner-btn .icon { width: 14px; height: 14px; }
+.step:hover{ transform:translateY(-2px); }
+.step-depth{ width:46px; flex-shrink:0; text-align:center; font-family:ui-monospace,"SF Mono",Menlo,monospace; font-size:12px; font-weight:700; letter-spacing:.02em; }
+.step-body{ flex:1; min-width:0; }
+.step-body h3{ font-size:16px; font-weight:700; margin:0 0 3px; letter-spacing:.01em; display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
+.step-body p{ font-size:12px; line-height:1.6; margin:0; }
+.step-arrow{ flex-shrink:0; }
+.step-arrow .icon{ width:19px; height:19px; }
+.badge{ font-size:10px; font-weight:700; padding:3px 9px; border-radius:100px; letter-spacing:.04em; }
+/* s1 シュノーケル = ポップ */
+.step.snorkel{ background:var(--surface); border:1.5px solid var(--aqua-2); box-shadow:var(--shadow); }
+.step.snorkel .step-depth{ color:var(--coral); }
+.step.snorkel h3{ color:var(--teal-deep); }
+.step.snorkel p{ color:var(--ink-mid); }
+.step.snorkel .step-arrow{ color:var(--coral); }
+.step.snorkel .badge{ background:var(--coral-soft); color:var(--coral-ink); }
+/* s2 スキン = おしゃれ */
+.step.skin{ background:var(--sand); border:1px solid var(--sand-line); }
+.step.skin .step-depth{ color:var(--sand-mid); }
+.step.skin h3{ color:var(--sand-ink); font-weight:600; }
+.step.skin p{ color:var(--sand-mid); }
+.step.skin .step-arrow{ color:var(--sand-mid); }
+/* s3 フリー = 洗練 */
+.step.free{ background:var(--navy); border:1px solid rgba(93,202,165,.32); }
+.step.free .step-depth{ color:var(--navy-teal); }
+.step.free h3{ color:#eaf6f3; font-weight:600; }
+.step.free p{ color:#8fb3ad; }
+.step.free .step-arrow{ color:var(--navy-teal); }
 
-/* ── event cards ── */
-.event-card {
-  background: var(--glass);
-  border: 1px solid var(--hairline);
-  border-radius: 14px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  color: inherit;
-  margin-bottom: 12px;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  transition: border-color 0.25s, transform 0.2s, background 0.25s;
+/* ── intro（素潜りって？） ── */
+.intro{
+  display:flex; align-items:center; gap:15px;
+  background:var(--surface); border:1px solid var(--hair); border-radius:18px;
+  padding:16px; text-decoration:none; box-shadow:var(--shadow-sm);
+  transition:transform .18s, box-shadow .22s;
 }
-.event-card:hover { border-color: rgba(46,196,182,0.4); background: rgba(46,196,182,0.06); transform: translateY(-2px); }
-.event-card:last-child { margin-bottom: 0; }
-.event-thumb { width: 88px; height: 76px; flex-shrink: 0; background-size: cover; background-position: center; }
-.event-card-inner { flex: 1; padding: 14px 16px; min-width: 0; }
-.event-card-inner h3 { font-size: 13px; font-weight: 600; color: var(--on-dark); margin-bottom: 3px; letter-spacing: 0.03em; }
-.event-card-inner p  { font-size: 11px; color: var(--on-dark-mid); }
-.event-arrow { color: var(--on-dark-soft); padding-right: 16px; }
-.event-arrow .icon { width: 18px; height: 18px; }
+.intro:hover{ transform:translateY(-2px); box-shadow:var(--shadow); }
+.intro-thumb{ width:64px; height:64px; border-radius:14px; flex-shrink:0; background-size:cover; background-position:center 30%; }
+.intro-body h3{ font-size:15px; font-weight:700; margin:0 0 3px; color:var(--ink); }
+.intro-body p{ font-size:12px; color:var(--ink-mid); margin:0; line-height:1.55; }
+.intro .step-arrow{ color:var(--teal); }
 
-/* ── tips strip ── */
-.tips-strip {
-  background: var(--glass);
-  border: 1px solid var(--hairline);
-  border-radius: 14px;
-  padding: 20px;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+/* ── photo cards ── */
+.stack{ display:flex; flex-direction:column; gap:14px; }
+.grid2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.pcard{
+  display:block; background:var(--surface); border:1px solid var(--hair);
+  border-radius:18px; overflow:hidden; text-decoration:none; box-shadow:var(--shadow-sm);
+  transition:transform .18s, box-shadow .22s;
 }
-.tips-title {
-  font-size: 12px; font-weight: 600; color: var(--on-dark);
-  margin-bottom: 16px; letter-spacing: 0.06em;
-  display: flex; align-items: center; gap: 8px;
+.pcard:hover{ transform:translateY(-3px); box-shadow:var(--shadow); }
+/* 横型（探す） */
+.pcard.row{ display:flex; align-items:stretch; }
+.pcard.row .pcard-img{ width:118px; flex-shrink:0; }
+.pcard.row .pcard-cap{ flex:1; display:flex; flex-direction:column; justify-content:center; }
+.pcard-img{ background-size:cover; background-position:center; min-height:96px; }
+.pcard-cap{ padding:14px 16px; position:relative; }
+.pcard-cap h3{ font-size:14px; font-weight:700; margin:0 0 4px; color:var(--ink); letter-spacing:.01em; display:flex; align-items:center; gap:7px; }
+.pcard-cap h3 .icon{ width:16px; height:16px; color:var(--teal); }
+.pcard-cap p{ font-size:11.5px; color:var(--ink-mid); margin:0; line-height:1.55; }
+.pcard.row .pcard-cap .go{ position:absolute; right:14px; top:50%; transform:translateY(-50%); color:var(--ink-soft); }
+.pcard.row .pcard-cap .go .icon{ width:18px; height:18px; }
+/* 縦型（学ぶ） */
+.grid2 .pcard .pcard-img{ height:104px; }
+
+/* ── プロブロック（大会・ランキング＝濃紺） ── */
+.pro{ background:var(--navy); border-radius:22px; padding:24px 18px 20px; }
+.pro .block-head h2{ color:#eef8f5; }
+.pro .block-head p{ color:#7fa8a0; }
+.pro-tag{ display:inline-flex; align-items:center; gap:6px; font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--navy-teal); margin-bottom:10px; }
+.pro-tag .icon{ width:13px; height:13px; }
+.erow{
+  display:flex; align-items:center; gap:14px;
+  background:rgba(255,255,255,.04); border:1px solid rgba(93,202,165,.16);
+  border-radius:14px; overflow:hidden; text-decoration:none; margin-bottom:11px;
+  transition:border-color .22s, background .22s;
 }
-.tips-title .icon { width: 15px; height: 15px; color: var(--teal-light); }
-.tip-item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 13px; }
-.tip-item:last-child { margin-bottom: 0; }
-.tip-num {
-  width: 22px; height: 22px;
-  border-radius: 50%;
-  border: 1px solid rgba(168,236,232,0.4);
-  color: var(--teal-light);
-  font-size: 10px; font-weight: 600;
-  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; margin-top: 1px;
-}
-.tip-text { font-size: 12px; color: var(--on-dark-mid); line-height: 1.75; }
-.tip-text strong { color: var(--on-dark); font-weight: 600; }
+.erow:last-child{ margin-bottom:0; }
+.erow:hover{ border-color:rgba(93,202,165,.4); background:rgba(93,202,165,.08); }
+.erow-thumb{ width:84px; height:72px; flex-shrink:0; background-size:cover; background-position:center; }
+.erow-body{ flex:1; padding:12px 14px; min-width:0; }
+.erow-body h3{ font-size:13.5px; font-weight:700; margin:0 0 3px; color:#eaf6f3; letter-spacing:.02em; }
+.erow-body p{ font-size:11px; color:#8fb3ad; margin:0; }
+.erow-arrow{ color:#6f938c; padding-right:14px; }
+.erow-arrow .icon{ width:18px; height:18px; }
 
-/* ── ヒーローCTAをポップに（塗り） ── */
-.hero-cta { background: var(--teal); color: #04161f; border-color: transparent; font-weight: 600; }
-.hero-cta:hover { background: #3fd6c7; border-color: transparent; }
-.hero-cta .icon { color: #04161f; }
+/* ── tips ── */
+.tips{ background:var(--surface); border:1px solid var(--hair); border-radius:18px; padding:18px 20px; box-shadow:var(--shadow-sm); }
+.tips-toggle{ display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none; }
+.tips-toggle .t-label{ display:flex; align-items:center; gap:9px; font-size:13.5px; font-weight:700; color:var(--ink); }
+.tips-toggle .t-label .icon{ width:17px; height:17px; color:var(--teal); }
+.tips-chevron{ width:17px; height:17px; color:var(--ink-soft); transition:transform .3s ease; }
+.tips-body{ overflow:hidden; max-height:0; opacity:0; transition:max-height .35s ease, opacity .3s ease; }
+.tips-body.open{ max-height:340px; opacity:1; }
+.tip{ display:flex; align-items:flex-start; gap:12px; margin-top:15px; }
+.tip-num{ width:23px; height:23px; border-radius:50%; background:var(--aqua); color:var(--teal-deep); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-family:ui-monospace,"SF Mono",Menlo,monospace; }
+.tip-text{ font-size:12.5px; color:var(--ink-mid); line-height:1.7; }
+.tip-text strong{ color:var(--ink); font-weight:700; }
 
-/* ── ゾーン：浅い(ポップ) → 深い(洗練) のグラデーション ── */
-.pop {
-  background: linear-gradient(180deg, #e4f6fa 0%, #aee1eb 46%, #4f9dae 100%);
-  border-radius: 22px;
-  padding: 24px 18px 40px;
-  margin-bottom: -18px;
-}
-.pop .sec-title { color: #0b3d47; }
-.pop .sec-sub   { color: #2f6b77; }
-.pop .sec-icon .icon { color: #0b3d47; }
-.deep {
-  position: relative;
-  background: #04161f;
-  border: 1px solid var(--hairline);
-  border-radius: 22px;
-  padding: 30px 16px 22px;
-}
+/* ── fade-in ── */
+.fade-in{ opacity:0; transform:translateY(18px); transition:opacity .55s ease, transform .55s ease; }
+.fade-in.visible{ opacity:1; transform:none; }
 
-/* ── 3ピラー階段（段ごとに世界観を変える） ── */
-.ladder { display: flex; flex-direction: column; gap: 12px; }
-.ladder-step {
-  position: relative; display: flex; align-items: center; gap: 14px;
-  padding: 18px; border-radius: 16px; text-decoration: none;
-  transition: transform 0.2s, box-shadow 0.25s;
-}
-.ladder-step:hover { transform: translateY(-2px); }
-.l-depth {
-  width: 44px; flex-shrink: 0; text-align: center;
-  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
-  font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
-}
-.l-body { flex: 1; min-width: 0; }
-.l-body h3 { font-size: 15px; font-weight: 600; margin-bottom: 3px; letter-spacing: 0.02em; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.l-body p  { font-size: 11.5px; line-height: 1.6; }
-.l-arrow { flex-shrink: 0; }
-.l-arrow .icon { width: 18px; height: 18px; }
-.l-badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 100px; letter-spacing: 0.03em; }
-
-/* s1 シュノーケル＝ポップ（白×水色×コーラル） */
-.ladder-step.s1 { background: #ffffff; border: 1.5px solid #7ddbe7; box-shadow: 0 6px 18px rgba(45,160,182,0.20); }
-.ladder-step.s1 .l-depth { color: #e0662f; }
-.ladder-step.s1 .l-body h3 { color: #0b6b7a; }
-.ladder-step.s1 .l-body p  { color: #3a7d88; }
-.ladder-step.s1 .l-arrow   { color: #e0662f; }
-.ladder-step.s1 .l-badge   { background: #ffe6d2; color: #b8461f; }
-
-/* s2 スキンダイビング＝おしゃれ（グレージュ） */
-.ladder-step.s2 { background: #ece7dd; border: 1px solid #d8cfbf; margin-left: 16px; }
-.ladder-step.s2 .l-depth { color: #8a7f6a; }
-.ladder-step.s2 .l-body h3 { color: #4a4234; }
-.ladder-step.s2 .l-body p  { color: #736a58; }
-.ladder-step.s2 .l-arrow   { color: #8a7f6a; }
-
-/* s3 フリーダイビング＝洗練（濃紺×ティール） */
-.ladder-step.s3 { background: #06222e; border: 1px solid rgba(93,202,165,0.35); margin-left: 32px; }
-.ladder-step.s3 .l-depth { color: var(--teal-light); }
-.ladder-step.s3 .l-body h3 { color: #eaf6f3; }
-.ladder-step.s3 .l-body p  { color: #8fb3ad; }
-.ladder-step.s3 .l-arrow   { color: var(--teal-light); }
-
-@media (min-width: 700px) {
-  .ladder-step.s2 { margin-left: 40px; }
-  .ladder-step.s3 { margin-left: 80px; }
-}
-
-/* ── bottom nav ── */
-.bnav-item .icon { width: 21px; height: 21px; }
-
-/* 両サイドの空の青を引き締めるビネット */
-.hero::after {
-  content: "";
-  position: absolute; inset: 0;
-  pointer-events: none;
-  background: radial-gradient(ellipse 60% 100% at center, transparent 55%, rgba(4,22,31,0.55) 100%);
-}
-
-/* ── wide card に写真サム ── */
-.card.wide .card-thumb {
-  width: 76px;
-  height: 62px;
-  border-radius: 8px;
-  background-size: cover;
-  background-position: center;
-  flex-shrink: 0;
-}
-
-/* ── スクロールフェードイン ── */
-.fade-in {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.55s ease, transform 0.55s ease;
-}
-.fade-in.visible {
-  opacity: 1;
-  transform: none;
-}
-
-/* ── tips アコーディオン ── */
-.tips-toggle { cursor: pointer; user-select: none; justify-content: space-between; }
-.tips-chevron { width: 16px; height: 16px; color: var(--on-dark-soft); transition: transform 0.3s ease; flex-shrink: 0; }
-.tips-body { overflow: hidden; transition: max-height 0.35s ease, opacity 0.3s ease; max-height: 0; opacity: 0; }
-.tips-body.open { max-height: 300px; opacity: 1; }
-
-/* ── PC（広い画面）向け調整 ── */
-@media (min-width: 700px) {
-  .hero { padding: 96px 24px 110px; }
-  .hero-title { font-size: 40px; }
-  .hero-desc { font-size: 14px; max-width: 360px; }
-  .hero-glow { height: 110%; }
-  .content { padding-top: 16px; }
+/* ── PC ── */
+@media (min-width:700px){
+  .hero{ min-height:560px; }
+  .hero-title{ font-size:44px; }
+  .hero-desc{ font-size:15px; max-width:400px; }
+  .wrap{ padding-top:46px; }
+  .grid2{ grid-template-columns:1fr 1fr 1fr 1fr; }
+  .grid2 .pcard .pcard-img{ height:120px; }
 }
 </style>
 </head>
 <body>
 
 <!-- header -->
-<header class="header">
+<header class="hdr">
   <!-- ロゴ：ブランド名確定後はこの1行だけ差し替える -->
   <a class="logo" href="index.html">素潜り<span>ポータル</span></a>
-  <div class="header-icons">
-    <a class="icon-btn" href="mypage.html"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/></svg>マイページ</a>
-  </div>
+  <a class="hdr-link" href="mypage.html">
+    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/></svg>
+    マイページ
+  </a>
 </header>
 
 <!-- hero -->
-<div class="hero">
-  <div class="hero-bg">
+<section class="hero">
+  <div class="hero-media">
     <video id="hero-video" autoplay loop muted playsinline>
       <source src="images/hero_vertical_ummyvideo.MOV" type="video/mp4">
     </video>
   </div>
-  <script>
-    (function(){
-      var v = document.getElementById('hero-video');
-      if (window.innerWidth >= 700) {
-        v.querySelector('source').src = 'images/Hero_horizontal.MOV';
-        v.load();
-      }
-    })();
-  </script>
-  <div class="hero-glow"></div>
-  <div class="hero-inner">
-    <div class="hero-tag">
+  <div class="hero-scrim"></div>
+  <div class="hero-copy">
+    <span class="hero-tag">
       <svg class="icon" viewBox="0 0 24 24"><path d="M2 12s3-5 10-5 10 5 10 5-3 5-10 5-10-5-10-5z"/></svg>
       シュノーケルから、フリーダイビングまで
+    </span>
+    <h1 class="hero-title">息を止めて、<br><em>海の中へ。</em></h1>
+    <p class="hero-desc">タンクを背負わず、素潜りで海とつながる。あなたのペースで、一歩ずつ深く。</p>
+    <div class="hero-actions">
+      <a class="btn-pop" href="explore/index.html">
+        体験・スクールを探す
+        <svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+      </a>
+      <a class="link-ghost" href="media/article.html?slug=what-is-freediving">
+        素潜りって？
+        <svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+      </a>
     </div>
-    <div class="hero-title">息を止めて、<br><em>海の中へ。</em></div>
-    <div class="hero-desc">タンクを背負わず、素潜りで海とつながる。シュノーケリング・スキンダイビング・フリーダイビング——あなたのペースで、一歩ずつ深く。</div>
-    <a class="hero-cta" href="explore/index.html">
-      体験・スクールを探す
-      <svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
-    </a>
   </div>
-</div>
+</section>
 
-<!-- content -->
-<div class="content">
+<main class="wrap">
 
-  <!-- ポップ帯：3ピラー階段（浅い→深い） -->
-  <div class="pop fade-in">
-    <div class="sec-header">
-      <span class="sec-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M2 12s3-5 10-5 10 5 10 5-3 5-10 5-10-5-10-5z"/><circle cx="12" cy="12" r="2.5"/></svg></span>
-      <span class="sec-title">潜り方をえらぶ</span>
-      <span class="sec-sub">シュノーケル → フリーダイビング</span>
+  <!-- 潜り方をえらぶ（階段） -->
+  <section class="block fade-in">
+    <div class="block-head">
+      <h2>潜り方をえらぶ</h2>
+      <p>浅いところから、深いところまで</p>
     </div>
     <div class="ladder">
-      <a class="ladder-step s1" href="explore/index.html">
-        <span class="l-depth">水面</span>
-        <div class="l-body">
-          <h3>シュノーケリング <span class="l-badge">はじめてOK</span></h3>
+      <a class="step snorkel" href="explore/index.html">
+        <span class="step-depth">水面</span>
+        <div class="step-body">
+          <h3>シュノーケリング <span class="badge">はじめてOK</span></h3>
           <p>顔をつけて浮かび、海の中をのぞく。まずは気軽に海遊びから。</p>
         </div>
-        <span class="l-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+        <span class="step-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
       </a>
-      <a class="ladder-step s2" href="explore/index.html">
-        <span class="l-depth">−3m</span>
-        <div class="l-body">
+      <a class="step skin" href="explore/index.html">
+        <span class="step-depth">−3m</span>
+        <div class="step-body">
           <h3>スキンダイビング</h3>
           <p>ひと息でもぐってみる。もっと近くで海を感じたい人へ。</p>
         </div>
-        <span class="l-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+        <span class="step-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
       </a>
-      <a class="ladder-step s3" href="learn/index.html">
-        <span class="l-depth">−30m</span>
-        <div class="l-body">
+      <a class="step free" href="learn/index.html">
+        <span class="step-depth">−30m</span>
+        <div class="step-body">
           <h3>フリーダイビング</h3>
           <p>もっと深く、もっと長く。上達・競技の世界へ。</p>
         </div>
-        <span class="l-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+        <span class="step-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
       </a>
     </div>
-  </div>
+  </section>
 
-  <!-- 深い帯：フリーダイビング機能ゾーン（プロ感） -->
-  <div class="deep">
-
-  <!-- 初めての方へ -->
-  <div class="section fade-in">
-    <a href="media/article.html?slug=what-is-freediving" style="text-decoration:none;color:inherit;display:block;">
-      <div class="beginner-banner">
-        <div class="beginner-photo"></div>
-        <div class="beginner-overlay"></div>
-        <div class="beginner-body">
-          <h2>素潜りって、なに？</h2>
-          <p>タンクを使わず、息を止めて潜る。<br>シュノーケルからフリーダイビングまで、初心者でも安全に始められます。</p>
-          <span class="beginner-btn">初めての方はこちら
-            <svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
-          </span>
-        </div>
+  <!-- 素潜りって？（intro） -->
+  <section class="block fade-in">
+    <a class="intro" href="media/article.html?slug=what-is-freediving">
+      <div class="intro-thumb" style="background-image:url('images/beginner_pair.jpg');"></div>
+      <div class="intro-body">
+        <h3>素潜りって、なに？</h3>
+        <p>タンクを使わず、息を止めて潜る。初心者でも安全に始められます。</p>
       </div>
+      <span class="step-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
     </a>
-  </div>
+  </section>
 
   <!-- 探す -->
-  <div class="section fade-in">
-    <div class="sec-header">
-      <span class="sec-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
-      <span class="sec-title">探す</span>
-      <span class="sec-sub">ショップ・講習を見つける</span>
+  <section class="block fade-in">
+    <div class="block-head">
+      <h2>探す</h2>
+      <p>ショップ・講習・記事を見つける</p>
     </div>
-    <div class="cards-row">
-      <div style="grid-column:1/-1;">
-        <a class="card wide" href="explore/index.html">
-          <div class="card-thumb" style="background-image:url('images/index_explore.JPG');background-position:center 60%;"></div>
-          <div class="card-body"><h3>インストラクター・体験を探す</h3><p>全国のシュノーケル・スキンダイビング体験、フリーダイビングのスクール・資格取得コース</p></div>
-          <span class="card-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
-        </a>
-      </div>
-      <div style="grid-column:1/-1;">
-        <a class="card wide" href="media/index.html">
-          <div class="card-thumb" style="background-image:url('images/index_記事コラム.JPG');background-position:center 50%;"></div>
-          <div class="card-body"><h3>記事・コラム</h3><p>素潜りと海を、もっと深く知るための記事</p></div>
-          <span class="card-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
-        </a>
-      </div>
+    <div class="stack">
+      <a class="pcard row" href="explore/index.html">
+        <div class="pcard-img" style="background-image:url('images/index_explore.JPG');background-position:center 60%;"></div>
+        <div class="pcard-cap">
+          <h3><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>インストラクター・体験を探す</h3>
+          <p>シュノーケル・スキンダイビング体験、フリーダイビングのスクール・資格取得コース</p>
+          <span class="go"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+        </div>
+      </a>
+      <a class="pcard row" href="media/index.html">
+        <div class="pcard-img" style="background-image:url('images/index_記事コラム.JPG');background-position:center 50%;"></div>
+        <div class="pcard-cap">
+          <h3><svg class="icon" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h9v18H6a2 2 0 0 0-2 2z"/></svg>記事・コラム</h3>
+          <p>素潜りと海を、もっと深く知るための読み物</p>
+          <span class="go"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+        </div>
+      </a>
     </div>
-  </div>
+  </section>
 
   <!-- 学ぶ -->
-  <div class="section fade-in">
-    <div class="sec-header">
-      <span class="sec-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h7v16H6a2 2 0 0 0-2 2z"/><path d="M20 5a2 2 0 0 0-2-2h-5v16h5a2 2 0 0 1 2 2z"/></svg></span>
-      <span class="sec-title">学ぶ</span>
-      <span class="sec-sub">レベル別コンテンツ</span>
+  <section class="block fade-in">
+    <div class="block-head">
+      <h2>学ぶ</h2>
+      <p>レベル別の動画コンテンツ</p>
     </div>
-    <div class="cards-row">
-      <a class="photo-card" href="learn/index.html?cat=beginner">
-        <div class="photo-card-img" style="background-image:url('images/index_初心者.JPG');background-position:center 30%;"></div>
-        <div class="photo-card-overlay"></div>
-        <div class="photo-card-body">
-          <h3><svg class="icon" viewBox="0 0 24 24"><path d="M12 21c0-5 0-9 5-12-1 5-3 7-5 8"/><path d="M12 21c0-4-1-7-5-9 1 4 2 6 5 7"/><path d="M12 21V11"/></svg>初心者</h3>
-          <p>呼吸・イコライズの基本から</p>
-        </div>
+    <div class="grid2">
+      <a class="pcard" href="learn/index.html?cat=beginner">
+        <div class="pcard-img" style="background-image:url('images/index_初心者.JPG');background-position:center 30%;"></div>
+        <div class="pcard-cap"><h3>初心者</h3><p>呼吸・イコライズの基本から</p></div>
       </a>
-      <a class="photo-card" href="learn/index.html?cat=mid">
-        <div class="photo-card-img" style="background-image:url('images/index_中級_Depth_training_dahab_2.JPG');background-position:center 40%;"></div>
-        <div class="photo-card-overlay"></div>
-        <div class="photo-card-body">
-          <h3><svg class="icon" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M21 7v5h-5"/></svg>中級</h3>
-          <p>FRC・ノーフィン技術</p>
-        </div>
+      <a class="pcard" href="learn/index.html?cat=mid">
+        <div class="pcard-img" style="background-image:url('images/index_中級_Depth_training_dahab_2.JPG');background-position:center 40%;"></div>
+        <div class="pcard-cap"><h3>中級</h3><p>FRC・ノーフィン技術</p></div>
       </a>
-      <a class="photo-card" href="learn/index.html?cat=comp">
-        <div class="photo-card-img" style="background-image:url('images/pool_dynb.jpg');background-position:center 35%;"></div>
-        <div class="photo-card-overlay"></div>
-        <div class="photo-card-body">
-          <h3><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M8.5 12.5L7 21l5-3 5 3-1.5-8.5"/></svg>競技</h3>
-          <p>大会・記録を伸ばす</p>
-        </div>
+      <a class="pcard" href="learn/index.html?cat=comp">
+        <div class="pcard-img" style="background-image:url('images/pool_dynb.jpg');background-position:center 35%;"></div>
+        <div class="pcard-cap"><h3>競技</h3><p>大会・記録を伸ばす</p></div>
       </a>
-      <a class="photo-card" href="learn/index.html?cat=inst">
-        <div class="photo-card-img" style="background-image:url('images/index_インストラクターカード.JPG');background-position:center bottom;"></div>
-        <div class="photo-card-overlay"></div>
-        <div class="photo-card-body">
-          <h3><svg class="icon" viewBox="0 0 24 24"><path d="M3 9l9-4 9 4-9 4-9-4z"/><path d="M7 11v5c0 1 2.5 2.5 5 2.5s5-1.5 5-2.5v-5"/></svg>インストラクター</h3>
-          <p>資格・指導法を学ぶ</p>
-        </div>
+      <a class="pcard" href="learn/index.html?cat=inst">
+        <div class="pcard-img" style="background-image:url('images/index_インストラクターカード.JPG');background-position:center bottom;"></div>
+        <div class="pcard-cap"><h3>インストラクター</h3><p>資格・指導法を学ぶ</p></div>
       </a>
     </div>
-  </div>
+  </section>
 
-  <!-- 大会 / 国内ランキング -->
-  <div class="section fade-in">
-    <div class="sec-header">
-      <span class="sec-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M8.5 12.5L7 21l5-3 5 3-1.5-8.5"/></svg></span>
-      <span class="sec-title">大会 / 国内ランキング</span>
-      <span class="sec-sub">トップ選手と大会のいまを覗く</span>
-    </div>
-    <a class="event-card" href="events/2026_competitions.html">
-      <div class="event-thumb" style="background-image:url('images/index_Competition_Volcano_cup.JPG');background-position:center 40%;"></div>
-      <div class="event-card-inner">
-        <h3>大会情報</h3>
-        <p>2026年 国内大会スケジュール</p>
-      </div>
-      <span class="event-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
-    </a>
-    <a class="event-card" href="rankings/AIDA_ranking.html">
-      <div class="event-thumb" style="background-image:url('images/pool_portrait.jpg');background-position:center 20%;"></div>
-      <div class="event-card-inner">
-        <h3>国内ランキング</h3>
-        <p>AIDA Japan 全国ランキング</p>
-      </div>
-      <span class="event-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
-    </a>
-  </div>
-
-
-  <!-- はじめての人向けヒント -->
-  <div class="tips-strip fade-in">
-    <div class="tips-title tips-toggle" id="tips-toggle">
-      <span style="display:flex;align-items:center;gap:8px;">
-        <svg class="icon" viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.3 1 2.5h6c0-1.2.2-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
-        素潜りを始める前に
+  <!-- 大会・国内ランキング（プロブロック＝濃紺） -->
+  <section class="block fade-in">
+    <div class="pro">
+      <span class="pro-tag">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M8.5 12.5L7 21l5-3 5 3-1.5-8.5"/></svg>
+        for freedivers
       </span>
-      <svg class="tips-chevron" id="tips-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      <div class="block-head">
+        <h2>大会 / 国内ランキング</h2>
+        <p>トップ選手と大会のいまを覗く</p>
+      </div>
+      <a class="erow" href="events/2026_competitions.html">
+        <div class="erow-thumb" style="background-image:url('images/index_Competition_Volcano_cup.JPG');background-position:center 40%;"></div>
+        <div class="erow-body"><h3>大会情報</h3><p>2026年 国内大会スケジュール</p></div>
+        <span class="erow-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+      </a>
+      <a class="erow" href="rankings/AIDA_ranking.html">
+        <div class="erow-thumb" style="background-image:url('images/pool_portrait.jpg');background-position:center 20%;"></div>
+        <div class="erow-body"><h3>国内ランキング</h3><p>AIDA Japan 全国ランキング</p></div>
+        <span class="erow-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+      </a>
     </div>
-    <div class="tips-body" id="tips-body">
-      <div style="padding-top:14px;">
-        <div class="tip-item">
+  </section>
+
+  <!-- はじめる前のヒント -->
+  <section class="block fade-in">
+    <div class="tips">
+      <div class="tips-toggle" id="tips-toggle">
+        <span class="t-label">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.3 1 2.5h6c0-1.2.2-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
+          素潜りを始める前に
+        </span>
+        <svg class="tips-chevron" id="tips-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="tips-body" id="tips-body">
+        <div class="tip">
           <div class="tip-num">1</div>
           <div class="tip-text"><strong>必ず認定インストラクターと一緒に</strong>潜りましょう。一人での練習は危険です。</div>
         </div>
-        <div class="tip-item">
+        <div class="tip">
           <div class="tip-num">2</div>
           <div class="tip-text"><strong>体験コースから始める</strong>のがおすすめ。道具も技術も不要で、2〜3時間で体験できます。</div>
         </div>
-        <div class="tip-item">
+        <div class="tip">
           <div class="tip-num">3</div>
           <div class="tip-text">深さより<strong>リラックス</strong>が大切。焦らず、自分のペースで楽しみましょう。</div>
         </div>
       </div>
     </div>
-  </div>
+  </section>
 
-  </div><!-- /.deep -->
-
-</div>
+</main>
 
 <script>
+// レスポンシブ：PCは横型ヒーロー動画
+(function(){
+  var v = document.getElementById('hero-video');
+  if (v && window.innerWidth >= 700) {
+    v.querySelector('source').src = 'images/Hero_horizontal.MOV';
+    v.load();
+  }
+})();
+
 // スクロールフェードイン
 (function(){
   var obs = new IntersectionObserver(function(entries){
