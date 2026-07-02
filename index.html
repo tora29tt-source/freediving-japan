@@ -187,38 +187,71 @@
 .tip-text { font-size: 12px; color: var(--on-dark-mid); line-height: 1.75; }
 .tip-text strong { color: var(--on-dark); font-weight: 600; }
 
-/* ── 3ピラー階段（素潜りのレベル） ── */
-.ladder { display: flex; flex-direction: column; gap: 10px; }
-.ladder-step {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 16px;
-  background: var(--glass);
-  border: 1px solid var(--hairline);
-  border-radius: 14px;
-  text-decoration: none;
-  color: inherit;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  transition: border-color 0.25s, background 0.25s, transform 0.2s;
+/* ── ヒーローCTAをポップに（塗り） ── */
+.hero-cta { background: var(--teal); color: #04161f; border-color: transparent; font-weight: 600; }
+.hero-cta:hover { background: #3fd6c7; border-color: transparent; }
+.hero-cta .icon { color: #04161f; }
+
+/* ── ゾーン：浅い(ポップ) → 深い(洗練) のグラデーション ── */
+.pop {
+  background: linear-gradient(180deg, #e4f6fa 0%, #aee1eb 46%, #4f9dae 100%);
+  border-radius: 22px;
+  padding: 24px 18px 40px;
+  margin-bottom: -18px;
 }
-.ladder-step:hover { border-color: rgba(46,196,182,0.4); background: rgba(46,196,182,0.06); transform: translateY(-2px); }
-/* 段が進むほど右に沈む＝深くなる表現 */
-.ladder-step.s2 { margin-left: 16px; }
-.ladder-step.s3 { margin-left: 32px; }
-.ladder-depth {
-  width: 42px; flex-shrink: 0; text-align: center;
-  color: var(--teal-light);
+.pop .sec-title { color: #0b3d47; }
+.pop .sec-sub   { color: #2f6b77; }
+.pop .sec-icon .icon { color: #0b3d47; }
+.deep {
+  position: relative;
+  background: #04161f;
+  border: 1px solid var(--hairline);
+  border-radius: 22px;
+  padding: 30px 16px 22px;
+}
+
+/* ── 3ピラー階段（段ごとに世界観を変える） ── */
+.ladder { display: flex; flex-direction: column; gap: 12px; }
+.ladder-step {
+  position: relative; display: flex; align-items: center; gap: 14px;
+  padding: 18px; border-radius: 16px; text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.25s;
+}
+.ladder-step:hover { transform: translateY(-2px); }
+.l-depth {
+  width: 44px; flex-shrink: 0; text-align: center;
   font-family: ui-monospace, 'SF Mono', Menlo, monospace;
   font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
 }
-.ladder-body { flex: 1; min-width: 0; }
-.ladder-body h3 { font-size: 14px; font-weight: 600; color: var(--on-dark); margin-bottom: 3px; letter-spacing: 0.03em; }
-.ladder-body p  { font-size: 11px; color: var(--on-dark-mid); line-height: 1.6; }
-.ladder-arrow { color: var(--on-dark-soft); flex-shrink: 0; }
-.ladder-arrow .icon { width: 18px; height: 18px; }
+.l-body { flex: 1; min-width: 0; }
+.l-body h3 { font-size: 15px; font-weight: 600; margin-bottom: 3px; letter-spacing: 0.02em; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.l-body p  { font-size: 11.5px; line-height: 1.6; }
+.l-arrow { flex-shrink: 0; }
+.l-arrow .icon { width: 18px; height: 18px; }
+.l-badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 100px; letter-spacing: 0.03em; }
+
+/* s1 シュノーケル＝ポップ（白×水色×コーラル） */
+.ladder-step.s1 { background: #ffffff; border: 1.5px solid #7ddbe7; box-shadow: 0 6px 18px rgba(45,160,182,0.20); }
+.ladder-step.s1 .l-depth { color: #e0662f; }
+.ladder-step.s1 .l-body h3 { color: #0b6b7a; }
+.ladder-step.s1 .l-body p  { color: #3a7d88; }
+.ladder-step.s1 .l-arrow   { color: #e0662f; }
+.ladder-step.s1 .l-badge   { background: #ffe6d2; color: #b8461f; }
+
+/* s2 スキンダイビング＝おしゃれ（グレージュ） */
+.ladder-step.s2 { background: #ece7dd; border: 1px solid #d8cfbf; margin-left: 16px; }
+.ladder-step.s2 .l-depth { color: #8a7f6a; }
+.ladder-step.s2 .l-body h3 { color: #4a4234; }
+.ladder-step.s2 .l-body p  { color: #736a58; }
+.ladder-step.s2 .l-arrow   { color: #8a7f6a; }
+
+/* s3 フリーダイビング＝洗練（濃紺×ティール） */
+.ladder-step.s3 { background: #06222e; border: 1px solid rgba(93,202,165,0.35); margin-left: 32px; }
+.ladder-step.s3 .l-depth { color: var(--teal-light); }
+.ladder-step.s3 .l-body h3 { color: #eaf6f3; }
+.ladder-step.s3 .l-body p  { color: #8fb3ad; }
+.ladder-step.s3 .l-arrow   { color: var(--teal-light); }
+
 @media (min-width: 700px) {
   .ladder-step.s2 { margin-left: 40px; }
   .ladder-step.s3 { margin-left: 80px; }
@@ -317,8 +350,8 @@
 <!-- content -->
 <div class="content">
 
-  <!-- 3ピラー階段：素潜りのレベル -->
-  <div class="section fade-in">
+  <!-- ポップ帯：3ピラー階段（浅い→深い） -->
+  <div class="pop fade-in">
     <div class="sec-header">
       <span class="sec-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M2 12s3-5 10-5 10 5 10 5-3 5-10 5-10-5-10-5z"/><circle cx="12" cy="12" r="2.5"/></svg></span>
       <span class="sec-title">潜り方をえらぶ</span>
@@ -326,31 +359,34 @@
     </div>
     <div class="ladder">
       <a class="ladder-step s1" href="explore/index.html">
-        <span class="ladder-depth">水面</span>
-        <div class="ladder-body">
-          <h3>シュノーケリング</h3>
-          <p>顔をつけて浮かび、海の中をのぞく。はじめての海遊びに。</p>
+        <span class="l-depth">水面</span>
+        <div class="l-body">
+          <h3>シュノーケリング <span class="l-badge">はじめてOK</span></h3>
+          <p>顔をつけて浮かび、海の中をのぞく。まずは気軽に海遊びから。</p>
         </div>
-        <span class="ladder-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+        <span class="l-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
       </a>
       <a class="ladder-step s2" href="explore/index.html">
-        <span class="ladder-depth">−3m</span>
-        <div class="ladder-body">
+        <span class="l-depth">−3m</span>
+        <div class="l-body">
           <h3>スキンダイビング</h3>
           <p>ひと息でもぐってみる。もっと近くで海を感じたい人へ。</p>
         </div>
-        <span class="ladder-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+        <span class="l-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
       </a>
       <a class="ladder-step s3" href="learn/index.html">
-        <span class="ladder-depth">−30m</span>
-        <div class="ladder-body">
+        <span class="l-depth">−30m</span>
+        <div class="l-body">
           <h3>フリーダイビング</h3>
           <p>もっと深く、もっと長く。上達・競技の世界へ。</p>
         </div>
-        <span class="ladder-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+        <span class="l-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
       </a>
     </div>
   </div>
+
+  <!-- 深い帯：フリーダイビング機能ゾーン（プロ感） -->
+  <div class="deep">
 
   <!-- 初めての方へ -->
   <div class="section fade-in">
@@ -489,6 +525,8 @@
       </div>
     </div>
   </div>
+
+  </div><!-- /.deep -->
 
 </div>
 
