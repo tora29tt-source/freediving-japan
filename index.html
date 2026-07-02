@@ -15,11 +15,11 @@
 :root{
   --ink:#0c2f38; --ink-mid:#4d6b72; --ink-soft:#88a1a7;
   --teal:#0fa3b1; --teal-deep:#0b6b7a;
-  --aqua:#e9f7fa; --aqua-2:#d4eef3; --hair:#e0edef;
+  --aqua:#cfe8f0; --aqua-2:#a9d6e3; --hair:#c3e0e8;
   --coral:#ef6c40; --coral-soft:#ffe6db; --coral-ink:#c04c22;
   --sand:#efeae1; --sand-line:#ddd3c4; --sand-ink:#4a4234; --sand-mid:#7b7059;
   --navy:#062431; --navy-teal:#5dcaa5;
-  --surface:#ffffff; --page:#f4fbfc;
+  --surface:#ffffff; --page:#cbe6ee;
   --shadow:0 8px 24px rgba(18,86,96,.09);
   --shadow-sm:0 3px 12px rgba(18,86,96,.07);
 }
@@ -38,7 +38,7 @@ a{ color:inherit; }
   position:sticky; top:0; z-index:20;
   display:flex; align-items:center; justify-content:space-between;
   padding:14px 18px;
-  background:rgba(244,251,252,.82);
+  background:rgba(203,230,238,.82);
   backdrop-filter:saturate(1.4) blur(10px);
   -webkit-backdrop-filter:saturate(1.4) blur(10px);
   border-bottom:1px solid var(--hair);
@@ -59,7 +59,7 @@ a{ color:inherit; }
 .hero-media video{ width:100%; height:100%; object-fit:cover; object-position:center 35%; }
 .hero-scrim{
   position:absolute; inset:0;
-  background:linear-gradient(to bottom, rgba(244,251,252,.10) 0%, rgba(244,251,252,0) 30%, rgba(244,251,252,.72) 74%, var(--page) 100%);
+  background:linear-gradient(to bottom, rgba(203,230,238,.10) 0%, rgba(203,230,238,0) 28%, rgba(203,230,238,.74) 72%, var(--page) 100%);
 }
 .hero-copy{ position:relative; z-index:2; width:100%; max-width:640px; margin:0 auto; padding:0 22px 40px; }
 .hero-tag{
@@ -134,7 +134,7 @@ a{ color:inherit; }
   transition:transform .18s, box-shadow .22s;
 }
 .intro:hover{ transform:translateY(-2px); box-shadow:var(--shadow); }
-.intro-thumb{ width:64px; height:64px; border-radius:14px; flex-shrink:0; background-size:cover; background-position:center 30%; }
+.intro-thumb{ width:76px; height:76px; border-radius:14px; flex-shrink:0; background-size:cover; background-position:center 30%; }
 .intro-body h3{ font-size:15px; font-weight:700; margin:0 0 3px; color:var(--ink); }
 .intro-body p{ font-size:12px; color:var(--ink-mid); margin:0; line-height:1.55; }
 .intro .step-arrow{ color:var(--teal); }
@@ -150,17 +150,18 @@ a{ color:inherit; }
 .pcard:hover{ transform:translateY(-3px); box-shadow:var(--shadow); }
 /* 横型（探す） */
 .pcard.row{ display:flex; align-items:stretch; }
-.pcard.row .pcard-img{ width:118px; flex-shrink:0; }
-.pcard.row .pcard-cap{ flex:1; display:flex; flex-direction:column; justify-content:center; }
-.pcard-img{ background-size:cover; background-position:center; min-height:96px; }
-.pcard-cap{ padding:14px 16px; position:relative; }
+.pcard.row .pcard-img{ width:136px; flex-shrink:0; }
+.pcard.row .pcard-cap{ flex:1; display:flex; flex-direction:column; justify-content:center; padding-right:38px; }
+.pcard-img{ background-size:cover; background-position:center; min-height:116px; }
+.pcard-cap{ padding:16px 18px; position:relative; }
 .pcard-cap h3{ font-size:14px; font-weight:700; margin:0 0 4px; color:var(--ink); letter-spacing:.01em; display:flex; align-items:center; gap:7px; }
 .pcard-cap h3 .icon{ width:16px; height:16px; color:var(--teal); }
 .pcard-cap p{ font-size:11.5px; color:var(--ink-mid); margin:0; line-height:1.55; }
 .pcard.row .pcard-cap .go{ position:absolute; right:14px; top:50%; transform:translateY(-50%); color:var(--ink-soft); }
 .pcard.row .pcard-cap .go .icon{ width:18px; height:18px; }
 /* 縦型（学ぶ） */
-.grid2 .pcard .pcard-img{ height:104px; }
+.grid2 .pcard .pcard-img{ height:126px; }
+.grid2 .pcard-cap{ padding:13px 14px; }
 
 /* ── プロブロック（大会・ランキング＝濃紺） ── */
 .pro{ background:var(--navy); border-radius:22px; padding:24px 18px 20px; }
@@ -207,7 +208,7 @@ a{ color:inherit; }
   .hero-desc{ font-size:15px; max-width:400px; }
   .wrap{ padding-top:46px; }
   .grid2{ grid-template-columns:1fr 1fr 1fr 1fr; }
-  .grid2 .pcard .pcard-img{ height:120px; }
+  .grid2 .pcard .pcard-img{ height:132px; }
 }
 </style>
 </head>
