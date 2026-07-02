@@ -1,0 +1,57 @@
+filters:
+  and:
+    - file.hasTag("media-idea")
+    - file.inFolder("MediaIdeas")
+properties:
+  file.name:
+    displayName: タイトル
+  status:
+    displayName: ステータス
+  category:
+    displayName: カテゴリ
+  persona:
+    displayName: ペルソナ
+  target_page:
+    displayName: 送客先
+views:
+  - type: table
+    name: すべて（ステータス別）
+    groupBy:
+      property: status
+      direction: ASC
+    order:
+      - file.name
+      - status
+      - category
+      - persona
+      - target_page
+  - type: table
+    name: Idea
+    filters:
+      and:
+        - status == "idea"
+    order:
+      - file.name
+      - category
+      - persona
+      - target_page
+  - type: table
+    name: Writing
+    filters:
+      and:
+        - status == "writing"
+    order:
+      - file.name
+      - category
+      - persona
+      - target_page
+  - type: table
+    name: Published
+    filters:
+      and:
+        - status == "published"
+    order:
+      - file.name
+      - category
+      - persona
+      - target_page

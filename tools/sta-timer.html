@@ -486,14 +486,20 @@ header {
 }
 .sw-next-ring-btn:active { background: var(--teal); color: #0b2d45; transform: scale(.97); }
 .fc-btn {
-  background: rgba(249,115,22,0.12); border: 1.5px solid var(--warm);
-  border-radius: 20px; padding: 8px 20px;
-  color: var(--warm); font-size: 13px; font-weight: 700;
-  letter-spacing: .08em; cursor: pointer;
+  background: rgba(249,115,22,0.12); border: 2px solid var(--warm);
+  border-radius: 16px; padding: 14px 20px;
+  color: var(--warm); font-size: 16px; font-weight: 800;
+  letter-spacing: .08em; cursor: pointer; text-transform: uppercase;
   -webkit-tap-highlight-color: transparent; transition: all .15s;
+  width: 100%; max-width: 300px; height: 52px;
 }
 .fc-btn:active { background: var(--warm); color: #fff; transform: scale(.97); }
 .fc-btn.done { opacity: .4; pointer-events: none; }
+.fc-hint {
+  font-size: 9px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted); margin-top: 4px; text-align: center;
+  transition: opacity .3s;
+}
 .fc-tag { font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 4px; color: var(--warm); background: rgba(249,115,22,.12); flex-shrink: 0; }
 
 .btn-sub:disabled { opacity: .3; pointer-events: none; }
@@ -758,8 +764,9 @@ header {
   </div>
 
   <!-- 1ST CONTRACTION (separated from Next to avoid accidental taps) -->
-  <div style="text-align:center;flex-shrink:0;min-height:28px;display:flex;align-items:center;justify-content:center">
+  <div style="flex-shrink:0;min-height:28px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 16px" id="fcWrap">
     <button class="fc-btn" id="btnFC" onclick="onFC()" style="display:none">1st Contraction</button>
+    <div class="fc-hint" id="fcHint" style="display:none">画面のどこをタップしてもOK</div>
   </div>
 
   <!-- SPO2 MINI CHART -->
@@ -1821,6 +1828,8 @@ function setMode(m) {
   const _bct = document.getElementById('btnCameraToggleFree'); if(_bct) _bct.style.display = isSW ? '' : 'none';
   document.getElementById('btnNext').style.display = 'none';
   document.getElementById('btnFC').style.display = 'none';
+  const _fcHintMode = document.getElementById('fcHint');
+  if (_fcHintMode) _fcHintMode.style.display = 'none';
   swLocked = false;
   document.getElementById('setListWrap').style.display = 'none';
   const flw = document.getElementById('freeLogWrap'); if(flw) flw.style.display = 'none';
@@ -2231,13 +2240,16 @@ function startHold() {
   // FCボタン表示（Relaxationプリセットは非表示）
   currentFC = null;
   const _fcBtn = document.getElementById('btnFC');
+  const _fcHint = document.getElementById('fcHint');
   if (_fcBtn) {
     if (activePresetId === 'relaxation') {
       _fcBtn.style.display = 'none';
+      if (_fcHint) _fcHint.style.display = 'none';
     } else {
       _fcBtn.style.display = '';
       _fcBtn.classList.remove('done');
       _fcBtn.textContent = '1st Contraction';
+      if (_fcHint) _fcHint.style.display = '';
     }
   }
   setRestRing(0);
@@ -2258,6 +2270,8 @@ function startHold() {
     currentFC = null;
     const fcBtn = document.getElementById('btnFC');
     if (fcBtn) { fcBtn.style.display=''; fcBtn.classList.remove('done'); fcBtn.textContent='1st Contraction'; }
+    const fcHint2 = document.getElementById('fcHint');
+    if (fcHint2) fcHint2.style.display = '';
   }
   if (mode==='mock' || bleMode==='mock') startMock();
   // Camera: Hold開始時からプリバッファ録画を開始
@@ -2284,6 +2298,8 @@ function endHold(auto=false) {
   // FCボタン非表示
   const _fcBtnEnd = document.getElementById('btnFC');
   if (_fcBtnEnd) _fcBtnEnd.style.display = 'none';
+  const _fcHintEnd = document.getElementById('fcHint');
+  if (_fcHintEnd) _fcHintEnd.style.display = 'none';
   currentFC = null;
   holdDives.push(rec);
   renderSetDots(); renderLog(); updateStats();
@@ -2530,6 +2546,7 @@ function onReset() {
   stopRestTimer();
   hidePhaseRingLabel();
   const _fcR = document.getElementById('btnFC'); if(_fcR) _fcR.style.display='none';
+  const _fcHintR = document.getElementById('fcHint'); if(_fcHintR) _fcHintR.style.display='none';
   const nb = document.getElementById('btnNext');
   if (nb) nb.style.display = 'none';
   updateRingStartBtn();
@@ -2970,6 +2987,8 @@ function onFC() {
     btn.classList.add('done');
     btn.textContent = '1st: ' + fmt(currentFC);
   }
+  const hint = document.getElementById('fcHint');
+  if (hint) hint.style.display = 'none';
   toast('FC: ' + fmt(currentFC));
 }
 
@@ -3035,6 +3054,20 @@ document.getElementById('timerWrap').addEventListener('click', () => {
 document.addEventListener('keydown', e => {
   if (e.code==='Space') { e.preventDefault(); onMainBtn(); }
   if (e.code==='KeyR')  onReset();
+});
+
+// ── 1ST CONTRACTION: 画面のどこをタップしてもFCを記録 ──────
+// リング（#timerWrap）はStop用のタップ領域として既に使われているため、
+// ここでは触れず、それ以外の余白・背景タップをFC記録に割り当てる。
+// ボタン/リンク/セレクト/セットリスト行/モーダル等、他の操作を持つ要素は
+// closest()で除外し、既存の挙動と衝突しないようにする。
+document.addEventListener('click', (e) => {
+  if (phase !== 'hold') return;
+  if (currentFC !== null) return; // 既に記録済み
+  const fcBtn = document.getElementById('btnFC');
+  if (!fcBtn || fcBtn.style.display === 'none') return; // FC非対象（Relaxation等）
+  if (e.target.closest('#timerWrap, button, a, select, input, .overlay, .set-row, .log-item')) return;
+  onFC();
 });
 
 // ── BLE SpO2 ──────────────────────────────────────────────
@@ -4020,19 +4053,27 @@ function onSurfaceStart() {
 // ── Hold開始時に呼ぶ ─────────────────────────────────────
 // freeモード: 全Hold録画（プリバッファなし）
 // table/o2/co2: プリバッファ録画開始（Hold最後30秒 + Surface後30秒を確定保存）
+//
+// 注意: Rest Timeが30秒未満（例: 0:15）に設定されている場合、前セットの
+// Surface後録画（30秒固定）が終わる前に次のHoldが始まることがある。
+// startCamRecording()はisRecording中は何もせず即returnするため、
+// 何もせず放置すると次セットの録画が一切開始されない（＝録画抜け）バグになる。
+// そのため、先に前の録画を強制終了・保存してから新しい録画を開始する。
 function onHoldStartCamera() {
   if (!cameraEnabled) return;
-  if (mode === 'free') {
-    camOverlay.phase  = 'hold';
-    camOverlay.holdMs = 0;
-    camOverlay.setNum = `Dive #${swDive+1}`;
-    startCamRecording(`Dive #${swDive+1}`); // preBuf=false: 全録画
-  } else {
-    camOverlay.phase  = 'hold';
-    camOverlay.holdMs = 0;
-    camOverlay.setNum = `${currentSet+1}/${totalSets()}`;
-    startCamRecording(`Set #${currentSet+1}`, true); // preBuf=true: ローリングバッファ
-  }
+  _finalizeRecordingThen(() => {
+    if (mode === 'free') {
+      camOverlay.phase  = 'hold';
+      camOverlay.holdMs = 0;
+      camOverlay.setNum = `Dive #${swDive+1}`;
+      startCamRecording(`Dive #${swDive+1}`); // preBuf=false: 全録画
+    } else {
+      camOverlay.phase  = 'hold';
+      camOverlay.holdMs = 0;
+      camOverlay.setNum = `${currentSet+1}/${totalSets()}`;
+      startCamRecording(`Set #${currentSet+1}`, true); // preBuf=true: ローリングバッファ
+    }
+  });
 }
 
 // セッション開始時（何もしない、各Hold開始で録画）

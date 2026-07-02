@@ -7,6 +7,10 @@ tags: [media-idea-index]
 新しい企画は [[Templates/Media Idea Template|Media Idea Template]] からノートを作成し、このフォルダに追加する。
 判断基準・カテゴリ定義の詳細は [[MEDIA_OPS]] を参照。
 
+一覧管理は [[MediaIdeas/MediaIdeas.base|企画管理Base]] から（ステータス別に絞り込み・並び替え可能）。
+
+![[MediaIdeas/MediaIdeas.base]]
+
 ## カテゴリ早見表（MEDIA_OPS.md より）
 
 | カテゴリ | 内容 | 優先度 |
