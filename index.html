@@ -111,6 +111,7 @@ a{ color:inherit; text-decoration:none; }
 .itile-chev{ position:absolute; z-index:2; right:20px; bottom:18px; color:#fff; opacity:.9; }
 .itile-chev .icon{ width:22px; height:22px; }
 
+.find-grid{ display:grid; grid-template-columns:1fr; gap:16px; }
 .two{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
 .two .itile{ min-height:176px; }
 .two .itile-cap{ padding:18px 18px 0; }
@@ -151,14 +152,20 @@ a{ color:inherit; text-decoration:none; }
 
 /* ── PC ── */
 @media (min-width:700px){
+  .wrap{ max-width:1080px; padding:16px 32px 80px; }
   .hero{ min-height:620px; }
   .hero-title{ font-size:56px; }
   .hero-desc{ font-size:19px; max-width:440px; }
+  .sec{ margin:80px 0; }
   .sec-title{ font-size:40px; }
   .sec-sub{ font-size:17px; max-width:460px; }
-  .ftiles{ flex-direction:row; }
-  .ftiles .ftile{ flex:1; }
-  .two{ grid-template-columns:1fr 1fr 1fr 1fr; }
+  .ftiles{ flex-direction:row; gap:20px; }
+  .ftiles .ftile{ flex:1; padding:36px 28px 30px; }
+  .ftile-title{ white-space:nowrap; }
+  .find-grid{ grid-template-columns:1fr 1fr; gap:20px; }
+  .find-grid .itile{ min-height:300px; }
+  .two{ grid-template-columns:1fr 1fr 1fr 1fr; gap:20px; }
+  .pro{ padding:44px 40px 34px; }
 }
 </style>
 </head>
@@ -236,7 +243,7 @@ a{ color:inherit; text-decoration:none; }
       <h2 class="sec-title">探す。</h2>
       <p class="sec-sub">通えるショップ・講習と、読み物を見つける。</p>
     </div>
-    <div style="display:flex; flex-direction:column; gap:16px;">
+    <div class="find-grid">
       <a class="itile" href="explore/index.html">
         <div class="itile-bg" style="background-image:url('images/index_explore.JPG');background-position:center 60%;"></div>
         <div class="itile-scrim"></div>
