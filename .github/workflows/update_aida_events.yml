@@ -39,5 +39,16 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
           git add data/aida_events_2026.json
-          git diff --staged --quiet || git commit -m "chore: update AIDA events $(date -u +%Y-%m-%d)"
-          git push
+          if git diff --staged --quiet; then
+            echo "変更なし。コミットをスキップします。"
+            exit 0
+          fi
+          git commit -m "chore: update AIDA events $(date -u +%Y-%m-%d)"
+          # 実行中に他ワークフローがpushしていても競合しないよう、rebaseしてから最大5回リトライ
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push && { echo "push成功 (試行 $i)"; exit 0; }
+            echo "push競合。リトライします ($i/5)..."
+            sleep $((RANDOM % 5 + 3))
+          done
+          echo "5回試行してもpushに失敗しました" >&2
+          exit 1
