@@ -611,6 +611,14 @@ td.name { color: var(--on-dark); font-weight: 500; }
 .ae-preview-pane .pv-wrap ul,  .ae-preview-pane .pv-wrap ol { padding-left: 24px; margin-bottom: 22px; }
 .ae-preview-pane .article-body li,
 .ae-preview-pane .pv-wrap li  { margin-bottom: 10px; color: #1a2b38; line-height: 1.85; }
+.ae-preview-pane .article-body a,
+.ae-preview-pane .pv-wrap a {
+  color: #1a5f82; text-decoration: none;
+  border-bottom: 1px solid rgba(26,95,130,.3);
+  transition: color .15s, border-color .15s;
+}
+.ae-preview-pane .article-body a:hover,
+.ae-preview-pane .pv-wrap a:hover { color: #2ec4b6; border-color: #2ec4b6; }
 .ae-preview-pane .pullquote {
   border-left: 4px solid #2ec4b6; margin: 36px 0;
   padding: 20px 24px; background: #f0f9fb; border-radius: 0 12px 12px 0;
