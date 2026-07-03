@@ -211,6 +211,22 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 
 -----
 
+### 論理削除（ソフトデリート）方針（2026-07-03導入）
+
+**ユーザー操作による「削除」はデータを物理削除せず `deleted_at` を立てて非表示化する。**
+`sql/soft_delete_20260703.sql` で導入済み。
+
+- **対象テーブル**（`deleted_at timestamptz` 追加済み）：`events` / `articles` / `listings` / `instructors` / `event_staff` / `event_shift_roles` / `athlete_entries` / `availability_slots`
+- **非表示の仕組み**：各テーブルに `RESTRICTIVE` な SELECT ポリシー `<table>_hide_deleted`（`USING (deleted_at IS NULL)`）を付与。既存の許可ポリシーに AND されるため、既存ポリシーを書き換えず DB レベルで削除行を隠せる。
+- **コード側**：削除は `.delete()` ではなく **`.update({ deleted_at: new Date().toISOString() })`** を使う。
+- **連鎖**：親を消したら子も連鎖ソフト削除（instructor → listings・slots、listing → slots）。大会は親が非表示になれば子（AP・リザルト等）も辿れず隠れるため個別更新は不要。
+- **ユニーク制約**：論理削除行が値を占有して再作成をブロックしないよう、`articles.slug` / `events.aida_id` は **部分ユニークインデックス**（`WHERE deleted_at IS NULL`）に置換済み。
+- **物理削除のまま残すもの**：内部の「全消し→入れ直し」系（`event_schedule` のラベル/マイルストーン/day/startlist、`event_staff_shifts`、`event_safety_assignments`、`athlete_entries` の一括再インポート）と `user_roles`（権限剥奪）。
+- **新テーブル追加時のルール**：ユーザーが削除しうるテーブルは原則 `deleted_at` カラム＋`<table>_hide_deleted` ポリシーを付け、削除は UPDATE で行う。
+- **復元UI**：未実装（当面は必要時に Supabase から直接 `deleted_at` を NULL に戻す）。
+
+-----
+
 ## Stripe 設定メモ
 
 - **モード**：サンドボックス（テスト環境）

@@ -1369,8 +1369,11 @@ async function saveListing() {
 }
 
 async function deleteListing(id) {
-  if (!confirm('このコースを削除しますか？\n空き枠・予約が紐づいている場合は削除できません。')) return;
-  const { error } = await _sb.from('listings').delete().eq('id', id);
+  if (!confirm('このコースを削除しますか？\nコースに紐づく空き枠も削除されます。')) return;
+  const _now = new Date().toISOString();
+  // 論理削除：配下の空き枠も連鎖して非表示化する（物理削除時のCASCADE相当）
+  await _sb.from('availability_slots').update({ deleted_at: _now }).eq('listing_id', id);
+  const { error } = await _sb.from('listings').update({ deleted_at: _now }).eq('id', id);
   if (error) { showToast('削除できませんでした: ' + error.message, 'error'); return; }
   showToast('コースを削除しました', 'success');
   loadListings();
@@ -1534,7 +1537,7 @@ async function saveSlot() {
 
 async function deleteSlot(id) {
   if (!confirm('この空き枠を削除しますか？')) return;
-  const { error } = await _sb.from('availability_slots').delete().eq('id', id);
+  const { error } = await _sb.from('availability_slots').update({ deleted_at: new Date().toISOString() }).eq('id', id);
   if (error) { showToast('削除できませんでした: ' + error.message, 'error'); return; }
   showToast('空き枠を削除しました', 'success');
   loadSlots();

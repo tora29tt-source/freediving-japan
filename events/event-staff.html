@@ -1941,7 +1941,7 @@ async function updateRoleRequired(roleId, val) {
 }
 
 async function deleteShiftRole(roleId) {
-  var res = await _sb.from('event_shift_roles').delete().eq('id', roleId);
+  var res = await _sb.from('event_shift_roles').update({ deleted_at: new Date().toISOString() }).eq('id', roleId);
   if (res.error) { showToast('削除失敗: ' + res.error.message, 'error'); return; }
   _shiftRoles = _shiftRoles.filter(function(r){ return r.id !== roleId; });
   renderShiftView();
@@ -2116,7 +2116,7 @@ function changeStaffSiteRole(staffId, newRole) {
 function removeStaff(i) {
   var s = _staffList[i];
   if (s && s.id && _currentEventId) {
-    _sb.from('event_staff').delete().eq('id', s.id).then(function(res) {
+    _sb.from('event_staff').update({ deleted_at: new Date().toISOString() }).eq('id', s.id).then(function(res) {
       if (res.error) { alert('削除失敗: ' + res.error.message); return; }
       _staffList.splice(i, 1);
       renderStaffList();
@@ -2801,7 +2801,7 @@ function deleteEntry(i) {
   if (!a) return;
   if (!confirm(a.name + ' を削除しますか？')) return;
   if (a.id && _currentEventId) {
-    _sb.from('athlete_entries').delete().eq('id', a.id).then(function(res) {
+    _sb.from('athlete_entries').update({ deleted_at: new Date().toISOString() }).eq('id', a.id).then(function(res) {
       if (res.error) { alert('削除失敗: ' + res.error.message); return; }
       apData.splice(i, 1);
       renderAPList();
@@ -4394,25 +4394,15 @@ async function deleteEvent() {
   if (!_currentEventId) { alert('大会IDが不明です。'); return; }
 
   var evName = (document.getElementById('ov-name') && document.getElementById('ov-name').value.trim()) || '（名称不明）';
-  if (!confirm('「' + evName + '」を削除しますか？\n\nスタッフ・スケジュール・AP・リザルト等すべてのデータが完全に削除されます。この操作は取り消せません。')) return;
+  if (!confirm('「' + evName + '」を削除しますか？\n\n削除すると一覧に表示されなくなります。')) return;
 
   try {
     var id = _currentEventId;
-    // 関連テーブルを順番に削除
-    await _sb.from('event_safety_assignments').delete().eq('event_id', id);
-    await _sb.from('event_staff_shifts').delete().eq('event_id', id);
-    await _sb.from('event_shift_roles').delete().eq('event_id', id);
-    await _sb.from('event_staff').delete().eq('event_id', id);
-    await _sb.from('event_schedule').delete().eq('event_id', id);
-    await _sb.from('event_results').delete().eq('event_id', id);
-    await _sb.from('athlete_entries').delete().eq('event_id', id);
-    var res = await _sb.from('events').delete().eq('id', id).select('id');
+    // 論理削除：物理削除せず deleted_at を立てる。
+    // 関連データ（スタッフ・スケジュール・AP・リザルト等）は大会が非表示になることで
+    // 一緒に見えなくなるため個別削除は不要。データはDBに保持される。
+    var res = await _sb.from('events').update({ deleted_at: new Date().toISOString() }).eq('id', id);
     if (res.error) throw res.error;
-    // RLS で DELETE ポリシーが無い場合、エラーは出ないが0行しか消えない。
-    // .select() の戻りが空なら「権限不足で実際には削除されていない」と判断する。
-    if (!res.data || res.data.length === 0) {
-      throw new Error('削除権限がないか、対象が見つかりませんでした（0件）。RLSのDELETEポリシーを確認してください。');
-    }
 
     alert('大会を削除しました。');
     location.href = '../mypage.html';

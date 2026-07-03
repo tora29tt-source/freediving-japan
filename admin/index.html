@@ -1701,7 +1701,7 @@ async function saveSlot() {
 
 async function deleteSlot(slotId) {
   if (!confirm('この空き枠を削除しますか？\n予約済みの場合は削除できません。')) return;
-  const { error } = await _sb.from('availability_slots').delete().eq('id', slotId);
+  const { error } = await _sb.from('availability_slots').update({ deleted_at: new Date().toISOString() }).eq('id', slotId);
   if (error) { showToast('削除できませんでした: ' + error.message, 'error'); return; }
   showToast('空き枠を削除しました', 'success');
   loadSlots();
@@ -1976,7 +1976,11 @@ async function saveInstructor() {
 
 async function deleteInstructor(instId, name) {
   if (!confirm(`「${name}」を削除しますか？\nリスティング・空き枠も削除されます。`)) return;
-  const { error } = await _sb.from('instructors').delete().eq('id', instId);
+  const _now = new Date().toISOString();
+  // 論理削除：配下のリスティング・空き枠も連鎖して非表示化する（物理削除時のCASCADE相当）
+  await _sb.from('availability_slots').update({ deleted_at: _now }).eq('instructor_id', instId);
+  await _sb.from('listings').update({ deleted_at: _now }).eq('instructor_id', instId);
+  const { error } = await _sb.from('instructors').update({ deleted_at: _now }).eq('id', instId);
   if (error) { showToast('削除できませんでした: ' + error.message, 'error'); return; }
   showToast('削除しました', 'success');
   loadInstructors();
@@ -2131,8 +2135,11 @@ async function saveListing() {
 }
 
 async function deleteListing(listingId) {
-  if (!confirm('このリスティングを削除しますか？')) return;
-  const { error } = await _sb.from('listings').delete().eq('id', listingId);
+  if (!confirm('このリスティングを削除しますか？\n紐づく空き枠も削除されます。')) return;
+  const _now = new Date().toISOString();
+  // 論理削除：配下の空き枠も連鎖して非表示化する（物理削除時のCASCADE相当）
+  await _sb.from('availability_slots').update({ deleted_at: _now }).eq('listing_id', listingId);
+  const { error } = await _sb.from('listings').update({ deleted_at: _now }).eq('id', listingId);
   if (error) { showToast('削除できませんでした: ' + error.message, 'error'); return; }
   showToast('削除しました', 'success');
   loadListings();
@@ -2803,7 +2810,7 @@ function saveArticle() { saveArticleFromEditor(document.getElementById('ae-publi
 
 async function deleteArticle(articleId) {
   if (!confirm('この記事を削除しますか？')) return;
-  const { error } = await _sb.from('articles').delete().eq('id', articleId);
+  const { error } = await _sb.from('articles').update({ deleted_at: new Date().toISOString() }).eq('id', articleId);
   if (error) { showToast('削除できませんでした: ' + error.message, 'error'); return; }
   showToast('削除しました', 'success');
   loadArticles();
