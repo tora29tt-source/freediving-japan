@@ -541,8 +541,32 @@ function renderListings() {
   }).join('');
 }
 
+// ── URLパラメータで初期絞り込み（ホーム／ピラーページの検索バーから遷移） ──
+function applyUrlParams() {
+  const p = new URLSearchParams(location.search);
+  const q = p.get('q');
+  const intent = p.get('intent');
+  const area = p.get('area');
+  if (q) document.getElementById('searchInput').value = q;
+  if (intent && ['try','learn','dive'].includes(intent)) {
+    currentIntent = intent;
+    document.querySelectorAll('.intent-tab').forEach(t => t.classList.toggle('active', t.dataset.intent === intent));
+    const lbl = document.getElementById('intentLabel');
+    if (lbl) lbl.textContent = intentLabels[intent];
+  }
+  if (area) {
+    const chip = [...document.querySelectorAll('#areaChips .chip')].find(c => c.dataset.area === area);
+    if (chip) {
+      document.querySelectorAll('#areaChips .chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      currentArea = area;
+    }
+  }
+}
+
 document.getElementById('searchInput').addEventListener('input', () => applyFilters());
 document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); applyFilters(); } });
+applyUrlParams();
 loadListings();
 </script>
 </body>

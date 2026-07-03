@@ -52,18 +52,23 @@
 
 <!-- ===== search bar ===== -->
 <div class="wrap">
-  <form class="searchbar" action="explore/index.html" method="get">
+  <form class="searchbar" data-target="explore/index.html">
     <label class="sb-seg">
       <div class="sb-label">エリア</div>
-      <div class="sb-ph">どこで潜る？</div>
+      <input class="sb-input" name="area" placeholder="どこで潜る？" autocomplete="off">
     </label>
     <label class="sb-seg sb-when">
       <div class="sb-label">日程</div>
-      <div class="sb-ph">いつ行く？</div>
+      <input class="sb-input" name="date" type="date">
     </label>
     <label class="sb-seg">
       <div class="sb-label">タイプ</div>
-      <div class="sb-ph">体験・スクール・記事</div>
+      <select class="sb-input sb-select" name="intent">
+        <option value="">すべて</option>
+        <option value="try">体験・ツアー</option>
+        <option value="learn">スクール・資格</option>
+        <option value="dive">ファンダイブ・上級</option>
+      </select>
     </label>
     <button class="sb-btn" type="submit"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>検索</button>
   </form>
@@ -259,28 +264,7 @@
   <div class="foot-bottom"><div class="wrap">© 2026 素潜りポータル（仮）</div></div>
 </footer>
 
-<script>
-// タブ切替
-(function(){
-  var tabs = document.querySelectorAll('.tab');
-  var panels = document.querySelectorAll('.panel');
-  tabs.forEach(function(t){
-    t.addEventListener('click', function(){
-      tabs.forEach(function(x){ x.classList.remove('active'); });
-      t.classList.add('active');
-      var key = t.dataset.tab;
-      panels.forEach(function(p){ p.classList.toggle('active', p.dataset.panel === key); });
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  });
-})();
-// お気に入り♡トグル（リンク遷移を止める）
-(function(){
-  document.querySelectorAll('[data-save]').forEach(function(el){
-    el.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); el.classList.toggle('on'); });
-  });
-})();
-</script>
+<script src="js/home.js"></script>
 
 </body>
 </html>

@@ -42,10 +42,10 @@
   </section>
 
   <div style="margin:18px 0;">
-    <form class="searchbar" action="explore/index.html" method="get">
-      <label class="sb-seg"><div class="sb-label">エリア</div><div class="sb-ph">沖縄・伊豆・和歌山…</div></label>
-      <label class="sb-seg sb-when"><div class="sb-label">日程</div><div class="sb-ph">いつ行く？</div></label>
-      <label class="sb-seg"><div class="sb-label">タイプ</div><div class="sb-ph">体験・ツアー</div></label>
+    <form class="searchbar" data-target="explore/index.html">
+      <label class="sb-seg"><div class="sb-label">エリア</div><input class="sb-input" name="area" placeholder="沖縄・伊豆・和歌山…" autocomplete="off"></label>
+      <label class="sb-seg sb-when"><div class="sb-label">日程</div><input class="sb-input" name="date" type="date"></label>
+      <label class="sb-seg"><div class="sb-label">タイプ</div><select class="sb-input sb-select" name="intent"><option value="">すべて</option><option value="try">体験・ツアー</option><option value="learn">スクール・資格</option></select></label>
       <button class="sb-btn" type="submit"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>検索</button>
     </form>
   </div>
@@ -86,8 +86,6 @@
   <div class="foot-bottom"><div class="wrap">© 2026 素潜りポータル（仮）</div></div>
 </footer>
 
-<script>
-document.querySelectorAll('[data-save]').forEach(function(el){ el.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); el.classList.toggle('on'); }); });
-</script>
+<script src="js/home.js"></script>
 </body>
 </html>
