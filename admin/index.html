@@ -1369,14 +1369,32 @@ td.name { color: var(--on-dark); font-weight: 500; }
           <input type="file" id="ae-cover-file" accept="image/*" style="display:none" onchange="aeUploadCover(this)">
           <img id="ae-cover-preview" class="ae-cover-preview" alt="カバー画像プレビュー">
           <div id="ae-pos-wrap" style="display:none;margin-top:8px;">
-            <div style="font-size:11px;color:var(--on-dark-soft);margin-bottom:6px;letter-spacing:0.08em;">表示位置</div>
-            <div style="display:flex;gap:6px;">
-              <button type="button" class="ae-pos-btn" data-pos="top"    onclick="aeSetPos('top')"    style="flex:1;padding:6px 0;font-size:12px;border-radius:6px;border:1px solid var(--hairline);background:transparent;color:var(--on-dark-mid);cursor:pointer;transition:all 0.15s;">↑ 上</button>
-              <button type="button" class="ae-pos-btn" data-pos="center" onclick="aeSetPos('center')" style="flex:1;padding:6px 0;font-size:12px;border-radius:6px;border:1px solid var(--hairline);background:transparent;color:var(--on-dark-mid);cursor:pointer;transition:all 0.15s;">⊙ 中央</button>
-              <button type="button" class="ae-pos-btn" data-pos="bottom" onclick="aeSetPos('bottom')" style="flex:1;padding:6px 0;font-size:12px;border-radius:6px;border:1px solid var(--hairline);background:transparent;color:var(--on-dark-mid);cursor:pointer;transition:all 0.15s;">↓ 下</button>
+            <div style="font-size:11px;color:var(--on-dark-soft);margin-bottom:6px;letter-spacing:0.08em;display:flex;align-items:center;gap:6px;">
+              表示位置
+              <span id="ae-pos-label" style="color:var(--teal);font-family:monospace;font-size:10px;">50% 50%</span>
+            </div>
+            <!-- ドラッグ可能なプレビュー -->
+            <div id="ae-pos-preview" style="
+              width:100%;height:110px;border-radius:6px;overflow:hidden;
+              background-size:cover;background-position:50% 50%;
+              cursor:grab;position:relative;user-select:none;
+              border:1px solid var(--hairline);
+            ">
+              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
+                <div style="width:16px;height:16px;border:2px solid rgba(255,255,255,0.9);border-radius:50%;box-shadow:0 0 0 1px rgba(0,0,0,0.35),0 1px 5px rgba(0,0,0,0.6);"></div>
+              </div>
+              <div style="position:absolute;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.55);pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,0.8);">ドラッグ / スクロールで調整</div>
+            </div>
+            <!-- 矢印ボタン -->
+            <div style="display:flex;justify-content:center;align-items:center;gap:4px;margin-top:6px;">
+              <button type="button" onclick="aeMovePos(-5,0)" style="width:30px;height:28px;font-size:13px;border:1px solid var(--hairline);background:transparent;color:var(--on-dark-mid);border-radius:6px;cursor:pointer;line-height:1;">←</button>
+              <button type="button" onclick="aeMovePos(0,-5)" style="width:30px;height:28px;font-size:13px;border:1px solid var(--hairline);background:transparent;color:var(--on-dark-mid);border-radius:6px;cursor:pointer;line-height:1;">↑</button>
+              <button type="button" onclick="aeResetPos()"    style="width:30px;height:28px;font-size:11px;border:1px solid var(--hairline);background:transparent;color:var(--on-dark-mid);border-radius:6px;cursor:pointer;line-height:1;">⊙</button>
+              <button type="button" onclick="aeMovePos(0,5)"  style="width:30px;height:28px;font-size:13px;border:1px solid var(--hairline);background:transparent;color:var(--on-dark-mid);border-radius:6px;cursor:pointer;line-height:1;">↓</button>
+              <button type="button" onclick="aeMovePos(5,0)"  style="width:30px;height:28px;font-size:13px;border:1px solid var(--hairline);background:transparent;color:var(--on-dark-mid);border-radius:6px;cursor:pointer;line-height:1;">→</button>
             </div>
           </div>
-          <input type="hidden" id="ae-cover-pos" value="center">
+          <input type="hidden" id="ae-cover-pos" value="50% 50%">
         </div>
 
         <div class="form-group">
@@ -2451,7 +2469,7 @@ function openArticleModal(articleId = null) {
   document.getElementById('ae-published').checked = false;
   document.getElementById('ae-cover-preview').classList.remove('visible');
   document.getElementById('ae-pos-wrap').style.display = 'none';
-  aeSetPos('center');
+  aeResetPos();
   getLiveEditor().innerHTML = '';
   aeUpdateWordCount();
   aeUpdatePubBadge();
@@ -2745,35 +2763,115 @@ async function aeUploadCover(input) {
 }
 
 function aeUpdateCover() {
-  const url = document.getElementById('ae-cover').value.trim();
-  const img = document.getElementById('ae-cover-preview');
+  const url     = document.getElementById('ae-cover').value.trim();
+  const img     = document.getElementById('ae-cover-preview');
   const posWrap = document.getElementById('ae-pos-wrap');
+  const posPrev = document.getElementById('ae-pos-preview');
   if (url) {
     img.src = url;
     img.classList.add('visible');
     img.onerror = () => img.classList.remove('visible');
     posWrap.style.display = '';
-    // プレビュー画像に現在のポジションを反映
-    const pos = document.getElementById('ae-cover-pos').value || 'center';
+    if (posPrev) {
+      posPrev.style.backgroundImage = `url('${url}')`;
+      const pos = document.getElementById('ae-cover-pos').value || '50% 50%';
+      posPrev.style.backgroundPosition = pos;
+    }
+    const pos = document.getElementById('ae-cover-pos').value || '50% 50%';
     img.style.objectPosition = pos;
+    initPosDrag();
   } else {
     img.classList.remove('visible');
     posWrap.style.display = 'none';
   }
 }
 
-function aeSetPos(pos) {
+// pos を "X% Y%" 形式に正規化してパース
+function _parsePosXY() {
+  const val = (document.getElementById('ae-cover-pos').value || '50% 50%').trim();
+  if (val === 'top')    return [50, 0];
+  if (val === 'center') return [50, 50];
+  if (val === 'bottom') return [50, 100];
+  const m = val.match(/(\d+(?:\.\d+)?)%\s*(\d+(?:\.\d+)?)%/);
+  return m ? [parseFloat(m[1]), parseFloat(m[2])] : [50, 50];
+}
+
+function _applyPosXY(x, y) {
+  x = Math.max(0, Math.min(100, Math.round(x)));
+  y = Math.max(0, Math.min(100, Math.round(y)));
+  const pos = `${x}% ${y}%`;
   document.getElementById('ae-cover-pos').value = pos;
-  // ボタンのアクティブ状態を更新
-  document.querySelectorAll('.ae-pos-btn').forEach(btn => {
-    const active = btn.dataset.pos === pos;
-    btn.style.background = active ? 'rgba(46,196,182,0.2)' : 'transparent';
-    btn.style.borderColor = active ? 'var(--teal)' : 'var(--hairline)';
-    btn.style.color       = active ? 'var(--teal)'  : 'var(--on-dark-mid)';
-  });
-  // プレビュー画像のポジションを即時反映
+  const label = document.getElementById('ae-pos-label');
+  if (label) label.textContent = pos;
+  const prev = document.getElementById('ae-pos-preview');
+  if (prev) prev.style.backgroundPosition = pos;
   const img = document.getElementById('ae-cover-preview');
   if (img) img.style.objectPosition = pos;
+}
+
+// 矢印ボタン用 (dx: 水平%, dy: 垂直%)
+function aeMovePos(dx, dy) {
+  const [x, y] = _parsePosXY();
+  _applyPosXY(x + dx, y + dy);
+}
+
+function aeResetPos() { _applyPosXY(50, 50); }
+
+// 旧API互換 (top/center/bottom 文字列 or "X% Y%")
+function aeSetPos(posStr) {
+  if (!posStr || posStr === 'center') { _applyPosXY(50, 50); return; }
+  if (posStr === 'top')    { _applyPosXY(50, 0);   return; }
+  if (posStr === 'bottom') { _applyPosXY(50, 100);  return; }
+  const m = posStr.match(/(\d+(?:\.\d+)?)%\s*(\d+(?:\.\d+)?)%/);
+  if (m) _applyPosXY(parseFloat(m[1]), parseFloat(m[2]));
+  else   _applyPosXY(50, 50);
+}
+
+// ドラッグ＋スクロール初期化（1回のみ）
+function initPosDrag() {
+  const prev = document.getElementById('ae-pos-preview');
+  if (!prev || prev._dragReady) return;
+  prev._dragReady = true;
+
+  let dragging = false, sx, sy, spx, spy;
+
+  prev.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    dragging = true;
+    sx = e.clientX; sy = e.clientY;
+    [spx, spy] = _parsePosXY();
+    prev.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    // 200px のドラッグ ≒ 50% 移動
+    _applyPosXY(spx + (e.clientX - sx) * 0.25, spy + (e.clientY - sy) * 0.25);
+  });
+  document.addEventListener('mouseup', () => {
+    if (dragging) { dragging = false; prev.style.cursor = 'grab'; }
+  });
+
+  // スクロールで縦方向微調整
+  prev.addEventListener('wheel', e => {
+    e.preventDefault();
+    const [x, y] = _parsePosXY();
+    _applyPosXY(x, y + (e.deltaY > 0 ? 3 : -3));
+  }, { passive: false });
+
+  // タッチ対応
+  prev.addEventListener('touchstart', e => {
+    const t = e.touches[0];
+    dragging = true; sx = t.clientX; sy = t.clientY;
+    [spx, spy] = _parsePosXY();
+    e.preventDefault();
+  }, { passive: false });
+  document.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const t = e.touches[0];
+    _applyPosXY(spx + (t.clientX - sx) * 0.25, spy + (t.clientY - sy) * 0.25);
+  });
+  document.addEventListener('touchend', () => { dragging = false; });
 }
 
 function aeUpdatePubBadge() {
