@@ -1368,6 +1368,15 @@ td.name { color: var(--on-dark); font-weight: 500; }
           </div>
           <input type="file" id="ae-cover-file" accept="image/*" style="display:none" onchange="aeUploadCover(this)">
           <img id="ae-cover-preview" class="ae-cover-preview" alt="カバー画像プレビュー">
+          <div id="ae-pos-wrap" style="display:none;margin-top:8px;">
+            <div style="font-size:11px;color:var(--on-dark-soft);margin-bottom:6px;letter-spacing:0.08em;">表示位置</div>
+            <div style="display:flex;gap:6px;">
+              <button type="button" class="ae-pos-btn" data-pos="top"    onclick="aeSetPos('top')"    style="flex:1;padding:6px 0;font-size:12px;border-radius:6px;border:1px solid var(--hairline);background:transparent;color:var(--on-dark-mid);cursor:pointer;transition:all 0.15s;">↑ 上</button>
+              <button type="button" class="ae-pos-btn" data-pos="center" onclick="aeSetPos('center')" style="flex:1;padding:6px 0;font-size:12px;border-radius:6px;border:1px solid var(--hairline);background:transparent;color:var(--on-dark-mid);cursor:pointer;transition:all 0.15s;">⊙ 中央</button>
+              <button type="button" class="ae-pos-btn" data-pos="bottom" onclick="aeSetPos('bottom')" style="flex:1;padding:6px 0;font-size:12px;border-radius:6px;border:1px solid var(--hairline);background:transparent;color:var(--on-dark-mid);cursor:pointer;transition:all 0.15s;">↓ 下</button>
+            </div>
+          </div>
+          <input type="hidden" id="ae-cover-pos" value="center">
         </div>
 
         <div class="form-group">
@@ -2441,6 +2450,8 @@ function openArticleModal(articleId = null) {
   document.getElementById('ae-category').value    = '';
   document.getElementById('ae-published').checked = false;
   document.getElementById('ae-cover-preview').classList.remove('visible');
+  document.getElementById('ae-pos-wrap').style.display = 'none';
+  aeSetPos('center');
   getLiveEditor().innerHTML = '';
   aeUpdateWordCount();
   aeUpdatePubBadge();
@@ -2454,6 +2465,7 @@ function openArticleModal(articleId = null) {
       document.getElementById('ae-excerpt').value     = d.lead_text || '';
       document.getElementById('ae-slug').value        = d.slug || '';
       document.getElementById('ae-cover').value       = d.thumbnail_url || '';
+      aeSetPos(d.thumbnail_position || 'center');
       document.getElementById('ae-tags').value        = (d.tags || []).join(', ');
       document.getElementById('ae-read-time').value   = d.read_time_min || '';
       document.getElementById('ae-author').value      = d.author_type || '編集部';
@@ -2735,13 +2747,33 @@ async function aeUploadCover(input) {
 function aeUpdateCover() {
   const url = document.getElementById('ae-cover').value.trim();
   const img = document.getElementById('ae-cover-preview');
+  const posWrap = document.getElementById('ae-pos-wrap');
   if (url) {
     img.src = url;
     img.classList.add('visible');
     img.onerror = () => img.classList.remove('visible');
+    posWrap.style.display = '';
+    // プレビュー画像に現在のポジションを反映
+    const pos = document.getElementById('ae-cover-pos').value || 'center';
+    img.style.objectPosition = pos;
   } else {
     img.classList.remove('visible');
+    posWrap.style.display = 'none';
   }
+}
+
+function aeSetPos(pos) {
+  document.getElementById('ae-cover-pos').value = pos;
+  // ボタンのアクティブ状態を更新
+  document.querySelectorAll('.ae-pos-btn').forEach(btn => {
+    const active = btn.dataset.pos === pos;
+    btn.style.background = active ? 'rgba(46,196,182,0.2)' : 'transparent';
+    btn.style.borderColor = active ? 'var(--teal)' : 'var(--hairline)';
+    btn.style.color       = active ? 'var(--teal)'  : 'var(--on-dark-mid)';
+  });
+  // プレビュー画像のポジションを即時反映
+  const img = document.getElementById('ae-cover-preview');
+  if (img) img.style.objectPosition = pos;
 }
 
 function aeUpdatePubBadge() {
@@ -2782,8 +2814,9 @@ async function saveArticleFromEditor(publish) {
     slug:          document.getElementById('ae-slug').value.trim() || aeSlugify(title),
     lead_text:     document.getElementById('ae-excerpt').value.trim() || null,
     content:       html || null,
-    thumbnail_url: document.getElementById('ae-cover').value.trim() || null,
-    category:      document.getElementById('ae-category').value || null,
+    thumbnail_url:      document.getElementById('ae-cover').value.trim() || null,
+    thumbnail_position: document.getElementById('ae-cover-pos').value || 'center',
+    category:           document.getElementById('ae-category').value || null,
     tags:          splitTrim(document.getElementById('ae-tags').value),
     read_time_min: rtVal || autoRT,
     author_type:   document.getElementById('ae-author').value.trim() || '編集部',

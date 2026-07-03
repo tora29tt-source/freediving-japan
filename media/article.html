@@ -461,7 +461,8 @@ function renderArticle(a) {
     ? '日本記録保持者・寺島拓哉が設立したフリーダイビングプラットフォーム「Freediving Japan」の編集部。'
     : 'Freediving Japan 代表・日本STAフリーダイビング記録保持者。';
 
-  const heroStyle = a.thumbnail_url ? `style="background-image:url('${a.thumbnail_url}')"` : '';
+  const heroPos   = a.thumbnail_position || 'center';
+  const heroStyle = a.thumbnail_url ? `style="background-image:url('${a.thumbnail_url}');background-position:${heroPos};"` : '';
   const heroClass = a.thumbnail_url ? 'hero' : 'hero no-thumb';
 
   document.getElementById('pageContent').innerHTML = `
