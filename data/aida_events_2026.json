@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-06-30T10:45:48Z",
+  "updatedAt": "2026-07-03T00:05:32Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -2122,7 +2122,7 @@
       "cityCountry": "Panglao, Philippines",
       "startDate": "2026-07-13",
       "endDate": "2026-07-23",
-      "link": "https://www.aidainternational.org/Events/EventDetails-4932",
+      "link": "https://www.aidainternational.org/EventPage/4932",
       "month": 7,
       "cat": "sea"
     },
