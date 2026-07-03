@@ -11,348 +11,275 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="FJ Timer">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-<style>
-:root{
-  --ink:#14313a; --ink-mid:#4c6068; --ink-soft:#8397a0;
-  --teal:#1f6f78; --teal-deep:#124a52;
-  --aqua:#c7d7d9; --aqua-2:#a6c1c5; --hair:#b6cbce;
-  --coral:#b26a4e; --coral-soft:#f0e2da; --coral-ink:#8a4a33;
-  --sand:#ebe5da; --sand-line:#dbd2c3; --sand-ink:#413a2f; --sand-mid:#776d5b;
-  --navy:#0a2731; --navy-teal:#6fc3a8;
-  --surface:#ffffff; --page:#ffffff;
-  --shadow:0 14px 36px rgba(20,49,58,.13);
-  --shadow-sm:0 4px 18px rgba(20,49,58,.09);
-}
-*{ box-sizing:border-box; }
-html,body{ margin:0; }
-body{
-  background:var(--page); color:var(--ink);
-  font-family:-apple-system,BlinkMacSystemFont,"SF Pro JP","SF Pro","Hiragino Sans","Noto Sans JP",sans-serif;
-  -webkit-font-smoothing:antialiased; letter-spacing:.01em;
-}
-a{ color:inherit; text-decoration:none; }
-.icon{ display:inline-block; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; vertical-align:middle; }
-
-/* ── header ── */
-.hdr{
-  position:sticky; top:0; z-index:20;
-  display:flex; align-items:center; justify-content:space-between; padding:13px 20px;
-  background:rgba(255,255,255,.82);
-  backdrop-filter:saturate(1.3) blur(14px); -webkit-backdrop-filter:saturate(1.3) blur(14px);
-  border-bottom:1px solid rgba(20,49,58,.08);
-}
-.logo{ font-size:18px; font-weight:700; letter-spacing:-.01em; color:var(--ink); }
-.logo span{ color:var(--teal); font-weight:400; }
-.hdr-link{ display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--teal-deep); padding:7px 14px; border-radius:100px; background:var(--surface); box-shadow:var(--shadow-sm); }
-.hdr-link .icon{ width:15px; height:15px; }
-
-/* ── hero ── */
-.hero{ position:relative; overflow:hidden; min-height:540px; display:flex; align-items:center; justify-content:center; text-align:center; }
-.hero-media{ position:absolute; inset:0; }
-.hero-media video{ width:100%; height:100%; object-fit:cover; object-position:center 35%; }
-.hero-scrim{ position:absolute; inset:0; background:linear-gradient(to bottom, rgba(205,221,222,.15) 0%, rgba(205,221,222,0) 30%, rgba(205,221,222,.72) 78%, var(--page) 100%); }
-.hero-copy{ position:relative; z-index:2; padding:0 24px 20px; }
-.hero-eyebrow{ font-size:13px; font-weight:600; letter-spacing:.02em; color:var(--teal-deep); margin:0 0 12px; }
-.hero-title{ font-size:40px; font-weight:700; line-height:1.12; letter-spacing:-.03em; margin:0 0 14px; color:var(--ink); }
-.hero-title em{ font-style:normal; color:var(--teal); }
-.hero-desc{ font-size:16px; line-height:1.55; color:var(--ink-mid); max-width:340px; margin:0 auto 22px; }
-.hero-actions{ display:flex; align-items:center; justify-content:center; gap:20px; flex-wrap:wrap; }
-.btn-pop{ display:inline-flex; align-items:center; gap:8px; background:var(--coral); color:#fdf7f3; font-size:15px; font-weight:600; padding:13px 26px; border-radius:100px; box-shadow:0 10px 24px rgba(138,74,51,.28); transition:transform .18s, box-shadow .18s; }
-.btn-pop:hover{ transform:translateY(-2px); box-shadow:0 14px 30px rgba(138,74,51,.36); }
-.btn-pop .icon{ width:16px; height:16px; }
-.link-chev{ font-size:15px; font-weight:600; color:var(--teal-deep); display:inline-flex; align-items:center; gap:3px; }
-.link-chev .icon{ width:16px; height:16px; }
-
-/* ── section ── */
-.wrap{ max-width:700px; margin:0 auto; padding:16px 18px 64px; }
-.sec{ margin:56px 0; }
-.sec:first-child{ margin-top:40px; }
-.sec-head{ text-align:center; margin-bottom:26px; }
-.sec-eyebrow{ font-size:13px; font-weight:600; color:var(--teal); margin:0 0 6px; letter-spacing:.02em; }
-.sec-title{ font-size:29px; font-weight:700; letter-spacing:-.025em; margin:0 0 8px; color:var(--ink); }
-.sec-sub{ font-size:15px; color:var(--ink-mid); margin:0 auto; max-width:360px; line-height:1.55; }
-
-/* ── feature tiles（潜り方をえらぶ） ── */
-.ftiles{ display:flex; flex-direction:column; gap:16px; }
-.ftile{ position:relative; text-align:center; padding:30px 24px 26px; border-radius:26px; transition:transform .2s, box-shadow .22s; }
-.ftile:hover{ transform:translateY(-3px); }
-.ftile-depth{ font-family:ui-monospace,"SF Mono",Menlo,monospace; font-size:12px; font-weight:700; letter-spacing:.06em; margin:0 0 8px; }
-.ftile-title{ font-size:24px; font-weight:700; letter-spacing:-.02em; margin:0 0 6px; display:inline-flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:center; }
-.ftile-sub{ font-size:14px; line-height:1.6; margin:0 auto 16px; max-width:320px; }
-.ftile-link{ font-size:14px; font-weight:600; display:inline-flex; align-items:center; gap:3px; }
-.ftile-link .icon{ width:15px; height:15px; }
-.badge{ font-size:11px; font-weight:700; padding:3px 10px; border-radius:100px; letter-spacing:.03em; }
-.ftile.snorkel{ background:var(--surface); box-shadow:var(--shadow); }
-.ftile.snorkel .ftile-depth{ color:var(--coral); }
-.ftile.snorkel .ftile-title{ color:var(--teal-deep); }
-.ftile.snorkel .ftile-sub{ color:var(--ink-mid); }
-.ftile.snorkel .ftile-link{ color:var(--coral-ink); }
-.ftile.snorkel .badge{ background:var(--coral-soft); color:var(--coral-ink); }
-.ftile.skin{ background:var(--sand); }
-.ftile.skin .ftile-depth{ color:var(--sand-mid); }
-.ftile.skin .ftile-title{ color:var(--sand-ink); font-weight:600; }
-.ftile.skin .ftile-sub{ color:var(--sand-mid); }
-.ftile.skin .ftile-link{ color:var(--sand-ink); }
-.ftile.free{ background:var(--navy); }
-.ftile.free .ftile-depth{ color:var(--navy-teal); }
-.ftile.free .ftile-title{ color:#eef8f5; font-weight:600; }
-.ftile.free .ftile-sub{ color:#8fb3ad; }
-.ftile.free .ftile-link{ color:var(--navy-teal); }
-
-/* ── image tiles ── */
-.itile{ position:relative; display:block; border-radius:24px; overflow:hidden; min-height:230px; box-shadow:var(--shadow-sm); transition:transform .2s, box-shadow .22s; }
-.itile:hover{ transform:translateY(-3px); box-shadow:var(--shadow); }
-.itile-bg{ position:absolute; inset:0; background-size:cover; background-position:center; transition:transform .4s ease; }
-.itile:hover .itile-bg{ transform:scale(1.04); }
-.itile-scrim{ position:absolute; inset:0; background:linear-gradient(to bottom, rgba(4,20,28,.62) 0%, rgba(4,20,28,.12) 42%, rgba(4,20,28,0) 70%); }
-.itile-cap{ position:relative; z-index:2; padding:22px 22px 0; }
-.itile-cap h3{ font-size:21px; font-weight:700; letter-spacing:-.02em; margin:0 0 4px; color:#fff; }
-.itile-cap p{ font-size:13px; line-height:1.5; margin:0; color:rgba(255,255,255,.9); max-width:88%; }
-.itile-chev{ position:absolute; z-index:2; right:20px; bottom:18px; color:#fff; opacity:.9; }
-.itile-chev .icon{ width:22px; height:22px; }
-
-.find-grid{ display:grid; grid-template-columns:1fr; gap:16px; }
-.two{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-.two .itile{ min-height:176px; }
-.two .itile-cap{ padding:18px 18px 0; }
-.two .itile-cap h3{ font-size:18px; }
-
-/* ── pro block（大会・ランキング＝濃紺） ── */
-.pro{ background:var(--navy); border-radius:28px; padding:34px 20px 24px; }
-.pro .sec-head{ margin-bottom:22px; }
-.pro .sec-eyebrow{ color:var(--navy-teal); text-transform:uppercase; letter-spacing:.12em; font-size:11px; }
-.pro .sec-title{ color:#eef8f5; }
-.pro .sec-sub{ color:#7fa8a0; }
-.erow{ display:flex; align-items:center; gap:14px; background:rgba(255,255,255,.04); border:1px solid rgba(93,202,165,.16); border-radius:16px; overflow:hidden; margin-bottom:12px; transition:border-color .22s, background .22s; }
-.erow:last-child{ margin-bottom:0; }
-.erow:hover{ border-color:rgba(93,202,165,.42); background:rgba(93,202,165,.08); }
-.erow-thumb{ width:92px; height:78px; flex-shrink:0; background-size:cover; background-position:center; }
-.erow-body{ flex:1; padding:13px 15px; min-width:0; }
-.erow-body h3{ font-size:15px; font-weight:700; letter-spacing:-.01em; margin:0 0 3px; color:#eaf6f3; }
-.erow-body p{ font-size:11.5px; margin:0; color:#8fb3ad; }
-.erow-arrow{ color:#6f938c; padding-right:16px; }
-.erow-arrow .icon{ width:19px; height:19px; }
-
-/* ── tips ── */
-.tips{ background:var(--surface); border-radius:24px; padding:22px 24px; box-shadow:var(--shadow-sm); }
-.tips-toggle{ display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none; }
-.tips-toggle .t-label{ display:flex; align-items:center; gap:10px; font-size:16px; font-weight:700; letter-spacing:-.01em; color:var(--ink); }
-.tips-toggle .t-label .icon{ width:18px; height:18px; color:var(--teal); }
-.tips-chevron{ width:18px; height:18px; color:var(--ink-soft); transition:transform .3s ease; }
-.tips-body{ overflow:hidden; max-height:0; opacity:0; transition:max-height .35s ease, opacity .3s ease; }
-.tips-body.open{ max-height:360px; opacity:1; }
-.tip{ display:flex; align-items:flex-start; gap:13px; margin-top:16px; }
-.tip-num{ width:24px; height:24px; border-radius:50%; background:var(--aqua); color:var(--teal-deep); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-family:ui-monospace,"SF Mono",Menlo,monospace; }
-.tip-text{ font-size:13.5px; color:var(--ink-mid); line-height:1.7; }
-.tip-text strong{ color:var(--ink); font-weight:700; }
-
-/* ── fade-in ── */
-.fade-in{ opacity:0; transform:translateY(20px); transition:opacity .6s ease, transform .6s ease; }
-.fade-in.visible{ opacity:1; transform:none; }
-
-/* ── PC ── */
-@media (min-width:700px){
-  .wrap{ max-width:1080px; padding:16px 32px 80px; }
-  .hero{ min-height:620px; }
-  .hero-title{ font-size:56px; }
-  .hero-desc{ font-size:19px; max-width:440px; }
-  .sec{ margin:80px 0; }
-  .sec-title{ font-size:40px; }
-  .sec-sub{ font-size:17px; max-width:460px; }
-  .ftiles{ flex-direction:row; gap:20px; }
-  .ftiles .ftile{ flex:1; padding:36px 28px 30px; }
-  .ftile-title{ white-space:nowrap; }
-  .find-grid{ grid-template-columns:1fr 1fr; gap:20px; }
-  .find-grid .itile{ min-height:300px; }
-  .two{ grid-template-columns:1fr 1fr 1fr 1fr; gap:20px; }
-  .pro{ padding:44px 40px 34px; }
-}
-</style>
+<link rel="stylesheet" href="css/home.css">
 </head>
 <body>
 
+<!-- ===== header ===== -->
 <header class="hdr">
-  <!-- ロゴ：ブランド名確定後はこの1行だけ差し替える -->
-  <a class="logo" href="index.html">素潜り<span>ポータル</span></a>
-  <a class="hdr-link" href="mypage.html">
-    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/></svg>
-    マイページ
-  </a>
-</header>
-
-<!-- hero -->
-<section class="hero">
-  <div class="hero-media">
-    <video id="hero-video" autoplay loop muted playsinline>
-      <source src="images/hero_vertical_ummyvideo.MOV" type="video/mp4">
-    </video>
-  </div>
-  <div class="hero-scrim"></div>
-  <div class="hero-copy">
-    <p class="hero-eyebrow">シュノーケルから、フリーダイビングまで</p>
-    <h1 class="hero-title">息を止めて、<br><em>海の中へ。</em></h1>
-    <p class="hero-desc">タンクを背負わず、素潜りで海とつながる。あなたのペースで、一歩ずつ深く。</p>
-    <div class="hero-actions">
-      <a class="btn-pop" href="explore/index.html">
-        体験・スクールを探す
-        <svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
-      </a>
-      <a class="link-chev" href="media/article.html?slug=what-is-freediving">
-        素潜りって？
-        <svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+  <div class="hdr-in">
+    <!-- ロゴ：ブランド名確定後はこの1行だけ差し替える -->
+    <a class="logo" href="index.html">素潜り<span>ポータル</span></a>
+    <div class="hdr-right">
+      <a class="host-link" href="pro/index.html">インストラクター掲載</a>
+      <a class="hdr-link" href="mypage.html">
+        <span class="avatar"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/></svg></span>
+        マイページ
       </a>
     </div>
   </div>
-</section>
+  <div class="wrap">
+    <div class="tabs" id="tabs">
+      <button class="tab active" data-tab="all">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18"/></svg>
+        すべて
+      </button>
+      <button class="tab" data-tab="snorkel">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M2 16s2-3 5-3 4 3 5 3 2-3 5-3 5 3 5 3"/><path d="M7 12V6a2 2 0 0 1 2-2h1"/><circle cx="14" cy="9" r="2"/></svg>
+        シュノーケリング
+      </button>
+      <button class="tab" data-tab="skin">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M6 4h8a2 2 0 0 1 2 2v3a5 5 0 0 1-5 5 5 5 0 0 1-5-5V4z"/><path d="M16 6h3a1 1 0 0 1 1 1v2"/><path d="M9 19s1-2 3-2 3 2 3 2"/></svg>
+        スキンダイビング
+      </button>
+      <button class="tab" data-tab="free">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M12 3v10"/><path d="M8 9l4 4 4-4"/><path d="M4 17s2 2 4 2 3-2 4-2 2 2 4 2 4-2 4-2"/></svg>
+        フリーダイビング
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ===== search bar ===== -->
+<div class="wrap">
+  <form class="searchbar" action="explore/index.html" method="get">
+    <label class="sb-seg">
+      <div class="sb-label">エリア</div>
+      <div class="sb-ph">どこで潜る？</div>
+    </label>
+    <label class="sb-seg sb-when">
+      <div class="sb-label">日程</div>
+      <div class="sb-ph">いつ行く？</div>
+    </label>
+    <label class="sb-seg">
+      <div class="sb-label">タイプ</div>
+      <div class="sb-ph">体験・スクール・記事</div>
+    </label>
+    <button class="sb-btn" type="submit"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>検索</button>
+  </form>
+</div>
 
 <main class="wrap">
 
-  <!-- 潜り方をえらぶ -->
-  <section class="sec fade-in">
-    <div class="sec-head">
-      <p class="sec-eyebrow">Levels</p>
-      <h2 class="sec-title">潜り方をえらぶ。</h2>
-      <p class="sec-sub">浅いところから深いところまで。今の自分に合う一歩を。</p>
-    </div>
-    <div class="ftiles">
-      <a class="ftile snorkel" href="explore/index.html">
-        <p class="ftile-depth">水面</p>
-        <h3 class="ftile-title">シュノーケリング <span class="badge">はじめてOK</span></h3>
-        <p class="ftile-sub">顔をつけて浮かび、海の中をのぞく。まずは気軽に海遊びから。</p>
-        <span class="ftile-link">はじめてみる <svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
-      </a>
-      <a class="ftile skin" href="explore/index.html">
-        <p class="ftile-depth">−3m</p>
-        <h3 class="ftile-title">スキンダイビング</h3>
-        <p class="ftile-sub">ひと息でもぐってみる。もっと近くで海を感じたい人へ。</p>
-        <span class="ftile-link">コースを見る <svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
-      </a>
-      <a class="ftile free" href="learn/index.html">
-        <p class="ftile-depth">−30m</p>
-        <h3 class="ftile-title">フリーダイビング</h3>
-        <p class="ftile-sub">もっと深く、もっと長く。上達・競技の世界へ。</p>
-        <span class="ftile-link">深く学ぶ <svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
-      </a>
-    </div>
-  </section>
+  <!-- ===== すべて ===== -->
+  <div class="panel active" data-panel="all">
 
-  <!-- 探す -->
-  <section class="sec fade-in">
-    <div class="sec-head">
-      <p class="sec-eyebrow">Find</p>
-      <h2 class="sec-title">探す。</h2>
-      <p class="sec-sub">通えるショップ・講習と、読み物を見つける。</p>
-    </div>
-    <div class="find-grid">
-      <a class="itile" href="explore/index.html">
-        <div class="itile-bg" style="background-image:url('images/index_explore.JPG');background-position:center 60%;"></div>
-        <div class="itile-scrim"></div>
-        <div class="itile-cap">
-          <h3>インストラクター・体験を探す</h3>
-          <p>シュノーケル・スキンダイビング体験、フリーダイビングのスクール・資格取得コース</p>
-        </div>
-        <span class="itile-chev"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
-      </a>
-      <a class="itile" href="media/index.html">
-        <div class="itile-bg" style="background-image:url('images/index_記事コラム.JPG');background-position:center 50%;"></div>
-        <div class="itile-scrim"></div>
-        <div class="itile-cap">
-          <h3>記事・コラム</h3>
-          <p>素潜りと海を、もっと深く知るための読み物</p>
-        </div>
-        <span class="itile-chev"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
-      </a>
-    </div>
-  </section>
-
-  <!-- 学ぶ -->
-  <section class="sec fade-in">
-    <div class="sec-head">
-      <p class="sec-eyebrow">Learn</p>
-      <h2 class="sec-title">学ぶ。</h2>
-      <p class="sec-sub">レベル別の動画コンテンツで、着実に上達する。</p>
-    </div>
-    <div class="two">
-      <a class="itile" href="learn/index.html?cat=beginner">
-        <div class="itile-bg" style="background-image:url('images/index_初心者.JPG');background-position:center 30%;"></div>
-        <div class="itile-scrim"></div>
-        <div class="itile-cap"><h3>初心者</h3><p>呼吸・イコライズの基本から</p></div>
-      </a>
-      <a class="itile" href="learn/index.html?cat=mid">
-        <div class="itile-bg" style="background-image:url('images/index_中級_Depth_training_dahab_2.JPG');background-position:center 40%;"></div>
-        <div class="itile-scrim"></div>
-        <div class="itile-cap"><h3>中級</h3><p>FRC・ノーフィン技術</p></div>
-      </a>
-      <a class="itile" href="learn/index.html?cat=comp">
-        <div class="itile-bg" style="background-image:url('images/pool_dynb.jpg');background-position:center 35%;"></div>
-        <div class="itile-scrim"></div>
-        <div class="itile-cap"><h3>競技</h3><p>大会・記録を伸ばす</p></div>
-      </a>
-      <a class="itile" href="learn/index.html?cat=inst">
-        <div class="itile-bg" style="background-image:url('images/index_インストラクターカード.JPG');background-position:center bottom;"></div>
-        <div class="itile-scrim"></div>
-        <div class="itile-cap"><h3>インストラクター</h3><p>資格・指導法を学ぶ</p></div>
-      </a>
-    </div>
-  </section>
-
-  <!-- 大会・国内ランキング -->
-  <section class="sec fade-in">
-    <div class="pro">
-      <div class="sec-head">
-        <p class="sec-eyebrow">for freedivers</p>
-        <h2 class="sec-title">大会 / 国内ランキング。</h2>
-        <p class="sec-sub">トップ選手と大会のいまを覗く。</p>
+    <section class="section">
+      <div class="section-head"><h2>はじめての海遊び・体験</h2></div>
+      <div class="row">
+        <a class="lcard" href="explore/index.html">
+          <div class="lcard-media"><img class="lcard-img" src="images/index_水面.JPG" alt=""><span class="lcard-badge">人気</span><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div>
+          <div class="lcard-body"><p class="lcard-title">シュノーケリング体験</p><p class="lcard-meta">沖縄・青の洞窟</p><p class="lcard-foot"><span class="price">¥6,000〜</span> ・ <span class="star">★4.9</span></p></div>
+        </a>
+        <a class="lcard" href="explore/index.html">
+          <div class="lcard-media"><img class="lcard-img" src="images/beginner_pair.jpg" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div>
+          <div class="lcard-body"><p class="lcard-title">スキンダイビング1日講習</p><p class="lcard-meta">伊豆・大瀬崎</p><p class="lcard-foot"><span class="price">¥12,000〜</span> ・ <span class="star">★4.9</span></p></div>
+        </a>
+        <a class="lcard" href="explore/index.html">
+          <div class="lcard-media"><img class="lcard-img" src="images/surface_boat_view.jpg" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div>
+          <div class="lcard-body"><p class="lcard-title">素潜り体験ツアー</p><p class="lcard-meta">鹿児島・錦江湾</p><p class="lcard-foot"><span class="price">¥8,000〜</span> ・ <span class="star">★5.0</span></p></div>
+        </a>
+        <a class="lcard" href="explore/index.html">
+          <div class="lcard-media"><img class="lcard-img" src="images/index_初心者.JPG" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div>
+          <div class="lcard-body"><p class="lcard-title">フリーダイビング体験コース</p><p class="lcard-meta">関東・プール</p><p class="lcard-foot"><span class="price">¥15,000〜</span> ・ <span class="star">★4.8</span></p></div>
+        </a>
+        <a class="lcard" href="explore/index.html">
+          <div class="lcard-media"><img class="lcard-img" src="images/light_rays.jpg" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div>
+          <div class="lcard-body"><p class="lcard-title">スキンダイビング半日体験</p><p class="lcard-meta">和歌山・白浜</p><p class="lcard-foot"><span class="price">¥9,000〜</span> ・ <span class="star">★4.9</span></p></div>
+        </a>
       </div>
-      <a class="erow" href="events/2026_competitions.html">
-        <div class="erow-thumb" style="background-image:url('images/index_Competition_Volcano_cup.JPG');background-position:center 40%;"></div>
-        <div class="erow-body"><h3>大会情報</h3><p>2026年 国内大会スケジュール</p></div>
-        <span class="erow-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
-      </a>
-      <a class="erow" href="rankings/AIDA_ranking.html">
-        <div class="erow-thumb" style="background-image:url('images/pool_portrait.jpg');background-position:center 20%;"></div>
-        <div class="erow-body"><h3>国内ランキング</h3><p>AIDA Japan 全国ランキング</p></div>
-        <span class="erow-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
-      </a>
-    </div>
-  </section>
+    </section>
 
-  <!-- はじめる前に -->
-  <section class="sec fade-in">
-    <div class="tips">
-      <div class="tips-toggle" id="tips-toggle">
-        <span class="t-label">
-          <svg class="icon" viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.3 1 2.5h6c0-1.2.2-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
-          素潜りを始める前に
-        </span>
-        <svg class="tips-chevron" id="tips-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    <section class="section">
+      <div class="section-head"><h2>近くのスクール・インストラクター</h2></div>
+      <div class="row">
+        <a class="lcard" href="explore/index.html">
+          <div class="lcard-media"><img class="lcard-img" src="images/index_インストラクター.JPG" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div>
+          <div class="lcard-body"><p class="lcard-title">AIDAインストラクター</p><p class="lcard-meta">東京・葉山</p><p class="lcard-foot"><span class="star">★5.0</span> ・ レビュー42件</p></div>
+        </a>
+        <a class="lcard" href="explore/index.html">
+          <div class="lcard-media"><img class="lcard-img" src="images/index_インストラクターカード.JPG" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div>
+          <div class="lcard-body"><p class="lcard-title">スキンダイビング専門スクール</p><p class="lcard-meta">静岡・伊豆</p><p class="lcard-foot"><span class="star">★4.9</span> ・ レビュー31件</p></div>
+        </a>
+        <a class="lcard" href="explore/index.html">
+          <div class="lcard-media"><img class="lcard-img" src="images/index_中級_Depth_training_dahab_2.JPG" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div>
+          <div class="lcard-body"><p class="lcard-title">深度トレーニング対応スクール</p><p class="lcard-meta">神奈川・三浦</p><p class="lcard-foot"><span class="star">★4.8</span> ・ レビュー27件</p></div>
+        </a>
+        <a class="lcard" href="explore/index.html">
+          <div class="lcard-media"><img class="lcard-img" src="images/gear_fins_beach.jpg" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div>
+          <div class="lcard-body"><p class="lcard-title">シュノーケルツアー主催</p><p class="lcard-meta">沖縄・宮古島</p><p class="lcard-foot"><span class="star">★4.9</span> ・ レビュー58件</p></div>
+        </a>
       </div>
-      <div class="tips-body" id="tips-body">
-        <div class="tip"><div class="tip-num">1</div><div class="tip-text"><strong>必ず認定インストラクターと一緒に</strong>潜りましょう。一人での練習は危険です。</div></div>
-        <div class="tip"><div class="tip-num">2</div><div class="tip-text"><strong>体験コースから始める</strong>のがおすすめ。道具も技術も不要で、2〜3時間で体験できます。</div></div>
-        <div class="tip"><div class="tip-num">3</div><div class="tip-text">深さより<strong>リラックス</strong>が大切。焦らず、自分のペースで楽しみましょう。</div></div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><h2>新着の記事・コラム</h2><a class="section-more" href="media/index.html">記事一覧 <svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></a></div>
+      <div class="row">
+        <a class="lcard" href="media/index.html">
+          <div class="lcard-media"><img class="lcard-img" src="images/index_記事コラム.JPG" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div>
+          <div class="lcard-body"><p class="lcard-title">「耳抜きができない」を解決する3つのアプローチ</p><p class="lcard-meta">入門・体験</p><p class="lcard-foot">読むと上達が早くなる</p></div>
+        </a>
+        <a class="lcard" href="media/index.html">
+          <div class="lcard-media"><img class="lcard-img" src="images/dive_deep_rope.jpg" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div>
+          <div class="lcard-body"><p class="lcard-title">水深40メートルで、人は何を考えるのか</p><p class="lcard-meta">人物メディア</p><p class="lcard-foot">寺嶋拓哉</p></div>
+        </a>
+        <a class="lcard" href="media/index.html">
+          <div class="lcard-media"><img class="lcard-img" src="images/hero_cnf_dive.jpg" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div>
+          <div class="lcard-body"><p class="lcard-title">息を7分止めるとき、頭の中で何が起きているか</p><p class="lcard-meta">競技・大会</p><p class="lcard-foot">寺嶋拓哉</p></div>
+        </a>
+        <a class="lcard" href="media/index.html">
+          <div class="lcard-media"><img class="lcard-img" src="images/beginner_pair.jpg" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div>
+          <div class="lcard-body"><p class="lcard-title">泳げなくてもフリーダイビングはできる？</p><p class="lcard-meta">入門・体験</p><p class="lcard-foot">Freediving Japan 編集部</p></div>
+        </a>
       </div>
-    </div>
-  </section>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><h2>大会・国内ランキング</h2></div>
+      <div class="row">
+        <a class="lcard" href="events/2026_competitions.html">
+          <div class="lcard-media"><img class="lcard-img" src="images/index_Competition_Volcano_cup.JPG" alt=""><span class="lcard-badge">大会</span><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div>
+          <div class="lcard-body"><p class="lcard-title">Volcano Cup 2026</p><p class="lcard-meta">鹿児島・国際大会</p><p class="lcard-foot">エントリー受付中</p></div>
+        </a>
+        <a class="lcard" href="rankings/AIDA_ranking.html">
+          <div class="lcard-media"><img class="lcard-img" src="images/pool_portrait.jpg" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div>
+          <div class="lcard-body"><p class="lcard-title">国内ランキング</p><p class="lcard-meta">AIDA Japan 全国</p><p class="lcard-foot">種目別に見る</p></div>
+        </a>
+        <a class="lcard" href="rankings/AIDA_ranking.html">
+          <div class="lcard-media"><img class="lcard-img" src="images/pool_dynb.jpg" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div>
+          <div class="lcard-body"><p class="lcard-title">プール競技（DYN / DNF）</p><p class="lcard-meta">国内記録</p><p class="lcard-foot">記録一覧を見る</p></div>
+        </a>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ===== シュノーケリング ===== -->
+  <div class="panel" data-panel="snorkel">
+    <section class="section">
+      <div class="section-head"><h2>シュノーケリング体験</h2><a class="section-more" href="snorkeling.html">もっと見る <svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></a></div>
+      <div class="row">
+        <a class="lcard" href="snorkeling.html"><div class="lcard-media"><img class="lcard-img" src="images/index_水面.JPG" alt=""><span class="lcard-badge">人気</span><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div><div class="lcard-body"><p class="lcard-title">青の洞窟シュノーケル</p><p class="lcard-meta">沖縄・恩納村</p><p class="lcard-foot"><span class="price">¥6,000〜</span> ・ <span class="star">★4.9</span></p></div></a>
+        <a class="lcard" href="snorkeling.html"><div class="lcard-media"><img class="lcard-img" src="images/surface_boat_view.jpg" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div><div class="lcard-body"><p class="lcard-title">ボートシュノーケリング</p><p class="lcard-meta">和歌山・串本</p><p class="lcard-foot"><span class="price">¥7,500〜</span> ・ <span class="star">★4.8</span></p></div></a>
+        <a class="lcard" href="snorkeling.html"><div class="lcard-media"><img class="lcard-img" src="images/beginner_pair.jpg" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div><div class="lcard-body"><p class="lcard-title">親子シュノーケル体験</p><p class="lcard-meta">静岡・伊豆</p><p class="lcard-foot"><span class="price">¥5,000〜</span> ・ <span class="star">★5.0</span></p></div></a>
+        <a class="lcard" href="snorkeling.html"><div class="lcard-media"><img class="lcard-img" src="images/light_rays.jpg" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div><div class="lcard-body"><p class="lcard-title">ナイトシュノーケル</p><p class="lcard-meta">沖縄・石垣島</p><p class="lcard-foot"><span class="price">¥8,000〜</span> ・ <span class="star">★4.9</span></p></div></a>
+      </div>
+    </section>
+    <section class="section">
+      <div class="section-head"><h2>シュノーケリングの記事</h2><a class="section-more" href="snorkeling.html">もっと見る <svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></a></div>
+      <div class="row">
+        <a class="lcard" href="media/index.html"><div class="lcard-media"><img class="lcard-img" src="images/index_初心者.JPG" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div><div class="lcard-body"><p class="lcard-title">初めてのシュノーケルで準備するもの</p><p class="lcard-meta">入門・体験</p><p class="lcard-foot">完全初心者向け</p></div></a>
+        <a class="lcard" href="media/index.html"><div class="lcard-media"><img class="lcard-img" src="images/gear_fins_beach.jpg" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div><div class="lcard-body"><p class="lcard-title">シュノーケルとスキンダイビングの違い</p><p class="lcard-meta">入門・体験</p><p class="lcard-foot">どちらが自分に合う？</p></div></a>
+        <a class="lcard" href="media/index.html"><div class="lcard-media"><img class="lcard-img" src="images/surface_boat_view.jpg" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div><div class="lcard-body"><p class="lcard-title">日本のおすすめシュノーケルスポット</p><p class="lcard-meta">海・スポット</p><p class="lcard-foot">全国10選</p></div></a>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== スキンダイビング ===== -->
+  <div class="panel" data-panel="skin">
+    <section class="section">
+      <div class="section-head"><h2>スキンダイビングの体験・講習</h2><a class="section-more" href="skindiving.html">もっと見る <svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></a></div>
+      <div class="row">
+        <a class="lcard" href="skindiving.html"><div class="lcard-media"><img class="lcard-img" src="images/beginner_pair.jpg" alt=""><span class="lcard-badge">人気</span><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div><div class="lcard-body"><p class="lcard-title">スキンダイビング1日講習</p><p class="lcard-meta">伊豆・大瀬崎</p><p class="lcard-foot"><span class="price">¥12,000〜</span> ・ <span class="star">★4.9</span></p></div></a>
+        <a class="lcard" href="skindiving.html"><div class="lcard-media"><img class="lcard-img" src="images/light_rays.jpg" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div><div class="lcard-body"><p class="lcard-title">スキンダイビング半日体験</p><p class="lcard-meta">和歌山・白浜</p><p class="lcard-foot"><span class="price">¥9,000〜</span> ・ <span class="star">★4.9</span></p></div></a>
+        <a class="lcard" href="skindiving.html"><div class="lcard-media"><img class="lcard-img" src="images/index_インストラクターカード.JPG" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div><div class="lcard-body"><p class="lcard-title">スキンダイビング認定コース</p><p class="lcard-meta">静岡・伊豆</p><p class="lcard-foot"><span class="price">¥28,000〜</span> ・ <span class="star">★5.0</span></p></div></a>
+        <a class="lcard" href="skindiving.html"><div class="lcard-media"><img class="lcard-img" src="images/gear_fins_beach.jpg" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div><div class="lcard-body"><p class="lcard-title">魚突き×スキンダイビング</p><p class="lcard-meta">高知・柏島</p><p class="lcard-foot"><span class="price">¥14,000〜</span> ・ <span class="star">★4.8</span></p></div></a>
+      </div>
+    </section>
+    <section class="section">
+      <div class="section-head"><h2>スキンダイビングの記事</h2><a class="section-more" href="skindiving.html">もっと見る <svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></a></div>
+      <div class="row">
+        <a class="lcard" href="media/index.html"><div class="lcard-media"><img class="lcard-img" src="images/beginner_pair.jpg" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div><div class="lcard-body"><p class="lcard-title">スキンダイビングの安全とバディの基本</p><p class="lcard-meta">身体・科学</p><p class="lcard-foot">安全訴求</p></div></a>
+        <a class="lcard" href="media/index.html"><div class="lcard-media"><img class="lcard-img" src="images/index_水面.JPG" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div><div class="lcard-body"><p class="lcard-title">ひと息で潜る——ドルフィンキック入門</p><p class="lcard-meta">身体・科学</p><p class="lcard-foot">中級者向け</p></div></a>
+        <a class="lcard" href="media/index.html"><div class="lcard-media"><img class="lcard-img" src="images/gear_fins_beach.jpg" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div><div class="lcard-body"><p class="lcard-title">ウエイトと浮力の考え方</p><p class="lcard-meta">身体・科学</p><p class="lcard-foot">初中級者向け</p></div></a>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== フリーダイビング ===== -->
+  <div class="panel" data-panel="free">
+    <section class="section">
+      <div class="section-head"><h2>フリーダイビングのスクール・コース</h2><a class="section-more" href="freediving.html">もっと見る <svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></a></div>
+      <div class="row">
+        <a class="lcard" href="freediving.html"><div class="lcard-media"><img class="lcard-img" src="images/index_初心者.JPG" alt=""><span class="lcard-badge">人気</span><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div><div class="lcard-body"><p class="lcard-title">AIDA2 認定コース</p><p class="lcard-meta">関東・プール＋海洋</p><p class="lcard-foot"><span class="price">¥45,000〜</span> ・ <span class="star">★5.0</span></p></div></a>
+        <a class="lcard" href="freediving.html"><div class="lcard-media"><img class="lcard-img" src="images/index_中級_Depth_training_dahab_2.JPG" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div><div class="lcard-body"><p class="lcard-title">深度トレーニングキャンプ</p><p class="lcard-meta">エジプト・ダハブ</p><p class="lcard-foot"><span class="price">¥88,000〜</span> ・ <span class="star">★4.9</span></p></div></a>
+        <a class="lcard" href="freediving.html"><div class="lcard-media"><img class="lcard-img" src="images/pool_dynb.jpg" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div><div class="lcard-body"><p class="lcard-title">STA・プール競技クラス</p><p class="lcard-meta">東京・室内プール</p><p class="lcard-foot"><span class="price">¥6,000〜</span> ・ <span class="star">★4.8</span></p></div></a>
+        <a class="lcard" href="freediving.html"><div class="lcard-media"><img class="lcard-img" src="images/dive_deep_rope.jpg" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div><div class="lcard-body"><p class="lcard-title">CWT/CNF デプス講習</p><p class="lcard-meta">鹿児島・錦江湾</p><p class="lcard-foot"><span class="price">¥38,000〜</span> ・ <span class="star">★5.0</span></p></div></a>
+      </div>
+    </section>
+    <section class="section">
+      <div class="section-head"><h2>競技・トレーニング</h2><a class="section-more" href="freediving.html">もっと見る <svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></a></div>
+      <div class="row">
+        <a class="lcard" href="events/2026_competitions.html"><div class="lcard-media"><img class="lcard-img" src="images/index_Competition_Volcano_cup.JPG" alt=""><span class="lcard-badge">大会</span><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div><div class="lcard-body"><p class="lcard-title">Volcano Cup 2026</p><p class="lcard-meta">鹿児島・国際大会</p><p class="lcard-foot">エントリー受付中</p></div></a>
+        <a class="lcard" href="rankings/AIDA_ranking.html"><div class="lcard-media"><img class="lcard-img" src="images/pool_portrait.jpg" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div><div class="lcard-body"><p class="lcard-title">国内ランキング</p><p class="lcard-meta">AIDA Japan 全国</p><p class="lcard-foot">種目別に見る</p></div></a>
+        <a class="lcard" href="media/index.html"><div class="lcard-media"><img class="lcard-img" src="images/hero_cnf_dive.jpg" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div><div class="lcard-body"><p class="lcard-title">STA競技における「収縮管理」</p><p class="lcard-meta">競技・大会</p><p class="lcard-foot">競技者向け</p></div></a>
+      </div>
+    </section>
+  </div>
 
 </main>
 
+<!-- ===== footer ===== -->
+<footer class="foot">
+  <div class="foot-in">
+    <div class="foot-col">
+      <h4>探す</h4>
+      <a href="snorkeling.html">シュノーケリング</a>
+      <a href="skindiving.html">スキンダイビング</a>
+      <a href="freediving.html">フリーダイビング</a>
+      <a href="explore/index.html">インストラクターを探す</a>
+    </div>
+    <div class="foot-col">
+      <h4>学ぶ・読む</h4>
+      <a href="learn/index.html">動画で学ぶ</a>
+      <a href="media/index.html">記事・コラム</a>
+      <a href="media/article.html?slug=what-is-freediving">素潜りって？</a>
+    </div>
+    <div class="foot-col">
+      <h4>競技</h4>
+      <a href="events/2026_competitions.html">大会情報</a>
+      <a href="rankings/AIDA_ranking.html">国内ランキング</a>
+    </div>
+    <div class="foot-col">
+      <h4>その他</h4>
+      <a href="pro/index.html">インストラクター掲載</a>
+      <a href="mypage.html">マイページ</a>
+    </div>
+  </div>
+  <div class="foot-bottom"><div class="wrap">© 2026 素潜りポータル（仮）</div></div>
+</footer>
+
 <script>
+// タブ切替
 (function(){
-  var v = document.getElementById('hero-video');
-  if (v && window.innerWidth >= 700) { v.querySelector('source').src = 'images/Hero_horizontal.MOV'; v.load(); }
+  var tabs = document.querySelectorAll('.tab');
+  var panels = document.querySelectorAll('.panel');
+  tabs.forEach(function(t){
+    t.addEventListener('click', function(){
+      tabs.forEach(function(x){ x.classList.remove('active'); });
+      t.classList.add('active');
+      var key = t.dataset.tab;
+      panels.forEach(function(p){ p.classList.toggle('active', p.dataset.panel === key); });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
 })();
+// お気に入り♡トグル（リンク遷移を止める）
 (function(){
-  var obs = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('visible'); obs.unobserve(e.target); } });
-  }, { threshold: 0.12 });
-  document.querySelectorAll('.fade-in').forEach(function(el){ obs.observe(el); });
+  document.querySelectorAll('[data-save]').forEach(function(el){
+    el.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); el.classList.toggle('on'); });
+  });
 })();
-document.getElementById('tips-toggle').addEventListener('click', function(){
-  var body = document.getElementById('tips-body');
-  var chevron = document.getElementById('tips-chevron');
-  chevron.style.transform = body.classList.toggle('open') ? 'rotate(180deg)' : '';
-});
 </script>
 
 </body>
