@@ -1,9 +1,17 @@
 #!/usr/bin/env python3
 """
-AIDA International カレンダースクレイパー（xvfb + jQuery 版）
+AIDA International カレンダースクレイパー（Playwright + フォームPOST 版）
 
-GitHub Actions では xvfb-run 経由で実行（ワークフロー側で設定済み）。
-ローカルでも同様に動作する。
+2026-07 改修:
+  旧版は jQuery の存在に依存し、`jQuery('#year').trigger(...)` で AJAX フィルタを
+  適用していた。AIDA 側の変更（ヘッドレスブラウザに対して jQuery を含まない
+  レスポンスを返すようになった）により jQuery チェックで異常終了していた。
+
+  新版は実ブラウザ（Playwright/Chromium）でセッションを確立したうえで、
+  ページ内 fetch から検索フォーム（form_search）を直接 POST する。
+  サーバがイベントカードをサーバサイドレンダリングして返すため、jQuery/AJAX に
+  依存しない。フィルタはセッション状態で保持されるため、月ごとに
+  search_button で絞り込み → change_page でページ送り、という順序で取得する。
 
 初回セットアップ:
   pip install playwright beautifulsoup4
@@ -39,6 +47,24 @@ MONTH_NAMES = {
     "jan": 1, "feb": 2, "mar": 3, "apr": 4, "jun": 6,
     "jul": 7, "aug": 8, "sep": 9, "oct": 10, "nov": 11, "dec": 12,
 }
+
+# ページ内で検索フォームを POST し、返ってきた HTML を文字列で返す JS。
+# params は {year, month, event_type_id, country_id, search_button?, change_page?}
+_FETCH_JS = """
+async (params) => {
+    const body = new URLSearchParams(params).toString();
+    const r = await fetch("https://www.aidainternational.org/Events/EventCalendar", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-Requested-With": "XMLHttpRequest"
+        },
+        body: body,
+        credentials: "include"
+    });
+    return await r.text();
+}
+"""
 
 
 def normalize_date(date_str: str) -> str:
@@ -99,18 +125,22 @@ def get_max_page(html: str) -> int:
     return max(targets, default=1)
 
 
-def apply_filter(page, year: int, month: int):
-    """jQuery で年月フィルタを適用してAJAX更新を待つ"""
-    page.evaluate(f"""() => {{
-        jQuery('#year').val('{year}').trigger('change.select2').trigger('change');
-        jQuery('#month').val('{month}').trigger('change.select2').trigger('change');
-        jQuery('.js-applyFilter').trigger('click');
-    }}""")
-    try:
-        page.wait_for_load_state("networkidle", timeout=12000)
-    except Exception:
-        pass
-    time.sleep(1.0)
+def fetch_html(page, year: int, month: int, change_page: int | None = None) -> str:
+    """検索フォームを POST して結果 HTML を取得。
+    change_page=None → search_button で月フィルタを適用（=1ページ目）
+    change_page=N    → 直前のフィルタ状態のまま N ページ目を取得
+    """
+    params = {
+        "year": str(year),
+        "month": str(month),
+        "event_type_id": "",
+        "country_id": "",
+    }
+    if change_page is None:
+        params["search_button"] = ""
+    else:
+        params["change_page"] = str(change_page)
+    return page.evaluate(_FETCH_JS, params)
 
 
 def categorize(event: dict) -> str:
@@ -129,7 +159,6 @@ def main():
     year = args.year
 
     print(f"=== AIDA {year} カレンダー取得開始 ===")
-    print("モード: headless=False (xvfb または 実ディスプレイ)")
 
     all_events: list[dict] = []
 
@@ -148,22 +177,20 @@ def main():
         )
         page = context.new_page()
 
-        print("ページ初期ロード中...")
+        print("ページ初期ロード中（セッション確立）...")
         page.goto(BASE_URL, wait_until="networkidle", timeout=30000)
         time.sleep(2)
 
-        has_jquery = page.evaluate("() => typeof jQuery !== 'undefined'")
-        if not has_jquery:
-            print("❌ jQuery が見つかりません。ページ構造が変わった可能性があります。", file=sys.stderr)
-            browser.close()
-            sys.exit(1)
-        print("✅ jQuery 確認済み")
+        # 動作確認: 検索フォームが存在するか（構造変化の早期検知）
+        if page.query_selector("#form_search") is None:
+            print(
+                "⚠️  #form_search が見つかりません。ページ構造が変わった可能性があります。",
+                file=sys.stderr,
+            )
 
         for month in range(1, 13):
             print(f"\n{month:2d}月 取得中...", flush=True)
-            apply_filter(page, year, month)
-
-            html = page.content()
+            html = fetch_html(page, year, month)
             evts = parse_events(html)
             max_pg = get_max_page(html)
             all_events.extend(evts)
@@ -171,16 +198,15 @@ def main():
 
             for pg in range(2, max_pg + 1):
                 try:
-                    page.click(f'[pagination-target="{pg}"]', timeout=5000)
-                    page.wait_for_load_state("networkidle", timeout=10000)
-                    time.sleep(0.8)
+                    html_pg = fetch_html(page, year, month, change_page=pg)
+                    pg_evts = parse_events(html_pg)
                 except Exception as e:
-                    print(f"  ⚠️ pagination {pg} クリック失敗: {e}", flush=True)
-                pg_evts = parse_events(page.content())
+                    print(f"  ⚠️ page {pg} 取得失敗: {e}", flush=True)
+                    pg_evts = []
                 all_events.extend(pg_evts)
                 print(f"  page {pg}/{max_pg}: {len(pg_evts)}件", flush=True)
 
-            time.sleep(0.5)
+            time.sleep(0.4)
 
         browser.close()
 
