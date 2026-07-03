@@ -36,13 +36,13 @@ jobs:
       - name: ワイルドカードを更新
         run: python3 scripts/fetch_wildcards.py
 
-      - name: 大会カレンダーを更新
-        run: python3 scripts/fetch_aida_events.py
+      # 大会カレンダー(AIDA)取得は専用ワークフロー update_aida_events.yml が担当するため
+      # ここでは実行しない（重複 & bot対策のためheadful+xvfbが必要なため）。
 
       - name: Commit if changed
         run: |
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
-          git add data/rankings_*.json data/jp_official_records.json data/national_team.json data/all_rankings_data.json data/wildcard_data.json data/aida_events_*.json
+          git add data/rankings_*.json data/jp_official_records.json data/national_team.json data/all_rankings_data.json data/wildcard_data.json
           git diff --staged --quiet || git commit -m "chore: update rankings & records $(date -u +%Y-%m-%d)"
           git push

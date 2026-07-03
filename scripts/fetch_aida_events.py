@@ -1,27 +1,33 @@
 #!/usr/bin/env python3
 """
-AIDA International カレンダースクレイパー（Playwright + フォームPOST 版）
+AIDA International カレンダースクレイパー（Playwright headful + フォームPOST 版）
 
 2026-07 改修:
-  旧版は jQuery の存在に依存し、`jQuery('#year').trigger(...)` で AJAX フィルタを
-  適用していた。AIDA 側の変更（ヘッドレスブラウザに対して jQuery を含まない
-  レスポンスを返すようになった）により jQuery チェックで異常終了していた。
+  1) 旧版は jQuery 依存で、ヘッドレスブラウザに jQuery が無いレスポンスが返り異常終了していた。
+  2) さらに AIDA 側の bot 対策強化により、CI のヘッドレスブラウザ／データセンターIPには
+     検索フォーム(#form_search)を含まないページが返るようになった（全件0件で失敗）。
 
-  新版は実ブラウザ（Playwright/Chromium）でセッションを確立したうえで、
-  ページ内 fetch から検索フォーム（form_search）を直接 POST する。
-  サーバがイベントカードをサーバサイドレンダリングして返すため、jQuery/AJAX に
-  依存しない。フィルタはセッション状態で保持されるため、月ごとに
-  search_button で絞り込み → change_page でページ送り、という順序で取得する。
+  対策:
+   - jQuery/AJAX 依存を排し、検索フォームをページ内 fetch で直接 POST（サーバサイド
+     レンダリングされたカードHTMLを取得）。
+   - bot 検知を避けるため、既定で headful（実ブラウザ）起動。CI では xvfb-run 経由で
+     仮想ディスプレイに描画する。stealth フラグと navigator.webdriver 隠蔽も付与。
+   - フォーム未検出時はリトライし、それでも駄目ならページ内容の診断ログを出力する
+     （Cloudflare チャレンジ／IPブロック等の切り分け用）。
+
+環境変数:
+   AIDA_HEADLESS=1  … ローカル検証用にヘッドレス起動（既定は headful）
 
 初回セットアップ:
   pip install playwright beautifulsoup4
   python3 -m playwright install chromium --with-deps
 
 Usage:
-  python3 scripts/fetch_aida_events.py
-  python3 scripts/fetch_aida_events.py --year 2027
+  xvfb-run --auto-servernum python3 scripts/fetch_aida_events.py --year 2026
+  AIDA_HEADLESS=1 python3 scripts/fetch_aida_events.py   # ローカル
 """
 
+import os
 import json
 import sys
 import time
@@ -48,8 +54,6 @@ MONTH_NAMES = {
     "jul": 7, "aug": 8, "sep": 9, "oct": 10, "nov": 11, "dec": 12,
 }
 
-# ページ内で検索フォームを POST し、返ってきた HTML を文字列で返す JS。
-# params は {year, month, event_type_id, country_id, search_button?, change_page?}
 _FETCH_JS = """
 async (params) => {
     const body = new URLSearchParams(params).toString();
@@ -66,9 +70,16 @@ async (params) => {
 }
 """
 
+# 自動化検知を避けるための初期化スクリプト（各ページ生成前に実行）
+_STEALTH_JS = """
+Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
+window.chrome = window.chrome || {runtime: {}};
+Object.defineProperty(navigator, 'languages', {get: () => ['en-US', 'en']});
+Object.defineProperty(navigator, 'plugins', {get: () => [1, 2, 3, 4, 5]});
+"""
+
 
 def normalize_date(date_str: str) -> str:
-    """各種フォーマット → YYYY-MM-DD に統一"""
     if not date_str:
         return ""
     s = date_str.strip()
@@ -126,10 +137,6 @@ def get_max_page(html: str) -> int:
 
 
 def fetch_html(page, year: int, month: int, change_page: int | None = None) -> str:
-    """検索フォームを POST して結果 HTML を取得。
-    change_page=None → search_button で月フィルタを適用（=1ページ目）
-    change_page=N    → 直前のフィルタ状態のまま N ページ目を取得
-    """
     params = {
         "year": str(year),
         "month": str(month),
@@ -152,20 +159,60 @@ def categorize(event: dict) -> str:
     return "pool"
 
 
+def load_calendar_page(page):
+    """カレンダーページを開き、検索フォームが現れるまでリトライ。
+    現れなければ診断情報を出力して False を返す。"""
+    for attempt in range(1, 4):
+        try:
+            resp = page.goto(BASE_URL, wait_until="networkidle", timeout=45000)
+            status = resp.status if resp else "?"
+        except Exception as e:
+            status = f"goto例外: {e}"
+        time.sleep(2)
+        if page.query_selector("#form_search") is not None:
+            print(f"✅ 検索フォーム検出（試行{attempt}, status={status}）")
+            return True
+        print(f"  ⏳ 試行{attempt}: #form_search 未検出（status={status}）。待機して再試行...", flush=True)
+        time.sleep(4)
+
+    # 診断: 何が返っているのか
+    try:
+        title = page.title()
+    except Exception:
+        title = "?"
+    try:
+        body_snippet = page.evaluate(
+            "() => (document.body ? document.body.innerText : '').slice(0, 500)"
+        )
+    except Exception:
+        body_snippet = "?"
+    print("❌ 検索フォームが見つかりません。bot対策でブロックされている可能性があります。", file=sys.stderr)
+    print(f"   [診断] title = {title!r}", file=sys.stderr)
+    print(f"   [診断] body先頭 = {body_snippet!r}", file=sys.stderr)
+    return False
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--year", type=int, default=datetime.now().year)
     args = parser.parse_args()
     year = args.year
 
+    headless = os.environ.get("AIDA_HEADLESS", "0") == "1"
     print(f"=== AIDA {year} カレンダー取得開始 ===")
+    print(f"モード: {'headless' if headless else 'headful (xvfb/実ディスプレイ想定)'}")
 
     all_events: list[dict] = []
 
     with sync_playwright() as p:
         browser = p.chromium.launch(
-            headless=True,
-            args=["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
+            headless=headless,
+            args=[
+                "--no-sandbox",
+                "--disable-setuid-sandbox",
+                "--disable-dev-shm-usage",
+                "--disable-blink-features=AutomationControlled",
+            ],
         )
         context = browser.new_context(
             user_agent=(
@@ -174,19 +221,18 @@ def main():
                 "Chrome/125.0.0.0 Safari/537.36"
             ),
             viewport={"width": 1280, "height": 900},
+            locale="en-US",
+            extra_http_headers={
+                "Accept-Language": "en-US,en;q=0.9",
+            },
         )
+        context.add_init_script(_STEALTH_JS)
         page = context.new_page()
 
         print("ページ初期ロード中（セッション確立）...")
-        page.goto(BASE_URL, wait_until="networkidle", timeout=30000)
-        time.sleep(2)
-
-        # 動作確認: 検索フォームが存在するか（構造変化の早期検知）
-        if page.query_selector("#form_search") is None:
-            print(
-                "⚠️  #form_search が見つかりません。ページ構造が変わった可能性があります。",
-                file=sys.stderr,
-            )
+        if not load_calendar_page(page):
+            browser.close()
+            sys.exit(1)
 
         for month in range(1, 13):
             print(f"\n{month:2d}月 取得中...", flush=True)
