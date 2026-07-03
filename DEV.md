@@ -225,7 +225,12 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 ## ファイル構成（主要）
 
 ```
-/index.html               # トップページ（未ログイン＝初めての人の世界）
+/index.html               # トップ（Airbnb風マーケットプレイス：検索バー＋ピラータブ切替＋横スクロールカード）
+/snorkeling.html          # ピラー専用ページ：シュノーケリング（検索＋関連カード＋記事）
+/skindiving.html          # ピラー専用ページ：スキンダイビング
+/freediving.html          # ピラー専用ページ：フリーダイビング
+/css/home.css             # トップ＋ピラー3ページ共通のライトテーマ（design-system.cssとは別系統）
+/js/home.js               # 共通挙動（お気に入り♡・ピラータブ切替・検索バー送信）
 /auth.html                # 認証画面（メール/パスワード・Googleログイン）
 /mypage.html              # ログイン後＝プロ・選手の世界
 /admin/index.html         # 管理画面（空き枠・予約管理）
@@ -278,11 +283,17 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 
 ```
 ■ 未ログイン ＝ 初めての人の世界
-TOP (index.html)
+TOP (index.html)  ── Airbnb風マーケットプレイス（白基調）
+│   ├── 検索バー（エリア／日程／タイプ）→ /explore/?q=&area=&intent= へ遷移
+│   ├── ピラータブ（すべて／シュノーケル／スキン／フリー）＝その場でカード列を切替
+│   └── 各タブ「もっと見る」→ ピラー専用ページ
+│
+├── ピラー専用ページ（snorkeling / skindiving / freediving.html）
+│   └── 種目別の検索＋関連カテゴリ＋体験カード＋記事（共通 css/home.css・js/home.js）
 │
 ├── 読む：メディア (/media/)              [Phase 2]
 │
-├── 探す：マッチング (/explore/)          [Phase 2・トップに前面表示]
+├── 探す：マッチング (/explore/)          [Phase 2・トップの検索バーから連携。URLパラメータ q/area/intent で初期絞り込み対応済み]
 │   ├── フリーダイビング スクール・インストラクター
 │   ├── スキンダイビング スクール・インストラクター
 │   ├── ダイビング船（ファンダイビング対応ショップ）
@@ -360,7 +371,9 @@ TOP (index.html)
 
 |ページ・機能                                              |状況                          |
 |----------------------------------------------------|----------------------------|
-|トップページ（index.html）                                  |✅ 完成（※二層化に向けて要再設計）          |
+|トップページ（index.html）                                  |✅ Airbnb風マーケットプレイスに全面刷新（2026-07-03）。白基調・検索バー・ピラータブでその場切替・横スクロールカード列。**カード内容は代表ダミー（値段/★/レビュー数）で実データ差し替えは未**|
+|ピラー専用3ページ（snorkeling/skindiving/freediving.html）    |✅ 新設（2026-07-03）。種目別の検索＋関連カテゴリチップ＋体験カード＋記事リスト。共通 css/home.css・js/home.js|
+|検索バー連携（トップ／ピラー → explore）                      |✅ 実装（2026-07-03）。js/home.js が q/area/intent を組み立て /explore/ へ遷移。explore 側は applyUrlParams() で URL パラメータを読み初期絞り込み。**日程(date)は listings に該当データが無く現状フィルタ未使用**|
 |ランキング（AIDA_ranking_prototype.html / site/index.html）|✅ 完成                        |
 |大会情報（2026_competitions.html）                        |✅ 完成                        |
 |トレーニングログ（training-log.html）                         |✅ Supabase接続・保存・読み込み・編集・URLシェア・カレンダー表示実装済み。バグ修正済み（2026-06-29：一覧表示崩れ・編集フォーム空白・タブ遷移時フォームリセット・ベストタイム計算）|
@@ -523,4 +536,4 @@ DB 保存時：`result_time = t2s(d.time)`、`hold_time = d.holdTime`。
 
 -----
 
-*最終更新：2026-06-29（articles/ → _old/ 退避・media/ 一本化・admin-mobile.html を admin/ に移動・記事2本Supabase移行・スマホ対応強化・ヘッダー統一）*
+*最終更新：2026-07-03（トップをAirbnb風マーケットプレイスに全面刷新・ピラー3ページ新設・共通 css/home.css＋js/home.js 導入・検索バー→explore の URLパラメータ連携実装）*

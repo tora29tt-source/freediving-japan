@@ -1,282 +1,120 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>記事・コラム｜素潜りポータル</title>
+<meta name="theme-color" content="#ffffff">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="stylesheet" href="../css/home.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>メディア — Freediving Japan</title>
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --ocean-deep:  #0b2d45;
-  --ocean-mid:   #0e3d5c;
-  --teal:        #2ec4b6;
-  --teal-light:  #a8ece8;
-  --abyss:       #04161f;
-  --warm:        #f97316;
-  --on-dark:        rgba(255,255,255,0.92);
-  --on-dark-mid:    rgba(255,255,255,0.60);
-  --on-dark-soft:   rgba(255,255,255,0.36);
-  --hairline:       rgba(168,236,232,0.13);
-  --glass:          rgba(255,255,255,0.045);
-}
-
-html { background: var(--abyss); }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
-  background: linear-gradient(180deg,
-    var(--ocean-mid)  0%,
-    var(--ocean-deep) 20%,
-    #071f30 55%,
-    var(--abyss) 100%);
-  background-attachment: fixed;
-  color: var(--on-dark);
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-}
-.icon { width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;display:block; }
-
-/* ── header ── */
-.header {
-  position: sticky; top: 0; z-index: 100;
-  background: rgba(6,32,46,0.65);
-  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--hairline);
-  padding: 0 20px; height: 56px;
-  display: flex; align-items: center; justify-content: space-between;
-}
-.logo {
-  font-size: 16px; font-weight: 600;
-  color: var(--on-dark); letter-spacing: 0.18em;
-  text-transform: uppercase; text-decoration: none;
-}
-.logo span { color: var(--teal); }
-.back-btn {
-  display: flex; align-items: center; justify-content: center;
-  width: 34px; height: 34px; border-radius: 50%;
-  border: 1px solid var(--hairline);
-  color: var(--on-dark-mid); text-decoration: none;
-  transition: color 0.2s, border-color 0.2s; flex-shrink: 0;
-}
-.back-btn:hover { color: var(--on-dark); border-color: rgba(168,236,232,0.28); }
-.back-btn .icon { width:17px;height:17px; }
-
-/* ── page top ── */
-.page-top { padding: 28px 18px 20px; max-width: 640px; margin: 0 auto; }
-.page-eyebrow {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 10px; font-weight: 600; letter-spacing: 0.24em; text-transform: uppercase;
-  color: var(--teal); margin-bottom: 10px;
-}
-.page-eyebrow-line { flex: 1; height: 1px; background: var(--hairline); }
-.page-heading { font-size: 22px; font-weight: 300; color: var(--on-dark); letter-spacing: 0.02em; line-height: 1.4; margin-bottom: 8px; }
-.page-heading strong { font-weight: 600; }
-.page-desc { font-size: 12px; color: var(--on-dark-mid); line-height: 1.85; }
-
-/* ── filter tabs ── */
-.filter-wrap {
-  padding: 0 18px 16px; max-width: 640px; margin: 0 auto;
-  overflow-x: auto; -webkit-overflow-scrolling: touch;
-}
-.filter-tabs { display: flex; gap: 8px; width: max-content; }
-.filter-tab {
-  display: inline-flex; align-items: center; gap: 5px;
-  font-size: 11px; font-weight: 500; letter-spacing: 0.08em;
-  padding: 7px 14px; border-radius: 100px;
-  border: 1px solid var(--hairline); color: var(--on-dark-mid);
-  background: transparent; cursor: pointer; white-space: nowrap;
-  transition: color 0.2s, border-color 0.2s, background 0.2s;
-}
-.filter-tab .icon { width:13px;height:13px; }
-.filter-tab.active { color: var(--teal-light); border-color: rgba(46,196,182,0.40); background: rgba(46,196,182,0.08); }
-.filter-tab:hover:not(.active) { color: var(--on-dark); border-color: rgba(168,236,232,0.25); }
-
-/* ── content ── */
-.content { padding: 0 18px 100px; max-width: 640px; margin: 0 auto; }
-
-/* ── 看板記事 ── */
-.featured {
-  display: block; text-decoration: none;
-  border-radius: 18px; overflow: hidden;
-  position: relative; min-height: 260px;
-  border: 1px solid var(--hairline); margin-bottom: 20px;
-  transition: border-color 0.2s;
-}
-.featured:hover { border-color: rgba(168,236,232,0.28); }
-.featured-img {
-  position: absolute; inset: 0;
-  background: linear-gradient(135deg, var(--ocean-mid), #071f30);
-  background-size: cover; background-position: center;
-  transition: transform 0.4s ease;
-}
-.featured:hover .featured-img { transform: scale(1.02); }
-.featured-overlay {
-  position: absolute; inset: 0;
-  background: linear-gradient(to top, rgba(4,22,31,0.96) 28%, rgba(4,22,31,0.40) 65%, rgba(4,22,31,0.10) 100%);
-}
-.featured-body {
-  position: relative; z-index: 1; padding: 24px; min-height: 260px;
-  display: flex; flex-direction: column; justify-content: flex-end;
-}
-.article-badge {
-  display: inline-flex; align-items: center; gap: 5px;
-  border-radius: 100px; padding: 4px 11px; margin-bottom: 11px; width: fit-content;
-  font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
-}
-.badge-interview { background: rgba(46,196,182,0.16); border: 1px solid rgba(46,196,182,0.30); color: var(--teal-light); }
-.badge-news      { background: rgba(249,115,22,0.14);  border: 1px solid rgba(249,115,22,0.28);  color: #fba96a; }
-.badge-tips      { background: rgba(168,236,232,0.10); border: 1px solid rgba(168,236,232,0.22); color: var(--on-dark-mid); }
-.article-badge .icon { width:11px;height:11px; }
-.featured-title { font-size: 18px; font-weight: 600; color: var(--on-dark); line-height: 1.55; letter-spacing: 0.01em; margin-bottom: 10px; }
-.featured-excerpt {
-  font-size: 12px; color: var(--on-dark-mid); line-height: 1.80; margin-bottom: 12px;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-}
-.article-meta { display: flex; align-items: center; gap: 12px; font-size: 11px; color: var(--on-dark-soft); }
-.article-meta-item { display: flex; align-items: center; gap: 4px; }
-.article-meta-item .icon { width:12px;height:12px; }
-.meta-dot { width:3px;height:3px;border-radius:50%;background:var(--on-dark-soft);flex-shrink:0; }
-
-/* ── section label ── */
-.sec-label { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding-top: 4px; }
-.sec-label-text { font-size: 10px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--teal); white-space: nowrap; }
-.sec-label-line { flex: 1; height: 1px; background: var(--hairline); }
-
-/* ── 記事リスト ── */
-.article-list { display: flex; flex-direction: column; gap: 1px; margin-bottom: 24px; }
-.article-row {
-  display: flex; align-items: flex-start; gap: 14px;
-  padding: 16px 0; border-bottom: 1px solid var(--hairline);
-  text-decoration: none; transition: opacity 0.18s;
-}
-.article-row:first-child { border-top: 1px solid var(--hairline); }
-.article-row:hover { opacity: 0.75; }
-.article-thumb {
-  width: 76px; height: 60px; border-radius: 10px;
-  background: var(--ocean-mid); background-size: cover; background-position: center;
-  flex-shrink: 0; border: 1px solid var(--hairline);
-}
-.article-row-body { flex: 1; min-width: 0; }
-.article-row-tag { font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--teal); margin-bottom: 5px; }
-.article-row-title { font-size: 13px; font-weight: 500; color: var(--on-dark); line-height: 1.55; margin-bottom: 6px; }
-.article-row-meta { font-size: 10px; color: var(--on-dark-soft); display: flex; align-items: center; gap: 8px; }
-.article-row-meta .icon { width:11px;height:11px; }
-
-/* ── グリッド ── */
-.article-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
-.article-card {
-  display: block; text-decoration: none;
-  background: var(--glass); border: 1px solid var(--hairline);
-  border-radius: 14px; overflow: hidden;
-  transition: border-color 0.2s, background 0.2s;
-}
-.article-card:hover { border-color: rgba(168,236,232,0.26); background: rgba(255,255,255,0.06); }
-.article-card-img { width: 100%; height: 96px; background: var(--ocean-mid); background-size: cover; background-position: center; }
-.article-card-body { padding: 12px; }
-.article-card-tag { font-size: 9px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--teal); margin-bottom: 5px; }
-.article-card-title { font-size: 12px; font-weight: 500; color: var(--on-dark); line-height: 1.55; margin-bottom: 6px; }
-.article-card-meta { font-size: 10px; color: var(--on-dark-soft); }
-
-/* ── もっと読む ── */
-.load-more {
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  width: 100%; padding: 14px;
-  background: var(--glass); border: 1px solid var(--hairline);
-  border-radius: 12px; cursor: pointer;
-  font-size: 12px; font-weight: 500; color: var(--on-dark-mid); letter-spacing: 0.06em;
-  transition: color 0.2s, border-color 0.2s, background 0.2s;
-}
-.load-more:hover { color: var(--teal-light); border-color: rgba(46,196,182,0.25); background: rgba(46,196,182,0.05); }
-.load-more .icon { width:16px;height:16px; }
-
-@media (min-width: 700px) {
-  .page-top { padding-top: 36px; }
-}
-
-@media (max-width: 430px) {
-  .page-top { padding: 20px 16px 16px; }
-  .page-heading { font-size: 20px; }
-  .filter-wrap { padding: 0 16px 12px; }
-  .content { padding: 0 16px 60px; }
-  .featured-body { padding: 18px; min-height: 220px; }
-  .featured-title { font-size: 16px; }
-  .featured { min-height: 220px; }
-  .article-grid { grid-template-columns: 1fr; }
-  .article-card-img { height: 140px; }
-}
-</style>
 </head>
 <body>
 
-<header class="header">
-  <a class="logo" href="../index.html">Freediving <span>Japan</span></a>
-  <a class="back-btn" href="../index.html" title="ホームへ戻る"><svg class="icon" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></a>
+<header class="hdr">
+  <div class="hdr-in">
+    <a class="logo" href="../index.html">素潜り<span>ポータル</span></a>
+    <div class="hdr-right">
+      <a class="host-link" href="../pro/index.html">インストラクター掲載</a>
+      <a class="hdr-link" href="../mypage.html">
+        <span class="avatar"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/></svg></span>
+        マイページ
+      </a>
+    </div>
+  </div>
 </header>
 
-<div class="page-top">
-  <div class="page-eyebrow">
-    <span>読む</span>
-    <span class="page-eyebrow-line"></span>
-  </div>
-  <div class="page-heading">フリーダイビングを<strong>知る。</strong></div>
-  <div class="page-desc">現役ダイバーのインタビュー、海外ニュース翻訳、技術・安全解説。<br>一次情報から届けます。</div>
-</div>
+<main class="wrap">
+  <a class="crumb" href="../index.html"><svg class="icon" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>ホームに戻る</a>
 
-<div class="filter-wrap">
-  <div class="filter-tabs">
-    <button class="filter-tab active" onclick="filterArticles('all', this)">すべて</button>
-    <button class="filter-tab" onclick="filterArticles('interview', this)">
-      <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/></svg>
-      インタビュー
+  <section class="phero">
+    <img class="phero-img" src="../images/index_記事コラム.JPG" alt="">
+    <div class="phero-scrim"></div>
+    <div class="phero-copy">
+      <p class="phero-eyebrow">読む · コラム</p>
+      <h1 class="phero-title">フリーダイビングを知る</h1>
+      <p class="phero-sub">現役ダイバーのインタビュー、海外ニュース翻訳、技術・安全解説。一次情報から届けます。</p>
+    </div>
+  </section>
+
+  <div class="chips" style="margin:22px 0 8px;">
+    <button class="chip active" data-cat="all" onclick="filterArticles('all', this)">すべて</button>
+    <button class="chip" data-cat="interview" onclick="filterArticles('interview', this)">
+      <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/></svg>インタビュー
     </button>
-    <button class="filter-tab" onclick="filterArticles('news', this)">
-      <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
-      海外ニュース
+    <button class="chip" data-cat="news" onclick="filterArticles('news', this)">
+      <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>海外ニュース
     </button>
-    <button class="filter-tab" onclick="filterArticles('tips', this)">
-      <svg class="icon" viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.3 1 2.5h6c0-1.2.2-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>
-      技術・安全
+    <button class="chip" data-cat="tips" onclick="filterArticles('tips', this)">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.3 1 2.5h6c0-1.2.2-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>技術・安全
     </button>
   </div>
-</div>
 
-<div class="content" id="main-content">
+  <section class="section" id="section-featured" style="display:none;">
+    <a class="lcard" id="featured-card" href="#" style="display:block;">
+      <div class="lcard-media" style="aspect-ratio:16/8;">
+        <img class="lcard-img" id="featured-img" src="" alt="">
+        <span class="lcard-badge" id="featured-badge">注目の記事</span>
+      </div>
+      <div class="lcard-body">
+        <p class="lcard-title" id="featured-title" style="font-size:19px; white-space:normal;"></p>
+        <p class="lcard-meta" id="featured-excerpt" style="white-space:normal; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;"></p>
+        <p class="lcard-foot" id="featured-meta"></p>
+      </div>
+    </a>
+  </section>
 
-  <!-- 看板記事（DB から動的挿入） -->
-  <a class="featured" href="#" data-category="" style="display:none;"></a>
+  <section class="section" id="section-interview" style="display:none;">
+    <div class="section-head"><h2>インタビュー</h2></div>
+    <div id="list-interview"></div>
+  </section>
 
-  <div class="sec-label" id="section-interview" style="display:none;">
-    <span class="sec-label-text">インタビュー</span>
-    <span class="sec-label-line"></span>
+  <section class="section" id="section-news" style="display:none;">
+    <div class="section-head"><h2>海外ニュース</h2></div>
+    <div class="row" id="list-news"></div>
+  </section>
+
+  <section class="section" id="section-tips" style="display:none;">
+    <div class="section-head"><h2>技術・安全</h2></div>
+    <div id="list-tips"></div>
+  </section>
+
+  <div id="empty-state" style="display:none; text-align:center; padding:70px 0; color:var(--ink-soft);">
+    <svg class="icon" style="width:36px;height:36px;margin-bottom:14px;" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+    <p style="font-size:14px;">記事を準備中です</p>
   </div>
-  <div class="article-list" id="list-interview"></div>
+</main>
 
-  <div class="sec-label" id="section-news" style="display:none;">
-    <span class="sec-label-text">海外ニュース</span>
-    <span class="sec-label-line"></span>
+<footer class="foot">
+  <div class="foot-in">
+    <div class="foot-col">
+      <h4>探す</h4>
+      <a href="../snorkeling.html">シュノーケリング</a>
+      <a href="../skindiving.html">スキンダイビング</a>
+      <a href="../freediving.html">フリーダイビング</a>
+      <a href="../explore/index.html">インストラクターを探す</a>
+    </div>
+    <div class="foot-col">
+      <h4>学ぶ・読む</h4>
+      <a href="../learn/index.html">動画で学ぶ</a>
+      <a href="index.html">記事・コラム</a>
+      <a href="article.html?slug=what-is-freediving">素潜りって？</a>
+    </div>
+    <div class="foot-col">
+      <h4>競技</h4>
+      <a href="../events/2026_competitions.html">大会情報</a>
+      <a href="../rankings/AIDA_ranking.html">国内ランキング</a>
+    </div>
+    <div class="foot-col">
+      <h4>その他</h4>
+      <a href="../pro/index.html">インストラクター掲載</a>
+      <a href="../mypage.html">マイページ</a>
+    </div>
   </div>
-  <div class="article-grid" id="list-news"></div>
+  <div class="foot-bottom"><div class="wrap">© 2026 素潜りポータル（仮）</div></div>
+</footer>
 
-  <div class="sec-label" id="section-tips" style="display:none;">
-    <span class="sec-label-text">技術・安全</span>
-    <span class="sec-label-line"></span>
-  </div>
-  <div class="article-list" id="list-tips"></div>
-
-  <!-- 記事なし表示 -->
-  <div id="empty-state" style="display:none; text-align:center; padding: 60px 0; color: rgba(255,255,255,0.4);">
-    <svg style="width:40px;height:40px;stroke:currentColor;fill:none;stroke-width:1.4;margin-bottom:16px;" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
-    <div style="font-size:14px;">記事を準備中です</div>
-  </div>
-
-  <button class="load-more" style="display:none;">
-    <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12l7 7 7-7"/></svg>
-    もっと読む
-  </button>
-
-</div>
-
-
+<script src="../js/home.js"></script>
 <script>
 // ── Supabase 動的読み込み ──
 const _SURL = 'https://bbhqvbpsuccbdcnhnobm.supabase.co';
@@ -286,6 +124,8 @@ const CAT_LABELS = { A:'入門・体験', B:'身体・科学', C:'海・スポ�
 
 // カテゴリ → フィルタータブのマッピング
 const CAT_TO_TAB = { E:'interview', P:'interview', D:'news', Q:'news', A:'tips', B:'tips', C:'tips', S:'tips', T:'tips' };
+
+const FALLBACK_IMG = '../images/hero_cnf_dive.jpg';
 
 async function loadArticlesFromDB() {
   try {
@@ -310,42 +150,35 @@ async function loadArticlesFromDB() {
   }
 }
 
+function fmtDate(d) {
+  return d ? new Date(d).toLocaleDateString('ja-JP', {year:'numeric',month:'2-digit',day:'2-digit'}).replace(/\//g,'.') : '';
+}
+
 function renderDBArticles(articles) {
   if (articles.length === 0) {
     document.getElementById('empty-state').style.display = '';
     return;
   }
 
-  // load-more ボタンを表示
-  document.querySelector('.load-more').style.display = '';
-
   // 最新1件を看板記事に
   const featured = articles[0];
   const rest = articles.slice(1);
 
-  const featuredEl = document.querySelector('.featured');
-  if (featuredEl) {
-    featuredEl.style.display = '';
+  const featuredSection = document.getElementById('section-featured');
+  if (featuredSection) {
+    featuredSection.style.display = '';
+    featuredSection.dataset.hasData = '1';
     const tab = CAT_TO_TAB[featured.category] || 'tips';
-    const dateStr = featured.published_at ? new Date(featured.published_at).toLocaleDateString('ja-JP', {year:'numeric',month:'2-digit',day:'2-digit'}).replace(/\//g,'.') : '';
+    const dateStr = fmtDate(featured.published_at);
     const readTime = featured.read_time_min ? featured.read_time_min + '分' : '';
-    featuredEl.href = `article.html?slug=${featured.slug}`;
-    featuredEl.dataset.category = tab;
-    if (featured.thumbnail_url) {
-      const img = featuredEl.querySelector('.featured-img');
-      if (img) img.style.backgroundImage = `url('${featured.thumbnail_url}')`;
-    }
-    const title = featuredEl.querySelector('.featured-title');
-    if (title) title.textContent = featured.title;
-    const excerpt = featuredEl.querySelector('.featured-excerpt');
-    if (excerpt && featured.lead_text) excerpt.textContent = featured.lead_text;
-    const metaEls = featuredEl.querySelectorAll('.article-meta-item, .meta-dot, .article-meta span');
-    const meta = featuredEl.querySelector('.article-meta');
-    if (meta) meta.innerHTML = `
-      ${readTime ? `<span class="article-meta-item"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>${readTime}</span><span class="meta-dot"></span>` : ''}
-      <span>${dateStr}</span><span class="meta-dot"></span>
-      <span>${featured.author_type}</span>
-    `;
+    document.getElementById('featured-card').href = `article.html?slug=${featured.slug}`;
+    featuredSection.dataset.category = tab;
+    document.getElementById('featured-img').src = featured.thumbnail_url || FALLBACK_IMG;
+    document.getElementById('featured-badge').textContent = CAT_LABELS[featured.category] || '注目の記事';
+    document.getElementById('featured-title').textContent = featured.title;
+    document.getElementById('featured-excerpt').textContent = featured.lead_text || '';
+    const metaBits = [readTime, dateStr, featured.author_type].filter(Boolean);
+    document.getElementById('featured-meta').textContent = metaBits.join(' ・ ');
   }
 
   // 残り記事をカテゴリに振り分けてリストに追加
@@ -357,42 +190,39 @@ function renderDBArticles(articles) {
   rest.forEach(a => {
     const tab = CAT_TO_TAB[a.category] || 'tips';
     const catLabel = CAT_LABELS[a.category] || a.category;
-    const dateStr = a.published_at ? new Date(a.published_at).toLocaleDateString('ja-JP', {year:'numeric',month:'2-digit',day:'2-digit'}).replace(/\//g,'.') : '';
+    const dateStr = fmtDate(a.published_at);
     const readTime = a.read_time_min ? a.read_time_min + '分' : '';
-    const thumb = a.thumbnail_url || '';
+    const thumb = a.thumbnail_url || FALLBACK_IMG;
     const url = `article.html?slug=${a.slug}`;
 
-    // セクションラベルを初回表示
+    // セクションを初回表示
     if (!shownSections.has(tab)) {
       shownSections.add(tab);
-      if (sections[tab]) sections[tab].style.display = '';
+      if (sections[tab]) { sections[tab].style.display = ''; sections[tab].dataset.hasData = '1'; }
     }
 
     if (tab === 'news') {
       const el = document.getElementById('list-news');
       if (el) el.insertAdjacentHTML('beforeend', `
-        <a class="article-card" href="${url}" data-category="news">
-          ${thumb ? `<div class="article-card-img" style="background-image:url('${thumb}');background-position:center;"></div>` : '<div class="article-card-img"></div>'}
-          <div class="article-card-body">
-            <div class="article-card-tag">${catLabel}</div>
-            <div class="article-card-title">${escHtml(a.title)}</div>
-            <div class="article-card-meta">${dateStr}</div>
+        <a class="lcard" href="${url}">
+          <div class="lcard-media"><img class="lcard-img" src="${thumb}" alt=""><span class="lcard-badge">${escHtml(catLabel)}</span></div>
+          <div class="lcard-body">
+            <p class="lcard-title">${escHtml(a.title)}</p>
+            <p class="lcard-meta">${dateStr}</p>
+            <p class="lcard-foot">${readTime ? escHtml(readTime) + ' ・ ' : ''}${escHtml(a.author_type || '')}</p>
           </div>
         </a>`);
     } else {
       const listId = tab === 'interview' ? 'list-interview' : 'list-tips';
       const el = document.getElementById(listId);
       if (el) el.insertAdjacentHTML('beforeend', `
-        <a class="article-row" href="${url}" data-category="${tab}">
-          ${thumb ? `<div class="article-thumb" style="background-image:url('${thumb}');background-position:center;"></div>` : '<div class="article-thumb"></div>'}
-          <div class="article-row-body">
-            <div class="article-row-tag">${catLabel}</div>
-            <div class="article-row-title">${escHtml(a.title)}</div>
-            <div class="article-row-meta">
-              <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>
-              ${readTime ? readTime + ' · ' : ''}${dateStr}
-            </div>
+        <a class="arow" href="${url}">
+          <img class="arow-thumb" src="${thumb}" alt="">
+          <div class="arow-body">
+            <h3>${escHtml(a.title)}</h3>
+            <p>${escHtml(a.lead_text || catLabel)}</p>
           </div>
+          <span class="arow-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
         </a>`);
     }
   });
@@ -400,32 +230,28 @@ function renderDBArticles(articles) {
 
 function escHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-// ── 既存フィルター ──
+// ── フィルター ──
 function filterArticles(category, btn) {
-  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.chip[data-cat]').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
-  const featured = document.querySelector('.featured');
+  const featuredSection = document.getElementById('section-featured');
   const sections = {
-    interview: { label: document.getElementById('section-interview'), list: document.getElementById('list-interview') },
-    news:      { label: document.getElementById('section-news'),      list: document.getElementById('list-news') },
-    tips:      { label: document.getElementById('section-tips'),      list: document.getElementById('list-tips') },
+    interview: document.getElementById('section-interview'),
+    news:      document.getElementById('section-news'),
+    tips:      document.getElementById('section-tips'),
   };
   if (category === 'all') {
-    featured.style.display = '';
-    Object.values(sections).forEach(s => { s.label.style.display = ''; s.list.style.display = ''; });
+    if (featuredSection && featuredSection.dataset.hasData === '1') featuredSection.style.display = '';
+    Object.values(sections).forEach(s => { if (s && s.dataset.hasData === '1') s.style.display = ''; });
   } else {
-    featured.style.display = category === 'interview' ? '' : 'none';
+    if (featuredSection) featuredSection.style.display = (category === 'interview' && featuredSection.dataset.hasData === '1') ? '' : 'none';
     Object.entries(sections).forEach(([key, s]) => {
-      const show = key === category;
-      s.label.style.display = show ? '' : 'none';
-      s.list.style.display  = show ? '' : 'none';
+      if (!s) return;
+      s.style.display = (key === category && s.dataset.hasData === '1') ? '' : 'none';
     });
   }
 }
-</script>
 
-<script>
-// DOMContentLoaded 後に DB から記事を読み込む
 document.addEventListener('DOMContentLoaded', loadArticlesFromDB);
 </script>
 </body>

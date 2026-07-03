@@ -4406,8 +4406,13 @@ async function deleteEvent() {
     await _sb.from('event_schedule').delete().eq('event_id', id);
     await _sb.from('event_results').delete().eq('event_id', id);
     await _sb.from('athlete_entries').delete().eq('event_id', id);
-    var res = await _sb.from('events').delete().eq('id', id);
+    var res = await _sb.from('events').delete().eq('id', id).select('id');
     if (res.error) throw res.error;
+    // RLS で DELETE ポリシーが無い場合、エラーは出ないが0行しか消えない。
+    // .select() の戻りが空なら「権限不足で実際には削除されていない」と判断する。
+    if (!res.data || res.data.length === 0) {
+      throw new Error('削除権限がないか、対象が見つかりませんでした（0件）。RLSのDELETEポリシーを確認してください。');
+    }
 
     alert('大会を削除しました。');
     location.href = '../mypage.html';
