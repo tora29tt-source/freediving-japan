@@ -44,5 +44,16 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
           git add data/rankings_*.json data/jp_official_records.json data/national_team.json data/all_rankings_data.json data/wildcard_data.json
-          git diff --staged --quiet || git commit -m "chore: update rankings & records $(date -u +%Y-%m-%d)"
-          git push
+          if git diff --staged --quiet; then
+            echo "変更なし。コミットをスキップします。"
+            exit 0
+          fi
+          git commit -m "chore: update rankings & records $(date -u +%Y-%m-%d)"
+          # 実行中に他ワークフローがpushしていても競合しないよう、rebaseしてから最大5回リトライ
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push && { echo "push成功 (試行 $i)"; exit 0; }
+            echo "push競合。リトライします ($i/5)..."
+            sleep $((RANDOM % 5 + 3))
+          done
+          echo "5回試行してもpushに失敗しました" >&2
+          exit 1
