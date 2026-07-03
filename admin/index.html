@@ -799,7 +799,7 @@ td.name { color: var(--on-dark); font-weight: 500; }
 <!-- Header -->
 <header class="header">
   <div style="display:flex;align-items:center;">
-    <a href="../index.html" class="logo">Free<span>Dive</span> Japan</a>
+    <a href="../index.html" class="logo">FREEDIVING <span>JAPAN</span></a>
     <span class="role-badge" id="role-badge"></span>
   </div>
   <div class="header-right">
@@ -2176,7 +2176,7 @@ async function loadArticles() {
 
   let query = _sb
     .from('articles')
-    .select('id, title, slug, category, is_published, published_at, read_time_min, author_type, author_name, created_at')
+    .select('id, title, slug, category, is_published, published_at, read_time_min, author_type, author_name, created_at, thumbnail_url')
     .order('created_at', { ascending: false });
 
   if (catFilter)              query = query.eq('category', catFilter);
@@ -2193,6 +2193,7 @@ async function loadArticles() {
       <table>
         <thead>
           <tr>
+            <th>画像</th>
             <th>ID</th>
             <th>タイトル</th>
             <th>カテゴリ</th>
@@ -2226,8 +2227,12 @@ function articleRow(a) {
   const isEditorOnly = currentRole === 'editor';
   const reviewComment = a.review_comment
     ? `<div style="font-size:11px;color:#d97706;margin-top:4px;">💬 ${escHtml(a.review_comment)}</div>` : '';
+  const thumb = a.thumbnail_url
+    ? `<img src="${escHtml(a.thumbnail_url)}" alt="" style="width:56px;height:40px;object-fit:cover;border-radius:4px;display:block;">`
+    : `<div style="width:56px;height:40px;border-radius:4px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:16px;">📷</div>`;
   return `
     <tr>
+      <td style="padding:8px 10px;">${thumb}</td>
       <td><span title="${a.id}" style="font-family:monospace;font-size:11px;color:var(--on-dark-soft);cursor:default;">${a.id.slice(0,8)}</span></td>
       <td class="name">${escHtml(a.title)}${reviewComment}</td>
       <td>${catBadge}</td>
