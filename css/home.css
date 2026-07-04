@@ -90,6 +90,27 @@ img{ display:block; }
 .lcard-foot .star{ color:var(--ink); }
 .lcard-foot .price{ font-weight:600; }
 
+/* ── feature section（大型ヒーロー＋小カード）── */
+.section-eyebrow{ display:block; font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); margin-bottom:4px; }
+.feature-grid{ display:grid; grid-template-columns:1.6fr 1fr; gap:20px; align-items:stretch; }
+.feature-hero-media{ position:relative; border-radius:18px; overflow:hidden; aspect-ratio:16/10; background:#eee; }
+.feature-hero-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:transform .45s ease; }
+.feature-hero:hover .feature-hero-img{ transform:scale(1.04); }
+.feature-hero-body{ padding:16px 2px 0; }
+.feature-hero-title{ font-size:26px; font-weight:700; letter-spacing:-.02em; color:var(--ink); margin:0 0 4px; }
+.feature-hero-meta{ font-size:14px; color:var(--ink-soft); margin:0 0 4px; }
+.feature-hero-foot{ font-size:14px; font-weight:600; color:var(--teal-deep); margin:0; }
+
+.feature-side{ display:flex; flex-direction:column; gap:16px; }
+.feature-mini{ display:flex; gap:14px; align-items:center; flex:1; }
+.feature-mini-media{ position:relative; width:128px; aspect-ratio:1/1; border-radius:14px; overflow:hidden; background:#eee; flex-shrink:0; }
+.feature-mini-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:transform .45s ease; }
+.feature-mini:hover .feature-mini-img{ transform:scale(1.05); }
+.feature-mini-body{ min-width:0; }
+.feature-mini-title{ font-size:15px; font-weight:700; letter-spacing:-.01em; color:var(--ink); margin:0 0 3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.feature-mini-meta{ font-size:13px; color:var(--ink-soft); margin:0 0 2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.feature-mini-foot{ font-size:13px; color:var(--ink); margin:0; }
+
 /* ── category chips（ピラーページ） ── */
 .chips{ display:flex; gap:10px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; }
 .chips::-webkit-scrollbar{ display:none; }
@@ -151,4 +172,8 @@ button.chip{ font-family:inherit; cursor:pointer; appearance:none; -webkit-appea
   .section-head h2{ font-size:19px; }
   .row{ grid-auto-columns:minmax(158px,1fr); gap:14px; }
   .arow-thumb{ width:96px; height:70px; }
+  .feature-grid{ grid-template-columns:1fr; gap:14px; }
+  .feature-hero-media{ aspect-ratio:16/11; }
+  .feature-hero-title{ font-size:21px; }
+  .feature-mini-media{ width:92px; }
 }
