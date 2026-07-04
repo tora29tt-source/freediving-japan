@@ -26,6 +26,7 @@ export default async function handler(req, res) {
     slotId,
     listingId,
     instructorId,
+    shopId,
     guestName,
     guestEmail,
     guestPhone,
@@ -87,6 +88,8 @@ export default async function handler(req, res) {
         p_total_amount:      totalAmount,
         p_platform_fee:      platformFee,
         p_instructor_payout: instructorPayout,
+        // ショップ名義（担当者未定）の枠向け。未指定でもRPC側でslotのshop_idから補完される
+        p_shop_id:           shopId || slot.shop_id || null,
       });
 
     if (rpcErr) {
@@ -110,6 +113,13 @@ export default async function handler(req, res) {
     const dateLabel = slot.slot_date;
     const timeLabel = `${slot.start_time.slice(0,5)}〜${slot.end_time.slice(0,5)}`;
 
+    // 担当インストラクター未定（ショップ名義）の枠の場合、キャンセル後の戻り先はショップID経由で指定する
+    const resolvedInstructorId = instructorId || slot.instructor_id || null;
+    const resolvedShopId       = shopId || slot.shop_id || null;
+    const ownerQuery = resolvedInstructorId
+      ? `id=${resolvedInstructorId}`
+      : `shop=${resolvedShopId || ''}`;
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
@@ -129,11 +139,12 @@ export default async function handler(req, res) {
       mode: 'payment',
       customer_email: guestEmail,
       success_url: `${siteUrl}/booking/success.html?booking_id=${booking.id}&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url:  `${siteUrl}/explore/listing.html?id=${instructorId || slot.instructor_id}&listing=${slot.listing_id}`,
+      cancel_url:  `${siteUrl}/explore/listing.html?${ownerQuery}&listing=${slot.listing_id}`,
       metadata: {
         booking_id:    booking.id,
         slot_id:       slotId,
-        instructor_id: instructorId || slot.instructor_id,
+        instructor_id: resolvedInstructorId || '',
+        shop_id:       resolvedShopId || '',
       },
       expires_at: Math.floor(Date.now() / 1000) + 30 * 60, // 30分で期限切れ
     });

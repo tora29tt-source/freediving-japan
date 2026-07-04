@@ -332,7 +332,41 @@ body { min-height: 100vh; }
 <script>
 const params = new URLSearchParams(location.search);
 const instructorId = params.get('id');
+// ショップ名義（担当者未定）の商品の場合、instructorId の代わりに shop= を受け取る（2026-07-04〜）
+const shopId       = !instructorId ? params.get('shop') : null;
 const listingId    = params.get('listing');
+const isShopOwner  = !instructorId && !!shopId;
+
+// instructor / shop どちらの owner レコードも同じ形で扱えるように正規化する
+function normalizeOwner(raw, type) {
+  if (!raw) return null;
+  if (type === 'instructor') {
+    return {
+      type, id: raw.id, name: raw.name, photo: raw.photo_url,
+      is_verified: raw.is_verified, prefecture: raw.prefecture, city: raw.city,
+      areas: raw.areas || [], bio: raw.bio,
+      certifications: raw.certifications || [], specialties: raw.specialties || [],
+      experience_years: raw.experience_years,
+      website_url: raw.website_url, instagram_url: raw.instagram_url, youtube_url: raw.youtube_url,
+      avg_rating: raw.shops?.avg_rating, review_count: raw.shops?.review_count,
+      profileLabel: 'インストラクター',
+    };
+  }
+  return {
+    type, id: raw.id, name: raw.name, photo: raw.logo_url,
+    is_verified: raw.is_verified, prefecture: raw.prefecture, city: raw.city,
+    areas: raw.areas || [], bio: raw.bio,
+    certifications: [], specialties: [],
+    experience_years: null,
+    website_url: raw.website_url, instagram_url: raw.instagram_url, youtube_url: raw.youtube_url,
+    avg_rating: raw.avg_rating, review_count: raw.review_count,
+    profileLabel: 'ショップ',
+  };
+}
+// owner（instructor or shop）ページへ戻るリンクの query を組み立てる
+function ownerLinkQuery(owner) {
+  return owner?.type === 'shop' ? `shop=${esc(owner.id)}` : `id=${esc(owner?.id || '')}`;
+}
 
 // DB由来の値をHTMLへ挿入する前にエスケープ（S4: 属性ブレイクアウトXSS対策）
 function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
@@ -347,22 +381,28 @@ function safeUrl(u) {
   } catch { return ''; }
 }
 
-if (!instructorId) {
-  document.getElementById('pageContent').innerHTML = '<div class="main" style="padding-top:40px;text-align:center;color:var(--on-dark-soft)">インストラクターが見つかりませんでした。<br><a href="index.html" style="color:var(--teal)">一覧に戻る</a></div>';
+if (!instructorId && !shopId) {
+  document.getElementById('pageContent').innerHTML = '<div class="main" style="padding-top:40px;text-align:center;color:var(--on-dark-soft)">インストラクター・ショップが見つかりませんでした。<br><a href="index.html" style="color:var(--teal)">一覧に戻る</a></div>';
 } else {
   initPage();
 }
 
 async function initPage() {
   try {
-    // インストラクター + 全リスティング + レビューを並列取得
-    const [instRes, listRes, reviewRes] = await Promise.all([
-      _sb.from('instructors').select('*, shops ( id, avg_rating, review_count, shop_type )').eq('id', instructorId).single(),
-      _sb.from('listings').select('*').eq('instructor_id', instructorId).eq('is_public', true).order('sort_order'),
-      _sb.from('reviews').select('id, rating, body, reviewer_name, created_at').eq('instructor_id', instructorId).eq('is_public', true).order('created_at', { ascending: false }).limit(10)
-    ]);
-    if (instRes.error) throw instRes.error;
-    const instructor = instRes.data;
+    // インストラクター（または ショップ）+ 全リスティング + レビューを並列取得
+    const [ownerRes, listRes, reviewRes] = isShopOwner
+      ? await Promise.all([
+          _sb.from('shops').select('*').eq('id', shopId).single(),
+          _sb.from('listings').select('*').eq('shop_id', shopId).eq('is_public', true).order('sort_order'),
+          _sb.from('reviews').select('id, rating, body, reviewer_name, created_at').eq('shop_id', shopId).eq('is_public', true).order('created_at', { ascending: false }).limit(10),
+        ])
+      : await Promise.all([
+          _sb.from('instructors').select('*, shops ( id, avg_rating, review_count, shop_type )').eq('id', instructorId).single(),
+          _sb.from('listings').select('*').eq('instructor_id', instructorId).eq('is_public', true).order('sort_order'),
+          _sb.from('reviews').select('id, rating, body, reviewer_name, created_at').eq('instructor_id', instructorId).eq('is_public', true).order('created_at', { ascending: false }).limit(10),
+        ]);
+    if (ownerRes.error) throw ownerRes.error;
+    const owner      = normalizeOwner(ownerRes.data, isShopOwner ? 'shop' : 'instructor');
     const listings   = listRes.data || [];
     const reviews    = reviewRes.data || [];
 
@@ -372,10 +412,10 @@ async function initPage() {
       : listings[0];
     const otherListings = listings.filter(l => l.id !== activeListing?.id);
 
-    window._pageInstructor = instructor;
+    window._pageOwner = owner;
     window._pageListingsCount = listings.length;
     window._activeListing = activeListing || null;
-    renderPage(instructor, activeListing, otherListings, reviews);
+    renderPage(owner, activeListing, otherListings, reviews);
     // カレンダー初期化（DOMレンダリング後）
     setTimeout(() => {
       initCalendar(activeListing?.id || null);
@@ -387,7 +427,8 @@ async function initPage() {
   }
 }
 
-function renderPage(inst, listing, otherListings, reviews = []) {
+function renderPage(owner, listing, otherListings, reviews = []) {
+  const inst = owner; // 以下の描画テンプレートはinstructor/shop共通の正規化済みownerオブジェクトを使う
   const badgeClass = { try: 'badge-try', learn: 'badge-learn', dive: 'badge-dive' };
   const badgeLabel = { try: '体験', learn: '資格', dive: 'ダイブ' };
 
@@ -457,7 +498,7 @@ function renderPage(inst, listing, otherListings, reviews = []) {
   // other listings
   const otherHtml = otherListings.length > 0
     ? `<div class="other-listings">${otherListings.map(l => `
-        <a class="other-card" href="listing.html?id=${esc(inst.id)}&listing=${esc(l.id)}">
+        <a class="other-card" href="listing.html?${ownerLinkQuery(owner)}&listing=${esc(l.id)}">
           <div class="other-card-thumb">${l.image_url ? `<img src="${esc(l.image_url)}" alt="${esc(l.title)}">` : ''}</div>
           <div class="other-card-body">
             <p class="other-card-title">${esc(l.title)}</p>
@@ -546,13 +587,13 @@ function renderPage(inst, listing, otherListings, reviews = []) {
         ${cancelHtml}
       </div>
 
-      <!-- instructor -->
+      <!-- instructor / shop -->
       <div class="section">
-        <p class="section-title">インストラクター</p>
+        <p class="section-title">${esc(inst.profileLabel)}</p>
         <div class="instructor-card" onclick="openInstructorModal(event)" role="button" aria-label="${esc(inst.name)} のプロフィールを見る">
           <div class="instructor-avatar">
-            ${inst.photo_url
-              ? `<img src="${esc(inst.photo_url)}" alt="${esc(inst.name)}">`
+            ${inst.photo
+              ? `<img src="${esc(inst.photo)}" alt="${esc(inst.name)}">`
               : `<div class="instructor-avatar-ph"><svg style="width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.4" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>`}
           </div>
           <div class="instructor-info">
@@ -576,7 +617,7 @@ function renderPage(inst, listing, otherListings, reviews = []) {
 
       <!-- reviews -->
       <div class="section" id="reviewsSection">
-        <p class="section-title">レビュー${inst.shops?.avg_rating ? ` ★ ${parseFloat(inst.shops.avg_rating).toFixed(1)}（${esc(inst.shops.review_count)}件）` : ''}</p>
+        <p class="section-title">レビュー${inst.avg_rating ? ` ★ ${parseFloat(inst.avg_rating).toFixed(1)}（${esc(inst.review_count)}件）` : ''}</p>
         ${reviews.length > 0
           ? `<div style="display:flex;flex-direction:column;gap:12px">
               ${reviews.map(r => `
@@ -644,7 +685,7 @@ function renderPage(inst, listing, otherListings, reviews = []) {
 /* ── インストラクター モーダル ── */
 function openInstructorModal(e) {
   if (e) { e.stopPropagation(); }
-  const inst = window._pageInstructor;
+  const inst = window._pageOwner;
   if (!inst) return;
   document.getElementById('modalOverlay').classList.add('open');
   document.getElementById('modalSheet').classList.add('open');
@@ -666,8 +707,8 @@ function renderModal(inst) {
   const specs = (inst.specialties || []);
   const listingCount = window._pageListingsCount || 0;
 
-  const avatarHtml = inst.photo_url
-    ? `<img class="m-avatar" src="${esc(inst.photo_url)}" alt="${esc(inst.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">` +
+  const avatarHtml = inst.photo
+    ? `<img class="m-avatar" src="${esc(inst.photo)}" alt="${esc(inst.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">` +
       `<div class="m-avatar-ph" style="display:none"><svg class="icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>`
     : `<div class="m-avatar-ph"><svg class="icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>`;
 
@@ -779,11 +820,9 @@ async function initCalendar(listingId) {
     .order('start_time');
 
   // listing指定があっても「全コース(listing_id=null)」の枠も表示する
+  query = isShopOwner ? query.eq('shop_id', shopId) : query.eq('instructor_id', instructorId);
   if (listingId) {
-    query = query.eq('instructor_id', instructorId)
-                 .or(`listing_id.eq.${listingId},listing_id.is.null`);
-  } else {
-    query = query.eq('instructor_id', instructorId);
+    query = query.or(`listing_id.eq.${listingId},listing_id.is.null`);
   }
 
   const { data, error } = await query;
@@ -873,11 +912,9 @@ async function fetchMonthSlots(year, month) {
   let query = _sb.from('availability_slots')
     .select('*').gte('slot_date', from).lt('slot_date', to)
     .eq('is_active', true).order('slot_date').order('start_time');
+  query = isShopOwner ? query.eq('shop_id', shopId) : query.eq('instructor_id', instructorId);
   if (lid) {
-    query = query.eq('instructor_id', instructorId)
-                 .or(`listing_id.eq.${lid},listing_id.is.null`);
-  } else {
-    query = query.eq('instructor_id', instructorId);
+    query = query.or(`listing_id.eq.${lid},listing_id.is.null`);
   }
 
   const { data } = await query;
@@ -1030,7 +1067,8 @@ async function proceedToCheckout() {
       body: JSON.stringify({
         slotId:           _selectedSlot.id,
         listingId:        window._activeListing?.id || null,
-        instructorId:     instructorId,
+        instructorId:     instructorId || null,
+        shopId:           shopId || null,
         guestName:        name,
         guestEmail:       email,
         guestPhone:       document.getElementById('bf-phone').value.trim() || null,

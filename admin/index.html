@@ -1631,15 +1631,17 @@ async function loadSlots() {
   el.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
 
   const instFilter   = document.getElementById('slot-filter-instructor').value;
+  const shopFilter   = document.getElementById('slot-filter-shop').value;
   const statusFilter = document.getElementById('slot-filter-status').value;
 
   let query = _sb
     .from('availability_slots')
-    .select('*, instructors(name), listings(title)')
+    .select('*, instructors(name), shops(name), listings(title)')
     .order('slot_date', { ascending: false })
     .order('start_time', { ascending: true });
 
   if (instFilter)   query = query.eq('instructor_id', instFilter);
+  if (shopFilter)   query = query.eq('shop_id', shopFilter);
   if (statusFilter === 'active')   query = query.eq('is_active', true);
   if (statusFilter === 'inactive') query = query.eq('is_active', false);
 
@@ -1673,7 +1675,7 @@ async function loadSlots() {
 function slotRow(s) {
   const date  = s.slot_date ? fmtDate(s.slot_date) : '—';
   const time  = `${(s.start_time||'').slice(0,5)}〜${(s.end_time||'').slice(0,5)}`;
-  const inst  = s.instructors?.name || '—';
+  const inst  = s.instructors?.name || (s.shops?.name ? `${s.shops.name}（ショップ）` : '—');
   const title = s.listings?.title   || '—';
   const seats = `${s.booked_count || 0} / ${s.max_participants}`;
   const badge = s.is_active
@@ -1798,14 +1800,16 @@ async function loadBookings() {
 
   const statusFilter = document.getElementById('booking-filter-status').value;
   const instFilter   = document.getElementById('booking-filter-instructor').value;
+  const shopFilter   = document.getElementById('booking-filter-shop').value;
 
   let query = _sb
     .from('bookings')
-    .select('*, availability_slots(slot_date, start_time, end_time), listings(title), instructors(name)')
+    .select('*, availability_slots(slot_date, start_time, end_time), listings(title), instructors(name), shops(name)')
     .order('created_at', { ascending: false });
 
   if (statusFilter) query = query.eq('status', statusFilter);
   if (instFilter)   query = query.eq('instructor_id', instFilter);
+  if (shopFilter)   query = query.eq('shop_id', shopFilter);
 
   const { data: bookings, error } = await query;
 
@@ -2076,14 +2080,16 @@ async function loadListings() {
   el.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
 
   const instFilter   = document.getElementById('listing-filter-instructor').value;
+  const shopFilter   = document.getElementById('listing-filter-shop').value;
   const intentFilter = document.getElementById('listing-filter-intent').value;
 
   let query = _sb
     .from('listings')
-    .select('id, title, intent, area, price, is_public, instructors(name)')
+    .select('id, title, intent, area, price, is_public, instructors(name), shops(name)')
     .order('created_at', { ascending: false });
 
   if (instFilter)   query = query.eq('instructor_id', instFilter);
+  if (shopFilter)   query = query.eq('shop_id', shopFilter);
   if (intentFilter) query = query.eq('intent', intentFilter);
 
   const { data, error } = await query;
@@ -2113,7 +2119,7 @@ async function loadListings() {
             <tr>
               <td><span title="${l.id}" style="font-family:monospace;font-size:11px;color:var(--on-dark-soft);cursor:default;">${l.id.slice(0,8)}</span></td>
               <td class="name" style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(l.title)}</td>
-              <td>${escHtml(l.instructors?.name || '—')}</td>
+              <td>${escHtml(l.instructors?.name || (l.shops?.name ? l.shops.name + '（ショップ）' : '—'))}</td>
               <td><span class="badge badge-${l.intent === 'try' ? 'pending' : l.intent === 'learn' ? 'paid' : 'confirmed'}">${intentLabel[l.intent] || l.intent}</span></td>
               <td>${escHtml(l.area || '—')}</td>
               <td>${l.price ? '¥' + l.price.toLocaleString() : '—'}</td>
@@ -2156,11 +2162,13 @@ function openListingModal(listingId = null) {
   document.getElementById('listing-price-unit').value  = '〜/人';
   document.getElementById('listing-public').checked    = true;
   document.getElementById('listing-instructor').value  = '';
+  document.getElementById('listing-shop').value        = '';
 
   if (listingId) {
     _sb.from('listings').select('*').eq('id', listingId).single().then(({ data: d }) => {
       if (!d) return;
       document.getElementById('listing-instructor').value  = d.instructor_id || '';
+      document.getElementById('listing-shop').value        = d.shop_id || '';
       document.getElementById('listing-title').value       = d.title || '';
       document.getElementById('listing-description').value = d.description || '';
       document.getElementById('listing-category').value    = d.category || '';
@@ -2183,13 +2191,15 @@ function closeListingModal() {
 }
 
 async function saveListing() {
-  const instructorId = document.getElementById('listing-instructor').value;
+  const instructorId = document.getElementById('listing-instructor').value || null;
+  const shopId       = document.getElementById('listing-shop').value || null;
   const title        = document.getElementById('listing-title').value.trim();
-  if (!instructorId) { showToast('インストラクターを選択してください', 'error'); return; }
+  if (!instructorId && !shopId) { showToast('インストラクターまたはショップを選択してください', 'error'); return; }
   if (!title)        { showToast('タイトルは必須です', 'error'); return; }
 
   const payload = {
     instructor_id: instructorId,
+    shop_id:       shopId,
     title,
     description:  document.getElementById('listing-description').value.trim() || null,
     category:     document.getElementById('listing-category').value.trim() || null,

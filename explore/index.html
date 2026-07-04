@@ -644,7 +644,7 @@ function renderModal(inst) {
 
 async function loadListings() {
   try {
-    const { data, error } = await _sb.from('listings').select('id, title, category, intent, area, location_detail, price, price_unit, tags, image_url, instructor_id, instructors ( id, name, is_verified, shops ( avg_rating, review_count ) )').eq('is_public', true).order('sort_order', { ascending: true });
+    const { data, error } = await _sb.from('listings').select('id, title, category, intent, area, location_detail, price, price_unit, tags, image_url, instructor_id, shop_id, instructors ( id, name, is_verified, shops ( avg_rating, review_count ) ), shops ( id, name, avg_rating, review_count )').eq('is_public', true).order('sort_order', { ascending: true });
     if (error) throw error;
     allListings = data || [];
     updateCounts();
@@ -709,17 +709,20 @@ function renderListings() {
       if (p < min || p > max) return false;
     }
     if (q) {
-      const instName = l.instructors?.name || '';
-      const haystack = `${l.title} ${l.area} ${l.location_detail || ''} ${l.category} ${instName}`.toLowerCase();
+      const ownerName = l.instructors?.name || l.shops?.name || '';
+      const haystack = `${l.title} ${l.area} ${l.location_detail || ''} ${l.category} ${ownerName}`.toLowerCase();
       if (!haystack.includes(q)) return false;
     }
     return true;
   });
 
+  // 表示用の評価（インストラクター名義: 所属ショップの評価 / ショップ名義: 自社の評価）
+  const ratingOf = l => (l.instructors?.shops || l.shops || {});
+
   // ソート
   if (currentSort === 'price_asc')  filtered = [...filtered].sort((a, b) => (a.price || 0) - (b.price || 0));
   if (currentSort === 'price_desc') filtered = [...filtered].sort((a, b) => (b.price || 0) - (a.price || 0));
-  if (currentSort === 'rating')     filtered = [...filtered].sort((a, b) => (b.instructors?.shops?.avg_rating || 0) - (a.instructors?.shops?.avg_rating || 0));
+  if (currentSort === 'rating')     filtered = [...filtered].sort((a, b) => (ratingOf(b).avg_rating || 0) - (ratingOf(a).avg_rating || 0));
 
   document.getElementById('countNum').textContent = filtered.length;
   const container = document.getElementById('listings');
@@ -729,13 +732,19 @@ function renderListings() {
   }
   container.innerHTML = filtered.map(l => {
     const inst = l.instructors;
-    const shop = inst?.shops;
+    const ownerShop = l.shops; // ショップ名義（instructor_idがnull）の場合の直接のショップ
+    const shop = inst?.shops || ownerShop;
     const verified = inst?.is_verified ? '<svg viewBox="0 0 24 24" style="width:10px;height:10px;fill:var(--teal);stroke:none;flex-shrink:0"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' : '';
     const thumb = l.image_url ? `<img src="${esc(l.image_url)}" alt="${esc(l.title)}" loading="lazy">` : '<div class="listing-thumb-ph"><svg class="icon" viewBox="0 0 24 24" style="width:26px;height:26px"><path d="M3 9a2 2 0 0 1 2-2h.93a2 2 0 0 0 1.664-.89l.812-1.22A2 2 0 0 1 10.07 4h3.86a2 2 0 0 1 1.664.89l.812 1.22A2 2 0 0 0 18.07 7H19a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3"/></svg></div>';
     const ratingHtml = shop?.avg_rating
       ? `<span class="meta-item" style="color:var(--warm)">★ ${parseFloat(shop.avg_rating).toFixed(1)}<span style="color:var(--on-dark-soft);margin-left:2px">(${esc(shop.review_count)})</span></span>`
       : '';
-    return `<a class="listing-card" href="listing.html?id=${esc(l.instructor_id)}&listing=${esc(l.id)}">
+    // インストラクター名義ならインストラクターページへ、ショップ名義（担当者未定）ならショップIDで遷移
+    const ownerLinkParam = l.instructor_id ? `id=${esc(l.instructor_id)}` : `shop=${esc(l.shop_id)}`;
+    const ownerBtn = inst
+      ? `<button class="instructor-btn" onclick="openInstructorModal('${esc(l.instructor_id)}', event)">${verified}${esc(inst.name || '')}</button>`
+      : `<span class="instructor-btn" style="cursor:default;">${esc(ownerShop?.name || 'ショップ')}</span>`;
+    return `<a class="listing-card" href="listing.html?${ownerLinkParam}&listing=${esc(l.id)}">
       <div class="listing-thumb">${thumb}<span class="listing-badge ${badgeClass[l.intent]}">${badgeLabel[l.intent]}</span></div>
       <div class="listing-body">
         <span class="listing-category">${esc(l.category)}</span>
@@ -747,7 +756,7 @@ function renderListings() {
         </div>
         <div class="listing-footer">
           <p class="listing-price">${l.price ? '¥' + l.price.toLocaleString() : '要相談'}<span>${l.price ? esc(l.price_unit || '') : ''}</span></p>
-          <button class="instructor-btn" onclick="openInstructorModal('${esc(l.instructor_id)}', event)">${verified}${esc(inst?.name || '')}</button>
+          ${ownerBtn}
         </div>
       </div>
     </a>`;

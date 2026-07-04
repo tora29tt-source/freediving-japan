@@ -223,8 +223,9 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 - `listings` / `availability_slots` / `bookings` / `inquiries` / `reviews` は `instructor_id` を nullable化し `shop_id` を追加。`CHECK (instructor_id IS NOT NULL OR shop_id IS NOT NULL)` でどちらか必須を担保
 - `create_pending_booking()` RPC に `p_shop_id` を追加。未指定なら `availability_slots.shop_id` から自動補完（既存呼び出し側の互換維持）
 - 個人インストラクターが「自分をショップとして登録する」従来の運用は不要になったが、既存データはそのままで問題ない（併用可）
-- 実装：`sql/shop_direct_listings_20260704.sql`
-- **未着手（フォローアップ）**：`api/create-checkout-session.js` 等アプリ側でショップ単体商品の予約導線UIは未実装／`shops` テーブルはまだソフトデリート対象外（物理削除のまま）
+- 実装（DB）：`sql/shop_direct_listings_20260704.sql`（Supabase本番適用済み）
+- 実装（UI・同日追加）：`pro/index.html`（ショップロールでコース/空き枠/予約/問い合わせをショップ名義対応、`instructor_shops`統合）／`admin/index.html`（ショップ選択・フィルタ追加）／`explore/index.html`・`explore/listing.html`（商品一覧・詳細・予約カレンダー・決済がショップ名義商品にも対応、`normalizeOwner()`でinstructor/shop共通化）／`api/create-checkout-session.js`（`shopId`対応）
+- **未着手（フォローアップ）**：`shops` テーブルはまだソフトデリート対象外（物理削除のまま）／ショップ名義商品ページの「指導歴」等インストラクター由来ラベルの文言調整／実機での動作確認未実施
 
 -----
 
