@@ -846,6 +846,9 @@ td.name { color: var(--on-dark); font-weight: 500; }
         <select class="filter-select" id="slot-filter-instructor" onchange="loadSlots()">
           <option value="">すべてのインストラクター</option>
         </select>
+        <select class="filter-select" id="slot-filter-shop" onchange="loadSlots()">
+          <option value="">すべてのショップ</option>
+        </select>
         <select class="filter-select" id="slot-filter-status" onchange="loadSlots()">
           <option value="">すべてのステータス</option>
           <option value="active">有効のみ</option>
@@ -1700,12 +1703,12 @@ function openSlotModal(slotId = null) {
   document.getElementById('slot-modal-title').textContent = slotId ? '空き枠を編集' : '空き枠を追加';
   document.getElementById('slot-save-label').textContent  = slotId ? '更新する' : '保存する';
 
-  ['slot-instructor','slot-listing','slot-date','slot-start','slot-end'].forEach(id => {
+  ['slot-instructor','slot-shop','slot-listing','slot-date','slot-start','slot-end'].forEach(id => {
     document.getElementById(id).value = '';
   });
   document.getElementById('slot-max').value = 4;
   document.getElementById('slot-active').checked = true;
-  document.getElementById('slot-listing').innerHTML = '<option value="">インストラクターを先に選択</option>';
+  document.getElementById('slot-listing').innerHTML = '<option value="">インストラクター/ショップを先に選択</option>';
 
   if (slotId) {
     _sb.from('availability_slots')
@@ -1715,7 +1718,8 @@ function openSlotModal(slotId = null) {
       .then(({ data: s }) => {
         if (!s) return;
         document.getElementById('slot-instructor').value = s.instructor_id || '';
-        onInstructorChange();
+        document.getElementById('slot-shop').value       = s.shop_id || '';
+        onSlotOwnerChange();
         setTimeout(() => {
           document.getElementById('slot-listing').value = s.listing_id || '';
         }, 50);
@@ -1736,7 +1740,8 @@ function closeSlotModal() {
 }
 
 async function saveSlot() {
-  const instructorId = document.getElementById('slot-instructor').value;
+  const instructorId = document.getElementById('slot-instructor').value || null;
+  const shopId       = document.getElementById('slot-shop').value || null;
   const listingId    = document.getElementById('slot-listing').value;
   const slotDate     = document.getElementById('slot-date').value;
   const startTime    = document.getElementById('slot-start').value;
@@ -1744,8 +1749,8 @@ async function saveSlot() {
   const maxP         = parseInt(document.getElementById('slot-max').value) || 1;
   const isActive     = document.getElementById('slot-active').checked;
 
-  if (!instructorId || !slotDate || !startTime || !endTime) {
-    showToast('インストラクター・日付・時間は必須です', 'error'); return;
+  if ((!instructorId && !shopId) || !slotDate || !startTime || !endTime) {
+    showToast('インストラクターまたはショップ・日付・時間は必須です', 'error'); return;
   }
   if (startTime >= endTime) {
     showToast('開始時刻は終了時刻より前にしてください', 'error'); return;
@@ -1753,6 +1758,7 @@ async function saveSlot() {
 
   const payload = {
     instructor_id:    instructorId,
+    shop_id:          shopId,
     listing_id:       listingId || null,
     slot_date:        slotDate,
     start_time:       startTime,
