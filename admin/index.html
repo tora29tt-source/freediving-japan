@@ -876,6 +876,9 @@ td.name { color: var(--on-dark); font-weight: 500; }
         <select class="filter-select" id="booking-filter-instructor" onchange="loadBookings()">
           <option value="">すべてのインストラクター</option>
         </select>
+        <select class="filter-select" id="booking-filter-shop" onchange="loadBookings()">
+          <option value="">すべてのショップ</option>
+        </select>
       </div>
 
       <div id="bookings-content">
@@ -917,6 +920,9 @@ td.name { color: var(--on-dark); font-weight: 500; }
       <div class="filters">
         <select class="filter-select" id="listing-filter-instructor" onchange="loadListings()">
           <option value="">すべてのインストラクター</option>
+        </select>
+        <select class="filter-select" id="listing-filter-shop" onchange="loadListings()">
+          <option value="">すべてのショップ</option>
         </select>
         <select class="filter-select" id="listing-filter-intent" onchange="loadListings()">
           <option value="">すべてのカテゴリ</option>
@@ -1001,9 +1007,16 @@ td.name { color: var(--on-dark); font-weight: 500; }
     <div class="modal-title" id="slot-modal-title">空き枠を追加</div>
 
     <div class="form-group">
-      <label>インストラクター</label>
-      <select id="slot-instructor" onchange="onInstructorChange()">
-        <option value="">選択してください</option>
+      <label>インストラクター（未定ならショップ名義で公開）</label>
+      <select id="slot-instructor" onchange="onSlotOwnerChange()">
+        <option value="">ショップ名義（担当者未定）</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>ショップ（担当者未定の場合は必須）</label>
+      <select id="slot-shop" onchange="onSlotOwnerChange()">
+        <option value="">（インストラクター個人の枠）</option>
       </select>
     </div>
 
@@ -1154,9 +1167,16 @@ td.name { color: var(--on-dark); font-weight: 500; }
     <div class="modal-title" id="listing-modal-title">リスティングを追加</div>
 
     <div class="form-group">
-      <label>インストラクター *</label>
+      <label>インストラクター（未定ならショップ名義で公開）</label>
       <select id="listing-instructor">
-        <option value="">選択してください</option>
+        <option value="">ショップ名義（担当者未定）</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>ショップ（担当者未定の場合は必須）</label>
+      <select id="listing-shop">
+        <option value="">（インストラクター個人の商品）</option>
       </select>
     </div>
 
@@ -1436,6 +1456,7 @@ let currentUser  = null;
 let currentRole  = null; // 'admin' | 'staff'
 let allInstructors = [];
 let allListings    = [];
+let allShops       = [];
 let editingSlotId        = null;
 let editingInstructorId  = null;
 let editingListingId     = null;
@@ -1524,12 +1545,14 @@ async function handleLogout() {
 // Master data (instructors & listings)
 // ============================================================
 async function loadMasterData() {
-  const [{ data: instructors }, { data: listings }] = await Promise.all([
+  const [{ data: instructors }, { data: listings }, { data: shops }] = await Promise.all([
     _sb.from('instructors').select('id, name').order('name'),
-    _sb.from('listings').select('id, title, instructor_id').order('title'),
+    _sb.from('listings').select('id, title, instructor_id, shop_id').order('title'),
+    _sb.from('shops').select('id, name').order('name'),
   ]);
   allInstructors = instructors || [];
   allListings    = listings    || [];
+  allShops       = shops       || [];
 
   ['slot-filter-instructor', 'booking-filter-instructor', 'slot-instructor', 'listing-filter-instructor'].forEach(id => {
     const el = document.getElementById(id);
@@ -1544,12 +1567,30 @@ async function loadMasterData() {
       el.appendChild(opt);
     });
   });
+
+  ['slot-filter-shop', 'booking-filter-shop', 'slot-shop', 'listing-filter-shop', 'listing-shop'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const keep = el.querySelector('option[value=""]');
+    el.innerHTML = '';
+    el.appendChild(keep);
+    allShops.forEach(shop => {
+      const opt = document.createElement('option');
+      opt.value = shop.id;
+      opt.textContent = shop.name;
+      el.appendChild(opt);
+    });
+  });
 }
 
-function onInstructorChange() {
+// 空き枠モーダル：担当インストラクター or ショップの選択に応じてコース一覧を絞り込む
+function onSlotOwnerChange() {
   const instId   = document.getElementById('slot-instructor').value;
+  const shopId   = document.getElementById('slot-shop').value;
   const listEl   = document.getElementById('slot-listing');
-  const filtered = allListings.filter(l => l.instructor_id === instId);
+  const filtered = allListings.filter(l =>
+    (instId && l.instructor_id === instId) || (shopId && l.shop_id === shopId)
+  );
   listEl.innerHTML = '<option value="">選択してください</option>';
   filtered.forEach(l => {
     const opt = document.createElement('option');

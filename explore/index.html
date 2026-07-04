@@ -433,20 +433,35 @@ const AREA_COORDS = {
   '西表島':   { lat: 24.33, lng: 123.78 },
   '与那国島': { lat: 24.47, lng: 123.01 }
 };
-// 実績・問い合わせが多いエリア（オレンジで強調）
+// 実績・問い合わせが多いエリア（アクセントカラーで強調）
 const HIGH_DEMAND_AREAS = new Set(['沖縄', '宮古島', '石垣島']);
+// このページ（home.css）の実トークンを読み取り、地図の配色をブランドと確実に一致させる
+// （design-system.css 側の海色パレットはmypage/auth専用の別系統なのでここでは使わない）
+function themeColor(varName, fallback) {
+  const v = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  return v || fallback;
+}
+const THEME = {
+  ink: themeColor('--ink', '#222226'),
+  inkMid: themeColor('--ink-mid', '#5b5b60'),
+  line: themeColor('--line', '#e7e7ea'),
+  teal: themeColor('--teal', '#1f6f78'),
+  tealDeep: themeColor('--teal-deep', '#124a52'),
+  accent: themeColor('--accent', '#c0563c'),
+  waterTint: '#dde9eb' // teal を白に薄めた色（Maps JSON stylerはrgba非対応のため固定値）
+};
 // 地図の見た目をブランドカラーに合わせるカスタムスタイル
 const MAP_STYLE = [
-  { elementType: 'geometry', stylers: [{ color: '#fdf8f2' }] },
+  { elementType: 'geometry', stylers: [{ color: '#ffffff' }] },
   { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
-  { elementType: 'labels.text.fill', stylers: [{ color: '#5b6b70' }] },
-  { elementType: 'labels.text.stroke', stylers: [{ color: '#fdf8f2' }] },
+  { elementType: 'labels.text.fill', stylers: [{ color: THEME.inkMid }] },
+  { elementType: 'labels.text.stroke', stylers: [{ color: '#ffffff' }] },
   { featureType: 'administrative', elementType: 'geometry', stylers: [{ visibility: 'off' }] },
   { featureType: 'poi', stylers: [{ visibility: 'off' }] },
   { featureType: 'road', stylers: [{ visibility: 'off' }] },
   { featureType: 'transit', stylers: [{ visibility: 'off' }] },
-  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#a8ece8' }] },
-  { featureType: 'landscape', elementType: 'geometry', stylers: [{ color: '#fdf8f2' }] }
+  { featureType: 'water', elementType: 'geometry', stylers: [{ color: THEME.waterTint }] },
+  { featureType: 'landscape', elementType: 'geometry', stylers: [{ color: '#ffffff' }] }
 ];
 let mapsScriptRequested = false;
 let areaMapInstance = null;
@@ -494,12 +509,12 @@ window.initAreaMap = function () {
       icon: {
         path: google.maps.SymbolPath.CIRCLE,
         scale: isHigh ? 9 : 7,
-        fillColor: isHigh ? '#f97316' : '#2ec4b6',
+        fillColor: isHigh ? THEME.accent : THEME.teal,
         fillOpacity: 1,
-        strokeColor: '#0b2d45',
+        strokeColor: THEME.ink,
         strokeWeight: 1.5
       },
-      label: { text: area, fontSize: '10px', fontWeight: '700', color: '#0b2d45' }
+      label: { text: area, fontSize: '10px', fontWeight: '700', color: THEME.ink }
     });
     marker.addListener('click', () => selectAreaFromMap(area));
   });
