@@ -1367,7 +1367,7 @@ td.name { color: var(--on-dark); font-weight: 500; }
             </button>
           </div>
           <input type="file" id="ae-cover-file" accept="image/*" style="display:none" onchange="aeUploadCover(this)">
-          <img id="ae-cover-preview" class="ae-cover-preview" alt="カバー画像プレビュー">
+          <img id="ae-cover-preview" class="ae-cover-preview" alt="カバー画像プレビュー" style="display:none!important;">
           <div id="ae-pos-wrap" style="display:none;margin-top:8px;">
             <div style="font-size:11px;color:var(--on-dark-soft);margin-bottom:6px;letter-spacing:0.08em;display:flex;align-items:center;gap:6px;">
               表示位置
@@ -2768,20 +2768,16 @@ function aeUpdateCover() {
   const posWrap = document.getElementById('ae-pos-wrap');
   const posPrev = document.getElementById('ae-pos-preview');
   if (url) {
+    // imgは非表示のまま（onerror検知用に残す）
     img.src = url;
-    img.classList.add('visible');
-    img.onerror = () => img.classList.remove('visible');
+    const pos = document.getElementById('ae-cover-pos').value || '50% 50%';
     posWrap.style.display = '';
     if (posPrev) {
       posPrev.style.backgroundImage = `url('${url}')`;
-      const pos = document.getElementById('ae-cover-pos').value || '50% 50%';
       posPrev.style.backgroundPosition = pos;
     }
-    const pos = document.getElementById('ae-cover-pos').value || '50% 50%';
-    img.style.objectPosition = pos;
     initPosDrag();
   } else {
-    img.classList.remove('visible');
     posWrap.style.display = 'none';
   }
 }
