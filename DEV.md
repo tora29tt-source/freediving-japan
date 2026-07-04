@@ -119,15 +119,17 @@ git push origin main
 
 ```
 instructors        — インストラクターマスタ（id, name, bio, photo_url, certifications, areas, prefecture, city, experience_years, languages, ...）
-listings           — 体験・コース（id, title, instructor_id, category, intent, prefecture, area, price, price_unit, price_includes, price_excludes, duration, season, min_participants, max_participants, age_min, age_max, meeting_point, booking_deadline, has_shuttle, cancellation_policy, what_to_bring, notes, tags, facilities, rental_gear, flow_steps, image_url, gallery_urls, is_public, ...）
-availability_slots — 空き枠（id, instructor_id, listing_id, slot_date, start_time, end_time, max_participants, booked_count, is_active）
-bookings           — 予約（id, slot_id, instructor_id, listing_id, guest_name, guest_email, guest_phone, participant_count, unit_price, total_amount, platform_fee, instructor_payout, status, stripe_session_id, stripe_payment_intent_id, rental_requests, ...）
+instructor_shops   — インストラクター所属（N:M・2026-07-04追加。instructor_id, shop_id。複数ショップに同時所属可）
+listings           — 体験・コース（id, instructor_id[nullable], shop_id[nullable・2026-07-04追加], title, category, intent, prefecture, area, price, price_unit, price_includes, price_excludes, duration, season, min_participants, max_participants, age_min, age_max, meeting_point, booking_deadline, has_shuttle, cancellation_policy, what_to_bring, notes, tags, facilities, rental_gear, flow_steps, image_url, gallery_urls, is_public, ...）
+availability_slots — 空き枠（id, instructor_id[nullable], shop_id[nullable・2026-07-04追加], listing_id, slot_date, start_time, end_time, max_participants, booked_count, is_active）
+bookings           — 予約（id, slot_id, instructor_id[nullable], shop_id[nullable・2026-07-04追加], listing_id, guest_name, guest_email, guest_phone, participant_count, unit_price, total_amount, platform_fee, instructor_payout, status, stripe_session_id, stripe_payment_intent_id, rental_requests, ...）
 articles           — メディア記事（id, slug, title, category[A-T], author_type, author_name, lead_text, content[HTML], tags[], read_time_min, status[draft/review/published], is_published, published_at, thumbnail_url, created_by[UUID], review_comment）
 training_sessions  — トレーニングセッション
 dives              — ダイブ記録
 events             — 大会・イベント
-shops              — ショップ
+shops              — ショップ（単体でも商品出品可・2026-07-04〜）
 reviews            — レビュー
+inquiries          — 問い合わせ（instructor_id[nullable] / shop_id[nullable]）
 ```
 
 **予約ステータス遷移**：`pending` → `paid` → `confirmed` → `cancelled` / `refunded`
@@ -201,13 +203,28 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 | `training_sessions` | ✅ | 本人 or is_public=true |
 | `training_dives` | ✅ | 本人 or 公開セッション紐づき |
 | `instructors` | ✅ | 公開: approved+is_public / 本人 / 管理者 |
-| `listings` | ✅ | 公開: is_public / 本人（approved必須） / 管理者 |
-| `availability_slots` | ✅ | 誰でも読み / 本人インストラクターのみ書き込み |
-| `bookings` | ✅ | インストラクター本人 or 管理者のみ閲覧 / 誰でも新規作成 |
+| `instructor_shops` | ✅ | 公開読み取り / 追加・削除はショップ本人 or インストラクター本人 or 管理者（2026-07-04追加） |
+| `listings` | ✅ | 公開: is_public / 本人インストラクター or 本人ショップ（owner） / 管理者 |
+| `availability_slots` | ✅ | 誰でも読み / 本人インストラクター or 本人ショップ（owner）のみ書き込み |
+| `bookings` | ✅ | 本人インストラクター or 本人ショップ or 管理者のみ閲覧 / 新規作成は `create_pending_booking()` RPC 経由のみ（直接INSERT不可・S1対応） |
 | `shops` | ✅ | 公開 / 本人 / 管理者 |
 | `reviews` | ✅ | 公開 / 本人書き込み |
+| `inquiries` | ✅ | 誰でも新規作成 / 本人インストラクター or 本人ショップ or 管理者のみ閲覧・更新（2026-07-04追加） |
 | `articles` | ✅ | 公開済み: 全員 / 認証済み: 全件 / 管理者: 全件（`articles_select` ポリシー）/ UPDATE: admin/staff は全件・editor は自分の記事のみ（published 変更不可）/ DELETE: admin/staff は全件・editor は自分の下書きのみ（`articles_review_flow_20260629.sql`） |
 | `user_roles` | ✅ | is_site_admin()=true のみ全操作（admin/staff/editor） |
+
+### ショップ／インストラクター 出品モデル（2026-07-04・secretary相談で確定）
+
+**背景**：以前は listings/bookings 等が instructor_id 必須で、必ず個人インストラクター単位の商品という前提だった。実態はショップが担当者未定のまま商品を出すこともあり、インストラクターは複数ショップに同時に所属する（例：夏はVolcano Cup、冬は流氷フリーダイビング）。
+
+- **ショップは単体で商品を出品できる**（`listings.shop_id`）。担当インストラクター未定でもショップ名義で完結してよい
+- **インストラクターは複数ショップに同時所属できる**：新設した `instructor_shops`（N:M中間テーブル）で管理。季節・期間ラベルは持たず、フラットな所属一覧
+- **ショップ名義の商品に参考として担当インストラクターを併記することも可能**（`listings.instructor_id` と `shop_id` 両方セット可）
+- `listings` / `availability_slots` / `bookings` / `inquiries` / `reviews` は `instructor_id` を nullable化し `shop_id` を追加。`CHECK (instructor_id IS NOT NULL OR shop_id IS NOT NULL)` でどちらか必須を担保
+- `create_pending_booking()` RPC に `p_shop_id` を追加。未指定なら `availability_slots.shop_id` から自動補完（既存呼び出し側の互換維持）
+- 個人インストラクターが「自分をショップとして登録する」従来の運用は不要になったが、既存データはそのままで問題ない（併用可）
+- 実装：`sql/shop_direct_listings_20260704.sql`
+- **未着手（フォローアップ）**：`api/create-checkout-session.js` 等アプリ側でショップ単体商品の予約導線UIは未実装／`shops` テーブルはまだソフトデリート対象外（物理削除のまま）
 
 -----
 

@@ -55,6 +55,17 @@
 .chip-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
 .chip-row::-webkit-scrollbar { display: none; }
 
+/* ── エリア地図 ── */
+.filter-label-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.filter-label-row .filter-label { margin-bottom: 0; }
+.map-toggle-btn { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: var(--teal-deep); background: rgba(31,111,120,0.06); border: 1px solid rgba(31,111,120,0.25); border-radius: 100px; padding: 5px 12px; cursor: pointer; transition: background 0.2s; }
+.map-toggle-btn:hover { background: rgba(31,111,120,0.12); }
+.map-toggle-btn .icon { width: 12px; height: 12px; }
+.area-map-wrap { display: none; margin-bottom: 14px; border-radius: 16px; overflow: hidden; border: 1px solid var(--line); position: relative; }
+.area-map-wrap.open { display: block; }
+#areaMap { width: 100%; height: 340px; background: #eaf6f4; }
+.map-loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--ink-soft); background: #eaf6f4; }
+
 /* ── divider ── */
 .divider { display: flex; align-items: center; gap: 12px; margin: 22px 0; }
 .divider-line { flex: 1; height: 1px; background: var(--line); }
@@ -271,12 +282,27 @@
     </button>
   </div>
   <div class="filter-section">
-    <p class="filter-label">エリア</p>
+    <div class="filter-label-row">
+      <p class="filter-label">エリア</p>
+      <button class="map-toggle-btn" id="mapToggleBtn" onclick="toggleAreaMap()" type="button">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span id="mapToggleLabel">地図で選ぶ</span>
+      </button>
+    </div>
+    <div class="area-map-wrap" id="areaMapWrap">
+      <div id="areaMap"></div>
+      <div class="map-loading" id="mapLoading">地図を読み込み中…</div>
+    </div>
     <div class="chip-row" id="areaChips">
       <button class="chip active" data-area="" onclick="toggleArea(this)">全国</button>
       <button class="chip" data-area="沖縄" onclick="toggleArea(this)">沖縄</button>
       <button class="chip" data-area="石垣島" onclick="toggleArea(this)">石垣島</button>
       <button class="chip" data-area="宮古島" onclick="toggleArea(this)">宮古島</button>
+      <button class="chip" data-area="西表島" onclick="toggleArea(this)">西表島</button>
+      <button class="chip" data-area="与那国島" onclick="toggleArea(this)">与那国島</button>
+      <button class="chip" data-area="久米島" onclick="toggleArea(this)">久米島</button>
+      <button class="chip" data-area="慶良間諸島" onclick="toggleArea(this)">慶良間諸島</button>
+      <button class="chip" data-area="奄美大島" onclick="toggleArea(this)">奄美大島</button>
       <button class="chip" data-area="伊豆" onclick="toggleArea(this)">伊豆</button>
       <button class="chip" data-area="東京" onclick="toggleArea(this)">東京</button>
       <button class="chip" data-area="紀伊半島" onclick="toggleArea(this)">紀伊半島</button>
@@ -342,7 +368,7 @@
       <a href="../snorkeling.html">シュノーケリング</a>
       <a href="../skindiving.html">スキンダイビング</a>
       <a href="../freediving.html">フリーダイビング</a>
-      <a href="index.html">インストラクターを探す</a>
+      <a href="index.html">ショップ/インストラクターを探す</a>
     </div>
     <div class="foot-col">
       <h4>学ぶ・読む</h4>
@@ -364,6 +390,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../js/supabase-config.js"></script>
+<script src="../js/maps-config.js"></script>
 <script>
 let allListings = [];
 let currentIntent = 'all';
@@ -387,6 +414,102 @@ function safeUrl(u) {
     const parsed = new URL(u, location.href);
     return (parsed.protocol === 'http:' || parsed.protocol === 'https:') ? parsed.href : '';
   } catch { return ''; }
+}
+
+/* ── エリア地図（Google Maps） ── */
+// 表示座標：本土5エリア＋南西諸島8エリア（listings.area の値と完全一致させること）
+const AREA_COORDS = {
+  '北海道':   { lat: 43.06, lng: 141.35 },
+  '東京':     { lat: 35.68, lng: 139.69 },
+  '伊豆':     { lat: 34.88, lng: 139.11 },
+  '紀伊半島': { lat: 33.47, lng: 135.77 },
+  '瀬戸内':   { lat: 34.35, lng: 133.00 },
+  '奄美大島': { lat: 28.32, lng: 129.49 },
+  '沖縄':     { lat: 26.21, lng: 127.68 },
+  '慶良間諸島': { lat: 26.17, lng: 127.28 },
+  '久米島':   { lat: 26.33, lng: 126.81 },
+  '宮古島':   { lat: 24.81, lng: 125.28 },
+  '石垣島':   { lat: 24.34, lng: 124.16 },
+  '西表島':   { lat: 24.33, lng: 123.78 },
+  '与那国島': { lat: 24.47, lng: 123.01 }
+};
+// 実績・問い合わせが多いエリア（オレンジで強調）
+const HIGH_DEMAND_AREAS = new Set(['沖縄', '宮古島', '石垣島']);
+// 地図の見た目をブランドカラーに合わせるカスタムスタイル
+const MAP_STYLE = [
+  { elementType: 'geometry', stylers: [{ color: '#fdf8f2' }] },
+  { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
+  { elementType: 'labels.text.fill', stylers: [{ color: '#5b6b70' }] },
+  { elementType: 'labels.text.stroke', stylers: [{ color: '#fdf8f2' }] },
+  { featureType: 'administrative', elementType: 'geometry', stylers: [{ visibility: 'off' }] },
+  { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+  { featureType: 'road', stylers: [{ visibility: 'off' }] },
+  { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#a8ece8' }] },
+  { featureType: 'landscape', elementType: 'geometry', stylers: [{ color: '#fdf8f2' }] }
+];
+let mapsScriptRequested = false;
+let areaMapInstance = null;
+
+// トグルボタン：初回オープン時だけ Google Maps JS を遅延読み込み（課金・初期表示速度への配慮）
+function toggleAreaMap() {
+  const wrap = document.getElementById('areaMapWrap');
+  const label = document.getElementById('mapToggleLabel');
+  const willOpen = !wrap.classList.contains('open');
+  wrap.classList.toggle('open', willOpen);
+  label.textContent = willOpen ? '地図を閉じる' : '地図で選ぶ';
+  if (willOpen && !mapsScriptRequested) {
+    mapsScriptRequested = true;
+    if (typeof GOOGLE_MAPS_API_KEY === 'undefined' || !GOOGLE_MAPS_API_KEY || GOOGLE_MAPS_API_KEY.includes('YOUR_')) {
+      document.getElementById('mapLoading').textContent = '地図を表示するには js/maps-config.js に Google Maps APIキーを設定してください';
+      return;
+    }
+    const s = document.createElement('script');
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&callback=initAreaMap`;
+    s.async = true;
+    s.onerror = () => { document.getElementById('mapLoading').textContent = '地図の読み込みに失敗しました'; };
+    document.head.appendChild(s);
+  }
+}
+
+// Google Maps の callback として window から直接呼ばれるためグローバル関数にする
+window.initAreaMap = function () {
+  const loading = document.getElementById('mapLoading');
+  if (loading) loading.style.display = 'none';
+  const bounds = new google.maps.LatLngBounds();
+  areaMapInstance = new google.maps.Map(document.getElementById('areaMap'), {
+    center: { lat: 33.5, lng: 133.5 },
+    zoom: 5,
+    disableDefaultUI: true,
+    zoomControl: true,
+    styles: MAP_STYLE
+  });
+  Object.entries(AREA_COORDS).forEach(([area, pos]) => {
+    bounds.extend(pos);
+    const isHigh = HIGH_DEMAND_AREAS.has(area);
+    const marker = new google.maps.Marker({
+      position: pos,
+      map: areaMapInstance,
+      title: area,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: isHigh ? 9 : 7,
+        fillColor: isHigh ? '#f97316' : '#2ec4b6',
+        fillOpacity: 1,
+        strokeColor: '#0b2d45',
+        strokeWeight: 1.5
+      },
+      label: { text: area, fontSize: '10px', fontWeight: '700', color: '#0b2d45' }
+    });
+    marker.addListener('click', () => selectAreaFromMap(area));
+  });
+  areaMapInstance.fitBounds(bounds);
+};
+
+// 地図のピンをクリック → 既存のチップと同じ絞り込み処理に合流させる
+function selectAreaFromMap(area) {
+  const chip = [...document.querySelectorAll('#areaChips .chip')].find(c => c.dataset.area === area);
+  if (chip) toggleArea(chip);
 }
 
 /* ── モーダル ── */
