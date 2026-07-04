@@ -276,6 +276,17 @@ function parseLocation(cityCountry) {
   return { city: cityCountry, country: '' };
 }
 
+// 外部データ（AIDAスクレイピング結果）由来の値をエスケープ（S4）
+function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+// http(s) 以外のスキーム（javascript: 等）を弾く（S5: リンクXSS対策）
+function safeUrl(u) {
+  if (!u) return '#';
+  try {
+    const parsed = new URL(u, location.href);
+    return (parsed.protocol === 'http:' || parsed.protocol === 'https:') ? parsed.href : '#';
+  } catch { return '#'; }
+}
+
 function buildMonths(INTL_EVENTS) {
   const container = document.getElementById('months-intl');
   container.innerHTML = '';
@@ -321,13 +332,13 @@ function buildMonths(INTL_EVENTS) {
         <td>
           <div class="ev-name">
             ${isWC ? '<span class="tag wc">🏆 世界大会</span> <span class="tag jp">🇯🇵 日本代表</span><br>' : ''}
-            <a href="${e.link}" target="_blank">${e.title}</a>
+            <a href="${esc(safeUrl(e.link))}" target="_blank" rel="noopener">${esc(e.title)}</a>
           </div>
-          ${e.venue ? `<div class="ev-city">${e.venue}</div>` : ''}
+          ${e.venue ? `<div class="ev-city">${esc(e.venue)}</div>` : ''}
         </td>
         <td class="loc-col">
-          <div class="ev-country">${toJaCountry(loc.country)}</div>
-          <div class="ev-city">${loc.city}</div>
+          <div class="ev-country">${esc(toJaCountry(loc.country))}</div>
+          <div class="ev-city">${esc(loc.city)}</div>
         </td>
       </tr>`;
     }).join('');

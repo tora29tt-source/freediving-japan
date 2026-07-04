@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>記事 — Freediving Japan</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
 <style>
 :root {
   --ocean-deep:  #0b2d45;
@@ -539,9 +540,9 @@ async function loadRelated(category, currentId) {
     <h2>関連記事</h2>
     <div class="related-grid">
       ${data.map(r => {
-        const href  = r.slug ? `article.html?slug=${r.slug}` : `article.html?id=${r.id}`;
+        const href  = r.slug ? `article.html?slug=${esc(r.slug)}` : `article.html?id=${esc(r.id)}`;
         const thumb = r.thumbnail_url
-          ? `<img src="${r.thumbnail_url}" alt="" class="related-thumb" loading="lazy">`
+          ? `<img src="${esc(r.thumbnail_url)}" alt="" class="related-thumb" loading="lazy">`
           : `<div class="related-thumb-placeholder">🌊</div>`;
         return `
           <a href="${href}" class="related-card">
@@ -577,9 +578,9 @@ function showError(msg) {
     </div>`;
 }
 
-function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
-// ── コンテンツから旧テンプレートの残骸を除去 ──
+// ── コンテンツから旧テンプレートの残骸を除去＋XSS対策のサニタイズ（S2） ──
 function sanitizeContent(html) {
   if (!html) return html;
   // </div><!-- /.article-body --> 以降は旧テンプレートのゴミ（CTA・関連記事・フッター等）
@@ -589,6 +590,12 @@ function sanitizeContent(html) {
     // </div><!-- /.article-body --> を含む位置まで残す
     const divClose = html.lastIndexOf('</div>', cutIdx);
     html = html.slice(0, divClose + 6); // '</div>'.length = 6
+  }
+  // DB由来の生HTMLをDOMPurifyで無害化してからinnerHTMLへ渡す。
+  // <script>・on*属性・javascript:スキーム等を除去する（見出し/表/画像/リンク等の
+  // 本文編集で使う要素は許可リストの範囲でそのまま残る）。
+  if (window.DOMPurify) {
+    html = DOMPurify.sanitize(html, { ADD_ATTR: ['target'] });
   }
   return html;
 }

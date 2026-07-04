@@ -1306,7 +1306,7 @@ async function loadBookingHistory(guestEmail) {
           <div class="bk-date-mon">${MONTHS[d.getMonth()]} ${d.getFullYear()}</div>
         </div>
         <div class="bk-info">
-          <div class="bk-title">${title}</div>
+          <div class="bk-title">${esc(title)}</div>
           <div class="bk-meta">${timeStr}${b.participant_count}名</div>
         </div>
         <div class="bk-right">
@@ -1337,8 +1337,8 @@ function renderMyEvents(events) {
     return `
       <a href="events/event-staff.html?id=${ev.id}" style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);text-decoration:none;color:inherit;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background=''">
         <div style="flex:1;">
-          <div style="font-size:14px;font-weight:700;">${ev.name}</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:2px;">${ds}${ev.location ? ' · ' + ev.location : ''}</div>
+          <div style="font-size:14px;font-weight:700;">${esc(ev.name)}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">${ds}${ev.location ? ' · ' + esc(ev.location) : ''}</div>
         </div>
         <div style="text-align:right;flex-shrink:0;">
           <div style="font-size:10px;font-weight:700;background:${bg};color:${col};border:1px solid ${bdr};padding:2px 8px;border-radius:100px;">${lbl}</div>
@@ -1357,6 +1357,9 @@ async function handleLogout() {
 </script>
 <!-- Supabase: CDN + 初期化は <head> の supabase-config.js に集約済み -->
 <script>
+// DB由来の値をHTMLへ挿入する前にエスケープ（S4: 属性ブレイクアウトXSS対策）
+function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
 // ── 認証ガード＋ユーザーデータ表示 ──
 (async () => {
   // implicit フロー: URLハッシュのトークンをSupabaseクライアントが自動処理
@@ -1378,7 +1381,7 @@ async function handleLogout() {
   const initials = name.replace(/\s+/g, '').slice(0, 2).toUpperCase();
   const heroAvatar = document.getElementById('heroAvatar');
   if (avatarUrl) {
-    heroAvatar.innerHTML = `<img src="${avatarUrl}" alt="${name}" style="width:72px;height:72px;border-radius:50%;object-fit:cover;">`;
+    heroAvatar.innerHTML = `<img src="${esc(avatarUrl)}" alt="${esc(name)}" style="width:72px;height:72px;border-radius:50%;object-fit:cover;">`;
   } else {
     heroAvatar.textContent = initials;
   }
@@ -1493,7 +1496,7 @@ async function saveProfile() {
   _currentUser = data.user;
   const heroAvatar = document.getElementById('heroAvatar');
   if (avatarUrl) {
-    heroAvatar.innerHTML = `<img src="${avatarUrl}" alt="${name}" style="width:72px;height:72px;border-radius:50%;object-fit:cover;">`;
+    heroAvatar.innerHTML = `<img src="${esc(avatarUrl)}" alt="${esc(name)}" style="width:72px;height:72px;border-radius:50%;object-fit:cover;">`;
   } else {
     heroAvatar.textContent = name.replace(/\s+/g,'').slice(0,2).toUpperCase();
   }

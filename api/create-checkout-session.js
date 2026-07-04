@@ -40,7 +40,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 1. 空き枠とリスティング情報を取得
+    // 1. 空き枠とリスティング情報を取得（表示・価格算出用）
     const { data: slot, error: slotError } = await supabase
       .from('availability_slots')
       .select('*, listings(*)')
@@ -51,44 +51,14 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: '指定された空き枠が見つかりません' });
     }
 
-    // 2a. 非アクティブ枠チェック（Bug #8）
-    if (!slot.is_active) {
-      return res.status(409).json({ error: 'この枠は現在受け付けていません' });
-    }
-
-    // 2b. 満席チェック — pending 予約も含めて計算（Bug #5）
-    const { count: pendingCount, error: pendingErr } = await supabase
-      .from('bookings')
-      .select('id', { count: 'exact', head: true })
-      .eq('slot_id', slotId)
-      .eq('status', 'pending');
-
-    if (pendingErr) {
-      console.error('Failed to count pending bookings:', pendingErr.message);
-      return res.status(500).json({ error: '予約状況の確認に失敗しました' });
-    }
-
-    // pending の人数合計を取得（count は件数なので participant_count の合計が必要）
-    const { data: pendingRows, error: pendingSumErr } = await supabase
-      .from('bookings')
-      .select('participant_count')
-      .eq('slot_id', slotId)
-      .eq('status', 'pending');
-
-    if (pendingSumErr) {
-      console.error('Failed to sum pending bookings:', pendingSumErr.message);
-      return res.status(500).json({ error: '予約状況の確認に失敗しました' });
-    }
-
-    const pendingParticipants = (pendingRows || []).reduce((sum, r) => sum + (r.participant_count || 0), 0);
-    const remaining = slot.max_participants - slot.booked_count - pendingParticipants;
-    if (participantCount > remaining) {
-      return res.status(409).json({ error: `残り${remaining}名分しか予約できません` });
-    }
-
     const listing = slot.listings;
     if (!listing) {
       return res.status(404).json({ error: 'リスティング情報が見つかりません' });
+    }
+
+    // listingId はクライアント指定値を信用せず slot.listing_id と一致するか検証する（S9）
+    if (listingId && listingId !== slot.listing_id) {
+      return res.status(400).json({ error: 'リスティング情報が一致しません' });
     }
 
     const unitPrice   = listing.price || 0;
@@ -98,29 +68,42 @@ export default async function handler(req, res) {
     const platformFee      = Math.round(totalAmount * 0.30);
     const instructorPayout = totalAmount - platformFee;
 
-    // 3. 仮予約レコード作成（status: 'pending'）
-    const { data: booking, error: bookingError } = await supabase
-      .from('bookings')
-      .insert({
-        slot_id:           slotId,
-        instructor_id:     instructorId || slot.instructor_id,
-        listing_id:        listingId || slot.listing_id,
-        client_name:        guestName,
-        client_email:       guestEmail,
-        client_phone:       guestPhone || null,
-        notes:             notes || null,
-        rental_requests:   rentalRequests || null,
-        participant_count: participantCount,
-        unit_price:        unitPrice,
-        total_amount:      totalAmount,
-        platform_fee:      platformFee,
-        instructor_payout: instructorPayout,
-        status:            'pending',
-      })
-      .select()
-      .single();
+    // 2. 残席チェック＋仮予約作成を単一トランザクション・行ロックで原子化（S6: TOCTOU対策）
+    //    is_active チェック（Bug #8）・pending込みの残席チェック（Bug #5）は
+    //    すべて create_pending_booking() 内で行ロックを取った上で行われる。
+    //    listing_id は slot.listing_id（DB由来の値）を渡す（S9）。
+    const { data: booking, error: rpcErr } = await supabase
+      .rpc('create_pending_booking', {
+        p_slot_id:           slotId,
+        p_instructor_id:     instructorId || slot.instructor_id,
+        p_listing_id:        slot.listing_id,
+        p_client_name:       guestName,
+        p_client_email:      guestEmail,
+        p_client_phone:      guestPhone || null,
+        p_notes:             notes || null,
+        p_rental_requests:   rentalRequests || null,
+        p_participant_count: participantCount,
+        p_unit_price:        unitPrice,
+        p_total_amount:      totalAmount,
+        p_platform_fee:      platformFee,
+        p_instructor_payout: instructorPayout,
+      });
 
-    if (bookingError) throw bookingError;
+    if (rpcErr) {
+      const msg = rpcErr.message || '';
+      if (msg.startsWith('SLOT_NOT_FOUND')) {
+        return res.status(404).json({ error: '指定された空き枠が見つかりません' });
+      }
+      if (msg.startsWith('SLOT_INACTIVE')) {
+        return res.status(409).json({ error: 'この枠は現在受け付けていません' });
+      }
+      if (msg.startsWith('SLOT_FULL')) {
+        const remaining = msg.split(':')[1] ?? '0';
+        return res.status(409).json({ error: `残り${remaining}名分しか予約できません` });
+      }
+      console.error('create_pending_booking rpc error:', msg);
+      return res.status(500).json({ error: '予約状況の確認に失敗しました' });
+    }
 
     // 4. Stripe Checkout セッション作成
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://freediving-japan.vercel.app';
@@ -146,7 +129,7 @@ export default async function handler(req, res) {
       mode: 'payment',
       customer_email: guestEmail,
       success_url: `${siteUrl}/booking/success.html?booking_id=${booking.id}&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url:  `${siteUrl}/explore/listing.html?id=${instructorId || slot.instructor_id}&listing=${listingId || slot.listing_id}`,
+      cancel_url:  `${siteUrl}/explore/listing.html?id=${instructorId || slot.instructor_id}&listing=${slot.listing_id}`,
       metadata: {
         booking_id:    booking.id,
         slot_id:       slotId,

@@ -204,8 +204,8 @@ function renderDBArticles(articles) {
     if (tab === 'news') {
       const el = document.getElementById('list-news');
       if (el) el.insertAdjacentHTML('beforeend', `
-        <a class="lcard" href="${url}">
-          <div class="lcard-media"><img class="lcard-img" src="${thumb}" alt=""><span class="lcard-badge">${escHtml(catLabel)}</span></div>
+        <a class="lcard" href="${escHtml(url)}">
+          <div class="lcard-media"><img class="lcard-img" src="${escHtml(thumb)}" alt=""><span class="lcard-badge">${escHtml(catLabel)}</span></div>
           <div class="lcard-body">
             <p class="lcard-title">${escHtml(a.title)}</p>
             <p class="lcard-meta">${dateStr}</p>
@@ -216,8 +216,8 @@ function renderDBArticles(articles) {
       const listId = tab === 'interview' ? 'list-interview' : 'list-tips';
       const el = document.getElementById(listId);
       if (el) el.insertAdjacentHTML('beforeend', `
-        <a class="arow" href="${url}">
-          <img class="arow-thumb" src="${thumb}" alt="">
+        <a class="arow" href="${escHtml(url)}">
+          <img class="arow-thumb" src="${escHtml(thumb)}" alt="">
           <div class="arow-body">
             <h3>${escHtml(a.title)}</h3>
             <p>${escHtml(a.lead_text || catLabel)}</p>
@@ -228,7 +228,7 @@ function renderDBArticles(articles) {
   });
 }
 
-function escHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
 // ── フィルター ──
 function filterArticles(category, btn) {

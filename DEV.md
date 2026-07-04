@@ -552,4 +552,26 @@ DB 保存時：`result_time = t2s(d.time)`、`hold_time = d.holdTime`。
 
 -----
 
+## セキュリティ監査（2026-07-04・SECURITY_AUDIT.md）→ 全件対応済み
+
+*詳細・各項目の対応内容は `SECURITY_AUDIT.md` 末尾「対応状況」を参照*
+
+| # | 内容 | 対応内容 |
+|---|------|----------|
+| S1 | bookings 匿名INSERTが無制限 | ポリシー削除、予約作成は新設RPC `create_pending_booking()`（service_role限定）経由に一本化 |
+| S2 | 記事本文のサニタイズが実質無効 | DOMPurify導入、実際にサニタイズするよう修正 |
+| S3 | articles INSERTが認証済みなら誰でも公開可能 | 承認フロー準拠のポリシーに置換。**調査中に発見**：Studio上の重複ポリズが `articles` の INSERT/UPDATE/DELETE/SELECT を実質無制限化していたため合わせて削除（特に UPDATE は既存公開記事も改ざん可能な状態だった） |
+| S4 | `esc()` が属性用エスケープ非対応 | `explore/*`, `mypage.html`, `media/*` に `"` `'` も含む `esc()` を追加・適用 |
+| S5 | `href` にURLスキーム検証なし | `safeUrl()` を追加し http/https 以外を拒否（`explore/*`, `events/2026_competitions.html`） |
+| S6 | 予約確定のTOCTOU競合 | `create_pending_booking()` RPCで行ロック・原子化（旧・項目5の対応をさらに強化） |
+| S7 | SECURITY DEFINER関数のsearch_path未固定 | `is_site_admin()` / `increment_booked_count()` に `SET search_path = public` 追加 |
+| S8 | `event_results` UPDATEにWITH CHECKなし | `WITH CHECK (auth.uid() = judge_id)` 追加 |
+| S9 | `listingId` 未検証 | API側で `slot.listing_id` との一致を検証、保存はslot由来の値のみ使用 |
+| S10 | CORSワイルドカード | 確認の結果、`booking-result.js` がトークン照合方式のため実害なしと判断（対応不要） |
+| 追加 | `event_safety_assignments`/`event_shift_roles`/`event_staff_shifts` の書き込み系が未ログインでも可能だった | 対象ロールを `authenticated` に限定（読み取り系は現状維持） |
+
+**SQL**: `sql/security_fix_20260704.sql`（Supabase本番に実行済み・Chrome MCPで動作確認済み）
+
+-----
+
 *最終更新：2026-07-03（トップをAirbnb風マーケットプレイスに全面刷新・ピラー3ページ新設・共通 css/home.css＋js/home.js 導入・検索バー→explore の URLパラメータ連携実装）*
