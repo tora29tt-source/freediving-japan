@@ -27,9 +27,9 @@ body { min-height: 100vh; }
 .back-btn:hover { color: var(--ink); }
 .back-btn .icon { width: 16px; height: 16px; }
 
-/* gallery（横型の写真を切らずに全体を見せる表示枠。3:2の枠内にobject-fit:containで収める） */
-.gallery { position: relative; width: 100%; max-width: 640px; margin: 0 auto; aspect-ratio: 3 / 2; overflow: hidden; background: #eee; }
-.gallery img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; background: #eee; }
+/* gallery */
+.gallery { position: relative; width: 100%; height: 260px; overflow: hidden; background: #eee; }
+.gallery img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
 .gallery-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--ink-soft); background: #f0f0f2; }
 .gallery-grad { position: absolute; bottom: 0; left: 0; right: 0; height: 80px; background: linear-gradient(transparent, rgba(0,0,0,0.55)); pointer-events: none; }
 .gallery-dots { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; z-index: 2; }
@@ -40,12 +40,9 @@ body { min-height: 100vh; }
 .gallery-arrow-prev { left: 12px; }
 .gallery-arrow-next { right: 12px; }
 
-/* photo strip（カバー画像の下に並ぶ商品写真サムネイル） */
-.photo-strip { display: flex; gap: 8px; overflow-x: auto; padding: 12px 16px; -webkit-overflow-scrolling: touch; scrollbar-width: none; background: #fff; border-bottom: 1px solid var(--line); }
-.photo-strip::-webkit-scrollbar { display: none; }
-.photo-strip-item { flex: 0 0 auto; width: 60px; height: 60px; border-radius: 10px; overflow: hidden; cursor: pointer; border: 2px solid transparent; opacity: 0.55; transition: opacity 0.15s, border-color 0.15s; padding: 0; background: none; }
-.photo-strip-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.photo-strip-item.active { opacity: 1; border-color: var(--teal-deep); }
+/* 写真セクション（カバーとは別に、商品写真を切らずに全体表示する） */
+.photo-gallery { display: flex; flex-direction: column; gap: 12px; }
+.photo-gallery img { width: 100%; height: auto; display: block; border-radius: 14px; border: 1px solid var(--line); }
 
 /* main */
 .main { max-width: 640px; margin: 0 auto; padding: 0 16px 100px; }
@@ -416,9 +413,12 @@ function renderPage(owner, listing, otherListings, reviews = []) {
         <div class="gallery-dots">${allImages.map((_, i) => `<span class="gallery-dot${i === 0 ? ' active' : ''}" data-idx="${i}"></span>`).join('')}</div>` : '')
     : `<div class="gallery-placeholder"><svg style="width:48px;height:48px;stroke:currentColor;fill:none;stroke-width:1.2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>`;
 
-  // photo strip（カバー画像＋商品写真のサムネイル一覧。2枚目以降=ギャラリー画像を一目で確認できるようにする）
-  const photoStripHtml = allImages.length > 1
-    ? `<div class="photo-strip" id="photoStrip">${allImages.map((url, i) => `<button type="button" class="photo-strip-item${i === 0 ? ' active' : ''}" data-idx="${i}" aria-label="写真${i + 1}"><img src="${esc(url)}" alt="${esc(listing?.title || '')} ${i + 1}"></button>`).join('')}</div>`
+  // 写真セクション（カバー画像とは別に、全ての商品写真を切らずに全体表示する）
+  const photoSectionHtml = allImages.length > 1
+    ? `<div class="section">
+        <p class="section-title">写真</p>
+        <div class="photo-gallery">${allImages.map((url, i) => `<img src="${esc(url)}" alt="${esc(listing?.title || '')} ${i + 1}" loading="lazy">`).join('')}</div>
+      </div>`
     : '';
 
   // basic info cards
@@ -488,7 +488,6 @@ function renderPage(owner, listing, otherListings, reviews = []) {
       ${galleryHtml}
       <div class="gallery-grad"></div>
     </div>
-    ${photoStripHtml}
 
     <div class="main">
       <!-- listing header -->
@@ -508,6 +507,9 @@ function renderPage(owner, listing, otherListings, reviews = []) {
       <div class="info-grid">
         ${infoCards.map(c => `<div class="info-card"><p class="info-label">${esc(c.label)}</p><p class="info-value">${esc(c.value)}</p></div>`).join('')}
       </div>` : ''}
+
+      <!-- 写真（カバーとは別に、商品写真を全体表示） -->
+      ${photoSectionHtml}
 
       <!-- description -->
       ${listing?.description ? `
@@ -672,18 +674,14 @@ let _paxCount = 1;
 function initGallery() {
   const imgs = document.querySelectorAll('.gallery-img');
   const dots = document.querySelectorAll('.gallery-dot');
-  const thumbs = document.querySelectorAll('.photo-strip-item');
   if (imgs.length <= 1) return;
   let current = 0;
   function showImg(idx) {
     imgs.forEach((img, i) => { img.style.display = i === idx ? '' : 'none'; });
     dots.forEach((d, i) => { d.classList.toggle('active', i === idx); });
-    thumbs.forEach((t, i) => { t.classList.toggle('active', i === idx); });
-    if (thumbs[idx]) thumbs[idx].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
     current = idx;
   }
   dots.forEach((dot, i) => { dot.addEventListener('click', () => showImg(i)); });
-  thumbs.forEach((thumb, i) => { thumb.addEventListener('click', () => showImg(i)); });
   // 前へ・次へ矢印（クリック/タップで進める）
   const prevBtn = document.querySelector('.gallery-arrow-prev');
   const nextBtn = document.querySelector('.gallery-arrow-next');
