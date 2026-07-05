@@ -433,9 +433,65 @@ td.primary { color: var(--on-dark); font-weight: 500; }
     </div>
 
     <div class="form-group">
-      <label>エリア</label>
-      <select id="l-area" onchange="toggleAreaOther(this)">
+      <label>都道府県 <span style="color:var(--warm);">*</span></label>
+      <select id="l-pref" onchange="togglePrefOther(this)">
         <option value="">選択してください</option>
+        <option value="北海道">北海道</option>
+        <option value="青森県">青森県</option>
+        <option value="岩手県">岩手県</option>
+        <option value="宮城県">宮城県</option>
+        <option value="秋田県">秋田県</option>
+        <option value="山形県">山形県</option>
+        <option value="福島県">福島県</option>
+        <option value="茨城県">茨城県</option>
+        <option value="栃木県">栃木県</option>
+        <option value="群馬県">群馬県</option>
+        <option value="埼玉県">埼玉県</option>
+        <option value="千葉県">千葉県</option>
+        <option value="東京都">東京都</option>
+        <option value="神奈川県">神奈川県</option>
+        <option value="新潟県">新潟県</option>
+        <option value="富山県">富山県</option>
+        <option value="石川県">石川県</option>
+        <option value="福井県">福井県</option>
+        <option value="山梨県">山梨県</option>
+        <option value="長野県">長野県</option>
+        <option value="岐阜県">岐阜県</option>
+        <option value="静岡県">静岡県</option>
+        <option value="愛知県">愛知県</option>
+        <option value="三重県">三重県</option>
+        <option value="滋賀県">滋賀県</option>
+        <option value="京都府">京都府</option>
+        <option value="大阪府">大阪府</option>
+        <option value="兵庫県">兵庫県</option>
+        <option value="奈良県">奈良県</option>
+        <option value="和歌山県">和歌山県</option>
+        <option value="鳥取県">鳥取県</option>
+        <option value="島根県">島根県</option>
+        <option value="岡山県">岡山県</option>
+        <option value="広島県">広島県</option>
+        <option value="山口県">山口県</option>
+        <option value="徳島県">徳島県</option>
+        <option value="香川県">香川県</option>
+        <option value="愛媛県">愛媛県</option>
+        <option value="高知県">高知県</option>
+        <option value="福岡県">福岡県</option>
+        <option value="佐賀県">佐賀県</option>
+        <option value="長崎県">長崎県</option>
+        <option value="熊本県">熊本県</option>
+        <option value="大分県">大分県</option>
+        <option value="宮崎県">宮崎県</option>
+        <option value="鹿児島県">鹿児島県</option>
+        <option value="沖縄県">沖縄県</option>
+        <option value="海外">海外</option>
+      </select>
+      <input type="text" id="l-pref-other" placeholder="例：パラオ" style="margin-top:8px;display:none;">
+    </div>
+
+    <div class="form-group">
+      <label>人気スポット（任意）</label>
+      <select id="l-area" onchange="toggleAreaOther(this)">
+        <option value="">なし（都道府県のみで検索対象になります）</option>
         <option value="沖縄">沖縄</option>
         <option value="石垣島">石垣島</option>
         <option value="宮古島">宮古島</option>
@@ -450,7 +506,7 @@ td.primary { color: var(--on-dark); font-weight: 500; }
         <option value="紀伊半島">紀伊半島</option>
         <option value="瀬戸内">瀬戸内</option>
         <option value="北海道">北海道</option>
-        <option value="__other__">その他（探すページのエリア検索対象外になります）</option>
+        <option value="__other__">その他（探すページの人気スポットチップ対象外になります）</option>
       </select>
       <input type="text" id="l-area-other" placeholder="例：知床" style="margin-top:8px;display:none;">
     </div>
@@ -1312,11 +1368,12 @@ function openListingModal(listingId = null) {
   editListingId = listingId;
   document.getElementById('listing-modal-title').textContent = listingId ? 'コースを編集' : 'コースを追加';
   document.getElementById('l-save-label').textContent        = listingId ? '更新する' : '保存する';
-  ['l-title','l-desc','l-area','l-area-other','l-tags','l-image',
+  ['l-title','l-desc','l-pref','l-pref-other','l-area','l-area-other','l-tags','l-image',
    'l-price-inc','l-price-exc','l-duration','l-season','l-meeting',
    'l-deadline','l-cancel','l-bring','l-notes'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
+  document.getElementById('l-pref-other').style.display = 'none';
   document.getElementById('l-area-other').style.display = 'none';
   document.getElementById('l-price').value       = '';
   document.getElementById('l-price-unit').value  = '〜/人';
@@ -1355,6 +1412,18 @@ function openListingModal(listingId = null) {
       document.getElementById('l-desc').value        = l.description || '';
       document.getElementById('l-category').value    = l.category    || 'フリーダイビング体験';
       document.getElementById('l-intent').value      = l.intent      || 'try';
+      // 都道府県：47都道府県+海外に無い値（旧・自由入力時代のデータ）は「海外」＋自由入力欄に復元
+      const prefSel = document.getElementById('l-pref');
+      const prefKnown = [...prefSel.options].some(o => o.value === (l.prefecture || ''));
+      if (l.prefecture && !prefKnown) {
+        prefSel.value = '海外';
+        document.getElementById('l-pref-other').value = l.prefecture;
+        document.getElementById('l-pref-other').style.display = '';
+      } else {
+        prefSel.value = l.prefecture || '';
+        document.getElementById('l-pref-other').style.display = prefSel.value === '海外' ? '' : 'none';
+        if (prefSel.value === '海外') document.getElementById('l-pref-other').value = l.country || '';
+      }
       // エリア：既存の値が選択肢にあればそれを選択、無ければ「その他」＋自由入力欄に復元
       const areaSel = document.getElementById('l-area');
       const areaKnown = [...areaSel.options].some(o => o.value === (l.area || ''));
@@ -1428,6 +1497,10 @@ async function saveListing() {
     description:         document.getElementById('l-desc').value.trim()          || null,
     category:            document.getElementById('l-category').value,
     intent:              document.getElementById('l-intent').value,
+    prefecture:          document.getElementById('l-pref').value                  || null,
+    country:             document.getElementById('l-pref').value === '海外'
+                            ? (document.getElementById('l-pref-other').value.trim() || null)
+                            : null,
     area:                (document.getElementById('l-area').value === '__other__'
                             ? document.getElementById('l-area-other').value.trim()
                             : document.getElementById('l-area').value)             || null,
@@ -1834,6 +1907,10 @@ function collectAreaRows(containerId) {
 
 function toggleLangOther(cb, inputId) {
   document.getElementById(inputId).style.display = cb.checked ? '' : 'none';
+}
+
+function togglePrefOther(sel) {
+  document.getElementById('l-pref-other').style.display = sel.value === '海外' ? '' : 'none';
 }
 
 function toggleAreaOther(sel) {

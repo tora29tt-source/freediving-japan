@@ -212,16 +212,16 @@ const cache = { shop: null, instructor: null }; // 一度取得したら型ご�
 function normalizeShop(raw) {
   return {
     type: 'shop', id: raw.id, name: raw.name, photo: raw.logo_url,
-    is_verified: raw.is_verified, areas: raw.areas || [], bio: raw.bio,
+    areas: raw.areas || [], bio: raw.bio,
     avg_rating: raw.avg_rating, review_count: raw.review_count,
-    typeLabel: { individual:'個人', school:'スクール', operator:'ダイビングオペレーター' }[raw.shop_type] || 'ショップ',
+    typeLabel: 'ショップ',
     linkQuery: `shop=${esc(raw.id)}`,
   };
 }
 function normalizeInstructor(raw) {
   return {
     type: 'instructor', id: raw.id, name: raw.name, photo: raw.photo_url,
-    is_verified: raw.is_verified, areas: raw.areas || [], bio: raw.bio,
+    areas: raw.areas || [], bio: raw.bio,
     avg_rating: raw.shops?.avg_rating, review_count: raw.shops?.review_count,
     typeLabel: 'インストラクター',
     linkQuery: `id=${esc(raw.id)}`,
@@ -232,13 +232,13 @@ async function loadOwners(type) {
   if (cache[type]) return cache[type];
   if (type === 'shop') {
     const { data, error } = await _sb.from('shops')
-      .select('id, name, bio, shop_type, areas, logo_url, avg_rating, review_count, is_verified')
+      .select('id, name, bio, areas, logo_url, avg_rating, review_count')
       .eq('is_public', true);
     if (error) throw error;
     cache.shop = (data || []).map(normalizeShop);
   } else {
     const { data, error } = await _sb.from('instructors')
-      .select('id, name, bio, areas, photo_url, is_verified, shops ( avg_rating, review_count )')
+      .select('id, name, bio, areas, photo_url, shops ( avg_rating, review_count )')
       .eq('is_public', true).eq('status', 'approved');
     if (error) throw error;
     cache.instructor = (data || []).map(normalizeInstructor);
@@ -300,7 +300,6 @@ async function renderOwners() {
   }
 
   container.innerHTML = filtered.map(o => {
-    const verified = o.is_verified ? `<span class="owner-badge"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>認証済み</span>` : '';
     const avatarHtml = o.photo
       ? `<img class="owner-avatar" src="${esc(o.photo)}" alt="${esc(o.name)}">`
       : `<div class="owner-avatar-ph">${esc((o.name || '?').charAt(0))}</div>`;
@@ -313,7 +312,6 @@ async function renderOwners() {
       <div class="owner-body">
         <div class="owner-name-row">
           <span class="owner-type">${esc(o.typeLabel)}</span>
-          ${verified}
         </div>
         <p class="owner-name">${esc(o.name)}</p>
         <div class="owner-meta">${areaHtml}${ratingHtml}</div>

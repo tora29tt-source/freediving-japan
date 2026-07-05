@@ -227,6 +227,14 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 - 実装（UI・同日追加）：`pro/index.html`（ショップロールでコース/空き枠/予約/問い合わせをショップ名義対応、`instructor_shops`統合）／`admin/index.html`（ショップ選択・フィルタ追加）／`explore/index.html`・`explore/listing.html`（商品一覧・詳細・予約カレンダー・決済がショップ名義商品にも対応、`normalizeOwner()`でinstructor/shop共通化）／`api/create-checkout-session.js`（`shopId`対応）
 - **未着手（フォローアップ）**：`shops` テーブルはまだソフトデリート対象外（物理削除のまま）／ショップ名義商品ページの「指導歴」等インストラクター由来ラベルの文言調整／実機での動作確認未実施
 
+### `shops.shop_type` 廃止（2026-07-05・secretary相談で確定）
+
+**背景**：`shops.shop_type`（individual / school / operator）はショップ作成・編集フォームで選択させていたが、どこの検索・フィルタ・バッジ表示にも使われておらず装飾的な項目だった。また個人／ショップの区分は pro/index.html の登録導線（`showCreateProfile('instructor' | 'shop')`）で既に明示的に分かれており、`shops` 側に「個人」を残す意味がない。「スクールで探す」等の検索軸も listings の intent（try/learn/dive）で実現済みのため、ショップ単位の type 分けは不要と判断。
+
+- `pro/index.html` のショップ作成モーダル・ショッププロフィール編集フォームから「ショップタイプ」選択欄を削除。insert/update ペイロードからも `shop_type` を除外
+- DB側の `shops.shop_type` カラム・CHECK制約（`individual`/`school`/`operator`）は既存データ保護のため**未変更**。今後どのコードからも参照されない想定
+- **未着手（フォローアップ）**：カラム自体の削除（マイグレーション）は現時点で不要と判断、必要になれば別途対応
+
 -----
 
 ### 論理削除（ソフトデリート）方針（2026-07-03導入）
