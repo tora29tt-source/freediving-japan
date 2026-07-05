@@ -478,6 +478,8 @@ window.addEventListener('beforeunload', e => {
 |---|---|---|
 | マイページ写真 | `{user_id}/mypage.{ext}` | `user_metadata.avatar_url` |
 | プロ写真 | `{user_id}/instructor.{ext}` | `instructors.photo_url` |
+| ショップロゴ | `{user_id}/shop-logo.{ext}` | `shops.logo_url` |
+| ショップカバー画像 | `{user_id}/shop-cover.{ext}` | `shops.cover_url` |
 
 RLSポリシー（`storage.objects`）：INSERT/UPDATE/DELETE は `auth.uid()::text = split_part(name, '/', 1)` で本人のみ。SELECT は public。
 

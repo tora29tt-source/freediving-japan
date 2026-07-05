@@ -432,32 +432,26 @@ td.primary { color: var(--on-dark); font-weight: 500; }
       </div>
     </div>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label>都道府県</label>
-        <input type="text" id="l-pref" placeholder="例：沖縄県">
-      </div>
-      <div class="form-group">
-        <label>エリア</label>
-        <select id="l-area" onchange="toggleAreaOther(this)">
-          <option value="">選択してください</option>
-          <option value="沖縄">沖縄</option>
-          <option value="石垣島">石垣島</option>
-          <option value="宮古島">宮古島</option>
-          <option value="西表島">西表島</option>
-          <option value="与那国島">与那国島</option>
-          <option value="久米島">久米島</option>
-          <option value="慶良間諸島">慶良間諸島</option>
-          <option value="奄美大島">奄美大島</option>
-          <option value="伊豆">伊豆</option>
-          <option value="東京">東京</option>
-          <option value="紀伊半島">紀伊半島</option>
-          <option value="瀬戸内">瀬戸内</option>
-          <option value="北海道">北海道</option>
-          <option value="__other__">その他（探すページのエリア検索対象外になります）</option>
-        </select>
-        <input type="text" id="l-area-other" placeholder="例：知床" style="margin-top:8px;display:none;">
-      </div>
+    <div class="form-group">
+      <label>エリア</label>
+      <select id="l-area" onchange="toggleAreaOther(this)">
+        <option value="">選択してください</option>
+        <option value="沖縄">沖縄</option>
+        <option value="石垣島">石垣島</option>
+        <option value="宮古島">宮古島</option>
+        <option value="西表島">西表島</option>
+        <option value="与那国島">与那国島</option>
+        <option value="久米島">久米島</option>
+        <option value="慶良間諸島">慶良間諸島</option>
+        <option value="奄美大島">奄美大島</option>
+        <option value="伊豆">伊豆</option>
+        <option value="東京">東京</option>
+        <option value="紀伊半島">紀伊半島</option>
+        <option value="瀬戸内">瀬戸内</option>
+        <option value="北海道">北海道</option>
+        <option value="__other__">その他（探すページのエリア検索対象外になります）</option>
+      </select>
+      <input type="text" id="l-area-other" placeholder="例：知床" style="margin-top:8px;display:none;">
     </div>
 
     <div class="form-row">
@@ -771,6 +765,8 @@ let myShopInstructors     = [];
 let editListingId         = null;
 let editSlotId            = null;
 let _newInstructorPhotoUrl = null; // アップロード済みの新しい写真URL
+let _newShopLogoUrl  = null; // アップロード済みの新しいロゴURL
+let _newShopCoverUrl = null; // アップロード済みの新しいカバー画像URL
 
 // ============================================================
 // Boot
@@ -1096,13 +1092,19 @@ function renderShopProfileForm() {
 
   document.getElementById('profile-form-wrap').innerHTML = `
     <div class="profile-hero">
-      <div class="profile-avatar">
-        ${s.logo_url ? `<img src="${escHtml(s.logo_url)}" alt="${escHtml(s.name)}">` : escHtml((s.name||'?').charAt(0))}
+      <div class="profile-avatar" onclick="document.getElementById('sp-logo-file').click()"
+        style="cursor:pointer;position:relative;" title="タップしてロゴを変更">
+        ${s.logo_url
+          ? `<img id="sp-logo-preview" src="${escHtml(s.logo_url)}" alt="${escHtml(s.name)}">`
+          : `<span id="sp-logo-preview">${escHtml((s.name||'?').charAt(0))}</span>`}
+        <div style="position:absolute;bottom:0;right:0;width:20px;height:20px;background:var(--teal);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;border:2px solid var(--ocean-mid);">📷</div>
       </div>
       <div class="profile-meta">
         <h2>${escHtml(s.name)}</h2>
+        <div id="sp-logo-status" style="font-size:11px;color:var(--teal);margin-top:4px;"></div>
       </div>
     </div>
+    <input type="file" id="sp-logo-file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="handleShopLogoFile(this)">
 
     <div class="form-section-title">基本情報</div>
     <div class="form-row">
@@ -1127,8 +1129,16 @@ function renderShopProfileForm() {
     </div>
 
     <div class="form-section-title">メディア・SNS</div>
-    <div class="form-group"><label>ロゴ画像URL</label><input type="url" id="sp-logo"  value="${escHtml(s.logo_url||'')}"      placeholder="https://..."></div>
-    <div class="form-group"><label>カバー画像URL</label><input type="url" id="sp-cover" value="${escHtml(s.cover_url||'')}"     placeholder="https://..."></div>
+    <div class="form-group">
+      <label>カバー画像</label>
+      <div id="sp-cover-preview-wrap" onclick="document.getElementById('sp-cover-file').click()" style="cursor:pointer;width:100%;height:120px;border-radius:8px;background:rgba(46,196,182,0.1);border:2px dashed rgba(46,196,182,0.3);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--teal);font-size:13px;">
+        ${s.cover_url
+          ? `<img id="sp-cover-preview" src="${escHtml(s.cover_url)}" alt="カバー画像" style="width:100%;height:100%;object-fit:cover;">`
+          : `<span id="sp-cover-preview">📷 タップして画像を選択</span>`}
+      </div>
+      <div id="sp-cover-status" style="font-size:11px;color:var(--teal);margin-top:4px;"></div>
+      <input type="file" id="sp-cover-file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="handleShopCoverFile(this)">
+    </div>
     <div class="form-group"><label>YouTube</label><input type="url" id="sp-yt" value="${escHtml(s.youtube_url||'')}" placeholder="https://youtube.com/..."></div>
 
     <div class="form-section-title">公開設定</div>
@@ -1148,8 +1158,8 @@ async function saveShopProfile() {
     bio:           document.getElementById('sp-bio').value.trim()    || null,
     areas:         collectAreaRows('sp-area-rows'),
     languages:     collectLanguages('sp'),
-    logo_url:      document.getElementById('sp-logo').value.trim()   || null,
-    cover_url:     document.getElementById('sp-cover').value.trim()  || null,
+    logo_url:      _newShopLogoUrl  || myShop.logo_url  || null,
+    cover_url:     _newShopCoverUrl || myShop.cover_url || null,
     youtube_url:   document.getElementById('sp-yt').value.trim()     || null,
     is_public:     document.getElementById('sp-public').checked,
     updated_at:    new Date().toISOString(),
@@ -1158,9 +1168,73 @@ async function saveShopProfile() {
   const { error } = await _sb.from('shops').update(payload).eq('id', myShop.id);
   if (error) { showToast('保存に失敗しました: ' + error.message, 'error'); return; }
   myShop = { ...myShop, ...payload };
+  _newShopLogoUrl  = null;
+  _newShopCoverUrl = null;
   _isDirty = false;
   showToast('プロフィールを保存しました', 'success');
   renderShopProfileForm();
+}
+
+async function handleShopLogoFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('5MB以下の画像を選択してください', 'error'); return;
+  }
+
+  const previewEl = document.getElementById('sp-logo-preview');
+  if (previewEl) {
+    previewEl.outerHTML = `<img id="sp-logo-preview" src="${URL.createObjectURL(file)}" style="width:64px;height:64px;object-fit:cover;">`;
+  }
+  const statusEl = document.getElementById('sp-logo-status');
+  if (statusEl) statusEl.textContent = 'アップロード中...';
+
+  const ext  = file.name.split('.').pop().toLowerCase();
+  const path = `${currentUser.id}/shop-logo.${ext}`;
+
+  const { error } = await _sb.storage.from('avatars').upload(path, file, { upsert: true });
+  if (error) {
+    const msg = error.message || JSON.stringify(error);
+    if (statusEl) statusEl.textContent = '失敗: ' + msg;
+    showToast('失敗: ' + msg, 'error');
+    console.error('Storage upload error:', error);
+    return;
+  }
+
+  const { data } = _sb.storage.from('avatars').getPublicUrl(path);
+  _newShopLogoUrl = data.publicUrl + '?t=' + Date.now();
+  if (statusEl) statusEl.textContent = '✓ アップロード完了';
+}
+
+async function handleShopCoverFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('5MB以下の画像を選択してください', 'error'); return;
+  }
+
+  const previewWrap = document.getElementById('sp-cover-preview-wrap');
+  if (previewWrap) {
+    previewWrap.innerHTML = `<img id="sp-cover-preview" src="${URL.createObjectURL(file)}" style="width:100%;height:100%;object-fit:cover;">`;
+  }
+  const statusEl = document.getElementById('sp-cover-status');
+  if (statusEl) statusEl.textContent = 'アップロード中...';
+
+  const ext  = file.name.split('.').pop().toLowerCase();
+  const path = `${currentUser.id}/shop-cover.${ext}`;
+
+  const { error } = await _sb.storage.from('avatars').upload(path, file, { upsert: true });
+  if (error) {
+    const msg = error.message || JSON.stringify(error);
+    if (statusEl) statusEl.textContent = '失敗: ' + msg;
+    showToast('失敗: ' + msg, 'error');
+    console.error('Storage upload error:', error);
+    return;
+  }
+
+  const { data } = _sb.storage.from('avatars').getPublicUrl(path);
+  _newShopCoverUrl = data.publicUrl + '?t=' + Date.now();
+  if (statusEl) statusEl.textContent = '✓ アップロード完了';
 }
 
 // ============================================================
@@ -1237,7 +1311,7 @@ function openListingModal(listingId = null) {
   editListingId = listingId;
   document.getElementById('listing-modal-title').textContent = listingId ? 'コースを編集' : 'コースを追加';
   document.getElementById('l-save-label').textContent        = listingId ? '更新する' : '保存する';
-  ['l-title','l-desc','l-pref','l-area','l-area-other','l-tags','l-image',
+  ['l-title','l-desc','l-area','l-area-other','l-tags','l-image',
    'l-price-inc','l-price-exc','l-duration','l-season','l-meeting',
    'l-deadline','l-cancel','l-bring','l-notes'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
@@ -1280,7 +1354,6 @@ function openListingModal(listingId = null) {
       document.getElementById('l-desc').value        = l.description || '';
       document.getElementById('l-category').value    = l.category    || 'フリーダイビング体験';
       document.getElementById('l-intent').value      = l.intent      || 'try';
-      document.getElementById('l-pref').value        = l.prefecture  || '';
       // エリア：既存の値が選択肢にあればそれを選択、無ければ「その他」＋自由入力欄に復元
       const areaSel = document.getElementById('l-area');
       const areaKnown = [...areaSel.options].some(o => o.value === (l.area || ''));
@@ -1354,7 +1427,6 @@ async function saveListing() {
     description:         document.getElementById('l-desc').value.trim()          || null,
     category:            document.getElementById('l-category').value,
     intent:              document.getElementById('l-intent').value,
-    prefecture:          document.getElementById('l-pref').value.trim()           || null,
     area:                (document.getElementById('l-area').value === '__other__'
                             ? document.getElementById('l-area-other').value.trim()
                             : document.getElementById('l-area').value)             || null,
