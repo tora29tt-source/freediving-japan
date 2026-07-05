@@ -226,6 +226,11 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 - 実装（DB）：`sql/shop_direct_listings_20260704.sql`（Supabase本番適用済み）
 - 実装（UI・同日追加）：`pro/index.html`（ショップロールでコース/空き枠/予約/問い合わせをショップ名義対応、`instructor_shops`統合）／`admin/index.html`（ショップ選択・フィルタ追加）／`explore/index.html`・`explore/listing.html`（商品一覧・詳細・予約カレンダー・決済がショップ名義商品にも対応、`normalizeOwner()`でinstructor/shop共通化）／`api/create-checkout-session.js`（`shopId`対応）
 - **未着手（フォローアップ）**：`shops` テーブルはまだソフトデリート対象外（物理削除のまま）／ショップ名義商品ページの「指導歴」等インストラクター由来ラベルの文言調整／実機での動作確認未実施
+- **2026-07-05追記**：`pro/index.html`の`applyShopOwnerFilter()`は当初`instructor_shops`（在籍インストラクター）のIDも管理対象に含めていたが、在籍インストラクターを追加しただけでその人個人の既存商品・予約・問い合わせまでショップの管理画面に出てきてしまう不具合につながったため、`shop_id = 自ショップ`のみに限定するよう修正。**在籍インストラクター（instructor_shops）は「プロフィール表示用のロースター」であり、商品・予約等の管理権限を拡張するものではない**という方針を明確化
+- **2026-07-05追記**：`shops`にカバー画像の表示位置調整機能を追加（`pro/index.html`のショップ編集画面・記事エディタの`ae-cover-pos`と同方式のドラッグ/矢印UI）。DB側に`shops.cover_position`カラム（TEXT、例`"50% 50%"`）が必要。**手動でSupabaseに以下を適用すること（未実施）**：
+  ```sql
+  ALTER TABLE shops ADD COLUMN IF NOT EXISTS cover_position TEXT DEFAULT '50% 50%';
+  ```
 
 ### `shops.shop_type` 廃止（2026-07-05・secretary相談で確定）
 

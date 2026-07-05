@@ -1205,11 +1205,38 @@ function renderShopProfileForm() {
       <label>カバー画像</label>
       <div id="sp-cover-preview-wrap" onclick="document.getElementById('sp-cover-file').click()" style="cursor:pointer;width:100%;height:120px;border-radius:8px;background:rgba(46,196,182,0.1);border:2px dashed rgba(46,196,182,0.3);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--teal);font-size:13px;">
         ${s.cover_url
-          ? `<img id="sp-cover-preview" src="${escHtml(s.cover_url)}" alt="カバー画像" style="width:100%;height:100%;object-fit:cover;">`
+          ? `<img id="sp-cover-preview" src="${escHtml(s.cover_url)}" alt="カバー画像" style="width:100%;height:100%;object-fit:cover;object-position:${escHtml(s.cover_position || '50% 50%')};">`
           : `<span id="sp-cover-preview">📷 タップして画像を選択</span>`}
       </div>
       <div id="sp-cover-status" style="font-size:11px;color:var(--teal);margin-top:4px;"></div>
       <input type="file" id="sp-cover-file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="handleShopCoverFile(this)">
+
+      <div id="sp-pos-wrap" style="display:${s.cover_url ? '' : 'none'};margin-top:8px;">
+        <div style="font-size:11px;color:var(--on-dark-soft);margin-bottom:6px;letter-spacing:0.08em;display:flex;align-items:center;gap:6px;">
+          表示位置の微調整
+          <span id="sp-pos-label" style="color:var(--teal);font-family:monospace;font-size:10px;">${escHtml(s.cover_position || '50% 50%')}</span>
+        </div>
+        <div id="sp-pos-preview" style="
+          width:100%;height:110px;border-radius:6px;overflow:hidden;
+          background-image:${s.cover_url ? `url('${escHtml(s.cover_url)}')` : 'none'};
+          background-size:cover;background-position:${escHtml(s.cover_position || '50% 50%')};
+          cursor:grab;position:relative;user-select:none;
+          border:1px solid var(--hairline);
+        ">
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
+            <div style="width:16px;height:16px;border:2px solid rgba(255,255,255,0.9);border-radius:50%;box-shadow:0 0 0 1px rgba(0,0,0,0.35),0 1px 5px rgba(0,0,0,0.6);"></div>
+          </div>
+          <div style="position:absolute;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.55);pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,0.8);">ドラッグ / スクロールで調整</div>
+        </div>
+        <div style="display:flex;justify-content:center;align-items:center;gap:4px;margin-top:6px;">
+          <button type="button" onclick="spMovePos(-5,0)" style="width:30px;height:28px;font-size:13px;border:1px solid var(--hairline);background:transparent;color:var(--on-dark-mid);border-radius:6px;cursor:pointer;line-height:1;">←</button>
+          <button type="button" onclick="spMovePos(0,-5)" style="width:30px;height:28px;font-size:13px;border:1px solid var(--hairline);background:transparent;color:var(--on-dark-mid);border-radius:6px;cursor:pointer;line-height:1;">↑</button>
+          <button type="button" onclick="spResetPos()"    style="width:30px;height:28px;font-size:11px;border:1px solid var(--hairline);background:transparent;color:var(--on-dark-mid);border-radius:6px;cursor:pointer;line-height:1;">⊙</button>
+          <button type="button" onclick="spMovePos(0,5)"  style="width:30px;height:28px;font-size:13px;border:1px solid var(--hairline);background:transparent;color:var(--on-dark-mid);border-radius:6px;cursor:pointer;line-height:1;">↓</button>
+          <button type="button" onclick="spMovePos(5,0)"  style="width:30px;height:28px;font-size:13px;border:1px solid var(--hairline);background:transparent;color:var(--on-dark-mid);border-radius:6px;cursor:pointer;line-height:1;">→</button>
+        </div>
+      </div>
+      <input type="hidden" id="sp-cover-pos" value="${escHtml(s.cover_position || '50% 50%')}">
     </div>
     <div class="form-group"><label>YouTube</label><input type="url" id="sp-yt" value="${escHtml(s.youtube_url||'')}" placeholder="https://youtube.com/..."></div>
 
@@ -1223,6 +1250,7 @@ function renderShopProfileForm() {
     <div class="save-row"><button class="btn-primary" onclick="saveShopProfile()">プロフィールを保存</button></div>
   `;
   renderShopRosterList();
+  spInitPosDrag();
 }
 
 function renderShopRosterList() {
@@ -1298,6 +1326,7 @@ async function saveShopProfile() {
     languages:     collectLanguages('sp'),
     logo_url:      _newShopLogoUrl  || myShop.logo_url  || null,
     cover_url:     _newShopCoverUrl || myShop.cover_url || null,
+    cover_position: document.getElementById('sp-cover-pos')?.value || '50% 50%',
     youtube_url:   document.getElementById('sp-yt').value.trim()     || null,
     is_public:     document.getElementById('sp-public').checked,
     updated_at:    new Date().toISOString(),
@@ -1351,12 +1380,23 @@ async function handleShopCoverFile(input) {
     showToast('5MB以下の画像を選択してください', 'error'); return;
   }
 
+  const objectUrl = URL.createObjectURL(file);
   const previewWrap = document.getElementById('sp-cover-preview-wrap');
   if (previewWrap) {
-    previewWrap.innerHTML = `<img id="sp-cover-preview" src="${URL.createObjectURL(file)}" style="width:100%;height:100%;object-fit:cover;">`;
+    previewWrap.innerHTML = `<img id="sp-cover-preview" src="${objectUrl}" style="width:100%;height:100%;object-fit:cover;object-position:50% 50%;">`;
   }
   const statusEl = document.getElementById('sp-cover-status');
   if (statusEl) statusEl.textContent = 'アップロード中...';
+
+  // 新しい画像に差し替えたので表示位置は中央にリセットし、位置調整UIを更新
+  document.getElementById('sp-cover-pos').value = '50% 50%';
+  const posWrap = document.getElementById('sp-pos-wrap');
+  const posPrev = document.getElementById('sp-pos-preview');
+  if (posWrap) posWrap.style.display = '';
+  if (posPrev) { posPrev.style.backgroundImage = `url('${objectUrl}')`; posPrev.style.backgroundPosition = '50% 50%'; }
+  const posLabel = document.getElementById('sp-pos-label');
+  if (posLabel) posLabel.textContent = '50% 50%';
+  spInitPosDrag();
 
   const ext  = file.name.split('.').pop().toLowerCase();
   const path = `${currentUser.id}/shop-cover.${ext}`;
@@ -1375,16 +1415,86 @@ async function handleShopCoverFile(input) {
   if (statusEl) statusEl.textContent = '✓ アップロード完了';
 }
 
+// ── カバー画像の表示位置調整（admin/index.html の記事カバー位置調整と同じ方式） ──
+function spParsePosXY() {
+  const val = (document.getElementById('sp-cover-pos')?.value || '50% 50%').trim();
+  const m = val.match(/(\d+(?:\.\d+)?)%\s*(\d+(?:\.\d+)?)%/);
+  return m ? [parseFloat(m[1]), parseFloat(m[2])] : [50, 50];
+}
+
+function spApplyPosXY(x, y) {
+  x = Math.max(0, Math.min(100, Math.round(x)));
+  y = Math.max(0, Math.min(100, Math.round(y)));
+  const pos = `${x}% ${y}%`;
+  const posInput = document.getElementById('sp-cover-pos');
+  if (posInput) posInput.value = pos;
+  const label = document.getElementById('sp-pos-label');
+  if (label) label.textContent = pos;
+  const prev = document.getElementById('sp-pos-preview');
+  if (prev) prev.style.backgroundPosition = pos;
+  const img = document.getElementById('sp-cover-preview');
+  if (img && img.tagName === 'IMG') img.style.objectPosition = pos;
+}
+
+function spMovePos(dx, dy) {
+  const [x, y] = spParsePosXY();
+  spApplyPosXY(x + dx, y + dy);
+}
+
+function spResetPos() { spApplyPosXY(50, 50); }
+
+function spInitPosDrag() {
+  const prev = document.getElementById('sp-pos-preview');
+  if (!prev || prev._dragReady) return;
+  prev._dragReady = true;
+
+  let dragging = false, sx, sy, spx, spy;
+
+  prev.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    dragging = true;
+    sx = e.clientX; sy = e.clientY;
+    [spx, spy] = spParsePosXY();
+    prev.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    spApplyPosXY(spx + (e.clientX - sx) * 0.25, spy + (e.clientY - sy) * 0.25);
+  });
+  document.addEventListener('mouseup', () => {
+    if (dragging) { dragging = false; prev.style.cursor = 'grab'; }
+  });
+
+  prev.addEventListener('wheel', e => {
+    e.preventDefault();
+    const [x, y] = spParsePosXY();
+    spApplyPosXY(x, y + (e.deltaY > 0 ? 3 : -3));
+  }, { passive: false });
+
+  prev.addEventListener('touchstart', e => {
+    const t = e.touches[0];
+    dragging = true; sx = t.clientX; sy = t.clientY;
+    [spx, spy] = spParsePosXY();
+    e.preventDefault();
+  }, { passive: false });
+  document.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const t = e.touches[0];
+    spApplyPosXY(spx + (t.clientX - sx) * 0.25, spy + (t.clientY - sy) * 0.25);
+  });
+  document.addEventListener('touchend', () => { dragging = false; });
+}
+
 // ============================================================
 // ショップ用フィルタヘルパー
 // ショップ名義（instructor_id が null で shop_id のみ）の行と、
 // 所属インストラクター名義の行の両方を対象にする
 // ============================================================
-function applyShopOwnerFilter(query, column = 'instructor_id') {
-  const ids = myShopInstructors.map(i => i.id);
-  if (ids.length) {
-    return query.or(`shop_id.eq.${myShop.id},${column}.in.(${ids.join(',')})`);
-  }
+// ショップの管理対象は「shop_id が自分のショップの行」のみに限定する。
+// 在籍インストラクター（instructor_shops）はプロフィール表示用のロースターであり、
+// 追加したインストラクター個人の商品・予約・問い合わせまで管理対象に含めるものではない。
+function applyShopOwnerFilter(query) {
   return query.eq('shop_id', myShop.id);
 }
 
