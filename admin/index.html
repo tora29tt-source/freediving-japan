@@ -1209,9 +1209,65 @@ td.name { color: var(--on-dark); font-weight: 500; }
     </div>
 
     <div class="form-group">
-      <label>エリア</label>
-      <select id="listing-area" onchange="toggleListingAreaOther(this)">
+      <label>都道府県</label>
+      <select id="listing-pref" onchange="toggleListingPrefOther(this)">
         <option value="">選択してください</option>
+        <option value="北海道">北海道</option>
+        <option value="青森県">青森県</option>
+        <option value="岩手県">岩手県</option>
+        <option value="宮城県">宮城県</option>
+        <option value="秋田県">秋田県</option>
+        <option value="山形県">山形県</option>
+        <option value="福島県">福島県</option>
+        <option value="茨城県">茨城県</option>
+        <option value="栃木県">栃木県</option>
+        <option value="群馬県">群馬県</option>
+        <option value="埼玉県">埼玉県</option>
+        <option value="千葉県">千葉県</option>
+        <option value="東京都">東京都</option>
+        <option value="神奈川県">神奈川県</option>
+        <option value="新潟県">新潟県</option>
+        <option value="富山県">富山県</option>
+        <option value="石川県">石川県</option>
+        <option value="福井県">福井県</option>
+        <option value="山梨県">山梨県</option>
+        <option value="長野県">長野県</option>
+        <option value="岐阜県">岐阜県</option>
+        <option value="静岡県">静岡県</option>
+        <option value="愛知県">愛知県</option>
+        <option value="三重県">三重県</option>
+        <option value="滋賀県">滋賀県</option>
+        <option value="京都府">京都府</option>
+        <option value="大阪府">大阪府</option>
+        <option value="兵庫県">兵庫県</option>
+        <option value="奈良県">奈良県</option>
+        <option value="和歌山県">和歌山県</option>
+        <option value="鳥取県">鳥取県</option>
+        <option value="島根県">島根県</option>
+        <option value="岡山県">岡山県</option>
+        <option value="広島県">広島県</option>
+        <option value="山口県">山口県</option>
+        <option value="徳島県">徳島県</option>
+        <option value="香川県">香川県</option>
+        <option value="愛媛県">愛媛県</option>
+        <option value="高知県">高知県</option>
+        <option value="福岡県">福岡県</option>
+        <option value="佐賀県">佐賀県</option>
+        <option value="長崎県">長崎県</option>
+        <option value="熊本県">熊本県</option>
+        <option value="大分県">大分県</option>
+        <option value="宮崎県">宮崎県</option>
+        <option value="鹿児島県">鹿児島県</option>
+        <option value="沖縄県">沖縄県</option>
+        <option value="海外">海外</option>
+      </select>
+      <input type="text" id="listing-pref-other" placeholder="例：パラオ" style="margin-top:8px;display:none;">
+    </div>
+
+    <div class="form-group">
+      <label>人気スポット（任意）</label>
+      <select id="listing-area" onchange="toggleListingAreaOther(this)">
+        <option value="">なし（都道府県のみで検索対象になります）</option>
         <option value="沖縄">沖縄</option>
         <option value="石垣島">石垣島</option>
         <option value="宮古島">宮古島</option>
@@ -1226,7 +1282,7 @@ td.name { color: var(--on-dark); font-weight: 500; }
         <option value="紀伊半島">紀伊半島</option>
         <option value="瀬戸内">瀬戸内</option>
         <option value="北海道">北海道</option>
-        <option value="__other__">その他（探すページのエリア検索対象外になります）</option>
+        <option value="__other__">その他（探すページの人気スポットチップ対象外になります）</option>
       </select>
       <input type="text" id="listing-area-other" placeholder="例：恩納村" style="margin-top:8px;display:none;">
     </div>
@@ -2042,6 +2098,10 @@ function toggleListingAreaOther(sel) {
   document.getElementById('listing-area-other').style.display = sel.value === '__other__' ? '' : 'none';
 }
 
+function toggleListingPrefOther(sel) {
+  document.getElementById('listing-pref-other').style.display = sel.value === '海外' ? '' : 'none';
+}
+
 async function saveInstructor() {
   const name = document.getElementById('inst-name').value.trim();
   if (!name) { showToast('名前は必須です', 'error'); return; }
@@ -2124,7 +2184,7 @@ async function loadListings() {
             <th>タイトル</th>
             <th>インストラクター</th>
             <th>カテゴリ</th>
-            <th>エリア</th>
+            <th>都道府県</th>
             <th>価格</th>
             <th>公開</th>
             <th>操作</th>
@@ -2137,7 +2197,7 @@ async function loadListings() {
               <td class="name" style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(l.title)}</td>
               <td>${escHtml(l.instructors?.name || (l.shops?.name ? l.shops.name + '（ショップ）' : '—'))}</td>
               <td><span class="badge badge-${l.intent === 'try' ? 'pending' : l.intent === 'learn' ? 'paid' : 'confirmed'}">${intentLabel[l.intent] || l.intent}</span></td>
-              <td>${escHtml(l.area || '—')}</td>
+              <td>${escHtml(l.prefecture || '—')}${l.area ? `<br><span style="font-size:11px;color:var(--on-dark-soft);">${escHtml(l.area)}</span>` : ''}</td>
               <td>${l.price ? '¥' + l.price.toLocaleString() : '—'}</td>
               <td>${l.is_public ? '<span class="badge badge-active">公開</span>' : '<span class="badge badge-inactive">非公開</span>'}</td>
               <td>
@@ -2170,9 +2230,10 @@ function openListingModal(listingId = null) {
   });
 
   // リセット
-  ['listing-title','listing-description','listing-category','listing-area','listing-area-other','listing-tags'].forEach(id => {
+  ['listing-title','listing-description','listing-category','listing-pref','listing-pref-other','listing-area','listing-area-other','listing-tags'].forEach(id => {
     document.getElementById(id).value = '';
   });
+  document.getElementById('listing-pref-other').style.display = 'none';
   document.getElementById('listing-area-other').style.display = 'none';
   document.getElementById('listing-intent').value      = 'try';
   document.getElementById('listing-price').value       = '';
@@ -2190,6 +2251,18 @@ function openListingModal(listingId = null) {
       document.getElementById('listing-description').value = d.description || '';
       document.getElementById('listing-category').value    = d.category || '';
       document.getElementById('listing-intent').value      = d.intent || 'try';
+      // 都道府県：47都道府県+海外に無い値（旧・自由入力時代のデータ）は「海外」＋自由入力欄に復元
+      const prefSel = document.getElementById('listing-pref');
+      const prefKnown = [...prefSel.options].some(o => o.value === (d.prefecture || ''));
+      if (d.prefecture && !prefKnown) {
+        prefSel.value = '海外';
+        document.getElementById('listing-pref-other').value = d.prefecture;
+        document.getElementById('listing-pref-other').style.display = '';
+      } else {
+        prefSel.value = d.prefecture || '';
+        document.getElementById('listing-pref-other').style.display = prefSel.value === '海外' ? '' : 'none';
+        if (prefSel.value === '海外') document.getElementById('listing-pref-other').value = d.country || '';
+      }
       // エリア：既存の値が選択肢にあればそれを選択、無ければ「その他」＋自由入力欄に復元
       const areaSel = document.getElementById('listing-area');
       const areaKnown = [...areaSel.options].some(o => o.value === (d.area || ''));
@@ -2230,6 +2303,10 @@ async function saveListing() {
     description:  document.getElementById('listing-description').value.trim() || null,
     category:     document.getElementById('listing-category').value.trim() || null,
     intent:       document.getElementById('listing-intent').value,
+    prefecture:   document.getElementById('listing-pref').value               || null,
+    country:      document.getElementById('listing-pref').value === '海外'
+                     ? (document.getElementById('listing-pref-other').value.trim() || null)
+                     : null,
     area:         (document.getElementById('listing-area').value === '__other__'
                       ? document.getElementById('listing-area-other').value.trim()
                       : document.getElementById('listing-area').value)         || null,

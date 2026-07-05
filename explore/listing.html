@@ -353,7 +353,7 @@ function normalizeOwner(raw, type) {
     };
   }
   return {
-    type, id: raw.id, name: raw.name, photo: raw.logo_url,
+    type, id: raw.id, name: raw.name, photo: raw.logo_url, cover_url: raw.cover_url,
     is_verified: raw.is_verified, prefecture: raw.prefecture, city: raw.city,
     areas: raw.areas || [], bio: raw.bio,
     certifications: [], specialties: [],
@@ -432,11 +432,14 @@ function renderPage(owner, listing, otherListings, reviews = []) {
   const badgeClass = { try: 'badge-try', learn: 'badge-learn', dive: 'badge-dive' };
   const badgeLabel = { try: '体験', learn: '資格', dive: 'ダイブ' };
 
-  // gallery（メイン画像 + gallery_urls を合成）
+  // gallery（メイン画像 + gallery_urls を合成。リスティング側に画像が無い場合はショップのカバー画像にフォールバック）
   const allImages = [
     ...(listing?.image_url ? [listing.image_url] : []),
     ...(listing?.gallery_urls || []),
   ];
+  if (allImages.length === 0 && inst?.cover_url) {
+    allImages.push(inst.cover_url);
+  }
   const galleryHtml = allImages.length > 0
     ? allImages.map((url, i) => `<img src="${esc(url)}" alt="${esc(listing?.title || '')}${i > 0 ? ' ' + (i + 1) : ''}"${i > 0 ? ' style="display:none;"' : ''} class="gallery-img" data-idx="${i}">`).join('') +
       (allImages.length > 1 ? `<div class="gallery-dots">${allImages.map((_, i) => `<span class="gallery-dot${i === 0 ? ' active' : ''}" data-idx="${i}"></span>`).join('')}</div>` : '')
