@@ -27,22 +27,22 @@ body { min-height: 100vh; }
 .back-btn:hover { color: var(--ink); }
 .back-btn .icon { width: 16px; height: 16px; }
 
-/* gallery */
+/* gallery（カバー画像は1枚のみ・カルーセル無し） */
 .gallery { position: relative; width: 100%; height: 260px; overflow: hidden; background: #eee; }
 .gallery img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
 .gallery-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--ink-soft); background: #f0f0f2; }
 .gallery-grad { position: absolute; bottom: 0; left: 0; right: 0; height: 80px; background: linear-gradient(transparent, rgba(0,0,0,0.55)); pointer-events: none; }
-.gallery-dots { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; z-index: 2; }
-.gallery-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.5); cursor: pointer; transition: background 0.2s; }
-.gallery-dot.active { background: #fff; }
-.gallery-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 50%; background: rgba(10,20,24,0.4); border: none; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 3; padding: 0; }
-.gallery-arrow:hover { background: rgba(10,20,24,0.6); }
-.gallery-arrow-prev { left: 12px; }
-.gallery-arrow-next { right: 12px; }
 
-/* 写真セクション（カバーとは別に、商品写真を切らずに全体表示する） */
-.photo-gallery { display: flex; flex-direction: column; gap: 12px; }
-.photo-gallery img { width: 100%; height: auto; display: block; border-radius: 14px; border: 1px solid var(--line); }
+/* 写真カルーセル（カバー以外の商品写真をスワイプ／矢印で閲覧。切らずに全体表示） */
+.photo-carousel { position: relative; width: 100%; aspect-ratio: 4 / 3; border-radius: 14px; overflow: hidden; background: #f0f0f2; border: 1px solid var(--line); }
+.photo-carousel img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; background: #f0f0f2; }
+.photo-carousel-dots { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; z-index: 2; }
+.photo-carousel-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(20,20,26,0.2); cursor: pointer; transition: background 0.2s; }
+.photo-carousel-dot.active { background: var(--teal-deep); }
+.photo-carousel-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 50%; background: rgba(10,20,24,0.45); border: none; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 3; padding: 0; }
+.photo-carousel-arrow:hover { background: rgba(10,20,24,0.65); }
+.photo-carousel-arrow-prev { left: 12px; }
+.photo-carousel-arrow-next { right: 12px; }
 
 /* main */
 .main { max-width: 640px; margin: 0 auto; padding: 0 16px 100px; }
@@ -397,27 +397,24 @@ async function initPage() {
 function renderPage(owner, listing, otherListings, reviews = []) {
   const inst = owner; // 以下の描画テンプレートはinstructor/shop共通の正規化済みownerオブジェクトを使う
 
-  // gallery（メイン画像 + gallery_urls を合成。リスティング側に画像が無い場合はショップのカバー画像にフォールバック）
-  const allImages = [
-    ...(listing?.image_url ? [listing.image_url] : []),
-    ...(listing?.gallery_urls || []),
-  ];
-  if (allImages.length === 0 && inst?.cover_url) {
-    allImages.push(inst.cover_url);
-  }
-  const galleryHtml = allImages.length > 0
-    ? allImages.map((url, i) => `<img src="${esc(url)}" alt="${esc(listing?.title || '')}${i > 0 ? ' ' + (i + 1) : ''}"${i > 0 ? ' style="display:none;"' : ''} class="gallery-img" data-idx="${i}">`).join('') +
-      (allImages.length > 1 ? `
-        <button type="button" class="gallery-arrow gallery-arrow-prev" aria-label="前の画像"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
-        <button type="button" class="gallery-arrow gallery-arrow-next" aria-label="次の画像"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
-        <div class="gallery-dots">${allImages.map((_, i) => `<span class="gallery-dot${i === 0 ? ' active' : ''}" data-idx="${i}"></span>`).join('')}</div>` : '')
+  // カバー画像（1枚のみ・カルーセル無し。リスティング側に画像が無い場合はショップのカバー画像にフォールバック）
+  const coverImage = listing?.image_url || inst?.cover_url || null;
+  const galleryHtml = coverImage
+    ? `<img src="${esc(coverImage)}" alt="${esc(listing?.title || '')}">`
     : `<div class="gallery-placeholder"><svg style="width:48px;height:48px;stroke:currentColor;fill:none;stroke-width:1.2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>`;
 
-  // 写真セクション（カバー画像とは別に、全ての商品写真を切らずに全体表示する）
-  const photoSectionHtml = allImages.length > 1
+  // 写真カルーセル（カバー以外の商品写真をスワイプ／矢印で閲覧。切らずに全体表示）
+  const extraImages = listing?.gallery_urls || [];
+  const photoSectionHtml = extraImages.length > 0
     ? `<div class="section">
         <p class="section-title">写真</p>
-        <div class="photo-gallery">${allImages.map((url, i) => `<img src="${esc(url)}" alt="${esc(listing?.title || '')} ${i + 1}" loading="lazy">`).join('')}</div>
+        <div class="photo-carousel" id="photoCarousel">
+          ${extraImages.map((url, i) => `<img src="${esc(url)}" alt="${esc(listing?.title || '')} ${i + 2}" class="photo-carousel-img" data-idx="${i}"${i > 0 ? ' style="display:none;"' : ''}>`).join('')}
+          ${extraImages.length > 1 ? `
+            <button type="button" class="photo-carousel-arrow photo-carousel-arrow-prev" aria-label="前の写真"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+            <button type="button" class="photo-carousel-arrow photo-carousel-arrow-next" aria-label="次の写真"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+            <div class="photo-carousel-dots">${extraImages.map((_, i) => `<span class="photo-carousel-dot${i === 0 ? ' active' : ''}" data-idx="${i}"></span>`).join('')}</div>` : ''}
+        </div>
       </div>`
     : '';
 
@@ -672,8 +669,9 @@ let _selectedSlot = null;
 let _paxCount = 1;
 
 function initGallery() {
-  const imgs = document.querySelectorAll('.gallery-img');
-  const dots = document.querySelectorAll('.gallery-dot');
+  // 写真カルーセル（カバー以外の商品写真をスワイプ／矢印で閲覧）
+  const imgs = document.querySelectorAll('.photo-carousel-img');
+  const dots = document.querySelectorAll('.photo-carousel-dot');
   if (imgs.length <= 1) return;
   let current = 0;
   function showImg(idx) {
@@ -683,16 +681,16 @@ function initGallery() {
   }
   dots.forEach((dot, i) => { dot.addEventListener('click', () => showImg(i)); });
   // 前へ・次へ矢印（クリック/タップで進める）
-  const prevBtn = document.querySelector('.gallery-arrow-prev');
-  const nextBtn = document.querySelector('.gallery-arrow-next');
+  const prevBtn = document.querySelector('.photo-carousel-arrow-prev');
+  const nextBtn = document.querySelector('.photo-carousel-arrow-next');
   if (prevBtn) prevBtn.addEventListener('click', () => showImg((current - 1 + imgs.length) % imgs.length));
   if (nextBtn) nextBtn.addEventListener('click', () => showImg((current + 1) % imgs.length));
   // タッチスワイプ
-  const gallery = document.querySelector('.gallery');
-  if (gallery) {
+  const carousel = document.querySelector('.photo-carousel');
+  if (carousel) {
     let startX = 0;
-    gallery.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
-    gallery.addEventListener('touchend', e => {
+    carousel.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+    carousel.addEventListener('touchend', e => {
       const dx = e.changedTouches[0].clientX - startX;
       if (Math.abs(dx) > 40) showImg((current + (dx < 0 ? 1 : -1) + imgs.length) % imgs.length);
     }, { passive: true });
