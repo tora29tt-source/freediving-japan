@@ -227,6 +227,7 @@ function normalizeInstructor(raw) {
     linkQuery: `id=${esc(raw.id)}`,
   };
 }
+// ショップ/インストラクターのプロフィールは profile.html（商品詳細は listing.html）
 
 async function loadOwners(type) {
   if (cache[type]) return cache[type];
@@ -307,7 +308,7 @@ async function renderOwners() {
       ? `<span class="meta-item" style="color:var(--warm)">★ ${parseFloat(o.avg_rating).toFixed(1)}<span style="color:var(--ink-soft);margin-left:2px">(${esc(o.review_count || 0)})</span></span>`
       : '';
     const areaHtml = (o.areas || []).slice(0, 2).map(a => `<span class="meta-item"><svg class="icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${esc(a)}</span>`).join('');
-    return `<a class="owner-card" href="listing.html?${o.linkQuery}">
+    return `<a class="owner-card" href="profile.html?${o.linkQuery}">
       ${avatarHtml}
       <div class="owner-body">
         <div class="owner-name-row">
