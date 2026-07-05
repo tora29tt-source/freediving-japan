@@ -905,9 +905,20 @@ function openBookingForm() {
       const block = document.createElement('div');
       block.style.cssText = 'margin-bottom:12px;padding:12px;background:#f7f7f8;border:1px solid var(--hairline);border-radius:10px;';
       block.innerHTML = `<p style="font-size:12px;font-weight:600;color:var(--on-dark-mid);margin-bottom:8px;">参加者 ${p}</p>
-        ${rentalGear.map(g => `
+        ${rentalGear.map(g => {
+          const priceLabel = g.price > 0 ? ` <span style="color:var(--teal-light);font-size:11px;">¥${g.price.toLocaleString()}</span>` : ' <span style="color:var(--teal-light);font-size:11px;">無料</span>';
+          if (g.needsSize === false) {
+            return `
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-            <span style="font-size:13px;color:var(--on-dark-soft);flex:1;">${g.name}${g.price > 0 ? ` <span style="color:var(--teal-light);font-size:11px;">¥${g.price.toLocaleString()}</span>` : ' <span style="color:var(--teal-light);font-size:11px;">無料</span>'}</span>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--on-dark-soft);flex:1;cursor:pointer;">
+              <input type="checkbox" class="bform-input" data-pax="${p}" data-gear="${g.name}" data-nosize="1">
+              ${g.name}${priceLabel}
+            </label>
+          </div>`;
+          }
+          return `
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span style="font-size:13px;color:var(--on-dark-soft);flex:1;">${g.name}${priceLabel}</span>
             <select class="bform-input" data-pax="${p}" data-gear="${g.name}" style="flex:0 0 auto;width:auto;padding:6px 10px;font-size:13px;">
               <option value="">不要</option>
               <option value="XS">XS</option>
@@ -918,7 +929,8 @@ function openBookingForm() {
               <option value="XXL">XXL</option>
               <option value="その他">その他</option>
             </select>
-          </div>`).join('')}`;
+          </div>`;
+        }).join('')}`;
       rentalRows.appendChild(block);
     }
     rentalSection.style.display = '';
@@ -948,13 +960,19 @@ async function proceedToCheckout() {
   btn.textContent = '処理中...';
 
   // レンタル機材サイズを収集
-  const rentalSelects = document.querySelectorAll('#bf-rental-rows [data-pax]');
+  const rentalInputs = document.querySelectorAll('#bf-rental-rows [data-pax]');
   const rentalMap = {};
-  rentalSelects.forEach(sel => {
-    if (!sel.value) return;
-    const pax = sel.dataset.pax;
+  rentalInputs.forEach(el => {
+    const pax = el.dataset.pax;
+    if (el.dataset.nosize) {
+      if (!el.checked) return;
+      if (!rentalMap[pax]) rentalMap[pax] = [];
+      rentalMap[pax].push({ gear: el.dataset.gear, size: null });
+      return;
+    }
+    if (!el.value) return;
     if (!rentalMap[pax]) rentalMap[pax] = [];
-    rentalMap[pax].push({ gear: sel.dataset.gear, size: sel.value });
+    rentalMap[pax].push({ gear: el.dataset.gear, size: el.value });
   });
   const rentalRequests = Object.entries(rentalMap).map(([p, items]) => ({
     participant: parseInt(p), items,

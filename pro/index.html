@@ -1657,7 +1657,7 @@ function openListingModal(listingId = null) {
       (l.facilities || []).forEach(v => { const cb = document.querySelector(`#l-facilities input[value="${v}"]`); if (cb) cb.checked = true; });
       // レンタル機材行を復元
       document.getElementById('l-rental-rows').innerHTML = '';
-      (l.rental_gear || []).forEach(item => addRentalRow(item.name, item.price));
+      (l.rental_gear || []).forEach(item => addRentalRow(item.name, item.price, item.needsSize !== false));
       // ギャラリー画像を復元
       document.getElementById('l-gallery-rows').innerHTML = '';
       (l.gallery_urls || []).forEach(url => addGalleryRow(url));
@@ -2163,7 +2163,7 @@ function collectChecked(containerId) {
   ).map(el => el.value);
 }
 
-function addRentalRow(name = '', price = '') {
+function addRentalRow(name = '', price = '', needsSize = true) {
   const container = document.getElementById('l-rental-rows');
   const row = document.createElement('div');
   row.style.cssText = 'display:flex;gap:8px;align-items:center;';
@@ -2171,6 +2171,9 @@ function addRentalRow(name = '', price = '') {
     <input type="text"   class="rental-name"  placeholder="機材名（例：ウェットスーツ）" value="${escHtml(String(name))}"  style="flex:2;padding:8px 10px;background:var(--ocean-deep);border:1px solid var(--hairline);border-radius:6px;color:var(--on-dark);font-size:14px;">
     <input type="number" class="rental-price" placeholder="料金（円）"                  value="${price !== '' ? price : ''}" style="flex:1;padding:8px 10px;background:var(--ocean-deep);border:1px solid var(--hairline);border-radius:6px;color:var(--on-dark);font-size:14px;" min="0">
     <span style="color:var(--on-dark-soft);font-size:13px;white-space:nowrap;">円/回</span>
+    <label style="display:flex;align-items:center;gap:4px;color:var(--on-dark-soft);font-size:12px;white-space:nowrap;">
+      <input type="checkbox" class="rental-needs-size" ${needsSize ? 'checked' : ''}> サイズ選択あり
+    </label>
     <button type="button" onclick="this.closest('div').remove()" style="background:none;border:none;color:var(--on-dark-soft);cursor:pointer;font-size:18px;line-height:1;padding:4px;">×</button>
   `;
   container.appendChild(row);
@@ -2178,8 +2181,9 @@ function addRentalRow(name = '', price = '') {
 
 function collectRentalGear() {
   return Array.from(document.querySelectorAll('#l-rental-rows > div')).map(row => ({
-    name:  row.querySelector('.rental-name').value.trim(),
-    price: parseInt(row.querySelector('.rental-price').value) || 0,
+    name:      row.querySelector('.rental-name').value.trim(),
+    price:     parseInt(row.querySelector('.rental-price').value) || 0,
+    needsSize: row.querySelector('.rental-needs-size').checked,
   })).filter(item => item.name);
 }
 
