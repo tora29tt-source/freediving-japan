@@ -1,6 +1,6 @@
 # DB スキーマ設計書 — Freediving Japan
 
-> 最終更新：2026-06-28 | DB: Supabase / PostgreSQL（Project: bbhqvbpsuccbdcnhnobm / Tokyo）
+> 最終更新：2026-07-04 | DB: Supabase / PostgreSQL（Project: bbhqvbpsuccbdcnhnobm / Tokyo）
 
 ---
 
@@ -12,15 +12,19 @@
 | `user_roles` | サイト管理者ロール管理 | ✅ |
 | `instructors` | インストラクターマスタ | ✅ |
 | `shops` | ショップマスタ | ✅ |
-| `listings` | 体験・コース | ✅ |
-| `availability_slots` | 空き枠 | ✅ |
-| `bookings` | 予約 | ✅ |
-| `reviews` | レビュー | ✅ |
+| `instructor_shops` | インストラクター所属（N:M・2026-07-04〜） | ✅ |
+| `listings` | 体験・コース（instructor_id / shop_id いずれか必須） | ✅ |
+| `availability_slots` | 空き枠（instructor_id / shop_id いずれか必須） | ✅ |
+| `bookings` | 予約（instructor_id / shop_id いずれか必須） | ✅ |
+| `inquiries` | 問い合わせ（instructor_id / shop_id いずれか必須） | ✅ |
+| `reviews` | レビュー（instructor_id / shop_id いずれか必須） | ✅ |
 | `training_sessions` | トレーニングセッション | ✅ |
 | `training_dives` | ダイブ記録 | ✅ |
 | `events` | 大会・イベント | ✅ |
 | `event_entries` | 大会エントリー（AP登録） | ✅ |
 | `event_staff` | 大会スタッフ | ✅ |
+
+> **2026-07-04 変更点：** ショップは担当インストラクター未定でも単体で商品を出品できるようになった。インストラクターは複数ショップに同時所属できる（N:M、季節ラベルなし）。詳細は [[project_shop_instructor_model_20260704]]（メモリ）および `sql/shop_direct_listings_20260704.sql` を参照。
 
 ---
 
@@ -105,6 +109,25 @@ CREATE TABLE instructors (
 );
 ```
 
+> `shop_id` は旧来の「単一所属」用カラム（残置・併用可）。2026-07-04 以降、複数同時所属は下記 `instructor_shops` で管理する。
+
+---
+
+### instructor_shops（2026-07-04〜・N:M 所属）
+
+```sql
+CREATE TABLE instructor_shops (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  instructor_id UUID NOT NULL REFERENCES instructors(id) ON DELETE CASCADE,
+  shop_id       UUID NOT NULL REFERENCES shops(id) ON DELETE CASCADE,
+  created_at    TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE (instructor_id, shop_id)
+);
+```
+
+- インストラクター1人が複数ショップに同時所属できる（例：夏はショップA、冬はショップBで同時に有効）。季節・期間ラベルは持たず、フラットな所属一覧。
+- SELECT は全員に公開（ショップ側の「所属インストラクター」表示に使用）。INSERT/DELETE はショップオーナー本人・インストラクター本人・管理者のみ。
+
 ---
 
 ### shops
@@ -131,10 +154,13 @@ CREATE TABLE shops (
 
 ### listings
 
+> `instructor_id` は nullable。`shop_id` を追加し `CHECK (instructor_id IS NOT NULL OR shop_id IS NOT NULL)` でどちらか必須を担保（2026-07-04〜、ショップ単体出品対応）。
+
 ```sql
 CREATE TABLE listings (
   id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  instructor_id       UUID REFERENCES instructors(id) ON DELETE CASCADE,
+  instructor_id       UUID REFERENCES instructors(id) ON DELETE CASCADE,  -- nullable（2026-07-04〜）
+  shop_id             UUID REFERENCES shops(id) ON DELETE SET NULL,       -- 追加（2026-07-04〜）
   title               TEXT NOT NULL,
   category            TEXT,  -- フリーダイビング/スキンダイビング/etc.
   intent              TEXT,  -- 体験/講習/ツアー/etc.
@@ -166,7 +192,9 @@ CREATE TABLE listings (
   is_public           BOOLEAN DEFAULT false,
   sort_order          INT DEFAULT 0,
   created_at          TIMESTAMPTZ DEFAULT now(),
-  updated_at          TIMESTAMPTZ DEFAULT now()
+  updated_at          TIMESTAMPTZ DEFAULT now(),
+
+  CONSTRAINT listings_owner_required CHECK (instructor_id IS NOT NULL OR shop_id IS NOT NULL)
 );
 ```
 
@@ -174,10 +202,13 @@ CREATE TABLE listings (
 
 ### availability_slots
 
+> `instructor_id` は nullable。`shop_id` を追加し同様の owner-required CHECK を追加（2026-07-04〜）。
+
 ```sql
 CREATE TABLE availability_slots (
   id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  instructor_id    UUID REFERENCES instructors(id) ON DELETE CASCADE,
+  instructor_id    UUID REFERENCES instructors(id) ON DELETE CASCADE,  -- nullable（2026-07-04〜）
+  shop_id          UUID REFERENCES shops(id) ON DELETE SET NULL,       -- 追加（2026-07-04〜）
   listing_id       UUID REFERENCES listings(id) ON DELETE CASCADE,
   slot_date        DATE NOT NULL,
   start_time       TIME NOT NULL,
@@ -185,7 +216,9 @@ CREATE TABLE availability_slots (
   max_participants INT NOT NULL DEFAULT 1,
   booked_count     INT NOT NULL DEFAULT 0,
   is_active        BOOLEAN DEFAULT true,
-  created_at       TIMESTAMPTZ DEFAULT now()
+  created_at       TIMESTAMPTZ DEFAULT now(),
+
+  CONSTRAINT slots_owner_required CHECK (instructor_id IS NOT NULL OR shop_id IS NOT NULL)
 );
 ```
 
@@ -193,11 +226,14 @@ CREATE TABLE availability_slots (
 
 ### bookings
 
+> `instructor_id` は nullable。`shop_id` を追加し同様の owner-required CHECK を追加（2026-07-04〜）。予約作成は `create_pending_booking()` RPC 経由に一本化済み（`bookings_insert_anon` ポリシーは撤廃済み、[[project_security_bugs_20260628]] S1）。
+
 ```sql
 CREATE TABLE bookings (
   id                        UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   slot_id                   UUID REFERENCES availability_slots(id),
-  instructor_id             UUID REFERENCES instructors(id),
+  instructor_id             UUID REFERENCES instructors(id),  -- nullable（2026-07-04〜）
+  shop_id                   UUID REFERENCES shops(id) ON DELETE SET NULL,  -- 追加（2026-07-04〜）
   listing_id                UUID REFERENCES listings(id),
   client_name               TEXT NOT NULL,
   client_email              TEXT NOT NULL,
@@ -214,7 +250,35 @@ CREATE TABLE bookings (
   stripe_session_id         TEXT,
   stripe_payment_intent_id  TEXT,
   created_at                TIMESTAMPTZ DEFAULT now(),
-  updated_at                TIMESTAMPTZ DEFAULT now()
+  updated_at                TIMESTAMPTZ DEFAULT now(),
+
+  CONSTRAINT bookings_owner_required CHECK (instructor_id IS NOT NULL OR shop_id IS NOT NULL)
+);
+```
+
+---
+
+### inquiries
+
+> マッチングの問い合わせテーブル。`instructor_id` は nullable、`shop_id` を追加し owner-required CHECK を追加（2026-07-04〜）。誰でも送信可（未ログインOK）、閲覧・返信は所有者（インストラクター本人 or ショップオーナー）または管理者のみ。
+
+```sql
+CREATE TABLE inquiries (
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  listing_id        UUID REFERENCES listings(id) ON DELETE SET NULL,
+  instructor_id     UUID REFERENCES instructors(id) ON DELETE CASCADE,  -- nullable（2026-07-04〜）
+  shop_id           UUID REFERENCES shops(id) ON DELETE SET NULL,       -- 追加（2026-07-04〜）
+  name              TEXT NOT NULL,
+  email             TEXT NOT NULL,
+  phone             TEXT,
+  message           TEXT NOT NULL,
+  preferred_date    TEXT,
+  participant_count SMALLINT DEFAULT 1,
+  status            TEXT DEFAULT 'new' CHECK (status IN ('new', 'replied', 'closed')),
+  read_at           TIMESTAMPTZ,
+  created_at        TIMESTAMPTZ DEFAULT now(),
+
+  CONSTRAINT inquiries_owner_required CHECK (instructor_id IS NOT NULL OR shop_id IS NOT NULL)
 );
 ```
 
@@ -310,14 +374,19 @@ CREATE TABLE event_staff (
 
 ### reviews
 
+> `shop_id` は元々存在（`matching_schema.sql`）。2026-07-04 に `instructor_id` の NOT NULL 制約を解除し owner-required CHECK を追加。
+
 ```sql
 CREATE TABLE reviews (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  instructor_id UUID REFERENCES instructors(id) ON DELETE CASCADE,
+  instructor_id UUID REFERENCES instructors(id) ON DELETE CASCADE,  -- nullable（2026-07-04〜）
+  shop_id       UUID REFERENCES shops(id) ON DELETE SET NULL,
   user_id       UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   rating        INT CHECK (rating BETWEEN 1 AND 5),
   comment       TEXT,
-  created_at    TIMESTAMPTZ DEFAULT now()
+  created_at    TIMESTAMPTZ DEFAULT now(),
+
+  CONSTRAINT reviews_owner_required CHECK (instructor_id IS NOT NULL OR shop_id IS NOT NULL)
 );
 ```
 
@@ -339,7 +408,25 @@ CREATE OR REPLACE FUNCTION increment_booked_count(p_slot_id UUID, p_count INT)
 RETURNS VOID LANGUAGE sql AS $$
   UPDATE availability_slots SET booked_count = booked_count + p_count WHERE id = p_slot_id;
 $$;
+
+-- 仮予約作成（行ロックで残席チェック＋INSERTを原子化。TOCTOU対策 S6）
+-- service_role 専用（anon/authenticated からの直接呼び出しは REVOKE 済み）。
+-- p_shop_id は2026-07-04追加。未指定時は対象枠(availability_slots)のshop_idから自動補完し、
+-- instructor_id/shop_idどちらも無い場合は OWNER_REQUIRED で例外。
+CREATE OR REPLACE FUNCTION create_pending_booking(
+  p_slot_id UUID, p_instructor_id UUID, p_listing_id UUID,
+  p_client_name TEXT, p_client_email TEXT, p_client_phone TEXT, p_notes TEXT,
+  p_rental_requests JSONB, p_participant_count SMALLINT,
+  p_unit_price INTEGER, p_total_amount INTEGER, p_platform_fee INTEGER, p_instructor_payout INTEGER,
+  p_shop_id UUID DEFAULT NULL
+) RETURNS bookings LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+  -- 1. 対象枠を FOR UPDATE でロック（同時リクエストを直列化）
+  -- 2. instructor_id/shop_id は引数優先、未指定なら枠の値で補完
+  -- 3. pending込みの残席チェック（SLOT_FULL）→ bookings に INSERT して返す
+$$;
 ```
+
+> 詳細な予約フローは [BOOKING_DESIGN.md](./BOOKING_DESIGN.md) を参照。
 
 ---
 
@@ -347,5 +434,7 @@ $$;
 
 | ファイル | 内容 |
 |---|---|
+| `sql/matching_schema.sql` | listings / instructors / shops / inquiries / reviews 初期スキーマ |
 | `sql/rls_update_20260625.sql` | RLS ポリシー一括更新スクリプト |
+| `sql/shop_direct_listings_20260704.sql` | ショップ単体出品対応：`instructor_shops` 新設、listings/slots/bookings/inquiries/reviews の shop_id 追加・instructor_id nullable化、`create_pending_booking()` RPC 更新 |
 | `sql/` 以下各ファイル | テーブル作成・スキーマ変更スクリプト |

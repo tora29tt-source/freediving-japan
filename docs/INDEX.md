@@ -5,7 +5,7 @@ tags: [design-doc, index]
 # 設計書インデックス — Freediving Japan
 
 > 機能と設計書のマッピング。機能追加・仕様変更時はこのファイルも更新すること。  
-> 最終更新：2026-06-29
+> 最終更新：2026-07-05
 
 ---
 
@@ -29,13 +29,13 @@ tags: [design-doc, index]
 |---|---|---|---|
 | 認証（ログイン・新規登録・OAuth） | `auth.html`<br>`js/supabase-config.js`<br>`mypage.html` | [AUTH_DESIGN.md](./AUTH_DESIGN.md) | 2026-06-28 |
 | 権限管理（RBAC・ロール・RLS） | `admin/index.html`<br>`sql/rls_update_20260625.sql` | [RBAC_DESIGN.md](./RBAC_DESIGN.md) | 2026-06-28 |
-| 予約・決済フロー | `explore/listing.html`<br>`api/create-checkout-session.js`<br>`api/stripe-webhook.js`<br>`booking/success.html` | [BOOKING_DESIGN.md](./BOOKING_DESIGN.md) | 2026-06-28 |
+| 予約・決済フロー | `explore/listing.html`<br>`api/create-checkout-session.js`<br>`api/stripe-webhook.js`<br>`booking/success.html` | [BOOKING_DESIGN.md](./BOOKING_DESIGN.md) | 2026-07-04 |
 | トレーニングログ | `tools/training-log.html` | [TRAINING_LOG_DESIGN.md](./TRAINING_LOG_DESIGN.md) | 2026-06-28 |
 | 大会・イベント機能 | `events/event-athlete.html`<br>`events/event-staff.html`<br>`events/2026_competitions.html` | [EVENTS_DESIGN.md](./EVENTS_DESIGN.md) | 2026-06-28 |
 | プロダッシュボード | `pro/index.html` | [PRO_DASHBOARD_DESIGN.md](./PRO_DASHBOARD_DESIGN.md) | 2026-06-28 |
 | 管理画面 | `admin/index.html` | [ADMIN_DESIGN.md](./ADMIN_DESIGN.md) | 2026-06-28 |
-| マッチング（探す） | `explore/index.html`<br>`explore/listing.html` | [EXPLORE_DESIGN.md](./EXPLORE_DESIGN.md) | 2026-06-28 |
-| DB スキーマ設計 | `sql/` | [DB_SCHEMA_DESIGN.md](./DB_SCHEMA_DESIGN.md) | 2026-06-28 |
+| マッチング（探す） | `explore/index.html`<br>`explore/listing.html` | [EXPLORE_DESIGN.md](./EXPLORE_DESIGN.md) | 2026-07-04 |
+| DB スキーマ設計 | `sql/` | [DB_SCHEMA_DESIGN.md](./DB_SCHEMA_DESIGN.md) | 2026-07-04 |
 | Supabase Storage（アバター） | `mypage.html`<br>`pro/index.html` | [STORAGE_DESIGN.md](./STORAGE_DESIGN.md) | 2026-06-28 |
 | メディア（記事管理・CMS・公開フロー・SEO・SNS・技術仕様） | `media/index.html`<br>`media/article.html`<br>`media/article-editor.html` | [MEDIA_OPS.md](../MEDIA_OPS.md) | 2026-06-29 |
 

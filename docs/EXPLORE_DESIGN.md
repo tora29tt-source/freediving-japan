@@ -1,6 +1,6 @@
 # マッチング（探す）設計書 — Freediving Japan
 
-> 最終更新：2026-06-28
+> 最終更新：2026-07-04
 
 ---
 
@@ -8,6 +8,8 @@
 
 インストラクター・コース・スクールを検索・閲覧・予約できるマッチングページ。  
 現在は先行実装中（Phase 1）で、本格公開は Phase 2 予定。
+
+> **2026-07-04 変更：** ショップは担当インストラクター未定でも単体で商品を掲載できる。カード・詳細ページ・予約導線は `instructor_id` が null でも壊れないよう対応済み（`?shop=` パラメータ経由）。詳細は [DB_SCHEMA_DESIGN.md](./DB_SCHEMA_DESIGN.md) を参照。
 
 ---
 
@@ -64,17 +66,20 @@ async function applyFilters() {
 
 ### 一覧（explore/index.html）
 
+> `shop_id` が入っている（＝担当インストラクター未定・ショップ名義）カードにも対応するため、`shop_id` と `shops(...)` の JOIN を追加済み（2026-07-04〜）。カードのリンク先は `l.instructor_id ? id=... : shop=...` で振り分ける。
+
 ```js
 async function loadListings() {
   const { data, error } = await _sb
     .from('listings')
     .select(`
       id, title, category, intent, area, location_detail,
-      price, price_unit, tags, image_url, instructor_id,
+      price, price_unit, tags, image_url, instructor_id, shop_id,
       instructors (
         id, name, is_verified,
         shops ( avg_rating, review_count )
-      )
+      ),
+      shops ( id, name, avg_rating, review_count )
     `)
     .eq('is_public', true)
     .order('sort_order', { ascending: true });
@@ -100,7 +105,9 @@ async function openInstructorModal(instructorId, e) {
 
 ## 5. リスティング詳細（listing.html）
 
-URL: `/explore/listing.html?id={instructorId}`
+URL: `/explore/listing.html?id={instructorId}` または `/explore/listing.html?shop={shopId}`（担当者未定・ショップ名義、2026-07-04〜）
+
+instructor/shop 共通の `normalizeOwner(raw, type)` ヘルパーで所有者データを正規化し、詳細表示・空き枠クエリ（`instructor_id` or `shop_id` で絞り込み）・チェックアウトの各処理を owner の種類を意識せず扱えるようにしている。
 
 ### 表示コンテンツ
 
@@ -127,7 +134,8 @@ URL: `/explore/listing.html?id={instructorId}`
 | カラム | 型 | 説明 |
 |---|---|---|
 | `id` | UUID | PK |
-| `instructor_id` | UUID | インストラクター FK |
+| `instructor_id` | UUID | インストラクター FK（nullable、2026-07-04〜） |
+| `shop_id` | UUID | ショップ FK（追加、2026-07-04〜。instructor_id と shop_id はどちらか必須） |
 | `title` | text | コース名 |
 | `category` | text | カテゴリ |
 | `intent` | text | 目的（体験/講習/ツアー） |
@@ -165,7 +173,9 @@ URL: `/explore/listing.html?id={instructorId}`
 | `languages` | jsonb | 対応言語 |
 | `is_verified` | boolean | 認証済みバッジ |
 | `status` | text | `pending` / `approved` / `rejected` |
-| `shop_id` | UUID | 所属ショップ FK（任意） |
+| `shop_id` | UUID | 所属ショップ FK（単一・任意、旧来カラム） |
+
+> 2026-07-04〜、複数ショップへの同時所属は別テーブル `instructor_shops`（N:M）で管理する。詳細は [DB_SCHEMA_DESIGN.md](./DB_SCHEMA_DESIGN.md#instructor_shops2026-07-04n-m-所属) を参照。
 
 ### reviews
 
