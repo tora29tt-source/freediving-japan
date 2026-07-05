@@ -1208,32 +1208,26 @@ td.name { color: var(--on-dark); font-weight: 500; }
       </div>
     </div>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label>都道府県</label>
-        <input type="text" id="listing-prefecture" placeholder="沖縄県">
-      </div>
-      <div class="form-group">
-        <label>エリア</label>
-        <select id="listing-area" onchange="toggleListingAreaOther(this)">
-          <option value="">選択してください</option>
-          <option value="沖縄">沖縄</option>
-          <option value="石垣島">石垣島</option>
-          <option value="宮古島">宮古島</option>
-          <option value="西表島">西表島</option>
-          <option value="与那国島">与那国島</option>
-          <option value="久米島">久米島</option>
-          <option value="慶良間諸島">慶良間諸島</option>
-          <option value="奄美大島">奄美大島</option>
-          <option value="伊豆">伊豆</option>
-          <option value="東京">東京</option>
-          <option value="紀伊半島">紀伊半島</option>
-          <option value="瀬戸内">瀬戸内</option>
-          <option value="北海道">北海道</option>
-          <option value="__other__">その他（探すページのエリア検索対象外になります）</option>
-        </select>
-        <input type="text" id="listing-area-other" placeholder="例：恩納村" style="margin-top:8px;display:none;">
-      </div>
+    <div class="form-group">
+      <label>エリア</label>
+      <select id="listing-area" onchange="toggleListingAreaOther(this)">
+        <option value="">選択してください</option>
+        <option value="沖縄">沖縄</option>
+        <option value="石垣島">石垣島</option>
+        <option value="宮古島">宮古島</option>
+        <option value="西表島">西表島</option>
+        <option value="与那国島">与那国島</option>
+        <option value="久米島">久米島</option>
+        <option value="慶良間諸島">慶良間諸島</option>
+        <option value="奄美大島">奄美大島</option>
+        <option value="伊豆">伊豆</option>
+        <option value="東京">東京</option>
+        <option value="紀伊半島">紀伊半島</option>
+        <option value="瀬戸内">瀬戸内</option>
+        <option value="北海道">北海道</option>
+        <option value="__other__">その他（探すページのエリア検索対象外になります）</option>
+      </select>
+      <input type="text" id="listing-area-other" placeholder="例：恩納村" style="margin-top:8px;display:none;">
     </div>
 
     <div class="form-row">
@@ -2175,7 +2169,7 @@ function openListingModal(listingId = null) {
   });
 
   // リセット
-  ['listing-title','listing-description','listing-category','listing-prefecture','listing-area','listing-area-other','listing-tags'].forEach(id => {
+  ['listing-title','listing-description','listing-category','listing-area','listing-area-other','listing-tags'].forEach(id => {
     document.getElementById(id).value = '';
   });
   document.getElementById('listing-area-other').style.display = 'none';
@@ -2195,7 +2189,6 @@ function openListingModal(listingId = null) {
       document.getElementById('listing-description').value = d.description || '';
       document.getElementById('listing-category').value    = d.category || '';
       document.getElementById('listing-intent').value      = d.intent || 'try';
-      document.getElementById('listing-prefecture').value  = d.prefecture || '';
       // エリア：既存の値が選択肢にあればそれを選択、無ければ「その他」＋自由入力欄に復元
       const areaSel = document.getElementById('listing-area');
       const areaKnown = [...areaSel.options].some(o => o.value === (d.area || ''));

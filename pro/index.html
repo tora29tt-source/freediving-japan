@@ -2199,10 +2199,13 @@ function showToast(msg, type = 'success') {
   el._t = setTimeout(() => el.classList.add('hidden'), 2800);
 }
 
-// モーダル外クリックで閉じる
+// モーダル外クリックで閉じる（誤操作による入力内容の消失を防ぐため確認を挟む）
 ['listing-modal','slot-modal','create-profile-modal','create-shop-modal'].forEach(id => {
   document.getElementById(id).addEventListener('click', function(e) {
-    if (e.target === this) this.classList.remove('open');
+    if (e.target !== this) return;
+    if (confirm('入力した内容が破棄されます。閉じてもよろしいですか？')) {
+      this.classList.remove('open');
+    }
   });
 });
 
