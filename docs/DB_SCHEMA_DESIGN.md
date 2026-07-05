@@ -155,6 +155,8 @@ CREATE TABLE shops (
 ### listings
 
 > `instructor_id` は nullable。`shop_id` を追加し `CHECK (instructor_id IS NOT NULL OR shop_id IS NOT NULL)` でどちらか必須を担保（2026-07-04〜、ショップ単体出品対応）。
+>
+> **2026-07-05〜：位置情報を二層化。** `prefecture` を47都道府県＋「海外」に固定するCHECK制約（`listings_prefecture_check`）を追加し、探すページの検索・絞り込みの正データとした。`area`（探すページの「人気スポット」チップ・任意）と併用する。詳細は [EXPLORE_DESIGN.md](./EXPLORE_DESIGN.md) を参照。
 
 ```sql
 CREATE TABLE listings (
@@ -164,8 +166,9 @@ CREATE TABLE listings (
   title               TEXT NOT NULL,
   category            TEXT,  -- フリーダイビング/スキンダイビング/etc.
   intent              TEXT,  -- 体験/講習/ツアー/etc.
-  area                TEXT,
-  prefecture          TEXT,
+  area                TEXT,  -- 人気スポットタグ（任意・14種の固定リスト。探すページのチップと連動）
+  prefecture          TEXT,  -- 47都道府県 + '海外' のいずれか（CHECK制約・2026-07-05〜。検索の正データ）
+  country             TEXT,  -- prefecture='海外' のときの国名（自由入力・2026-07-05〜追加）
   location_detail     TEXT,
   price               INT,
   price_unit          TEXT,  -- per_person / per_group / etc.
@@ -194,9 +197,23 @@ CREATE TABLE listings (
   created_at          TIMESTAMPTZ DEFAULT now(),
   updated_at          TIMESTAMPTZ DEFAULT now(),
 
-  CONSTRAINT listings_owner_required CHECK (instructor_id IS NOT NULL OR shop_id IS NOT NULL)
+  CONSTRAINT listings_owner_required CHECK (instructor_id IS NOT NULL OR shop_id IS NOT NULL),
+  CONSTRAINT listings_prefecture_check CHECK (prefecture IS NULL OR prefecture IN (
+    '北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県',
+    '茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県',
+    '新潟県','富山県','石川県','福井県','山梨県','長野県','岐阜県','静岡県','愛知県',
+    '三重県','滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県',
+    '鳥取県','島根県','岡山県','広島県','山口県',
+    '徳島県','香川県','愛媛県','高知県',
+    '福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県','鹿児島県','沖縄県',
+    '海外'
+  ))  -- 2026-07-05〜
 );
+
+CREATE INDEX idx_listings_prefecture ON listings(prefecture);  -- 2026-07-05〜
 ```
+
+> 実装ファイル：`sql/listings_prefecture_authoritative_20260705.sql`（Supabase本番に実行済み・実行前に既存データ確認済み：NULL 4件／沖縄県 3件／静岡県 2件のみで全件許可リスト内）。
 
 ---
 
@@ -437,4 +454,5 @@ $$;
 | `sql/matching_schema.sql` | listings / instructors / shops / inquiries / reviews 初期スキーマ |
 | `sql/rls_update_20260625.sql` | RLS ポリシー一括更新スクリプト |
 | `sql/shop_direct_listings_20260704.sql` | ショップ単体出品対応：`instructor_shops` 新設、listings/slots/bookings/inquiries/reviews の shop_id 追加・instructor_id nullable化、`create_pending_booking()` RPC 更新 |
+| `sql/listings_prefecture_authoritative_20260705.sql` | `listings.country` 追加、`listings.prefecture` を47都道府県+海外のCHECK制約で固定、検索用インデックス追加 |
 | `sql/` 以下各ファイル | テーブル作成・スキーマ変更スクリプト |
