@@ -389,12 +389,13 @@ if (!instructorId && !shopId) {
 
 async function initPage() {
   try {
-    // インストラクター（または ショップ）+ 全リスティング + レビューを並列取得
-    const [ownerRes, listRes, reviewRes] = isShopOwner
+    // インストラクター（または ショップ）+ 全リスティング + レビュー（ショップの場合は在籍インストラクターも）を並列取得
+    const [ownerRes, listRes, reviewRes, instrShopsRes] = isShopOwner
       ? await Promise.all([
           _sb.from('shops').select('*').eq('id', shopId).single(),
           _sb.from('listings').select('*').eq('shop_id', shopId).eq('is_public', true).order('sort_order'),
           _sb.from('reviews').select('id, rating, body, reviewer_name, created_at').eq('shop_id', shopId).eq('is_public', true).order('created_at', { ascending: false }).limit(10),
+          _sb.from('instructor_shops').select('instructors ( id, name, bio, photo_url, areas, prefecture, city, is_verified )').eq('shop_id', shopId),
         ])
       : await Promise.all([
           _sb.from('instructors').select('*, shops ( id, avg_rating, review_count, shop_type )').eq('id', instructorId).single(),
@@ -405,17 +406,23 @@ async function initPage() {
     const owner      = normalizeOwner(ownerRes.data, isShopOwner ? 'shop' : 'instructor');
     const listings   = listRes.data || [];
     const reviews    = reviewRes.data || [];
+    // ショップの場合のみ：instructor_shops経由で在籍インストラクターを取得
+    const shopInstructors = isShopOwner
+      ? (instrShopsRes?.data || []).map(r => r.instructors).filter(Boolean)
+      : [];
 
     // 表示するリスティングを決定
     const activeListing = listingId
       ? listings.find(l => l.id === listingId) || listings[0]
       : listings[0];
     const otherListings = listings.filter(l => l.id !== activeListing?.id);
+    // ショップの商品一覧：特定コースを閲覧中でなければ全件、閲覧中ならそれ以外を「関連コース」として表示
+    const catalogListings = isShopOwner ? (listingId ? otherListings : listings) : otherListings;
 
     window._pageOwner = owner;
     window._pageListingsCount = listings.length;
     window._activeListing = activeListing || null;
-    renderPage(owner, activeListing, otherListings, reviews);
+    renderPage(owner, activeListing, catalogListings, reviews, shopInstructors);
     // カレンダー初期化（DOMレンダリング後）
     setTimeout(() => {
       initCalendar(activeListing?.id || null);
@@ -427,7 +434,7 @@ async function initPage() {
   }
 }
 
-function renderPage(owner, listing, otherListings, reviews = []) {
+function renderPage(owner, listing, otherListings, reviews = [], shopInstructors = []) {
   const inst = owner; // 以下の描画テンプレートはinstructor/shop共通の正規化済みownerオブジェクトを使う
   const badgeClass = { try: 'badge-try', learn: 'badge-learn', dive: 'badge-dive' };
   const badgeLabel = { try: '体験', learn: '資格', dive: 'ダイブ' };
@@ -498,7 +505,7 @@ function renderPage(owner, listing, otherListings, reviews = []) {
     ? `<p class="section-text">${esc(listing.cancellation_policy)}</p>`
     : '<p class="section-text" style="color:var(--on-dark-soft)">お問い合わせください</p>';
 
-  // other listings
+  // other listings（ショップの場合は「取り扱いコース一覧」として全件、インストラクターの場合は他のプラン）
   const otherHtml = otherListings.length > 0
     ? `<div class="other-listings">${otherListings.map(l => `
         <a class="other-card" href="listing.html?${ownerLinkQuery(owner)}&listing=${esc(l.id)}">
@@ -509,7 +516,28 @@ function renderPage(owner, listing, otherListings, reviews = []) {
           </div>
           <div class="other-card-arrow"><svg class="icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
         </a>`).join('')}</div>`
-    : '<p style="font-size:13px;color:var(--on-dark-soft)">他のプランはありません</p>';
+    : '<p style="font-size:13px;color:var(--on-dark-soft)">現在取り扱っているプランはありません</p>';
+  const otherSectionTitle = owner.type === 'shop' ? '取り扱いコース一覧' : `${esc(inst.name)} の他のプラン`;
+
+  // 在籍インストラクター（ショップページのみ）
+  const instructorsHtml = shopInstructors.length > 0
+    ? shopInstructors.map(i => `
+        <a class="instructor-card" href="listing.html?id=${esc(i.id)}" style="margin-bottom:12px;">
+          <div class="instructor-avatar">
+            ${i.photo_url
+              ? `<img src="${esc(i.photo_url)}" alt="${esc(i.name)}">`
+              : `<div class="instructor-avatar-ph"><svg style="width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.4" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>`}
+          </div>
+          <div class="instructor-info">
+            <div class="instructor-name-row">
+              <span class="instructor-name-text">${esc(i.name)}</span>
+              ${i.is_verified ? '<span class="verified-badge">✓ 認証済み</span>' : ''}
+            </div>
+            <p class="instructor-area">${esc([i.prefecture, i.city].filter(Boolean).join(' '))}${(i.areas || []).length ? ' ／ ' + esc(i.areas.join('・')) : ''}</p>
+            ${i.bio ? `<p class="instructor-bio">${esc(i.bio)}</p>` : ''}
+          </div>
+        </a>`).join('')
+    : '';
 
   document.title = `${inst.name} — Freediving Japan`;
 
@@ -611,10 +639,17 @@ function renderPage(owner, listing, otherListings, reviews = []) {
         </div>
       </div>
 
+      <!-- 在籍インストラクター（ショップページのみ） -->
+      ${instructorsHtml ? `
+      <div class="section">
+        <p class="section-title">在籍インストラクター</p>
+        ${instructorsHtml}
+      </div>` : ''}
+
       <!-- other listings -->
       ${otherListings.length > 0 ? `
       <div class="section">
-        <p class="section-title">${esc(inst.name)} の他のプラン</p>
+        <p class="section-title">${otherSectionTitle}</p>
         ${otherHtml}
       </div>` : ''}
 
