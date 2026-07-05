@@ -1970,6 +1970,22 @@ function collectGalleryUrls() {
     .map(el => el.value.trim()).filter(Boolean);
 }
 
+function flowTimeOptionsHtml(selected) {
+  let html = '<option value="">時間</option>';
+  let matched = selected === '';
+  for (let h = 4; h <= 23; h++) {
+    for (const suffix of ['時', '時半']) {
+      const val = `${h}${suffix}`;
+      if (val === selected) matched = true;
+      html += `<option value="${val}"${val === selected ? ' selected' : ''}>${val}</option>`;
+    }
+  }
+  if (selected && !matched) {
+    html += `<option value="${escHtml(selected)}" selected>${escHtml(selected)}</option>`;
+  }
+  return html;
+}
+
 function addFlowStep(title = '', desc = '', time = '') {
   const container = document.getElementById('l-flow-rows');
   const idx = container.children.length + 1;
@@ -1980,8 +1996,9 @@ function addFlowStep(title = '', desc = '', time = '') {
       <span style="background:var(--teal);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">${idx}</span>
       <input type="text" class="flow-title" placeholder="タイトル（例：受付・オリエンテーション）" value="${escHtml(title)}"
         style="flex:1;padding:7px 10px;background:var(--ocean-mid);border:1px solid var(--hairline);border-radius:6px;color:var(--on-dark);font-size:14px;">
-      <input type="text" class="flow-time" placeholder="時間（例：30分）" value="${escHtml(time)}"
-        style="width:90px;padding:7px 10px;background:var(--ocean-mid);border:1px solid var(--hairline);border-radius:6px;color:var(--on-dark);font-size:14px;">
+      <select class="flow-time" style="width:100px;padding:7px 10px;background:var(--ocean-mid);border:1px solid var(--hairline);border-radius:6px;color:var(--on-dark);font-size:14px;">
+        ${flowTimeOptionsHtml(time)}
+      </select>
       <button type="button" onclick="this.closest('div').parentElement.remove();reindexFlowSteps()" style="background:none;border:none;color:var(--on-dark-soft);cursor:pointer;font-size:18px;line-height:1;padding:4px;">×</button>
     </div>
     <textarea class="flow-desc" placeholder="説明（例：シュノーケリングの使い方・安全説明）" rows="2"
