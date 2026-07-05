@@ -178,8 +178,8 @@ _sb.from('instructors').select('id, name, bio, areas, photo_url, is_verified, sh
 | `title` | text | コース名 |
 | `category` | text | カテゴリ |
 | `intent` | text | 目的（体験/講習/ツアー） |
-| `area` | text | エリア |
-| `prefecture` | text | 都道府県 |
+| `area` | text | エリア（探すページのエリアチップと同じ13択の選択式。検索・絞り込みで実際に使われるのはこちら） |
+| `prefecture` | text | 都道府県（2026-07-05〜 コース登録フォームから削除。列は残すが新規入力は無し。`area`と重複する情報でどこにも表示に使われていなかったため） |
 | `price` | int | 価格（円） |
 | `price_unit` | text | 価格単位（per_person 等） |
 | `price_includes` | text | 料金に含まれるもの |
