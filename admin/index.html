@@ -1503,6 +1503,11 @@ td.name { color: var(--on-dark); font-weight: 500; }
           <input type="text" id="ae-author" placeholder="FreeDive Japan編集部">
         </div>
 
+        <div class="form-group">
+          <label>著者紹介文（任意）</label>
+          <textarea id="ae-author-bio" placeholder="空欄の場合はデフォルトの紹介文が表示されます"></textarea>
+        </div>
+
         <div class="ae-pub-toggle-row">
           <span class="ae-pub-toggle-label">公開する</span>
           <label class="toggle">
@@ -2622,7 +2627,7 @@ function openArticleModal(articleId = null) {
   editingArticleId = articleId;
 
   // Reset fields
-  ['ae-title','ae-excerpt','ae-slug','ae-cover','ae-tags','ae-author'].forEach(id => {
+  ['ae-title','ae-excerpt','ae-slug','ae-cover','ae-tags','ae-author','ae-author-bio'].forEach(id => {
     document.getElementById(id).value = '';
   });
   document.getElementById('ae-read-time').value   = '';
@@ -2648,6 +2653,7 @@ function openArticleModal(articleId = null) {
       document.getElementById('ae-tags').value        = (d.tags || []).join(', ');
       document.getElementById('ae-read-time').value   = d.read_time_min || '';
       document.getElementById('ae-author').value      = d.author_type || '編集部';
+      document.getElementById('ae-author-bio').value  = d.author_bio || '';
       document.getElementById('ae-category').value    = d.category || '';
       document.getElementById('ae-published').checked = d.is_published === true;
       // HTMLをセット（旧テンプレート残骸を除去してからロード）
@@ -2785,6 +2791,7 @@ function aeRenderPreview() {
   const category  = document.getElementById('ae-category')?.value;
   const tagsRaw   = document.getElementById('ae-tags')?.value?.trim();
   const authorVal = document.getElementById('ae-author')?.value?.trim() || '編集部';
+  const authorBioVal = document.getElementById('ae-author-bio')?.value?.trim();
   const rtVal     = document.getElementById('ae-read-time')?.value;
   const html      = sanitizeArticleContent(aeGetContentHTML());
 
@@ -2793,9 +2800,9 @@ function aeRenderPreview() {
   const isEditorial = (authorVal === '編集部' || authorVal === 'editorial');
   const authorDisplay = isEditorial ? '編集部' : authorVal;
   const authorIcon    = isEditorial ? '📝' : '🌊';
-  const authorDesc    = isEditorial
+  const authorDesc    = authorBioVal || (isEditorial
     ? 'フリーダイビングプラットフォーム「Freediving Japan」の編集部。初心者から競技者まで役立つコンテンツを発信しています。'
-    : 'Freediving Japan 代表・日本 STA フリーダイビング記録保持者。';
+    : 'Freediving Japan 代表・日本 STA フリーダイビング記録保持者。');
 
   // 読了時間（手動 or 自動計算）
   const autoMins = (() => {
@@ -3075,6 +3082,7 @@ async function saveArticleFromEditor(publish) {
     tags:          splitTrim(document.getElementById('ae-tags').value),
     read_time_min: rtVal || autoRT,
     author_type:   document.getElementById('ae-author').value.trim() || '編集部',
+    author_bio:    document.getElementById('ae-author-bio').value.trim() || null,
     is_published:  isPublished,
     status:        isPublished ? 'published' : 'draft',
     updated_at:    new Date().toISOString(),

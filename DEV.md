@@ -249,6 +249,19 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 - リンク更新対象：`explore/shops.html`（カードのリンク先）／`explore/index.html`（インストラクタープレビューモーダルのCTA）／`explore/listing.html`自身（運営者カードのリンク先）
 - **未着手（フォローアップ）**：実機での動作確認未実施
 
+### 記事の著者紹介文をDBカラム化（2026-07-05）
+
+**背景**：記事詳細ページ・記事エディタのプレビューに表示される「著者紹介文」（編集部/著者の説明文）が`admin/index.html`と`media/article.html`双方のJS内にハードコードされており、特定個人名を含む文言が編集不可のまま埋め込まれていた。
+
+- `admin/index.html`の記事エディタに「著者紹介文（任意）」欄（`#ae-author-bio`）を追加。入力するとプレビュー・保存時に反映される
+- 空欄の場合は編集部/著者いずれも汎用的なデフォルト文（特定個人名なし）にフォールバック
+- DB側に`articles.author_bio`カラム（TEXT、nullable）が必要。**手動でSupabaseに以下を適用すること（未実施）**：
+  ```sql
+  ALTER TABLE articles ADD COLUMN IF NOT EXISTS author_bio TEXT;
+  ```
+  （`sql/articles_author_bio_20260705.sql`）
+- **未着手（フォローアップ）**：既存記事の`author_bio`は未設定のためデフォルト文表示のまま。個別に紹介文を設定したい記事があれば管理画面から追記
+
 -----
 
 ### 論理削除（ソフトデリート）方針（2026-07-03導入）

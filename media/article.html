@@ -458,9 +458,9 @@ function renderArticle(a) {
 
   const isEditorial = a.author_type === '編集部' || a.author_type === 'editorial';
   const authorIcon = isEditorial ? '📝' : '🌊';
-  const authorDesc  = isEditorial
+  const authorDesc  = a.author_bio || (isEditorial
     ? 'フリーダイビングプラットフォーム「Freediving Japan」の編集部。'
-    : 'Freediving Japan 代表・日本STAフリーダイビング記録保持者。';
+    : 'Freediving Japan 代表・日本STAフリーダイビング記録保持者。');
 
   // カバー画像は常に非表示にし、シンプルな帯（グラデーション）を表示する
   const heroStyle = '';
