@@ -2384,7 +2384,7 @@ function setScale(key, val, el) {
 
 function today() { return new Date().toISOString().slice(0,10); }
 
-// 全角→半角変換 + 自動フォーマット（max 3桁）
+// 全角→半角変換 + 自動フォーマット（max 4桁 = 99:59まで対応）
 function toHalf(el, mode, e) {
   if (e && e.isComposing) return; // IME変換中はスキップ
   // 全角→半角
@@ -2393,13 +2393,17 @@ function toHalf(el, mode, e) {
     .replace(/[：]/g, ':');
 
   if (mode === 'time') {
-    const digits = v.replace(/\D/g, '').slice(0, 3); // 最大3桁
+    // 最大4桁（STAのホールドタイムは10分以上になることがあるため、分は2桁まで対応）
+    const digits = v.replace(/\D/g, '').slice(0, 4);
     if (digits.length === 0) { el.value = ''; return; }
     if (digits.length <= 2) {
-      el.value = digits; // まだ入力中
-    } else {
+      el.value = digits; // まだ入力中（1〜2桁目 = 分 or 秒の一部）
+    } else if (digits.length === 3) {
       // 3桁: 1桁目=分, 2〜3桁目=秒
       el.value = digits[0] + ':' + digits.slice(1);
+    } else {
+      // 4桁: 1〜2桁目=分, 3〜4桁目=秒
+      el.value = digits.slice(0, 2) + ':' + digits.slice(2);
     }
   } else if (mode === 'num') {
     el.value = v.replace(/[^\d]/g, '').slice(0, 3);

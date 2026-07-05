@@ -140,7 +140,7 @@ Freediving Japan における App は「**Webと同じことができる、モ�
 - ✅ セッション統計（ベスト・平均・セット数）
 - ✅ Supabase ログ登録
 - ✅ ハプティクス — expo-haptics
-- ❌ SpO2 BLE モニター（未実装）
+- ❌ SpO2 BLE モニター（未実装・機種決定後にBLE ServiceUUIDを調整して実機テストを行う予定）
 
 ### 技術メモ
 

@@ -40,7 +40,6 @@ tags: [moc]
 
 ## その他メモ
 
-- [[NOTES]]
 - [[BATCH]]
 
 ---
