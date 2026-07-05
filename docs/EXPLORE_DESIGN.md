@@ -43,7 +43,7 @@ document.getElementById('searchInput').addEventListener('input', () => applyFilt
 | 価格帯 | ✅ | `price` 範囲フィルタ |
 | ソート | ✅ | 価格昇順 / 価格降順 / 評価順 |
 
-**エリアチップの一覧（`explore/index.html` `#areaChips`）：** 沖縄 / 石垣島 / 宮古島 / 西表島 / 与那国島 / 久米島 / 慶良間諸島 / 奄美大島 / 伊豆 / 東京 / 紀伊半島 / 瀬戸内 / 北海道
+**エリアチップの一覧（`explore/index.html` `#areaChips`）：** 沖縄 / 石垣島 / 宮古島 / 西表島 / 与那国島 / 久米島 / 慶良間諸島 / 奄美大島 / 鹿児島 / 伊豆 / 東京 / 紀伊半島 / 瀬戸内 / 北海道（2026-07-05: 鹿児島を追加。同じ一覧を`explore/shops.html`のエリアチップ、`pro/index.html`・`admin/index.html`のコース登録フォーム「エリア」`<select>`、`explore/index.html`の地図用`AREA_COORDS`座標にも反映している。この一覧にない地名は「その他」を選ぶしかなく検索チップ対象外になるため、実際に活動しているエリアが増えたら4箇所すべてに追加すること）
 
 エリアチップは `listings.area` との**完全一致**でフィルタする（`l.area !== currentArea`）。トップページ検索バーの「エリア」もこのチップ値と一致すれば絞り込みに反映される（`applyUrlParams()`）。
 
