@@ -868,8 +868,8 @@ async function boot() {
       _sb.from('instructor_shops').select('instructors(id, name)').eq('shop_id', shop.id),
     ]);
     const merged = new Map();
-    (legacyInsts || []).forEach(i => merged.set(i.id, i));
-    (linkedInsts || []).forEach(row => { if (row.instructors) merged.set(row.instructors.id, row.instructors); });
+    (legacyInsts || []).forEach(i => merged.set(i.id, { ...i, _viaLegacy: true }));
+    (linkedInsts || []).forEach(row => { if (row.instructors) merged.set(row.instructors.id, { ...row.instructors, _viaLegacy: false }); });
     myShopInstructors = Array.from(merged.values());
   }
 
@@ -1174,6 +1174,16 @@ function renderShopProfileForm() {
     </div>
     <div class="form-group"><label>自己紹介</label><textarea id="sp-bio">${escHtml(s.bio||'')}</textarea></div>
 
+    <div class="form-section-title">在籍インストラクター</div>
+    <div class="form-group">
+      <div id="sp-roster-list"></div>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <input type="text" id="sp-roster-search" placeholder="インストラクター名で検索して追加" style="flex:1;">
+        <button type="button" class="btn-edit" onclick="searchInstructorsToAdd()">検索</button>
+      </div>
+      <div id="sp-roster-search-results" style="margin-top:8px;"></div>
+    </div>
+
     <div class="form-section-title">活動エリア</div>
     <div class="form-group">
       <label>エリアと活動時期</label>
@@ -1212,6 +1222,72 @@ function renderShopProfileForm() {
     </div>
     <div class="save-row"><button class="btn-primary" onclick="saveShopProfile()">プロフィールを保存</button></div>
   `;
+  renderShopRosterList();
+}
+
+function renderShopRosterList() {
+  const wrap = document.getElementById('sp-roster-list');
+  if (!wrap) return;
+  if (!myShopInstructors.length) {
+    wrap.innerHTML = '<p style="font-size:13px;color:var(--on-dark-soft);">在籍インストラクターはまだいません</p>';
+    return;
+  }
+  wrap.innerHTML = myShopInstructors.map(i => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--hairline);border-radius:10px;margin-bottom:8px;">
+      <span>${escHtml(i.name)}</span>
+      ${i._viaLegacy
+        ? '<span style="font-size:11px;color:var(--on-dark-soft);">旧登録（解除不可）</span>'
+        : `<button type="button" class="btn-danger" onclick="removeShopInstructor('${i.id}')">解除</button>`}
+    </div>`).join('');
+}
+
+async function searchInstructorsToAdd() {
+  const q = document.getElementById('sp-roster-search').value.trim();
+  const resultsEl = document.getElementById('sp-roster-search-results');
+  if (!q) { resultsEl.innerHTML = ''; return; }
+  resultsEl.innerHTML = '<p style="font-size:12px;color:var(--on-dark-soft);">検索中...</p>';
+
+  const { data, error } = await _sb.from('instructors')
+    .select('id, name, prefecture, city')
+    .ilike('name', `%${q}%`)
+    .eq('is_public', true)
+    .eq('status', 'approved')
+    .limit(10);
+
+  if (error) { resultsEl.innerHTML = `<p style="font-size:12px;color:var(--warm);">検索エラー: ${escHtml(error.message)}</p>`; return; }
+
+  const existingIds = new Set(myShopInstructors.map(i => i.id));
+  const filtered = (data || []).filter(i => !existingIds.has(i.id));
+
+  if (!filtered.length) {
+    resultsEl.innerHTML = '<p style="font-size:12px;color:var(--on-dark-soft);">該当するインストラクターが見つかりません</p>';
+    return;
+  }
+
+  resultsEl.innerHTML = filtered.map(i => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--hairline);border-radius:10px;margin-bottom:8px;">
+      <span>${escHtml(i.name)}${i.prefecture ? ` <span style="font-size:11px;color:var(--on-dark-soft);">（${escHtml(i.prefecture)}）</span>` : ''}</span>
+      <button type="button" class="btn-edit" onclick="addShopInstructor('${i.id}', '${escHtml(i.name)}')">追加</button>
+    </div>`).join('');
+}
+
+async function addShopInstructor(instructorId, name) {
+  const { error } = await _sb.from('instructor_shops').insert({ shop_id: myShop.id, instructor_id: instructorId });
+  if (error) { showToast('追加に失敗しました: ' + error.message, 'error'); return; }
+  myShopInstructors.push({ id: instructorId, name, _viaLegacy: false });
+  document.getElementById('sp-roster-search').value = '';
+  document.getElementById('sp-roster-search-results').innerHTML = '';
+  renderShopRosterList();
+  showToast(`${name} を追加しました`, 'success');
+}
+
+async function removeShopInstructor(instructorId) {
+  if (!confirm('このインストラクターを在籍から外しますか？')) return;
+  const { error } = await _sb.from('instructor_shops').delete().eq('shop_id', myShop.id).eq('instructor_id', instructorId);
+  if (error) { showToast('解除に失敗しました: ' + error.message, 'error'); return; }
+  myShopInstructors = myShopInstructors.filter(i => i.id !== instructorId);
+  renderShopRosterList();
+  showToast('在籍を解除しました', 'success');
 }
 
 async function saveShopProfile() {
