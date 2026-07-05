@@ -53,34 +53,33 @@
   </div>
 </header>
 
-<!-- ===== search bar ===== -->
-<div class="wrap">
-  <form class="searchbar" data-target="explore/index.html">
-    <label class="sb-seg">
-      <div class="sb-label">エリア</div>
-      <input class="sb-input" name="area" placeholder="どこで潜る？" autocomplete="off">
-    </label>
-    <label class="sb-seg sb-when">
-      <div class="sb-label">日程</div>
-      <input class="sb-input" name="date" type="date">
-    </label>
-    <label class="sb-seg">
-      <div class="sb-label">タイプ</div>
-      <select class="sb-input sb-select" name="intent">
-        <option value="">すべて</option>
-        <option value="try">体験・ツアー</option>
-        <option value="learn">スクール・資格</option>
-        <option value="dive">ファンダイブ・上級</option>
-      </select>
-    </label>
-    <button class="sb-btn" type="submit"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>検索</button>
-  </form>
-</div>
-
 <main class="wrap">
 
   <!-- ===== すべて ===== -->
   <div class="panel active" data-panel="all">
+
+    <div style="margin:18px 0;">
+      <form class="searchbar" data-target="explore/index.html">
+        <label class="sb-seg">
+          <div class="sb-label">エリア</div>
+          <input class="sb-input" name="area" placeholder="どこで潜る？" autocomplete="off">
+        </label>
+        <label class="sb-seg sb-when">
+          <div class="sb-label">日程</div>
+          <input class="sb-input" name="date" type="date">
+        </label>
+        <label class="sb-seg">
+          <div class="sb-label">タイプ</div>
+          <select class="sb-input sb-select" name="intent">
+            <option value="">すべて</option>
+            <option value="try">体験・ツアー</option>
+            <option value="learn">スクール・資格</option>
+            <option value="dive">ファンダイブ・上級</option>
+          </select>
+        </label>
+        <button class="sb-btn" type="submit"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>検索</button>
+      </form>
+    </div>
 
     <section class="section">
       <div class="section-head"><h2>はじめての海遊び・体験</h2></div>
@@ -134,6 +133,35 @@
 
   <!-- ===== シュノーケリング ===== -->
   <div class="panel" data-panel="snorkel">
+
+    <section class="phero">
+      <img class="phero-img" src="images/index_水面.JPG" alt="">
+      <div class="phero-scrim"></div>
+      <div class="phero-copy">
+        <p class="phero-eyebrow">水面 · はじめの一歩</p>
+        <h1 class="phero-title">シュノーケリング</h1>
+        <p class="phero-sub">顔をつけて浮かび、海の中をのぞく。道具も資格もいらない、いちばん気軽な海遊び。まずはここから。</p>
+      </div>
+    </section>
+
+    <div style="margin:18px 0;">
+      <form class="searchbar" data-target="explore/index.html">
+        <label class="sb-seg"><div class="sb-label">エリア</div><input class="sb-input" name="area" placeholder="沖縄・伊豆・和歌山…" autocomplete="off"></label>
+        <label class="sb-seg sb-when"><div class="sb-label">日程</div><input class="sb-input" name="date" type="date"></label>
+        <label class="sb-seg"><div class="sb-label">タイプ</div><select class="sb-input sb-select" name="intent"><option value="">すべて</option><option value="try">体験・ツアー</option><option value="learn">スクール・資格</option></select></label>
+        <button class="sb-btn" type="submit"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>検索</button>
+      </form>
+    </div>
+
+    <div class="chips" style="margin-bottom:26px;">
+      <a class="chip" href="explore/index.html"><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6"/></svg>体験ツアー</a>
+      <a class="chip" href="explore/index.html">親子・キッズOK</a>
+      <a class="chip" href="explore/index.html">ボートシュノーケル</a>
+      <a class="chip" href="explore/index.html">青の洞窟</a>
+      <a class="chip" href="explore/index.html">離島</a>
+      <a class="chip" href="explore/index.html">ナイト</a>
+    </div>
+
     <section class="section">
       <div class="section-head"><h2>シュノーケリング体験</h2><a class="section-more" href="snorkeling.html">もっと見る <svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></a></div>
       <div class="row">
@@ -155,6 +183,34 @@
 
   <!-- ===== スキンダイビング ===== -->
   <div class="panel" data-panel="skin">
+
+    <section class="phero">
+      <img class="phero-img" src="images/beginner_pair.jpg" alt="">
+      <div class="phero-scrim"></div>
+      <div class="phero-copy">
+        <p class="phero-eyebrow">−3m · ひと息でもぐる</p>
+        <h1 class="phero-title">スキンダイビング</h1>
+        <p class="phero-sub">ひと息でもぐって、海をもっと近くで感じる。シュノーケルの次の一歩。安全とバディの基本を、インストラクターと一緒に。</p>
+      </div>
+    </section>
+
+    <div style="margin:18px 0;">
+      <form class="searchbar" data-target="explore/index.html">
+        <label class="sb-seg"><div class="sb-label">エリア</div><input class="sb-input" name="area" placeholder="伊豆・和歌山・高知…" autocomplete="off"></label>
+        <label class="sb-seg sb-when"><div class="sb-label">日程</div><input class="sb-input" name="date" type="date"></label>
+        <label class="sb-seg"><div class="sb-label">タイプ</div><select class="sb-input sb-select" name="intent"><option value="">すべて</option><option value="try">体験・講習</option><option value="learn">認定コース</option></select></label>
+        <button class="sb-btn" type="submit"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>検索</button>
+      </form>
+    </div>
+
+    <div class="chips" style="margin-bottom:26px;">
+      <a class="chip" href="explore/index.html">1日体験</a>
+      <a class="chip" href="explore/index.html">認定コース</a>
+      <a class="chip" href="explore/index.html">バディ練習</a>
+      <a class="chip" href="explore/index.html">魚突き入門</a>
+      <a class="chip" href="explore/index.html">安全講習</a>
+    </div>
+
     <section class="section">
       <div class="section-head"><h2>スキンダイビングの体験・講習</h2><a class="section-more" href="skindiving.html">もっと見る <svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></a></div>
       <div class="row">
@@ -176,6 +232,35 @@
 
   <!-- ===== フリーダイビング ===== -->
   <div class="panel" data-panel="free">
+
+    <section class="phero">
+      <img class="phero-img" src="images/dive_deep_rope.jpg" alt="">
+      <div class="phero-scrim"></div>
+      <div class="phero-copy">
+        <p class="phero-eyebrow">−30m · もっと深く、長く</p>
+        <h1 class="phero-title">フリーダイビング</h1>
+        <p class="phero-sub">ひと息で、深く・長く潜る。資格取得から競技・トレーニングまで。日本記録保持者や現役選手がつくる、深い世界へ。</p>
+      </div>
+    </section>
+
+    <div style="margin:18px 0;">
+      <form class="searchbar" data-target="explore/index.html">
+        <label class="sb-seg"><div class="sb-label">エリア</div><input class="sb-input" name="area" placeholder="関東・鹿児島・海外…" autocomplete="off"></label>
+        <label class="sb-seg sb-when"><div class="sb-label">日程</div><input class="sb-input" name="date" type="date"></label>
+        <label class="sb-seg"><div class="sb-label">タイプ</div><select class="sb-input sb-select" name="intent"><option value="">すべて</option><option value="learn">認定コース</option><option value="dive">デプス・競技</option></select></label>
+        <button class="sb-btn" type="submit"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>検索</button>
+      </form>
+    </div>
+
+    <div class="chips" style="margin-bottom:26px;">
+      <a class="chip" href="explore/index.html">AIDA / SSI 認定</a>
+      <a class="chip" href="explore/index.html">プール（STA/DYN）</a>
+      <a class="chip" href="explore/index.html">デプス（CWT/CNF）</a>
+      <a class="chip" href="learn/index.html">動画で学ぶ</a>
+      <a class="chip" href="rankings/AIDA_ranking.html">ランキング</a>
+      <a class="chip" href="events/2026_competitions.html">大会</a>
+    </div>
+
     <section class="section">
       <div class="section-head"><h2>フリーダイビングのスクール・コース</h2><a class="section-more" href="freediving.html">もっと見る <svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></a></div>
       <div class="row">
@@ -197,6 +282,30 @@
 
   <!-- ===== 知る ===== -->
   <div class="panel" data-panel="know">
+
+    <div style="margin:18px 0;">
+      <form class="searchbar" data-target="explore/index.html">
+        <label class="sb-seg">
+          <div class="sb-label">エリア</div>
+          <input class="sb-input" name="area" placeholder="どこで潜る？" autocomplete="off">
+        </label>
+        <label class="sb-seg sb-when">
+          <div class="sb-label">日程</div>
+          <input class="sb-input" name="date" type="date">
+        </label>
+        <label class="sb-seg">
+          <div class="sb-label">タイプ</div>
+          <select class="sb-input sb-select" name="intent">
+            <option value="">すべて</option>
+            <option value="try">体験・ツアー</option>
+            <option value="learn">スクール・資格</option>
+            <option value="dive">ファンダイブ・上級</option>
+          </select>
+        </label>
+        <button class="sb-btn" type="submit"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>検索</button>
+      </form>
+    </div>
+
     <section class="section">
       <div class="section-head"><h2>新着の記事・コラム</h2><a class="section-more" href="media/index.html">記事一覧 <svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></a></div>
       <div class="row" id="know-article-row">
