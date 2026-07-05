@@ -488,6 +488,7 @@ function renderPage(owner, listing, otherListings, reviews = []) {
       ${galleryHtml}
       <div class="gallery-grad"></div>
     </div>
+    ${photoStripHtml}
 
     <div class="main">
       <!-- listing header -->
@@ -671,14 +672,18 @@ let _paxCount = 1;
 function initGallery() {
   const imgs = document.querySelectorAll('.gallery-img');
   const dots = document.querySelectorAll('.gallery-dot');
+  const thumbs = document.querySelectorAll('.photo-strip-item');
   if (imgs.length <= 1) return;
   let current = 0;
   function showImg(idx) {
     imgs.forEach((img, i) => { img.style.display = i === idx ? '' : 'none'; });
     dots.forEach((d, i) => { d.classList.toggle('active', i === idx); });
+    thumbs.forEach((t, i) => { t.classList.toggle('active', i === idx); });
+    if (thumbs[idx]) thumbs[idx].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
     current = idx;
   }
   dots.forEach((dot, i) => { dot.addEventListener('click', () => showImg(i)); });
+  thumbs.forEach((thumb, i) => { thumb.addEventListener('click', () => showImg(i)); });
   // 前へ・次へ矢印（クリック/タップで進める）
   const prevBtn = document.querySelector('.gallery-arrow-prev');
   const nextBtn = document.querySelector('.gallery-arrow-next');
