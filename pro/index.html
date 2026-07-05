@@ -687,24 +687,30 @@ td.primary { color: var(--on-dark); font-weight: 500; }
 
     <div class="form-row">
       <div class="form-group">
-        <label>日付</label>
+        <label>開始日</label>
         <input type="date" id="s-date">
       </div>
-      <div class="form-group">
-        <label>開始時刻</label>
-        <input type="time" id="s-start">
+      <div class="form-group" id="s-date-end-wrap">
+        <label>終了日</label>
+        <input type="date" id="s-date-end">
+        <p class="form-hint">期間を指定すると、期間内の日ごとに同じ時間帯の空き枠を一括作成します（空欄なら単日のみ）</p>
       </div>
     </div>
 
     <div class="form-row">
       <div class="form-group">
+        <label>開始時刻</label>
+        <input type="time" id="s-start">
+      </div>
+      <div class="form-group">
         <label>終了時刻</label>
         <input type="time" id="s-end">
       </div>
-      <div class="form-group">
-        <label>最大参加人数</label>
-        <input type="number" id="s-max" min="1" value="4">
-      </div>
+    </div>
+
+    <div class="form-group">
+      <label>最大参加人数</label>
+      <input type="number" id="s-max" min="1" value="4" style="max-width:160px;">
     </div>
 
     <div class="form-group">
@@ -1203,18 +1209,19 @@ function renderShopProfileForm() {
     <div class="form-section-title">メディア・SNS</div>
     <div class="form-group">
       <label>カバー画像</label>
-      <div id="sp-cover-preview-wrap" onclick="document.getElementById('sp-cover-file').click()" style="cursor:pointer;width:100%;height:120px;border-radius:8px;background:rgba(46,196,182,0.1);border:2px dashed rgba(46,196,182,0.3);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--teal);font-size:13px;">
-        ${s.cover_url
-          ? `<img id="sp-cover-preview" src="${escHtml(s.cover_url)}" alt="カバー画像" style="width:100%;height:100%;object-fit:cover;object-position:${escHtml(s.cover_position || '50% 50%')};">`
-          : `<span id="sp-cover-preview">📷 タップして画像を選択</span>`}
+      <div id="sp-cover-empty" onclick="document.getElementById('sp-cover-file').click()" style="cursor:pointer;width:100%;height:120px;border-radius:8px;background:rgba(46,196,182,0.1);border:2px dashed rgba(46,196,182,0.3);display:${s.cover_url ? 'none' : 'flex'};align-items:center;justify-content:center;overflow:hidden;color:var(--teal);font-size:13px;">
+        <span>📷 タップして画像を選択</span>
       </div>
       <div id="sp-cover-status" style="font-size:11px;color:var(--teal);margin-top:4px;"></div>
       <input type="file" id="sp-cover-file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="handleShopCoverFile(this)">
 
       <div id="sp-pos-wrap" style="display:${s.cover_url ? '' : 'none'};margin-top:8px;">
-        <div style="font-size:11px;color:var(--on-dark-soft);margin-bottom:6px;letter-spacing:0.08em;display:flex;align-items:center;gap:6px;">
-          表示位置の微調整
-          <span id="sp-pos-label" style="color:var(--teal);font-family:monospace;font-size:10px;">${escHtml(s.cover_position || '50% 50%')}</span>
+        <div style="font-size:11px;color:var(--on-dark-soft);margin-bottom:6px;letter-spacing:0.08em;display:flex;align-items:center;justify-content:space-between;">
+          <span style="display:flex;align-items:center;gap:6px;">
+            表示位置の微調整
+            <span id="sp-pos-label" style="color:var(--teal);font-family:monospace;font-size:10px;">${escHtml(s.cover_position || '50% 50%')}</span>
+          </span>
+          <button type="button" onclick="document.getElementById('sp-cover-file').click()" style="font-size:11px;border:1px solid var(--hairline);background:transparent;color:var(--teal);border-radius:6px;padding:3px 8px;cursor:pointer;">画像を変更</button>
         </div>
         <div id="sp-pos-preview" style="
           width:100%;height:110px;border-radius:6px;overflow:hidden;
@@ -1381,10 +1388,8 @@ async function handleShopCoverFile(input) {
   }
 
   const objectUrl = URL.createObjectURL(file);
-  const previewWrap = document.getElementById('sp-cover-preview-wrap');
-  if (previewWrap) {
-    previewWrap.innerHTML = `<img id="sp-cover-preview" src="${objectUrl}" style="width:100%;height:100%;object-fit:cover;object-position:50% 50%;">`;
-  }
+  const emptyBox = document.getElementById('sp-cover-empty');
+  if (emptyBox) emptyBox.style.display = 'none';
   const statusEl = document.getElementById('sp-cover-status');
   if (statusEl) statusEl.textContent = 'アップロード中...';
 
@@ -1432,8 +1437,6 @@ function spApplyPosXY(x, y) {
   if (label) label.textContent = pos;
   const prev = document.getElementById('sp-pos-preview');
   if (prev) prev.style.backgroundPosition = pos;
-  const img = document.getElementById('sp-cover-preview');
-  if (img && img.tagName === 'IMG') img.style.objectPosition = pos;
 }
 
 function spMovePos(dx, dy) {
@@ -1835,9 +1838,11 @@ function openSlotModal(slotId = null) {
   editSlotId = slotId;
   document.getElementById('slot-modal-title').textContent = slotId ? '空き枠を編集' : '空き枠を追加';
   document.getElementById('s-save-label').textContent     = slotId ? '更新する' : '保存する';
-  ['s-date','s-start','s-end'].forEach(id => document.getElementById(id).value = '');
+  ['s-date','s-date-end','s-start','s-end'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('s-max').value    = 4;
   document.getElementById('s-active').checked = true;
+  // 編集時は1件のみの日付変更のため、期間指定（終了日）欄は新規作成時のみ表示
+  document.getElementById('s-date-end-wrap').style.display = slotId ? 'none' : '';
 
   // ショップモード: インストラクター選択を表示
   const sInstrWrap = document.getElementById('s-instructor-wrap');
@@ -1874,23 +1879,49 @@ function closeSlotModal() {
   editSlotId = null;
 }
 
+// ローカル日付として YYYY-MM-DD を組み立てる（toISOString はUTC変換でズレるため使わない）
+function toLocalDateStr(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+// 開始日〜終了日（両端含む）のYYYY-MM-DD配列を返す
+function dateRange(startStr, endStr) {
+  const [sy, sm, sd] = startStr.split('-').map(Number);
+  const [ey, em, ed] = endStr.split('-').map(Number);
+  const cur = new Date(sy, sm - 1, sd);
+  const end = new Date(ey, em - 1, ed);
+  const dates = [];
+  while (cur <= end) {
+    dates.push(toLocalDateStr(cur));
+    cur.setDate(cur.getDate() + 1);
+  }
+  return dates;
+}
+
 async function saveSlot() {
-  const slotDate = document.getElementById('s-date').value;
-  const start    = document.getElementById('s-start').value;
-  const end      = document.getElementById('s-end').value;
+  const slotDate    = document.getElementById('s-date').value;
+  const slotDateEnd = editSlotId ? '' : document.getElementById('s-date-end').value;
+  const start       = document.getElementById('s-start').value;
+  const end         = document.getElementById('s-end').value;
   if (!slotDate || !start || !end) { showToast('日付・時間は必須です', 'error'); return; }
   if (start >= end) { showToast('開始時刻は終了時刻より前にしてください', 'error'); return; }
+  if (slotDateEnd && slotDateEnd < slotDate) { showToast('終了日は開始日以降にしてください', 'error'); return; }
+
+  const dates = (slotDateEnd && slotDateEnd !== slotDate) ? dateRange(slotDate, slotDateEnd) : [slotDate];
+  if (dates.length > 366) { showToast('一度に作成できる期間は366日までにしてください', 'error'); return; }
 
   const slotInstructorId = myRole === 'shop'
     ? (document.getElementById('s-instructor').value || null)
     : myInstructor.id;
   const slotShopId = myRole === 'shop' ? myShop.id : null;
 
-  const payload = {
+  const basePayload = {
     instructor_id:    slotInstructorId,
     shop_id:          slotShopId,
     listing_id:       document.getElementById('s-listing').value || null,
-    slot_date:        slotDate,
     start_time:       start,
     end_time:         end,
     max_participants: parseInt(document.getElementById('s-max').value) || 1,
@@ -1899,14 +1930,17 @@ async function saveSlot() {
 
   let error;
   if (editSlotId) {
-    ({ error } = await _sb.from('availability_slots').update(payload).eq('id', editSlotId));
+    ({ error } = await _sb.from('availability_slots').update({ ...basePayload, slot_date: slotDate }).eq('id', editSlotId));
   } else {
-    payload.booked_count = 0;
-    ({ error } = await _sb.from('availability_slots').insert(payload));
+    const payloads = dates.map(d => ({ ...basePayload, slot_date: d, booked_count: 0 }));
+    ({ error } = await _sb.from('availability_slots').insert(payloads));
   }
   if (error) { showToast('保存に失敗しました: ' + error.message, 'error'); return; }
   _isDirty = false;
-  showToast(editSlotId ? '空き枠を更新しました' : '空き枠を追加しました', 'success');
+  showToast(
+    editSlotId ? '空き枠を更新しました' : (dates.length > 1 ? `空き枠を${dates.length}件追加しました` : '空き枠を追加しました'),
+    'success'
+  );
   closeSlotModal();
   loadSlots();
 }
