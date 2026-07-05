@@ -1,6 +1,6 @@
 # DB スキーマ設計書 — Freediving Japan
 
-> 最終更新：2026-07-04 | DB: Supabase / PostgreSQL（Project: bbhqvbpsuccbdcnhnobm / Tokyo）
+> 最終更新：2026-07-05 | DB: Supabase / PostgreSQL（Project: bbhqvbpsuccbdcnhnobm / Tokyo）
 
 ---
 

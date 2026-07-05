@@ -704,7 +704,7 @@ function renderModal(inst) {
 
 async function loadListings() {
   try {
-    const { data, error } = await _sb.from('listings').select('id, title, category, intent, area, location_detail, price, price_unit, tags, image_url, instructor_id, shop_id, instructors ( id, name, is_verified, shops ( avg_rating, review_count ) ), shops ( id, name, avg_rating, review_count )').eq('is_public', true).order('sort_order', { ascending: true });
+    const { data, error } = await _sb.from('listings').select('id, title, category, intent, area, prefecture, location_detail, price, price_unit, tags, image_url, instructor_id, shop_id, instructors ( id, name, is_verified, shops ( avg_rating, review_count ) ), shops ( id, name, avg_rating, review_count )').eq('is_public', true).order('sort_order', { ascending: true });
     if (error) throw error;
     allListings = data || [];
     updateCounts();
@@ -834,7 +834,15 @@ function applyUrlParams() {
   const q = p.get('q');
   const intent = p.get('intent');
   const area = p.get('area');
+  const pref = p.get('pref');
   if (q) document.getElementById('searchInput').value = q;
+  if (pref) {
+    const sel = document.getElementById('prefSelect');
+    if ([...sel.options].some(o => o.value === pref)) {
+      sel.value = pref;
+      currentPrefecture = pref;
+    }
+  }
   if (intent && ['try','learn','dive'].includes(intent)) {
     currentIntent = intent;
     document.querySelectorAll('.intent-tab').forEach(t => t.classList.toggle('active', t.dataset.intent === intent));
