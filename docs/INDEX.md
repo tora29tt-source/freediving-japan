@@ -34,7 +34,7 @@ tags: [design-doc, index]
 | 大会・イベント機能 | `events/event-athlete.html`<br>`events/event-staff.html`<br>`events/2026_competitions.html` | [EVENTS_DESIGN.md](./EVENTS_DESIGN.md) | 2026-06-28 |
 | プロダッシュボード | `pro/index.html` | [PRO_DASHBOARD_DESIGN.md](./PRO_DASHBOARD_DESIGN.md) | 2026-06-28 |
 | 管理画面 | `admin/index.html` | [ADMIN_DESIGN.md](./ADMIN_DESIGN.md) | 2026-06-28 |
-| マッチング（探す） | `explore/index.html`<br>`explore/listing.html` | [EXPLORE_DESIGN.md](./EXPLORE_DESIGN.md) | 2026-07-05 |
+| マッチング（探す） | `explore/index.html`<br>`explore/shops.html`<br>`explore/listing.html` | [EXPLORE_DESIGN.md](./EXPLORE_DESIGN.md) | 2026-07-05 |
 | DB スキーマ設計 | `sql/` | [DB_SCHEMA_DESIGN.md](./DB_SCHEMA_DESIGN.md) | 2026-07-04 |
 | Supabase Storage（アバター） | `mypage.html`<br>`pro/index.html` | [STORAGE_DESIGN.md](./STORAGE_DESIGN.md) | 2026-06-28 |
 | メディア（記事管理・CMS・公開フロー・SEO・SNS・技術仕様） | `media/index.html`<br>`media/article.html`<br>`media/article-editor.html` | [MEDIA_OPS.md](../MEDIA_OPS.md) | 2026-06-29 |

@@ -282,6 +282,7 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
   stripe-webhook.js
 /explore/                 # マッチング（先行実装中）
   index.html
+  shops.html              # ショップ・インストラクターディレクトリ（2026-07-05〜）
   listing.html            # リスティング詳細（旧instructor.html）
 /booking/
   success.html
@@ -421,7 +422,7 @@ TOP (index.html)  ── Airbnb風マーケットプレイス（白基調）
 |認証画面（auth.html）                                     |✅ メール/パスワード・Googleログイン実装済み（Apple は Developer 登録待ち）|
 |Supabase DB                                        |✅ テーブル作成済み（training_sessions/dives/events/shops/instructors/listings/reviews）|
 |Supabase 認証接続                                      |✅ メール/パスワード・Google OAuth 接続済み|
-|マッチング（/explore/）                                    |🔄 先行実装中（Supabase: shops/instructors/listings/reviews スキーマ投入済み。explore/index.html・instructor.html 動作確認済み。本格公開は Phase 2。**検索強化: リアルタイム検索・インストラクター名検索・価格帯フィルタ・ソート機能 追加済み**。**2026-07-05: コース登録フォームの「エリア」（`pro/index.html`・`admin/index.html` 両方）を自由入力→探すページのエリアチップ13種と同じ選択式に変更（表記ゆれで検索に乗らない問題を修正、詳細はEXPLORE_DESIGN.md）**）|
+|マッチング（/explore/）                                    |🔄 先行実装中（Supabase: shops/instructors/listings/reviews スキーマ投入済み。explore/index.html・instructor.html 動作確認済み。本格公開は Phase 2。**検索強化: リアルタイム検索・インストラクター名検索・価格帯フィルタ・ソート機能 追加済み**。**2026-07-05: コース登録フォームの「エリア」（`pro/index.html`・`admin/index.html` 両方）を自由入力→探すページのエリアチップ13種と同じ選択式に変更（表記ゆれで検索に乗らない問題を修正）。加えて、コースが無いショップ/インストラクターも見つけられるよう`explore/shops.html`（ショップ・インストラクターディレクトリ）を新設し、フッターの「ショップ/インストラクターを探す」導線をそちらに変更（詳細はEXPLORE_DESIGN.md）**）|
 |listings 全フィールド対応                                    |✅ pro/index.html に max_participants・flow_steps・gallery_urls 追加。instructor.html でギャラリー複数表示・price_includes/excludes・meeting_point・what_to_bring・season・booking_deadline・has_shuttle を表示対応|
 |予約・決済フロー（/explore/instructor.html + /api/）           |✅ 完成・動作確認済み（カレンダーUI → Stripe Checkout → 予約完了ページのフルフロー。E2Eテスト: status=paid 確認済み）|
 |Supabase: availability_slots / bookings テーブル          |✅ 作成済み・RLS設定済み|

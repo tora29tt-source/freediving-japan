@@ -16,8 +16,9 @@
 ## 2. ファイル構成
 
 ```
-/explore/index.html     # 検索・一覧ページ
-/explore/listing.html   # リスティング詳細・予約ページ
+/explore/index.html     # コース・体験の検索・一覧ページ
+/explore/shops.html     # ショップ・インストラクターのディレクトリページ（2026-07-05〜）
+/explore/listing.html   # リスティング詳細・予約ページ（ショップ/インストラクターのプロフィール表示も兼ねる）
 ```
 
 ---
@@ -134,7 +135,38 @@ instructor/shop 共通の `normalizeOwner(raw, type)` ヘルパーで所有者�
 
 ---
 
-## 6. DB テーブル
+## 6. ショップ・インストラクターディレクトリ（shops.html・2026-07-05〜）
+
+コース単位ではなく、ショップ・インストラクター単体を検索するための専用ページ。フッターの「ショップ/インストラクターを探す」リンク先（従来は`explore/index.html`への自己参照になっていた導線を修正）。
+
+**背景：** 探すページ（`index.html`）は`listings`単位の検索で、ショップ・インストラクターの「活動エリア」（`shops.areas` / `instructors.areas`）はコースの`area`フィールドとは別物のため検索に反映されていなかった。ショップがまだ1件もコースを掲載していない場合、そのショップは`explore/index.html`のエリアチップ検索では一切見つけられない、という穴があった。
+
+### データ取得
+
+```js
+// ショップ
+_sb.from('shops').select('id, name, bio, shop_type, areas, logo_url, avg_rating, review_count, is_verified').eq('is_public', true);
+// インストラクター
+_sb.from('instructors').select('id, name, bio, areas, photo_url, is_verified, shops ( avg_rating, review_count )').eq('is_public', true).eq('status', 'approved');
+```
+
+型ごとに初回取得時にキャッシュし、「ショップ」「インストラクター」タブ切替では再フェッチしない。
+
+### フィルタ
+
+| フィルタ | 実装 |
+|---|---|
+| エリアチップ | `explore/index.html`と同じ13種。`(o.areas || []).some(a => a.includes(currentArea))` で部分一致判定（`areas`は「沖縄（4月〜10月）」のような季節ラベル付き文字列のため） |
+| キーワード検索 | 名前・bio の部分一致 |
+| ソート | おすすめ順 / 評価順（`avg_rating`） |
+
+### カードのリンク先
+
+`listing.html?shop={shopId}` または `listing.html?id={instructorId}` へ遷移（新規ページを作らず、既存の`listing.html`のオーナー表示モードを再利用。コースが0件のショップ/インストラクターでもプロフィール自体は表示される）。
+
+---
+
+## 7. DB テーブル
 
 ### listings（主要カラム）
 
@@ -197,7 +229,7 @@ instructor/shop 共通の `normalizeOwner(raw, type)` ヘルパーで所有者�
 
 ---
 
-## 7. 既知の制限・将来対応
+## 8. 既知の制限・将来対応
 
 | 項目 | 内容 |
 |---|---|
