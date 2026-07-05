@@ -439,7 +439,24 @@ td.primary { color: var(--on-dark); font-weight: 500; }
       </div>
       <div class="form-group">
         <label>エリア</label>
-        <input type="text" id="l-area" placeholder="例：沖縄、伊豆">
+        <select id="l-area" onchange="toggleAreaOther(this)">
+          <option value="">選択してください</option>
+          <option value="沖縄">沖縄</option>
+          <option value="石垣島">石垣島</option>
+          <option value="宮古島">宮古島</option>
+          <option value="西表島">西表島</option>
+          <option value="与那国島">与那国島</option>
+          <option value="久米島">久米島</option>
+          <option value="慶良間諸島">慶良間諸島</option>
+          <option value="奄美大島">奄美大島</option>
+          <option value="伊豆">伊豆</option>
+          <option value="東京">東京</option>
+          <option value="紀伊半島">紀伊半島</option>
+          <option value="瀬戸内">瀬戸内</option>
+          <option value="北海道">北海道</option>
+          <option value="__other__">その他（探すページのエリア検索対象外になります）</option>
+        </select>
+        <input type="text" id="l-area-other" placeholder="例：知床" style="margin-top:8px;display:none;">
       </div>
     </div>
 
@@ -705,14 +722,6 @@ td.primary { color: var(--on-dark); font-weight: 500; }
     <div class="form-group">
       <label>屋号 <span style="color:var(--warm);">*</span></label>
       <input type="text" id="csp-name" placeholder="例：Blue Ocean Freediving">
-    </div>
-    <div class="form-group">
-      <label>ショップタイプ</label>
-      <select id="csp-type">
-        <option value="individual">個人</option>
-        <option value="school">スクール</option>
-        <option value="operator">ダイビングオペレーター</option>
-      </select>
     </div>
     <div class="form-group">
       <label>自己紹介</label>
@@ -1045,7 +1054,6 @@ async function createShopProfile() {
   const { data: shop, error } = await _sb.from('shops').insert({
     user_id:   currentUser.id,
     name,
-    shop_type: document.getElementById('csp-type').value,
     bio:       document.getElementById('csp-bio').value.trim()  || null,
     areas:     collectAreaRows('csp-area-rows'),
     languages: collectLanguages('csp'),
@@ -1085,7 +1093,6 @@ function renderShopProfileForm() {
   const sKnownChecked = langs.filter(l => knownLangsS.includes(l));
   const sOtherLangs   = langs.filter(l => !knownLangsS.includes(l));
   const sHasOther     = sOtherLangs.length > 0;
-  const typeLabel = { individual:'個人', school:'スクール', operator:'ダイビングオペレーター' }[s.shop_type] || s.shop_type || '—';
 
   document.getElementById('profile-form-wrap').innerHTML = `
     <div class="profile-hero">
@@ -1094,21 +1101,12 @@ function renderShopProfileForm() {
       </div>
       <div class="profile-meta">
         <h2>${escHtml(s.name)}</h2>
-        <p style="color:var(--teal);font-size:12px;">${typeLabel}</p>
       </div>
     </div>
 
     <div class="form-section-title">基本情報</div>
     <div class="form-row">
       <div class="form-group"><label>屋号</label><input type="text" id="sp-name" value="${escHtml(s.name||'')}"></div>
-      <div class="form-group">
-        <label>ショップタイプ</label>
-        <select id="sp-type">
-          <option value="individual"${s.shop_type==='individual'?' selected':''}>個人</option>
-          <option value="school"${s.shop_type==='school'?' selected':''}>スクール</option>
-          <option value="operator"${s.shop_type==='operator'?' selected':''}>ダイビングオペレーター</option>
-        </select>
-      </div>
     </div>
     <div class="form-group"><label>自己紹介</label><textarea id="sp-bio">${escHtml(s.bio||'')}</textarea></div>
 
@@ -1147,7 +1145,6 @@ function renderShopProfileForm() {
 async function saveShopProfile() {
   const payload = {
     name:          document.getElementById('sp-name').value.trim(),
-    shop_type:     document.getElementById('sp-type').value,
     bio:           document.getElementById('sp-bio').value.trim()    || null,
     areas:         collectAreaRows('sp-area-rows'),
     languages:     collectLanguages('sp'),
@@ -1240,11 +1237,12 @@ function openListingModal(listingId = null) {
   editListingId = listingId;
   document.getElementById('listing-modal-title').textContent = listingId ? 'コースを編集' : 'コースを追加';
   document.getElementById('l-save-label').textContent        = listingId ? '更新する' : '保存する';
-  ['l-title','l-desc','l-pref','l-area','l-tags','l-image',
+  ['l-title','l-desc','l-pref','l-area','l-area-other','l-tags','l-image',
    'l-price-inc','l-price-exc','l-duration','l-season','l-meeting',
    'l-deadline','l-cancel','l-bring','l-notes'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
+  document.getElementById('l-area-other').style.display = 'none';
   document.getElementById('l-price').value       = '';
   document.getElementById('l-price-unit').value  = '〜/人';
   document.getElementById('l-min-pax').value     = '';
@@ -1283,7 +1281,17 @@ function openListingModal(listingId = null) {
       document.getElementById('l-category').value    = l.category    || 'フリーダイビング体験';
       document.getElementById('l-intent').value      = l.intent      || 'try';
       document.getElementById('l-pref').value        = l.prefecture  || '';
-      document.getElementById('l-area').value        = l.area        || '';
+      // エリア：既存の値が選択肢にあればそれを選択、無ければ「その他」＋自由入力欄に復元
+      const areaSel = document.getElementById('l-area');
+      const areaKnown = [...areaSel.options].some(o => o.value === (l.area || ''));
+      if (l.area && !areaKnown) {
+        areaSel.value = '__other__';
+        document.getElementById('l-area-other').value = l.area;
+        document.getElementById('l-area-other').style.display = '';
+      } else {
+        areaSel.value = l.area || '';
+        document.getElementById('l-area-other').style.display = 'none';
+      }
       document.getElementById('l-price').value       = l.price       || '';
       document.getElementById('l-price-unit').value  = l.price_unit  || '〜/人';
       document.getElementById('l-price-inc').value   = l.price_includes  || '';
@@ -1347,7 +1355,9 @@ async function saveListing() {
     category:            document.getElementById('l-category').value,
     intent:              document.getElementById('l-intent').value,
     prefecture:          document.getElementById('l-pref').value.trim()           || null,
-    area:                document.getElementById('l-area').value.trim()           || null,
+    area:                (document.getElementById('l-area').value === '__other__'
+                            ? document.getElementById('l-area-other').value.trim()
+                            : document.getElementById('l-area').value)             || null,
     price:               parseInt(document.getElementById('l-price').value)       || null,
     price_unit:          document.getElementById('l-price-unit').value.trim()     || '〜/人',
     price_includes:      document.getElementById('l-price-inc').value.trim()      || null,
@@ -1751,6 +1761,10 @@ function collectAreaRows(containerId) {
 
 function toggleLangOther(cb, inputId) {
   document.getElementById(inputId).style.display = cb.checked ? '' : 'none';
+}
+
+function toggleAreaOther(sel) {
+  document.getElementById('l-area-other').style.display = sel.value === '__other__' ? '' : 'none';
 }
 
 function collectLanguages(prefix) {

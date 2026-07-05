@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ショップ・インストラクターを探す — Freediving Japan</title>
+<meta name="theme-color" content="#ffffff">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<link rel="stylesheet" href="../css/home.css">
+<style>
+:root {
+  --on-dark: var(--ink);
+  --on-dark-mid: var(--ink-mid);
+  --on-dark-soft: var(--ink-soft);
+  --hairline: var(--line);
+  --glass: #ffffff;
+  --teal-light: var(--teal-deep);
+  --warm: #f97316;
+}
+
+.main { max-width: 640px; margin: 0 auto; padding: 0 16px 80px; }
+
+/* ── search hero（explore/index.htmlと共通スタイル） ── */
+.search-hero { padding: 28px 20px 26px; text-align: center; }
+.search-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--teal-deep); margin-bottom: 10px; }
+.search-title { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.5; margin-bottom: 22px; color: var(--ink); }
+.search-title em { font-style: normal; color: var(--accent); }
+.search-bar-wrap { position: relative; max-width: 480px; margin: 0 auto; }
+.search-bar { width: 100%; background: #fff; border: 1px solid var(--line-strong); border-radius: 100px; padding: 14px 52px 14px 48px; font-size: 14px; color: var(--ink); outline: none; box-shadow: var(--shadow-pill); transition: box-shadow 0.2s, border-color 0.2s; }
+.search-bar::placeholder { color: var(--ink-soft); }
+.search-bar:focus { border-color: var(--ink-strong,#c9c9cd); box-shadow: 0 6px 20px rgba(20,20,30,.13); }
+.search-icon-left { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--teal-deep); pointer-events: none; }
+.search-icon-left .icon { width: 18px; height: 18px; }
+.search-btn { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: var(--accent); border: none; border-radius: 100px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; transition: background 0.2s; }
+.search-btn:hover { background: var(--accent-strong); }
+.search-btn .icon { width: 16px; height: 16px; stroke-width: 2; }
+
+/* ── コース/ショップ 切替タブ（explore/index.htmlのintent-tabsを流用） ── */
+.intent-tabs { display: flex; gap: 8px; margin-bottom: 22px; }
+.intent-tab { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px 16px; border-radius: 14px; border: 1px solid var(--line-strong); background: #fff; cursor: pointer; transition: border-color 0.2s, background 0.2s; font-size: 13px; font-weight: 600; color: var(--ink-mid); }
+.intent-tab.active { border-color: var(--ink); background: var(--ink); color: #fff; }
+.intent-tab .icon { width: 15px; height: 15px; }
+
+/* ── filters（チップ行はexplore/index.htmlと共通） ── */
+.filter-section { margin-bottom: 20px; }
+.filter-label { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 10px; font-weight: 600; }
+.chip-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.chip-row::-webkit-scrollbar { display: none; }
+.chip { flex-shrink: 0; padding: 8px 14px; border-radius: 100px; border: 1px solid var(--line-strong); background: #fff; font-size: 12px; font-weight: 600; color: var(--ink-mid); cursor: pointer; transition: border-color 0.2s, background 0.2s, color 0.2s; }
+.chip.active { border-color: var(--ink); background: var(--ink); color: #fff; }
+
+/* ── divider / result header ── */
+.divider { display: flex; align-items: center; gap: 12px; margin: 22px 0; }
+.divider-line { flex: 1; height: 1px; background: var(--line); }
+.divider-label { font-size: 11px; font-weight: 600; color: var(--ink-soft); letter-spacing: 0.06em; white-space: nowrap; }
+.result-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.result-count { font-size: 12px; color: var(--ink-soft); }
+.result-count span { color: var(--teal-deep); font-weight: 700; }
+.sort-btn { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--ink-mid); background: #fff; border: 1px solid var(--line-strong); cursor: pointer; padding: 7px 14px; border-radius: 100px; transition: border-color 0.2s; }
+.sort-btn:hover { border-color: var(--ink); }
+.sort-btn .icon { width: 14px; height: 14px; }
+
+/* ── owner cards（ショップ/インストラクター共通） ── */
+.owners { display: flex; flex-direction: column; gap: 12px; }
+.owner-card { border-radius: 16px; border: 1px solid var(--line); background: #fff; overflow: hidden; display: flex; align-items: center; gap: 14px; padding: 14px; cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s; text-decoration: none; color: inherit; }
+.owner-card:hover { border-color: var(--line-strong); box-shadow: var(--shadow-card); }
+.owner-avatar { width: 60px; height: 60px; border-radius: 50%; flex-shrink: 0; object-fit: cover; background: #f0f0f2; border: 1px solid var(--line); }
+.owner-avatar-ph { width: 60px; height: 60px; border-radius: 50%; flex-shrink: 0; background: #f0f0f2; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; color: var(--teal-deep); font-size: 20px; font-weight: 700; }
+.owner-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.owner-name-row { display: flex; align-items: center; gap: 6px; }
+.owner-name { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.owner-type { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--teal-deep); font-weight: 700; }
+.owner-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.meta-item { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--ink-soft); }
+.meta-item .icon { width: 12px; height: 12px; }
+.owner-bio { font-size: 12px; color: var(--ink-mid); line-height: 1.5; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; }
+.owner-badge { display: inline-flex; align-items: center; gap: 3px; background: rgba(31,111,120,0.10); border: 1px solid rgba(31,111,120,0.3); border-radius: 100px; padding: 2px 8px; font-size: 10px; color: var(--teal-deep); font-weight: 600; }
+.owner-badge svg { width: 9px; height: 9px; fill: var(--teal-deep); stroke: none; }
+
+/* ── skeleton / empty ── */
+.skeleton { border-radius: 16px; border: 1px solid var(--line); background: #fff; overflow: hidden; display: flex; align-items: center; gap: 14px; padding: 14px; height: 88px; }
+.skeleton-thumb { width: 60px; height: 60px; border-radius: 50%; background: #f0f0f2; flex-shrink: 0; }
+.skeleton-body { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.skeleton-line { height: 12px; border-radius: 6px; background: linear-gradient(90deg, #eee 0%, #f6f6f7 50%, #eee 100%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+@keyframes shimmer { 0%{ background-position: -200% 0 } 100%{ background-position: 200% 0 } }
+.empty-state { text-align: center; padding: 60px 24px; }
+.empty-icon { width: 56px; height: 56px; border-radius: 50%; background: rgba(31,111,120,0.08); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; color: var(--teal-deep); margin: 0 auto 18px; }
+.empty-icon .icon { width: 24px; height: 24px; }
+.empty-title { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+.empty-desc { font-size: 12px; color: var(--ink-soft); line-height: 1.8; }
+
+@media (max-width: 480px) { .search-title { font-size: 19px; } .owner-avatar, .owner-avatar-ph { width: 52px; height: 52px; } }
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="hdr-in">
+    <a class="logo" href="../index.html">FREEDIVING <span>JAPAN</span></a>
+    <div class="hdr-right">
+      <a class="hdr-link" href="../mypage.html">
+        <span class="avatar"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/></svg></span>
+        マイページ
+      </a>
+    </div>
+  </div>
+</header>
+<main class="main">
+  <a class="crumb" href="../index.html" style="margin:14px 0 0"><svg class="icon" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>ホームに戻る</a>
+
+  <div class="search-hero">
+    <p class="search-eyebrow">Find a Shop</p>
+    <h1 class="search-title">どこの<em>ショップ・インストラクター</em>にする？</h1>
+    <div class="search-bar-wrap">
+      <div class="search-icon-left">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </div>
+      <input class="search-bar" type="search" placeholder="ショップ名・インストラクター名で検索" id="searchInput">
+      <button class="search-btn" onclick="renderOwners()">
+        <svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="intent-tabs" id="typeTabs">
+    <button class="intent-tab active" data-type="shop" onclick="setType(this,'shop')">ショップ</button>
+    <button class="intent-tab" data-type="instructor" onclick="setType(this,'instructor')">インストラクター</button>
+  </div>
+
+  <div class="filter-section">
+    <p class="filter-label">エリア</p>
+    <div class="chip-row" id="areaChips">
+      <button class="chip active" data-area="" onclick="toggleArea(this)">全国</button>
+      <button class="chip" data-area="沖縄" onclick="toggleArea(this)">沖縄</button>
+      <button class="chip" data-area="石垣島" onclick="toggleArea(this)">石垣島</button>
+      <button class="chip" data-area="宮古島" onclick="toggleArea(this)">宮古島</button>
+      <button class="chip" data-area="西表島" onclick="toggleArea(this)">西表島</button>
+      <button class="chip" data-area="与那国島" onclick="toggleArea(this)">与那国島</button>
+      <button class="chip" data-area="久米島" onclick="toggleArea(this)">久米島</button>
+      <button class="chip" data-area="慶良間諸島" onclick="toggleArea(this)">慶良間諸島</button>
+      <button class="chip" data-area="奄美大島" onclick="toggleArea(this)">奄美大島</button>
+      <button class="chip" data-area="伊豆" onclick="toggleArea(this)">伊豆</button>
+      <button class="chip" data-area="東京" onclick="toggleArea(this)">東京</button>
+      <button class="chip" data-area="紀伊半島" onclick="toggleArea(this)">紀伊半島</button>
+      <button class="chip" data-area="瀬戸内" onclick="toggleArea(this)">瀬戸内</button>
+      <button class="chip" data-area="北海道" onclick="toggleArea(this)">北海道</button>
+    </div>
+  </div>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <span class="divider-label" id="typeLabel">ショップ一覧</span>
+    <div class="divider-line"></div>
+  </div>
+  <div class="result-header">
+    <p class="result-count"><span id="countNum">—</span> 件</p>
+    <button class="sort-btn" id="sortBtn" onclick="cycleSort()">
+      <svg class="icon" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="9" y1="18" x2="15" y2="18"/></svg>
+      <span id="sortLabel">おすすめ順</span>
+    </button>
+  </div>
+  <div class="owners" id="owners">
+    <div class="skeleton"><div class="skeleton-thumb"></div><div class="skeleton-body"><div class="skeleton-line" style="width:40%"></div><div class="skeleton-line" style="width:70%"></div></div></div>
+    <div class="skeleton"><div class="skeleton-thumb"></div><div class="skeleton-body"><div class="skeleton-line" style="width:35%"></div><div class="skeleton-line" style="width:60%"></div></div></div>
+    <div class="skeleton"><div class="skeleton-thumb"></div><div class="skeleton-body"><div class="skeleton-line" style="width:45%"></div><div class="skeleton-line" style="width:55%"></div></div></div>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="foot-in">
+    <div class="foot-col">
+      <h4>探す</h4>
+      <a href="../snorkeling.html">シュノーケリング</a>
+      <a href="../skindiving.html">スキンダイビング</a>
+      <a href="../freediving.html">フリーダイビング</a>
+      <a href="index.html">コース・体験を探す</a>
+    </div>
+    <div class="foot-col">
+      <h4>学ぶ・読む</h4>
+      <a href="../learn/index.html">動画で学ぶ</a>
+      <a href="../media/index.html">記事・コラム</a>
+    </div>
+    <div class="foot-col">
+      <h4>競技</h4>
+      <a href="../events/2026_competitions.html">大会情報</a>
+      <a href="../rankings/AIDA_ranking.html">国内ランキング</a>
+    </div>
+    <div class="foot-col">
+      <h4>その他</h4>
+      <a href="../mypage.html">マイページ</a>
+    </div>
+  </div>
+  <div class="foot-bottom"><div class="wrap">© 2026 FREEDIVING JAPAN（仮）</div></div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
+<script>
+// esc: DB由来の値をHTMLへ挿入する前にエスケープ（S4対策と同様の方針）
+function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+let currentType  = 'shop';
+let currentArea  = '';
+let currentSort  = 'default';
+const SORT_CYCLE  = ['default', 'rating'];
+const SORT_LABELS = { default: 'おすすめ順', rating: '評価順' };
+
+const cache = { shop: null, instructor: null }; // 一度取得したら型ごとにキャッシュ
+
+// ショップ/インストラクターの生データを共通の形に正規化する
+// （explore/listing.html の normalizeOwner() と同じ方針）
+function normalizeShop(raw) {
+  return {
+    type: 'shop', id: raw.id, name: raw.name, photo: raw.logo_url,
+    is_verified: raw.is_verified, areas: raw.areas || [], bio: raw.bio,
+    avg_rating: raw.avg_rating, review_count: raw.review_count,
+    typeLabel: { individual:'個人', school:'スクール', operator:'ダイビングオペレーター' }[raw.shop_type] || 'ショップ',
+    linkQuery: `shop=${esc(raw.id)}`,
+  };
+}
+function normalizeInstructor(raw) {
+  return {
+    type: 'instructor', id: raw.id, name: raw.name, photo: raw.photo_url,
+    is_verified: raw.is_verified, areas: raw.areas || [], bio: raw.bio,
+    avg_rating: raw.shops?.avg_rating, review_count: raw.shops?.review_count,
+    typeLabel: 'インストラクター',
+    linkQuery: `id=${esc(raw.id)}`,
+  };
+}
+
+async function loadOwners(type) {
+  if (cache[type]) return cache[type];
+  if (type === 'shop') {
+    const { data, error } = await _sb.from('shops')
+      .select('id, name, bio, shop_type, areas, logo_url, avg_rating, review_count, is_verified')
+      .eq('is_public', true);
+    if (error) throw error;
+    cache.shop = (data || []).map(normalizeShop);
+  } else {
+    const { data, error } = await _sb.from('instructors')
+      .select('id, name, bio, areas, photo_url, is_verified, shops ( avg_rating, review_count )')
+      .eq('is_public', true).eq('status', 'approved');
+    if (error) throw error;
+    cache.instructor = (data || []).map(normalizeInstructor);
+  }
+  return cache[type];
+}
+
+async function setType(el, type) {
+  document.querySelectorAll('#typeTabs .intent-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  currentType = type;
+  document.getElementById('typeLabel').textContent = type === 'shop' ? 'ショップ一覧' : 'インストラクター一覧';
+  document.getElementById('searchInput').placeholder = type === 'shop' ? 'ショップ名で検索' : 'インストラクター名で検索';
+  await renderOwners();
+}
+
+function toggleArea(el) {
+  document.querySelectorAll('#areaChips .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  currentArea = el.dataset.area || '';
+  renderOwners();
+}
+
+function cycleSort() {
+  const idx = SORT_CYCLE.indexOf(currentSort);
+  currentSort = SORT_CYCLE[(idx + 1) % SORT_CYCLE.length];
+  document.getElementById('sortLabel').textContent = SORT_LABELS[currentSort];
+  renderOwners();
+}
+
+async function renderOwners() {
+  const container = document.getElementById('owners');
+  let owners;
+  try {
+    owners = await loadOwners(currentType);
+  } catch (err) {
+    console.error(err);
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><p class="empty-title">データを読み込めませんでした</p><p class="empty-desc">しばらく経ってから再度お試しください</p></div>';
+    return;
+  }
+
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  let filtered = owners.filter(o => {
+    // エリアはプロフィールの「活動エリア」に季節ラベル付きで入っていることがある（例：沖縄（4月〜10月））ため部分一致で判定
+    if (currentArea && !(o.areas || []).some(a => a.includes(currentArea))) return false;
+    if (q && !`${o.name} ${o.bio || ''}`.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  if (currentSort === 'rating') {
+    filtered = [...filtered].sort((a, b) => (b.avg_rating || 0) - (a.avg_rating || 0));
+  }
+
+  document.getElementById('countNum').textContent = filtered.length;
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><p class="empty-title">該当する結果がありません</p><p class="empty-desc">条件を変えてもう一度お試しください</p></div>';
+    return;
+  }
+
+  container.innerHTML = filtered.map(o => {
+    const verified = o.is_verified ? `<span class="owner-badge"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>認証済み</span>` : '';
+    const avatarHtml = o.photo
+      ? `<img class="owner-avatar" src="${esc(o.photo)}" alt="${esc(o.name)}">`
+      : `<div class="owner-avatar-ph">${esc((o.name || '?').charAt(0))}</div>`;
+    const ratingHtml = o.avg_rating
+      ? `<span class="meta-item" style="color:var(--warm)">★ ${parseFloat(o.avg_rating).toFixed(1)}<span style="color:var(--ink-soft);margin-left:2px">(${esc(o.review_count || 0)})</span></span>`
+      : '';
+    const areaHtml = (o.areas || []).slice(0, 2).map(a => `<span class="meta-item"><svg class="icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${esc(a)}</span>`).join('');
+    return `<a class="owner-card" href="listing.html?${o.linkQuery}">
+      ${avatarHtml}
+      <div class="owner-body">
+        <div class="owner-name-row">
+          <span class="owner-type">${esc(o.typeLabel)}</span>
+          ${verified}
+        </div>
+        <p class="owner-name">${esc(o.name)}</p>
+        <div class="owner-meta">${areaHtml}${ratingHtml}</div>
+        ${o.bio ? `<p class="owner-bio">${esc(o.bio)}</p>` : ''}
+      </div>
+    </a>`;
+  }).join('');
+}
+
+renderOwners();
+</script>
+</body>
+</html>

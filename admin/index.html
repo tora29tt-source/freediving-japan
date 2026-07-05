@@ -1215,7 +1215,24 @@ td.name { color: var(--on-dark); font-weight: 500; }
       </div>
       <div class="form-group">
         <label>エリア</label>
-        <input type="text" id="listing-area" placeholder="恩納村">
+        <select id="listing-area" onchange="toggleListingAreaOther(this)">
+          <option value="">選択してください</option>
+          <option value="沖縄">沖縄</option>
+          <option value="石垣島">石垣島</option>
+          <option value="宮古島">宮古島</option>
+          <option value="西表島">西表島</option>
+          <option value="与那国島">与那国島</option>
+          <option value="久米島">久米島</option>
+          <option value="慶良間諸島">慶良間諸島</option>
+          <option value="奄美大島">奄美大島</option>
+          <option value="伊豆">伊豆</option>
+          <option value="東京">東京</option>
+          <option value="紀伊半島">紀伊半島</option>
+          <option value="瀬戸内">瀬戸内</option>
+          <option value="北海道">北海道</option>
+          <option value="__other__">その他（探すページのエリア検索対象外になります）</option>
+        </select>
+        <input type="text" id="listing-area-other" placeholder="例：恩納村" style="margin-top:8px;display:none;">
       </div>
     </div>
 
@@ -2026,6 +2043,10 @@ function splitTrim(str) {
   return str.split(',').map(s => s.trim()).filter(Boolean);
 }
 
+function toggleListingAreaOther(sel) {
+  document.getElementById('listing-area-other').style.display = sel.value === '__other__' ? '' : 'none';
+}
+
 async function saveInstructor() {
   const name = document.getElementById('inst-name').value.trim();
   if (!name) { showToast('名前は必須です', 'error'); return; }
@@ -2154,9 +2175,10 @@ function openListingModal(listingId = null) {
   });
 
   // リセット
-  ['listing-title','listing-description','listing-category','listing-prefecture','listing-area','listing-tags'].forEach(id => {
+  ['listing-title','listing-description','listing-category','listing-prefecture','listing-area','listing-area-other','listing-tags'].forEach(id => {
     document.getElementById(id).value = '';
   });
+  document.getElementById('listing-area-other').style.display = 'none';
   document.getElementById('listing-intent').value      = 'try';
   document.getElementById('listing-price').value       = '';
   document.getElementById('listing-price-unit').value  = '〜/人';
@@ -2174,7 +2196,17 @@ function openListingModal(listingId = null) {
       document.getElementById('listing-category').value    = d.category || '';
       document.getElementById('listing-intent').value      = d.intent || 'try';
       document.getElementById('listing-prefecture').value  = d.prefecture || '';
-      document.getElementById('listing-area').value        = d.area || '';
+      // エリア：既存の値が選択肢にあればそれを選択、無ければ「その他」＋自由入力欄に復元
+      const areaSel = document.getElementById('listing-area');
+      const areaKnown = [...areaSel.options].some(o => o.value === (d.area || ''));
+      if (d.area && !areaKnown) {
+        areaSel.value = '__other__';
+        document.getElementById('listing-area-other').value = d.area;
+        document.getElementById('listing-area-other').style.display = '';
+      } else {
+        areaSel.value = d.area || '';
+        document.getElementById('listing-area-other').style.display = 'none';
+      }
       document.getElementById('listing-price').value       = d.price || '';
       document.getElementById('listing-price-unit').value  = d.price_unit || '〜/人';
       document.getElementById('listing-tags').value        = (d.tags || []).join(', ');
@@ -2205,7 +2237,9 @@ async function saveListing() {
     category:     document.getElementById('listing-category').value.trim() || null,
     intent:       document.getElementById('listing-intent').value,
     prefecture:   document.getElementById('listing-prefecture').value.trim() || null,
-    area:         document.getElementById('listing-area').value.trim() || null,
+    area:         (document.getElementById('listing-area').value === '__other__'
+                      ? document.getElementById('listing-area-other').value.trim()
+                      : document.getElementById('listing-area').value)         || null,
     price:        parseInt(document.getElementById('listing-price').value) || null,
     price_unit:   document.getElementById('listing-price-unit').value.trim() || '〜/人',
     tags:         splitTrim(document.getElementById('listing-tags').value),
