@@ -626,17 +626,22 @@ td.primary { color: var(--on-dark); font-weight: 500; }
     </div>
 
     <div class="form-group">
-      <label>メイン画像URL</label>
-      <input type="url" id="l-image" placeholder="https://...">
+      <label>メイン画像</label>
+      <div id="l-image-preview-wrap" onclick="document.getElementById('l-image-file').click()" style="cursor:pointer;width:100%;height:160px;border-radius:8px;background:rgba(46,196,182,0.1);border:2px dashed rgba(46,196,182,0.3);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--teal);font-size:13px;">
+        <span id="l-image-preview">📷 タップして画像を選択</span>
+      </div>
+      <div id="l-image-status" style="font-size:11px;color:var(--teal);margin-top:4px;"></div>
+      <input type="file" id="l-image-file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="handleListingImageFile(this)">
+      <input type="hidden" id="l-image">
     </div>
     <div class="form-group">
       <label>ギャラリー画像 <span style="color:var(--on-dark-soft);font-weight:400;">（複数可）</span></label>
       <div id="l-gallery-rows" style="display:flex;flex-direction:column;gap:8px;"></div>
       <button type="button" class="btn-secondary" style="margin-top:8px;font-size:13px;padding:6px 14px;" onclick="addGalleryRow()">
         <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
-        画像URLを追加
+        画像を追加
       </button>
-      <p class="form-hint">サブ画像のURLをまとめて登録できます</p>
+      <p class="form-hint">サブ画像をまとめてアップロードできます</p>
     </div>
 
     <p class="form-section-title" style="margin-top:20px;">当日の流れ</p>
@@ -1389,6 +1394,8 @@ function openListingModal(listingId = null) {
   document.getElementById('l-rental-rows').innerHTML  = '';
   document.getElementById('l-gallery-rows').innerHTML = '';
   document.getElementById('l-flow-rows').innerHTML    = '';
+  document.getElementById('l-image-preview-wrap').innerHTML = '<span id="l-image-preview">📷 タップして画像を選択</span>';
+  document.getElementById('l-image-status').textContent     = '';
 
   // ショップモード: インストラクター選択を表示
   const instrWrap = document.getElementById('l-instructor-wrap');
@@ -1453,6 +1460,9 @@ function openListingModal(listingId = null) {
       document.getElementById('l-notes').value       = l.notes           || '';
       document.getElementById('l-tags').value        = (l.tags || []).join(', ');
       document.getElementById('l-image').value       = l.image_url       || '';
+      document.getElementById('l-image-preview-wrap').innerHTML = l.image_url
+        ? `<img id="l-image-preview" src="${escHtml(l.image_url)}" style="width:100%;height:100%;object-fit:cover;">`
+        : '<span id="l-image-preview">📷 タップして画像を選択</span>';
       document.getElementById('l-public').checked    = l.is_public !== false;
       // 設備チェックボックスを復元
       (l.facilities || []).forEach(v => { const cb = document.querySelector(`#l-facilities input[value="${v}"]`); if (cb) cb.checked = true; });
@@ -1953,13 +1963,22 @@ function collectRentalGear() {
   })).filter(item => item.name);
 }
 
+let _galleryRowSeq = 0;
 function addGalleryRow(url = '') {
   const container = document.getElementById('l-gallery-rows');
+  const uid = 'gallery-' + (_galleryRowSeq++);
   const row = document.createElement('div');
   row.style.cssText = 'display:flex;gap:8px;align-items:center;';
   row.innerHTML = `
-    <input type="url" class="gallery-url" placeholder="https://..." value="${escHtml(url)}"
-      style="flex:1;padding:8px 10px;background:var(--ocean-deep);border:1px solid var(--hairline);border-radius:6px;color:var(--on-dark);font-size:14px;">
+    <div id="${uid}-preview-wrap" onclick="document.getElementById('${uid}-file').click()"
+      style="cursor:pointer;width:64px;height:64px;flex-shrink:0;border-radius:8px;background:rgba(46,196,182,0.1);border:2px dashed rgba(46,196,182,0.3);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--teal);font-size:11px;text-align:center;">
+      ${url
+        ? `<img id="${uid}-preview" src="${escHtml(url)}" style="width:100%;height:100%;object-fit:cover;">`
+        : `<span id="${uid}-preview">📷 選択</span>`}
+    </div>
+    <input type="hidden" class="gallery-url" value="${escHtml(url)}">
+    <span class="gallery-status" style="font-size:11px;color:var(--teal);flex:1;"></span>
+    <input type="file" id="${uid}-file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="handleGalleryFile(this, '${uid}')">
     <button type="button" onclick="this.closest('div').remove()" style="background:none;border:none;color:var(--on-dark-soft);cursor:pointer;font-size:18px;line-height:1;padding:4px;">×</button>
   `;
   container.appendChild(row);
@@ -1968,6 +1987,66 @@ function addGalleryRow(url = '') {
 function collectGalleryUrls() {
   return Array.from(document.querySelectorAll('#l-gallery-rows .gallery-url'))
     .map(el => el.value.trim()).filter(Boolean);
+}
+
+async function handleListingImageFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('5MB以下の画像を選択してください', 'error'); return;
+  }
+
+  const previewWrap = document.getElementById('l-image-preview-wrap');
+  if (previewWrap) previewWrap.innerHTML = `<img id="l-image-preview" src="${URL.createObjectURL(file)}" style="width:100%;height:100%;object-fit:cover;">`;
+  const statusEl = document.getElementById('l-image-status');
+  if (statusEl) statusEl.textContent = 'アップロード中...';
+
+  const ext  = file.name.split('.').pop().toLowerCase();
+  const path = `${currentUser.id}/listing-main-${Date.now()}.${ext}`;
+
+  const { error } = await _sb.storage.from('avatars').upload(path, file, { upsert: true });
+  if (error) {
+    const msg = error.message || JSON.stringify(error);
+    if (statusEl) statusEl.textContent = '失敗: ' + msg;
+    showToast('失敗: ' + msg, 'error');
+    console.error('Storage upload error:', error);
+    return;
+  }
+
+  const { data } = _sb.storage.from('avatars').getPublicUrl(path);
+  document.getElementById('l-image').value = data.publicUrl + '?t=' + Date.now();
+  if (statusEl) statusEl.textContent = '✓ アップロード完了';
+}
+
+async function handleGalleryFile(input, uid) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('5MB以下の画像を選択してください', 'error'); return;
+  }
+
+  const row = input.closest('div');
+  const previewWrap = document.getElementById(uid + '-preview-wrap');
+  if (previewWrap) previewWrap.innerHTML = `<img id="${uid}-preview" src="${URL.createObjectURL(file)}" style="width:100%;height:100%;object-fit:cover;">`;
+  const statusEl = row.querySelector('.gallery-status');
+  if (statusEl) statusEl.textContent = 'アップロード中...';
+
+  const ext  = file.name.split('.').pop().toLowerCase();
+  const path = `${currentUser.id}/listing-gallery-${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${ext}`;
+
+  const { error } = await _sb.storage.from('avatars').upload(path, file, { upsert: true });
+  if (error) {
+    const msg = error.message || JSON.stringify(error);
+    if (statusEl) statusEl.textContent = '失敗: ' + msg;
+    showToast('失敗: ' + msg, 'error');
+    console.error('Storage upload error:', error);
+    return;
+  }
+
+  const { data } = _sb.storage.from('avatars').getPublicUrl(path);
+  const hiddenInput = row.querySelector('.gallery-url');
+  if (hiddenInput) hiddenInput.value = data.publicUrl + '?t=' + Date.now();
+  if (statusEl) statusEl.textContent = '✓ 完了';
 }
 
 function flowTimeOptionsHtml(selected) {
