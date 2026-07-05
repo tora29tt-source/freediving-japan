@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-07-04T00:04:00Z",
+  "updatedAt": "2026-07-05T00:01:21Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -2034,7 +2034,7 @@
       "cityCountry": "Acitrezza, Italy",
       "startDate": "2026-07-03",
       "endDate": "2026-07-05",
-      "link": "https://www.aidainternational.org/EventPage/5119",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5119",
       "month": 7,
       "cat": "sea"
     },
