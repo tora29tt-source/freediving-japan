@@ -35,10 +35,10 @@ body { min-height: 100vh; }
 .gallery-dots { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; z-index: 2; }
 .gallery-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.5); cursor: pointer; transition: background 0.2s; }
 .gallery-dot.active { background: #fff; }
-.badge-intent { position: absolute; top: 16px; left: 16px; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 10px; border-radius: 100px; color: #fff; }
-.badge-try { background: rgba(249,115,22,0.92); }
-.badge-learn { background: rgba(31,111,120,0.92); }
-.badge-dive { background: rgba(10,39,49,0.92); }
+.gallery-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 50%; background: rgba(10,20,24,0.4); border: none; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 3; padding: 0; }
+.gallery-arrow:hover { background: rgba(10,20,24,0.6); }
+.gallery-arrow-prev { left: 12px; }
+.gallery-arrow-next { right: 12px; }
 
 /* main */
 .main { max-width: 640px; margin: 0 auto; padding: 0 16px 100px; }
@@ -392,8 +392,6 @@ async function initPage() {
 
 function renderPage(owner, listing, otherListings, reviews = []) {
   const inst = owner; // 以下の描画テンプレートはinstructor/shop共通の正規化済みownerオブジェクトを使う
-  const badgeClass = { try: 'badge-try', learn: 'badge-learn', dive: 'badge-dive' };
-  const badgeLabel = { try: '体験', learn: '資格', dive: 'ダイブ' };
 
   // gallery（メイン画像 + gallery_urls を合成。リスティング側に画像が無い場合はショップのカバー画像にフォールバック）
   const allImages = [
@@ -405,10 +403,11 @@ function renderPage(owner, listing, otherListings, reviews = []) {
   }
   const galleryHtml = allImages.length > 0
     ? allImages.map((url, i) => `<img src="${esc(url)}" alt="${esc(listing?.title || '')}${i > 0 ? ' ' + (i + 1) : ''}"${i > 0 ? ' style="display:none;"' : ''} class="gallery-img" data-idx="${i}">`).join('') +
-      (allImages.length > 1 ? `<div class="gallery-dots">${allImages.map((_, i) => `<span class="gallery-dot${i === 0 ? ' active' : ''}" data-idx="${i}"></span>`).join('')}</div>` : '')
+      (allImages.length > 1 ? `
+        <button type="button" class="gallery-arrow gallery-arrow-prev" aria-label="前の画像"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <button type="button" class="gallery-arrow gallery-arrow-next" aria-label="次の画像"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+        <div class="gallery-dots">${allImages.map((_, i) => `<span class="gallery-dot${i === 0 ? ' active' : ''}" data-idx="${i}"></span>`).join('')}</div>` : '')
     : `<div class="gallery-placeholder"><svg style="width:48px;height:48px;stroke:currentColor;fill:none;stroke-width:1.2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>`;
-  const badgeCls = listing ? badgeClass[listing.intent] : '';
-  const badgeLbl = listing ? badgeLabel[listing.intent] : '';
 
   // basic info cards
   const ageMin = listing?.age_min ?? listing?.min_age ?? null;
@@ -476,7 +475,6 @@ function renderPage(owner, listing, otherListings, reviews = []) {
     <div class="gallery">
       ${galleryHtml}
       <div class="gallery-grad"></div>
-      ${listing ? `<span class="badge-intent ${badgeCls}">${badgeLbl}</span>` : ''}
     </div>
 
     <div class="main">
@@ -669,6 +667,11 @@ function initGallery() {
     current = idx;
   }
   dots.forEach((dot, i) => { dot.addEventListener('click', () => showImg(i)); });
+  // 前へ・次へ矢印（クリック/タップで進める）
+  const prevBtn = document.querySelector('.gallery-arrow-prev');
+  const nextBtn = document.querySelector('.gallery-arrow-next');
+  if (prevBtn) prevBtn.addEventListener('click', () => showImg((current - 1 + imgs.length) % imgs.length));
+  if (nextBtn) nextBtn.addEventListener('click', () => showImg((current + 1) % imgs.length));
   // タッチスワイプ
   const gallery = document.querySelector('.gallery');
   if (gallery) {

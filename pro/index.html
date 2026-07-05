@@ -1852,8 +1852,8 @@ function openSlotModal(slotId = null) {
     });
   } else {
     sInstrWrap.style.display = 'none';
-    populateSlotListings();
   }
+  populateSlotListings();
 
   if (slotId) {
     _sb.from('availability_slots').select('*').eq('id', slotId).single().then(({ data: s }) => {
