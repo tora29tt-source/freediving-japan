@@ -1089,12 +1089,14 @@ function checkTimeCallAnnouncements(elapsedSec) {
 
   if (target != null && cfg.timeCallCountdownEnabled) {
     const remain = target - elapsedSec;
-    if (remain === 15 && !_tcFired.has('w15')) {
+    // 等値比較(===)だとバックグラウンド復帰時などに秒が飛んで発火しない。
+    // 「しきい値をまたいだら1回だけ鳴る」方式にする
+    if (remain <= 15 && remain > 10 && !_tcFired.has('w15')) {
       _tcFired.add('w15');
       announce(_announcerLang === 'ja' ? '残り15秒' : '15 seconds');
       return;
     }
-    if (remain === 10 && !_tcFired.has('w10')) {
+    if (remain <= 10 && remain > 5 && !_tcFired.has('w10')) {
       _tcFired.add('w10');
       announce(_announcerLang === 'ja' ? '残り10秒' : '10 seconds');
       return;
@@ -1108,14 +1110,16 @@ function checkTimeCallAnnouncements(elapsedSec) {
     if (remain <= 15) return;
   }
 
-  // 通常インターバルコール（開始時間から間隔ごと）
+  // 通常インターバルコール（開始時間から間隔ごと・スロット方式）
+  // 剰余===0の等値判定だと秒スキップで無音になるため、
+  // 経過スロット番号で「その時刻を過ぎたら1回だけ」発火する
   if (elapsedSec < cfg.timeCallStartSec) return;
   const interval = cfg.timeCallIntervalSec || 30;
-  if ((elapsedSec - cfg.timeCallStartSec) % interval !== 0) return;
-  const key = 'i'+elapsedSec;
+  const slot = Math.floor((elapsedSec - cfg.timeCallStartSec) / interval);
+  const key = 'i' + slot;
   if (_tcFired.has(key)) return;
   _tcFired.add(key);
-  announce(timeCallText(elapsedSec));
+  announce(timeCallText(cfg.timeCallStartSec + slot * interval));
 }
 
 // ── Supabase 軽量fetch実装（CDN不要）──
@@ -1263,8 +1267,32 @@ const PRESETS = [
   },
 ];
 
-// ── ユーザー保存プリセット（メモリ内、セッション中のみ保持）──
+// ── ユーザー保存プリセット（localStorageに永続化）──
+// 以前はメモリ内のみで「保存しました」表示なのにリロードで消えていた
+const _USER_PRESET_KEY = 'sta_user_presets';
 let userPresets = [];
+
+function _makeUserPreset(meta) {
+  return {
+    id: meta.id, name: meta.name, icon: meta.icon, desc: meta.desc, tags: meta.tags,
+    snap: meta.snap,
+    mode: 'table', userAdded: true,
+    apply: function() { Object.assign(cfg, meta.snap); syncTableUI(); },
+  };
+}
+function _persistUserPresets() {
+  try {
+    localStorage.setItem(_USER_PRESET_KEY, JSON.stringify(userPresets.map(function(p) {
+      return { id: p.id, name: p.name, icon: p.icon, desc: p.desc, tags: p.tags, snap: p.snap };
+    })));
+  } catch(e) {}
+}
+function _loadUserPresets() {
+  try {
+    const raw = localStorage.getItem(_USER_PRESET_KEY);
+    if (raw) userPresets = JSON.parse(raw).map(_makeUserPreset);
+  } catch(e) { userPresets = []; }
+}
 
 function saveAsPreset() {
   // 名前を入力（promptの代わりにtoastとインプット）
@@ -1292,7 +1320,7 @@ function saveAsPreset() {
       timeCallIntervalSec: cfg.timeCallIntervalSec,
       timeCallCountdownEnabled: cfg.timeCallCountdownEnabled,
     };
-    userPresets.push({
+    userPresets.push(_makeUserPreset({
       id: 'user-' + Date.now(),
       name: name,
       icon: delta>0 ? '📈' : (delta<0 ? '💨' : '🫁'),
@@ -1301,13 +1329,9 @@ function saveAsPreset() {
         { label: 'TABLE', cls: 'o2' },
         { label: sets+' sets', cls: 'info' },
       ],
-      apply: (function(s){ return function() {
-        Object.assign(cfg, s);
-        syncTableUI();
-      }; })(snap),
-      mode: 'table',
-      userAdded: true,
-    });
+      snap: snap,
+    }));
+    _persistUserPresets();
     toast('✓ プリセット「' + name + '」を保存しました');
   });
 }
@@ -1464,9 +1488,13 @@ function buildDefaultPlan() {
   var baseRest = cfg.tblRestMin*60+cfg.tblRestSec;
   var restDelta = cfg.tblDecrementSec || 0;  // 正=増加, 負=減少 (Rest Δ/set)
   var holdDelta = isManualHold ? 0 : (cfg.tblHoldDeltaSec || 0); // 正=増加, 負=減少 (Hold Δ/set, Auto時のみ)
+  // 下限15秒でクランプする。0秒を許すと planHoldSec/planRestSec が
+  // 「0 → null」変換で自動停止を失い、Rest 0:00 のセットで
+  // レストが永遠に終わらない（無限レスト）バグになる
+  var MIN_SEC = 15;
   for (var i = 0; i < n; i++) {
-    var holdSec = isManualHold ? 0 : Math.max(0, baseHold + holdDelta*i);
-    sessionPlan.push({ holdSec: holdSec, restSec: Math.max(0, baseRest + restDelta*i) });
+    var holdSec = isManualHold ? 0 : Math.max(MIN_SEC, baseHold + holdDelta*i);
+    sessionPlan.push({ holdSec: holdSec, restSec: Math.max(MIN_SEC, baseRest + restDelta*i) });
   }
 }
 function planHoldSec() {
@@ -1567,7 +1595,7 @@ function renderPlanEditor(flashIdx) {
         rLbl.className = 'pm-label rest';
         rLbl.textContent = 'Rest';
         rRow.appendChild(rLbl);
-        var rStepper = makeStepper(p.restSec, 15, 0, 600, function(v){
+        var rStepper = makeStepper(p.restSec, 15, 15, 600, function(v){ // 下限15秒（0だと無限レストになる）
           sessionPlan[i].restSec = v;
           refreshPlanSummary();
         });
@@ -1630,6 +1658,8 @@ function insertPlanRow(afterIdx) {
 
 function onCfgStart() {
   planConfirmed = false;
+  // TABLEタブから手動作成した場合は前回プリセットの挙動を引き継がない
+  if (!planFromPreset) activePresetId = null;
   buildDefaultPlan();
   document.getElementById('planModalTitle').textContent = 'Table — セッション作成';
   document.getElementById('planModalSummary').innerHTML = buildCfgSummaryHTML();
@@ -2076,6 +2106,9 @@ function tick() {
   try {
   const now = performance.now();
   _lastTickAt = now;
+  // idle/done/paused中はループを止める。特にpaused中に走ると
+  // 古いphaseStartでphaseMsを上書きしてしまう
+  if (phase === 'idle' || phase === 'done' || phase === 'paused') return;
   phaseMs = now - phaseStart;
 
   if (phase === 'countdown') {
@@ -2084,7 +2117,9 @@ function tick() {
     setDisplayCountdown(s);
     setRestRing(1 - remaining / (countdownSec * 1000));
     checkCountdownAnnouncements(Math.floor(remaining / 1000));
-    if (remaining <= 0) startHold();
+    // startHold()は自前で新しいrAFループを開始するため、ここでreturnしないと
+    // このフレームの末尾でもう1本requestAnimationFrameが張られ、ループが二重化する
+    if (remaining <= 0) { startHold(); return; }
     else { rafId = requestAnimationFrame(tick); return; }
   }
 
@@ -2180,7 +2215,7 @@ function tick() {
 // setIntervalはrAFより間引かれにくいため、rAFが一定時間止まっている場合に
 // 限定してtick()を代わりに1回叩き、フリーズを防ぐ。
 setInterval(() => {
-  if (phase === 'idle' || phase === 'done') return;
+  if (phase === 'idle' || phase === 'done' || phase === 'paused') return;
   if (performance.now() - _lastTickAt > 700) tick();
 }, 500);
 
@@ -2366,6 +2401,10 @@ function endSurface() {
 
   if (mode === 'free') {
     hidePhaseRingLabel();
+    // phase='surface'のまま放置するとwatchdogがtick()を永久に叩き続ける。
+    // 待機状態へ戻す（swLocked=trueが「次へ」を押すまでスタートをガードする）
+    phase = 'idle';
+    renderSetDots();
     return;
   }
 
@@ -2520,6 +2559,9 @@ function onReset() {
   cancelAnimationFrame(rafId); rafId=null;
   phase = 'idle'; phaseMs = 0; currentSet = 0;
   holdDives = []; laps = []; spo2Buf = []; currentSpo2 = null;
+  // 前セッションの状態を持ち越さない（Relaxation のFC非表示挙動や
+  // 「作成」を経ずにスタートできてしまう問題の防止）
+  planConfirmed = false; activePresetId = null;
   resetTimeCall();
   stopMock();
   setHoldRing(0); setRestRing(0); setSpo2Ring(null);
@@ -3588,7 +3630,7 @@ let camCanvas         = null;
 let camCtx            = null;
 let camRafId          = null;      // Canvasレンダリング用RAF
 let camRecorder       = null;
-let camChunks         = [];
+// （旧camChunksグローバルは廃止 — チャンクはstartCamRecording内の録画ごとローカル配列で管理）
 let isRecording       = false;
 let camRecordLabel    = '';
 
@@ -3612,8 +3654,8 @@ function _syncCameraButtons() {
       b.innerHTML = '<span class="rec-dot" style="color:var(--danger)"></span>録画中';
       b.style.color = 'var(--danger)'; b.style.borderColor = 'var(--danger)';
     } else if (buffering) {
-      b.innerHTML = '<span class="rec-dot" style="color:var(--warn)"></span>バッファ中';
-      b.style.color = 'var(--warn)'; b.style.borderColor = 'var(--warn)';
+      b.innerHTML = '<span class="rec-dot" style="color:var(--warm)"></span>バッファ中';
+      b.style.color = 'var(--warm)'; b.style.borderColor = 'var(--warm)';
     } else {
       b.textContent = on ? '📹 録画：ON' : '📹 録画：OFF';
       b.style.color = on ? 'var(--danger)' : 'var(--muted)';
@@ -3715,7 +3757,8 @@ function _startCanvasPreview() {
     camCtx.translate(W, 0); camCtx.scale(-1, 1);
     camCtx.drawImage(vid, dx, dy, vw * scale, vh * scale);
     camCtx.restore();
-    if (isRecording) _drawOverlay(W, H);
+    // オーバーレイ更新はtick()に依存しない（free待機中などtick停止時も録画は続くため）
+    if (isRecording) { updateCamOverlay(); _drawOverlay(W, H); }
   }
   loop();
 }
@@ -3937,9 +3980,14 @@ function stopAllCameraActivity() {
   clearTimeout(restRecordTimeout);
   clearInterval(restRecordTimeout);
   holdRecordTimeout = null; restRecordTimeout = null;
-  _preBufChunks = []; _savingAfterSurface = false;
-  if (camRecorder && camRecorder.state !== 'inactive') camRecorder.stop();
-  // camChunks はここでクリアしない — onstop が splice(0) で処理する
+  _savingAfterSurface = false;
+  if (camRecorder && camRecorder.state !== 'inactive') {
+    // リセット/録画OFF時は録画途中のクリップを破棄する
+    // （破棄しないと、onReset後のcameraClips=[]の後に非同期のonstopが
+    //  古いクリップをpushして「リセットしたのに残る」状態になる）
+    camRecorder.onstop = () => { _syncCameraButtons(); };
+    camRecorder.stop();
+  }
   camRecorder = null; isRecording = false; camRecordLabel = '';
 }
 
@@ -3975,13 +4023,11 @@ async function _clearIDB() {
 }
 
 // ── 録画開始 ─────────────────────────────────────────────
-// preBuf=true: Hold中はローリングバッファに蓄積 → onSurfaceStart()でcamChunksに転送
-// preBuf=false(default): 全チャンクをcamChunksへ直接保存（freeモード）
+// preBuf=true: Hold中はローリングバッファに蓄積 → onSurfaceStart()で確定保存分に転送
+// preBuf=false(default): 全チャンクを最初から確定保存（freeモード）
 function startCamRecording(label, preBuf = false) {
   if (!cameraEnabled || !camCanvas || isRecording) return;
   camRecordLabel = label;
-  camChunks = [];
-  _preBufChunks = [];
   _savingAfterSurface = !preBuf; // preBuf=trueなら最初はローリングバッファモード
   const _label = label;
   const _mimeType = getSupportedMimeType();
@@ -3992,29 +4038,40 @@ function startCamRecording(label, preBuf = false) {
 
     const ext = _mimeType.includes('mp4') ? 'mp4' : 'webm';
     const opts = _mimeType ? { mimeType: _mimeType } : {};
-    camRecorder = new MediaRecorder(canvasStream, opts);
-    camRecorder.ondataavailable = e => {
+    const rec = new MediaRecorder(canvasStream, opts);
+    // ★チャンクは録画ごとのローカル配列に閉じ込める。
+    // 以前はグローバル(camChunks/_preBufChunks)を全録画で共有していたため、
+    // Rest<30秒などで前の録画を強制終了→即・新録画開始した際に、
+    // 前の録画のonstopが「新しい録画の空配列」を拾って
+    // 「録画データなし」トースト＋クリップ消失が起きていた。
+    const chunks    = []; // 確定保存分
+    const preChunks = []; // ローリングプリバッファ（Hold中の最後30秒）
+    rec._commitPreBuffer = function() { chunks.push(...preChunks.splice(0)); };
+    rec.ondataavailable = e => {
       if (!e.data || e.data.size === 0) return;
-      if (_savingAfterSurface) {
-        camChunks.push(e.data);
+      const isCurrent = (camRecorder === rec);
+      if (_savingAfterSurface || !isCurrent) {
+        // 確定保存モード、または停止処理中（後続録画開始済み）の最終フラッシュ分
+        chunks.push(e.data);
       } else {
         // ローリングプリバッファ: index0はコーデック初期化データとして常に保持
         // index1以降を最大30秒分のローリングバッファとする
-        _preBufChunks.push(e.data);
-        if (_preBufChunks.length > 31) _preBufChunks.splice(1, 1); // index0は残す
+        preChunks.push(e.data);
+        if (preChunks.length > 31) preChunks.splice(1, 1); // index0は残す
       }
     };
-    camRecorder.onerror = e => { console.error('MediaRecorder error:', e); };
-    camRecorder.onstop = () => {
-      const chunks = camChunks.splice(0);
-      if (chunks.length === 0) { toast('録画データなし', true); _syncCameraButtons(); return; }
-      const blob = new Blob(chunks, { type: _mimeType || 'video/webm' });
+    rec.onerror = e => { console.error('MediaRecorder error:', e); };
+    rec.onstop = () => {
+      const cs = chunks.splice(0);
+      if (cs.length === 0) { toast('録画データなし', true); _syncCameraButtons(); return; }
+      const blob = new Blob(cs, { type: _mimeType || 'video/webm' });
       const clip = { label: _label, blob, ext };
       cameraClips.push(clip);
       _saveClipToIDB(clip); // IndexedDBに永続化
       toast(`📹 ${_label} 保存`);
       _syncCameraButtons();
     };
+    camRecorder = rec;
     // timeslice=1000ms でiOS安定化 + プリバッファ用に1秒単位チャンク
     camRecorder.start(1000);
     isRecording = true;
@@ -4036,10 +4093,9 @@ function onSurfaceStart() {
     camOverlay.setNum = `${currentSet+1}/${totalSets()}`;
     startCamRecording(`Set #${currentSet+1}`, true);
   }
-  // プリバッファを確定: camChunksの先頭に移動し、以降は直接保存モードへ
+  // プリバッファを確定保存分へ移動し、以降は直接保存モードへ
   if (!_savingAfterSurface) {
-    camChunks = [..._preBufChunks];
-    _preBufChunks = [];
+    if (camRecorder && camRecorder._commitPreBuffer) camRecorder._commitPreBuffer();
     _savingAfterSurface = true;
     _syncCameraButtons(); // バッファ中 → 録画中 に切り替え
   }
@@ -4108,8 +4164,7 @@ document.addEventListener('visibilitychange', () => {
 // rest中もsurfaceオーバーレイを表示し続ける。
 let _camSurfaceStartTime  = 0;     // Surface開始時のperformance.now()
 let _lastHoldMs           = 0;     // Hold終了時のphaseMs（Surface開始後も参照できるよう保存）
-let _preBufChunks         = [];    // ローリングプリバッファ（Hold中の最後30秒分チャンク）
-let _savingAfterSurface   = false; // trueになった瞬間からcamChunksへ直接保存
+let _savingAfterSurface   = false; // trueになった瞬間から確定保存モード（プリバッファ蓄積を終了）
 function updateCamOverlay() {
   if (!cameraEnabled || !isRecording) return;
   if (phase === 'hold') {
@@ -4121,7 +4176,8 @@ function updateCamOverlay() {
     camOverlay.spElapsed = phaseMs;
     camOverlay.spo2      = currentSpo2;
     _camSurfaceStartTime = performance.now() - phaseMs;
-  } else if (phase === 'rest' || phase === 'done') {
+  } else if (phase === 'rest' || phase === 'done' || phase === 'idle') {
+    // idle: freeモードのSurface終了後（録画はSurface後30秒まで継続）
     const elapsed = performance.now() - _camSurfaceStartTime;
     camOverlay.phase     = 'surface';
     camOverlay.spElapsed = elapsed;
@@ -4178,6 +4234,7 @@ async function shareAllClips() {
 
 initSelects();
 initLiveChart();
+_loadUserPresets();
 setTimeCallEnabled(cfg.timeCallEnabled);
 setTimeCallCountdownEnabled(cfg.timeCallCountdownEnabled);
 // 初期モード設定（UIを確実に初期化）

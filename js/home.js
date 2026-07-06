@@ -29,12 +29,14 @@
       var area = val('area');
       var kw   = val('q');
       var intent = val('intent');
+      var date = val('date');
       var base = form.getAttribute('data-target') || 'explore/index.html';
       var params = new URLSearchParams();
       var q = [kw, area].filter(Boolean).join(' ').trim();
       if (q) params.set('q', q);
       if (area) params.set('area', area);
       if (intent) params.set('intent', intent);
+      if (date) params.set('date', date);
       var qs = params.toString();
       window.location.href = base + (qs ? ('?' + qs) : '');
     });
