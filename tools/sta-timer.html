@@ -2071,9 +2071,11 @@ function holdFixedSec() {
 }
 
 // ── TIMER LOOP ────────────────────────────────────────────
+let _lastTickAt = performance.now(); // ウォッチドッグ用: 最後にtick()が実行された時刻
 function tick() {
   try {
   const now = performance.now();
+  _lastTickAt = now;
   phaseMs = now - phaseStart;
 
   if (phase === 'countdown') {
@@ -2167,6 +2169,20 @@ function tick() {
   rafId = requestAnimationFrame(tick);
   } catch(e) { console.error('tick error:', e); }
 }
+
+// ── TIMER WATCHDOG ────────────────────────────────────────
+// requestAnimationFrame はタブ/画面がバックグラウンド（非表示）になると
+// ブラウザ側で間引き・完全停止されることがある（実機で画面ロックや他アプリ
+// への切替時に発生）。tick()はHold→Surface→Restの遷移とカメラ録画の
+// 開始/終了スケジュール（onHoldStartCamera/onSurfaceStart）を駆動している
+// ため、rAFが止まると「復帰するまで録画が一切開始されない/されたと思って
+// いたのに実は始まっていない」という形でこのバグが再発しうる。
+// setIntervalはrAFより間引かれにくいため、rAFが一定時間止まっている場合に
+// 限定してtick()を代わりに1回叩き、フリーズを防ぐ。
+setInterval(() => {
+  if (phase === 'idle' || phase === 'done') return;
+  if (performance.now() - _lastTickAt > 700) tick();
+}, 500);
 
 // ── PHASE TRANSITIONS ─────────────────────────────────────
 function startSession() {
