@@ -623,21 +623,6 @@ body { padding-bottom: 72px; }
     </div>
   </div>
 
-  <!-- 管理画面（admin / staff / editor のみ表示） -->
-  <div class="section" id="admin-nav-section" style="display:none;">
-    <div class="sec-head">
-      <div class="sec-title">管理</div>
-    </div>
-    <a class="menu-card wide" href="admin/" style="border-top:2px solid rgba(249,115,22,0.5);text-decoration:none;">
-      <span class="menu-icon">⚙️</span>
-      <div class="menu-body">
-        <div class="menu-title" style="color:#f97316;">管理画面</div>
-        <div class="menu-sub">空き枠・予約・インストラクター・コンテンツ管理</div>
-      </div>
-      <span class="menu-arrow">›</span>
-    </a>
-  </div>
-
   <!-- インストラクター向け導線 -->
   <div class="section">
     <div style="display:flex;align-items:center;gap:12px;background:rgba(46,196,182,0.04);border:1px solid rgba(46,196,182,0.15);border-radius:12px;padding:14px 16px;opacity:0.5;cursor:default;position:relative;">
@@ -1397,7 +1382,6 @@ function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt
   const hasAdminRole = roles && roles.some(r => ADMIN_ROLES.includes(r.role));
   if (hasAdminRole) {
     document.getElementById('admin-header-btn').style.display = '';
-    document.getElementById('admin-nav-section').style.display = '';
   }
 
   // 認証状態の変化を監視（ログアウト検知）
