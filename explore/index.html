@@ -21,20 +21,7 @@
 
 .main { max-width: 640px; margin: 0 auto; padding: 0 16px 80px; }
 
-/* ── search hero ── */
-.search-hero { padding: 28px 20px 26px; text-align: center; }
-.search-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--teal-deep); margin-bottom: 10px; }
-.search-title { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.5; margin-bottom: 22px; color: var(--ink); }
-.search-title em { font-style: normal; color: var(--accent); }
-.search-bar-wrap { position: relative; max-width: 480px; margin: 0 auto; }
-.search-bar { width: 100%; background: #fff; border: 1px solid var(--line-strong); border-radius: 100px; padding: 14px 52px 14px 48px; font-size: 14px; color: var(--ink); outline: none; box-shadow: var(--shadow-pill); transition: box-shadow 0.2s, border-color 0.2s; }
-.search-bar::placeholder { color: var(--ink-soft); }
-.search-bar:focus { border-color: var(--ink-strong,#c9c9cd); box-shadow: 0 6px 20px rgba(20,20,30,.13); }
-.search-icon-left { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--teal-deep); pointer-events: none; }
-.search-icon-left .icon { width: 18px; height: 18px; }
-.search-btn { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: var(--accent); border: none; border-radius: 100px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; transition: background 0.2s; }
-.search-btn:hover { background: var(--accent-strong); }
-.search-btn .icon { width: 16px; height: 16px; stroke-width: 2; }
+/* ── 検索バーはホームと共通のsearchbar/sb-*コンポーネントをそのまま使用（CSSはhome.css側で定義済み） ── */
 
 /* ── intent tabs ── */
 .intent-tabs { display: flex; gap: 8px; margin-bottom: 22px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
@@ -56,12 +43,9 @@
 .chip-row::-webkit-scrollbar { display: none; }
 .pref-select { width: 100%; background: #fff; border: 1px solid var(--line-strong); border-radius: 100px; padding: 12px 16px; font-size: 13px; font-weight: 600; color: var(--ink); outline: none; -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; background-size: 16px; }
 .pref-select:focus { border-color: var(--ink-strong,#c9c9cd); }
-.date-filter-row { display: flex; gap: 8px; align-items: center; }
-.date-input { flex: 1; background: #fff; border: 1px solid var(--line-strong); border-radius: 100px; padding: 12px 16px; font-size: 13px; font-weight: 600; color: var(--ink); outline: none; }
-.date-input:focus { border-color: var(--ink-strong,#c9c9cd); }
-.date-clear-btn { flex-shrink: 0; font-size: 11px; font-weight: 600; color: var(--ink-mid); background: #fff; border: 1px solid var(--line-strong); border-radius: 100px; padding: 8px 14px; cursor: pointer; transition: border-color 0.2s; }
-.date-clear-btn:hover { border-color: var(--ink); }
-.filter-hint { font-size: 11px; color: var(--ink-soft); margin-top: 8px; line-height: 1.6; }
+.date-clear-btn { font-size: 11px; font-weight: 600; color: var(--teal-deep); background: none; border: none; padding: 0; cursor: pointer; text-decoration: underline dotted var(--line-strong); text-underline-offset: 2px; }
+.date-clear-btn:hover { color: var(--accent); }
+.filter-hint { font-size: 11px; color: var(--ink-soft); margin: 8px 0 0; text-align: center; line-height: 1.6; }
 
 /* ── エリア地図 ── */
 .filter-label-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
@@ -123,7 +107,7 @@
 .empty-title { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
 .empty-desc { font-size: 12px; color: var(--ink-soft); line-height: 1.8; }
 
-@media (max-width: 480px) { .search-title { font-size: 19px; } .listing-thumb { width: 90px; } .listing-name { font-size: 13px; } }
+@media (max-width: 480px) { .listing-thumb { width: 90px; } .listing-name { font-size: 13px; } }
 
 /* ── インストラクター モーダル ── */
 .modal-overlay {
@@ -253,18 +237,28 @@
 <main class="main">
   <a class="crumb" href="../index.html" style="margin:14px 0 0"><svg class="icon" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>ホームに戻る</a>
 
-  <div class="search-hero">
-    <p class="search-eyebrow">Explore the Ocean</p>
-    <h1 class="search-title">何を<em>体験</em>したいですか？</h1>
-    <div class="search-bar-wrap">
-      <div class="search-icon-left">
-        <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      </div>
-      <input class="search-bar" type="search" placeholder="エリア・スクール・インストラクターを検索" id="searchInput">
-      <button class="search-btn" onclick="applyFilters()">
-        <svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-      </button>
-    </div>
+  <div style="margin:18px 0 4px;">
+    <form class="searchbar" id="exploreSearchbar">
+      <label class="sb-seg">
+        <div class="sb-label">エリア</div>
+        <input class="sb-input" name="area" id="searchInput" placeholder="エリア・スクール・インストラクターを検索" autocomplete="off">
+      </label>
+      <label class="sb-seg sb-when">
+        <div class="sb-label">日程</div>
+        <input class="sb-input" name="date" id="dateInput" type="date">
+      </label>
+      <label class="sb-seg">
+        <div class="sb-label">タイプ</div>
+        <select class="sb-input sb-select" name="intent" id="intentSelectTop" onchange="handleIntentSelect(this.value)">
+          <option value="">すべて</option>
+          <option value="try">体験・ツアー</option>
+          <option value="learn">スクール・資格</option>
+          <option value="dive">ファンダイブ・上級</option>
+        </select>
+      </label>
+      <button class="sb-btn" type="submit"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>検索</button>
+    </form>
+    <p class="filter-hint" id="dateHint" style="display:none">この日以降に空きがあるプランを表示中 · <button class="date-clear-btn" onclick="clearDate()" type="button">クリア</button></p>
   </div>
 
   <div class="intent-tabs" id="intentTabs">
@@ -373,14 +367,6 @@
       <button class="chip" data-area="瀬戸内" onclick="toggleArea(this)">瀬戸内</button>
       <button class="chip" data-area="北海道" onclick="toggleArea(this)">北海道</button>
     </div>
-  </div>
-  <div class="filter-section">
-    <p class="filter-label">日程</p>
-    <div class="date-filter-row">
-      <input type="date" class="date-input" id="dateInput" onchange="setDate(this.value)">
-      <button class="date-clear-btn" id="dateClearBtn" onclick="clearDate()" type="button" style="display:none">クリア</button>
-    </div>
-    <p class="filter-hint" id="dateHint" style="display:none">この日以降に空きがあるプランを表示しています（空き枠情報のないプランは引き続き表示されます）</p>
   </div>
   <div class="filter-section">
     <p class="filter-label">条件</p>
@@ -751,12 +737,20 @@ function updateCounts() {
   document.getElementById('count-dive').textContent  = counts.dive;
 }
 
-function setIntent(el, intent) {
-  document.querySelectorAll('.intent-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
+function applyIntent(intent) {
   currentIntent = intent;
+  document.querySelectorAll('.intent-tab').forEach(t => t.classList.toggle('active', t.dataset.intent === intent));
   document.getElementById('intentLabel').textContent = intentLabels[intent];
+  document.getElementById('intentSelectTop').value = (intent === 'all') ? '' : intent;
   renderListings();
+}
+// 一覧上部のピル（すべて/やってみたい/…）から選んだ場合
+function setIntent(el, intent) {
+  applyIntent(intent);
+}
+// 検索バー上部のタイプ選択（select）から選んだ場合。ピルと同じ状態に同期する
+function handleIntentSelect(value) {
+  applyIntent(value || 'all');
 }
 function toggleArea(el) {
   document.querySelectorAll('#areaChips .chip').forEach(c => c.classList.remove('active'));
@@ -770,7 +764,6 @@ function setPrefecture(value) {
 }
 function setDate(value) {
   currentDate = value || '';
-  document.getElementById('dateClearBtn').style.display = currentDate ? 'inline-flex' : 'none';
   document.getElementById('dateHint').style.display = currentDate ? 'block' : 'none';
   renderListings();
 }
@@ -889,10 +882,7 @@ function applyUrlParams() {
     }
   }
   if (intent && ['try','learn','dive'].includes(intent)) {
-    currentIntent = intent;
-    document.querySelectorAll('.intent-tab').forEach(t => t.classList.toggle('active', t.dataset.intent === intent));
-    const lbl = document.getElementById('intentLabel');
-    if (lbl) lbl.textContent = intentLabels[intent];
+    applyIntent(intent);
   }
   if (area) {
     const chip = [...document.querySelectorAll('#areaChips .chip')].find(c => c.dataset.area === area);
@@ -906,14 +896,15 @@ function applyUrlParams() {
   if (date) {
     currentDate = date;
     document.getElementById('dateInput').value = date;
-    document.getElementById('dateClearBtn').style.display = 'inline-flex';
     document.getElementById('dateHint').style.display = 'block';
   }
 }
 
 document.getElementById('dateInput').min = new Date().toISOString().slice(0, 10);
+document.getElementById('dateInput').addEventListener('change', e => setDate(e.target.value));
 document.getElementById('searchInput').addEventListener('input', () => applyFilters());
-document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); applyFilters(); } });
+// フォーム自体はページ遷移させず、その場のフィルタ更新に留める（各inputは自身のイベントで既に即時反映済み）
+document.getElementById('exploreSearchbar').addEventListener('submit', e => { e.preventDefault(); applyFilters(); document.getElementById('searchInput').blur(); });
 applyUrlParams();
 loadListings();
 </script>
