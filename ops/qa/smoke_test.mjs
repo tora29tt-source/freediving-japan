@@ -41,7 +41,7 @@ const t = (ms = 15000) => AbortSignal.timeout(ms);
 // ---------- A. ページ疎通 ----------
 const PAGES = [
   '/', '/snorkeling.html', '/skindiving.html', '/freediving.html',
-  '/auth.html', '/mypage.html', '/instructor-welcome.html',
+  '/auth.html', '/mypage.html', '/pro/instructor-welcome.html',
   '/explore/', '/explore/shops.html', '/explore/listing.html', '/explore/profile.html',
   '/media/', '/media/article.html',
   '/learn/', '/pro/index.html', '/admin/',
@@ -92,8 +92,10 @@ if (!sbOk) SKIP('公開データ 全' + PUBLIC_CHECKS.length + '件', 'Supabase�
 else for (const [q, label] of PUBLIC_CHECKS) {
   try {
     const { status, data } = await sb(q);
-    if (status === 200 && Array.isArray(data) && data.length >= 1) PASS(label);
-    else if (status === 200) WARN(label, '0件（データ未投入の可能性）');
+    // Prefer: count=exact + limit指定時、PostgRESTは部分応答として206を返す（正常）
+    const ok = status === 200 || status === 206;
+    if (ok && Array.isArray(data) && data.length >= 1) PASS(label);
+    else if (ok) WARN(label, '0件（データ未投入の可能性）');
     else FAIL(label, `status=${status}`);
   } catch (e) { FAIL(label, e.message); }
 }
@@ -113,9 +115,10 @@ if (!sbOk) SKIP('RLS検証 全' + RLS_CHECKS.length + '件', 'Supabase到達不�
 else for (const [q, label] of RLS_CHECKS) {
   try {
     const { status, data } = await sb(q);
-    if (status === 200 && Array.isArray(data) && data.length === 0) PASS(label + ' → 0件');
+    const ok = status === 200 || status === 206; // 206=部分応答（正常）
+    if (ok && Array.isArray(data) && data.length === 0) PASS(label + ' → 0件');
     else if (status === 401 || status === 403 || status === 404) PASS(label + ` → ${status}拒否`);
-    else if (status === 200 && data.length > 0) FAIL(label, `匿名で${data.length}件読めてしまう！RLS要確認`);
+    else if (ok && data.length > 0) FAIL(label, `匿名で${data.length}件読めてしまう！RLS要確認`);
     else WARN(label, `status=${status}`);
   } catch (e) { FAIL(label, e.message); }
 }
