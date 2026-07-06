@@ -227,10 +227,7 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 - 実装（UI・同日追加）：`pro/index.html`（ショップロールでコース/空き枠/予約/問い合わせをショップ名義対応、`instructor_shops`統合）／`admin/index.html`（ショップ選択・フィルタ追加）／`explore/index.html`・`explore/listing.html`（商品一覧・詳細・予約カレンダー・決済がショップ名義商品にも対応、`normalizeOwner()`でinstructor/shop共通化）／`api/create-checkout-session.js`（`shopId`対応）
 - **未着手（フォローアップ）**：`shops` テーブルはまだソフトデリート対象外（物理削除のまま）／ショップ名義商品ページの「指導歴」等インストラクター由来ラベルの文言調整／実機での動作確認未実施
 - **2026-07-05追記**：`pro/index.html`の`applyShopOwnerFilter()`は当初`instructor_shops`（在籍インストラクター）のIDも管理対象に含めていたが、在籍インストラクターを追加しただけでその人個人の既存商品・予約・問い合わせまでショップの管理画面に出てきてしまう不具合につながったため、`shop_id = 自ショップ`のみに限定するよう修正。**在籍インストラクター（instructor_shops）は「プロフィール表示用のロースター」であり、商品・予約等の管理権限を拡張するものではない**という方針を明確化
-- **2026-07-05追記**：`shops`にカバー画像の表示位置調整機能を追加（`pro/index.html`のショップ編集画面・記事エディタの`ae-cover-pos`と同方式のドラッグ/矢印UI）。DB側に`shops.cover_position`カラム（TEXT、例`"50% 50%"`）が必要。**手動でSupabaseに以下を適用すること（未実施）**：
-  ```sql
-  ALTER TABLE shops ADD COLUMN IF NOT EXISTS cover_position TEXT DEFAULT '50% 50%';
-  ```
+- **2026-07-05追記**：`shops`にカバー画像の表示位置調整機能を追加（`pro/index.html`のショップ編集画面・記事エディタの`ae-cover-pos`と同方式のドラッグ/矢印UI）。DB側の`shops.cover_position`カラム（TEXT、例`"50% 50%"`）は **2026-07-06 Supabase本番に適用済み**（`sql/shops_cover_position_20260705.sql`・information_schemaで確認済み）
 
 ### `shops.shop_type` 廃止（2026-07-05・secretary相談で確定）
 
@@ -255,11 +252,7 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 
 - `admin/index.html`の記事エディタに「著者紹介文（任意）」欄（`#ae-author-bio`）を追加。入力するとプレビュー・保存時に反映される
 - 空欄の場合は編集部/著者いずれも汎用的なデフォルト文（特定個人名なし）にフォールバック
-- DB側に`articles.author_bio`カラム（TEXT、nullable）が必要。**手動でSupabaseに以下を適用すること（未実施）**：
-  ```sql
-  ALTER TABLE articles ADD COLUMN IF NOT EXISTS author_bio TEXT;
-  ```
-  （`sql/articles_author_bio_20260705.sql`）
+- DB側の`articles.author_bio`カラム（TEXT、nullable）は **2026-07-06 Supabase本番に適用済み**（`sql/articles_author_bio_20260705.sql`・information_schemaで確認済み）
 - **未着手（フォローアップ）**：既存記事の`author_bio`は未設定のためデフォルト文表示のまま。個別に紹介文を設定したい記事があれば管理画面から追記
 
 -----
@@ -308,10 +301,11 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
   all_rankings_data.json
   athlete_photos.json
   jp_official_records.json
-/scripts/                 # Pythonスクリプト
+/scripts/                 # Python・Nodeスクリプト
   fetch_all_rankings.py
   fetch_jp_records.py
   fetch_overall_fix.py
+  insert_article.mjs      # 記事MD→Supabase下書きINSERT（media-writerスキル用・2026-07-06）
 /api/                     # Vercel Serverless Functions
   create-checkout-session.js
   stripe-webhook.js
@@ -345,7 +339,8 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 /pro/                     # インストラクター向け
   index.html
   instructor-welcome.html
-/sql/                     # DBスキーマ・テストデータ
+/sql/                     # DBスキーマ・テストデータ（先頭にステータスヘッダ必須）
+/ops/                     # 運用・自動化ツール（QAスモークテスト・フォローアップスキャナ・Skillソース。ops/README.md参照・2026-07-06導入）
 /old/                     # 旧ファイル保管庫（参照のみ）
 ```
 

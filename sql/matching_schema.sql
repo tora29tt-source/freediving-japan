@@ -1,3 +1,4 @@
+-- ステータス: 実行済み（日付不明・DEV.md実装状況より）
 -- =============================================
 -- Freediving Japan — Matching Schema
 -- shops / instructors / listings / inquiries / reviews

@@ -37,7 +37,7 @@ description: >
 ## 入稿フロー
 
 1. 画像があれば Supabase Storage（article-images バケット）へのアップ手順を案内
-2. DB INSERT は `insert_article.js`（無ければ作成する）で **is_published=false の下書き**として投入
+2. DB INSERT は `scripts/insert_article.mjs` で **is_published=false の下書き**として投入（書式: `ops/templates/article_template.md`、実行コマンドは MEDIA_OPS.md §4 STEP3-2 参照。service_role key は環境変数でTakuyaが渡す）
 3. 公開前チェックリスト（MEDIA_OPS.md §4 STEP4）を提示
 4. **公開は必ずTakuyaが admin 画面で行う。SkillはINSERTまで（下書き）**
 5. SNS投稿文を渡し、**投稿自体はTakuyaが行う**（誤投稿防止のため自動投稿しない）

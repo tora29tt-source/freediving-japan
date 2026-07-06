@@ -1,3 +1,4 @@
+-- ステータス: 実行済み（2026-06-28）
 -- RLS バグ修正 2026-06-28
 -- Bug #1 #2: bookings SELECT/UPDATE を全認証ユーザーに開放していた問題
 -- Bug #4: availability_slots を認証済みなら誰でも書き込める問題

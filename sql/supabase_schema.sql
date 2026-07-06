@@ -1,3 +1,4 @@
+-- ステータス: 実行済み（日付不明・初期スキーマ）
 -- =============================================
 -- Freediving Japan — Supabase Schema
 -- training_sessions + training_dives

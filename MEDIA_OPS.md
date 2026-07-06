@@ -148,7 +148,7 @@ articles テーブルの `category` フィールドはアルファベット 1 �
     ↓
 ③ 画像を Supabase Storage にアップ → URL を MD に確定
     ↓
-④ Claude が insert_article.js でそのまま Supabase INSERT（下書き状態）
+④ Claude が scripts/insert_article.mjs でそのまま Supabase INSERT（下書き状態）
     ↓
 ⑤ admin 画面で表示確認 →「公開する」ボタン
     ↓
@@ -229,7 +229,15 @@ articles テーブルの `category` フィールドはアルファベット 1 �
 - URL の確認・修正があれば Claude に伝えてから次へ進む
 
 #### 3-2. Supabase INSERT
-- Claude が `insert_article.js`（Node.js スクリプト）を実行し、MD → HTML 変換 + 全フィールドを Supabase に INSERT（`is_published = false` の下書き状態）
+- `scripts/insert_article.mjs` を実行し、MD → HTML 変換 + 全フィールドを Supabase に INSERT（`is_published = false` の下書き状態）
+- 記事MDの書式は `ops/templates/article_template.md`（フロントマター付きMD）
+- 実行コマンド（service_role key は環境変数で渡す・コードに書かない）：
+
+```bash
+cd ~/Desktop/10.Freediving/30.Freediving\ Japan/freediving-japan
+SUPABASE_SERVICE_KEY=<service_role_key> node scripts/insert_article.mjs 記事.md
+# 既存記事の本文更新は --update を付ける（公開状態は変更されない）
+```
 
 #### 3-3. admin 画面で確認・公開
 1. `https://freediving-japan.vercel.app/admin/` を開く
