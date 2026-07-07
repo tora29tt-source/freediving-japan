@@ -1,6 +1,6 @@
 # フォローアップ一覧（自動生成）
 
-生成: 2026-07-06 06:14 / `node ops/scan_followups.mjs`
+生成: 2026-07-06 22:10 / `node ops/scan_followups.mjs`
 
 ## 🔴 未実行のSQL（1件）
 
