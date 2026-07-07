@@ -271,6 +271,10 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 - **新テーブル追加時のルール**：ユーザーが削除しうるテーブルは原則 `deleted_at` カラム＋`<table>_hide_deleted` ポリシーを付け、削除は UPDATE で行う。
 - **復元UI**：未実装（当面は必要時に Supabase から直接 `deleted_at` を NULL に戻す）。
 
+**バグ：管理者がソフトデリートできない（2026-07-07発見・修正SQL未実行）**
+
+admin/index.html でインストラクター等を削除しようとすると「new row violates row-level security policy "<table>_hide_deleted"」でUPDATE自体が失敗する。`<table>_hide_deleted` ポリシーは `deleted_at IS NULL` の行のみ可視化するRESTRICTIVEポリシーだが、`deleted_at` をセットした更新後の行がこの条件を満たさなくなるため、管理者による論理削除の書き込みそのものが弾かれていた。`sql/soft_delete_admin_bypass_20260707.sql` で対象8テーブル全てのポリシーに `OR is_site_admin()` を追加する修正を用意済み（**Supabase SQL Editorで未実行・要対応**）。副次効果として、将来「ゴミ箱・復元」機能を作る際に管理者が削除済み行を検索できるようになる。
+
 -----
 
 ## Stripe 設定メモ
