@@ -271,9 +271,14 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 - **新テーブル追加時のルール**：ユーザーが削除しうるテーブルは原則 `deleted_at` カラム＋`<table>_hide_deleted` ポリシーを付け、削除は UPDATE で行う。
 - **復元UI**：未実装（当面は必要時に Supabase から直接 `deleted_at` を NULL に戻す）。
 
-**バグ：管理者がソフトデリートできない（2026-07-07発見・修正SQL未実行）**
+**バグ：管理者がソフトデリートできない（2026-07-07発見・修正済み）**
 
-admin/index.html でインストラクター等を削除しようとすると「new row violates row-level security policy "<table>_hide_deleted"」でUPDATE自体が失敗する。`<table>_hide_deleted` ポリシーは `deleted_at IS NULL` の行のみ可視化するRESTRICTIVEポリシーだが、`deleted_at` をセットした更新後の行がこの条件を満たさなくなるため、管理者による論理削除の書き込みそのものが弾かれていた。`sql/soft_delete_admin_bypass_20260707.sql` で対象8テーブル全てのポリシーに `OR is_site_admin()` を追加する修正を用意済み（**Supabase SQL Editorで未実行・要対応**）。副次効果として、将来「ゴミ箱・復元」機能を作る際に管理者が削除済み行を検索できるようになる。
+admin/index.html でインストラクター等を削除しようとすると「new row violates row-level security policy "<table>_hide_deleted"」でUPDATE自体が失敗していた。`<table>_hide_deleted` ポリシーは `deleted_at IS NULL` の行のみ可視化するRESTRICTIVEポリシーだが、`deleted_at` をセットした更新後の行がこの条件を満たさなくなるため、管理者による論理削除の書き込みそのものが弾かれていた。対象8テーブル全てのポリシーに `OR is_site_admin()` を追加するSQL（チャットでユーザーに提示・Supabase側で実行済み）で解消。
+
+**副作用バグ：admin一覧に削除済み行が残り続ける（2026-07-07発見・修正済み）**
+
+上記の `OR is_site_admin()` 追加により、管理者（is_site_admin）が実行するSELECTはRLS側で`deleted_at`を絞り込まなくなった。admin/index.htmlの一覧クエリ（`loadInstructors` / `loadListings` / `loadArticles` / `loadSlots` / `loadMasterData`）はこれまでRLSの`hide_deleted`ポリシーに絞り込みを委ねてクエリ側に`deleted_at`条件を書いていなかったため、削除操作後も一覧に残り続けていた。該当6箇所に`.is('deleted_at', null)`を追加して修正済み。
+**要フォローアップ**：`events` / `event_staff` / `event_shift_roles` / `athlete_entries` を読む他の画面（`mypage.html`, `events/event-staff.html` 等）も同じ仕組みで潜在的に同じ問題を抱えている可能性がある。管理者アカウントでそれらの画面を使う際に削除済みの大会・スタッフ等が残って見えたら、同様に`.is('deleted_at', null)`を追加する。
 
 -----
 

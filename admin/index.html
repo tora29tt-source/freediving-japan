@@ -1622,8 +1622,8 @@ async function handleLogout() {
 // ============================================================
 async function loadMasterData() {
   const [{ data: instructors }, { data: listings }, { data: shops }] = await Promise.all([
-    _sb.from('instructors').select('id, name').order('name'),
-    _sb.from('listings').select('id, title, instructor_id, shop_id').order('title'),
+    _sb.from('instructors').select('id, name').is('deleted_at', null).order('name'),
+    _sb.from('listings').select('id, title, instructor_id, shop_id').is('deleted_at', null).order('title'),
     _sb.from('shops').select('id, name').order('name'),
   ]);
   allInstructors = instructors || [];
@@ -1710,6 +1710,7 @@ async function loadSlots() {
   let query = _sb
     .from('availability_slots')
     .select('*, instructors(name), shops(name), listings(title)')
+    .is('deleted_at', null)
     .order('slot_date', { ascending: false })
     .order('start_time', { ascending: true });
 
@@ -1979,6 +1980,7 @@ async function loadInstructors() {
   let query = _sb
     .from('instructors')
     .select('id, name, prefecture, city, is_verified, is_public, experience_years, status')
+    .is('deleted_at', null)
     .order('status', { ascending: true })   // pending が先頭に来るようにソート
     .order('created_at', { ascending: false });
 
@@ -2167,6 +2169,7 @@ async function loadListings() {
   let query = _sb
     .from('listings')
     .select('id, title, intent, area, price, is_public, instructors(name), shops(name)')
+    .is('deleted_at', null)
     .order('created_at', { ascending: false });
 
   if (instFilter)   query = query.eq('instructor_id', instFilter);
@@ -2370,6 +2373,7 @@ async function loadArticles() {
   let query = _sb
     .from('articles')
     .select('id, title, slug, category, is_published, published_at, read_time_min, author_type, author_name, created_at, thumbnail_url')
+    .is('deleted_at', null)
     .order('created_at', { ascending: false });
 
   if (catFilter)              query = query.eq('category', catFilter);
