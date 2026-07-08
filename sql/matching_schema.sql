@@ -98,8 +98,9 @@ CREATE TABLE listings (
 
   -- 分類
   category        TEXT NOT NULL,                -- 表示カテゴリ（例: 'フリーダイビング体験', 'スクール・資格取得'）
-  intent          TEXT NOT NULL                 -- 検索タブ対応: 'try' | 'learn' | 'dive'
-    CHECK (intent IN ('try', 'learn', 'dive')),
+  intent          TEXT NOT NULL                 -- 検索タブ対応: 'try' | 'learn' | 'fundive' | 'training' | 'coaching'
+                                                 -- （2026-07-08〜 'dive' は fundive/training/coaching に分割。検索ページの「もっと潜りたい」タブはこの3つをまとめて1グループ扱い）
+    CHECK (intent IN ('try', 'learn', 'fundive', 'training', 'coaching')),
 
   -- 場所
   prefecture      TEXT,
