@@ -303,6 +303,7 @@ admin/index.html でインストラクター等を削除しようとすると「
 /freediving.html          # ピラー専用ページ：フリーダイビング
 /css/home.css             # トップ＋ピラー3ページ共通のライトテーマ（design-system.cssとは別系統）
 /js/home.js               # 共通挙動（お気に入り♡・ピラータブ切替・検索バー送信）
+/js/area-map.js           # 自前SVG日本地図のエリア選択コンポーネント（explore/shops共用・2026-07-08）
 /auth.html                # 認証画面（メール/パスワード・Googleログイン）
 /sitemap.xml              # 公開10ページの静的サイトマップ（2026-07-08。記事の動的生成は今後の課題）
 /robots.txt               # admin/pro/api/booking/mypage/auth をクロール除外（2026-07-08）
@@ -480,6 +481,7 @@ TOP (index.html)  ── Airbnb風マーケットプレイス（白基調）
 |/learn/ 有料講座ページ                                      |✅ learn/index.html 骨格完成・トップからリンク済み（先行通知機能なし・購入ボタンは準備中表示。Stripe/Vimeo接続は撮影後）|
 |メディア（/media/）                                        |✅ 基盤完成・media/ 一本化（2026-06-29）index.html Supabase動的取得・article.html 記事詳細。CMS は admin/index.html メディアタブに統合。articles テーブル・カテゴリ9区分・RLS設定・初記事2本投入済み。articles/ → _old/ 退避済み。スマホ対応・ヘッダー統一済み|
 |サイト動線整備（2026-07-08）                             |✅ sitemap.xml/robots.txt/404.html 新設。skindiving/snorkeling/learn のフッターに大会・ランキング導線追加でナビ統一。行き止まり4ページ（AIDA_ranking/mouthfill/event-athlete/freediving-learn）に戻る導線追加。buoyancy の死にリンク（/tools/）修正。tools/session-planner.html 削除。**残課題：event-athlete/freediving-learn/instructor-welcome はどこからもリンクされていない（意図確認要）**|
+|検索UI刷新・SVG地図検索（2026-07-08）                        |✅ 検索の重複UIを大胆に統合＋地図検索を自前SVG化。①explore/index.html：検索バーの「タイプ」selectを削除（intentタブに一本化）、都道府県`<select>`を廃止しフリーテキスト検索対象に`prefecture`を追加（?pref=リンクは検索語として互換維持）、条件・価格帯は「こだわり条件」折りたたみ（選択数バッジ付き）に集約。②地図：Google Maps依存を全廃（js/maps-config.js削除・APIキー不要）し、`js/area-map.js`（ブランドカラーのデフォルメSVG日本地図＋南西諸島拡大枠＋件数ピル。クリック絞込・再クリック解除・0件は減光・人気3エリアはパルス強調）を新設。explore はデフォルト表示、shops.html にも同コンポーネント導入（トグル式・ショップ/インストラクター件数連動）。③トップ＋ピラー3ページの検索バーからもタイプselect削除（エリア＋日程のみ）。スタイルは css/home.css の `.fj-*`/`.adv-*` に共通定義。**実機ブラウザでの表示確認は未実施**|
 |iOSアプリ（React Native）                                 |🔄 開発中（環境構築済み・Expo Go動作確認済み。タブバー・ログ・Supabase連携・SNSシェアが未実装）|
 
 -----
