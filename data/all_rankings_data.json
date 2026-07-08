@@ -1,5 +1,5 @@
 {
- "updated": "2026-07-07",
+ "updated": "2026-07-08",
  "years_fetched": [
   "2000",
   "2001",
@@ -47494,6 +47494,28 @@
    "points": 107.0,
    "date": "2026-04-26",
    "event": "AIDA Mabini Depth Quest - Season 4"
+  },
+  {
+   "year": "2026",
+   "discipline": "CWT",
+   "gender": "Female",
+   "rank": 2,
+   "name": "Kayo Oda",
+   "result": "69 m",
+   "points": 62.0,
+   "date": "2026-07-03",
+   "event": "AIDA DOUBLE K IDA 24th DEPTH CHALLENGE"
+  },
+  {
+   "year": "2026",
+   "discipline": "CWT",
+   "gender": "Female",
+   "rank": 3,
+   "name": "Sanae Kabakura",
+   "result": "58 m",
+   "points": 58.0,
+   "date": "2026-07-07",
+   "event": "AIDA DOUBLE K IDA 24th DEPTH CHALLENGE"
   },
   {
    "year": "2026",
