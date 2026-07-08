@@ -225,7 +225,8 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 - 個人インストラクターが「自分をショップとして登録する」従来の運用は不要になったが、既存データはそのままで問題ない（併用可）
 - 実装（DB）：`sql/shop_direct_listings_20260704.sql`（Supabase本番適用済み）
 - 実装（UI・同日追加）：`pro/index.html`（ショップロールでコース/空き枠/予約/問い合わせをショップ名義対応、`instructor_shops`統合）／`admin/index.html`（ショップ選択・フィルタ追加）／`explore/index.html`・`explore/listing.html`（商品一覧・詳細・予約カレンダー・決済がショップ名義商品にも対応、`normalizeOwner()`でinstructor/shop共通化）／`api/create-checkout-session.js`（`shopId`対応）
-- **未着手（フォローアップ）**：`shops` テーブルはまだソフトデリート対象外（物理削除のまま）／ショップ名義商品ページの「指導歴」等インストラクター由来ラベルの文言調整／実機での動作確認未実施
+- **未着手（フォローアップ）**：`shops` テーブルはまだソフトデリート対象外（物理削除のまま）／ショップ名義商品ページの「指導歴」等インストラクター由来ラベルの文言調整
+- **2026-07-07：Chrome MCPでショップ名義商品の予約カレンダー表示を確認済み**（`explore/shops.html`→ショップカード→コース詳細→空き状況カレンダーが正常表示、コンソールエラーなし）。ただし決済（Stripe Checkout）までの一気通貫E2Eは未実施
 - **2026-07-05追記**：`pro/index.html`の`applyShopOwnerFilter()`は当初`instructor_shops`（在籍インストラクター）のIDも管理対象に含めていたが、在籍インストラクターを追加しただけでその人個人の既存商品・予約・問い合わせまでショップの管理画面に出てきてしまう不具合につながったため、`shop_id = 自ショップ`のみに限定するよう修正。**在籍インストラクター（instructor_shops）は「プロフィール表示用のロースター」であり、商品・予約等の管理権限を拡張するものではない**という方針を明確化
 - **2026-07-05追記**：`shops`にカバー画像の表示位置調整機能を追加（`pro/index.html`のショップ編集画面・記事エディタの`ae-cover-pos`と同方式のドラッグ/矢印UI）。DB側の`shops.cover_position`カラム（TEXT、例`"50% 50%"`）は **2026-07-06 Supabase本番に適用済み**（`sql/shops_cover_position_20260705.sql`・information_schemaで確認済み）
 
@@ -244,7 +245,7 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 - **プロフィールページ**（bio・在籍インストラクター一覧・取り扱いコース一覧・レビュー。予約カレンダーなし）と、**商品ページ**（特定コースの詳細＋予約カレンダー。プロフィール要素は最小限）を別ファイルに分離する方針に変更
 - 新規ファイル：`explore/profile.html`（プロフィール専用）。`explore/listing.html`は商品詳細専用に縮小し、`listing=`パラメータで指す商品が無い場合は`profile.html`にフォールバックする
 - リンク更新対象：`explore/shops.html`（カードのリンク先）／`explore/index.html`（インストラクタープレビューモーダルのCTA）／`explore/listing.html`自身（運営者カードのリンク先）
-- **未着手（フォローアップ）**：実機での動作確認未実施
+- **2026-07-07：Chrome MCPで動作確認済み**：`explore/shops.html`のショップカード→`profile.html`（自己紹介・在籍インストラクター・取り扱いコース表示）→コースカードクリックで`listing.html`（詳細＋予約カレンダー）への遷移、および`listing.html`にlistingパラメータ無しでアクセスした際の`profile.html`へのフォールバックをすべて確認。コンソールエラーなし
 
 ### 記事の著者紹介文をDBカラム化（2026-07-05）
 
@@ -303,6 +304,9 @@ admin/index.html でインストラクター等を削除しようとすると「
 /css/home.css             # トップ＋ピラー3ページ共通のライトテーマ（design-system.cssとは別系統）
 /js/home.js               # 共通挙動（お気に入り♡・ピラータブ切替・検索バー送信）
 /auth.html                # 認証画面（メール/パスワード・Googleログイン）
+/sitemap.xml              # 公開10ページの静的サイトマップ（2026-07-08。記事の動的生成は今後の課題）
+/robots.txt               # admin/pro/api/booking/mypage/auth をクロール除外（2026-07-08）
+/404.html                 # 404ページ（2026-07-08）
 /mypage.html              # ログイン後＝プロ・選手の世界
 /admin/index.html         # 管理画面（空き枠・予約管理）
 /js/supabase-config.js    # Supabase接続設定（anon key格納）
@@ -332,8 +336,8 @@ admin/index.html でインストラクター等を削除しようとすると「
   admin-mobile.html       # アイデアリスト専用（運用しない）
 /_old/articles/           # 旧静的記事（2026-06-29 退避・参照のみ）
 /tools/                   # ツール類
+  buoyancy-simulator.html
   mouthfill-calculator.html
-  session-planner.html
   sta-timer.html
   training-log.html
 /events/                  # 大会・イベント
@@ -344,6 +348,7 @@ admin/index.html でインストラクター等を削除しようとすると「
 /rankings/                # ランキング
   AIDA_ranking.html
 /learn/                   # 学ぶ（Phase 1.5〜）
+  index.html
   freediving-learn.html
 /pro/                     # インストラクター向け
   index.html
@@ -474,6 +479,7 @@ TOP (index.html)  ── Airbnb風マーケットプレイス（白基調）
 |売り上げ管理タブ（pro/index.html）                              |✅ 実装済み（月次サマリー・棒グラフ・明細一覧・期間フィルタ）|
 |/learn/ 有料講座ページ                                      |✅ learn/index.html 骨格完成・トップからリンク済み（先行通知機能なし・購入ボタンは準備中表示。Stripe/Vimeo接続は撮影後）|
 |メディア（/media/）                                        |✅ 基盤完成・media/ 一本化（2026-06-29）index.html Supabase動的取得・article.html 記事詳細。CMS は admin/index.html メディアタブに統合。articles テーブル・カテゴリ9区分・RLS設定・初記事2本投入済み。articles/ → _old/ 退避済み。スマホ対応・ヘッダー統一済み|
+|サイト動線整備（2026-07-08）                             |✅ sitemap.xml/robots.txt/404.html 新設。skindiving/snorkeling/learn のフッターに大会・ランキング導線追加でナビ統一。行き止まり4ページ（AIDA_ranking/mouthfill/event-athlete/freediving-learn）に戻る導線追加。buoyancy の死にリンク（/tools/）修正。tools/session-planner.html 削除。**残課題：event-athlete/freediving-learn/instructor-welcome はどこからもリンクされていない（意図確認要）**|
 |iOSアプリ（React Native）                                 |🔄 開発中（環境構築済み・Expo Go動作確認済み。タブバー・ログ・Supabase連携・SNSシェアが未実装）|
 
 -----

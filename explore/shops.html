@@ -127,7 +127,16 @@
   </div>
 
   <div class="filter-section">
-    <p class="filter-label">エリア</p>
+    <div class="filter-label-row">
+      <p class="filter-label">エリア</p>
+      <button class="map-toggle-btn" onclick="toggleAreaMap()" type="button">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span id="mapToggleLabel">地図で選ぶ</span>
+      </button>
+    </div>
+    <div class="area-map-wrap" id="areaMapWrap">
+      <div id="areaMap"></div>
+    </div>
     <div class="chip-row" id="areaChips">
       <button class="chip active" data-area="" onclick="toggleArea(this)">全国</button>
       <button class="chip" data-area="沖縄" onclick="toggleArea(this)">沖縄</button>
@@ -195,6 +204,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../js/supabase-config.js"></script>
+<script src="../js/area-map.js"></script>
 <script>
 // esc: DB由来の値をHTMLへ挿入する前にエスケープ（S4対策と同様の方針）
 function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
@@ -260,7 +270,36 @@ function toggleArea(el) {
   document.querySelectorAll('#areaChips .chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
   currentArea = el.dataset.area || '';
+  areaMap.setActive(currentArea);
   renderOwners();
+}
+
+/* ── エリア地図（自前SVG / js/area-map.js）。explore/index.html と共通コンポーネント ── */
+const areaMap = FJAreaMap.render(document.getElementById('areaMap'), {
+  onSelect(area) {
+    const target = (area === currentArea) ? '' : area;
+    const chip = [...document.querySelectorAll('#areaChips .chip')].find(c => c.dataset.area === target);
+    if (chip) toggleArea(chip);
+  }
+});
+
+function toggleAreaMap() {
+  const wrap = document.getElementById('areaMapWrap');
+  const willOpen = !wrap.classList.contains('open');
+  wrap.classList.toggle('open', willOpen);
+  document.getElementById('mapToggleLabel').textContent = willOpen ? '地図を閉じる' : '地図で選ぶ';
+}
+
+// 現在の型（ショップ/インストラクター）の件数を地図ピンへ反映
+// エリアは「沖縄（4月〜10月）」のような表記があるため部分一致でカウント
+function updateMapCounts(owners) {
+  const counts = {};
+  document.querySelectorAll('#areaChips .chip').forEach(c => {
+    const area = c.dataset.area;
+    if (!area) return;
+    counts[area] = owners.filter(o => (o.areas || []).some(a => a.includes(area))).length;
+  });
+  areaMap.setCounts(counts);
 }
 
 function cycleSort() {
@@ -280,6 +319,8 @@ async function renderOwners() {
     container.innerHTML = '<div class="empty-state"><div class="empty-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><p class="empty-title">データを読み込めませんでした</p><p class="empty-desc">しばらく経ってから再度お試しください</p></div>';
     return;
   }
+
+  updateMapCounts(owners);
 
   const q = document.getElementById('searchInput').value.toLowerCase().trim();
   let filtered = owners.filter(o => {

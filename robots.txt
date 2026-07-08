@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /pro/
+Disallow: /api/
+Disallow: /booking/
+Disallow: /mypage.html
+Disallow: /auth.html
+
+Sitemap: https://freediving-japan.vercel.app/sitemap.xml

@@ -440,6 +440,7 @@ editor ロールでログインすると自動的にメディアタブのみ表�
 2. **プレスリリース**（PR TIMES等）：「日本記録保持者がプラットフォームを立ち上げた」角度。記事5本＋マッチング機能が揃ったタイミングで出す
 3. **Googleサーチコンソール登録**：ローンチ時に即実施（必須）
 4. **SNSプロフィールからのリンク**：X・Instagram・YouTubeのプロフィールURLを freediving-japan.vercel.app に統一
+5. **sitemap.xml / robots.txt**：設置済み（2026-07-08・静的10ページ）。記事を含む動的サイトマップ生成は今後の課題
 
 ### 被リンク構造の考え方
 
@@ -593,6 +594,7 @@ const { data } = await supabase
 |---|---|---|
 | 画像アップロード | URL直接入力のみ | Supabase Storageアップロード機能（Phase 2） |
 | OGP/SEOメタタグ | 静的のみ | 記事詳細のdynamic OGP（Vercel Edge Function） |
+| サイトマップ | 静的10ページのみ（2026-07-08設置） | 記事URLを含む動的sitemap生成（Vercel Function or ビルドスクリプト） |
 | 英語対応 | 未対応 | Phase 2でi18n導入 |
 | 全文検索 | 未実装 | pg_trgm or Algolia（Phase 3） |
 

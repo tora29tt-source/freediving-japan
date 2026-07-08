@@ -38,6 +38,7 @@ tags: [design-doc, index]
 | DB スキーマ設計 | `sql/` | [DB_SCHEMA_DESIGN.md](./DB_SCHEMA_DESIGN.md) | 2026-07-04 |
 | Supabase Storage（アバター） | `mypage.html`<br>`pro/index.html` | [STORAGE_DESIGN.md](./STORAGE_DESIGN.md) | 2026-06-28 |
 | メディア（記事管理・CMS・公開フロー・SEO・SNS・技術仕様） | `media/index.html`<br>`media/article.html`<br>`media/article-editor.html` | [MEDIA_OPS.md](../MEDIA_OPS.md) | 2026-06-29 |
+| 安全・リスク管理（同意書・健康チェック・安全基準・規約条項・保険） | `docs/safety/`（書類パッケージ・実装は未着手） | [safety/README.md](./safety/README.md) | 2026-07-07 |
 
 ---
 

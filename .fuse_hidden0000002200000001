@@ -67,7 +67,17 @@
         <label class="sb-seg sb-when">
           <div class="sb-label">日程</div>
           <input class="sb-input" name="date" type="date">
-        </label>        <button class="sb-btn" type="submit"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>検索</button>
+        </label>
+        <label class="sb-seg">
+          <div class="sb-label">タイプ</div>
+          <select class="sb-input sb-select" name="intent">
+            <option value="">すべて</option>
+            <option value="try">体験・ツアー</option>
+            <option value="learn">スクール・資格</option>
+            <option value="dive">ファンダイブ・上級</option>
+          </select>
+        </label>
+        <button class="sb-btn" type="submit"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>検索</button>
       </form>
     </div>
 
@@ -137,7 +147,9 @@
     <div style="margin:18px 0;">
       <form class="searchbar" data-target="explore/index.html">
         <label class="sb-seg"><div class="sb-label">エリア</div><input class="sb-input" name="area" placeholder="沖縄・伊豆・和歌山…" autocomplete="off"></label>
-        <label class="sb-seg sb-when"><div class="sb-label">日程</div><input class="sb-input" name="date" type="date"></label>        <button class="sb-btn" type="submit"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>検索</button>
+        <label class="sb-seg sb-when"><div class="sb-label">日程</div><input class="sb-input" name="date" type="date"></label>
+        <label class="sb-seg"><div class="sb-label">タイプ</div><select class="sb-input sb-select" name="intent"><option value="">すべて</option><option value="try">体験・ツアー</option><option value="learn">スクール・資格</option></select></label>
+        <button class="sb-btn" type="submit"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>検索</button>
       </form>
     </div>
 
@@ -185,7 +197,9 @@
     <div style="margin:18px 0;">
       <form class="searchbar" data-target="explore/index.html">
         <label class="sb-seg"><div class="sb-label">エリア</div><input class="sb-input" name="area" placeholder="伊豆・和歌山・高知…" autocomplete="off"></label>
-        <label class="sb-seg sb-when"><div class="sb-label">日程</div><input class="sb-input" name="date" type="date"></label>        <button class="sb-btn" type="submit"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>検索</button>
+        <label class="sb-seg sb-when"><div class="sb-label">日程</div><input class="sb-input" name="date" type="date"></label>
+        <label class="sb-seg"><div class="sb-label">タイプ</div><select class="sb-input sb-select" name="intent"><option value="">すべて</option><option value="try">体験・講習</option><option value="learn">認定コース</option></select></label>
+        <button class="sb-btn" type="submit"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>検索</button>
       </form>
     </div>
 
@@ -232,7 +246,9 @@
     <div style="margin:18px 0;">
       <form class="searchbar" data-target="explore/index.html">
         <label class="sb-seg"><div class="sb-label">エリア</div><input class="sb-input" name="area" placeholder="関東・鹿児島・海外…" autocomplete="off"></label>
-        <label class="sb-seg sb-when"><div class="sb-label">日程</div><input class="sb-input" name="date" type="date"></label>        <button class="sb-btn" type="submit"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>検索</button>
+        <label class="sb-seg sb-when"><div class="sb-label">日程</div><input class="sb-input" name="date" type="date"></label>
+        <label class="sb-seg"><div class="sb-label">タイプ</div><select class="sb-input sb-select" name="intent"><option value="">すべて</option><option value="learn">認定コース</option><option value="dive">デプス・競技</option></select></label>
+        <button class="sb-btn" type="submit"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>検索</button>
       </form>
     </div>
 
@@ -276,7 +292,17 @@
         <label class="sb-seg sb-when">
           <div class="sb-label">日程</div>
           <input class="sb-input" name="date" type="date">
-        </label>        <button class="sb-btn" type="submit"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>検索</button>
+        </label>
+        <label class="sb-seg">
+          <div class="sb-label">タイプ</div>
+          <select class="sb-input sb-select" name="intent">
+            <option value="">すべて</option>
+            <option value="try">体験・ツアー</option>
+            <option value="learn">スクール・資格</option>
+            <option value="dive">ファンダイブ・上級</option>
+          </select>
+        </label>
+        <button class="sb-btn" type="submit"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>検索</button>
       </form>
     </div>
 

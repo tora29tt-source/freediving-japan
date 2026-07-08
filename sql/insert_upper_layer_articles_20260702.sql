@@ -1,4 +1,4 @@
--- ステータス: 未実行
+-- ステータス: 実行済み（2026-07-07・Chrome MCP経由でSupabase本番SQL Editorから実行。10件ともstatus=published/is_published=trueで既存を確認。articles.slugが部分ユニークインデックス化されたためON CONFLICT (slug)にWHERE deleted_at IS NULLを追加して実行）
 -- 上位層メディア記事10本（シュノーケリング5・スキンダイビング5）下書きINSERT
 -- 生成日: 2026-07-02
 -- 実行方法: Supabase Dashboard > SQL Editor に貼り付けて実行（RLSをバイパス）

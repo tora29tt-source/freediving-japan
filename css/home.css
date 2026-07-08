@@ -177,3 +177,52 @@ button.chip{ font-family:inherit; cursor:pointer; appearance:none; -webkit-appea
   .feature-hero-title{ font-size:21px; }
   .feature-mini-media{ width:92px; }
 }
+
+/* ══════════════════════════════════════════════
+   エリアSVG日本地図（js/area-map.js / explore・shops共通）
+   ══════════════════════════════════════════════ */
+.filter-label-row{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.filter-label-row .filter-label{ margin-bottom:0; }
+.map-toggle-btn{ display:flex; align-items:center; gap:5px; font-size:11px; font-weight:600; color:var(--teal-deep); background:rgba(31,111,120,0.06); border:1px solid rgba(31,111,120,0.25); border-radius:100px; padding:5px 12px; cursor:pointer; transition:background .2s; }
+.map-toggle-btn:hover{ background:rgba(31,111,120,0.12); }
+.map-toggle-btn .icon{ width:12px; height:12px; }
+
+.area-map-wrap{ display:none; margin-bottom:14px; border-radius:16px; border:1px solid var(--line); overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:none; background:#e9f3f4; }
+.area-map-wrap::-webkit-scrollbar{ display:none; }
+.area-map-wrap.open{ display:block; }
+.fj-map-svg{ display:block; width:100%; min-width:640px; height:auto; }
+
+.fj-land{ fill:#fdfdfb; stroke:rgba(18,74,82,.45); stroke-width:1.2; }
+.fj-land-g{ filter:drop-shadow(0 2px 3px rgba(18,74,82,.14)); }
+.fj-island{ fill:#fdfdfb; stroke:rgba(18,74,82,.5); stroke-width:1; }
+.fj-inset-box{ fill:rgba(255,255,255,.5); stroke:rgba(18,74,82,.32); stroke-width:1; stroke-dasharray:4 4; }
+.fj-inset-label{ font-size:10px; font-weight:700; letter-spacing:.18em; fill:var(--teal-deep); }
+.fj-caption{ font-size:9px; letter-spacing:.14em; fill:var(--ink-soft); }
+.fj-compass{ font-size:10px; font-weight:700; fill:var(--ink-mid); }
+
+.fj-pin{ cursor:pointer; outline:none; }
+.fj-pin-dot{ fill:var(--teal); stroke:#fff; stroke-width:1.5; transition:transform .2s; transform-box:fill-box; transform-origin:center; }
+.fj-pin.hot .fj-pin-dot{ fill:var(--accent); }
+.fj-halo{ fill:var(--accent); opacity:.25; transform-box:fill-box; transform-origin:center; animation:fjPulse 2.6s ease-out infinite; }
+@keyframes fjPulse{ 0%{ transform:scale(.5); opacity:.35 } 70%,100%{ transform:scale(1.7); opacity:0 } }
+.fj-pill-bg{ fill:#fff; stroke:var(--line-strong); stroke-width:1; transition:fill .15s, stroke .15s; }
+.fj-pin text{ font-size:11px; font-weight:700; fill:var(--ink); pointer-events:none; }
+.fj-pill-count{ fill:var(--teal-deep); font-size:10px; font-family:ui-monospace,monospace; }
+.fj-pin:hover .fj-pill-bg, .fj-pin:focus-visible .fj-pill-bg{ stroke:var(--ink); }
+.fj-pin:hover .fj-pin-dot{ transform:scale(1.35); }
+.fj-pin.active .fj-pill-bg{ fill:var(--ink); stroke:var(--ink); }
+.fj-pin.active text, .fj-pin.active .fj-pill-count{ fill:#fff; }
+.fj-pin.dim{ opacity:.45; }
+
+/* ── こだわり条件（折りたたみ） ── */
+.adv-toggle{ display:flex; align-items:center; gap:7px; font-size:12px; font-weight:600; color:var(--ink-mid); background:#fff; border:1px solid var(--line-strong); border-radius:100px; padding:9px 16px; cursor:pointer; transition:border-color .2s; }
+.adv-toggle:hover{ border-color:var(--ink); }
+.adv-toggle .icon{ width:14px; height:14px; }
+.adv-badge{ display:none; min-width:17px; height:17px; padding:0 4px; border-radius:100px; background:var(--accent); color:#fff; font-size:10px; font-weight:700; align-items:center; justify-content:center; }
+.adv-badge.show{ display:inline-flex; }
+.adv-chev{ transition:transform .2s; }
+.adv-toggle.open .adv-chev{ transform:rotate(180deg); }
+.adv-panel{ display:none; padding-top:14px; }
+.adv-panel.open{ display:block; }
+.adv-panel .filter-label{ margin-top:12px; }
+.adv-panel .filter-label:first-child{ margin-top:0; }

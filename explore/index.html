@@ -41,22 +41,11 @@
 .filter-label { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 10px; font-weight: 600; }
 .chip-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
 .chip-row::-webkit-scrollbar { display: none; }
-.pref-select { width: 100%; background: #fff; border: 1px solid var(--line-strong); border-radius: 100px; padding: 12px 16px; font-size: 13px; font-weight: 600; color: var(--ink); outline: none; -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; background-size: 16px; }
-.pref-select:focus { border-color: var(--ink-strong,#c9c9cd); }
 .date-clear-btn { font-size: 11px; font-weight: 600; color: var(--teal-deep); background: none; border: none; padding: 0; cursor: pointer; text-decoration: underline dotted var(--line-strong); text-underline-offset: 2px; }
 .date-clear-btn:hover { color: var(--accent); }
 .filter-hint { font-size: 11px; color: var(--ink-soft); margin: 8px 0 0; text-align: center; line-height: 1.6; }
 
-/* ── エリア地図 ── */
-.filter-label-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-.filter-label-row .filter-label { margin-bottom: 0; }
-.map-toggle-btn { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: var(--teal-deep); background: rgba(31,111,120,0.06); border: 1px solid rgba(31,111,120,0.25); border-radius: 100px; padding: 5px 12px; cursor: pointer; transition: background 0.2s; }
-.map-toggle-btn:hover { background: rgba(31,111,120,0.12); }
-.map-toggle-btn .icon { width: 12px; height: 12px; }
-.area-map-wrap { display: none; margin-bottom: 14px; border-radius: 16px; overflow: hidden; border: 1px solid var(--line); position: relative; }
-.area-map-wrap.open { display: block; }
-#areaMap { width: 100%; height: 340px; background: #eaf6f4; }
-.map-loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--ink-soft); background: #eaf6f4; }
+/* ── エリア地図：スタイルは css/home.css の .fj-* / .area-map-wrap（shopsと共通） ── */
 
 /* ── divider ── */
 .divider { display: flex; align-items: center; gap: 12px; margin: 22px 0; }
@@ -247,15 +236,6 @@
         <div class="sb-label">日程</div>
         <input class="sb-input" name="date" id="dateInput" type="date">
       </label>
-      <label class="sb-seg">
-        <div class="sb-label">タイプ</div>
-        <select class="sb-input sb-select" name="intent" id="intentSelectTop" onchange="handleIntentSelect(this.value)">
-          <option value="">すべて</option>
-          <option value="try">体験・ツアー</option>
-          <option value="learn">スクール・資格</option>
-          <option value="dive">ファンダイブ・上級</option>
-        </select>
-      </label>
       <button class="sb-btn" type="submit"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>検索</button>
     </form>
     <p class="filter-hint" id="dateHint" style="display:none">この日以降に空きがあるプランを表示中 · <button class="date-clear-btn" onclick="clearDate()" type="button">クリア</button></p>
@@ -284,71 +264,15 @@
     </button>
   </div>
   <div class="filter-section">
-    <p class="filter-label">都道府県</p>
-    <select class="pref-select" id="prefSelect" onchange="setPrefecture(this.value)">
-      <option value="">すべて</option>
-      <option value="北海道">北海道</option>
-      <option value="青森県">青森県</option>
-      <option value="岩手県">岩手県</option>
-      <option value="宮城県">宮城県</option>
-      <option value="秋田県">秋田県</option>
-      <option value="山形県">山形県</option>
-      <option value="福島県">福島県</option>
-      <option value="茨城県">茨城県</option>
-      <option value="栃木県">栃木県</option>
-      <option value="群馬県">群馬県</option>
-      <option value="埼玉県">埼玉県</option>
-      <option value="千葉県">千葉県</option>
-      <option value="東京都">東京都</option>
-      <option value="神奈川県">神奈川県</option>
-      <option value="新潟県">新潟県</option>
-      <option value="富山県">富山県</option>
-      <option value="石川県">石川県</option>
-      <option value="福井県">福井県</option>
-      <option value="山梨県">山梨県</option>
-      <option value="長野県">長野県</option>
-      <option value="岐阜県">岐阜県</option>
-      <option value="静岡県">静岡県</option>
-      <option value="愛知県">愛知県</option>
-      <option value="三重県">三重県</option>
-      <option value="滋賀県">滋賀県</option>
-      <option value="京都府">京都府</option>
-      <option value="大阪府">大阪府</option>
-      <option value="兵庫県">兵庫県</option>
-      <option value="奈良県">奈良県</option>
-      <option value="和歌山県">和歌山県</option>
-      <option value="鳥取県">鳥取県</option>
-      <option value="島根県">島根県</option>
-      <option value="岡山県">岡山県</option>
-      <option value="広島県">広島県</option>
-      <option value="山口県">山口県</option>
-      <option value="徳島県">徳島県</option>
-      <option value="香川県">香川県</option>
-      <option value="愛媛県">愛媛県</option>
-      <option value="高知県">高知県</option>
-      <option value="福岡県">福岡県</option>
-      <option value="佐賀県">佐賀県</option>
-      <option value="長崎県">長崎県</option>
-      <option value="熊本県">熊本県</option>
-      <option value="大分県">大分県</option>
-      <option value="宮崎県">宮崎県</option>
-      <option value="鹿児島県">鹿児島県</option>
-      <option value="沖縄県">沖縄県</option>
-      <option value="海外">海外</option>
-    </select>
-  </div>
-
-  <div class="filter-section">
     <div class="filter-label-row">
-      <p class="filter-label">人気スポットから探す（任意）</p>
+      <p class="filter-label">エリアから探す</p>
       <button class="map-toggle-btn" id="mapToggleBtn" onclick="toggleAreaMap()" type="button">
         <svg class="icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        <span id="mapToggleLabel">地図で選ぶ</span>
+        <span id="mapToggleLabel">地図を閉じる</span>
       </button>
     </div>
-    <div class="area-map-wrap" id="areaMapWrap">
+    <div class="area-map-wrap open" id="areaMapWrap">
       <div id="areaMap"></div>
-      <div class="map-loading" id="mapLoading">地図を読み込み中…</div>
     </div>
     <div class="chip-row" id="areaChips">
       <button class="chip active" data-area="" onclick="toggleArea(this)">全国</button>
@@ -369,24 +293,30 @@
     </div>
   </div>
   <div class="filter-section">
-    <p class="filter-label">条件</p>
-    <div class="chip-row" id="conditionChips">
-      <button class="chip" data-tag="当日予約OK" onclick="toggleTag(this)">当日予約OK</button>
-      <button class="chip" data-tag="初心者OK" onclick="toggleTag(this)">初心者OK</button>
-      <button class="chip" data-tag="資格取得コース" onclick="toggleTag(this)">資格取得コース</button>
-      <button class="chip" data-tag="貸切可" onclick="toggleTag(this)">貸切可</button>
-      <button class="chip" data-tag="英語対応" onclick="toggleTag(this)">英語対応</button>
-      <button class="chip" data-tag="女性インストラクター" onclick="toggleTag(this)">女性インストラクター</button>
-      <button class="chip" data-tag="子ども参加OK" onclick="toggleTag(this)">子ども参加OK</button>
-    </div>
-  </div>
-  <div class="filter-section">
-    <p class="filter-label">価格帯</p>
-    <div class="chip-row" id="priceChips">
-      <button class="chip active" data-price="" onclick="togglePrice(this)">すべて</button>
-      <button class="chip" data-price="0-5000" onclick="togglePrice(this)">〜¥5,000</button>
-      <button class="chip" data-price="5001-15000" onclick="togglePrice(this)">¥5,000〜¥15,000</button>
-      <button class="chip" data-price="15001-999999" onclick="togglePrice(this)">¥15,000〜</button>
+    <button class="adv-toggle" id="advToggle" onclick="toggleAdv()" type="button">
+      <svg class="icon" viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+      こだわり条件
+      <span class="adv-badge" id="advBadge">0</span>
+      <svg class="icon adv-chev" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="adv-panel" id="advPanel">
+      <p class="filter-label">条件</p>
+      <div class="chip-row" id="conditionChips">
+        <button class="chip" data-tag="当日予約OK" onclick="toggleTag(this)">当日予約OK</button>
+        <button class="chip" data-tag="初心者OK" onclick="toggleTag(this)">初心者OK</button>
+        <button class="chip" data-tag="資格取得コース" onclick="toggleTag(this)">資格取得コース</button>
+        <button class="chip" data-tag="貸切可" onclick="toggleTag(this)">貸切可</button>
+        <button class="chip" data-tag="英語対応" onclick="toggleTag(this)">英語対応</button>
+        <button class="chip" data-tag="女性インストラクター" onclick="toggleTag(this)">女性インストラクター</button>
+        <button class="chip" data-tag="子ども参加OK" onclick="toggleTag(this)">子ども参加OK</button>
+      </div>
+      <p class="filter-label">価格帯</p>
+      <div class="chip-row" id="priceChips">
+        <button class="chip active" data-price="" onclick="togglePrice(this)">すべて</button>
+        <button class="chip" data-price="0-5000" onclick="togglePrice(this)">〜¥5,000</button>
+        <button class="chip" data-price="5001-15000" onclick="togglePrice(this)">¥5,000〜¥15,000</button>
+        <button class="chip" data-price="15001-999999" onclick="togglePrice(this)">¥15,000〜</button>
+      </div>
     </div>
   </div>
   <div class="divider">
@@ -448,11 +378,10 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../js/supabase-config.js"></script>
-<script src="../js/maps-config.js"></script>
+<script src="../js/area-map.js"></script>
 <script>
 let allListings = [];
 let currentIntent = 'all';
-let currentPrefecture = '';
 let currentArea = '';
 let currentDate = '';
 let slotsByListing = new Map(); // listing_id -> availability_slots[]（日程フィルタ用。空き枠データがないlistingは対象外＝常に表示）
@@ -477,116 +406,33 @@ function safeUrl(u) {
   } catch { return ''; }
 }
 
-/* ── エリア地図（Google Maps） ── */
-// 表示座標：本土5エリア＋南西諸島8エリア（listings.area の値と完全一致させること）
-const AREA_COORDS = {
-  '北海道':   { lat: 43.06, lng: 141.35 },
-  '東京':     { lat: 35.68, lng: 139.69 },
-  '伊豆':     { lat: 34.88, lng: 139.11 },
-  '紀伊半島': { lat: 33.47, lng: 135.77 },
-  '瀬戸内':   { lat: 34.35, lng: 133.00 },
-  '鹿児島':   { lat: 31.60, lng: 130.56 },
-  '奄美大島': { lat: 28.32, lng: 129.49 },
-  '沖縄':     { lat: 26.21, lng: 127.68 },
-  '慶良間諸島': { lat: 26.17, lng: 127.28 },
-  '久米島':   { lat: 26.33, lng: 126.81 },
-  '宮古島':   { lat: 24.81, lng: 125.28 },
-  '石垣島':   { lat: 24.34, lng: 124.16 },
-  '西表島':   { lat: 24.33, lng: 123.78 },
-  '与那国島': { lat: 24.47, lng: 123.01 }
-};
-// 実績・問い合わせが多いエリア（アクセントカラーで強調）
-const HIGH_DEMAND_AREAS = new Set(['沖縄', '宮古島', '石垣島']);
-// このページ（home.css）の実トークンを読み取り、地図の配色をブランドと確実に一致させる
-// （design-system.css 側の海色パレットはmypage/auth専用の別系統なのでここでは使わない）
-function themeColor(varName, fallback) {
-  const v = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
-  return v || fallback;
-}
-const THEME = {
-  ink: themeColor('--ink', '#222226'),
-  inkMid: themeColor('--ink-mid', '#5b5b60'),
-  line: themeColor('--line', '#e7e7ea'),
-  teal: themeColor('--teal', '#1f6f78'),
-  tealDeep: themeColor('--teal-deep', '#124a52'),
-  accent: themeColor('--accent', '#c0563c'),
-  waterTint: '#dde9eb' // teal を白に薄めた色（Maps JSON stylerはrgba非対応のため固定値）
-};
-// 地図の見た目をブランドカラーに合わせるカスタムスタイル
-const MAP_STYLE = [
-  { elementType: 'geometry', stylers: [{ color: '#ffffff' }] },
-  { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
-  { elementType: 'labels.text.fill', stylers: [{ color: THEME.inkMid }] },
-  { elementType: 'labels.text.stroke', stylers: [{ color: '#ffffff' }] },
-  { featureType: 'administrative', elementType: 'geometry', stylers: [{ visibility: 'off' }] },
-  { featureType: 'poi', stylers: [{ visibility: 'off' }] },
-  { featureType: 'road', stylers: [{ visibility: 'off' }] },
-  { featureType: 'transit', stylers: [{ visibility: 'off' }] },
-  { featureType: 'water', elementType: 'geometry', stylers: [{ color: THEME.waterTint }] },
-  { featureType: 'landscape', elementType: 'geometry', stylers: [{ color: '#ffffff' }] }
-];
-let mapsScriptRequested = false;
-let areaMapInstance = null;
+/* ── エリア地図（自前SVG / js/area-map.js） ── */
+// ピンをクリック → 既存のチップと同じ絞り込み処理に合流。選択中のピンを再クリックで解除（全国に戻す）
+const areaMap = FJAreaMap.render(document.getElementById('areaMap'), {
+  onSelect(area) {
+    const target = (area === currentArea) ? '' : area;
+    const chip = [...document.querySelectorAll('#areaChips .chip')].find(c => c.dataset.area === target);
+    if (chip) toggleArea(chip);
+  }
+});
 
-// トグルボタン：初回オープン時だけ Google Maps JS を遅延読み込み（課金・初期表示速度への配慮）
 function toggleAreaMap() {
   const wrap = document.getElementById('areaMapWrap');
-  const label = document.getElementById('mapToggleLabel');
   const willOpen = !wrap.classList.contains('open');
   wrap.classList.toggle('open', willOpen);
-  label.textContent = willOpen ? '地図を閉じる' : '地図で選ぶ';
-  if (willOpen && !mapsScriptRequested) {
-    mapsScriptRequested = true;
-    if (typeof GOOGLE_MAPS_API_KEY === 'undefined' || !GOOGLE_MAPS_API_KEY || GOOGLE_MAPS_API_KEY.includes('YOUR_')) {
-      document.getElementById('mapLoading').textContent = '地図を表示するには js/maps-config.js に Google Maps APIキーを設定してください';
-      return;
-    }
-    const s = document.createElement('script');
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&callback=initAreaMap`;
-    s.async = true;
-    s.onerror = () => { document.getElementById('mapLoading').textContent = '地図の読み込みに失敗しました'; };
-    document.head.appendChild(s);
-  }
+  document.getElementById('mapToggleLabel').textContent = willOpen ? '地図を閉じる' : '地図で選ぶ';
 }
 
-// Google Maps の callback として window から直接呼ばれるためグローバル関数にする
-window.initAreaMap = function () {
-  const loading = document.getElementById('mapLoading');
-  if (loading) loading.style.display = 'none';
-  const bounds = new google.maps.LatLngBounds();
-  areaMapInstance = new google.maps.Map(document.getElementById('areaMap'), {
-    center: { lat: 33.5, lng: 133.5 },
-    zoom: 5,
-    disableDefaultUI: true,
-    zoomControl: true,
-    styles: MAP_STYLE
-  });
-  Object.entries(AREA_COORDS).forEach(([area, pos]) => {
-    bounds.extend(pos);
-    const isHigh = HIGH_DEMAND_AREAS.has(area);
-    const marker = new google.maps.Marker({
-      position: pos,
-      map: areaMapInstance,
-      title: area,
-      icon: {
-        path: google.maps.SymbolPath.CIRCLE,
-        scale: isHigh ? 9 : 7,
-        fillColor: isHigh ? THEME.accent : THEME.teal,
-        fillOpacity: 1,
-        strokeColor: THEME.ink,
-        strokeWeight: 1.5
-      },
-      label: { text: area, fontSize: '10px', fontWeight: '700', color: THEME.ink }
-    });
-    marker.addListener('click', () => selectAreaFromMap(area));
-  });
-  areaMapInstance.fitBounds(bounds);
-};
-
-// 地図のピンをクリック → 既存のチップと同じ絞り込み処理に合流させる
-function selectAreaFromMap(area) {
-  const chip = [...document.querySelectorAll('#areaChips .chip')].find(c => c.dataset.area === area);
-  if (chip) toggleArea(chip);
+/* ── こだわり条件（折りたたみ） ── */
+function toggleAdv() {
+  document.getElementById('advToggle').classList.toggle('open');
+  document.getElementById('advPanel').classList.toggle('open');
+}
+function updateAdvBadge() {
+  const n = activeTags.size + (currentPrice ? 1 : 0);
+  const badge = document.getElementById('advBadge');
+  badge.textContent = n;
+  badge.classList.toggle('show', n > 0);
 }
 
 /* ── モーダル ── */
@@ -730,36 +576,36 @@ async function loadListings() {
 
 function updateCounts() {
   const counts = { all: allListings.length, try: 0, learn: 0, dive: 0 };
-  allListings.forEach(l => { if (counts[l.intent] !== undefined) counts[l.intent]++; });
+  const areaCounts = {};
+  allListings.forEach(l => {
+    if (counts[l.intent] !== undefined) counts[l.intent]++;
+    if (l.area) areaCounts[l.area] = (areaCounts[l.area] || 0) + 1;
+  });
   document.getElementById('count-all').textContent   = counts.all;
   document.getElementById('count-try').textContent   = counts.try;
   document.getElementById('count-learn').textContent = counts.learn;
   document.getElementById('count-dive').textContent  = counts.dive;
+  // 地図ピンに件数を反映（定義済みスポットは0件でも表示し、薄く見せる）
+  const withZero = {};
+  document.querySelectorAll('#areaChips .chip').forEach(c => { if (c.dataset.area) withZero[c.dataset.area] = areaCounts[c.dataset.area] || 0; });
+  areaMap.setCounts(withZero);
 }
 
 function applyIntent(intent) {
   currentIntent = intent;
   document.querySelectorAll('.intent-tab').forEach(t => t.classList.toggle('active', t.dataset.intent === intent));
   document.getElementById('intentLabel').textContent = intentLabels[intent];
-  document.getElementById('intentSelectTop').value = (intent === 'all') ? '' : intent;
   renderListings();
 }
 // 一覧上部のピル（すべて/やってみたい/…）から選んだ場合
 function setIntent(el, intent) {
   applyIntent(intent);
 }
-// 検索バー上部のタイプ選択（select）から選んだ場合。ピルと同じ状態に同期する
-function handleIntentSelect(value) {
-  applyIntent(value || 'all');
-}
 function toggleArea(el) {
   document.querySelectorAll('#areaChips .chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
   currentArea = el.dataset.area || '';
-  renderListings();
-}
-function setPrefecture(value) {
-  currentPrefecture = value || '';
+  areaMap.setActive(currentArea);
   renderListings();
 }
 function setDate(value) {
@@ -775,12 +621,14 @@ function toggleTag(el) {
   const tag = el.dataset.tag;
   if (activeTags.has(tag)) { activeTags.delete(tag); el.classList.remove('active'); }
   else { activeTags.add(tag); el.classList.add('active'); }
+  updateAdvBadge();
   renderListings();
 }
 function togglePrice(el) {
   document.querySelectorAll('#priceChips .chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
   currentPrice = el.dataset.price || '';
+  updateAdvBadge();
   renderListings();
 }
 function cycleSort() {
@@ -795,7 +643,6 @@ function renderListings() {
   const q = document.getElementById('searchInput').value.toLowerCase().trim();
   let filtered = allListings.filter(l => {
     if (currentIntent !== 'all' && l.intent !== currentIntent) return false;
-    if (currentPrefecture && l.prefecture !== currentPrefecture) return false;
     if (currentArea && l.area !== currentArea) return false;
     if (currentDate) {
       const slots = slotsByListing.get(l.id);
@@ -813,7 +660,8 @@ function renderListings() {
     }
     if (q) {
       const ownerName = l.instructors?.name || l.shops?.name || '';
-      const haystack = `${l.title} ${l.area} ${l.location_detail || ''} ${l.category} ${ownerName}`.toLowerCase();
+      // 都道府県selectを廃止した代わりに、都道府県名もフリーテキスト検索の対象に含める
+      const haystack = `${l.title} ${l.area} ${l.prefecture || ''} ${l.location_detail || ''} ${l.category} ${ownerName}`.toLowerCase();
       if (!haystack.includes(q)) return false;
     }
     return true;
@@ -874,13 +722,8 @@ function applyUrlParams() {
   const area = p.get('area');
   const pref = p.get('pref');
   if (q) document.getElementById('searchInput').value = q;
-  if (pref) {
-    const sel = document.getElementById('prefSelect');
-    if ([...sel.options].some(o => o.value === pref)) {
-      sel.value = pref;
-      currentPrefecture = pref;
-    }
-  }
+  // 旧リンク互換：?pref= はフリーテキスト検索として扱う（都道府県selectは廃止済み）
+  if (pref && !q) document.getElementById('searchInput').value = pref;
   if (intent && ['try','learn','dive'].includes(intent)) {
     applyIntent(intent);
   }
@@ -890,6 +733,7 @@ function applyUrlParams() {
       document.querySelectorAll('#areaChips .chip').forEach(c => c.classList.remove('active'));
       chip.classList.add('active');
       currentArea = area;
+      areaMap.setActive(currentArea);
     }
   }
   const date = p.get('date');
