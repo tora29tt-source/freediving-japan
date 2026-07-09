@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-07-07T23:57:26Z",
+  "updatedAt": "2026-07-09T00:08:18Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -2039,17 +2039,6 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA Nice Abyss Contest 2026 J1",
-      "type": "Depth Competition",
-      "venue": "Base Municipale De L Aigle Nautique",
-      "cityCountry": "Nice, France",
-      "startDate": "2026-07-04",
-      "endDate": "2026-07-04",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5084",
-      "month": 7,
-      "cat": "sea"
-    },
-    {
       "title": "AIDA LV Summer games",
       "type": "Pool Competition",
       "venue": "Rtu Kipsala Swimming Pool",
@@ -2059,6 +2048,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5140",
       "month": 7,
       "cat": "pool"
+    },
+    {
+      "title": "AIDA Nice Abyss Contest 2026 J1",
+      "type": "Depth Competition",
+      "venue": "Base Municipale De L Aigle Nautique",
+      "cityCountry": "Nice, France",
+      "startDate": "2026-07-04",
+      "endDate": "2026-07-04",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5084",
+      "month": 7,
+      "cat": "sea"
     },
     {
       "title": "AIDA Nice Abyss Contest 2026 J2",
@@ -2171,6 +2171,17 @@
       "cat": "pool"
     },
     {
+      "title": "AIDA UAE STA Performance Night 2026 | Summer Heats",
+      "type": "Pool Competition",
+      "venue": "Al Furjan Club",
+      "cityCountry": "Dubai, United Arab Emirates",
+      "startDate": "2026-07-22",
+      "endDate": "2026-07-22",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5181",
+      "month": 7,
+      "cat": "pool"
+    },
+    {
       "title": "THE CORMORANT AIDA DEPTH CHALLENGE 2026",
       "type": "Depth Competition",
       "venue": "The Cormorant Freediving Center",
@@ -2224,6 +2235,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5151",
       "month": 7,
       "cat": "pool"
+    },
+    {
+      "title": "AIDA UAE FIM Performance Night 2026 | Summer Heats",
+      "type": "Depth Competition",
+      "venue": "Deep Dive Dubai",
+      "cityCountry": "Dubai, United Arab Emirates",
+      "startDate": "2026-07-25",
+      "endDate": "2026-07-25",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5182",
+      "month": 7,
+      "cat": "sea"
     },
     {
       "title": "AIDA Garden City Friendly",
@@ -2391,17 +2413,6 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA Freediving Dynamic Challenge 2026 Suzuka #3",
-      "type": "Pool Competition",
-      "venue": "Miekotsu Group Sports No Mori Suzuka",
-      "cityCountry": "Suzuka, Japan",
-      "startDate": "2026-08-23",
-      "endDate": "2026-08-23",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5080",
-      "month": 8,
-      "cat": "pool"
-    },
-    {
       "title": "BB CUP Ep.11 | PFI BREATHLESS | WORLD APNEA 2026",
       "type": "Pool Competition",
       "venue": "라움enc수영장 (Raum Swimming Pool)",
@@ -2409,6 +2420,17 @@
       "startDate": "2026-08-23",
       "endDate": "2026-08-23",
       "link": "https://www.aidainternational.org/EventPage/4967",
+      "month": 8,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA Freediving Dynamic Challenge 2026 Suzuka #3",
+      "type": "Pool Competition",
+      "venue": "Miekotsu Group Sports No Mori Suzuka",
+      "cityCountry": "Suzuka, Japan",
+      "startDate": "2026-08-23",
+      "endDate": "2026-08-23",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5080",
       "month": 8,
       "cat": "pool"
     },
@@ -2433,6 +2455,28 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5175",
       "month": 8,
       "cat": "sea"
+    },
+    {
+      "title": "AIDA Road to Merdeka Freediver Team Battle",
+      "type": "Pool Competition",
+      "venue": "The Campus Ampang",
+      "cityCountry": "Ampang Selangor, Malaysia",
+      "startDate": "2026-08-30",
+      "endDate": "2026-08-30",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5169",
+      "month": 8,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA Merdeka Freediver Team Battle",
+      "type": "Team Competition",
+      "venue": "The Campus Ampang",
+      "cityCountry": "Ampang Selangor, Malaysia",
+      "startDate": "2026-08-31",
+      "endDate": "2026-08-31",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5170",
+      "month": 8,
+      "cat": "pool"
     },
     {
       "title": "AIDA Apoyo Crater Challenge 2026",
@@ -2741,6 +2785,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5111",
       "month": 10,
       "cat": "sea"
+    },
+    {
+      "title": "AIDA Malaysia Apnea Warrior Championship 2026  2.0 - WR Ranking",
+      "type": "Pool Competition",
+      "venue": "Arena Sukan Kuala Lumpur",
+      "cityCountry": "Kuala Lumpur, Malaysia",
+      "startDate": "2026-11-07",
+      "endDate": "2026-11-09",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5158",
+      "month": 11,
+      "cat": "pool"
     },
     {
       "title": "AIDA Blue Element November 2026 with DIVEYE WR Status",
