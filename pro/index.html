@@ -129,6 +129,47 @@ tr:hover td { background: rgba(255,255,255,0.025); }
 td.primary { color: var(--on-dark); font-weight: 500; }
 .actions { display: flex; gap: 6px; }
 
+/* ── 空き枠カレンダー ── */
+.cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.cal-nav-btn { background: rgba(255,255,255,0.06); border: 1px solid var(--hairline); color: var(--on-dark-mid); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: all 0.2s; font-family: inherit; flex-shrink: 0; }
+.cal-nav-btn:hover { border-color: rgba(46,196,182,0.4); color: var(--teal); }
+.cal-nav-mid { display: flex; align-items: center; gap: 10px; }
+.cal-month-label { font-size: 15px; font-weight: 700; color: var(--on-dark); min-width: 92px; text-align: center; }
+.cal-today-btn { font-size: 11px; color: var(--teal); background: none; border: 1px solid rgba(46,196,182,0.3); border-radius: 100px; padding: 5px 12px; cursor: pointer; font-family: inherit; white-space: nowrap; }
+.cal-today-btn:hover { background: rgba(46,196,182,0.1); }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 24px; }
+.cal-dow { text-align: center; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--on-dark-soft); padding-bottom: 8px; }
+.cal-dow.sun { color: #f87171; }
+.cal-dow.sat { color: #60a5fa; }
+.cal-cell { aspect-ratio: 1/1; border-radius: 10px; border: 1px solid var(--hairline); background: var(--glass); padding: 6px 7px; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.15s; }
+.cal-cell.empty { visibility: hidden; pointer-events: none; border: none; }
+.cal-cell:hover { border-color: rgba(46,196,182,0.4); }
+.cal-cell.selected { border-color: var(--teal); background: rgba(46,196,182,0.14); }
+.cal-cell.past { opacity: 0.4; }
+.cal-daynum { font-size: 12px; font-weight: 600; color: var(--on-dark-soft); }
+.cal-cell.has-slot .cal-daynum { color: var(--on-dark); }
+.cal-cell.today .cal-daynum { color: var(--teal); font-weight: 700; }
+.cal-cell-foot { display: flex; align-items: center; justify-content: space-between; }
+.cal-dots { display: flex; gap: 3px; flex-wrap: wrap; }
+.cal-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
+.cal-dot.full { background: var(--on-dark-soft); }
+.cal-count { font-size: 9px; font-weight: 700; color: var(--teal); }
+
+.day-list-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+.day-list-title { font-size: 13px; font-weight: 600; color: var(--on-dark); }
+.slot-card { background: var(--glass); border: 1px solid var(--hairline); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.slot-card-main { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.slot-card-time { font-size: 14px; font-weight: 700; color: var(--on-dark); }
+.slot-card-title { font-size: 12px; color: var(--on-dark-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+.slot-card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+@media (max-width: 640px) {
+  .cal-grid { gap: 4px; }
+  .cal-cell { border-radius: 8px; padding: 4px 5px; }
+  .cal-daynum { font-size: 11px; }
+  .slot-card-title { max-width: 140px; }
+}
+
 /* ── Badges ── */
 .badge { display: inline-block; padding: 3px 9px; border-radius: 100px; font-size: 11px; font-weight: 600; letter-spacing: 0.05em; white-space: nowrap; }
 .badge-public   { background: rgba(34,197,94,0.12);  color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
@@ -1795,35 +1836,127 @@ async function populateSlotListings() {
   sel.value = cur;
 }
 
+let _slotsMap        = {};   // 'YYYY-MM-DD' -> slots[]
+let _calYear, _calMonth;      // カレンダー表示中の年/月（0始まり）
+let _calSelectedDate;         // 選択中の日付文字列
+
 async function loadSlots() {
   const el = document.getElementById('slots-content');
   el.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
 
   let slots, error;
   if (myRole === 'shop') {
-    let query = _sb.from('availability_slots').select('*, listings(title), instructors(name)').order('slot_date', { ascending: false });
+    let query = _sb.from('availability_slots').select('*, listings(title), instructors(name)').order('slot_date', { ascending: true });
     query = applyShopOwnerFilter(query);
     ({ data: slots, error } = await query);
   } else {
-    ({ data: slots, error } = await _sb.from('availability_slots').select('*, listings(title)').eq('instructor_id', myInstructor.id).order('slot_date', { ascending: false }));
+    ({ data: slots, error } = await _sb.from('availability_slots').select('*, listings(title)').eq('instructor_id', myInstructor.id).order('slot_date', { ascending: true }));
   }
 
   if (error) { el.innerHTML = `<div class="empty">取得エラー: ${error.message}</div>`; return; }
-  if (!slots || !slots.length) { el.innerHTML = '<div class="empty">空き枠がありません</div>'; return; }
+
+  _slotsMap = {};
+  (slots || []).forEach(s => {
+    if (!s.slot_date) return;
+    (_slotsMap[s.slot_date] = _slotsMap[s.slot_date] || []).push(s);
+  });
+
+  if (_calYear === undefined) {
+    const today = new Date();
+    _calYear         = today.getFullYear();
+    _calMonth        = today.getMonth();
+    _calSelectedDate = toLocalDateStr(today);
+  }
 
   el.innerHTML = `
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr><th>日付</th><th>時間</th><th>コース</th><th>枠</th><th>状態</th><th>操作</th></tr>
-        </thead>
-        <tbody>${slots.map(slotRow).join('')}</tbody>
-      </table>
-    </div>`;
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="shiftSlotsMonth(-1)">‹</button>
+      <div class="cal-nav-mid">
+        <span class="cal-month-label" id="cal-month-label"></span>
+        <button class="cal-today-btn" onclick="gotoSlotsToday()">今月</button>
+      </div>
+      <button class="cal-nav-btn" onclick="shiftSlotsMonth(1)">›</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div id="slots-day-list"></div>`;
+  renderSlotsCalendar();
 }
 
-function slotRow(s) {
-  const date  = s.slot_date ? fmtDate(s.slot_date) : '—';
+function renderSlotsCalendar() {
+  const grid = document.getElementById('cal-grid');
+  if (!grid) return;
+  const y = _calYear, m = _calMonth;
+  document.getElementById('cal-month-label').textContent = `${y}年${m + 1}月`;
+
+  const firstDay     = new Date(y, m, 1).getDay();
+  const daysInMonth  = new Date(y, m + 1, 0).getDate();
+  const todayStr     = toLocalDateStr(new Date());
+  const dow          = ['日','月','火','水','木','金','土'];
+
+  let html = dow.map((d, i) => `<div class="cal-dow ${i===0?'sun':i===6?'sat':''}">${d}</div>`).join('');
+  for (let i = 0; i < firstDay; i++) html += `<div class="cal-cell empty"></div>`;
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr   = `${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const daySlots  = _slotsMap[dateStr] || [];
+    const cls = [
+      daySlots.length ? 'has-slot' : '',
+      dateStr < todayStr ? 'past' : '',
+      dateStr === todayStr ? 'today' : '',
+      dateStr === _calSelectedDate ? 'selected' : '',
+    ].filter(Boolean).join(' ');
+    const dotsHtml  = daySlots.length
+      ? `<div class="cal-dots">${daySlots.slice(0,4).map(s => `<span class="cal-dot ${s.is_active?'':'full'}"></span>`).join('')}</div>`
+      : '<span></span>';
+    const countHtml = daySlots.length ? `<span class="cal-count">${daySlots.length}</span>` : '';
+    html += `<div class="cal-cell ${cls}" onclick="selectSlotDate('${dateStr}')">
+      <span class="cal-daynum">${day}</span>
+      <div class="cal-cell-foot">${dotsHtml}${countHtml}</div>
+    </div>`;
+  }
+
+  grid.innerHTML = html;
+  renderSlotsDayList();
+}
+
+function shiftSlotsMonth(delta) {
+  _calMonth += delta;
+  if (_calMonth < 0)  { _calMonth = 11; _calYear--; }
+  if (_calMonth > 11) { _calMonth = 0;  _calYear++; }
+  renderSlotsCalendar();
+}
+
+function gotoSlotsToday() {
+  const t = new Date();
+  _calYear         = t.getFullYear();
+  _calMonth        = t.getMonth();
+  _calSelectedDate = toLocalDateStr(t);
+  renderSlotsCalendar();
+}
+
+function selectSlotDate(dateStr) {
+  _calSelectedDate = dateStr;
+  renderSlotsCalendar();
+}
+
+function renderSlotsDayList() {
+  const el = document.getElementById('slots-day-list');
+  if (!el) return;
+  const header = `
+    <div class="day-list-header">
+      <span class="day-list-title">${_calSelectedDate ? fmtDate(_calSelectedDate) : ''}の空き枠</span>
+      <button class="btn-edit" onclick="openSlotModal(null, '${_calSelectedDate}')">＋ この日に追加</button>
+    </div>`;
+  const daySlots = (_slotsMap[_calSelectedDate] || []).slice()
+    .sort((a, b) => (a.start_time || '').localeCompare(b.start_time || ''));
+  if (!daySlots.length) {
+    el.innerHTML = header + '<div class="empty">この日の空き枠はありません</div>';
+    return;
+  }
+  el.innerHTML = header + daySlots.map(slotCard).join('');
+}
+
+function slotCard(s) {
   const time  = `${(s.start_time||'').slice(0,5)}〜${(s.end_time||'').slice(0,5)}`;
   const title = s.listings?.title || '（全コース）';
   const seats = `${s.booked_count||0} / ${s.max_participants}`;
@@ -1831,24 +1964,28 @@ function slotRow(s) {
     ? '<span class="badge badge-active">有効</span>'
     : '<span class="badge badge-inactive">無効</span>';
   return `
-    <tr>
-      <td class="primary">${date}</td>
-      <td>${time}</td>
-      <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(title)}</td>
-      <td>${seats}</td>
-      <td>${badge}</td>
-      <td><div class="actions">
-        <button class="btn-edit"   onclick="openSlotModal('${s.id}')">編集</button>
-        <button class="btn-danger" onclick="deleteSlot('${s.id}')">削除</button>
-      </div></td>
-    </tr>`;
+    <div class="slot-card">
+      <div class="slot-card-main">
+        <span class="slot-card-time">${time}</span>
+        <span class="slot-card-title">${escHtml(title)}</span>
+      </div>
+      <div class="slot-card-meta">
+        <span style="font-size:12px;color:var(--on-dark-mid);">${seats}</span>
+        ${badge}
+        <div class="actions">
+          <button class="btn-edit"   onclick="openSlotModal('${s.id}')">編集</button>
+          <button class="btn-danger" onclick="deleteSlot('${s.id}')">削除</button>
+        </div>
+      </div>
+    </div>`;
 }
 
-function openSlotModal(slotId = null) {
+function openSlotModal(slotId = null, prefillDate = null) {
   editSlotId = slotId;
   document.getElementById('slot-modal-title').textContent = slotId ? '空き枠を編集' : '空き枠を追加';
   document.getElementById('s-save-label').textContent     = slotId ? '更新する' : '保存する';
   ['s-date','s-date-end','s-start','s-end'].forEach(id => document.getElementById(id).value = '');
+  if (prefillDate) document.getElementById('s-date').value = prefillDate;
   document.getElementById('s-max').value    = 4;
   document.getElementById('s-active').checked = true;
   // 編集時は1件のみの日付変更のため、期間指定（終了日）欄は新規作成時のみ表示
