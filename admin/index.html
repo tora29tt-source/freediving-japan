@@ -2160,7 +2160,7 @@ async function loadListings() {
 
   let query = _sb
     .from('listings')
-    .select('id, title, intent, area, price, is_public, instructors(name), shops(name)')
+    .select('id, title, intent, area, prefecture, price, is_public, instructors(name), shops(name)')
     .is('deleted_at', null)
     .order('created_at', { ascending: false });
 

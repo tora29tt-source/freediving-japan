@@ -4,6 +4,39 @@ tags: [dev, core-doc]
 
 # Freediving Japan — 開発・技術仕様
 
+## リリース判定（2026-07-10・定期タスクによる自動判定）
+
+**問い：今すぐ友人インストラクターを1人招待して良いか → 判定：NO（ただし残りは少ない。ブロッカー2件を潰せばYES）**
+
+### 残タスク（優先順位順・上から着手）
+
+**必須（ブロッカー）**
+
+1. **予約→決済のフルE2Eを現行コードで1回通す**（別セッションで検証予定のもの。まだDEV.mdに結果記載なし）
+   - 経路：explore→listing.html→空き枠カレンダー→Stripe Checkout（4242）→webhook→`bookings.status=paid`→success.html
+   - ショップ名義商品（instructor_id無し）でも1回通す（2026-07-07にカレンダー表示までは確認済みだが決済まで未実施：本ファイル「ショップ／インストラクター出品モデル」参照）
+   - 根拠：招待するのはインストラクター＝予約・決済が中核価値。旧E2E（status=paid確認済み）は2026-07-04ショップモデル・07-08検索UI刷新・07-10タクソノミー/エリア刷新より前のもので、現行コードの保証にならない
+2. **直近改修の実機スモーク**（`ops/qa/RELEASE_CHECKLIST.md` のセクション0・1・3を実施）
+   - 検索UI刷新（07-08）は「実機ブラウザでの表示確認は未実施」のまま。さらに07-10のエリア設計刷新・categoryタクソノミー変更で探すページ・ピラー3ページ・pro登録フォームが大きく変わった直後
+   - 最低ライン：①トップ/ピラー→explore検索（都道府県チップ・タグ・スポットサジェスト）②pro/index.htmlで新category/intent/エリア入力の商品登録→explore反映③スマホ幅375px・コンソールエラー無し
+   - category/intentの推測移行の目視確認（本番リスティングは1件のみ・「コーチングセッション」は確認済みなので実質完了に近い）
+
+**後回しで良い（招待のブロッカーではない）**
+
+- **iOSアプリ**（タブバー・ログ・Supabase連携・SNSシェア未実装）— Phase 1ゴールの「毎日使うツール」はWeb版（トレーニングログ・CRM・予約管理・STAタイマー）で提供済み。友人にはWeb版で先行利用してもらい、アプリは後追いで良い
+- **docs/instructor/sales.md** — 友人への声かけは口頭で足りる。第三者に営業を始める段階までに作成
+- **docs/instructor/manual.md** — オンボーディングは一緒に触りながらで良い（早期フィードバック自体がPhase 1の目的）。ただし招待直後の質問対応から得た知見をここに落とす運用を推奨
+- explore/shops.htmlの旧エリア（14タクソノミー＋SVG地図）刷新／shopsのソフトデリート対象化／shop_typeカラム削除／既存記事のauthor_bio設定／learn動画アップロード（購入ボタンは「準備中」ガードあり課金事故なし）
+
+### 判定の根拠
+
+- **STRATEGY.md Phase 1ゴール照合**：友人招待に必要な機能（CRM・予約管理・トレーニングログ・プロフィール・リスティング）はWeb側で全て「✅完了」。機能不足ではなく「直近2週間の大改修が実機未検証」なのが唯一の障害
+- **RLS・セキュリティ**：ブロッカー無し。2026-06-26レビュー11件・2026-07-04監査S1〜S10全件対応済み。bookingsのINSERTはRPC限定、記事サニタイズ・XSS・ソフトデリートadminバグも対応済み。ops/FOLLOWUPS.mdの「未実行SQL2件」はスキャン後の2026-07-10に実行済み（各ファイルのステータスヘッダで確認）→ 友人の実データが入っても事故らない状態
+- **learn講座購入E2E**は2026-07-10に本番テスト完了済みだが、これは講座決済であり予約決済（bookings）とは別経路。予約側のE2Eが未了である事実は変わらない
+- 判断方針：全部を完璧にしてからではなく「最小限で招待できる状態」を基準にした。ブロッカー2件はいずれも数時間規模の確認作業であり、実装の残りではない
+
+-----
+
 ## 環境・作業フロー
 
 - **作業場所**：`/Users/takuyaterajima/Desktop/10.Freediving/30.Freediving Japan/freediving-japan`（直接読み書き）
@@ -236,7 +269,7 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 - `category`を「ダイビング種別」専用の4値（**シュノーケリング／スキンダイビング／フリーダイビング／その他**）に統一。ダイビング種別軸(category) × 目的軸(intent) の組み合わせで表現する方針に変更
 - ピラーページのchips（「体験ツアー」「認定コース」等）をDB分類（tags列）に紐付ける案は当初見送ったが、同日中に再検討して実装（詳細は下記「ピラーページの人気タグチップ」参照）
 - `intent`の`dive`→`fundive`/`training`/`coaching`分割（`sql/intent_taxonomy_update_20260708.sql`）も同時に本番適用する
-- **DB移行**：`sql/category_taxonomy_update_20260710.sql`・`sql/intent_taxonomy_update_20260708.sql`ともに**2026-07-10 Supabase本番に実行済み**（intent側は制約追加とデータ移行の順序が逆になっていたバグを発見・修正してから実行）。categoryの既存リスティング再分類はタイトルキーワードによる推測移行のため、admin画面で目視確認推奨
+- **DB移行**：`sql/category_taxonomy_update_20260710.sql`・`sql/intent_taxonomy_update_20260708.sql`ともに**2026-07-10 Supabase本番に実行済み**（intent側は制約追加とデータ移行の順序が逆になっていたバグを発見・修正してから実行）。categoryの既存リスティング再分類はタイトルキーワードによる推測移行のため、admin画面で目視確認推奨→**2026-07-10 Chrome MCPで目視確認完了**：本番listings全2件とも問題なし（「コーチングセッション」=フリーダイビング/coaching・「フリーダイビング体験(プールでも可能です」=フリーダイビング/try。手動修正不要）
 - **実装済み**：`pro/index.html`（カテゴリselect→新4値、検索タブ分類select→try/learn/fundive/training/coaching）／`admin/index.html`（カテゴリ名入力欄のプレースホルダーを新値に更新。intentのselectは元から新分類対応済みだった）／`index.html`（フリー枠の絞り込みにcategory条件を追加し、他種目の商品が紛れ込むのを修正）／`snorkeling.html`・`skindiving.html`（freediving.html同様にSupabase実データ接続を追加。該当0件時はモックを残す方針でfreediving.htmlより安全側に倒した）／`freediving.html`（category一致のみのシンプルなクエリに整理、タイトルキーワードOR条件を廃止）
 - explore/index.html・explore/shops.htmlはcategoryを表示・テキスト検索補助にしか使っておらず変更不要（確認済み）
 
@@ -285,6 +318,11 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 - 探すページのSVG日本地図（`js/area-map.js`、14スポットのみピンがある）は**廃止**。都道府県チップ＋自由入力サジェストのテキスト中心UIに一本化する
 - **実装済み（2026-07-10）**：`js/location-data.js`（新規・47都道府県リスト＋スポット名サジェストの共通データ。`loadKnownSpots()`が種データ14件＋`listings.area`の実データをマージ）／`js/area-picker.js`（トップ・ピラーページの検索ドロップダウンを「人気の都道府県」＋「よく検索されるスポット名」チップに全面書き換え）／`explore/index.html`（SVG地図・`js/area-map.js`の読み込みを削除。`#areaChips`は`listings.prefecture`集計による動的生成に変更、`currentArea`→`currentPref`にリネーム。検索入力に`datalist`でスポット名サジェストを追加）／`pro/index.html`・`admin/index.html`（「エリア」固定select＋その他入力を廃止し、`datalist`付きテキスト入力に変更。保存・編集読み込みロジックも追随）
 - **未着手（フォローアップ）**：`explore/shops.html`は今回のスコープ外。まだ旧`js/area-map.js`＋14タクソノミーの`areas`部分一致フィルタのまま残っている（`shops`/`instructors`の`prefecture`列がフィルタに使える状態か未確認のため、データ確認してから着手する）。`js/area-map.js`自体は`explore/shops.html`が使用中のため削除しない
+- **2026-07-10：Chrome MCPで実機QA完了（エリア検索刷新一式）**
+  - `explore/index.html`：都道府県チップの表示・絞り込みOK（鹿児島県=2件／沖縄県=0件で正しく動作）、検索入力のdatalistサジェストOK（47都道府県＋スポット名の計61件）、旧SVG地図の要素・`js/area-map.js`の読み込みが完全に消えていることを確認。コンソールエラーなし（既知のGoTrueClient多重インスタンス警告のみ）
+  - `pro/index.html`：`#l-area`（datalist付きテキスト入力）にサジェスト14件が流し込まれることを実機確認。保存（`area`）・編集読み込み（`l.area`復元）のロジックもコードレビューで問題なし。コンソールエラーなし
+  - `admin/index.html`：リスティング編集モーダルで既存データ（都道府県=鹿児島県／スポット名=空欄）が正しく読み込まれること、`#listing-area`のdatalist（14件）を確認。**バグ発見・修正済み**：`loadListings()`のselectに`prefecture`が含まれておらず、一覧の「都道府県」列が常に「—」表示になっていた→selectに`prefecture`を追加して修正
+  - `explore/shops.html`（状態把握のみ・修正なし）：旧14タクソノミーチップ＋SVG地図のまま正常動作、コンソールエラーなし。**`shops.prefecture`／`instructors.prefecture`は全レコードNULL**のため、都道府県軸への移行はデータバックフィルが先に必要。現状の`areas`部分一致（例：「鹿児島（6月~10月）」が「鹿児島」チップにヒット）は機能しており、新方式（`listings.prefecture`軸）とはテーブルも画面も別のため直接の矛盾・重複は起きていない
 
 ### /learn/ 有料講座：詳細ページ・視聴の実装方針（2026-07-10・secretary相談で確定）
 
@@ -546,7 +584,7 @@ TOP (index.html)  ── Airbnb風マーケットプレイス（白基調）
 |/learn/ 有料講座ページ                                      |🔄 learn/index.html 骨格完成・トップからリンク済み（先行通知機能なし）。**2026-07-10**：`courses`/`course_chapters`/`course_purchases`スキーマを本番Supabaseに実行済み（`sql/learn_courses_schema_20260710.sql`。courses=1件/course_chapters=8件、耳抜き入門講座`mimi-nuki-nyumon`をstatus=publishedで投入）。動的詳細ページ`learn/course.html`実装（slugでSupabaseから読込・シラバス表示）。**講座購入フロー実装**：`/api/create-course-checkout-session.js`（新規・Supabaseアクセストークンで本人確認→Stripe Checkoutセッション作成。既存`/api/create-checkout-session.js`はbookings用の空き枠ロジックが強く結合しているため流用せず新規作成）／`/api/stripe-webhook.js`にcourse_purchases分岐を追加（`metadata.purchase_id`で判別・冪等）／`learn/purchase-success.html`新規（決済後、webhook反映をポーリングして購入完了を表示）／`auth.html`に`?next=`遷移先パラメータ対応を追加（相対パスのみ許可・オープンリダイレクト対策）し、未ログインで購入しようとした場合に元のページへ戻れるようにした。**購入ボタンの出し分け**：`course_chapters.vimeo_id`が1件も無いうちは「準備中」表示のまま販売しない設計（動画0本の状態で課金しないためのガード）。チャプター名は「第n回（仮）」のプレースホルダーのまま（こうようさんとの構成打ち合わせが検討中のため）。**2026-07-10（続）視聴タブ実装**：`mypage.html`に「学んだ講座」セクション追加（`loadLearnedCourses()`。`course_purchases.status=paid`が0件なら非表示、あれば購入講座カードを表示・`learn/watch.html?slug=...`へリンク）。`learn/watch.html`新規（ログイン必須・`course_purchases`で本人の購入を確認してからチャプター一覧とVimeo Player埋め込みを表示。vimeo_idが無いチャプターは「動画準備中」でクリック不可）。**2026-07-10（続）本番E2Eテスト完了**：Chrome MCP経由で本番環境で実際にテスト決済まで確認済み（chapter_num=1に一時的にダミーvimeo_idを設定→購入ボタン有効化を確認→Stripeテストカード4242での決済→webhookがcourse_purchases.status=paidに更新→purchase-success.htmlが購入完了表示→mypage「学んだ講座」に表示→learn/watch.htmlで本人購入確認・動画再生・他チャプターロックまで一通り成功。テスト後は元のvimeo_id=NULL・購入レコード削除で本番データをクリーンな状態に復元済み）。**未着手**：実際の動画アップロード・vimeo_id登録（これが入って初めて購入ボタンが実際に有効化される）|
 |メディア（/media/）                                        |✅ 基盤完成・media/ 一本化（2026-06-29）index.html Supabase動的取得・article.html 記事詳細。CMS は admin/index.html メディアタブに統合。articles テーブル・カテゴリ9区分・RLS設定・初記事2本投入済み。articles/ → _old/ 退避済み。スマホ対応・ヘッダー統一済み|
 |サイト動線整備（2026-07-08）                             |✅ sitemap.xml/robots.txt/404.html 新設。skindiving/snorkeling/learn のフッターに大会・ランキング導線追加でナビ統一。行き止まり4ページ（AIDA_ranking/mouthfill/event-athlete/freediving-learn）に戻る導線追加。buoyancy の死にリンク（/tools/）修正。tools/session-planner.html 削除。**孤立ページ方針（2026-07-10決定）**：3ページとも公開ナビへの掲載は不要と判断。①`events/event-athlete.html`——大会管理画面（event-staff.html等）から主催者が選手ごとに個別URLを発行して共有する「選手用画面」という設計。**2026-07-10実装**：`event-staff.html`概要タブに「選手用ページ」カードを追加し、`event-athlete.html?id=<大会ID>`のURLを自動生成・ワンクリックコピーできるようにした（`copyAthleteLink()`）。②`learn/freediving-learn.html`——「フリーダイビングを学ぶ」動画コースの制作進捗管理ツール（チャプター追加・ステータス切替・メモ）で、Takuya向けの内製コンテンツ管理画面であり公開ページではない。③`pro/instructor-welcome.html`——リリース時に扱いを再検討（保留）。|
-|検索UI刷新・SVG地図検索（2026-07-08）                        |✅ 検索の重複UIを大胆に統合＋地図検索を自前SVG化。①explore/index.html：検索バーの「タイプ」selectを削除（intentタブに一本化）、都道府県`<select>`を廃止しフリーテキスト検索対象に`prefecture`を追加（?pref=リンクは検索語として互換維持）、条件・価格帯は「こだわり条件」折りたたみ（選択数バッジ付き）に集約。②地図：Google Maps依存を全廃（js/maps-config.js削除・APIキー不要）し、`js/area-map.js`（ブランドカラーのデフォルメSVG日本地図＋南西諸島拡大枠＋件数ピル。クリック絞込・再クリック解除・0件は減光・人気3エリアはパルス強調）を新設。explore はデフォルト表示、shops.html にも同コンポーネント導入（トグル式・ショップ/インストラクター件数連動）。③トップ＋ピラー3ページの検索バーからもタイプselect削除（エリア＋日程のみ）。スタイルは css/home.css の `.fj-*`/`.adv-*` に共通定義。**実機ブラウザでの表示確認は未実施**|
+|検索UI刷新・SVG地図検索（2026-07-08）                        |✅ 検索の重複UIを大胆に統合＋地図検索を自前SVG化。①explore/index.html：検索バーの「タイプ」selectを削除（intentタブに一本化）、都道府県`<select>`を廃止しフリーテキスト検索対象に`prefecture`を追加（?pref=リンクは検索語として互換維持）、条件・価格帯は「こだわり条件」折りたたみ（選択数バッジ付き）に集約。②地図：Google Maps依存を全廃（js/maps-config.js削除・APIキー不要）し、`js/area-map.js`（ブランドカラーのデフォルメSVG日本地図＋南西諸島拡大枠＋件数ピル。クリック絞込・再クリック解除・0件は減光・人気3エリアはパルス強調）を新設。explore はデフォルト表示、shops.html にも同コンポーネント導入（トグル式・ショップ/インストラクター件数連動）。③トップ＋ピラー3ページの検索バーからもタイプselect削除（エリア＋日程のみ）。スタイルは css/home.css の `.fj-*`/`.adv-*` に共通定義。※SVG地図は2026-07-10のエリア設計刷新でexplore/index.htmlからは廃止（shops.htmlのみ残存）。**2026-07-10 Chrome MCPで実機確認完了**：トップ＋ピラー3ページの検索ドロップダウン（area-picker.js：人気の都道府県7件＋よく検索されるスポット名チップ14件）が4ページとも正常表示、explore/index.htmlの都道府県チップ絞り込み・datalistサジェストも動作確認済み。全ページコンソールエラーなし|
 |iOSアプリ（React Native）                                 |🔄 開発中（環境構築済み・Expo Go動作確認済み。タブバー・ログ・Supabase連携・SNSシェアが未実装）|
 
 -----
