@@ -48,7 +48,7 @@
     </form>
   </div>
 
-  <div class="chips" style="margin-bottom:26px;">
+  <div class="chips" id="skin-chips" style="margin-bottom:26px;">
     <a class="chip" href="explore/index.html?intent=try">1日体験</a>
     <a class="chip" href="explore/index.html?intent=learn">認定コース</a>
     <a class="chip" href="explore/index.html?q=バディ">バディ練習</a>
@@ -161,7 +161,31 @@
     }
   }
 
-  document.addEventListener('DOMContentLoaded', loadRealData);
+  // 公開リスティングのtagsを集計し、使用頻度の高い順にチップを差し替える（2026-07-10）
+  // 該当タグが1つも無ければ既存の見本チップを残す
+  function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+  async function loadPopularTags(chipsId, category, limit) {
+    try {
+      const { createClient } = window.supabase;
+      if (!createClient) return;
+      const { data, error } = await _sb.from('listings').select('tags').eq('is_public', true).eq('category', category).limit(200);
+      if (error || !data) return;
+      const counts = new Map();
+      data.forEach(l => (l.tags || []).forEach(t => counts.set(t, (counts.get(t) || 0) + 1)));
+      const top = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, limit).map(([t]) => t);
+      if (!top.length) return; // 集計0件のときは既存の見本チップのまま
+      const wrap = document.getElementById(chipsId);
+      if (!wrap) return;
+      wrap.innerHTML = top.map(t => `<a class="chip" href="explore/index.html?tag=${encodeURIComponent(t)}">${esc(t)}</a>`).join('');
+    } catch (e) {
+      console.warn('人気タグの読み込みをスキップ:', e);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadRealData();
+    loadPopularTags('skin-chips', 'スキンダイビング', 6);
+  });
 })();
 </script>
 </body>

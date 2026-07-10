@@ -413,7 +413,7 @@ td.primary { color: var(--on-dark); font-weight: 500; }
     <div class="form-row">
       <div class="form-group">
         <label>ダイビング種別</label>
-        <select id="l-category">
+        <select id="l-category" onchange="applyCategoryIntentOptions()">
           <option value="シュノーケリング">シュノーケリング</option>
           <option value="スキンダイビング">スキンダイビング</option>
           <option value="フリーダイビング">フリーダイビング</option>
@@ -1578,6 +1578,7 @@ function openListingModal(listingId = null) {
   document.getElementById('l-shuttle').checked   = false;
   document.getElementById('l-public').checked    = true;
   document.getElementById('l-category').value    = 'フリーダイビング';
+  applyCategoryIntentOptions();
   document.getElementById('l-intent').value      = 'try';
   document.querySelectorAll('#l-facilities input[type="checkbox"]').forEach(cb => cb.checked = false);
   document.getElementById('l-rental-rows').innerHTML  = '';
@@ -1607,7 +1608,9 @@ function openListingModal(listingId = null) {
       document.getElementById('l-title').value       = l.title       || '';
       document.getElementById('l-desc').value        = l.description || '';
       document.getElementById('l-category').value    = l.category    || 'フリーダイビング';
-      document.getElementById('l-intent').value      = l.intent      || 'try';
+      applyCategoryIntentOptions();
+      { const allowedIntents = INTENT_BY_CATEGORY[document.getElementById('l-category').value] || Object.keys(INTENT_LABELS);
+        document.getElementById('l-intent').value = allowedIntents.includes(l.intent) ? l.intent : (allowedIntents[0] || 'try'); }
       // 都道府県：47都道府県+海外に無い値（旧・自由入力時代のデータ）は「海外」＋自由入力欄に復元
       const prefSel = document.getElementById('l-pref');
       const prefKnown = [...prefSel.options].some(o => o.value === (l.prefecture || ''));
@@ -2137,6 +2140,30 @@ function collectAreaRows(containerId) {
 
 function toggleLangOther(cb, inputId) {
   document.getElementById(inputId).style.display = cb.checked ? '' : 'none';
+}
+
+// ダイビング種別ごとに選べる「検索タブ分類」を制限する（2026-07-10・secretary相談で確定）
+// シュノーケリング＝体験のみ／スキンダイビング＝体験・学び・ファンダイブまで／フリーダイビング＝全種目（トレーニング・コーチングまで）
+const INTENT_BY_CATEGORY = {
+  'シュノーケリング': ['try'],
+  'スキンダイビング': ['try', 'learn', 'fundive'],
+  'フリーダイビング':  ['try', 'learn', 'fundive', 'training', 'coaching'],
+  'その他':          ['try', 'learn', 'fundive', 'training', 'coaching'],
+};
+const INTENT_LABELS = {
+  try:      'やってみたい（try）',
+  learn:    'ちゃんと学びたい（learn）',
+  fundive:  'もっと潜りたい・ファンダイブ（fundive）',
+  training: 'もっと潜りたい・トレーニング（training）',
+  coaching: 'もっと潜りたい・コーチング（coaching）',
+};
+function applyCategoryIntentOptions() {
+  const catSel = document.getElementById('l-category');
+  const intentSel = document.getElementById('l-intent');
+  const allowed = INTENT_BY_CATEGORY[catSel.value] || Object.keys(INTENT_LABELS);
+  const prevValue = intentSel.value;
+  intentSel.innerHTML = allowed.map(v => `<option value="${v}">${INTENT_LABELS[v]}</option>`).join('');
+  intentSel.value = allowed.includes(prevValue) ? prevValue : allowed[0];
 }
 
 function togglePrefOther(sel) {

@@ -750,6 +750,25 @@ function applyUrlParams() {
     document.getElementById('dateInput').value = date;
     document.getElementById('dateHint').style.display = 'block';
   }
+  // ピラーページの人気タグチップから遷移してきた場合（?tag=）：こだわり条件に反映し、無ければチップを追加して開く
+  const tag = p.get('tag');
+  if (tag) {
+    activeTags.add(tag);
+    let chip = [...document.querySelectorAll('#conditionChips .chip')].find(c => c.dataset.tag === tag);
+    if (!chip) {
+      chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'chip';
+      chip.dataset.tag = tag;
+      chip.textContent = tag;
+      chip.addEventListener('click', () => toggleTag(chip));
+      document.getElementById('conditionChips').appendChild(chip);
+    }
+    chip.classList.add('active');
+    document.getElementById('advPanel').classList.add('open');
+    document.getElementById('advToggle').classList.add('open');
+    updateAdvBadge();
+  }
 }
 
 document.getElementById('dateInput').min = new Date().toISOString().slice(0, 10);
