@@ -50,7 +50,7 @@ img{ display:block; }
 /* ── search bar ── */
 .searchbar{ display:flex; align-items:center; max-width:820px; margin:22px auto 4px; background:#fff; border:1px solid var(--line-strong); border-radius:100px; box-shadow:var(--shadow-pill); }
 .searchbar:hover{ box-shadow:0 6px 20px rgba(20,20,30,.13); }
-.sb-seg{ flex:1; padding:12px 22px; min-width:0; border-radius:100px; cursor:pointer; }
+.sb-seg{ position:relative; flex:1; padding:12px 22px; min-width:0; border-radius:100px; cursor:pointer; }
 .sb-seg:hover{ background:#f5f5f7; }
 .sb-seg + .sb-seg{ border-left:1px solid var(--line); }
 .sb-label{ font-size:12px; font-weight:700; color:var(--ink); margin-bottom:2px; }
@@ -62,6 +62,36 @@ img{ display:block; }
 .sb-input::placeholder{ color:var(--ink-soft); }
 .sb-input::-webkit-datetime-edit{ color:var(--ink-soft); }
 .sb-select{ -webkit-appearance:none; appearance:none; cursor:pointer; color:var(--ink); }
+
+/* ── エリア検索ドロップダウン（Airbnb風：候補リスト＋沖縄など離島の一覧性を強化） ── */
+.area-dd{ position:absolute; top:calc(100% + 10px); left:0; z-index:40; width:min(380px, 88vw); max-height:min(480px, 70vh); overflow-y:auto; background:#fff; border:1px solid var(--line-strong); border-radius:20px; box-shadow:0 16px 40px rgba(20,20,30,.18); padding:14px; cursor:default; }
+.area-dd::-webkit-scrollbar{ width:6px; }
+.area-dd::-webkit-scrollbar-thumb{ background:var(--line-strong); border-radius:100px; }
+.area-dd-sec + .area-dd-sec{ margin-top:14px; padding-top:14px; border-top:1px solid var(--line); }
+.area-dd-sec-title{ font-size:11px; font-weight:700; color:var(--ink-soft); letter-spacing:.02em; margin:0 0 6px; padding:0 6px; }
+.area-dd-list{ display:flex; flex-direction:column; gap:1px; }
+.area-dd-row{ display:flex; align-items:center; gap:12px; width:100%; padding:8px 6px; border:none; background:none; border-radius:12px; cursor:pointer; text-align:left; font:inherit; color:inherit; }
+.area-dd-row:hover, .area-dd-row.hover{ background:#f5f5f7; }
+.area-dd-emoji{ flex-shrink:0; width:38px; height:38px; border-radius:10px; background:#eff7f7; display:flex; align-items:center; justify-content:center; font-size:18px; }
+.area-dd-row-text{ min-width:0; }
+.area-dd-row-name{ font-size:13.5px; font-weight:600; color:var(--ink); }
+.area-dd-row-tag{ font-size:12px; color:var(--ink-soft); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.area-dd-chips{ display:flex; flex-wrap:wrap; gap:6px; padding:0 6px; }
+.area-dd-chip{ flex-shrink:0; padding:6px 13px; border:1px solid var(--line-strong); border-radius:100px; font-size:12px; font-weight:600; color:var(--ink); background:#fff; cursor:pointer; font:inherit; }
+.area-dd-chip:hover, .area-dd-chip.hover{ border-color:var(--ink); background:#f5f5f7; }
+.area-dd-recent-row{ display:flex; align-items:center; gap:10px; width:100%; padding:7px 6px; border:none; background:none; border-radius:12px; cursor:pointer; text-align:left; font:inherit; color:var(--ink); font-size:13px; }
+.area-dd-recent-row:hover, .area-dd-recent-row.hover{ background:#f5f5f7; }
+.area-dd-recent-row .icon{ width:15px; height:15px; color:var(--ink-soft); flex-shrink:0; }
+.area-dd-empty{ padding:10px 6px; font-size:12.5px; color:var(--ink-soft); }
+.area-dd-foot{ margin-top:12px; padding-top:12px; border-top:1px solid var(--line); }
+.area-dd-foot a{ display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:600; color:var(--teal-deep); padding:4px 6px; }
+.area-dd-foot a .icon{ width:14px; height:14px; }
+.area-dd-foot a:hover{ text-decoration:underline; }
+.area-dd-scrim{ position:fixed; inset:0; background:rgba(20,20,26,.32); z-index:39; display:none; }
+.area-dd-scrim.open{ display:block; }
+@media (max-width:640px){
+  .area-dd{ position:fixed; top:auto; bottom:0; left:0; right:0; width:100%; max-height:75vh; border-radius:20px 20px 0 0; box-shadow:0 -8px 30px rgba(20,20,30,.2); }
+}
 
 /* ── section / card row ── */
 .section{ margin:38px 0; }
