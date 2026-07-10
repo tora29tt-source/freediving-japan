@@ -1553,14 +1553,20 @@ function listingRow(l, showInstructor = false) {
       <td>${pub}</td>
       <td><div class="actions">
         <button class="btn-edit"   onclick="openListingModal('${l.id}')">編集</button>
+        <button class="btn-edit"   onclick="duplicateListing('${l.id}')">複製</button>
         <button class="btn-danger" onclick="deleteListing('${l.id}')">削除</button>
       </div></td>
     </tr>`;
 }
 
-function openListingModal(listingId = null) {
+function duplicateListing(sourceId) {
+  openListingModal(null, sourceId);
+}
+
+function openListingModal(listingId = null, duplicateFromId = null) {
   editListingId = listingId;
-  document.getElementById('listing-modal-title').textContent = listingId ? 'コースを編集' : 'コースを追加';
+  const loadId = listingId || duplicateFromId;
+  document.getElementById('listing-modal-title').textContent = listingId ? 'コースを編集' : (duplicateFromId ? 'コースを追加（複製）' : 'コースを追加');
   document.getElementById('l-save-label').textContent        = listingId ? '更新する' : '保存する';
   ['l-title','l-desc','l-pref','l-pref-other','l-area','l-area-other','l-tags','l-image',
    'l-price-inc','l-price-exc','l-duration','l-season','l-meeting',
@@ -1602,10 +1608,10 @@ function openListingModal(listingId = null) {
     instrWrap.style.display = 'none';
   }
 
-  if (listingId) {
-    _sb.from('listings').select('*').eq('id', listingId).single().then(({ data: l }) => {
+  if (loadId) {
+    _sb.from('listings').select('*').eq('id', loadId).single().then(({ data: l }) => {
       if (!l) return;
-      document.getElementById('l-title').value       = l.title       || '';
+      document.getElementById('l-title').value       = (duplicateFromId ? (l.title || '') + 'のコピー' : l.title) || '';
       document.getElementById('l-desc').value        = l.description || '';
       document.getElementById('l-category').value    = l.category    || 'フリーダイビング';
       applyCategoryIntentOptions();
