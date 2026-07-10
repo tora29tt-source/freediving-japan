@@ -237,7 +237,7 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 - `category`を「ダイビング種別」専用の4値（**シュノーケリング／スキンダイビング／フリーダイビング／その他**）に統一。種目軸(category) × 目的軸(intent) の組み合わせで表現する方針に変更
 - ピラーページのchips（「体験ツアー」「認定コース」等）をDB分類（tags列）に紐付ける案は見送り、従来通り装飾的なリンクのまま据え置き
 - `intent`の`dive`→`fundive`/`training`/`coaching`分割（`sql/intent_taxonomy_update_20260708.sql`）も同時に本番適用する
-- **DB移行**：`sql/category_taxonomy_update_20260710.sql`（新規・未実行）。既存リスティングの再分類はタイトルキーワードによる推測移行のため、実行後はadmin画面で目視確認推奨
+- **DB移行**：`sql/category_taxonomy_update_20260710.sql`・`sql/intent_taxonomy_update_20260708.sql`ともに**2026-07-10 Supabase本番に実行済み**（intent側は制約追加とデータ移行の順序が逆になっていたバグを発見・修正してから実行）。categoryの既存リスティング再分類はタイトルキーワードによる推測移行のため、admin画面で目視確認推奨
 - **実装済み**：`pro/index.html`（カテゴリselect→新4値、検索タブ分類select→try/learn/fundive/training/coaching）／`admin/index.html`（カテゴリ名入力欄のプレースホルダーを新値に更新。intentのselectは元から新分類対応済みだった）／`index.html`（フリー枠の絞り込みにcategory条件を追加し、他種目の商品が紛れ込むのを修正）／`snorkeling.html`・`skindiving.html`（freediving.html同様にSupabase実データ接続を追加。該当0件時はモックを残す方針でfreediving.htmlより安全側に倒した）／`freediving.html`（category一致のみのシンプルなクエリに整理、タイトルキーワードOR条件を廃止）
 - explore/index.html・explore/shops.htmlはcategoryを表示・テキスト検索補助にしか使っておらず変更不要（確認済み）
 
