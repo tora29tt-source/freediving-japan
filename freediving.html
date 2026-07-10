@@ -160,7 +160,7 @@
         _sb.from('listings')
           .select('id, title, area, prefecture, location_detail, price, price_unit, image_url, category, tags, instructor_id, shop_id, instructors ( shops ( avg_rating, review_count ) ), shops ( avg_rating, review_count )')
           .eq('is_public', true)
-          .or('category.eq.フリーダイビング体験,title.ilike.%フリーダイビング%,title.ilike.%デプス%,title.ilike.%CWT%,title.ilike.%CNF%,title.ilike.%STA%,title.ilike.%DYN%')
+          .eq('category', 'フリーダイビング') // 2026-07-10: categoryタクソノミー整理によりタイトルキーワードOR条件の力技が不要に
           .order('created_at', { ascending: false })
           .limit(4),
         _sb.from('articles')

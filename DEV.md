@@ -230,6 +230,17 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 - **2026-07-05追記**：`pro/index.html`の`applyShopOwnerFilter()`は当初`instructor_shops`（在籍インストラクター）のIDも管理対象に含めていたが、在籍インストラクターを追加しただけでその人個人の既存商品・予約・問い合わせまでショップの管理画面に出てきてしまう不具合につながったため、`shop_id = 自ショップ`のみに限定するよう修正。**在籍インストラクター（instructor_shops）は「プロフィール表示用のロースター」であり、商品・予約等の管理権限を拡張するものではない**という方針を明確化
 - **2026-07-05追記**：`shops`にカバー画像の表示位置調整機能を追加（`pro/index.html`のショップ編集画面・記事エディタの`ae-cover-pos`と同方式のドラッグ/矢印UI）。DB側の`shops.cover_position`カラム（TEXT、例`"50% 50%"`）は **2026-07-06 Supabase本番に適用済み**（`sql/shops_cover_position_20260705.sql`・information_schemaで確認済み）
 
+### `listings.category` タクソノミー変更（2026-07-10・secretary相談で確定）
+
+**背景**：旧6値（フリーダイビング体験／スキンダイビング体験／スクール・資格取得／トレーニング・アスリート向け／ツアー・ガイド／その他）は「種目」と「目的」が混在しており、ホームの3ピラー（シュノーケル／スキン／フリー）に対応するcategory値が存在しなかった（特にシュノーケルに相当する値が皆無）。そのため`snorkeling.html`/`skindiving.html`は実データ接続ができず静的モックのまま、`freediving.html`はcategory一致＋タイトルキーワードOR条件という力技で絞り込んでいた。
+
+- `category`を「ダイビング種別」専用の4値（**シュノーケリング／スキンダイビング／フリーダイビング／その他**）に統一。種目軸(category) × 目的軸(intent) の組み合わせで表現する方針に変更
+- ピラーページのchips（「体験ツアー」「認定コース」等）をDB分類（tags列）に紐付ける案は見送り、従来通り装飾的なリンクのまま据え置き
+- `intent`の`dive`→`fundive`/`training`/`coaching`分割（`sql/intent_taxonomy_update_20260708.sql`）も同時に本番適用する
+- **DB移行**：`sql/category_taxonomy_update_20260710.sql`（新規・未実行）。既存リスティングの再分類はタイトルキーワードによる推測移行のため、実行後はadmin画面で目視確認推奨
+- **実装済み**：`pro/index.html`（カテゴリselect→新4値、検索タブ分類select→try/learn/fundive/training/coaching）／`admin/index.html`（カテゴリ名入力欄のプレースホルダーを新値に更新。intentのselectは元から新分類対応済みだった）／`index.html`（フリー枠の絞り込みにcategory条件を追加し、他種目の商品が紛れ込むのを修正）／`snorkeling.html`・`skindiving.html`（freediving.html同様にSupabase実データ接続を追加。該当0件時はモックを残す方針でfreediving.htmlより安全側に倒した）／`freediving.html`（category一致のみのシンプルなクエリに整理、タイトルキーワードOR条件を廃止）
+- explore/index.html・explore/shops.htmlはcategoryを表示・テキスト検索補助にしか使っておらず変更不要（確認済み）
+
 ### `shops.shop_type` 廃止（2026-07-05・secretary相談で確定）
 
 **背景**：`shops.shop_type`（individual / school / operator）はショップ作成・編集フォームで選択させていたが、どこの検索・フィルタ・バッジ表示にも使われておらず装飾的な項目だった。また個人／ショップの区分は pro/index.html の登録導線（`showCreateProfile('instructor' | 'shop')`）で既に明示的に分かれており、`shops` 側に「個人」を残す意味がない。「スクールで探す」等の検索軸も listings の intent（try/learn/dive）で実現済みのため、ショップ単位の type 分けは不要と判断。

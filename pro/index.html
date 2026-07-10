@@ -412,13 +412,11 @@ td.primary { color: var(--on-dark); font-weight: 500; }
 
     <div class="form-row">
       <div class="form-group">
-        <label>カテゴリ</label>
+        <label>ダイビング種別</label>
         <select id="l-category">
-          <option value="フリーダイビング体験">フリーダイビング体験</option>
-          <option value="スキンダイビング体験">スキンダイビング体験</option>
-          <option value="スクール・資格取得">スクール・資格取得</option>
-          <option value="トレーニング・アスリート向け">トレーニング・アスリート向け</option>
-          <option value="ツアー・ガイド">ツアー・ガイド</option>
+          <option value="シュノーケリング">シュノーケリング</option>
+          <option value="スキンダイビング">スキンダイビング</option>
+          <option value="フリーダイビング">フリーダイビング</option>
           <option value="その他">その他</option>
         </select>
       </div>
@@ -427,7 +425,9 @@ td.primary { color: var(--on-dark); font-weight: 500; }
         <select id="l-intent">
           <option value="try">やってみたい（try）</option>
           <option value="learn">ちゃんと学びたい（learn）</option>
-          <option value="dive">もっと潜りたい（dive）</option>
+          <option value="fundive">もっと潜りたい・ファンダイブ（fundive）</option>
+          <option value="training">もっと潜りたい・トレーニング（training）</option>
+          <option value="coaching">もっと潜りたい・コーチング（coaching）</option>
         </select>
       </div>
     </div>
@@ -1577,7 +1577,7 @@ function openListingModal(listingId = null) {
   document.getElementById('l-age-max').value     = '';
   document.getElementById('l-shuttle').checked   = false;
   document.getElementById('l-public').checked    = true;
-  document.getElementById('l-category').value    = 'フリーダイビング体験';
+  document.getElementById('l-category').value    = 'フリーダイビング';
   document.getElementById('l-intent').value      = 'try';
   document.querySelectorAll('#l-facilities input[type="checkbox"]').forEach(cb => cb.checked = false);
   document.getElementById('l-rental-rows').innerHTML  = '';
@@ -1606,7 +1606,7 @@ function openListingModal(listingId = null) {
       if (!l) return;
       document.getElementById('l-title').value       = l.title       || '';
       document.getElementById('l-desc').value        = l.description || '';
-      document.getElementById('l-category').value    = l.category    || 'フリーダイビング体験';
+      document.getElementById('l-category').value    = l.category    || 'フリーダイビング';
       document.getElementById('l-intent').value      = l.intent      || 'try';
       // 都道府県：47都道府県+海外に無い値（旧・自由入力時代のデータ）は「海外」＋自由入力欄に復元
       const prefSel = document.getElementById('l-pref');

@@ -453,7 +453,9 @@
     if (footEl) footEl.textContent = priceText + starText;
   }
 
-  async function loadIntentCourses(rowId, intents, limit) {
+  // category（ダイビング種別）× intent（目的）で絞り込む。
+  // これまでintentのみで絞っていたため、フリー枠にスキン/シュノーケル等の商品が紛れ込む余地があった（2026-07-10修正）
+  async function loadIntentCourses(rowId, category, intents, limit) {
     const row = document.getElementById(rowId);
     const cards = row ? Array.from(row.querySelectorAll('a.lcard')) : [];
     try {
@@ -464,6 +466,7 @@
         .from('listings')
         .select('id, title, area, prefecture, location_detail, price, price_unit, image_url, category, tags, instructor_id, shop_id, instructors ( shops ( avg_rating, review_count ) ), shops ( avg_rating, review_count )')
         .eq('is_public', true)
+        .eq('category', category)
         .in('intent', intents)
         .order('created_at', { ascending: false })
         .limit(limit);
@@ -483,8 +486,8 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    loadIntentCourses('free-course-row', ['try', 'learn'], 4);
-    loadIntentCourses('free-article-row', ['training', 'coaching'], 3);
+    loadIntentCourses('free-course-row', 'フリーダイビング', ['try', 'learn'], 4);
+    loadIntentCourses('free-article-row', 'フリーダイビング', ['training', 'coaching'], 3);
   });
 })();
 </script>

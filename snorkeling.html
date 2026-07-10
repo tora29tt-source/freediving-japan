@@ -59,7 +59,7 @@
 
   <section class="section">
     <div class="section-head"><h2>シュノーケリング体験を探す</h2><a class="section-more" href="explore/index.html">すべて見る <svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></a></div>
-    <div class="row">
+    <div class="row" id="snorkel-course-row">
       <a class="lcard" href="explore/index.html"><div class="lcard-media"><img class="lcard-img" src="images/index_水面.JPG" alt=""><span class="lcard-badge">人気</span><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div><div class="lcard-body"><p class="lcard-title">【テスト】青の洞窟シュノーケル</p><p class="lcard-meta">沖縄・恩納村</p><p class="lcard-foot"><span class="price">¥6,000〜</span> ・ <span class="star">★4.9</span></p></div></a>
       <a class="lcard" href="explore/index.html"><div class="lcard-media"><img class="lcard-img" src="images/surface_boat_view.jpg" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div><div class="lcard-body"><p class="lcard-title">【テスト】ボートシュノーケリング</p><p class="lcard-meta">和歌山・串本</p><p class="lcard-foot"><span class="price">¥7,500〜</span> ・ <span class="star">★4.8</span></p></div></a>
       <a class="lcard" href="explore/index.html"><div class="lcard-media"><img class="lcard-img" src="images/beginner_pair.jpg" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div><div class="lcard-body"><p class="lcard-title">【テスト】親子シュノーケル体験</p><p class="lcard-meta">静岡・伊豆</p><p class="lcard-foot"><span class="price">¥5,000〜</span> ・ <span class="star">★5.0</span></p></div></a>
@@ -67,7 +67,7 @@
     </div>
   </section>
 
-  <section class="section">
+  <section class="section" id="snorkel-article-section">
     <div class="section-head"><h2>シュノーケリングの記事</h2><a class="section-more" href="media/index.html">記事一覧 <svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></a></div>
     <a class="arow" href="media/index.html"><img class="arow-thumb" src="images/index_初心者.JPG" alt=""><div class="arow-body"><h3>初めてのシュノーケルで準備するもの</h3><p>マスク・フィン・ウエットスーツ。最低限そろえるべき道具と選び方をやさしく解説。</p></div><span class="arow-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span></a>
     <a class="arow" href="media/index.html"><img class="arow-thumb" src="images/gear_fins_beach.jpg" alt=""><div class="arow-body"><h3>シュノーケルとスキンダイビングの違い</h3><p>「浮いて見る」と「もぐる」。どちらが自分に合っているかを整理します。</p></div><span class="arow-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span></a>
@@ -86,5 +86,85 @@
 </footer>
 
 <script src="js/home.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script>
+// ── シュノーケリングページ：コース・記事カードを実データに差し替え（category='シュノーケリング'） ──
+// 該当データが0件のときはモック（見本カード）を残す方針（freediving.htmlは0件時にカードごと消す実装だが、
+// 実データがまだ少ない現段階では枠が空になるより見本を残す方が安全と判断）
+(function () {
+  const COURSE_FALLBACK_IMGS  = ['images/index_水面.JPG','images/surface_boat_view.jpg','images/beginner_pair.jpg','images/light_rays.jpg'];
+  const ARTICLE_FALLBACK_IMGS = ['images/index_初心者.JPG','images/gear_fins_beach.jpg','images/surface_boat_view.jpg'];
+
+  function truncate(s, n) { return s && s.length > n ? s.slice(0, n) + '…' : (s || ''); }
+
+  function fillCourseCard(cardEl, l, fallbackImg) {
+    const ownerParam = l.instructor_id ? `id=${encodeURIComponent(l.instructor_id)}` : `shop=${encodeURIComponent(l.shop_id)}`;
+    cardEl.href = `explore/listing.html?${ownerParam}&listing=${encodeURIComponent(l.id)}`;
+    const imgEl = cardEl.querySelector('.lcard-img');
+    if (imgEl) imgEl.src = l.image_url || fallbackImg;
+    const titleEl = cardEl.querySelector('.lcard-title');
+    if (titleEl) titleEl.textContent = l.title;
+    const metaEl = cardEl.querySelector('.lcard-meta');
+    if (metaEl) metaEl.textContent = [l.area, l.location_detail].filter(Boolean).join('・') || l.prefecture || '';
+    const footEl = cardEl.querySelector('.lcard-foot');
+    const shop = (l.instructors && l.instructors.shops) || l.shops;
+    const priceText = l.price ? `¥${Number(l.price).toLocaleString()}〜` : '要相談';
+    const starText = shop && shop.avg_rating ? ` ・ ★${parseFloat(shop.avg_rating).toFixed(1)}` : '';
+    if (footEl) footEl.textContent = priceText + starText;
+  }
+
+  function fillArticleCard(cardEl, a, fallbackImg) {
+    cardEl.href = `media/article.html?slug=${encodeURIComponent(a.slug)}`;
+    const imgEl = cardEl.querySelector('.arow-thumb');
+    if (imgEl) imgEl.src = a.thumbnail_url || fallbackImg;
+    const titleEl = cardEl.querySelector('h3');
+    if (titleEl) titleEl.textContent = a.title;
+    const descEl = cardEl.querySelector('p');
+    if (descEl) descEl.textContent = a.lead_text ? truncate(a.lead_text, 60) : '';
+  }
+
+  function fillRow(cards, items, fillFn, fallbackImgs) {
+    cards.forEach((card, i) => {
+      if (i < items.length) fillFn(card, items[i], fallbackImgs[i % fallbackImgs.length]);
+      else card.remove();
+    });
+  }
+
+  async function loadRealData() {
+    const courseRow = document.getElementById('snorkel-course-row');
+    const courseCards = courseRow ? Array.from(courseRow.querySelectorAll('a.lcard')) : [];
+    const articleSection = document.getElementById('snorkel-article-section');
+    const articleCards = articleSection ? Array.from(articleSection.querySelectorAll('a.arow')) : [];
+
+    try {
+      const { createClient } = window.supabase;
+      if (!createClient) return;
+
+      const [{ data: listings, error: lErr }, { data: articles, error: aErr }] = await Promise.all([
+        _sb.from('listings')
+          .select('id, title, area, prefecture, location_detail, price, price_unit, image_url, category, tags, instructor_id, shop_id, instructors ( shops ( avg_rating, review_count ) ), shops ( avg_rating, review_count )')
+          .eq('is_public', true)
+          .eq('category', 'シュノーケリング')
+          .order('created_at', { ascending: false })
+          .limit(4),
+        _sb.from('articles')
+          .select('title, slug, thumbnail_url, lead_text, created_at')
+          .eq('is_published', true)
+          .ilike('slug', 'snorkeling-%')
+          .order('created_at', { ascending: false })
+          .limit(3)
+      ]);
+
+      if (!lErr && listings && listings.length) fillRow(courseCards, listings, fillCourseCard, COURSE_FALLBACK_IMGS);
+      if (!aErr && articles && articles.length) fillRow(articleCards, articles, fillArticleCard, ARTICLE_FALLBACK_IMGS);
+    } catch (e) {
+      console.warn('実データの読み込みをスキップ:', e);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', loadRealData);
+})();
+</script>
 </body>
 </html>

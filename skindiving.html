@@ -58,7 +58,7 @@
 
   <section class="section">
     <div class="section-head"><h2>スキンダイビングの体験・講習</h2><a class="section-more" href="explore/index.html">すべて見る <svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></a></div>
-    <div class="row">
+    <div class="row" id="skin-course-row">
       <a class="lcard" href="explore/index.html"><div class="lcard-media"><img class="lcard-img" src="images/beginner_pair.jpg" alt=""><span class="lcard-badge">人気</span><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div><div class="lcard-body"><p class="lcard-title">スキンダイビング1日講習</p><p class="lcard-meta">伊豆・大瀬崎</p><p class="lcard-foot"><span class="price">¥12,000〜</span> ・ <span class="star">★4.9</span></p></div></a>
       <a class="lcard" href="explore/index.html"><div class="lcard-media"><img class="lcard-img" src="images/light_rays.jpg" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div><div class="lcard-body"><p class="lcard-title">スキンダイビング半日体験</p><p class="lcard-meta">和歌山・白浜</p><p class="lcard-foot"><span class="price">¥9,000〜</span> ・ <span class="star">★4.9</span></p></div></a>
       <a class="lcard" href="explore/index.html"><div class="lcard-media"><img class="lcard-img" src="images/index_インストラクターカード.JPG" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div><div class="lcard-body"><p class="lcard-title">スキンダイビング認定コース</p><p class="lcard-meta">静岡・伊豆</p><p class="lcard-foot"><span class="price">¥28,000〜</span> ・ <span class="star">★5.0</span></p></div></a>
@@ -66,7 +66,7 @@
     </div>
   </section>
 
-  <section class="section">
+  <section class="section" id="skin-article-section">
     <div class="section-head"><h2>スキンダイビングの記事</h2><a class="section-more" href="media/index.html">記事一覧 <svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></a></div>
     <a class="arow" href="media/index.html"><img class="arow-thumb" src="images/beginner_pair.jpg" alt=""><div class="arow-body"><h3>スキンダイビングの安全とバディの基本</h3><p>ブラックアウトとは何か、なぜバディが必要か。安全に潜るための必須知識。</p></div><span class="arow-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span></a>
     <a class="arow" href="media/index.html"><img class="arow-thumb" src="images/index_水面.JPG" alt=""><div class="arow-body"><h3>ひと息で潜る——ドルフィンキック入門</h3><p>効率的に進むための体の使い方。少ない力で長く潜るコツ。</p></div><span class="arow-arrow"><svg class="icon" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span></a>
@@ -85,5 +85,84 @@
 </footer>
 
 <script src="js/home.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script>
+// ── スキンダイビングページ：コース・記事カードを実データに差し替え（category='スキンダイビング'） ──
+// 該当データが0件のときはモック（見本カード）を残す方針（snorkeling.htmlと同様）
+(function () {
+  const COURSE_FALLBACK_IMGS  = ['images/beginner_pair.jpg','images/light_rays.jpg','images/index_インストラクターカード.JPG','images/gear_fins_beach.jpg'];
+  const ARTICLE_FALLBACK_IMGS = ['images/beginner_pair.jpg','images/index_水面.JPG','images/gear_fins_beach.jpg'];
+
+  function truncate(s, n) { return s && s.length > n ? s.slice(0, n) + '…' : (s || ''); }
+
+  function fillCourseCard(cardEl, l, fallbackImg) {
+    const ownerParam = l.instructor_id ? `id=${encodeURIComponent(l.instructor_id)}` : `shop=${encodeURIComponent(l.shop_id)}`;
+    cardEl.href = `explore/listing.html?${ownerParam}&listing=${encodeURIComponent(l.id)}`;
+    const imgEl = cardEl.querySelector('.lcard-img');
+    if (imgEl) imgEl.src = l.image_url || fallbackImg;
+    const titleEl = cardEl.querySelector('.lcard-title');
+    if (titleEl) titleEl.textContent = l.title;
+    const metaEl = cardEl.querySelector('.lcard-meta');
+    if (metaEl) metaEl.textContent = [l.area, l.location_detail].filter(Boolean).join('・') || l.prefecture || '';
+    const footEl = cardEl.querySelector('.lcard-foot');
+    const shop = (l.instructors && l.instructors.shops) || l.shops;
+    const priceText = l.price ? `¥${Number(l.price).toLocaleString()}〜` : '要相談';
+    const starText = shop && shop.avg_rating ? ` ・ ★${parseFloat(shop.avg_rating).toFixed(1)}` : '';
+    if (footEl) footEl.textContent = priceText + starText;
+  }
+
+  function fillArticleCard(cardEl, a, fallbackImg) {
+    cardEl.href = `media/article.html?slug=${encodeURIComponent(a.slug)}`;
+    const imgEl = cardEl.querySelector('.arow-thumb');
+    if (imgEl) imgEl.src = a.thumbnail_url || fallbackImg;
+    const titleEl = cardEl.querySelector('h3');
+    if (titleEl) titleEl.textContent = a.title;
+    const descEl = cardEl.querySelector('p');
+    if (descEl) descEl.textContent = a.lead_text ? truncate(a.lead_text, 60) : '';
+  }
+
+  function fillRow(cards, items, fillFn, fallbackImgs) {
+    cards.forEach((card, i) => {
+      if (i < items.length) fillFn(card, items[i], fallbackImgs[i % fallbackImgs.length]);
+      else card.remove();
+    });
+  }
+
+  async function loadRealData() {
+    const courseRow = document.getElementById('skin-course-row');
+    const courseCards = courseRow ? Array.from(courseRow.querySelectorAll('a.lcard')) : [];
+    const articleSection = document.getElementById('skin-article-section');
+    const articleCards = articleSection ? Array.from(articleSection.querySelectorAll('a.arow')) : [];
+
+    try {
+      const { createClient } = window.supabase;
+      if (!createClient) return;
+
+      const [{ data: listings, error: lErr }, { data: articles, error: aErr }] = await Promise.all([
+        _sb.from('listings')
+          .select('id, title, area, prefecture, location_detail, price, price_unit, image_url, category, tags, instructor_id, shop_id, instructors ( shops ( avg_rating, review_count ) ), shops ( avg_rating, review_count )')
+          .eq('is_public', true)
+          .eq('category', 'スキンダイビング')
+          .order('created_at', { ascending: false })
+          .limit(4),
+        _sb.from('articles')
+          .select('title, slug, thumbnail_url, lead_text, created_at')
+          .eq('is_published', true)
+          .ilike('slug', 'skindiving-%')
+          .order('created_at', { ascending: false })
+          .limit(3)
+      ]);
+
+      if (!lErr && listings && listings.length) fillRow(courseCards, listings, fillCourseCard, COURSE_FALLBACK_IMGS);
+      if (!aErr && articles && articles.length) fillRow(articleCards, articles, fillArticleCard, ARTICLE_FALLBACK_IMGS);
+    } catch (e) {
+      console.warn('実データの読み込みをスキップ:', e);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', loadRealData);
+})();
+</script>
 </body>
 </html>

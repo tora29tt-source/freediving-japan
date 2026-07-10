@@ -1,9 +1,10 @@
 # フォローアップ一覧（自動生成）
 
-生成: 2026-07-07 22:09 / `node ops/scan_followups.mjs`
+生成: 2026-07-10 03:12 / `node ops/scan_followups.mjs`
 
-## 🔴 未実行のSQL（1件）
+## 🔴 未実行のSQL（2件）
 
+- `sql/intent_taxonomy_update_20260708.sql`
 - `sql/soft_delete_admin_bypass_20260707.sql`
 
 ## 📋 MD内の積み残し（9件）
@@ -15,7 +16,7 @@
 - **DEV.md:229** — - **2026-07-07：Chrome MCPでショップ名義商品の予約カレンダー表示を確認済み**（`explore/shops.html`→ショップカード→コース詳細→空き状況カレンダーが正常表示、コンソールエラーなし）。ただし決済（Stripe Checkout）までの一気通貫E2Eは未実施
 - **DEV.md:239** — - **未着手（フォローアップ）**：カラム自体の削除（マイグレーション）は現時点で不要と判断、必要になれば別途対応
 - **DEV.md:257** — - **未着手（フォローアップ）**：既存記事の`author_bio`は未設定のためデフォルト文表示のまま。個別に紹介文を設定したい記事があれば管理画面から追記
-- **DEV.md:624** — - **`admin/admin-mobile.html` 認証なし** — localStorage のみで本番 DB には触れない（Phase 2 本番化時に要対応）
+- **DEV.md:626** — - **`admin/admin-mobile.html` 認証なし** — localStorage のみで本番 DB には触れない（Phase 2 本番化時に要対応）
 - **docs/INDEX.md:41** — | 安全・リスク管理（同意書・健康チェック・安全基準・規約条項・保険） | `docs/safety/`（書類パッケージ・実装は未着手） | [safety/README.md](./safety/README.md) | 2026-07-07 |
 
 ## ⚪ ステータスヘッダが無いSQL（0件）
