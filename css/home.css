@@ -150,6 +150,7 @@ img{ display:block; }
 button.chip{ font-family:inherit; cursor:pointer; appearance:none; -webkit-appearance:none; }
 .chip.active{ background:var(--ink); color:#fff; border-color:var(--ink); }
 .chip.active .icon{ color:#fff; }
+.chip.dim{ opacity:.45; }
 
 /* ── pillar hero ── */
 .phero{ position:relative; overflow:hidden; border-radius:22px; margin:22px 0 8px; min-height:300px; display:flex; align-items:flex-end; }

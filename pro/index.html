@@ -6,6 +6,7 @@
 <title>プロダッシュボード — Freediving Japan</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../js/supabase-config.js"></script>
+<script src="../js/location-data.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -532,27 +533,10 @@ td.primary { color: var(--on-dark); font-weight: 500; }
     </div>
 
     <div class="form-group">
-      <label>検索エリア（任意）</label>
-      <select id="l-area" onchange="toggleAreaOther(this)">
-        <option value="">選択しない（都道府県名のみで検索対象になります）</option>
-        <option value="沖縄">沖縄</option>
-        <option value="石垣島">石垣島</option>
-        <option value="宮古島">宮古島</option>
-        <option value="西表島">西表島</option>
-        <option value="与那国島">与那国島</option>
-        <option value="久米島">久米島</option>
-        <option value="慶良間諸島">慶良間諸島</option>
-        <option value="奄美大島">奄美大島</option>
-        <option value="鹿児島">鹿児島</option>
-        <option value="伊豆">伊豆</option>
-        <option value="東京">東京</option>
-        <option value="紀伊半島">紀伊半島</option>
-        <option value="瀬戸内">瀬戸内</option>
-        <option value="北海道">北海道</option>
-        <option value="__other__">リストにないエリア名を入力する</option>
-      </select>
-      <input type="text" id="l-area-other" placeholder="例：知床" style="margin-top:8px;display:none;">
-      <p class="form-hint">探すページの地図・エリアチップで絞り込まれる際に使われる項目です。リストになければ「リストにないエリア名を入力する」を選ぶと自由入力できますが、地図・チップの絞り込み対象にはならず、テキスト検索でのみヒットします。</p>
+      <label>スポット名（任意）</label>
+      <input type="text" id="l-area" list="l-area-suggest" placeholder="例：恩納村、青の洞窟、柏島…">
+      <datalist id="l-area-suggest"></datalist>
+      <p class="form-hint">都道府県より詳しい場所を自由に入力できます。よく使われているスポット名は入力中に候補として出ます（無ければ自由記入でOK）。探すページの検索対象になります。</p>
     </div>
 
     <div class="form-row">
@@ -1612,13 +1596,12 @@ function openListingModal(listingId = null, duplicateFromId = null) {
   const loadId = listingId || duplicateFromId;
   document.getElementById('listing-modal-title').textContent = listingId ? 'コースを編集' : (duplicateFromId ? 'コースを追加（複製）' : 'コースを追加');
   document.getElementById('l-save-label').textContent        = listingId ? '更新する' : '保存する';
-  ['l-title','l-desc','l-pref','l-pref-other','l-area','l-area-other','l-tags','l-image',
+  ['l-title','l-desc','l-pref','l-pref-other','l-area','l-tags','l-image',
    'l-price-inc','l-price-exc','l-duration','l-season','l-meeting',
    'l-deadline','l-cancel','l-bring','l-notes'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
   document.getElementById('l-pref-other').style.display = 'none';
-  document.getElementById('l-area-other').style.display = 'none';
   document.getElementById('l-price').value       = '';
   document.getElementById('l-price-unit').value  = '〜/人';
   document.getElementById('l-min-pax').value     = '';
@@ -1673,17 +1656,8 @@ function openListingModal(listingId = null, duplicateFromId = null) {
         document.getElementById('l-pref-other').style.display = prefSel.value === '海外' ? '' : 'none';
         if (prefSel.value === '海外') document.getElementById('l-pref-other').value = l.country || '';
       }
-      // エリア：既存の値が選択肢にあればそれを選択、無ければ「その他」＋自由入力欄に復元
-      const areaSel = document.getElementById('l-area');
-      const areaKnown = [...areaSel.options].some(o => o.value === (l.area || ''));
-      if (l.area && !areaKnown) {
-        areaSel.value = '__other__';
-        document.getElementById('l-area-other').value = l.area;
-        document.getElementById('l-area-other').style.display = '';
-      } else {
-        areaSel.value = l.area || '';
-        document.getElementById('l-area-other').style.display = 'none';
-      }
+      // スポット名：自由入力なのでそのまま復元するだけでよい
+      document.getElementById('l-area').value = l.area || '';
       document.getElementById('l-price').value       = l.price       || '';
       document.getElementById('l-price-unit').value  = l.price_unit  || '〜/人';
       document.getElementById('l-price-inc').value   = l.price_includes  || '';
@@ -1753,9 +1727,7 @@ async function saveListing() {
     country:             document.getElementById('l-pref').value === '海外'
                             ? (document.getElementById('l-pref-other').value.trim() || null)
                             : null,
-    area:                (document.getElementById('l-area').value === '__other__'
-                            ? document.getElementById('l-area-other').value.trim()
-                            : document.getElementById('l-area').value)             || null,
+    area:                document.getElementById('l-area').value.trim()           || null,
     price:               parseInt(document.getElementById('l-price').value)       || null,
     price_unit:          document.getElementById('l-price-unit').value.trim()     || '〜/人',
     price_includes:      document.getElementById('l-price-inc').value.trim()      || null,
@@ -2336,8 +2308,12 @@ function togglePrefOther(sel) {
   document.getElementById('l-pref-other').style.display = sel.value === '海外' ? '' : 'none';
 }
 
-function toggleAreaOther(sel) {
-  document.getElementById('l-area-other').style.display = sel.value === '__other__' ? '' : 'none';
+// スポット名の入力候補（2026-07-10・エリア設計の刷新）。種データ＋DB実データをdatalistに流し込む
+if (window.FJLocations) {
+  FJLocations.loadKnownSpots().then(spots => {
+    const list = document.getElementById('l-area-suggest');
+    if (list) list.innerHTML = spots.map(v => `<option value="${v.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}"></option>`).join('');
+  });
 }
 
 function collectLanguages(prefix) {

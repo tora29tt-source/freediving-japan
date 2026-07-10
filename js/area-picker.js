@@ -1,12 +1,17 @@
 /* ============================================================
-   area-picker.js — Airbnb風「どこで潜る？」候補ドロップダウン
-   トップページ／ピラーページ（freediving/skindiving/snorkeling.html）の
-   form.searchbar 内 input[name="area"] に自動アタッチする。
-   ・最近の検索（localStorage）
-   ・人気のエリア（本土側、アイコン＋一言説明）
-   ・南西諸島の離島（沖縄など候補が多いエリアを個別に見えるようチップで併記）
-   エリア名は js/area-map.js の SPOTS / explore/index.html の #areaChips と揃えている。
-   explore/index.html は既存のSVG地図＋チップUIを持つため対象外。
+   area-picker.js — 検索バー「どこで潜る？」候補ドロップダウン
+   （2026-07-10・secretary相談で確定「エリア設計の刷新」で全面書き換え）
+
+   旧実装は固定14タクソノミー（沖縄・伊豆…）前提だったが、
+   都道府県を検索の主軸にし、スポット名は自由入力＋サジェストへ移行した
+   方針に合わせて作り直した。単一テキスト入力（name="area"）の
+   仕様は維持し、候補は以下の2段構成：
+   - 人気の都道府県（FJLocations.POPULAR_PREFECTURES）
+   - よく検索されるスポット名（FJLocations.loadKnownSpots() = 種データ＋DB実データ）
+   どちらを選んでも同じテキスト欄に入るだけなので、下流の検索（explore側の
+   フリーテキスト一致）はそのまま機能する。
+
+   js/location-data.js への依存あり（PREFECTURES/SEED_SPOTS/loadKnownSpots）。
    ============================================================ */
 (function () {
   'use strict';
@@ -14,22 +19,34 @@
   const RECENT_KEY = 'fj_recent_areas';
   const RECENT_MAX = 4;
 
-  // 本土側の主要エリア（アイコン＋一言説明つきでリスト表示）
-  const MAIN_AREAS = [
-    { area: '沖縄',     emoji: '🏝️', tag: '青の洞窟と抜群の透明度' },
-    { area: '伊豆',     emoji: '🐠', tag: '東京から日帰りできる定番エリア' },
-    { area: '紀伊半島', emoji: '🐟', tag: '黒潮が育てる豊かな魚影' },
-    { area: '瀬戸内',   emoji: '⛵', tag: '穏やかな内海で安心して潜れる' },
-    { area: '鹿児島',   emoji: '🌋', tag: '錦江湾と桜島を望むスポット' },
-    { area: '東京',     emoji: '🏊', tag: 'プール講習・体験に通いやすい' },
-    { area: '北海道',   emoji: '❄️', tag: '澄み切った冷たい海を楽しむ' }
-  ];
-
-  // 沖縄をはじめ候補が多い南西諸島の離島。チップで一覧性高く並べる。
-  const REMOTE_ISLANDS = ['石垣島', '宮古島', '西表島', '与那国島', '久米島', '慶良間諸島', '奄美大島'];
+  const PREF_META = {
+    '沖縄県':   { emoji: '🏝️', tag: '青の洞窟と抜群の透明度' },
+    '静岡県':   { emoji: '🐠', tag: '伊豆など東京から日帰りできる定番エリア' },
+    '鹿児島県': { emoji: '🌋', tag: '錦江湾・離島の素潜りスポット' },
+    '和歌山県': { emoji: '🐟', tag: '黒潮が育てる豊かな魚影' },
+    '東京都':   { emoji: '🏊', tag: 'プール講習・体験に通いやすい' },
+    '高知県':   { emoji: '🐬', tag: '柏島など透明度の高い黒潮の海' },
+    '北海道':   { emoji: '❄️', tag: '澄み切った冷たい海を楽しむ' }
+  };
 
   const ICON_CLOCK = '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>';
   const ICON_MAP = '<svg class="icon" viewBox="0 0 24 24"><path d="M9 4l-6 2v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>';
+
+  // js/location-data.js 未読み込み時のフォールバック（都道府県サジェストが空にならないようにする保険）
+  const FALLBACK_POPULAR = ['沖縄県', '静岡県', '鹿児島県', '和歌山県', '東京都', '高知県', '北海道'];
+  const FALLBACK_SEED = ['沖縄', '石垣島', '宮古島', '西表島', '与那国島', '久米島', '慶良間諸島', '奄美大島', '鹿児島', '伊豆', '東京', '紀伊半島', '瀬戸内', '北海道'];
+
+  const LOC = window.FJLocations || {};
+  const POPULAR_PREFECTURES = LOC.POPULAR_PREFECTURES || FALLBACK_POPULAR;
+
+  // よく検索されるスポット名。初期は種データのみ、DB実データが取得できたら差し替える。
+  let knownSpots = (LOC.SEED_SPOTS || FALLBACK_SEED).slice();
+  if (LOC.loadKnownSpots) {
+    LOC.loadKnownSpots().then(spots => {
+      knownSpots = spots;
+      if (openState) refreshPanel(openState.input);
+    });
+  }
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -69,8 +86,6 @@
   });
   window.addEventListener('resize', closeOpen);
   // ページ本体のスクロールでのみ閉じる。パネル内部（候補リスト）のスクロールでは閉じない。
-  // ※ scrollイベントはbubbleしないが、capture:trueで登録するとwindow→…→targetの下り経路で拾えるため、
-  //   パネル内部のoverflow-y:autoスクロールもここに届いてしまう点に注意。
   window.addEventListener('scroll', (e) => {
     if (!openState) return;
     if (openState.panel.contains(e.target)) return;
@@ -80,8 +95,12 @@
   function buildSectionHTML(input, query) {
     const q = (query || '').trim();
     const recent = getRecent().filter(a => !q || a.includes(q));
-    const mains = MAIN_AREAS.filter(a => !q || a.area.includes(q) || a.tag.includes(q));
-    const islands = REMOTE_ISLANDS.filter(a => !q || a.includes(q));
+    const prefs = POPULAR_PREFECTURES.filter(p => {
+      if (!q) return true;
+      const meta = PREF_META[p];
+      return p.includes(q) || (meta && meta.tag.includes(q));
+    });
+    const spots = knownSpots.filter(a => !q || a.includes(q));
 
     let html = '';
 
@@ -93,30 +112,31 @@
       html += '</div></div>';
     }
 
-    if (mains.length) {
-      html += '<div class="area-dd-sec"><p class="area-dd-sec-title">人気のエリア</p><div class="area-dd-list">';
-      mains.forEach(a => {
-        html += `<button type="button" class="area-dd-row" data-area="${esc(a.area)}">` +
-          `<span class="area-dd-emoji">${a.emoji}</span>` +
-          `<span class="area-dd-row-text"><span class="area-dd-row-name">${esc(a.area)}</span><span class="area-dd-row-tag">${esc(a.tag)}</span></span>` +
+    if (prefs.length) {
+      html += '<div class="area-dd-sec"><p class="area-dd-sec-title">人気の都道府県</p><div class="area-dd-list">';
+      prefs.forEach(p => {
+        const meta = PREF_META[p] || { emoji: '📍', tag: '' };
+        html += `<button type="button" class="area-dd-row" data-area="${esc(p)}">` +
+          `<span class="area-dd-emoji">${meta.emoji}</span>` +
+          `<span class="area-dd-row-text"><span class="area-dd-row-name">${esc(p)}</span><span class="area-dd-row-tag">${esc(meta.tag)}</span></span>` +
           `</button>`;
       });
       html += '</div></div>';
     }
 
-    if (islands.length) {
-      html += '<div class="area-dd-sec"><p class="area-dd-sec-title">南西諸島の離島（沖縄周辺）</p><div class="area-dd-chips">';
-      islands.forEach(a => {
+    if (spots.length) {
+      html += '<div class="area-dd-sec"><p class="area-dd-sec-title">よく検索されるスポット名</p><div class="area-dd-chips">';
+      spots.forEach(a => {
         html += `<button type="button" class="area-dd-chip" data-area="${esc(a)}">${esc(a)}</button>`;
       });
       html += '</div></div>';
     }
 
-    if (!recent.length && !mains.length && !islands.length) {
+    if (!recent.length && !prefs.length && !spots.length) {
       html += `<div class="area-dd-empty">「${esc(q)}」で自由に検索できます</div>`;
     }
 
-    html += '<div class="area-dd-foot"><a href="' + (input.dataset.exploreHref || 'explore/index.html') + '">' + ICON_MAP + '地図から全エリアを見る</a></div>';
+    html += '<div class="area-dd-foot"><a href="' + (input.dataset.exploreHref || 'explore/index.html') + '">' + ICON_MAP + '探すページで都道府県から選ぶ</a></div>';
 
     return html;
   }

@@ -45,7 +45,6 @@
 .date-clear-btn:hover { color: var(--accent); }
 .filter-hint { font-size: 11px; color: var(--ink-soft); margin: 8px 0 0; text-align: center; line-height: 1.6; }
 
-/* ── エリア地図：スタイルは css/home.css の .fj-* / .area-map-wrap（shopsと共通） ── */
 
 /* ── divider ── */
 .divider { display: flex; align-items: center; gap: 12px; margin: 22px 0; }
@@ -232,7 +231,8 @@
     <form class="searchbar" id="exploreSearchbar">
       <label class="sb-seg">
         <div class="sb-label">エリア</div>
-        <input class="sb-input" name="area" id="searchInput" placeholder="エリア・スクール・インストラクターを検索" autocomplete="off">
+        <input class="sb-input" name="area" id="searchInput" list="spotSuggestList" placeholder="都道府県・スポット名・スクール名で検索" autocomplete="off">
+        <datalist id="spotSuggestList"></datalist>
       </label>
       <label class="sb-seg sb-when">
         <div class="sb-label">日程</div>
@@ -267,31 +267,10 @@
   </div>
   <div class="filter-section">
     <div class="filter-label-row">
-      <p class="filter-label">エリアから探す</p>
-      <button class="map-toggle-btn" id="mapToggleBtn" onclick="toggleAreaMap()" type="button">
-        <svg class="icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        <span id="mapToggleLabel">地図を閉じる</span>
-      </button>
-    </div>
-    <div class="area-map-wrap open" id="areaMapWrap">
-      <div id="areaMap"></div>
+      <p class="filter-label">都道府県から探す</p>
     </div>
     <div class="chip-row" id="areaChips">
-      <button class="chip active" data-area="" onclick="toggleArea(this)">全国</button>
-      <button class="chip" data-area="沖縄" onclick="toggleArea(this)">沖縄</button>
-      <button class="chip" data-area="石垣島" onclick="toggleArea(this)">石垣島</button>
-      <button class="chip" data-area="宮古島" onclick="toggleArea(this)">宮古島</button>
-      <button class="chip" data-area="西表島" onclick="toggleArea(this)">西表島</button>
-      <button class="chip" data-area="与那国島" onclick="toggleArea(this)">与那国島</button>
-      <button class="chip" data-area="久米島" onclick="toggleArea(this)">久米島</button>
-      <button class="chip" data-area="慶良間諸島" onclick="toggleArea(this)">慶良間諸島</button>
-      <button class="chip" data-area="奄美大島" onclick="toggleArea(this)">奄美大島</button>
-      <button class="chip" data-area="鹿児島" onclick="toggleArea(this)">鹿児島</button>
-      <button class="chip" data-area="伊豆" onclick="toggleArea(this)">伊豆</button>
-      <button class="chip" data-area="東京" onclick="toggleArea(this)">東京</button>
-      <button class="chip" data-area="紀伊半島" onclick="toggleArea(this)">紀伊半島</button>
-      <button class="chip" data-area="瀬戸内" onclick="toggleArea(this)">瀬戸内</button>
-      <button class="chip" data-area="北海道" onclick="toggleArea(this)">北海道</button>
+      <button class="chip active" data-area="" onclick="togglePref(this)">全国</button>
     </div>
   </div>
   <div class="filter-section">
@@ -380,11 +359,11 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../js/supabase-config.js"></script>
-<script src="../js/area-map.js"></script>
+<script src="../js/location-data.js"></script>
 <script>
 let allListings = [];
 let currentIntent = 'all';
-let currentArea = '';
+let currentPref = '';
 let currentDate = '';
 let slotsByListing = new Map(); // listing_id -> availability_slots[]（日程フィルタ用。空き枠データがないlistingは対象外＝常に表示）
 let activeTags = new Set();
@@ -410,21 +389,14 @@ function safeUrl(u) {
   } catch { return ''; }
 }
 
-/* ── エリア地図（自前SVG / js/area-map.js） ── */
-// ピンをクリック → 既存のチップと同じ絞り込み処理に合流。選択中のピンを再クリックで解除（全国に戻す）
-const areaMap = FJAreaMap.render(document.getElementById('areaMap'), {
-  onSelect(area) {
-    const target = (area === currentArea) ? '' : area;
-    const chip = [...document.querySelectorAll('#areaChips .chip')].find(c => c.dataset.area === target);
-    if (chip) toggleArea(chip);
-  }
-});
-
-function toggleAreaMap() {
-  const wrap = document.getElementById('areaMapWrap');
-  const willOpen = !wrap.classList.contains('open');
-  wrap.classList.toggle('open', willOpen);
-  document.getElementById('mapToggleLabel').textContent = willOpen ? '地図を閉じる' : '地図で選ぶ';
+/* ── スポット名サジェスト（js/location-data.js。事業者登録側と同じ考え方） ── */
+if (window.FJLocations) {
+  FJLocations.loadKnownSpots().then(spots => {
+    const list = document.getElementById('spotSuggestList');
+    if (!list) return;
+    const all = [...new Set([...FJLocations.PREFECTURES, ...spots])];
+    list.innerHTML = all.map(v => `<option value="${esc(v)}"></option>`).join('');
+  });
 }
 
 /* ── こだわり条件（折りたたみ） ── */
@@ -580,20 +552,36 @@ async function loadListings() {
 
 function updateCounts() {
   const counts = { all: allListings.length, try: 0, learn: 0, dive: 0 };
-  const areaCounts = {};
+  const prefCounts = {};
   allListings.forEach(l => {
     if (INTENT_GROUPS.dive.includes(l.intent)) counts.dive++;
     else if (counts[l.intent] !== undefined) counts[l.intent]++;
-    if (l.area) areaCounts[l.area] = (areaCounts[l.area] || 0) + 1;
+    if (l.prefecture) prefCounts[l.prefecture] = (prefCounts[l.prefecture] || 0) + 1;
   });
   document.getElementById('count-all').textContent   = counts.all;
   document.getElementById('count-try').textContent   = counts.try;
   document.getElementById('count-learn').textContent = counts.learn;
   document.getElementById('count-dive').textContent  = counts.dive;
-  // 地図ピンに件数を反映（定義済みスポットは0件でも表示し、薄く見せる）
-  const withZero = {};
-  document.querySelectorAll('#areaChips .chip').forEach(c => { if (c.dataset.area) withZero[c.dataset.area] = areaCounts[c.dataset.area] || 0; });
-  areaMap.setCounts(withZero);
+  renderPrefChips(prefCounts);
+}
+
+// 都道府県チップを動的に生成する（2026-07-10・エリア設計の刷新）。
+// 「人気の都道府県」は0件でも薄く常時表示し、それ以外は実際に出品がある都道府県だけ追加で出す。
+function renderPrefChips(prefCounts) {
+  const container = document.getElementById('areaChips');
+  const popular = (window.FJLocations && FJLocations.POPULAR_PREFECTURES) || [];
+  const extra = Object.keys(prefCounts)
+    .filter(p => prefCounts[p] > 0 && !popular.includes(p))
+    .sort((a, b) => prefCounts[b] - prefCounts[a]);
+  const prefs = [...popular, ...extra];
+
+  let html = `<button class="chip${currentPref === '' ? ' active' : ''}" data-area="" onclick="togglePref(this)">全国</button>`;
+  prefs.forEach(p => {
+    const count = prefCounts[p] || 0;
+    const cls = ['chip', currentPref === p ? 'active' : '', count === 0 ? 'dim' : ''].filter(Boolean).join(' ');
+    html += `<button class="${cls}" data-area="${esc(p)}" onclick="togglePref(this)">${esc(p)}</button>`;
+  });
+  container.innerHTML = html;
 }
 
 function applyIntent(intent) {
@@ -606,11 +594,10 @@ function applyIntent(intent) {
 function setIntent(el, intent) {
   applyIntent(intent);
 }
-function toggleArea(el) {
+function togglePref(el) {
   document.querySelectorAll('#areaChips .chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
-  currentArea = el.dataset.area || '';
-  areaMap.setActive(currentArea);
+  currentPref = el.dataset.area || '';
   renderListings();
 }
 function setDate(value) {
@@ -651,7 +638,7 @@ function renderListings() {
       const group = INTENT_GROUPS[currentIntent];
       if (group ? !group.includes(l.intent) : l.intent !== currentIntent) return false;
     }
-    if (currentArea && l.area !== currentArea) return false;
+    if (currentPref && l.prefecture !== currentPref) return false;
     if (currentDate) {
       const slots = slotsByListing.get(l.id);
       // 空き枠データを持つlistingだけ日程で絞り込む。データがないlisting（問い合わせベース等）は要相談として常に表示する
@@ -730,18 +717,19 @@ function applyUrlParams() {
   const area = p.get('area');
   const pref = p.get('pref');
   if (q) document.getElementById('searchInput').value = q;
-  // 旧リンク互換：?pref= はフリーテキスト検索として扱う（都道府県selectは廃止済み）
+  // 旧リンク互換：?pref= はフリーテキスト検索として扱う
   if (pref && !q) document.getElementById('searchInput').value = pref;
   if (intent && ['try','learn','dive'].includes(intent)) {
     applyIntent(intent);
   }
-  if (area) {
-    const chip = [...document.querySelectorAll('#areaChips .chip')].find(c => c.dataset.area === area);
-    if (chip) {
-      document.querySelectorAll('#areaChips .chip').forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-      currentArea = area;
-      areaMap.setActive(currentArea);
+  // ?area= はホーム／ピラーページの検索バー（都道府県名 or スポット名の自由入力）から来る。
+  // 都道府県名と完全一致すれば構造化フィルタ（チップ）として扱い、それ以外はスポット名としてフリーテキスト検索に渡す
+  if (area && !q) {
+    const isPref = window.FJLocations && FJLocations.PREFECTURES.includes(area);
+    if (isPref) {
+      currentPref = area; // renderPrefChips()（loadListings→updateCounts経由）がこの値を見てチップのactive状態を反映する
+    } else {
+      document.getElementById('searchInput').value = area;
     }
   }
   const date = p.get('date');

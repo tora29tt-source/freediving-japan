@@ -6,6 +6,7 @@
 <title>管理画面 — Freediving Japan</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../js/supabase-config.js"></script>
+<script src="../js/location-data.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -1269,26 +1270,9 @@ td.name { color: var(--on-dark); font-weight: 500; }
     </div>
 
     <div class="form-group">
-      <label>人気スポット（任意）</label>
-      <select id="listing-area" onchange="toggleListingAreaOther(this)">
-        <option value="">なし（都道府県のみで検索対象になります）</option>
-        <option value="沖縄">沖縄</option>
-        <option value="石垣島">石垣島</option>
-        <option value="宮古島">宮古島</option>
-        <option value="西表島">西表島</option>
-        <option value="与那国島">与那国島</option>
-        <option value="久米島">久米島</option>
-        <option value="慶良間諸島">慶良間諸島</option>
-        <option value="奄美大島">奄美大島</option>
-        <option value="鹿児島">鹿児島</option>
-        <option value="伊豆">伊豆</option>
-        <option value="東京">東京</option>
-        <option value="紀伊半島">紀伊半島</option>
-        <option value="瀬戸内">瀬戸内</option>
-        <option value="北海道">北海道</option>
-        <option value="__other__">その他（探すページの人気スポットチップ対象外になります）</option>
-      </select>
-      <input type="text" id="listing-area-other" placeholder="例：恩納村" style="margin-top:8px;display:none;">
+      <label>スポット名（任意）</label>
+      <input type="text" id="listing-area" list="listing-area-suggest" placeholder="例：恩納村、青の洞窟、柏島…">
+      <datalist id="listing-area-suggest"></datalist>
     </div>
 
     <div class="form-row">
@@ -2105,8 +2089,12 @@ function splitTrim(str) {
   return str.split(',').map(s => s.trim()).filter(Boolean);
 }
 
-function toggleListingAreaOther(sel) {
-  document.getElementById('listing-area-other').style.display = sel.value === '__other__' ? '' : 'none';
+// スポット名の入力候補（2026-07-10・エリア設計の刷新）。種データ＋DB実データをdatalistに流し込む
+if (window.FJLocations) {
+  FJLocations.loadKnownSpots().then(spots => {
+    const list = document.getElementById('listing-area-suggest');
+    if (list) list.innerHTML = spots.map(v => `<option value="${v.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}"></option>`).join('');
+  });
 }
 
 function toggleListingPrefOther(sel) {
@@ -2242,11 +2230,10 @@ function openListingModal(listingId = null) {
   });
 
   // リセット
-  ['listing-title','listing-description','listing-category','listing-pref','listing-pref-other','listing-area','listing-area-other','listing-tags'].forEach(id => {
+  ['listing-title','listing-description','listing-category','listing-pref','listing-pref-other','listing-area','listing-tags'].forEach(id => {
     document.getElementById(id).value = '';
   });
   document.getElementById('listing-pref-other').style.display = 'none';
-  document.getElementById('listing-area-other').style.display = 'none';
   document.getElementById('listing-intent').value      = 'try';
   document.getElementById('listing-price').value       = '';
   document.getElementById('listing-price-unit').value  = '〜/人';
@@ -2275,17 +2262,8 @@ function openListingModal(listingId = null) {
         document.getElementById('listing-pref-other').style.display = prefSel.value === '海外' ? '' : 'none';
         if (prefSel.value === '海外') document.getElementById('listing-pref-other').value = d.country || '';
       }
-      // エリア：既存の値が選択肢にあればそれを選択、無ければ「その他」＋自由入力欄に復元
-      const areaSel = document.getElementById('listing-area');
-      const areaKnown = [...areaSel.options].some(o => o.value === (d.area || ''));
-      if (d.area && !areaKnown) {
-        areaSel.value = '__other__';
-        document.getElementById('listing-area-other').value = d.area;
-        document.getElementById('listing-area-other').style.display = '';
-      } else {
-        areaSel.value = d.area || '';
-        document.getElementById('listing-area-other').style.display = 'none';
-      }
+      // スポット名：自由入力なのでそのまま復元するだけでよい
+      document.getElementById('listing-area').value = d.area || '';
       document.getElementById('listing-price').value       = d.price || '';
       document.getElementById('listing-price-unit').value  = d.price_unit || '〜/人';
       document.getElementById('listing-tags').value        = (d.tags || []).join(', ');
@@ -2319,9 +2297,7 @@ async function saveListing() {
     country:      document.getElementById('listing-pref').value === '海外'
                      ? (document.getElementById('listing-pref-other').value.trim() || null)
                      : null,
-    area:         (document.getElementById('listing-area').value === '__other__'
-                      ? document.getElementById('listing-area-other').value.trim()
-                      : document.getElementById('listing-area').value)         || null,
+    area:         document.getElementById('listing-area').value.trim()        || null,
     price:        parseInt(document.getElementById('listing-price').value) || null,
     price_unit:   document.getElementById('listing-price-unit').value.trim() || '〜/人',
     tags:         splitTrim(document.getElementById('listing-tags').value),

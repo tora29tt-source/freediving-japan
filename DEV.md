@@ -159,7 +159,6 @@ inquiries          — 問い合わせ（instructor_id[nullable] / shop_id[nulla
 | mypage.html | → auth | ✅ | ✅ | ✅ |
 | tools/training-log.html | → auth | ✅ | ✅ | ✅ |
 | tools/sta-timer.html | → auth | ✅ | ✅ | ✅ |
-| events/event-athlete.html | ✅（URLシェア公開） | ✅ | ✅ | ✅ |
 | events/event-staff.html | readonly | 大会ロール依存 | 大会ロール依存 | ✅全権 |
 | pro/index.html | → auth | ✅申請フォームのみ | ✅フル機能 | ✅ |
 | admin/index.html | → auth → 弾く | ❌ | ❌ | ✅ |
@@ -275,6 +274,18 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 - freediving.htmlの「動画で学ぶ／ランキング／大会」の3リンクはチップ集計の対象外（別枠として存置）
 - 本番データがまだ少ないため、当面は多くのページで「該当0件→見本チップのまま」になる見込み。リスティング登録が増えるにつれて自然に実データのチップへ切り替わる設計
 
+### エリア設計の刷新（2026-07-10・secretary相談で確定）
+
+**背景**：`listings`には`prefecture`（47都道府県＋海外の自由選択）と`area`（沖縄/伊豆/鹿児島など14項目の固定タクソノミー、探すページの地図・チップ絞り込みに使用）の2つの場所関連フィールドがあり、出品者（インストラクター・ショップ）が`prefecture`だけ設定して`area`を未選択のまま保存すると、探すページの地図・チップからは見えなくなる（テキスト検索でのみヒット）落とし穴があった。実際に鹿児島県のショップ出品（Volcano Cupコーチング）がこの状態になり、地図上で0件に見える不具合として発覚した。
+
+- 「エリア」という固定14タクソノミーの概念を廃止し、**都道府県を検索・絞り込みの主軸**にする
+- 事業者は都道府県配下の具体的なスポット名を**自由入力**で登録できる（例：沖縄県の恩納村）
+- 登録時（`pro/index.html`・`admin/index.html`）・検索時（探すページ・トップの検索バー）の両方で、**既存のスポット名をサジェストする同じ仕組み**を使う（事業者側／利用者側でUIロジックを揃える）
+- サジェストの初期データは今の14スポット名（沖縄・伊豆・紀伊半島・瀬戸内・鹿児島・東京・北海道・石垣島・宮古島・西表島・与那国島・久米島・慶良間諸島・奄美大島）を種にし、以降は実際の出品データ（DB上の`area`の重複しない値）を積み増していく
+- 探すページのSVG日本地図（`js/area-map.js`、14スポットのみピンがある）は**廃止**。都道府県チップ＋自由入力サジェストのテキスト中心UIに一本化する
+- **実装済み（2026-07-10）**：`js/location-data.js`（新規・47都道府県リスト＋スポット名サジェストの共通データ。`loadKnownSpots()`が種データ14件＋`listings.area`の実データをマージ）／`js/area-picker.js`（トップ・ピラーページの検索ドロップダウンを「人気の都道府県」＋「よく検索されるスポット名」チップに全面書き換え）／`explore/index.html`（SVG地図・`js/area-map.js`の読み込みを削除。`#areaChips`は`listings.prefecture`集計による動的生成に変更、`currentArea`→`currentPref`にリネーム。検索入力に`datalist`でスポット名サジェストを追加）／`pro/index.html`・`admin/index.html`（「エリア」固定select＋その他入力を廃止し、`datalist`付きテキスト入力に変更。保存・編集読み込みロジックも追随）
+- **未着手（フォローアップ）**：`explore/shops.html`は今回のスコープ外。まだ旧`js/area-map.js`＋14タクソノミーの`areas`部分一致フィルタのまま残っている（`shops`/`instructors`の`prefecture`列がフィルタに使える状態か未確認のため、データ確認してから着手する）。`js/area-map.js`自体は`explore/shops.html`が使用中のため削除しない
+
 ### `shops.shop_type` 廃止（2026-07-05・secretary相談で確定）
 
 **背景**：`shops.shop_type`（individual / school / operator）はショップ作成・編集フォームで選択させていたが、どこの検索・フィルタ・バッジ表示にも使われておらず装飾的な項目だった。また個人／ショップの区分は pro/index.html の登録導線（`showCreateProfile('instructor' | 'shop')`）で既に明示的に分かれており、`shops` 側に「個人」を残す意味がない。「スクールで探す」等の検索軸も listings の intent（try/learn/dive）で実現済みのため、ショップ単位の type 分けは不要と判断。
@@ -389,7 +400,6 @@ admin/index.html でインストラクター等を削除しようとすると「
 /events/                  # 大会・イベント
   2026_competitions.html
   competition-countdown.html
-  event-athlete.html
   event-staff.html
 /rankings/                # ランキング
   AIDA_ranking.html
@@ -507,7 +517,6 @@ TOP (index.html)  ── Airbnb風マーケットプレイス（白基調）
 |Mouthfill Calculator（mouthfill-calculator.html）     |✅ 完成・push済み                  |
 |インストラクターウェルカム（instructor-welcome.html）              |✅ 作成完了                      |
 |フリーダイビングを学ぶ（freediving-learn.html）                 |✅ 管理ツール完成・learn/index.html 骨格完成  |
-|大会機能（events/event-athlete.html）                      |✅ Supabase接続完了（?id= でイベント取得・AP登録→event_entries INSERT・スタートリスト・リザルト表示）|
 |大会カウントダウン（events/competition-countdown.html）         |✅ 完成（スタンドアロン・Supabase不要）        |
 |認証画面（auth.html）                                     |✅ メール/パスワード・Googleログイン実装済み（Apple は Developer 登録待ち）|
 |Supabase DB                                        |✅ テーブル作成済み（training_sessions/dives/events/shops/instructors/listings/reviews）|
