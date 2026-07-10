@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>講座詳細 — フリーダイビングを学ぶ — Freediving Japan</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ocean-deep: #0b2d45;
+  --ocean-mid:  #0e3d5c;
+  --abyss:      #04161f;
+  --teal:       #2ec4b6;
+  --teal-light: #a8ece8;
+  --foam:       #f0f9fb;
+  --warm:       #f97316;
+  --on-dark:        rgba(255,255,255,0.92);
+  --on-dark-mid:    rgba(255,255,255,0.62);
+  --on-dark-soft:   rgba(255,255,255,0.40);
+  --hairline:       rgba(168,236,232,0.14);
+  --glass:          rgba(255,255,255,0.045);
+
+  --c-beginner: #2ec4b6;
+  --c-mid:      #7c9ef8;
+  --c-comp:     #fb7185;
+  --c-inst:     #fbbf24;
+}
+html { background: var(--abyss); }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  background: linear-gradient(180deg,
+    var(--ocean-mid) 0%,
+    var(--ocean-deep) 22%,
+    #06283a 55%,
+    var(--abyss) 100%);
+  background-attachment: fixed;
+  color: var(--on-dark);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+.icon { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; display: block; }
+
+/* ── header ── */
+.header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(6,32,46,0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--hairline);
+  padding: 0 20px; height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo {
+  font-size: 16px; font-weight: 600;
+  color: var(--on-dark); letter-spacing: 0.18em;
+  text-transform: uppercase; text-decoration: none;
+}
+.logo span { color: var(--teal); }
+.header-icons { display: flex; align-items: center; gap: 16px; }
+.icon-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 14px 7px 10px; border-radius: 100px;
+  background: transparent; border: 1px solid var(--hairline);
+  color: var(--on-dark-mid); font-size: 12px; font-weight: 500;
+  letter-spacing: 0.04em; text-decoration: none; cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.icon-btn:hover { border-color: var(--teal); color: var(--on-dark); }
+.icon-btn .icon { width: 16px; height: 16px; }
+
+.container { max-width: 760px; margin: 0 auto; padding: 40px 20px 80px; }
+
+.back-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--on-dark-soft); text-decoration: none; font-size: 13px;
+  margin-bottom: 24px; transition: color 0.2s;
+}
+.back-link:hover { color: var(--teal-light); }
+
+/* ── level badge / cat badge ── */
+.level-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 100px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+}
+.level-beginner { background: rgba(46,196,182,0.15); color: var(--c-beginner); }
+.level-mid      { background: rgba(124,158,248,0.15); color: var(--c-mid); }
+.level-comp     { background: rgba(251,113,133,0.15); color: var(--c-comp); }
+.level-inst     { background: rgba(251,191,36,0.15);  color: var(--c-inst); }
+
+/* ── hero ── */
+.course-hero {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--hairline);
+  border-radius: 16px; padding: 28px; margin-bottom: 28px;
+}
+.course-thumb {
+  width: 100%; aspect-ratio: 16/9; border-radius: 12px; margin-bottom: 20px;
+  background: linear-gradient(135deg, rgba(14,61,92,0.8), rgba(4,22,31,0.9));
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.course-thumb .play-circle {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: rgba(46,196,182,0.15); border: 1px solid rgba(46,196,182,0.3);
+  display: flex; align-items: center; justify-content: center;
+}
+.course-thumb .play-circle svg { width: 24px; height: 24px; color: var(--teal); margin-left: 3px; }
+.course-title { font-size: 24px; font-weight: 700; line-height: 1.35; margin: 14px 0 10px; }
+.course-author {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: var(--on-dark-mid); margin-bottom: 14px;
+}
+.author-avatar {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: rgba(46,196,182,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: var(--teal); flex-shrink: 0;
+}
+.course-meta { display: flex; gap: 16px; font-size: 12px; color: var(--on-dark-soft); margin-bottom: 18px; flex-wrap: wrap; }
+.course-meta-item { display: flex; align-items: center; gap: 5px; }
+.course-meta-item svg { width: 13px; height: 13px; }
+.course-desc { font-size: 14px; line-height: 1.8; color: var(--on-dark-mid); margin-bottom: 20px; }
+
+.course-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 18px; border-top: 1px solid var(--hairline);
+}
+.course-price { font-size: 22px; font-weight: 700; }
+.course-price small { font-size: 12px; color: var(--on-dark-soft); font-weight: 400; margin-left: 3px; }
+.btn-buy {
+  padding: 11px 24px; border-radius: 10px;
+  background: var(--teal); color: #04161f;
+  font-size: 13px; font-weight: 700; border: none; cursor: pointer;
+  letter-spacing: 0.04em; transition: opacity 0.2s;
+}
+.btn-buy:hover { opacity: 0.85; }
+.btn-buy:disabled, .btn-buy.soon {
+  background: rgba(255,255,255,0.08); color: var(--on-dark-soft);
+  cursor: default; opacity: 1;
+}
+
+/* ── syllabus ── */
+.section-heading {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px; margin-top: 36px;
+}
+.sh-line { flex: 1; height: 1px; background: var(--hairline); }
+.sh-label {
+  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--on-dark-soft); font-weight: 500; white-space: nowrap;
+}
+.chapter-list { display: flex; flex-direction: column; gap: 8px; }
+.chapter-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px; border-radius: 10px;
+  background: rgba(255,255,255,0.03); border: 1px solid var(--hairline);
+}
+.chapter-num {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  background: rgba(46,196,182,0.12); color: var(--teal);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+}
+.chapter-body { flex: 1; min-width: 0; }
+.chapter-title { font-size: 13px; font-weight: 600; }
+.chapter-status { font-size: 11px; color: var(--on-dark-soft); margin-top: 2px; }
+
+/* ── state screens ── */
+.state-screen {
+  text-align: center; padding: 80px 20px; color: var(--on-dark-mid);
+}
+.state-screen h2 { font-size: 18px; margin-bottom: 10px; color: var(--on-dark); }
+.state-screen p { font-size: 13px; line-height: 1.7; }
+.state-screen a { color: var(--teal-light); }
+
+/* ── footer ── */
+.learn-footer {
+  text-align: center; padding: 32px 20px;
+  border-top: 1px solid var(--hairline); margin-top: 60px;
+  font-size: 12px; color: var(--on-dark-soft);
+}
+.learn-footer a { color: var(--teal-light); text-decoration: none; }
+
+@media (max-width: 480px) {
+  .course-footer { flex-direction: column; align-items: stretch; gap: 14px; }
+  .btn-buy { width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <a href="../index.html" class="logo">FREEDIVING <span>JAPAN</span></a>
+  <div class="header-icons">
+    <a href="../mypage.html" class="icon-btn">
+      <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      マイページ
+    </a>
+  </div>
+</header>
+
+<div class="container" id="pageRoot">
+  <a href="index.html" class="back-link">
+    <svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24" stroke="currentColor" fill="none"><path d="M15 19l-7-7 7-7"/></svg>
+    講座一覧へ戻る
+  </a>
+
+  <!-- Supabaseからの読み込み結果をここに描画する -->
+  <div id="courseContent">
+    <div class="state-screen">読み込み中...</div>
+  </div>
+</div>
+
+<footer class="learn-footer">
+  <a href="../index.html">← Freediving Japan トップへ</a>
+  &nbsp;·&nbsp;
+  <a href="index.html">学ぶトップへ</a>
+  &nbsp;·&nbsp;
+  <a href="../explore/index.html">体験・コースを探す</a>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
+<script>
+// DB由来の値をHTMLへ挿入する前にエスケープ（S4: 属性ブレイクアウトXSS対策）
+function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+const LEVEL_LABEL_CLASS = { beginner: 'level-beginner', mid: 'level-mid', comp: 'level-comp', inst: 'level-inst' };
+const CAT_JP = { beginner: '初心者', mid: '中級', comp: '競技', inst: 'インストラクター' };
+
+function renderState(title, body) {
+  document.getElementById('courseContent').innerHTML =
+    '<div class="state-screen"><h2>' + esc(title) + '</h2><p>' + body + '</p></div>';
+}
+
+function avatarChar(name) {
+  return esc((name || '?').trim().charAt(0));
+}
+
+async function loadCourse() {
+  const slug = new URLSearchParams(location.search).get('slug');
+  if (!slug) {
+    renderState('講座が見つかりません', '<a href="index.html">講座一覧</a>からお探しください。');
+    return;
+  }
+
+  const { data: course, error } = await _sb
+    .from('courses')
+    .select('*')
+    .eq('slug', slug)
+    .single();
+
+  if (error || !course) {
+    renderState('この講座はまだ公開されていません', '公開まで今しばらくお待ちください。<br><a href="index.html">講座一覧</a>へ戻る。');
+    return;
+  }
+
+  const { data: chapters } = await _sb
+    .from('course_chapters')
+    .select('chapter_num, title, vimeo_id')
+    .eq('course_id', course.id)
+    .order('chapter_num', { ascending: true });
+
+  const levelClass = LEVEL_LABEL_CLASS[course.category] || 'level-beginner';
+  const catJp = CAT_JP[course.category] || '';
+
+  const chapterRows = (chapters || []).map(function(ch) {
+    const ready = !!ch.vimeo_id;
+    return '<div class="chapter-row">' +
+      '<div class="chapter-num">' + ch.chapter_num + '</div>' +
+      '<div class="chapter-body">' +
+        '<div class="chapter-title">' + esc(ch.title) + '</div>' +
+        '<div class="chapter-status">' + (ready ? '視聴可能' : '動画準備中') + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  document.getElementById('courseContent').innerHTML =
+    '<div class="course-hero">' +
+      '<div class="course-thumb">' +
+        '<div class="play-circle"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>' +
+      '</div>' +
+      '<span class="level-badge ' + levelClass + '">' + esc(catJp) + (course.level_label ? ' ・ ' + esc(course.level_label) : '') + '</span>' +
+      '<h1 class="course-title">' + esc(course.title) + '</h1>' +
+      '<div class="course-author">' +
+        '<div class="author-avatar">' + avatarChar(course.instructor_name) + '</div>' +
+        '<span>' + esc(course.instructor_name) + (course.instructor_title ? '（' + esc(course.instructor_title) + '）' : '') + '</span>' +
+      '</div>' +
+      '<div class="course-meta">' +
+        (chapters && chapters.length ? '<span class="course-meta-item">全' + chapters.length + 'レッスン</span>' : '') +
+        (course.target_level ? '<span class="course-meta-item">' + esc(course.target_level) + '</span>' : '') +
+      '</div>' +
+      (course.description ? '<p class="course-desc">' + esc(course.description) + '</p>' : '') +
+      '<div class="course-footer">' +
+        '<div class="course-price">¥' + Number(course.price).toLocaleString('ja-JP') + '<small>（税込）</small></div>' +
+        '<button class="btn-buy soon" disabled>準備中（撮影完了後に購入可能になります）</button>' +
+      '</div>' +
+    '</div>' +
+
+    (chapterRows ? (
+      '<div class="section-heading"><div class="sh-line"></div><div class="sh-label">カリキュラム</div><div class="sh-line"></div></div>' +
+      '<div class="chapter-list">' + chapterRows + '</div>'
+    ) : '');
+}
+
+loadCourse();
+</script>
+
+</body>
+</html>

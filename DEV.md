@@ -286,6 +286,17 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 - **実装済み（2026-07-10）**：`js/location-data.js`（新規・47都道府県リスト＋スポット名サジェストの共通データ。`loadKnownSpots()`が種データ14件＋`listings.area`の実データをマージ）／`js/area-picker.js`（トップ・ピラーページの検索ドロップダウンを「人気の都道府県」＋「よく検索されるスポット名」チップに全面書き換え）／`explore/index.html`（SVG地図・`js/area-map.js`の読み込みを削除。`#areaChips`は`listings.prefecture`集計による動的生成に変更、`currentArea`→`currentPref`にリネーム。検索入力に`datalist`でスポット名サジェストを追加）／`pro/index.html`・`admin/index.html`（「エリア」固定select＋その他入力を廃止し、`datalist`付きテキスト入力に変更。保存・編集読み込みロジックも追随）
 - **未着手（フォローアップ）**：`explore/shops.html`は今回のスコープ外。まだ旧`js/area-map.js`＋14タクソノミーの`areas`部分一致フィルタのまま残っている（`shops`/`instructors`の`prefecture`列がフィルタに使える状態か未確認のため、データ確認してから着手する）。`js/area-map.js`自体は`explore/shops.html`が使用中のため削除しない
 
+### /learn/ 有料講座：詳細ページ・視聴の実装方針（2026-07-10・secretary相談で確定）
+
+**背景**：`learn/index.html`のコースカードは骨組みのみで、購入ボタンは全て`disabled`（準備中表示）。詳細ページが存在せず押した先が無い状態だった。撮影開始（耳抜き入門・基礎完全講座から）に合わせて、詳細ページと視聴の実装方針を先に固めた。
+
+- 講座詳細ページは静的量産ではなく、**`courses`テーブル（既存`listings`と同様の設計思想）から動的生成**する
+- 購入導線：既存`/api/create-checkout-session.js`（予約決済用）を講座購入向けに拡張し、Stripe Checkout経由で決済
+- 購入記録：`course_purchases`的な新規テーブルに保存（`bookings`と同パターン）
+- 視聴：mypage側に新設タブから、購入済み講座のみ**Vimeo Player APIで再生**（購入履歴で認証。Vimeo動画自体は限定公開設定）
+- 着手順：4講座まとめてではなく、**耳抜き入門・基礎完全講座から**先行実装（撮影もここから開始予定）
+- **未着手**：`courses`/`course_chapters`/`course_purchases`のカラムまで含めた詳細スキーマ設計、詳細ページ・視聴タブの実装（次はpmスキルで着手）
+
 ### `shops.shop_type` 廃止（2026-07-05・secretary相談で確定）
 
 **背景**：`shops.shop_type`（individual / school / operator）はショップ作成・編集フォームで選択させていたが、どこの検索・フィルタ・バッジ表示にも使われておらず装飾的な項目だった。また個人／ショップの区分は pro/index.html の登録導線（`showCreateProfile('instructor' | 'shop')`）で既に明示的に分かれており、`shops` 側に「個人」を残す意味がない。「スクールで探す」等の検索軸も listings の intent（try/learn/dive）で実現済みのため、ショップ単位の type 分けは不要と判断。
@@ -532,7 +543,7 @@ TOP (index.html)  ── Airbnb風マーケットプレイス（白基調）
 |プロダッシュボード（pro/index.html）予約管理タブ                      |✅ 実装済み・テストデータ投入済み（全ステータス確認可）|
 |クライアント管理タブ（pro/index.html）                           |✅ 実装済み（bookingsから自動集約・検索・詳細・メモ保存）|
 |売り上げ管理タブ（pro/index.html）                              |✅ 実装済み（月次サマリー・棒グラフ・明細一覧・期間フィルタ）|
-|/learn/ 有料講座ページ                                      |✅ learn/index.html 骨格完成・トップからリンク済み（先行通知機能なし・購入ボタンは準備中表示。Stripe/Vimeo接続は撮影後）|
+|/learn/ 有料講座ページ                                      |🔄 learn/index.html 骨格完成・トップからリンク済み（先行通知機能なし）。**2026-07-10**：`courses`/`course_chapters`/`course_purchases`スキーマを本番Supabaseに実行済み（`sql/learn_courses_schema_20260710.sql`。courses=1件/course_chapters=8件、耳抜き入門講座`mimi-nuki-nyumon`をstatus=publishedで投入）、動的詳細ページ`learn/course.html`実装（slugでSupabaseから読込・シラバス表示）、耳抜き入門講座を`learn/index.html`からリンク。**Stripeは決済基盤自体は連携済み**（bookings用）だが、講座購入用のCheckout/webhookはまだ拡張していない＝購入ボタンは準備中表示のまま。**未着手**：講座購入用Checkout API・webhook拡張、mypage側の視聴タブ、チャプター名の確定（こうようさんとの構成打ち合わせが検討中のため`course_chapters`は「第n回（仮）」のプレースホルダー）|
 |メディア（/media/）                                        |✅ 基盤完成・media/ 一本化（2026-06-29）index.html Supabase動的取得・article.html 記事詳細。CMS は admin/index.html メディアタブに統合。articles テーブル・カテゴリ9区分・RLS設定・初記事2本投入済み。articles/ → _old/ 退避済み。スマホ対応・ヘッダー統一済み|
 |サイト動線整備（2026-07-08）                             |✅ sitemap.xml/robots.txt/404.html 新設。skindiving/snorkeling/learn のフッターに大会・ランキング導線追加でナビ統一。行き止まり4ページ（AIDA_ranking/mouthfill/event-athlete/freediving-learn）に戻る導線追加。buoyancy の死にリンク（/tools/）修正。tools/session-planner.html 削除。**孤立ページ方針（2026-07-10決定）**：3ページとも公開ナビへの掲載は不要と判断。①`events/event-athlete.html`——大会管理画面（event-staff.html等）から主催者が選手ごとに個別URLを発行して共有する「選手用画面」という設計。**2026-07-10実装**：`event-staff.html`概要タブに「選手用ページ」カードを追加し、`event-athlete.html?id=<大会ID>`のURLを自動生成・ワンクリックコピーできるようにした（`copyAthleteLink()`）。②`learn/freediving-learn.html`——「フリーダイビングを学ぶ」動画コースの制作進捗管理ツール（チャプター追加・ステータス切替・メモ）で、Takuya向けの内製コンテンツ管理画面であり公開ページではない。③`pro/instructor-welcome.html`——リリース時に扱いを再検討（保留）。|
 |検索UI刷新・SVG地図検索（2026-07-08）                        |✅ 検索の重複UIを大胆に統合＋地図検索を自前SVG化。①explore/index.html：検索バーの「タイプ」selectを削除（intentタブに一本化）、都道府県`<select>`を廃止しフリーテキスト検索対象に`prefecture`を追加（?pref=リンクは検索語として互換維持）、条件・価格帯は「こだわり条件」折りたたみ（選択数バッジ付き）に集約。②地図：Google Maps依存を全廃（js/maps-config.js削除・APIキー不要）し、`js/area-map.js`（ブランドカラーのデフォルメSVG日本地図＋南西諸島拡大枠＋件数ピル。クリック絞込・再クリック解除・0件は減光・人気3エリアはパルス強調）を新設。explore はデフォルト表示、shops.html にも同コンポーネント導入（トグル式・ショップ/インストラクター件数連動）。③トップ＋ピラー3ページの検索バーからもタイプselect削除（エリア＋日程のみ）。スタイルは css/home.css の `.fj-*`/`.adv-*` に共通定義。**実機ブラウザでの表示確認は未実施**|
