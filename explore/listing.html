@@ -427,6 +427,7 @@ function renderPage(owner, listing, otherListings, reviews = []) {
   const infoCards = [
     listing?.duration ? { label: '所要時間', value: listing.duration } : (listing?.duration_minutes ? { label: '所要時間', value: formatDuration(listing.duration_minutes) } : null),
     listing?.season   ? { label: '開催時期', value: listing.season } : null,
+    listing?.target_level ? { label: '対象レベル', value: listing.target_level } : null,
     listing?.min_participants ? { label: '最少催行', value: `${listing.min_participants}名〜` } : null,
     listing?.max_participants ? { label: '最大人数', value: `${listing.max_participants}名` } : null,
     ageStr ? { label: '参加年齢', value: ageStr } : null,
@@ -513,6 +514,13 @@ function renderPage(owner, listing, otherListings, reviews = []) {
       <div class="section">
         <p class="section-title">このプランについて</p>
         <p class="section-text">${escNl(listing.description)}</p>
+      </div>` : ''}
+
+      <!-- goal（到達目標） -->
+      ${listing?.goal ? `
+      <div class="section">
+        <p class="section-title">このコースの到達目標</p>
+        <p class="section-text">${escNl(listing.goal)}</p>
       </div>` : ''}
 
       <!-- timeline -->

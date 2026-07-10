@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>お問い合わせ｜FREEDIVING JAPAN</title>
+<meta name="description" content="FREEDIVING JAPANへのお問い合わせフォーム。予約・講座・掲載についてのご質問はこちらから。">
+<meta name="theme-color" content="#ffffff">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="stylesheet" href="../css/home.css">
+<style>
+.legal-main{max-width:640px;margin:0 auto;padding:0 20px 80px;}
+.legal-title{font-size:24px;font-weight:700;color:var(--ink);margin:26px 0 6px;letter-spacing:-0.01em;}
+.legal-lead{font-size:13.5px;line-height:1.9;color:var(--ink-mid);margin-bottom:26px;}
+.legal-lead a{color:var(--teal-deep);}
+.cform{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px 20px 24px;}
+.cform-group{margin-bottom:18px;}
+.cform-label{display:block;font-size:12px;font-weight:700;color:var(--ink);margin-bottom:7px;}
+.cform-label .req{color:#e11d48;font-size:11px;margin-left:4px;}
+.cform-input,.cform-select,.cform-textarea{width:100%;box-sizing:border-box;padding:12px 14px;border:1px solid var(--line-strong);border-radius:10px;font-size:14px;font-family:inherit;color:var(--ink);background:#fff;}
+.cform-input:focus,.cform-select:focus,.cform-textarea:focus{outline:none;border-color:var(--teal-deep);}
+.cform-textarea{min-height:150px;resize:vertical;line-height:1.7;}
+.cform-note{font-size:11.5px;color:var(--ink-soft);line-height:1.7;margin:14px 0 0;}
+.cform-note a{color:var(--teal-deep);}
+.cform-submit{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;margin-top:18px;background:var(--accent);color:#fff;font-size:14px;font-weight:700;border:none;border-radius:12px;cursor:pointer;transition:background .2s,opacity .2s;}
+.cform-submit:hover{background:var(--accent-strong);}
+.cform-submit:disabled{opacity:.45;cursor:not-allowed;}
+.cform-status{display:none;margin-top:16px;padding:14px 16px;border-radius:12px;font-size:13px;line-height:1.7;}
+.cform-status.ok{display:block;background:rgba(31,111,120,.08);border:1px solid rgba(31,111,120,.3);color:var(--teal-deep);}
+.cform-status.ng{display:block;background:rgba(225,29,72,.06);border:1px solid rgba(225,29,72,.3);color:#be123c;}
+.hp-field{position:absolute;left:-9999px;opacity:0;height:0;overflow:hidden;}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="hdr-in">
+    <a class="logo" href="../index.html">FREEDIVING <span>JAPAN</span></a>
+    <div class="hdr-right">
+      <a class="hdr-link" href="../mypage.html"><span class="avatar"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/></svg></span>マイページ</a>
+    </div>
+  </div>
+</header>
+<main class="legal-main">
+  <a class="crumb" href="../index.html" style="margin:14px 0 0;display:inline-flex;"><svg class="icon" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>ホームに戻る</a>
+  <h1 class="legal-title">お問い合わせ</h1>
+  <p class="legal-lead">本サービスに関するご質問・ご要望は下記フォームより受け付けています。予約済みのコース内容に関するご質問は、予約先のインストラクター・ショップへ直接お問い合わせいただくとスムーズです。</p>
+
+  <form class="cform" id="contactForm">
+    <div class="cform-group">
+      <label class="cform-label" for="cf-category">お問い合わせの種類<span class="req">必須</span></label>
+      <select class="cform-select" id="cf-category" required>
+        <option value="">選択してください</option>
+        <option value="booking">予約・キャンセルについて</option>
+        <option value="course">動画講座について</option>
+        <option value="listing">掲載希望（インストラクター・ショップ）</option>
+        <option value="privacy">個人情報の開示等の請求</option>
+        <option value="other">その他</option>
+      </select>
+    </div>
+    <div class="cform-group">
+      <label class="cform-label" for="cf-name">お名前<span class="req">必須</span></label>
+      <input class="cform-input" id="cf-name" type="text" placeholder="山田 太郎" required maxlength="100">
+    </div>
+    <div class="cform-group">
+      <label class="cform-label" for="cf-email">メールアドレス<span class="req">必須</span></label>
+      <input class="cform-input" id="cf-email" type="email" placeholder="your@email.com" required maxlength="200">
+    </div>
+    <div class="cform-group">
+      <label class="cform-label" for="cf-message">お問い合わせ内容<span class="req">必須</span></label>
+      <textarea class="cform-textarea" id="cf-message" required maxlength="4000" placeholder="できるだけ具体的にご記入ください"></textarea>
+    </div>
+    <div class="hp-field" aria-hidden="true">
+      <label>この欄には入力しないでください<input type="text" id="cf-website" tabindex="-1" autocomplete="off"></label>
+    </div>
+    <p class="cform-note">送信いただいた内容は<a href="privacy.html">プライバシーポリシー</a>に基づいて取り扱います。通常2〜3営業日以内にメールで返信します。</p>
+    <button class="cform-submit" type="submit" id="cfSubmit">
+      <svg class="icon" style="width:16px;height:16px;" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      送信する
+    </button>
+    <div class="cform-status" id="cfStatus"></div>
+  </form>
+</main>
+<footer class="foot">
+  <div class="foot-in">
+    <div class="foot-col"><h4>探す</h4><a href="../snorkeling.html">シュノーケリング</a><a href="../skindiving.html">スキンダイビング</a><a href="../freediving.html">フリーダイビング</a><a href="../explore/shops.html">ショップ/インストラクターを探す</a></div>
+    <div class="foot-col"><h4>学ぶ・読む</h4><a href="../learn/index.html">動画で学ぶ</a><a href="../media/index.html">記事・コラム</a></div>
+    <div class="foot-col"><h4>競技</h4><a href="../events/2026_competitions.html">大会情報</a><a href="../rankings/AIDA_ranking.html">国内ランキング</a></div>
+    <div class="foot-col"><h4>その他</h4><a href="../mypage.html">マイページ</a><a href="about.html">運営者情報</a><a href="terms.html">利用規約</a><a href="privacy.html">プライバシーポリシー</a><a href="tokushoho.html">特定商取引法に基づく表記</a><a href="contact.html">お問い合わせ</a></div>
+  </div>
+  <div class="foot-bottom"><div class="wrap">© 2026 FREEDIVING JAPAN（仮）</div></div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
+<script>
+(function () {
+  const form = document.getElementById('contactForm');
+  const btn = document.getElementById('cfSubmit');
+  const statusEl = document.getElementById('cfStatus');
+
+  function showStatus(type, msg) {
+    statusEl.className = 'cform-status ' + type;
+    statusEl.textContent = msg;
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // honeypot（botはこの欄を埋める）
+    if (document.getElementById('cf-website').value) return;
+
+    const payload = {
+      category: document.getElementById('cf-category').value,
+      name: document.getElementById('cf-name').value.trim(),
+      email: document.getElementById('cf-email').value.trim(),
+      message: document.getElementById('cf-message').value.trim()
+    };
+    if (!payload.category || !payload.name || !payload.email || !payload.message) return;
+
+    btn.disabled = true;
+    btn.textContent = '送信中…';
+    try {
+      const { error } = await _sb.from('contact_messages').insert(payload);
+      if (error) throw error;
+      form.reset();
+      showStatus('ok', 'お問い合わせを受け付けました。通常2〜3営業日以内に、ご入力いただいたメールアドレス宛に返信いたします。');
+      btn.textContent = '送信しました';
+    } catch (err) {
+      console.error('contact submit error:', err);
+      showStatus('ng', '送信に失敗しました。時間をおいて再度お試しください。');
+      btn.disabled = false;
+      btn.textContent = '送信する';
+    }
+  });
+})();
+</script>
+</body>
+</html>

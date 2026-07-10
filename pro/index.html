@@ -453,6 +453,21 @@ td.primary { color: var(--on-dark); font-weight: 500; }
       <label>説明</label>
       <textarea id="l-desc" placeholder="コースの詳細説明..."></textarea>
     </div>
+    <div class="form-group">
+      <label>対象レベル</label>
+      <select id="l-level">
+        <option value="">未設定</option>
+        <option value="完全初心者OK（泳ぎに自信がなくても可）">完全初心者OK（泳ぎに自信がなくても可）</option>
+        <option value="初心者OK（水慣れしていれば可）">初心者OK（水慣れしていれば可）</option>
+        <option value="経験者向け（体験・講習の受講経験あり）">経験者向け（体験・講習の受講経験あり）</option>
+        <option value="資格保持者向け（認定ライセンス必須）">資格保持者向け（認定ライセンス必須）</option>
+        <option value="競技者向け">競技者向け</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>到達目標（このコースでできるようになること）</label>
+      <textarea id="l-goal" placeholder="例：耳抜きとウェイト調整を覚え、水深5mまで自力で潜れるようになる" style="min-height:64px;"></textarea>
+    </div>
 
     <div class="form-row">
       <div class="form-group">
@@ -1674,6 +1689,8 @@ function openListingModal(listingId = null, duplicateFromId = null) {
       document.getElementById('l-cancel').value      = l.cancellation_policy || '';
       document.getElementById('l-bring').value       = l.what_to_bring   || '';
       document.getElementById('l-notes').value       = l.notes           || '';
+      document.getElementById('l-level').value       = l.target_level    || '';
+      document.getElementById('l-goal').value        = l.goal            || '';
       document.getElementById('l-tags').value        = (l.tags || []).join(', ');
       document.getElementById('l-image').value       = l.image_url       || '';
       document.getElementById('l-image-preview-wrap').innerHTML = l.image_url
@@ -1744,6 +1761,8 @@ async function saveListing() {
     cancellation_policy: document.getElementById('l-cancel').value.trim()        || null,
     what_to_bring:       document.getElementById('l-bring').value.trim()          || null,
     notes:               document.getElementById('l-notes').value.trim()          || null,
+    target_level:        document.getElementById('l-level').value                 || null,
+    goal:                document.getElementById('l-goal').value.trim()           || null,
     tags,
     facilities:          collectChecked('l-facilities'),
     rental_gear:         collectRentalGear(),
