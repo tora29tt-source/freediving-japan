@@ -208,6 +208,10 @@ textarea.fi { resize: vertical; min-height: 72px; }
 .btn { padding: 9px 20px; border-radius: var(--rs); font-size: 13px; font-weight: 700; cursor: pointer; border: none; transition: all .15s; }
 .btn-primary { background: var(--accent); color: #fff; }
 .btn-primary:hover { background: var(--accent2); }
+.btn:disabled { opacity: .6; cursor: not-allowed; pointer-events: none; }
+.btn-primary:disabled { background: var(--accent); }
+@keyframes btnSpin { to { transform: rotate(360deg); } }
+.btn-spin { display: inline-block; animation: btnSpin .7s linear infinite; }
 .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
 .btn-ghost:hover { color: var(--text); border-color: var(--accent); }
 .btn-sm { padding: 5px 12px; font-size: 12px; }
@@ -614,7 +618,7 @@ tr:last-child td { border-bottom: none; }
 
         <div class="form-foot">
           <button class="btn btn-ghost" onclick="resetForm()">リセット</button>
-          <button class="btn btn-primary" onclick="saveSession()">💾 保存する</button>
+          <button class="btn btn-primary" id="save-session-btn" onclick="saveSession()">💾 保存する</button>
         </div>
 
       </div>
@@ -2446,6 +2450,27 @@ function resetForm() {
 
 // ===== SAVE =====
 async function saveSession() {
+  // 連打・二重送信防止＋押した/処理中であることを明示
+  if (window._savingSession) return;
+  window._savingSession = true;
+  const saveBtn = document.getElementById('save-session-btn');
+  const saveBtnOrigHTML = saveBtn ? saveBtn.innerHTML : null;
+  if (saveBtn) {
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<span class="btn-spin">⏳</span> 保存中...';
+  }
+  try {
+    await saveSessionInner();
+  } finally {
+    window._savingSession = false;
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = saveBtnOrigHTML;
+    }
+  }
+}
+
+async function saveSessionInner() {
   // インターバルモードで「このダイブを追加」未クリックの場合、自動適用
   if (diveMode === 'interval' && !sessionDives.some(d => d.source === 'interval')) {
     const tableRows = [...document.querySelectorAll('#iv-sets-table tbody tr')];
