@@ -238,6 +238,8 @@ function avatarChar(name) {
   return esc((name || '?').trim().charAt(0));
 }
 
+let currentCourse = null; // purchaseCourse() から参照する
+
 async function loadCourse() {
   const slug = new URLSearchParams(location.search).get('slug');
   if (!slug) {
@@ -255,12 +257,29 @@ async function loadCourse() {
     renderState('この講座はまだ公開されていません', '公開まで今しばらくお待ちください。<br><a href="index.html">講座一覧</a>へ戻る。');
     return;
   }
+  currentCourse = course;
 
   const { data: chapters } = await _sb
     .from('course_chapters')
     .select('chapter_num, title, vimeo_id')
     .eq('course_id', course.id)
     .order('chapter_num', { ascending: true });
+
+  // 動画が1本も無いうちは販売しない（撮影・アップロード完了後、chapters.vimeo_idが入ってから購入可能にする）
+  const hasContent = (chapters || []).some(function(ch) { return !!ch.vimeo_id; });
+
+  // ログイン中なら購入済みかどうかも確認し、ボタンの出し分けに使う
+  let purchaseStatus = null;
+  const { data: { session } } = await _sb.auth.getSession();
+  if (session && hasContent) {
+    const { data: purchase } = await _sb
+      .from('course_purchases')
+      .select('status')
+      .eq('course_id', course.id)
+      .eq('user_id', session.user.id)
+      .maybeSingle();
+    purchaseStatus = purchase?.status || null;
+  }
 
   const levelClass = LEVEL_LABEL_CLASS[course.category] || 'level-beginner';
   const catJp = CAT_JP[course.category] || '';
@@ -275,6 +294,15 @@ async function loadCourse() {
       '</div>' +
     '</div>';
   }).join('');
+
+  let buyButtonHtml;
+  if (purchaseStatus === 'paid') {
+    buyButtonHtml = '<a href="../mypage.html" class="btn-buy" style="text-decoration:none;display:inline-block">視聴する</a>';
+  } else if (hasContent) {
+    buyButtonHtml = '<button class="btn-buy" id="buyBtn" onclick="purchaseCourse()">購入する</button>';
+  } else {
+    buyButtonHtml = '<button class="btn-buy soon" disabled>準備中（撮影完了後に購入可能になります）</button>';
+  }
 
   document.getElementById('courseContent').innerHTML =
     '<div class="course-hero">' +
@@ -294,7 +322,7 @@ async function loadCourse() {
       (course.description ? '<p class="course-desc">' + esc(course.description) + '</p>' : '') +
       '<div class="course-footer">' +
         '<div class="course-price">¥' + Number(course.price).toLocaleString('ja-JP') + '<small>（税込）</small></div>' +
-        '<button class="btn-buy soon" disabled>準備中（撮影完了後に購入可能になります）</button>' +
+        buyButtonHtml +
       '</div>' +
     '</div>' +
 
@@ -302,6 +330,46 @@ async function loadCourse() {
       '<div class="section-heading"><div class="sh-line"></div><div class="sh-label">カリキュラム</div><div class="sh-line"></div></div>' +
       '<div class="chapter-list">' + chapterRows + '</div>'
     ) : '');
+}
+
+async function purchaseCourse() {
+  if (!currentCourse) return;
+
+  const { data: { session } } = await _sb.auth.getSession();
+  if (!session) {
+    location.href = '../auth.html?next=' + encodeURIComponent(location.pathname + location.search);
+    return;
+  }
+
+  const btn = document.getElementById('buyBtn');
+  if (btn) { btn.disabled = true; btn.textContent = '処理中...'; }
+
+  try {
+    const res = await fetch('/api/create-course-checkout-session', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + session.access_token,
+      },
+      body: JSON.stringify({ courseId: currentCourse.id }),
+    });
+    const json = await res.json();
+
+    if (!res.ok) {
+      if (json.alreadyPurchased) {
+        location.href = '../mypage.html';
+        return;
+      }
+      alert(json.error || '購入処理でエラーが発生しました');
+      if (btn) { btn.disabled = false; btn.textContent = '購入する'; }
+      return;
+    }
+
+    location.href = json.url;
+  } catch (e) {
+    alert('通信エラーが発生しました。もう一度お試しください');
+    if (btn) { btn.disabled = false; btn.textContent = '購入する'; }
+  }
 }
 
 loadCourse();

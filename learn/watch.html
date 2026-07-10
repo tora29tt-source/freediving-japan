@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>動画を見る — フリーダイビングを学ぶ — Freediving Japan</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ocean-deep: #0b2d45; --ocean-mid: #0e3d5c; --abyss: #04161f;
+  --teal: #2ec4b6; --teal-light: #a8ece8; --warm: #f97316;
+  --on-dark: rgba(255,255,255,0.92); --on-dark-mid: rgba(255,255,255,0.62);
+  --on-dark-soft: rgba(255,255,255,0.40); --hairline: rgba(168,236,232,0.14);
+  --glass: rgba(255,255,255,0.045);
+}
+html { background: var(--abyss); }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  background: linear-gradient(180deg, var(--ocean-mid) 0%, var(--ocean-deep) 22%, #06283a 55%, var(--abyss) 100%);
+  background-attachment: fixed; color: var(--on-dark); min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+.icon { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; display: block; }
+
+.header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(6,32,46,0.55); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--hairline);
+  padding: 0 20px; height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo { font-size: 16px; font-weight: 600; color: var(--on-dark); letter-spacing: 0.18em; text-transform: uppercase; text-decoration: none; }
+.logo span { color: var(--teal); }
+.icon-btn {
+  display: flex; align-items: center; gap: 6px; padding: 7px 14px 7px 10px; border-radius: 100px;
+  background: transparent; border: 1px solid var(--hairline); color: var(--on-dark-mid);
+  font-size: 12px; font-weight: 500; letter-spacing: 0.04em; text-decoration: none;
+}
+.icon-btn .icon { width: 16px; height: 16px; }
+
+.container { max-width: 820px; margin: 0 auto; padding: 32px 20px 80px; }
+.back-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--on-dark-soft); text-decoration: none; font-size: 13px; margin-bottom: 20px;
+}
+.back-link:hover { color: var(--teal-light); }
+
+.course-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+.course-sub { font-size: 12px; color: var(--on-dark-soft); margin-bottom: 24px; }
+
+.player-wrap {
+  position: relative; width: 100%; aspect-ratio: 16/9;
+  background: rgba(0,0,0,0.4); border: 1px solid var(--hairline); border-radius: 14px;
+  overflow: hidden; margin-bottom: 8px;
+  display: flex; align-items: center; justify-content: center;
+}
+.player-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+.player-empty { text-align: center; color: var(--on-dark-soft); font-size: 13px; padding: 20px; }
+.now-playing { font-size: 13px; color: var(--on-dark-mid); margin-bottom: 28px; }
+
+.section-heading { display: flex; align-items: center; gap: 10px; margin: 8px 0 16px; }
+.sh-line { flex: 1; height: 1px; background: var(--hairline); }
+.sh-label { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--on-dark-soft); font-weight: 500; white-space: nowrap; }
+
+.chapter-list { display: flex; flex-direction: column; gap: 8px; }
+.chapter-row {
+  display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 10px;
+  background: rgba(255,255,255,0.03); border: 1px solid var(--hairline);
+  cursor: pointer; transition: border-color 0.2s, background 0.2s;
+}
+.chapter-row.ready:hover { border-color: var(--teal); background: rgba(46,196,182,0.06); }
+.chapter-row.active { border-color: var(--teal); background: rgba(46,196,182,0.1); }
+.chapter-row.disabled { cursor: default; opacity: 0.55; }
+.chapter-num {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  background: rgba(46,196,182,0.12); color: var(--teal);
+  display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700;
+}
+.chapter-body { flex: 1; min-width: 0; }
+.chapter-title { font-size: 13px; font-weight: 600; }
+.chapter-status { font-size: 11px; color: var(--on-dark-soft); margin-top: 2px; }
+
+.state-screen { text-align: center; padding: 80px 20px; color: var(--on-dark-mid); }
+.state-screen h2 { font-size: 18px; margin-bottom: 10px; color: var(--on-dark); }
+.state-screen p { font-size: 13px; line-height: 1.7; }
+.state-screen a { color: var(--teal-light); }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <a href="../index.html" class="logo">FREEDIVING <span>JAPAN</span></a>
+  <a href="../mypage.html" class="icon-btn">
+    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+    マイページ
+  </a>
+</header>
+
+<div class="container">
+  <a href="../mypage.html" class="back-link">
+    <svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24" stroke="currentColor" fill="none"><path d="M15 19l-7-7 7-7"/></svg>
+    マイページへ戻る
+  </a>
+
+  <div id="watchContent"><div class="state-screen">読み込み中...</div></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
+<script>
+function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+// Vimeo IDのみ許可（英数字とハイフンのみ）。iframe src への不正値混入を防ぐ
+function safeVimeoId(id) {
+  return /^[a-zA-Z0-9_-]+$/.test(String(id || '')) ? String(id) : null;
+}
+
+let chaptersData = [];
+
+function renderPlayer(chapter) {
+  const wrap = document.getElementById('playerWrap');
+  const now  = document.getElementById('nowPlaying');
+  if (!wrap) return;
+
+  const vid = chapter ? safeVimeoId(chapter.vimeo_id) : null;
+  if (vid) {
+    wrap.innerHTML = '<iframe src="https://player.vimeo.com/video/' + vid + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
+    if (now) now.textContent = '第' + chapter.chapter_num + '回：' + chapter.title;
+  } else {
+    wrap.innerHTML = '<div class="player-empty">この講座の動画は現在準備中です。<br>撮影・編集が完了次第、順次公開します。</div>';
+    if (now) now.textContent = '';
+  }
+
+  document.querySelectorAll('.chapter-row').forEach(function(row) {
+    row.classList.toggle('active', chapter && row.dataset.num == chapter.chapter_num);
+  });
+}
+
+function selectChapter(num) {
+  const ch = chaptersData.find(function(c) { return c.chapter_num == num; });
+  if (!ch || !ch.vimeo_id) return;
+  renderPlayer(ch);
+}
+
+function renderState(title, body) {
+  document.getElementById('watchContent').innerHTML =
+    '<div class="state-screen"><h2>' + esc(title) + '</h2><p>' + body + '</p></div>';
+}
+
+async function loadWatch() {
+  const slug = new URLSearchParams(location.search).get('slug');
+  if (!slug) {
+    renderState('講座が見つかりません', '<a href="index.html">講座一覧</a>からお探しください。');
+    return;
+  }
+
+  const { data: { session } } = await _sb.auth.getSession();
+  if (!session) {
+    location.href = '../auth.html?next=' + encodeURIComponent(location.pathname + location.search);
+    return;
+  }
+
+  const { data: course, error: courseErr } = await _sb
+    .from('courses')
+    .select('id, slug, title, instructor_name')
+    .eq('slug', slug)
+    .single();
+
+  if (courseErr || !course) {
+    renderState('講座が見つかりません', '<a href="index.html">講座一覧</a>からお探しください。');
+    return;
+  }
+
+  const { data: purchase } = await _sb
+    .from('course_purchases')
+    .select('status')
+    .eq('course_id', course.id)
+    .eq('user_id', session.user.id)
+    .maybeSingle();
+
+  if (purchase?.status !== 'paid') {
+    renderState('この講座はまだ購入されていません', '<a href="course.html?slug=' + encodeURIComponent(slug) + '">講座詳細ページ</a>から購入してください。');
+    return;
+  }
+
+  const { data: chapters } = await _sb
+    .from('course_chapters')
+    .select('chapter_num, title, vimeo_id')
+    .eq('course_id', course.id)
+    .order('chapter_num', { ascending: true });
+
+  chaptersData = chapters || [];
+
+  const chapterRows = chaptersData.map(function(ch) {
+    const ready = !!ch.vimeo_id;
+    return '<div class="chapter-row ' + (ready ? 'ready' : 'disabled') + '" data-num="' + ch.chapter_num + '"' +
+      (ready ? ' onclick="selectChapter(' + ch.chapter_num + ')"' : '') + '>' +
+      '<div class="chapter-num">' + ch.chapter_num + '</div>' +
+      '<div class="chapter-body">' +
+        '<div class="chapter-title">' + esc(ch.title) + '</div>' +
+        '<div class="chapter-status">' + (ready ? '再生する' : '動画準備中') + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  document.getElementById('watchContent').innerHTML =
+    '<div class="course-title">' + esc(course.title) + '</div>' +
+    '<div class="course-sub">' + esc(course.instructor_name || '') + '</div>' +
+    '<div class="player-wrap" id="playerWrap"></div>' +
+    '<div class="now-playing" id="nowPlaying"></div>' +
+    (chaptersData.length ? (
+      '<div class="section-heading"><div class="sh-line"></div><div class="sh-label">カリキュラム</div><div class="sh-line"></div></div>' +
+      '<div class="chapter-list">' + chapterRows + '</div>'
+    ) : '');
+
+  const firstReady = chaptersData.find(function(c) { return !!c.vimeo_id; });
+  renderPlayer(firstReady || null);
+}
+
+loadWatch();
+</script>
+</body>
+</html>

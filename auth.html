@@ -324,10 +324,19 @@ body {
 </a>
 
 <script>
+// ログイン後の戻り先（?next=）。他オリジンへのオープンリダイレクトを防ぐため、
+// 相対パス（"/"始まり・"//"や":"を含まない）のみ許可する（S5と同様の考え方）
+function safeNextPath() {
+  const next = new URLSearchParams(location.search).get('next');
+  if (!next) return null;
+  if (!next.startsWith('/') || next.startsWith('//') || next.includes(':')) return null;
+  return next;
+}
+
 // OAuthコールバック・メール確認リンク含め、セッション確立を検知してリダイレクト
 _sb.auth.onAuthStateChange((event, session) => {
   if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
-    window.location.replace('mypage.html');
+    window.location.replace(safeNextPath() || 'mypage.html');
   }
 });
 

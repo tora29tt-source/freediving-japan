@@ -55,8 +55,45 @@ export default async function handler(req, res) {
       // ── 決済完了 ──
       case 'checkout.session.completed': {
         const session = event.data.object;
-        const bookingId = session.metadata?.booking_id;
-        const slotId    = session.metadata?.slot_id;
+        const bookingId  = session.metadata?.booking_id;
+        const slotId     = session.metadata?.slot_id;
+        const purchaseId = session.metadata?.purchase_id; // /learn/ 講座購入（bookingとは排他）
+
+        // ── 講座購入（course_purchases）の場合 ──
+        if (purchaseId) {
+          const { data: existingPurchase, error: fetchPurchaseErr } = await supabase
+            .from('course_purchases')
+            .select('status')
+            .eq('id', purchaseId)
+            .single();
+
+          if (fetchPurchaseErr) {
+            console.error('Failed to fetch course_purchase:', fetchPurchaseErr.message);
+            return res.status(500).json({ error: 'Failed to fetch course_purchase' });
+          }
+
+          if (existingPurchase.status === 'paid') {
+            console.log(`⏭️ Course already paid, skipping: ${purchaseId}`);
+            break;
+          }
+
+          const { error: updatePurchaseErr } = await supabase
+            .from('course_purchases')
+            .update({
+              status:                    'paid',
+              stripe_payment_intent_id:  session.payment_intent,
+              purchased_at:              new Date().toISOString(),
+            })
+            .eq('id', purchaseId);
+
+          if (updatePurchaseErr) {
+            console.error('Failed to update course_purchase status:', updatePurchaseErr.message);
+            return res.status(500).json({ error: 'Failed to update course_purchase' });
+          }
+
+          console.log(`✅ Course purchase paid: ${purchaseId}`);
+          break;
+        }
 
         if (!bookingId) break;
 
@@ -112,7 +149,16 @@ export default async function handler(req, res) {
       // ── セッション期限切れ（キャンセル扱い）──
       case 'checkout.session.expired': {
         const session = event.data.object;
-        const bookingId = session.metadata?.booking_id;
+        const bookingId  = session.metadata?.booking_id;
+        const purchaseId = session.metadata?.purchase_id;
+
+        // 講座購入の期限切れは course_purchases を pending のまま残す
+        // （UNIQUE(user_id, course_id) upsert 設計のため、次回購入操作時に自動的に作り直される。DB変更不要）
+        if (purchaseId) {
+          console.log(`⚠️ Course checkout expired (left as pending for retry): ${purchaseId}`);
+          break;
+        }
+
         if (!bookingId) break;
 
         await supabase

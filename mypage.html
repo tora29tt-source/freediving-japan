@@ -577,6 +577,15 @@ body { padding-bottom: 72px; }
     </div>
   </div>
 
+  <!-- 学んだ講座（/learn/ 有料講座。購入済みが無ければ非表示） -->
+  <div class="section" id="learnSection" style="display:none;">
+    <div class="sec-head">
+      <div class="sec-title">学んだ講座</div>
+      <a class="sec-link" href="learn/index.html">講座一覧 →</a>
+    </div>
+    <div class="menu-grid" id="learnCoursesList"></div>
+  </div>
+
   <!-- 講習・ツアー管理 -->
   <div class="section">
     <div class="sec-head">
@@ -1207,6 +1216,44 @@ async function loadMypageData() {
 
   // 予約履歴
   await loadBookingHistory(user.email);
+
+  // 学んだ講座（/learn/ 購入済み一覧）
+  await loadLearnedCourses(user.id);
+}
+
+// 学んだ講座（course_purchases: status=paid のみ）
+async function loadLearnedCourses(userId) {
+  const section = document.getElementById('learnSection');
+  const list    = document.getElementById('learnCoursesList');
+  if (!section || !list) return;
+
+  const { data: purchases, error } = await _sb
+    .from('course_purchases')
+    .select('purchased_at, courses(slug, title, instructor_name)')
+    .eq('user_id', userId)
+    .eq('status', 'paid')
+    .order('purchased_at', { ascending: false });
+
+  if (error || !purchases || !purchases.length) {
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = '';
+  list.innerHTML = purchases
+    .filter(p => p.courses)
+    .map(p => {
+      const c = p.courses;
+      return '<a href="learn/watch.html?slug=' + encodeURIComponent(c.slug) + '" class="menu-card wide" style="text-decoration:none;">' +
+        '<span class="menu-icon">🎬</span>' +
+        '<div class="menu-body">' +
+          '<div class="menu-title">' + esc(c.title) + '</div>' +
+          '<div class="menu-sub">' + esc(c.instructor_name || '') + '</div>' +
+        '</div>' +
+        '<span class="menu-arrow">›</span>' +
+      '</a>';
+    })
+    .join('');
 }
 
 // 今月のサマリー描画
