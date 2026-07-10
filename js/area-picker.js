@@ -68,7 +68,14 @@
     if (e.key === 'Escape' && openState) { const inp = openState.input; closeOpen(); inp.blur(); }
   });
   window.addEventListener('resize', closeOpen);
-  window.addEventListener('scroll', () => { if (openState) closeOpen(); }, true);
+  // ページ本体のスクロールでのみ閉じる。パネル内部（候補リスト）のスクロールでは閉じない。
+  // ※ scrollイベントはbubbleしないが、capture:trueで登録するとwindow→…→targetの下り経路で拾えるため、
+  //   パネル内部のoverflow-y:autoスクロールもここに届いてしまう点に注意。
+  window.addEventListener('scroll', (e) => {
+    if (!openState) return;
+    if (openState.panel.contains(e.target)) return;
+    closeOpen();
+  }, true);
 
   function buildSectionHTML(input, query) {
     const q = (query || '').trim();

@@ -149,11 +149,13 @@ td.primary { color: var(--on-dark); font-weight: 500; }
 .cal-daynum { font-size: 12px; font-weight: 600; color: var(--on-dark-soft); }
 .cal-cell.has-slot .cal-daynum { color: var(--on-dark); }
 .cal-cell.today .cal-daynum { color: var(--teal); font-weight: 700; }
-.cal-cell-foot { display: flex; align-items: center; justify-content: space-between; }
-.cal-dots { display: flex; gap: 3px; flex-wrap: wrap; }
-.cal-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
-.cal-dot.full { background: var(--on-dark-soft); }
-.cal-count { font-size: 9px; font-weight: 700; color: var(--teal); }
+.cal-slot-lines { display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
+.cal-slot-line { display: flex; align-items: center; justify-content: space-between; gap: 4px; font-size: 9px; line-height: 1.3; white-space: nowrap; }
+.cal-slot-time { color: var(--on-dark-soft); flex-shrink: 0; }
+.cal-avail-text { font-weight: 700; overflow: hidden; text-overflow: ellipsis; }
+.cal-avail-text.avail { color: var(--green); }
+.cal-avail-text.full  { color: var(--on-dark-soft); }
+.cal-more { font-size: 8px; color: var(--on-dark-soft); margin-top: 1px; }
 
 .day-list-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
 .day-list-title { font-size: 13px; font-weight: 600; color: var(--on-dark); }
@@ -1905,13 +1907,20 @@ function renderSlotsCalendar() {
       dateStr === todayStr ? 'today' : '',
       dateStr === _calSelectedDate ? 'selected' : '',
     ].filter(Boolean).join(' ');
-    const dotsHtml  = daySlots.length
-      ? `<div class="cal-dots">${daySlots.slice(0,4).map(s => `<span class="cal-dot ${s.is_active?'':'full'}"></span>`).join('')}</div>`
-      : '<span></span>';
-    const countHtml = daySlots.length ? `<span class="cal-count">${daySlots.length}</span>` : '';
+    const MAX_LINES = 3;
+    const linesHtml = daySlots.slice(0, MAX_LINES).map(s => {
+      const remaining = (s.max_participants || 0) - (s.booked_count || 0);
+      let label, statusCls;
+      if (s.is_active === false)   { label = '無効';           statusCls = 'full'; }
+      else if (remaining <= 0)     { label = '満席';           statusCls = 'full'; }
+      else                          { label = `空き${remaining}`; statusCls = 'avail'; }
+      const time = (s.start_time || '').slice(0, 5);
+      return `<div class="cal-slot-line"><span class="cal-slot-time">${time}</span><span class="cal-avail-text ${statusCls}">${label}</span></div>`;
+    }).join('');
+    const moreHtml = daySlots.length > MAX_LINES ? `<div class="cal-more">+${daySlots.length - MAX_LINES}件</div>` : '';
     html += `<div class="cal-cell ${cls}" onclick="selectSlotDate('${dateStr}')">
       <span class="cal-daynum">${day}</span>
-      <div class="cal-cell-foot">${dotsHtml}${countHtml}</div>
+      <div class="cal-slot-lines">${linesHtml}${moreHtml}</div>
     </div>`;
   }
 
