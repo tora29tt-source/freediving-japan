@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-07-09T00:08:18Z",
+  "updatedAt": "2026-07-10T00:04:09Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -2175,8 +2175,8 @@
       "type": "Pool Competition",
       "venue": "Al Furjan Club",
       "cityCountry": "Dubai, United Arab Emirates",
-      "startDate": "2026-07-22",
-      "endDate": "2026-07-22",
+      "startDate": "2026-07-21",
+      "endDate": "2026-07-21",
       "link": "https://www.aidainternational.org/Events/EventDetails-5181",
       "month": 7,
       "cat": "pool"
