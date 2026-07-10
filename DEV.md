@@ -235,7 +235,7 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 **背景**：旧6値（フリーダイビング体験／スキンダイビング体験／スクール・資格取得／トレーニング・アスリート向け／ツアー・ガイド／その他）は「ダイビング種別」と「目的」が混在しており、ホームの3ピラー（シュノーケル／スキン／フリー）に対応するcategory値が存在しなかった（特にシュノーケルに相当する値が皆無）。そのため`snorkeling.html`/`skindiving.html`は実データ接続ができず静的モックのまま、`freediving.html`はcategory一致＋タイトルキーワードOR条件という力技で絞り込んでいた。
 
 - `category`を「ダイビング種別」専用の4値（**シュノーケリング／スキンダイビング／フリーダイビング／その他**）に統一。ダイビング種別軸(category) × 目的軸(intent) の組み合わせで表現する方針に変更
-- ピラーページのchips（「体験ツアー」「認定コース」等）をDB分類（tags列）に紐付ける案は見送り、従来通り装飾的なリンクのまま据え置き
+- ピラーページのchips（「体験ツアー」「認定コース」等）をDB分類（tags列）に紐付ける案は当初見送ったが、同日中に再検討して実装（詳細は下記「ピラーページの人気タグチップ」参照）
 - `intent`の`dive`→`fundive`/`training`/`coaching`分割（`sql/intent_taxonomy_update_20260708.sql`）も同時に本番適用する
 - **DB移行**：`sql/category_taxonomy_update_20260710.sql`・`sql/intent_taxonomy_update_20260708.sql`ともに**2026-07-10 Supabase本番に実行済み**（intent側は制約追加とデータ移行の順序が逆になっていたバグを発見・修正してから実行）。categoryの既存リスティング再分類はタイトルキーワードによる推測移行のため、admin画面で目視確認推奨
 - **実装済み**：`pro/index.html`（カテゴリselect→新4値、検索タブ分類select→try/learn/fundive/training/coaching）／`admin/index.html`（カテゴリ名入力欄のプレースホルダーを新値に更新。intentのselectは元から新分類対応済みだった）／`index.html`（フリー枠の絞り込みにcategory条件を追加し、他種目の商品が紛れ込むのを修正）／`snorkeling.html`・`skindiving.html`（freediving.html同様にSupabase実データ接続を追加。該当0件時はモックを残す方針でfreediving.htmlより安全側に倒した）／`freediving.html`（category一致のみのシンプルなクエリに整理、タイトルキーワードOR条件を廃止）
@@ -497,8 +497,8 @@ TOP (index.html)  ── Airbnb風マーケットプレイス（白基調）
 |ページ・機能                                              |状況                          |
 |----------------------------------------------------|----------------------------|
 |トップページ（index.html）                                  |✅ Airbnb風マーケットプレイスに全面刷新（2026-07-03）。白基調・検索バー・ピラータブでその場切替・横スクロールカード列。**カード内容は代表ダミー（値段/★/レビュー数）で実データ差し替えは未**|
-|ピラー専用3ページ（snorkeling/skindiving/freediving.html）    |✅ 新設（2026-07-03）。種目別の検索＋関連カテゴリチップ＋体験カード＋記事リスト。共通 css/home.css・js/home.js|
-|検索バー連携（トップ／ピラー → explore）                      |✅ 実装（2026-07-03）。js/home.js が q/area/intent を組み立て /explore/ へ遷移。explore 側は applyUrlParams() で URL パラメータを読み初期絞り込み。**日程(date)は listings に該当データが無く現状フィルタ未使用**|
+|ピラー専用3ページ（snorkeling/skindiving/freediving.html）    |✅ 新設（2026-07-03）。種目別の検索＋関連カテゴリチップ＋体験カード＋記事リスト。共通 css/home.css・js/home.js。**2026-07-10：category(ダイビング種別)タクソノミー整理に伴い3ページとも実データ接続化。人気タグ集計チップ（`loadPopularTags()`）も追加**|
+|検索バー連携（トップ／ピラー → explore）                      |✅ 実装（2026-07-03）。js/home.js が q/area/intent を組み立て /explore/ へ遷移。explore 側は applyUrlParams() で URL パラメータを読み初期絞り込み。**日程(date)は listings に該当データが無く現状フィルタ未使用**。**2026-07-10：`tag`パラメータ対応を追加（ピラーページの人気タグチップから絞り込み済みで遷移）**|
 |ランキング（AIDA_ranking_prototype.html / site/index.html）|✅ 完成                        |
 |大会情報（2026_competitions.html）                        |✅ 完成                        |
 |トレーニングログ（training-log.html）                         |✅ Supabase接続・保存・読み込み・編集・URLシェア・カレンダー表示実装済み。バグ修正済み（2026-06-29：一覧表示崩れ・編集フォーム空白・タブ遷移時フォームリセット・ベストタイム計算）|
@@ -525,7 +525,7 @@ TOP (index.html)  ── Airbnb風マーケットプレイス（白基調）
 |売り上げ管理タブ（pro/index.html）                              |✅ 実装済み（月次サマリー・棒グラフ・明細一覧・期間フィルタ）|
 |/learn/ 有料講座ページ                                      |✅ learn/index.html 骨格完成・トップからリンク済み（先行通知機能なし・購入ボタンは準備中表示。Stripe/Vimeo接続は撮影後）|
 |メディア（/media/）                                        |✅ 基盤完成・media/ 一本化（2026-06-29）index.html Supabase動的取得・article.html 記事詳細。CMS は admin/index.html メディアタブに統合。articles テーブル・カテゴリ9区分・RLS設定・初記事2本投入済み。articles/ → _old/ 退避済み。スマホ対応・ヘッダー統一済み|
-|サイト動線整備（2026-07-08）                             |✅ sitemap.xml/robots.txt/404.html 新設。skindiving/snorkeling/learn のフッターに大会・ランキング導線追加でナビ統一。行き止まり4ページ（AIDA_ranking/mouthfill/event-athlete/freediving-learn）に戻る導線追加。buoyancy の死にリンク（/tools/）修正。tools/session-planner.html 削除。**残課題：event-athlete/freediving-learn/instructor-welcome はどこからもリンクされていない（意図確認要）**|
+|サイト動線整備（2026-07-08）                             |✅ sitemap.xml/robots.txt/404.html 新設。skindiving/snorkeling/learn のフッターに大会・ランキング導線追加でナビ統一。行き止まり4ページ（AIDA_ranking/mouthfill/event-athlete/freediving-learn）に戻る導線追加。buoyancy の死にリンク（/tools/）修正。tools/session-planner.html 削除。**孤立ページ方針（2026-07-10決定）**：3ページとも公開ナビへの掲載は不要と判断。①`events/event-athlete.html`——大会管理画面（event-staff.html等）から主催者が選手ごとに個別URLを発行して共有する「選手用画面」という設計。**2026-07-10実装**：`event-staff.html`概要タブに「選手用ページ」カードを追加し、`event-athlete.html?id=<大会ID>`のURLを自動生成・ワンクリックコピーできるようにした（`copyAthleteLink()`）。②`learn/freediving-learn.html`——「フリーダイビングを学ぶ」動画コースの制作進捗管理ツール（チャプター追加・ステータス切替・メモ）で、Takuya向けの内製コンテンツ管理画面であり公開ページではない。③`pro/instructor-welcome.html`——リリース時に扱いを再検討（保留）。|
 |検索UI刷新・SVG地図検索（2026-07-08）                        |✅ 検索の重複UIを大胆に統合＋地図検索を自前SVG化。①explore/index.html：検索バーの「タイプ」selectを削除（intentタブに一本化）、都道府県`<select>`を廃止しフリーテキスト検索対象に`prefecture`を追加（?pref=リンクは検索語として互換維持）、条件・価格帯は「こだわり条件」折りたたみ（選択数バッジ付き）に集約。②地図：Google Maps依存を全廃（js/maps-config.js削除・APIキー不要）し、`js/area-map.js`（ブランドカラーのデフォルメSVG日本地図＋南西諸島拡大枠＋件数ピル。クリック絞込・再クリック解除・0件は減光・人気3エリアはパルス強調）を新設。explore はデフォルト表示、shops.html にも同コンポーネント導入（トグル式・ショップ/インストラクター件数連動）。③トップ＋ピラー3ページの検索バーからもタイプselect削除（エリア＋日程のみ）。スタイルは css/home.css の `.fj-*`/`.adv-*` に共通定義。**実機ブラウザでの表示確認は未実施**|
 |iOSアプリ（React Native）                                 |🔄 開発中（環境構築済み・Expo Go動作確認済み。タブバー・ログ・Supabase連携・SNSシェアが未実装）|
 

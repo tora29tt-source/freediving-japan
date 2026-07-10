@@ -478,6 +478,20 @@ body.role-readonly .role-judge-edit{pointer-events:none;opacity:0.45;cursor:not-
       </div>
     </div>
 
+    <!-- 選手用ページ -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">選手用ページ</span>
+      </div>
+      <div style="padding:16px;display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:12px;color:var(--muted);">このURLを選手に共有すると、AP登録・スタートリスト・リザルト確認ができます（ログイン不要）。</div>
+        <div style="display:flex;gap:8px;">
+          <input class="fi" id="ov-athlete-link" readonly style="flex:1;font-size:12px;color:var(--sub);" onclick="this.select()">
+          <button class="btn btn-sm" id="ov-athlete-link-btn" onclick="copyAthleteLink()" style="flex-shrink:0;">🔗 コピー</button>
+        </div>
+      </div>
+    </div>
+
     <!-- 危険ゾーン：大会削除 -->
     <div class="card role-org-only" style="border-color:rgba(239,68,68,0.3);margin-top:0;">
       <div class="card-header" style="border-bottom-color:rgba(239,68,68,0.2);">
@@ -1435,6 +1449,8 @@ function initOverview() {
   var id = new URLSearchParams(location.search).get('id');
   if (!id) return;
   _currentEventId = id;
+  var linkEl = document.getElementById('ov-athlete-link');
+  if (linkEl) linkEl.value = location.origin + '/events/event-athlete.html?id=' + id;
   _sb.from('events')
     .select('name,date,date_end,location,disciplines,notes,venue_type,max_depth,organizer,entry_fee,entry_deadline,aida_id')
     .eq('id', id).single()
@@ -1476,6 +1492,18 @@ function initOverview() {
       // 日程ラベルをロード（日付フィールドの値が入ってから実行）
       loadDayLabels();
     });
+}
+
+function copyAthleteLink() {
+  var linkEl = document.getElementById('ov-athlete-link');
+  var btn = document.getElementById('ov-athlete-link-btn');
+  if (!linkEl || !linkEl.value) return;
+  navigator.clipboard.writeText(linkEl.value).then(function() {
+    if (!btn) return;
+    var original = btn.textContent;
+    btn.textContent = '✅ コピーしました';
+    setTimeout(function() { btn.textContent = original; }, 2000);
+  });
 }
 
 // ── 日程ラベル ──────────────────────────────────────────

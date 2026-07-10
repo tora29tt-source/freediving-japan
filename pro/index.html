@@ -489,9 +489,9 @@ td.primary { color: var(--on-dark); font-weight: 500; }
     </div>
 
     <div class="form-group">
-      <label>人気スポット（任意）</label>
+      <label>検索エリア（任意）</label>
       <select id="l-area" onchange="toggleAreaOther(this)">
-        <option value="">なし（都道府県のみで検索対象になります）</option>
+        <option value="">選択しない（都道府県名のみで検索対象になります）</option>
         <option value="沖縄">沖縄</option>
         <option value="石垣島">石垣島</option>
         <option value="宮古島">宮古島</option>
@@ -506,9 +506,10 @@ td.primary { color: var(--on-dark); font-weight: 500; }
         <option value="紀伊半島">紀伊半島</option>
         <option value="瀬戸内">瀬戸内</option>
         <option value="北海道">北海道</option>
-        <option value="__other__">その他（探すページの人気スポットチップ対象外になります）</option>
+        <option value="__other__">リストにないエリア名を入力する</option>
       </select>
       <input type="text" id="l-area-other" placeholder="例：知床" style="margin-top:8px;display:none;">
+      <p class="form-hint">探すページの地図・エリアチップで絞り込まれる際に使われる項目です。リストになければ「リストにないエリア名を入力する」を選ぶと自由入力できますが、地図・チップの絞り込み対象にはならず、テキスト検索でのみヒットします。</p>
     </div>
 
     <div class="form-row">
