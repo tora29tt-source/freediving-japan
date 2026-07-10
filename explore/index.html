@@ -24,17 +24,6 @@
 /* ── 検索バーはホームと共通のsearchbar/sb-*コンポーネントをそのまま使用（CSSはhome.css側で定義済み） ── */
 
 /* ── intent tabs ── */
-.intent-tabs { display: flex; gap: 8px; margin-bottom: 22px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
-.intent-tabs::-webkit-scrollbar { display: none; }
-.intent-tab { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 12px 16px; border-radius: 14px; border: 1px solid var(--line-strong); background: #fff; cursor: pointer; transition: border-color 0.2s, background 0.2s; min-width: 100px; }
-.intent-tab.active { border-color: var(--ink); background: var(--ink); }
-.intent-tab-icon { width: 32px; height: 32px; border-radius: 50%; background: #f3f3f5; display: flex; align-items: center; justify-content: center; color: var(--teal-deep); }
-.intent-tab.active .intent-tab-icon { background: rgba(255,255,255,0.16); color: #fff; }
-.intent-tab-icon .icon { width: 16px; height: 16px; }
-.intent-tab-label { font-size: 11px; font-weight: 600; color: var(--ink-mid); letter-spacing: 0.02em; text-align: center; line-height: 1.4; white-space: nowrap; }
-.intent-tab.active .intent-tab-label { color: #fff; }
-.intent-tab-count { font-size: 10px; color: var(--ink-soft); font-family: ui-monospace, monospace; }
-.intent-tab.active .intent-tab-count { color: rgba(255,255,255,0.7); }
 
 /* ── filters ── */
 .filter-section { margin-bottom: 20px; }
@@ -243,28 +232,6 @@
     <p class="filter-hint" id="dateHint" style="display:none">この日以降に空きがあるプランを表示中 · <button class="date-clear-btn" onclick="clearDate()" type="button">クリア</button></p>
   </div>
 
-  <div class="intent-tabs" id="intentTabs">
-    <button class="intent-tab active" data-intent="all" onclick="setIntent(this,'all')">
-      <div class="intent-tab-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
-      <span class="intent-tab-label">すべて</span>
-      <span class="intent-tab-count" id="count-all">—</span>
-    </button>
-    <button class="intent-tab" data-intent="try" onclick="setIntent(this,'try')">
-      <div class="intent-tab-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-      <span class="intent-tab-label">やってみたい</span>
-      <span class="intent-tab-count" id="count-try">—</span>
-    </button>
-    <button class="intent-tab" data-intent="learn" onclick="setIntent(this,'learn')">
-      <div class="intent-tab-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></div>
-      <span class="intent-tab-label">ちゃんと学びたい</span>
-      <span class="intent-tab-count" id="count-learn">—</span>
-    </button>
-    <button class="intent-tab" data-intent="dive" onclick="setIntent(this,'dive')">
-      <div class="intent-tab-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M12 22V2m0 0l-4 4m4-4l4 4"/></svg></div>
-      <span class="intent-tab-label">もっと潜りたい</span>
-      <span class="intent-tab-count" id="count-dive">—</span>
-    </button>
-  </div>
   <div class="filter-section">
     <div class="filter-label-row">
       <p class="filter-label">都道府県から探す</p>
@@ -302,7 +269,7 @@
   </div>
   <div class="divider">
     <div class="divider-line"></div>
-    <span class="divider-label" id="intentLabel">すべての体験・スクール</span>
+    <span class="divider-label">体験・スクールを探す</span>
     <div class="divider-line"></div>
   </div>
   <div class="result-header">
@@ -362,7 +329,6 @@
 <script src="../js/location-data.js"></script>
 <script>
 let allListings = [];
-let currentIntent = 'all';
 let currentPref = '';
 let currentDate = '';
 let slotsByListing = new Map(); // listing_id -> availability_slots[]（日程フィルタ用。空き枠データがないlistingは対象外＝常に表示）
@@ -371,11 +337,8 @@ let currentPrice = '';
 let currentSort = 'recommended'; // recommended | price_asc | price_desc | rating
 const SORT_CYCLE = ['recommended','price_asc','price_desc','rating'];
 const SORT_LABELS = { recommended:'おすすめ順', price_asc:'価格安い順', price_desc:'価格高い順', rating:'評価順' };
-const intentLabels = { all: 'すべての体験・スクール', try: 'やってみたい — 体験・ツアー', learn: 'ちゃんと学びたい — スクール・資格', dive: 'もっと潜りたい — ファンダイブ・トレーニング・コーチング' };
 const badgeLabel = { try: '体験', learn: '資格', fundive: 'ファンダイブ', training: 'トレーニング', coaching: 'コーチング' };
 const badgeClass = { try: 'badge-try', learn: 'badge-learn', fundive: 'badge-fundive', training: 'badge-training', coaching: 'badge-coaching' };
-// 検索タブ「もっと潜りたい」は fundive/training/coaching をまとめた1グループとして扱う
-const INTENT_GROUPS = { dive: ['fundive', 'training', 'coaching'] };
 const instructorCache = {};
 
 // DB由来の値をHTMLへ挿入する前にエスケープ（S4: 属性ブレイクアウトXSS対策）
@@ -551,17 +514,10 @@ async function loadListings() {
 }
 
 function updateCounts() {
-  const counts = { all: allListings.length, try: 0, learn: 0, dive: 0 };
   const prefCounts = {};
   allListings.forEach(l => {
-    if (INTENT_GROUPS.dive.includes(l.intent)) counts.dive++;
-    else if (counts[l.intent] !== undefined) counts[l.intent]++;
     if (l.prefecture) prefCounts[l.prefecture] = (prefCounts[l.prefecture] || 0) + 1;
   });
-  document.getElementById('count-all').textContent   = counts.all;
-  document.getElementById('count-try').textContent   = counts.try;
-  document.getElementById('count-learn').textContent = counts.learn;
-  document.getElementById('count-dive').textContent  = counts.dive;
   renderPrefChips(prefCounts);
 }
 
@@ -584,16 +540,6 @@ function renderPrefChips(prefCounts) {
   container.innerHTML = html;
 }
 
-function applyIntent(intent) {
-  currentIntent = intent;
-  document.querySelectorAll('.intent-tab').forEach(t => t.classList.toggle('active', t.dataset.intent === intent));
-  document.getElementById('intentLabel').textContent = intentLabels[intent];
-  renderListings();
-}
-// 一覧上部のピル（すべて/やってみたい/…）から選んだ場合
-function setIntent(el, intent) {
-  applyIntent(intent);
-}
 function togglePref(el) {
   document.querySelectorAll('#areaChips .chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
@@ -634,10 +580,6 @@ function applyFilters() { renderListings(); }
 function renderListings() {
   const q = document.getElementById('searchInput').value.toLowerCase().trim();
   let filtered = allListings.filter(l => {
-    if (currentIntent !== 'all') {
-      const group = INTENT_GROUPS[currentIntent];
-      if (group ? !group.includes(l.intent) : l.intent !== currentIntent) return false;
-    }
     if (currentPref && l.prefecture !== currentPref) return false;
     if (currentDate) {
       const slots = slotsByListing.get(l.id);

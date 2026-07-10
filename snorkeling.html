@@ -95,10 +95,17 @@
 // 該当データが0件のときはモック（見本カード）を残す方針（freediving.htmlは0件時にカードごと消す実装だが、
 // 実データがまだ少ない現段階では枠が空になるより見本を残す方が安全と判断）
 (function () {
+  const CATEGORY = 'シュノーケリング';
+  const COURSE_ROW_ID = 'snorkel-course-row';
+  const CHIPS_ID = 'snorkel-chips';
   const COURSE_FALLBACK_IMGS  = ['images/index_水面.JPG','images/surface_boat_view.jpg','images/beginner_pair.jpg','images/light_rays.jpg'];
   const ARTICLE_FALLBACK_IMGS = ['images/index_初心者.JPG','images/gear_fins_beach.jpg','images/surface_boat_view.jpg'];
 
+  let activeTag = null;
+  let courseRowTemplate = null; // タグ絞り込みの度に元の4枠へリセットするための初期HTML
+
   function truncate(s, n) { return s && s.length > n ? s.slice(0, n) + '…' : (s || ''); }
+  function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
   function fillCourseCard(cardEl, l, fallbackImg) {
     const ownerParam = l.instructor_id ? `id=${encodeURIComponent(l.instructor_id)}` : `shop=${encodeURIComponent(l.shop_id)}`;
@@ -133,9 +140,21 @@
     });
   }
 
+  // チップ押下でその場に反映するコース一覧（2026-07-10：explore遷移だった挙動をその場差し替えに変更）
+  function applyCourseListings(listings) {
+    const row = document.getElementById(COURSE_ROW_ID);
+    if (!row) return;
+    if (courseRowTemplate === null) courseRowTemplate = row.innerHTML; // 初回だけ元の4枠を保存
+    row.innerHTML = courseRowTemplate;
+    if (listings && listings.length) {
+      fillRow(Array.from(row.querySelectorAll('a.lcard')), listings, fillCourseCard, COURSE_FALLBACK_IMGS);
+    } else if (activeTag) {
+      row.innerHTML = `<p class="row-empty">「${esc(activeTag)}」に合う体験は見つかりませんでした。</p>`;
+    }
+    // タグ未選択で0件のときは見本カード（テンプレート）をそのまま残す
+  }
+
   async function loadRealData() {
-    const courseRow = document.getElementById('snorkel-course-row');
-    const courseCards = courseRow ? Array.from(courseRow.querySelectorAll('a.lcard')) : [];
     const articleSection = document.getElementById('snorkel-article-section');
     const articleCards = articleSection ? Array.from(articleSection.querySelectorAll('a.arow')) : [];
 
@@ -147,7 +166,7 @@
         _sb.from('listings')
           .select('id, title, area, prefecture, location_detail, price, price_unit, image_url, category, tags, instructor_id, shop_id, instructors ( shops ( avg_rating, review_count ) ), shops ( avg_rating, review_count )')
           .eq('is_public', true)
-          .eq('category', 'シュノーケリング')
+          .eq('category', CATEGORY)
           .order('created_at', { ascending: false })
           .limit(4),
         _sb.from('articles')
@@ -158,16 +177,40 @@
           .limit(3)
       ]);
 
-      if (!lErr && listings && listings.length) fillRow(courseCards, listings, fillCourseCard, COURSE_FALLBACK_IMGS);
+      if (!lErr) applyCourseListings(listings || []);
       if (!aErr && articles && articles.length) fillRow(articleCards, articles, fillArticleCard, ARTICLE_FALLBACK_IMGS);
     } catch (e) {
       console.warn('実データの読み込みをスキップ:', e);
     }
   }
 
+  // チップ（タグ）を押した時：explore.htmlへは飛ばず、その場でコース一覧を絞り込む（2026-07-10）
+  // 同じタグをもう一度押すと選択解除して新着順に戻る
+  async function filterByTag(tag, chipEl) {
+    const wrap = document.getElementById(CHIPS_ID);
+    const isSame = activeTag === tag;
+    activeTag = isSame ? null : tag;
+    if (wrap) Array.from(wrap.querySelectorAll('.chip')).forEach(c => c.classList.toggle('active', !isSame && c === chipEl));
+
+    if (!activeTag) { loadRealData(); return; }
+
+    try {
+      const { data, error } = await _sb.from('listings')
+        .select('id, title, area, prefecture, location_detail, price, price_unit, image_url, category, tags, instructor_id, shop_id, instructors ( shops ( avg_rating, review_count ) ), shops ( avg_rating, review_count )')
+        .eq('is_public', true)
+        .eq('category', CATEGORY)
+        .contains('tags', [tag])
+        .order('created_at', { ascending: false })
+        .limit(4);
+      if (error) { console.warn('タグ絞り込みに失敗:', error); return; }
+      applyCourseListings(data || []);
+    } catch (e) {
+      console.warn('タグ絞り込みに失敗:', e);
+    }
+  }
+
   // 公開リスティングのtagsを集計し、使用頻度の高い順にチップを差し替える（2026-07-10）
   // 該当タグが1つも無ければ既存の見本チップを残す
-  function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
   async function loadPopularTags(chipsId, category, limit) {
     try {
       const { createClient } = window.supabase;
@@ -180,7 +223,11 @@
       if (!top.length) return; // 集計0件のときは既存の見本チップのまま
       const wrap = document.getElementById(chipsId);
       if (!wrap) return;
-      wrap.innerHTML = top.map(t => `<a class="chip" href="explore/index.html?tag=${encodeURIComponent(t)}">${esc(t)}</a>`).join('');
+      wrap.innerHTML = top.map(t => `<button type="button" class="chip" data-tag="${esc(t)}">${esc(t)}</button>`).join('');
+      wrap.onclick = (e) => {
+        const btn = e.target.closest('.chip[data-tag]');
+        if (btn) filterByTag(btn.dataset.tag, btn);
+      };
     } catch (e) {
       console.warn('人気タグの読み込みをスキップ:', e);
     }
@@ -188,7 +235,7 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     loadRealData();
-    loadPopularTags('snorkel-chips', 'シュノーケリング', 6);
+    loadPopularTags(CHIPS_ID, CATEGORY, 6);
   });
 })();
 </script>
