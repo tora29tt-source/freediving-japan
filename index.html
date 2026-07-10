@@ -424,12 +424,7 @@
       fillRow(document.getElementById('snorkel-article-row'), snorkel);
       fillRow(document.getElementById('skin-article-row'), skin);
       fillRow(document.getElementById('know-article-row'), data.slice(0, 6));
-
-      const freeRow = document.getElementById('free-article-row');
-      if (freeRow && free.length) {
-        const freeCard = freeRow.querySelector('a.lcard[data-dynamic]');
-        if (freeCard) fillCard(freeCard, free[0], FALLBACK_IMGS[3]);
-      }
+      fillRow(document.getElementById('free-articles-row'), free);
     } catch (e) {
       console.warn('記事の読み込みをスキップ:', e);
     }
