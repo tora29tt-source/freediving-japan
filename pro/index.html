@@ -1043,6 +1043,8 @@ async function setActiveRole(role) {
   if (role === myRole) return;
   if (role === 'instructor' && !myInstructor) return;
   if (role === 'shop' && !myShop) return;
+  if (!confirmDiscardProfileChanges()) return;
+  _profileDirty = false;
   myRole = role;
   applyStatusClasses();
   renderRoleSwitcher();
@@ -1076,6 +1078,7 @@ function renderAddRoleBanner() {
 }
 
 async function handleLogout() {
+  if (!confirmDiscardProfileChanges()) return;
   await _sb.auth.signOut();
   location.href = '../auth.html';
 }
@@ -1084,6 +1087,8 @@ async function handleLogout() {
 // Tabs
 // ============================================================
 function switchTab(name) {
+  const current = document.querySelector('.tab.active')?.dataset.tab;
+  if (current === 'profile' && name !== 'profile' && !confirmDiscardProfileChanges()) return;
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
   ['profile','listings','slots','inquiries','bookings','clients','revenue'].forEach(t => {
     document.getElementById(`tab-${t}`).style.display = t === name ? '' : 'none';
@@ -1102,6 +1107,15 @@ function switchTab(name) {
 
 // ── 編集/分割/プレビュー モード切替（記事エディタの ae-mode-* と同じ方式） ──
 let _pfMode = 'write';
+
+// ── プロフィール未保存フラグ：保存ボタンを押すまで写真アップロードも含め DB には反映されないため、
+//    ロール切替・タブ切替・ログアウトの前に確認を挟む（コース登録モーダルの離脱確認と同じ考え方） ──
+let _profileDirty = false;
+function pfMarkDirty() { _profileDirty = true; renderProfilePreview(); }
+function confirmDiscardProfileChanges() {
+  if (!_profileDirty) return true;
+  return confirm('プロフィールの入力内容が保存されていません。保存せずに移動してもよろしいですか？');
+}
 function setProfileMode(mode) {
   _pfMode = mode;
   const splitEl = document.getElementById('pf-split');
@@ -1296,7 +1310,7 @@ function renderProfileForm() {
           <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
             <div style="width:16px;height:16px;border:2px solid rgba(255,255,255,0.9);border-radius:50%;box-shadow:0 0 0 1px rgba(0,0,0,0.35),0 1px 5px rgba(0,0,0,0.6);"></div>
           </div>
-          <div style="position:absolute;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.55);pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,0.8);">ドラッグ / スクロールで調整</div>
+          <div style="position:absolute;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.55);pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,0.8);">ドラッグ、または下のボタンで調整</div>
         </div>
         <div style="display:flex;justify-content:center;align-items:center;gap:4px;margin-top:6px;">
           <button type="button" onclick="ipMovePos(-5,0)" style="width:30px;height:28px;font-size:13px;border:1px solid var(--hairline);background:transparent;color:var(--on-dark-mid);border-radius:6px;cursor:pointer;line-height:1;">←</button>
@@ -1357,6 +1371,7 @@ async function saveProfile() {
   _newInstructorPhotoUrl = null;
   _newInstructorCoverUrl = null;
   _isDirty = false;
+  _profileDirty = false;
   showToast('プロフィールを保存しました', 'success');
   renderProfileForm();
 }
@@ -1375,7 +1390,7 @@ async function handleInstructorPhotoFile(input) {
   }
   const statusEl = document.getElementById('p-photo-status');
   if (statusEl) statusEl.textContent = 'アップロード中...';
-  renderProfilePreview();
+  pfMarkDirty();
 
   const ext  = file.name.split('.').pop().toLowerCase();
   const path = `${currentUser.id}/instructor.${ext}`;
@@ -1416,7 +1431,7 @@ async function handleInstructorCoverFile(input) {
   const posLabel = document.getElementById('p-pos-label');
   if (posLabel) posLabel.textContent = '50% 50%';
   ipInitPosDrag();
-  renderProfilePreview();
+  pfMarkDirty();
 
   const ext  = file.name.split('.').pop().toLowerCase();
   const path = `${currentUser.id}/instructor-cover.${ext}`;
@@ -1483,12 +1498,6 @@ function ipInitPosDrag() {
   document.addEventListener('mouseup', () => {
     if (dragging) { dragging = false; prev.style.cursor = 'grab'; }
   });
-
-  prev.addEventListener('wheel', e => {
-    e.preventDefault();
-    const [x, y] = ipParsePosXY();
-    ipApplyPosXY(x, y + (e.deltaY > 0 ? 3 : -3));
-  }, { passive: false });
 
   prev.addEventListener('touchstart', e => {
     const t = e.touches[0];
@@ -1672,7 +1681,7 @@ function renderShopProfileForm() {
           <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
             <div style="width:16px;height:16px;border:2px solid rgba(255,255,255,0.9);border-radius:50%;box-shadow:0 0 0 1px rgba(0,0,0,0.35),0 1px 5px rgba(0,0,0,0.6);"></div>
           </div>
-          <div style="position:absolute;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.55);pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,0.8);">ドラッグ / スクロールで調整</div>
+          <div style="position:absolute;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.55);pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,0.8);">ドラッグ、または下のボタンで調整</div>
         </div>
         <div style="display:flex;justify-content:center;align-items:center;gap:4px;margin-top:6px;">
           <button type="button" onclick="spMovePos(-5,0)" style="width:30px;height:28px;font-size:13px;border:1px solid var(--hairline);background:transparent;color:var(--on-dark-mid);border-radius:6px;cursor:pointer;line-height:1;">←</button>
@@ -1785,6 +1794,7 @@ async function saveShopProfile() {
   _newShopLogoUrl  = null;
   _newShopCoverUrl = null;
   _isDirty = false;
+  _profileDirty = false;
   showToast('プロフィールを保存しました', 'success');
   renderShopProfileForm();
 }
@@ -1802,7 +1812,7 @@ async function handleShopLogoFile(input) {
   }
   const statusEl = document.getElementById('sp-logo-status');
   if (statusEl) statusEl.textContent = 'アップロード中...';
-  renderProfilePreview();
+  pfMarkDirty();
 
   const ext  = file.name.split('.').pop().toLowerCase();
   const path = `${currentUser.id}/shop-logo.${ext}`;
@@ -1843,7 +1853,7 @@ async function handleShopCoverFile(input) {
   const posLabel = document.getElementById('sp-pos-label');
   if (posLabel) posLabel.textContent = '50% 50%';
   spInitPosDrag();
-  renderProfilePreview();
+  pfMarkDirty();
 
   const ext  = file.name.split('.').pop().toLowerCase();
   const path = `${currentUser.id}/shop-cover.${ext}`;
@@ -1910,12 +1920,6 @@ function spInitPosDrag() {
   document.addEventListener('mouseup', () => {
     if (dragging) { dragging = false; prev.style.cursor = 'grab'; }
   });
-
-  prev.addEventListener('wheel', e => {
-    e.preventDefault();
-    const [x, y] = spParsePosXY();
-    spApplyPosXY(x, y + (e.deltaY > 0 ? 3 : -3));
-  }, { passive: false });
 
   prev.addEventListener('touchstart', e => {
     const t = e.touches[0];
@@ -3219,8 +3223,8 @@ document.addEventListener('change', () => { _isDirty = true; });
 // ── プロフィールフォームの入力に合わせてプレビューをその都度更新 ──
 // #profile-form-wrap は毎回 innerHTML で差し替わるため、要素自体には
 // リスナーを付け直さず、常に存在する外側の要素に委譲する
-document.getElementById('pf-split')?.addEventListener('input',  renderProfilePreview);
-document.getElementById('pf-split')?.addEventListener('change', renderProfilePreview);
+document.getElementById('pf-split')?.addEventListener('input',  pfMarkDirty);
+document.getElementById('pf-split')?.addEventListener('change', pfMarkDirty);
 window.addEventListener('beforeunload', e => {
   if (!_isDirty) return;
   e.preventDefault();
