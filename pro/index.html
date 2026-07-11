@@ -77,6 +77,18 @@ body.status-pending #pending-banner { display: flex; }
 #rejected-banner { display: none; }
 body.status-rejected #rejected-banner { display: flex; }
 
+/* ── 個人/ショップ 切替（両方登録しているユーザーのみ表示） ── */
+.role-switch { display: none; align-items: center; gap: 2px; margin-left: 10px; padding: 2px; background: var(--glass); border: 1px solid var(--hairline); border-radius: 100px; }
+.role-switch-btn { font-size: 11px; font-weight: 600; color: var(--on-dark-soft); background: none; border: none; border-radius: 100px; padding: 5px 12px; cursor: pointer; font-family: inherit; transition: all 0.2s; white-space: nowrap; max-width: 140px; overflow: hidden; text-overflow: ellipsis; }
+.role-switch-btn.active { background: var(--teal); color: var(--ocean-deep); }
+.role-switch-btn:not(.active):hover { color: var(--on-dark); }
+@media (max-width: 640px) { .role-switch-btn { max-width: 80px; } }
+
+/* ── もう一方のプロフィール追加バナー ── */
+.add-role-banner { display: none; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; background: var(--glass); border: 1px solid var(--hairline); border-radius: 14px; padding: 14px 18px; margin-bottom: 20px; font-size: 12px; color: var(--on-dark-mid); }
+.add-role-banner.show { display: flex; }
+.add-role-banner .btn-edit { flex-shrink: 0; }
+
 /* ── Main ── */
 .main { max-width: 860px; margin: 0 auto; padding: 0 20px 80px; }
 
@@ -276,6 +288,7 @@ td.primary { color: var(--on-dark); font-weight: 500; }
   <div style="display:flex;align-items:center;">
     <a href="../index.html" class="logo">FREEDIVING <span>JAPAN</span></a>
     <span class="pro-badge">PRO</span>
+    <div class="role-switch" id="role-switch"></div>
   </div>
   <div class="header-right">
     <span class="user-email" id="user-email"></span>
@@ -349,6 +362,7 @@ td.primary { color: var(--on-dark); font-weight: 500; }
 
     <!-- ── プロフィール ── -->
     <div id="tab-profile">
+      <div class="add-role-banner" id="add-role-banner"></div>
       <div id="profile-form-wrap"></div>
     </div>
 
@@ -896,36 +910,20 @@ async function boot() {
   currentUser = session.user;
   document.getElementById('user-email').textContent = currentUser.email;
 
-  // instructors / shops の両方を並列チェック
+  // instructors / shops の両方を並列チェック（2026-07-11〜：どちらも持てる。排他ではない）
   const [{ data: inst }, { data: shop }] = await Promise.all([
     _sb.from('instructors').select('*').eq('user_id', currentUser.id).maybeSingle(),
     _sb.from('shops').select('*').eq('user_id', currentUser.id).maybeSingle(),
   ]);
 
-  if (inst) {
-    myInstructor = inst;
-    myRole = 'instructor';
-    // status に応じてページ状態を制御
-    if (inst.status === 'pending') {
-      document.body.classList.add('status-pending');
-    } else if (inst.status === 'rejected') {
-      document.body.classList.add('status-rejected');
-    }
-  } else if (shop) {
-    myShop = shop;
-    myRole = 'shop';
-    // ショップに紐づくインストラクターを取得
-    // - legacy: instructors.shop_id（1ショップのみの旧カラム）
-    // - new: instructor_shops（N:M・複数ショップ同時所属対応・2026-07-04〜）
-    const [{ data: legacyInsts }, { data: linkedInsts }] = await Promise.all([
-      _sb.from('instructors').select('id, name').eq('shop_id', shop.id),
-      _sb.from('instructor_shops').select('instructors(id, name)').eq('shop_id', shop.id),
-    ]);
-    const merged = new Map();
-    (legacyInsts || []).forEach(i => merged.set(i.id, { ...i, _viaLegacy: true }));
-    (linkedInsts || []).forEach(row => { if (row.instructors) merged.set(row.instructors.id, { ...row.instructors, _viaLegacy: false }); });
-    myShopInstructors = Array.from(merged.values());
-  }
+  if (inst) myInstructor = inst;
+  if (shop) myShop = shop;
+
+  // 表示するロールを決定：両方あれば個人インストラクター優先をデフォルトに、片方だけならそちら
+  myRole = myInstructor ? 'instructor' : (myShop ? 'shop' : null);
+  applyStatusClasses();
+
+  if (myShop) await loadShopRoster(myShop);
 
   if (!myRole) {
     document.getElementById('setup-guard').style.display = 'block';
@@ -933,8 +931,79 @@ async function boot() {
   }
 
   document.getElementById('app').style.display = 'block';
+  renderRoleSwitcher();
+  renderAddRoleBanner();
   renderProfileForm();
   checkNewInquiries();
+}
+
+// status-pending / status-rejected は instructors のみが持つ状態（shopsは審査なし即公開）。
+// role切替のたびに現在表示中のロールに合わせて付け替える。
+function applyStatusClasses() {
+  document.body.classList.remove('status-pending', 'status-rejected');
+  if (myRole === 'instructor' && myInstructor) {
+    if (myInstructor.status === 'pending') document.body.classList.add('status-pending');
+    else if (myInstructor.status === 'rejected') document.body.classList.add('status-rejected');
+  }
+}
+
+// ショップに紐づくインストラクターを取得
+// - legacy: instructors.shop_id（1ショップのみの旧カラム）
+// - new: instructor_shops（N:M・複数ショップ同時所属対応・2026-07-04〜）
+async function loadShopRoster(shop) {
+  const [{ data: legacyInsts }, { data: linkedInsts }] = await Promise.all([
+    _sb.from('instructors').select('id, name').eq('shop_id', shop.id),
+    _sb.from('instructor_shops').select('instructors(id, name)').eq('shop_id', shop.id),
+  ]);
+  const merged = new Map();
+  (legacyInsts || []).forEach(i => merged.set(i.id, { ...i, _viaLegacy: true }));
+  (linkedInsts || []).forEach(row => { if (row.instructors) merged.set(row.instructors.id, { ...row.instructors, _viaLegacy: false }); });
+  myShopInstructors = Array.from(merged.values());
+}
+
+// ============================================================
+// 個人／ショップ 切替（両方のプロフィールを持つユーザー向け）
+// ============================================================
+function renderRoleSwitcher() {
+  const el = document.getElementById('role-switch');
+  if (!(myInstructor && myShop)) { el.style.display = 'none'; el.innerHTML = ''; return; }
+  el.style.display = 'flex';
+  el.innerHTML = `
+    <button type="button" class="role-switch-btn ${myRole === 'instructor' ? 'active' : ''}" onclick="setActiveRole('instructor')" title="${escHtml(myInstructor.name || '個人')}">${escHtml(myInstructor.name || '個人')}</button>
+    <button type="button" class="role-switch-btn ${myRole === 'shop' ? 'active' : ''}" onclick="setActiveRole('shop')" title="${escHtml(myShop.name || 'ショップ')}">${escHtml(myShop.name || 'ショップ')}</button>
+  `;
+}
+
+async function setActiveRole(role) {
+  if (role === myRole) return;
+  if (role === 'instructor' && !myInstructor) return;
+  if (role === 'shop' && !myShop) return;
+  myRole = role;
+  applyStatusClasses();
+  renderRoleSwitcher();
+  renderProfileForm();
+  const activeTab = document.querySelector('.tab.active')?.dataset.tab || 'profile';
+  switchTab(activeTab);
+}
+
+// ============================================================
+// もう一方のプロフィール追加バナー
+// ============================================================
+function renderAddRoleBanner() {
+  const el = document.getElementById('add-role-banner');
+  if (myInstructor && myShop) { el.classList.remove('show'); el.innerHTML = ''; return; }
+  if (myInstructor && !myShop) {
+    el.innerHTML = `<span>自分のお店（スクール・ショップ）も運営していますか？同じアカウントでショップとしても登録できます。</span>
+      <button type="button" class="btn-edit" onclick="showCreateProfile('shop')">＋ショップとして登録する</button>`;
+    el.classList.add('show');
+  } else if (myShop && !myInstructor) {
+    el.innerHTML = `<span>ご自身もインストラクターとして活動していますか？同じアカウントで個人プロフィールも登録できます。</span>
+      <button type="button" class="btn-edit" onclick="showCreateProfile('instructor')">＋インストラクターとして登録する</button>`;
+    el.classList.add('show');
+  } else {
+    el.classList.remove('show');
+    el.innerHTML = '';
+  }
 }
 
 async function handleLogout() {
@@ -1311,9 +1380,12 @@ async function createProfile() {
 
   myInstructor = inst;
   myRole = 'instructor';
+  applyStatusClasses();
   closeCreateProfile();
   document.getElementById('setup-guard').style.display = 'none';
   document.getElementById('app').style.display = 'block';
+  renderRoleSwitcher();
+  renderAddRoleBanner();
   renderProfileForm();
   showToast('プロフィールを作成しました', 'success');
 }
@@ -1336,9 +1408,12 @@ async function createShopProfile() {
   myShop = shop;
   myRole = 'shop';
   myShopInstructors = [];
+  applyStatusClasses();
   closeShopCreate();
   document.getElementById('setup-guard').style.display = 'none';
   document.getElementById('app').style.display = 'block';
+  renderRoleSwitcher();
+  renderAddRoleBanner();
   renderShopProfileForm();
   showToast('ショップを作成しました', 'success');
 }
