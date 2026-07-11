@@ -318,6 +318,12 @@ td.primary { color: var(--on-dark); font-weight: 500; }
 .pf-preview-pane .lv-flow-body strong { display: block; font-size: 12px; color: var(--ink); }
 .pf-preview-pane .lv-flow-body span { display: block; font-size: 11px; color: var(--ink-mid); margin-top: 2px; line-height: 1.6; }
 
+/* ── 入力中の項目とプレビューの該当箇所を同期ハイライト ── */
+.pf-preview-pane [data-pv-key] { border-radius: 10px; transition: background-color 0.2s, box-shadow 0.2s; }
+.pf-preview-pane [data-pv-key].pv-focus { background: rgba(31,111,120,0.08); box-shadow: 0 0 0 2px rgba(31,111,120,0.4); }
+.pf-editor-pane [data-pv-key] { border-radius: 10px; transition: background-color 0.2s; }
+.pf-editor-pane [data-pv-key].pv-focus-source { background: rgba(46,196,182,0.06); }
+
 @media (max-width: 900px) {
   .pf-split-wrap.pf-mode-split { grid-template-columns: 1fr; }
   .pf-split-wrap.pf-mode-split .pf-preview-pane { position: static; margin-top: 24px; }
@@ -544,15 +550,15 @@ td.primary { color: var(--on-dark); font-weight: 500; }
       <select id="l-instructor"><option value="">ショップ名義（担当者未定）</option></select>
     </div>
 
-    <div class="form-group">
+    <div class="form-group" data-pv-key="header">
       <label>タイトル</label>
       <input type="text" id="l-title" placeholder="例：沖縄フリーダイビング体験">
     </div>
-    <div class="form-group">
+    <div class="form-group" data-pv-key="desc">
       <label>説明</label>
       <textarea id="l-desc" placeholder="コースの詳細説明..."></textarea>
     </div>
-    <div class="form-group">
+    <div class="form-group" data-pv-key="infogrid">
       <label>対象レベル</label>
       <select id="l-level">
         <option value="">未設定</option>
@@ -563,13 +569,13 @@ td.primary { color: var(--on-dark); font-weight: 500; }
         <option value="競技者向け">競技者向け</option>
       </select>
     </div>
-    <div class="form-group">
+    <div class="form-group" data-pv-key="goal">
       <label>到達目標（このコースでできるようになること）</label>
       <textarea id="l-goal" placeholder="例：耳抜きとウェイト調整を覚え、水深5mまで自力で潜れるようになる" style="min-height:64px;"></textarea>
     </div>
 
     <div class="form-row">
-      <div class="form-group">
+      <div class="form-group" data-pv-key="header">
         <label>ダイビング種別</label>
         <select id="l-category" onchange="applyCategoryIntentOptions()">
           <option value="シュノーケリング">シュノーケリング</option>
@@ -590,7 +596,7 @@ td.primary { color: var(--on-dark); font-weight: 500; }
       </div>
     </div>
 
-    <div class="form-group">
+    <div class="form-group" data-pv-key="infogrid">
       <label>都道府県 <span style="color:var(--warm);">*</span></label>
       <select id="l-pref" onchange="togglePrefOther(this)">
         <option value="">選択してください</option>
@@ -646,25 +652,25 @@ td.primary { color: var(--on-dark); font-weight: 500; }
       <input type="text" id="l-pref-other" placeholder="例：パラオ" style="margin-top:8px;display:none;">
     </div>
 
-    <div class="form-group">
+    <div class="form-group" data-pv-key="infogrid">
       <label>スポット名（任意）</label>
       <input type="text" id="l-area" list="l-area-suggest" placeholder="例：恩納村、青の洞窟、柏島…">
       <datalist id="l-area-suggest"></datalist>
       <p class="form-hint">都道府県より詳しい場所を自由に入力できます。よく使われているスポット名は入力中に候補として出ます（無ければ自由記入でOK）。探すページの検索対象になります。</p>
     </div>
 
-    <div class="form-group">
+    <div class="form-group" data-pv-key="header">
       <label>料金（円）</label>
       <input type="number" id="l-price" placeholder="例：8800">
       <input type="hidden" id="l-price-unit" value="〜/人">
     </div>
 
     <div class="form-row">
-      <div class="form-group">
+      <div class="form-group" data-pv-key="pricenote">
         <label>料金に含まれるもの</label>
         <textarea id="l-price-inc" placeholder="例：器材一式、保険料、ガイド料" style="min-height:64px;"></textarea>
       </div>
-      <div class="form-group">
+      <div class="form-group" data-pv-key="pricenote">
         <label>料金に含まれないもの</label>
         <textarea id="l-price-exc" placeholder="例：交通費、昼食" style="min-height:64px;"></textarea>
       </div>
@@ -672,27 +678,27 @@ td.primary { color: var(--on-dark); font-weight: 500; }
 
     <p class="form-section-title" style="margin-top:20px;">開催情報</p>
     <div class="form-row">
-      <div class="form-group">
+      <div class="form-group" data-pv-key="infogrid">
         <label>所要時間</label>
         <input type="text" id="l-duration" placeholder="例：2〜3時間">
       </div>
-      <div class="form-group">
+      <div class="form-group" data-pv-key="infogrid">
         <label>開催期間</label>
         <input type="text" id="l-season" placeholder="例：4月〜10月">
       </div>
     </div>
     <div class="form-row">
-      <div class="form-group">
+      <div class="form-group" data-pv-key="infogrid">
         <label>最少催行人数</label>
         <input type="number" id="l-min-pax" placeholder="例：1" min="1">
       </div>
-      <div class="form-group">
+      <div class="form-group" data-pv-key="infogrid">
         <label>最大参加人数</label>
         <input type="number" id="l-max-pax" placeholder="例：6" min="1">
       </div>
     </div>
     <div class="form-row">
-      <div class="form-group">
+      <div class="form-group" data-pv-key="infogrid">
         <label>参加年齢</label>
         <div style="display:flex;gap:8px;align-items:center;">
           <input type="number" id="l-age-min" placeholder="例：6" min="0" style="flex:1;">
@@ -704,11 +710,11 @@ td.primary { color: var(--on-dark); font-weight: 500; }
       <div class="form-group"></div>
     </div>
     <div class="form-row">
-      <div class="form-group">
+      <div class="form-group" data-pv-key="meeting">
         <label>集合場所</label>
         <input type="text" id="l-meeting" placeholder="例：○○ビーチ駐車場">
       </div>
-      <div class="form-group">
+      <div class="form-group" data-pv-key="infogrid">
         <label>予約締切</label>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
           <select id="l-deadline-days" onchange="toggleDeadlineOther()" style="flex:1;min-width:110px;">
@@ -727,7 +733,7 @@ td.primary { color: var(--on-dark); font-weight: 500; }
         <input type="text" id="l-deadline-other" placeholder="例：ご相談ください" style="margin-top:8px;display:none;">
       </div>
     </div>
-    <div class="form-group">
+    <div class="form-group" data-pv-key="infogrid">
       <label class="toggle-wrap" style="cursor:pointer;">
         <label class="toggle"><input type="checkbox" id="l-shuttle"><span class="toggle-track"></span></label>
         <span class="toggle-label">送迎あり</span>
@@ -735,20 +741,20 @@ td.primary { color: var(--on-dark); font-weight: 500; }
     </div>
 
     <p class="form-section-title" style="margin-top:20px;">キャンセル・注意事項</p>
-    <div class="form-group">
+    <div class="form-group" data-pv-key="cancel">
       <label>キャンセルポリシー</label>
       <textarea id="l-cancel" placeholder="例：3日前まで無料、前日50%、当日100%" style="min-height:64px;"></textarea>
     </div>
-    <div class="form-group">
+    <div class="form-group" data-pv-key="bring">
       <label>服装・持ち物</label>
       <textarea id="l-bring" placeholder="例：水着、タオル、動きやすい服装" style="min-height:64px;"></textarea>
     </div>
-    <div class="form-group">
+    <div class="form-group" data-pv-key="notes">
       <label>注意事項</label>
       <textarea id="l-notes" placeholder="例：妊娠中の方・心臓疾患のある方はご参加いただけません" style="min-height:64px;"></textarea>
     </div>
 
-    <div class="form-group">
+    <div class="form-group" data-pv-key="header">
       <label>タグ（カンマ区切り）</label>
       <input type="text" id="l-tags" placeholder="例：初心者OK, 当日予約OK, 英語対応">
       <p class="form-hint">カンマで区切って複数入力できます</p>
@@ -776,7 +782,7 @@ td.primary { color: var(--on-dark); font-weight: 500; }
       <p class="form-hint">機材名と料金（無料の場合は0）を入力してください</p>
     </div>
 
-    <div class="form-group">
+    <div class="form-group" data-pv-key="cover">
       <label>メイン画像</label>
       <div id="l-image-preview-wrap" onclick="document.getElementById('l-image-file').click()" style="cursor:pointer;width:100%;height:160px;border-radius:8px;background:rgba(46,196,182,0.1);border:2px dashed rgba(46,196,182,0.3);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--teal);font-size:13px;">
         <span id="l-image-preview">📷 タップして画像を選択</span>
@@ -796,7 +802,7 @@ td.primary { color: var(--on-dark); font-weight: 500; }
     </div>
 
     <p class="form-section-title" style="margin-top:20px;">当日の流れ</p>
-    <div class="form-group">
+    <div class="form-group" data-pv-key="flow">
       <p class="form-hint" style="margin-bottom:10px;">ステップごとにタイトルと説明を入力してください</p>
       <div id="l-flow-rows" style="display:flex;flex-direction:column;gap:12px;"></div>
       <button type="button" class="btn-secondary" style="margin-top:8px;font-size:13px;padding:6px 14px;" onclick="addFlowStep()">
@@ -893,16 +899,16 @@ td.primary { color: var(--on-dark); font-weight: 500; }
 
     <div class="pf-split-wrap pf-mode-split" id="cp-split">
       <div class="pf-editor-pane">
-        <div class="form-group">
+        <div class="form-group" data-pv-key="name">
           <label>氏名 / 屋号 <span style="color:var(--warm);">*</span></label>
           <input type="text" id="cp-name" placeholder="例：山田 海斗">
         </div>
-        <div class="form-group">
+        <div class="form-group" data-pv-key="bio">
           <label>自己紹介</label>
           <textarea id="cp-bio" placeholder="経歴・スタイル・得意なことなど..."></textarea>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" data-pv-key="areas">
           <label>活動エリア <span style="color:var(--on-dark-soft);font-weight:400;">（時期を添えて追加）</span></label>
           <div id="cp-area-rows">
             <div class="area-row">
@@ -913,7 +919,7 @@ td.primary { color: var(--on-dark); font-weight: 500; }
           <button type="button" class="btn-edit" onclick="addAreaRow('cp-area-rows')" style="margin-top:8px;font-size:12px;">＋ エリアを追加</button>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" data-pv-key="certs">
           <label>資格</label>
           <div class="check-group" id="cp-certs">
             <label class="check-item"><input type="checkbox" value="AIDA"> AIDA</label>
@@ -927,7 +933,7 @@ td.primary { color: var(--on-dark); font-weight: 500; }
           <input type="text" id="cp-cert-other" placeholder="例：STAB, PFI（カンマ区切り）" style="margin-top:8px;display:none;">
         </div>
 
-        <div class="form-group">
+        <div class="form-group" data-pv-key="langs">
           <label>対応言語</label>
           <div class="check-group" id="cp-langs">
             <label class="check-item"><input type="checkbox" value="日本語" checked> 日本語</label>
@@ -959,16 +965,16 @@ td.primary { color: var(--on-dark); font-weight: 500; }
 
     <div class="pf-split-wrap pf-mode-split" id="csp-split">
       <div class="pf-editor-pane">
-        <div class="form-group">
+        <div class="form-group" data-pv-key="name">
           <label>屋号 <span style="color:var(--warm);">*</span></label>
           <input type="text" id="csp-name" placeholder="例：Blue Ocean Freediving">
         </div>
-        <div class="form-group">
+        <div class="form-group" data-pv-key="bio">
           <label>自己紹介</label>
           <textarea id="csp-bio" placeholder="ショップの特徴・得意なことなど..."></textarea>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" data-pv-key="areas">
           <label>活動エリア <span style="color:var(--on-dark-soft);font-weight:400;">（時期を添えて追加）</span></label>
           <div id="csp-area-rows">
             <div class="area-row">
@@ -979,7 +985,7 @@ td.primary { color: var(--on-dark); font-weight: 500; }
           <button type="button" class="btn-edit" onclick="addAreaRow('csp-area-rows')" style="margin-top:8px;font-size:12px;">＋ エリアを追加</button>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" data-pv-key="langs">
           <label>対応言語</label>
           <div class="check-group" id="csp-langs">
             <label class="check-item"><input type="checkbox" value="日本語" checked> 日本語</label>
@@ -1189,6 +1195,55 @@ function setProfileMode(mode) {
 // ── プレビュー描画：explore/profile.html と同じ見た目で今の入力内容を表示 ──
 // タブのプロフィール編集・新規作成モーダル（インストラクター/ショップ）の
 // 3箇所すべてが同じカードHTMLを組み立てられるよう共通化
+// ── 入力中の項目 ⇔ プレビューの該当箇所 を同期ハイライトする共通の仕組み ──
+// 編集側の .form-group（など）に data-pv-key="xxx" を付け、プレビュー側の生成HTMLにも
+// 同じ data-pv-key="xxx" を持つラッパーを用意しておくと、フォーカス時に自動で対応付けされる
+let _activePreviewKey = null;
+
+function pvApplyHighlight(scrollId) {
+  const root = document.getElementById(scrollId);
+  if (!root) return;
+  root.querySelectorAll('[data-pv-key].pv-focus').forEach(el => el.classList.remove('pv-focus'));
+  if (_activePreviewKey) {
+    root.querySelectorAll(`[data-pv-key="${_activePreviewKey}"]`).forEach(el => el.classList.add('pv-focus'));
+  }
+}
+
+function pvSetActiveKey(key, scrollId, sourceEl) {
+  _activePreviewKey = key;
+  pvApplyHighlight(scrollId);
+  document.querySelectorAll('.pf-editor-pane [data-pv-key].pv-focus-source').forEach(el => el.classList.remove('pv-focus-source'));
+  if (sourceEl) sourceEl.classList.add('pv-focus-source');
+  if (key) {
+    const root = document.getElementById(scrollId);
+    const target = root?.querySelector(`[data-pv-key="${key}"]`);
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+function pvClearActiveKey(scrollId) {
+  _activePreviewKey = null;
+  pvApplyHighlight(scrollId);
+  document.querySelectorAll('.pf-editor-pane [data-pv-key].pv-focus-source').forEach(el => el.classList.remove('pv-focus-source'));
+}
+
+// splitId（編集+プレビューの外側ラッパー）内でのフォーカス移動を監視し、対応するプレビュー箇所を光らせる
+function wirePreviewFocusSync(splitId, scrollId) {
+  const root = document.getElementById(splitId);
+  if (!root) return;
+  root.addEventListener('focusin', e => {
+    const src = e.target.closest('[data-pv-key]');
+    if (!src) { pvClearActiveKey(scrollId); return; }
+    pvSetActiveKey(src.dataset.pvKey, scrollId, src);
+  });
+  root.addEventListener('focusout', () => {
+    // 同じフォームグループ内で次のフィールドへ移った場合はチラつかせないよう、1フレーム遅らせて判定
+    setTimeout(() => {
+      if (!root.contains(document.activeElement)) pvClearActiveKey(scrollId);
+    }, 0);
+  });
+}
+
 function buildProfilePreviewCard({ isShop, name, bio, areas, certs, specs, langs, ytUrl, photoUrl, coverUrl }) {
   const coverHtml = coverUrl
     ? `<img src="${escHtml(coverUrl)}" alt="">`
@@ -1198,25 +1253,25 @@ function buildProfilePreviewCard({ isShop, name, bio, areas, certs, specs, langs
     : `<div class="pv-avatar-ph">${escHtml((name || '?').charAt(0))}</div>`;
 
   const bioHtml = bio
-    ? `<div class="pv-section"><p class="pv-section-title">自己紹介</p><p class="pv-text">${escHtml(bio).replace(/\n/g, '<br>')}</p></div>`
-    : `<div class="pv-section"><p class="pv-empty">自己紹介が入力されるとここに表示されます</p></div>`;
+    ? `<div class="pv-section" data-pv-key="bio"><p class="pv-section-title">自己紹介</p><p class="pv-text">${escHtml(bio).replace(/\n/g, '<br>')}</p></div>`
+    : `<div class="pv-section" data-pv-key="bio"><p class="pv-empty">自己紹介が入力されるとここに表示されます</p></div>`;
   const certsHtml = certs.length
-    ? `<div class="pv-section"><p class="pv-section-title">保有資格</p><div class="pv-chips">${certs.map(c => `<span class="pv-chip cert">${escHtml(c)}</span>`).join('')}</div></div>` : '';
+    ? `<div class="pv-section" data-pv-key="certs"><p class="pv-section-title">保有資格</p><div class="pv-chips">${certs.map(c => `<span class="pv-chip cert">${escHtml(c)}</span>`).join('')}</div></div>` : '';
   const specsHtml = specs.length
-    ? `<div class="pv-section"><p class="pv-section-title">専門・得意分野</p><div class="pv-chips">${specs.map(s => `<span class="pv-chip">${escHtml(s)}</span>`).join('')}</div></div>` : '';
+    ? `<div class="pv-section" data-pv-key="specs"><p class="pv-section-title">専門・得意分野</p><div class="pv-chips">${specs.map(s => `<span class="pv-chip">${escHtml(s)}</span>`).join('')}</div></div>` : '';
   const areasHtml = areas.length
-    ? `<div class="pv-section"><p class="pv-section-title">活動エリア</p><div class="pv-chips">${areas.map(a => `<span class="pv-chip">${escHtml(a)}</span>`).join('')}</div></div>` : '';
+    ? `<div class="pv-section" data-pv-key="areas"><p class="pv-section-title">活動エリア</p><div class="pv-chips">${areas.map(a => `<span class="pv-chip">${escHtml(a)}</span>`).join('')}</div></div>` : '';
   const langsHtml = langs.length
-    ? `<div class="pv-section"><p class="pv-section-title">対応言語</p><div class="pv-chips">${langs.map(l => `<span class="pv-chip">${escHtml(l)}</span>`).join('')}</div></div>` : '';
+    ? `<div class="pv-section" data-pv-key="langs"><p class="pv-section-title">対応言語</p><div class="pv-chips">${langs.map(l => `<span class="pv-chip">${escHtml(l)}</span>`).join('')}</div></div>` : '';
   const snsHtml = ytUrl
-    ? `<div class="pv-section"><p class="pv-section-title">リンク</p><div class="pv-chips"><span class="pv-chip">YouTube</span></div></div>` : '';
+    ? `<div class="pv-section" data-pv-key="sns"><p class="pv-section-title">リンク</p><div class="pv-chips"><span class="pv-chip">YouTube</span></div></div>` : '';
 
   return `
-    <div class="pv-cover">${coverHtml}</div>
+    <div class="pv-cover" data-pv-key="cover">${coverHtml}</div>
     <div class="pv-hero">
       <div class="pv-hero-inner">
-        <div class="pv-avatar">${avatarHtml}</div>
-        <div class="pv-meta">
+        <div class="pv-avatar" data-pv-key="avatar">${avatarHtml}</div>
+        <div class="pv-meta" data-pv-key="name">
           <p class="pv-type">${isShop ? 'ショップ' : 'インストラクター'}</p>
           <p class="pv-name">${escHtml(name)}</p>
           ${areas.length ? `<p class="pv-loc">${escHtml(areas.join(' ・ '))}</p>` : ''}
@@ -1261,6 +1316,7 @@ function renderProfilePreview() {
   }
 
   wrap.innerHTML = buildProfilePreviewCard({ isShop, name, bio, areas, certs, specs, langs, ytUrl, photoUrl, coverUrl });
+  pvApplyHighlight('profile-preview-scroll');
 }
 
 // ── 新規作成モーダル（写真・カバーはまだ入力させないので name/bio/areas/certs/langs のみ反映） ──
@@ -1273,6 +1329,7 @@ function renderCreateProfilePreview() {
   const langs = document.getElementById('cp-langs') ? collectLanguages('cp') : [];
   const certs = document.getElementById('cp-certs') ? collectCertifications('cp') : [];
   wrap.innerHTML = buildProfilePreviewCard({ isShop: false, name, bio, areas, certs, specs: [], langs, ytUrl: '', photoUrl: '', coverUrl: '' });
+  pvApplyHighlight('cp-preview-scroll');
 }
 
 function renderCreateShopPreview() {
@@ -1283,6 +1340,7 @@ function renderCreateShopPreview() {
   const areas = document.getElementById('csp-area-rows') ? collectAreaRows('csp-area-rows') : [];
   const langs = document.getElementById('csp-langs') ? collectLanguages('csp') : [];
   wrap.innerHTML = buildProfilePreviewCard({ isShop: true, name, bio, areas, certs: [], specs: [], langs, ytUrl: '', photoUrl: '', coverUrl: '' });
+  pvApplyHighlight('csp-preview-scroll');
 }
 
 // ── コース(listing)プレビュー：explore/listing.html の見た目を模す（予約カレンダー・レビュー・他プランは対象外） ──
@@ -1307,36 +1365,36 @@ function buildListingPreviewCard({ coverUrl, category, title, tags, price, price
     { label: 'エリア', value: [pref, area].filter(Boolean).join(' ') || '—' },
   ].filter(Boolean);
   const infoGridHtml = infoCards.length
-    ? `<div class="lv-info-grid">${infoCards.map(c => `<div class="lv-info-card"><p class="lv-info-label">${escHtml(c.label)}</p><p class="lv-info-value">${escHtml(c.value)}</p></div>`).join('')}</div>` : '';
+    ? `<div class="lv-info-grid" data-pv-key="infogrid">${infoCards.map(c => `<div class="lv-info-card"><p class="lv-info-label">${escHtml(c.label)}</p><p class="lv-info-value">${escHtml(c.value)}</p></div>`).join('')}</div>` : '';
 
   const descHtml = desc
-    ? `<div class="pv-section"><p class="pv-section-title">このプランについて</p><p class="pv-text">${escHtml(desc).replace(/\n/g, '<br>')}</p></div>`
-    : `<div class="pv-section"><p class="pv-empty">説明が入力されるとここに表示されます</p></div>`;
+    ? `<div class="pv-section" data-pv-key="desc"><p class="pv-section-title">このプランについて</p><p class="pv-text">${escHtml(desc).replace(/\n/g, '<br>')}</p></div>`
+    : `<div class="pv-section" data-pv-key="desc"><p class="pv-empty">説明が入力されるとここに表示されます</p></div>`;
   const goalHtml = goal
-    ? `<div class="pv-section"><p class="pv-section-title">このコースの到達目標</p><p class="pv-text">${escHtml(goal).replace(/\n/g, '<br>')}</p></div>` : '';
+    ? `<div class="pv-section" data-pv-key="goal"><p class="pv-section-title">このコースの到達目標</p><p class="pv-text">${escHtml(goal).replace(/\n/g, '<br>')}</p></div>` : '';
   const flowHtml = flowSteps.length
-    ? `<div class="pv-section"><p class="pv-section-title">当日の流れ</p>${flowSteps.map(s => `
+    ? `<div class="pv-section" data-pv-key="flow"><p class="pv-section-title">当日の流れ</p>${flowSteps.map(s => `
         <div class="lv-flow-row">
           <span class="lv-flow-time">${escHtml(s.time || '')}</span>
           <div class="lv-flow-body"><strong>${escHtml(s.title || '')}</strong>${s.desc ? `<span>${escHtml(s.desc)}</span>` : ''}</div>
         </div>`).join('')}</div>` : '';
   const meetingHtml = meeting
-    ? `<div class="pv-section"><p class="pv-section-title">集合場所</p><p class="pv-text">${escHtml(meeting)}</p></div>` : '';
+    ? `<div class="pv-section" data-pv-key="meeting"><p class="pv-section-title">集合場所</p><p class="pv-text">${escHtml(meeting)}</p></div>` : '';
   const priceNoteHtml = (priceInc || priceExc)
-    ? `<div class="pv-section"><p class="pv-section-title">料金について</p>
+    ? `<div class="pv-section" data-pv-key="pricenote"><p class="pv-section-title">料金について</p>
         ${priceInc ? `<p class="pv-text" style="margin-bottom:6px;"><strong style="color:var(--ink);">含まれるもの：</strong>${escHtml(priceInc).replace(/\n/g, '<br>')}</p>` : ''}
         ${priceExc ? `<p class="pv-text"><strong style="color:var(--ink);">含まれないもの：</strong>${escHtml(priceExc).replace(/\n/g, '<br>')}</p>` : ''}
       </div>` : '';
   const bringHtml = bring
-    ? `<div class="pv-section"><p class="pv-section-title">持ち物・服装</p><p class="pv-text">${escHtml(bring).replace(/\n/g, '<br>')}</p></div>` : '';
+    ? `<div class="pv-section" data-pv-key="bring"><p class="pv-section-title">持ち物・服装</p><p class="pv-text">${escHtml(bring).replace(/\n/g, '<br>')}</p></div>` : '';
   const notesHtml = notes
-    ? `<div class="pv-section"><p class="pv-section-title">注意事項</p><p class="pv-text">${escHtml(notes).replace(/\n/g, '<br>')}</p></div>` : '';
+    ? `<div class="pv-section" data-pv-key="notes"><p class="pv-section-title">注意事項</p><p class="pv-text">${escHtml(notes).replace(/\n/g, '<br>')}</p></div>` : '';
   const cancelHtml = cancel
-    ? `<div class="pv-section"><p class="pv-section-title">キャンセルポリシー</p><p class="pv-text">${escHtml(cancel).replace(/\n/g, '<br>')}</p></div>` : '';
+    ? `<div class="pv-section" data-pv-key="cancel"><p class="pv-section-title">キャンセルポリシー</p><p class="pv-text">${escHtml(cancel).replace(/\n/g, '<br>')}</p></div>` : '';
 
   return `
-    <div class="pv-cover">${coverHtml}</div>
-    <div class="lv-header">
+    <div class="pv-cover" data-pv-key="cover">${coverHtml}</div>
+    <div class="lv-header" data-pv-key="header">
       <p class="lv-category">${escHtml(category || '')}</p>
       <p class="lv-title">${escHtml(title)}</p>
       ${tagsHtml}
@@ -1384,7 +1442,7 @@ function renderListingPreview() {
   const ageMin    = document.getElementById('l-age-min')?.value || '';
   const ageMax    = document.getElementById('l-age-max')?.value || '';
   const shuttle   = document.getElementById('l-shuttle')?.checked || false;
-  const deadline  = document.getElementById('l-deadline')?.value?.trim() || '';
+  const deadline  = composeDeadlineLabel();
   const meeting   = document.getElementById('l-meeting')?.value?.trim() || '';
   const cancel    = document.getElementById('l-cancel')?.value?.trim() || '';
   const bring     = document.getElementById('l-bring')?.value?.trim() || '';
@@ -1400,6 +1458,7 @@ function renderListingPreview() {
     duration, season, minPax, maxPax, ageMin, ageMax, shuttle, deadline,
     desc, goal, flowSteps, meeting, priceInc, priceExc, bring, notes, cancel,
   });
+  pvApplyHighlight('listing-preview-scroll');
 }
 
 function renderProfileForm() {
@@ -1433,7 +1492,7 @@ function renderProfileForm() {
   const hasOtherCert      = otherCerts.length > 0;
 
   document.getElementById('profile-form-wrap').innerHTML = `
-    <div class="profile-hero">
+    <div class="profile-hero" data-pv-key="avatar">
       <div class="profile-avatar" onclick="document.getElementById('p-photo-file').click()"
         style="cursor:pointer;position:relative;" title="タップして写真を変更">
         ${i.photo_url
@@ -1450,22 +1509,22 @@ function renderProfileForm() {
     <input type="file" id="p-photo-file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="handleInstructorPhotoFile(this)">
 
     <div class="form-section-title">基本情報</div>
-    <div class="form-row">
+    <div class="form-row" data-pv-key="name">
       <div class="form-group"><label>氏名 / 屋号</label><input type="text" id="p-name" value="${escHtml(i.name || '')}"></div>
       <div class="form-group"><label>英語名</label><input type="text" id="p-name-en" value="${escHtml(i.name_en || '')}" placeholder="Kaito Yamada"></div>
     </div>
-    <div class="form-group"><label>自己紹介（日本語）</label><textarea id="p-bio">${escHtml(i.bio || '')}</textarea></div>
-    <div class="form-group"><label>自己紹介（英語）</label><textarea id="p-bio-en">${escHtml(i.bio_en || '')}</textarea></div>
+    <div class="form-group" data-pv-key="bio"><label>自己紹介（日本語）</label><textarea id="p-bio">${escHtml(i.bio || '')}</textarea></div>
+    <div class="form-group" data-pv-key="bio"><label>自己紹介（英語）</label><textarea id="p-bio-en">${escHtml(i.bio_en || '')}</textarea></div>
 
     <div class="form-section-title">活動エリア</div>
-    <div class="form-group">
+    <div class="form-group" data-pv-key="areas">
       <label>エリアと活動時期</label>
       <div id="p-area-rows">${areaRowsHtml}</div>
       <button type="button" class="btn-edit" onclick="addAreaRow('p-area-rows')" style="margin-top:8px;font-size:12px;">＋ エリアを追加</button>
     </div>
 
     <div class="form-section-title">資格・専門</div>
-    <div class="form-group">
+    <div class="form-group" data-pv-key="certs">
       <label>資格</label>
       <div class="check-group" id="p-certs">
         ${KNOWN_CERTS.map(c => `<label class="check-item"><input type="checkbox" value="${c}"${knownCertsChecked.includes(c)?' checked':''}> ${c}</label>`).join('')}
@@ -1473,13 +1532,13 @@ function renderProfileForm() {
       </div>
       <input type="text" id="p-cert-other" value="${escHtml(otherCerts.join(', '))}" placeholder="例：STAB, PFI（カンマ区切り）" style="margin-top:8px;${hasOtherCert?'':'display:none;'}">
     </div>
-    <div class="form-group">
+    <div class="form-group" data-pv-key="specs">
       <label>得意分野・専門（カンマ区切り）</label>
       <input type="text" id="p-specs" value="${escHtml(specsStr)}" placeholder="例：初心者指導, 競技トレーニング, STA">
     </div>
 
     <div class="form-section-title">対応言語</div>
-    <div class="form-group">
+    <div class="form-group" data-pv-key="langs">
       <div class="check-group" id="p-langs">
         ${knownLangs.map(l => `<label class="check-item"><input type="checkbox" value="${l}"${knownChecked.includes(l)?' checked':''}> ${l}</label>`).join('')}
         <label class="check-item"><input type="checkbox" value="__other__"${hasOther?' checked':''} onchange="toggleLangOther(this,'p-lang-other')"> その他</label>
@@ -1488,7 +1547,7 @@ function renderProfileForm() {
     </div>
 
     <div class="form-section-title">カバー画像</div>
-    <div class="form-group">
+    <div class="form-group" data-pv-key="cover">
       <label>プロフィール上部のバナー</label>
       <div id="p-cover-empty" onclick="document.getElementById('p-cover-file').click()" style="cursor:pointer;width:100%;height:150px;border-radius:8px;background:rgba(46,196,182,0.1);border:2px dashed rgba(46,196,182,0.3);display:${i.cover_url ? 'none' : 'flex'};align-items:center;justify-content:center;overflow:hidden;color:var(--teal);font-size:13px;">
         <span>📷 タップして画像を選択</span>
@@ -1808,7 +1867,7 @@ function renderShopProfileForm() {
   const sHasOther     = sOtherLangs.length > 0;
 
   document.getElementById('profile-form-wrap').innerHTML = `
-    <div class="profile-hero">
+    <div class="profile-hero" data-pv-key="avatar">
       <div class="profile-avatar" onclick="document.getElementById('sp-logo-file').click()"
         style="cursor:pointer;position:relative;" title="タップしてロゴを変更">
         ${s.logo_url
@@ -1824,10 +1883,10 @@ function renderShopProfileForm() {
     <input type="file" id="sp-logo-file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="handleShopLogoFile(this)">
 
     <div class="form-section-title">基本情報</div>
-    <div class="form-row">
+    <div class="form-row" data-pv-key="name">
       <div class="form-group"><label>屋号</label><input type="text" id="sp-name" value="${escHtml(s.name||'')}"></div>
     </div>
-    <div class="form-group"><label>自己紹介</label><textarea id="sp-bio">${escHtml(s.bio||'')}</textarea></div>
+    <div class="form-group" data-pv-key="bio"><label>自己紹介</label><textarea id="sp-bio">${escHtml(s.bio||'')}</textarea></div>
 
     <div class="form-section-title">在籍インストラクター</div>
     <div class="form-group">
@@ -1840,14 +1899,14 @@ function renderShopProfileForm() {
     </div>
 
     <div class="form-section-title">活動エリア</div>
-    <div class="form-group">
+    <div class="form-group" data-pv-key="areas">
       <label>エリアと活動時期</label>
       <div id="sp-area-rows">${areaRowsHtml}</div>
       <button type="button" class="btn-edit" onclick="addAreaRow('sp-area-rows')" style="margin-top:8px;font-size:12px;">＋ エリアを追加</button>
     </div>
 
     <div class="form-section-title">対応言語</div>
-    <div class="form-group">
+    <div class="form-group" data-pv-key="langs">
       <div class="check-group" id="sp-langs">
         ${knownLangsS.map(l => `<label class="check-item"><input type="checkbox" value="${l}"${sKnownChecked.includes(l)?' checked':''}> ${l}</label>`).join('')}
         <label class="check-item"><input type="checkbox" value="__other__"${sHasOther?' checked':''} onchange="toggleLangOther(this,'sp-lang-other')"> その他</label>
@@ -1856,7 +1915,7 @@ function renderShopProfileForm() {
     </div>
 
     <div class="form-section-title">カバー画像</div>
-    <div class="form-group">
+    <div class="form-group" data-pv-key="cover">
       <label>プロフィール上部のバナー</label>
       <div id="sp-cover-empty" onclick="document.getElementById('sp-cover-file').click()" style="cursor:pointer;width:100%;height:150px;border-radius:8px;background:rgba(46,196,182,0.1);border:2px dashed rgba(46,196,182,0.3);display:${s.cover_url ? 'none' : 'flex'};align-items:center;justify-content:center;overflow:hidden;color:var(--teal);font-size:13px;">
         <span>📷 タップして画像を選択</span>
@@ -2214,12 +2273,13 @@ function openListingModal(listingId = null, duplicateFromId = null) {
   document.getElementById('l-save-label').textContent        = listingId ? '更新する' : '保存する';
   ['l-title','l-desc','l-pref','l-pref-other','l-area','l-tags','l-image',
    'l-price-inc','l-price-exc','l-duration','l-season','l-meeting',
-   'l-deadline','l-cancel','l-bring','l-notes'].forEach(id => {
+   'l-cancel','l-bring','l-notes'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
   document.getElementById('l-pref-other').style.display = 'none';
   document.getElementById('l-price').value       = '';
   document.getElementById('l-price-unit').value  = '〜/人';
+  parseDeadlineIntoFields(null); // 予約締切を初期値（前日 18:00まで）にリセット
   document.getElementById('l-min-pax').value     = '';
   document.getElementById('l-max-pax').value     = '';
   document.getElementById('l-age-min').value     = '';
@@ -2285,7 +2345,7 @@ function openListingModal(listingId = null, duplicateFromId = null) {
       document.getElementById('l-age-min').value     = l.age_min         || '';
       document.getElementById('l-age-max').value     = l.age_max         || '';
       document.getElementById('l-meeting').value     = l.meeting_point   || l.meeting_location || '';
-      document.getElementById('l-deadline').value    = l.booking_deadline|| '';
+      parseDeadlineIntoFields(l.booking_deadline || '');
       document.getElementById('l-shuttle').checked   = l.has_shuttle     || false;
       document.getElementById('l-cancel').value      = l.cancellation_policy || '';
       document.getElementById('l-bring').value       = l.what_to_bring   || '';
@@ -2359,7 +2419,7 @@ async function saveListing() {
     age_min:             parseInt(document.getElementById('l-age-min').value)     || null,
     age_max:             parseInt(document.getElementById('l-age-max').value)     || null,
     meeting_point:       document.getElementById('l-meeting').value.trim()        || null,
-    booking_deadline:    document.getElementById('l-deadline').value.trim()       || null,
+    booking_deadline:    composeDeadlineLabel()                                  || null,
     has_shuttle:         document.getElementById('l-shuttle').checked,
     cancellation_policy: document.getElementById('l-cancel').value.trim()        || null,
     what_to_bring:       document.getElementById('l-bring').value.trim()          || null,
@@ -2930,6 +2990,58 @@ function togglePrefOther(sel) {
   document.getElementById('l-pref-other').style.display = sel.value === '海外' ? '' : 'none';
 }
 
+// ── 予約締切：自由入力ではなく「◯日前 + 時間」の選択式（2026-07-11・入力を減らす方針で変更） ──
+function toggleDeadlineOther() {
+  const isOther = document.getElementById('l-deadline-days').value === 'other';
+  document.getElementById('l-deadline-other').style.display = isOther ? '' : 'none';
+  document.getElementById('l-deadline-time').style.display  = isOther ? 'none' : '';
+}
+
+function composeDeadlineLabel() {
+  const daysSel = document.getElementById('l-deadline-days');
+  if (!daysSel) return '';
+  if (daysSel.value === 'other') {
+    return document.getElementById('l-deadline-other')?.value?.trim() || '';
+  }
+  const time = document.getElementById('l-deadline-time')?.value || '';
+  const daysLabel = daysSel.value === '0' ? '当日' : `${daysSel.value}日前`;
+  return time ? `${daysLabel} ${time}まで` : `${daysLabel}まで`;
+}
+
+// 既存データ（自由入力時代の文字列）を可能な範囲で日数+時間セレクトへ復元する。
+// パースできない古い表記は「その他（自由入力）」に残して情報を失わないようにする
+function parseDeadlineIntoFields(raw) {
+  const daysSel = document.getElementById('l-deadline-days');
+  const timeInput = document.getElementById('l-deadline-time');
+  const otherInput = document.getElementById('l-deadline-other');
+  const knownDays = ['0', '1', '2', '3', '5', '7', '14'];
+
+  if (!raw) {
+    daysSel.value = '1';
+    timeInput.value = '18:00';
+    otherInput.value = '';
+    toggleDeadlineOther();
+    return;
+  }
+
+  const m = raw.match(/^(当日|(\d+)\s*日前)\s*(\d{1,2})(?::(\d{2})|時(\d{1,2}分)?)?/);
+  if (m) {
+    const daysVal = m[1] === '当日' ? '0' : m[2];
+    if (knownDays.includes(daysVal)) {
+      daysSel.value = daysVal;
+      const hh = String(m[3]).padStart(2, '0');
+      const mm = m[4] ? m[4] : (m[5] ? m[5].replace('分', '').padStart(2, '0') : '00');
+      timeInput.value = `${hh}:${String(mm).padStart(2, '0')}`;
+      otherInput.value = '';
+      toggleDeadlineOther();
+      return;
+    }
+  }
+  daysSel.value = 'other';
+  otherInput.value = raw;
+  toggleDeadlineOther();
+}
+
 // スポット名の入力候補（2026-07-10・エリア設計の刷新）。種データ＋DB実データをdatalistに流し込む
 if (window.FJLocations) {
   FJLocations.loadKnownSpots().then(spots => {
@@ -3435,6 +3547,12 @@ document.getElementById('csp-split')?.addEventListener('change', renderCreateSho
 // ── コース登録モーダルのプレビューも同様に入力へ追従（動的に追加される流れ/ギャラリー行もイベント委譲で拾える） ──
 document.getElementById('l-split')?.addEventListener('input',  renderListingPreview);
 document.getElementById('l-split')?.addEventListener('change', renderListingPreview);
+
+// ── 入力中の項目とプレビューの該当箇所を同期ハイライト（4箇所すべての分割ビューに適用） ──
+wirePreviewFocusSync('pf-split',  'profile-preview-scroll');
+wirePreviewFocusSync('cp-split',  'cp-preview-scroll');
+wirePreviewFocusSync('csp-split', 'csp-preview-scroll');
+wirePreviewFocusSync('l-split',   'listing-preview-scroll');
 window.addEventListener('beforeunload', e => {
   if (!_isDirty) return;
   e.preventDefault();
