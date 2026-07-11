@@ -797,8 +797,16 @@ td.primary { color: var(--on-dark); font-weight: 500; }
 
     <div class="form-group">
       <label>資格</label>
-      <input type="text" id="cp-certs" placeholder="例：AIDA インストラクター, SSI フリーダイビング">
-      <p class="form-hint">カンマ区切りで複数入力</p>
+      <div class="check-group" id="cp-certs">
+        <label class="check-item"><input type="checkbox" value="AIDA"> AIDA</label>
+        <label class="check-item"><input type="checkbox" value="Molchanovs"> Molchanovs</label>
+        <label class="check-item"><input type="checkbox" value="PADI Freediver"> PADI Freediver</label>
+        <label class="check-item"><input type="checkbox" value="SSI Freediving"> SSI Freediving</label>
+        <label class="check-item"><input type="checkbox" value="CMAS"> CMAS</label>
+        <label class="check-item"><input type="checkbox" value="NAUI"> NAUI</label>
+        <label class="check-item"><input type="checkbox" value="__other__" onchange="toggleLangOther(this,'cp-cert-other')"> その他</label>
+      </div>
+      <input type="text" id="cp-cert-other" placeholder="例：STAB, PFI（カンマ区切り）" style="margin-top:8px;display:none;">
     </div>
 
     <div class="form-group">
@@ -959,7 +967,6 @@ function switchTab(name) {
 function renderProfileForm() {
   if (myRole === 'shop') { renderShopProfileForm(); return; }
   const i = myInstructor;
-  const certsStr  = (i.certifications || []).join(', ');
   const specsStr  = (i.specialties    || []).join(', ');
   const langs     = i.languages || [];
 
@@ -981,6 +988,11 @@ function renderProfileForm() {
   const knownChecked = langs.filter(l => knownLangs.includes(l));
   const otherLangs   = langs.filter(l => !knownLangs.includes(l));
   const hasOther     = otherLangs.length > 0;
+
+  const certs             = i.certifications || [];
+  const knownCertsChecked = certs.filter(c => KNOWN_CERTS.includes(c));
+  const otherCerts        = certs.filter(c => !KNOWN_CERTS.includes(c));
+  const hasOtherCert      = otherCerts.length > 0;
 
   document.getElementById('profile-form-wrap').innerHTML = `
     <div class="profile-hero">
@@ -1016,8 +1028,12 @@ function renderProfileForm() {
 
     <div class="form-section-title">資格・専門</div>
     <div class="form-group">
-      <label>資格（カンマ区切り）</label>
-      <input type="text" id="p-certs" value="${escHtml(certsStr)}" placeholder="例：AIDA インストラクター, SSI">
+      <label>資格</label>
+      <div class="check-group" id="p-certs">
+        ${KNOWN_CERTS.map(c => `<label class="check-item"><input type="checkbox" value="${c}"${knownCertsChecked.includes(c)?' checked':''}> ${c}</label>`).join('')}
+        <label class="check-item"><input type="checkbox" value="__other__"${hasOtherCert?' checked':''} onchange="toggleLangOther(this,'p-cert-other')"> その他</label>
+      </div>
+      <input type="text" id="p-cert-other" value="${escHtml(otherCerts.join(', '))}" placeholder="例：STAB, PFI（カンマ区切り）" style="margin-top:8px;${hasOtherCert?'':'display:none;'}">
     </div>
     <div class="form-group">
       <label>得意分野・専門（カンマ区切り）</label>
@@ -1060,7 +1076,7 @@ async function saveProfile() {
     bio:             document.getElementById('p-bio').value.trim()     || null,
     bio_en:          document.getElementById('p-bio-en').value.trim() || null,
     areas:           collectAreaRows('p-area-rows'),
-    certifications:  toArr(document.getElementById('p-certs').value),
+    certifications:  collectCertifications('p'),
     specialties:     toArr(document.getElementById('p-specs').value),
     languages:       collectLanguages('p'),
     photo_url:       _newInstructorPhotoUrl || myInstructor.photo_url || null,
@@ -1138,7 +1154,7 @@ async function createProfile() {
     name,
     bio:            document.getElementById('cp-bio').value.trim() || null,
     areas:          collectAreaRows('cp-area-rows'),
-    certifications: toArr(document.getElementById('cp-certs').value),
+    certifications: collectCertifications('cp'),
     languages:      collectLanguages('cp'),
     is_public:      false,
   }).select().single();
@@ -2339,6 +2355,18 @@ function collectLanguages(prefix) {
   const known = ['日本語','英語','中国語'];
   const checked = collectChecked(`${prefix}-langs`).filter(v => v !== '__other__');
   const otherEl = document.getElementById(`${prefix}-lang-other`);
+  const others  = (otherEl && otherEl.value.trim())
+    ? otherEl.value.split(',').map(s => s.trim()).filter(Boolean)
+    : [];
+  return [...checked, ...others];
+}
+
+// 資格：一般的な指導団体はチェックボックスから選択、リストにないものは「その他」に自由入力
+// （docs/safety/instructor_safety_standards.md に記載の認定団体リストと揃えている）
+const KNOWN_CERTS = ['AIDA', 'Molchanovs', 'PADI Freediver', 'SSI Freediving', 'CMAS', 'NAUI'];
+function collectCertifications(prefix) {
+  const checked = collectChecked(`${prefix}-certs`).filter(v => v !== '__other__');
+  const otherEl = document.getElementById(`${prefix}-cert-other`);
   const others  = (otherEl && otherEl.value.trim())
     ? otherEl.value.split(',').map(s => s.trim()).filter(Boolean)
     : [];
