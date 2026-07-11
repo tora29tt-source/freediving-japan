@@ -91,6 +91,7 @@ body.status-rejected #rejected-banner { display: flex; }
 
 /* ── Main ── */
 .main { max-width: 860px; margin: 0 auto; padding: 0 20px 80px; }
+body.pf-wide .main { max-width: 1180px; }
 
 /* ── Section header ── */
 .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
@@ -251,6 +252,56 @@ td.primary { color: var(--on-dark); font-weight: 500; }
 .profile-meta h2 { font-size: 18px; font-weight: 700; }
 .profile-meta p { font-size: 12px; color: var(--on-dark-soft); margin-top: 3px; }
 
+/* ── プロフィール 分割プレビュー（公開ページ = explore/profile.html を模した見た目） ── */
+.pf-mode-tabs { display: flex; gap: 2px; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 3px; width: fit-content; margin-bottom: 20px; }
+.pf-mode-tab { padding: 6px 16px; border-radius: 6px; font-size: 12px; font-weight: 600; color: var(--on-dark-soft); background: none; border: none; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+.pf-mode-tab.active { background: rgba(255,255,255,0.14); color: var(--teal); }
+
+.pf-split-wrap { display: block; }
+.pf-preview-pane { display: none; }
+.pf-split-wrap.pf-mode-split { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,400px); gap: 28px; align-items: start; }
+.pf-split-wrap.pf-mode-split .pf-preview-pane { display: block; }
+.pf-split-wrap.pf-mode-preview { display: block; }
+.pf-split-wrap.pf-mode-preview .pf-editor-pane { display: none; }
+.pf-split-wrap.pf-mode-preview .pf-preview-pane { display: block; max-width: 400px; margin: 0 auto; }
+
+.pf-preview-pane {
+  position: sticky; top: 76px;
+  background: #fff; border-radius: 16px; overflow: hidden;
+  border: 1px solid #e7e7ea; box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  --ink: #222226; --ink-mid: #5b5b60; --ink-soft: #8b8b90;
+  --line: #e7e7ea; --teal-deep: #124a52;
+  font-family: -apple-system, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+}
+.pf-preview-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--on-dark-soft); padding: 10px 16px 0; }
+.pf-preview-scroll { max-height: 620px; overflow-y: auto; }
+.pf-preview-pane .pv-cover { width: 100%; height: 130px; background: #f0f0f2; position: relative; overflow: hidden; }
+.pf-preview-pane .pv-cover img { width: 100%; height: 100%; object-fit: cover; }
+.pf-preview-pane .pv-cover-ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--ink-soft); background: linear-gradient(135deg, rgba(18,74,82,0.10), rgba(18,74,82,0.04)); font-size: 11px; }
+.pf-preview-pane .pv-hero { padding: 0 16px; margin-bottom: 16px; }
+.pf-preview-pane .pv-hero-inner { display: flex; align-items: flex-end; gap: 12px; margin-top: -28px; position: relative; }
+.pf-preview-pane .pv-avatar { width: 56px; height: 56px; border-radius: 50%; border: 3px solid #fff; background: #f0f0f2; flex-shrink: 0; overflow: hidden; box-shadow: 0 6px 20px rgba(20,20,30,.15); }
+.pf-preview-pane .pv-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.pf-preview-pane .pv-avatar-ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--teal-deep); font-size: 18px; font-weight: 700; }
+.pf-preview-pane .pv-meta { flex: 1; min-width: 0; padding-bottom: 2px; }
+.pf-preview-pane .pv-type { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--teal-deep); font-weight: 700; margin-bottom: 3px; }
+.pf-preview-pane .pv-name { font-size: 15px; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pf-preview-pane .pv-loc { font-size: 11px; color: var(--ink-soft); margin-top: 3px; }
+.pf-preview-pane .pv-body { padding: 4px 16px 18px; }
+.pf-preview-pane .pv-section { margin: 0 0 16px; }
+.pf-preview-pane .pv-section-title { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--teal-deep); font-weight: 700; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+.pf-preview-pane .pv-text { font-size: 12.5px; line-height: 1.8; color: var(--ink-mid); white-space: pre-wrap; }
+.pf-preview-pane .pv-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.pf-preview-pane .pv-chip { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 100px; border: 1px solid var(--line); font-size: 10px; color: var(--ink-mid); }
+.pf-preview-pane .pv-chip.cert { border-color: rgba(18,74,82,0.28); color: var(--teal-deep); background: rgba(18,74,82,0.06); }
+.pf-preview-pane .pv-empty { font-size: 12px; color: var(--ink-soft); }
+.pf-preview-note { font-size: 11px; color: var(--on-dark-soft); text-align: center; padding: 10px 16px 0; }
+
+@media (max-width: 900px) {
+  .pf-split-wrap.pf-mode-split { grid-template-columns: 1fr; }
+  .pf-split-wrap.pf-mode-split .pf-preview-pane { position: static; margin-top: 24px; }
+}
+
 /* ── Setup prompt (no instructor record yet) ── */
 .setup-card { text-align: center; padding: 60px 24px; }
 .setup-card h2 { font-size: 20px; font-weight: 700; margin-bottom: 10px; }
@@ -363,7 +414,21 @@ td.primary { color: var(--on-dark); font-weight: 500; }
     <!-- ── プロフィール ── -->
     <div id="tab-profile">
       <div class="add-role-banner" id="add-role-banner"></div>
-      <div id="profile-form-wrap"></div>
+
+      <div class="pf-mode-tabs">
+        <button class="pf-mode-tab active" id="pf-tab-write"   onclick="setProfileMode('write')">編集</button>
+        <button class="pf-mode-tab"        id="pf-tab-split"   onclick="setProfileMode('split')">分割</button>
+        <button class="pf-mode-tab"        id="pf-tab-preview" onclick="setProfileMode('preview')">プレビュー</button>
+      </div>
+
+      <div class="pf-split-wrap pf-mode-write" id="pf-split">
+        <div class="pf-editor-pane" id="profile-form-wrap"></div>
+        <div class="pf-preview-pane">
+          <p class="pf-preview-label">公開ページのプレビュー</p>
+          <div class="pf-preview-scroll" id="profile-preview-scroll"></div>
+          <p class="pf-preview-note">※保有コース・レビューは実際のページにのみ表示されます</p>
+        </div>
+      </div>
     </div>
 
     <!-- ── コース管理 ── -->
@@ -982,8 +1047,12 @@ async function setActiveRole(role) {
   applyStatusClasses();
   renderRoleSwitcher();
   renderProfileForm();
+  // 別ロールのバッジ・件数が残らないよう一旦リセットしてから再取得
+  document.getElementById('inq-badge').style.display = 'none';
+  document.getElementById('booking-badge').style.display = 'none';
   const activeTab = document.querySelector('.tab.active')?.dataset.tab || 'profile';
   switchTab(activeTab);
+  checkNewInquiries();
 }
 
 // ============================================================
@@ -1030,6 +1099,91 @@ function switchTab(name) {
 // ============================================================
 // プロフィール
 // ============================================================
+
+// ── 編集/分割/プレビュー モード切替（記事エディタの ae-mode-* と同じ方式） ──
+let _pfMode = 'write';
+function setProfileMode(mode) {
+  _pfMode = mode;
+  const splitEl = document.getElementById('pf-split');
+  if (splitEl) splitEl.className = `pf-split-wrap pf-mode-${mode}`;
+  document.getElementById('pf-tab-write')?.classList.toggle('active',   mode === 'write');
+  document.getElementById('pf-tab-split')?.classList.toggle('active',   mode === 'split');
+  document.getElementById('pf-tab-preview')?.classList.toggle('active', mode === 'preview');
+  document.body.classList.toggle('pf-wide', mode !== 'write');
+  if (mode !== 'write') renderProfilePreview();
+}
+
+// ── プレビュー描画：explore/profile.html と同じ見た目で今の入力内容を表示 ──
+function renderProfilePreview() {
+  const wrap = document.getElementById('profile-preview-scroll');
+  if (!wrap || (!myInstructor && !myShop)) return;
+  const isShop = myRole === 'shop';
+  const prefix = isShop ? 'sp' : 'p';
+
+  const name  = document.getElementById(`${prefix}-name`)?.value?.trim() || (isShop ? '（屋号未入力）' : '（氏名未入力）');
+  const bio   = document.getElementById(`${prefix}-bio`)?.value?.trim() || '';
+  const areas = document.getElementById(`${prefix}-area-rows`) ? collectAreaRows(`${prefix}-area-rows`) : [];
+  const langs = document.getElementById(`${prefix}-langs`) ? collectLanguages(prefix) : [];
+  const certs = (!isShop && document.getElementById('p-certs')) ? collectCertifications('p') : [];
+  const specs = (!isShop && document.getElementById('p-specs'))
+    ? document.getElementById('p-specs').value.split(',').map(s => s.trim()).filter(Boolean)
+    : [];
+  const ytUrl = document.getElementById(`${prefix}-yt`)?.value?.trim() || '';
+
+  // アップロード完了を待たず、編集パネルに今表示中のプレビュー画像をそのまま流用
+  const photoImgEl = document.getElementById(isShop ? 'sp-logo-preview' : 'p-photo-preview');
+  const photoUrl = (photoImgEl && photoImgEl.tagName === 'IMG') ? photoImgEl.src : '';
+  const posPrevEl = document.getElementById(isShop ? 'sp-pos-preview' : 'p-pos-preview');
+  let coverUrl = '';
+  if (posPrevEl) {
+    const m = /url\((['"]?)(.*?)\1\)/.exec(posPrevEl.style.backgroundImage || '');
+    if (m) coverUrl = m[2];
+  }
+
+  const coverHtml = coverUrl
+    ? `<img src="${escHtml(coverUrl)}" alt="">`
+    : `<div class="pv-cover-ph">カバー画像未設定</div>`;
+  const avatarHtml = photoUrl
+    ? `<img src="${escHtml(photoUrl)}" alt="">`
+    : `<div class="pv-avatar-ph">${escHtml((name || '?').charAt(0))}</div>`;
+
+  const bioHtml = bio
+    ? `<div class="pv-section"><p class="pv-section-title">自己紹介</p><p class="pv-text">${escHtml(bio).replace(/\n/g, '<br>')}</p></div>`
+    : `<div class="pv-section"><p class="pv-empty">自己紹介が入力されるとここに表示されます</p></div>`;
+  const certsHtml = certs.length
+    ? `<div class="pv-section"><p class="pv-section-title">保有資格</p><div class="pv-chips">${certs.map(c => `<span class="pv-chip cert">${escHtml(c)}</span>`).join('')}</div></div>` : '';
+  const specsHtml = specs.length
+    ? `<div class="pv-section"><p class="pv-section-title">専門・得意分野</p><div class="pv-chips">${specs.map(s => `<span class="pv-chip">${escHtml(s)}</span>`).join('')}</div></div>` : '';
+  const areasHtml = areas.length
+    ? `<div class="pv-section"><p class="pv-section-title">活動エリア</p><div class="pv-chips">${areas.map(a => `<span class="pv-chip">${escHtml(a)}</span>`).join('')}</div></div>` : '';
+  const langsHtml = langs.length
+    ? `<div class="pv-section"><p class="pv-section-title">対応言語</p><div class="pv-chips">${langs.map(l => `<span class="pv-chip">${escHtml(l)}</span>`).join('')}</div></div>` : '';
+  const snsHtml = ytUrl
+    ? `<div class="pv-section"><p class="pv-section-title">リンク</p><div class="pv-chips"><span class="pv-chip">YouTube</span></div></div>` : '';
+
+  wrap.innerHTML = `
+    <div class="pv-cover">${coverHtml}</div>
+    <div class="pv-hero">
+      <div class="pv-hero-inner">
+        <div class="pv-avatar">${avatarHtml}</div>
+        <div class="pv-meta">
+          <p class="pv-type">${isShop ? 'ショップ' : 'インストラクター'}</p>
+          <p class="pv-name">${escHtml(name)}</p>
+          ${areas.length ? `<p class="pv-loc">${escHtml(areas.join(' ・ '))}</p>` : ''}
+        </div>
+      </div>
+    </div>
+    <div class="pv-body">
+      ${bioHtml}
+      ${certsHtml}
+      ${specsHtml}
+      ${areasHtml}
+      ${langsHtml}
+      ${snsHtml}
+    </div>
+  `;
+}
+
 function renderProfileForm() {
   if (myRole === 'shop') { renderShopProfileForm(); return; }
   const i = myInstructor;
@@ -1170,6 +1324,7 @@ function renderProfileForm() {
     </div>
   `;
   ipInitPosDrag();
+  renderProfilePreview();
 }
 
 async function saveProfile() {
@@ -1220,6 +1375,7 @@ async function handleInstructorPhotoFile(input) {
   }
   const statusEl = document.getElementById('p-photo-status');
   if (statusEl) statusEl.textContent = 'アップロード中...';
+  renderProfilePreview();
 
   const ext  = file.name.split('.').pop().toLowerCase();
   const path = `${currentUser.id}/instructor.${ext}`;
@@ -1260,6 +1416,7 @@ async function handleInstructorCoverFile(input) {
   const posLabel = document.getElementById('p-pos-label');
   if (posLabel) posLabel.textContent = '50% 50%';
   ipInitPosDrag();
+  renderProfilePreview();
 
   const ext  = file.name.split('.').pop().toLowerCase();
   const path = `${currentUser.id}/instructor-cover.${ext}`;
@@ -1540,6 +1697,7 @@ function renderShopProfileForm() {
   `;
   renderShopRosterList();
   spInitPosDrag();
+  renderProfilePreview();
 }
 
 function renderShopRosterList() {
@@ -1644,6 +1802,7 @@ async function handleShopLogoFile(input) {
   }
   const statusEl = document.getElementById('sp-logo-status');
   if (statusEl) statusEl.textContent = 'アップロード中...';
+  renderProfilePreview();
 
   const ext  = file.name.split('.').pop().toLowerCase();
   const path = `${currentUser.id}/shop-logo.${ext}`;
@@ -1684,6 +1843,7 @@ async function handleShopCoverFile(input) {
   const posLabel = document.getElementById('sp-pos-label');
   if (posLabel) posLabel.textContent = '50% 50%';
   spInitPosDrag();
+  renderProfilePreview();
 
   const ext  = file.name.split('.').pop().toLowerCase();
   const path = `${currentUser.id}/shop-cover.${ext}`;
@@ -3055,6 +3215,12 @@ boot();
 let _isDirty = false;
 document.addEventListener('input',  () => { _isDirty = true; });
 document.addEventListener('change', () => { _isDirty = true; });
+
+// ── プロフィールフォームの入力に合わせてプレビューをその都度更新 ──
+// #profile-form-wrap は毎回 innerHTML で差し替わるため、要素自体には
+// リスナーを付け直さず、常に存在する外側の要素に委譲する
+document.getElementById('pf-split')?.addEventListener('input',  renderProfilePreview);
+document.getElementById('pf-split')?.addEventListener('change', renderProfilePreview);
 window.addEventListener('beforeunload', e => {
   if (!_isDirty) return;
   e.preventDefault();

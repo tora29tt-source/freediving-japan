@@ -287,13 +287,14 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 - ショップアカウント：ショップ登録のみ。所属インストラクターは既存の（別アカウントの）承認済みインストラクターを検索して`instructor_shops`で紐付ける（実装済み・変更なし）
 - ショップ登録の承認フロー：`shops`にstatusカラムは追加しない。インストラクターが追加でショップ登録する場合も審査不要（現状どおり即公開）
 
-**実装方針（次はpmスキルで着手）**：
-- `boot()`のelse-ifを廃止し、instructors・shops両方の有無を保持
-- 両方持つユーザー向けに、ヘッダーに「個人／◯◯ショップ」の切替UIを追加し、今どちらの画面を見ているか常に判別できるようにする
-- 切替時は`myRole`を差し替えて現在表示中のタブのデータを再取得（profile/listings/slots/bookings/inquiriesは既に`myRole`分岐実装済みのため、切替の仕組みだけ追加すればよい）
-- 未登録の一方をプロフィール画面内から追加登録できる導線（例：「＋ショップも登録する」）をsetup-guard外にも用意する
+**実装済み（2026-07-11・同日中に着手）**：
+- `pro/index.html`の`boot()`のelse-ifを廃止。`instructors`・`shops`の有無をそれぞれ`myInstructor`/`myShop`に保持し、両方あれば個人インストラクター優先をデフォルト表示にする（`myRole = myInstructor ? 'instructor' : (myShop ? 'shop' : null)`）
+- ヘッダーに`role-switch`（個人名／ショップ名の2ボタン、両方持つユーザーにのみ表示）を追加。クリックで`setActiveRole()`が`myRole`を差し替え、プロフィール表示・現在アクティブなタブのデータ・問い合わせ/予約バッジを再取得する
+- `status-pending`/`status-rejected`のbody classは`applyStatusClasses()`に切り出し、instructorロール表示時のみ付与するよう修正（ショップロール表示中は承認待ちロックがかからないように）
+- プロフィールタブに`add-role-banner`を追加。片方のプロフィールしか無いユーザーには「＋ショップとして登録する」／「＋インストラクターとして登録する」の導線を表示し、`showCreateProfile()`から既存の作成モーダルを再利用（新規モーダルは作らず流用）
+- インラインJSの構文チェック済み（Node `new Function()`でパースエラー無し）
 
-**未着手**：具体的なUI実装（DB側は`instructors`/`shops`とも既に`user_id`列があり変更不要）
+**未実施**：実機QA（Chrome MCP等での動作確認）は未着手。次回セッションで、個人のみ／ショップのみ／両方持つテストアカウントの3パターンで切替・バナー表示・承認待ちロックの挙動を確認する
 
 ### `listings.category` タクソノミー変更（2026-07-10・secretary相談で確定）
 
