@@ -164,7 +164,7 @@ async function initPage() {
           avg_rating: raw.avg_rating, review_count: raw.review_count,
         }
       : {
-          type: 'instructor', id: raw.id, name: raw.name, photo: raw.photo_url, cover: null,
+          type: 'instructor', id: raw.id, name: raw.name, photo: raw.photo_url, cover: raw.cover_url, coverPosition: raw.cover_position || '50% 50%',
           is_verified: raw.is_verified, prefecture: raw.prefecture, city: raw.city,
           areas: raw.areas || [], bio: raw.bio,
           certifications: raw.certifications || [], specialties: raw.specialties || [],

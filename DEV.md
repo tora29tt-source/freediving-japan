@@ -159,7 +159,7 @@ git push origin main
 ### DBテーブル一覧
 
 ```
-instructors        — インストラクターマスタ（id, name, bio, photo_url, certifications, areas, prefecture, city, experience_years, languages, ...）
+instructors        — インストラクターマスタ（id, name, bio, photo_url, cover_url[バナー画像・2026-07-11追加], cover_position[表示位置調整・2026-07-11追加], certifications, areas, prefecture, city, experience_years, languages, ...）
 instructor_shops   — インストラクター所属（N:M・2026-07-04追加。instructor_id, shop_id。複数ショップに同時所属可）
 listings           — 体験・コース（id, instructor_id[nullable], shop_id[nullable・2026-07-04追加], title, category, intent, prefecture[47都道府県+海外のCHECK制約・2026-07-05〜検索の正データ], country[海外時の国名・2026-07-05追加], area[人気スポットタグ・任意], price, price_unit, price_includes, price_excludes, duration, season, min_participants, max_participants, age_min, age_max, meeting_point, booking_deadline, has_shuttle, cancellation_policy, what_to_bring, notes, tags, facilities, rental_gear, flow_steps, image_url, gallery_urls, is_public, ...）
 availability_slots — 空き枠（id, instructor_id[nullable], shop_id[nullable・2026-07-04追加], listing_id, slot_date, start_time, end_time, max_participants, booked_count, is_active）
@@ -269,6 +269,7 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 - **2026-07-07：Chrome MCPでショップ名義商品の予約カレンダー表示を確認済み**（`explore/shops.html`→ショップカード→コース詳細→空き状況カレンダーが正常表示、コンソールエラーなし）。ただし決済（Stripe Checkout）までの一気通貫E2Eは未実施
 - **2026-07-05追記**：`pro/index.html`の`applyShopOwnerFilter()`は当初`instructor_shops`（在籍インストラクター）のIDも管理対象に含めていたが、在籍インストラクターを追加しただけでその人個人の既存商品・予約・問い合わせまでショップの管理画面に出てきてしまう不具合につながったため、`shop_id = 自ショップ`のみに限定するよう修正。**在籍インストラクター（instructor_shops）は「プロフィール表示用のロースター」であり、商品・予約等の管理権限を拡張するものではない**という方針を明確化
 - **2026-07-05追記**：`shops`にカバー画像の表示位置調整機能を追加（`pro/index.html`のショップ編集画面・記事エディタの`ae-cover-pos`と同方式のドラッグ/矢印UI）。DB側の`shops.cover_position`カラム（TEXT、例`"50% 50%"`）は **2026-07-06 Supabase本番に適用済み**（`sql/shops_cover_position_20260705.sql`・information_schemaで確認済み）
+- **2026-07-11追記**：instructor向けプロフィールページ（`explore/profile.html`）にバナー（カバー画像）表示枠があるにもかかわらず、`instructors`側に登録UI・カラムが存在しなかった不具合を修正。`shops`と同方式で`instructors.cover_url`／`instructors.cover_position`を追加し、`pro/index.html`のインストラクタープロフィール編集画面にアップロード＋ドラッグ/矢印での表示位置調整UIを追加（`handleInstructorCoverFile()` / `ip*`関数群）。`explore/profile.html`・`explore/listing.html`の表示側も`raw.cover_url`を参照するよう修正。**DB側`sql/instructors_cover_20260711.sql`は未実行（Supabase本番へのSQL Editor実行が必要）**
 - **2026-07-11 フルE2Eテスト実施（Chrome MCP・Stripeサンドボックス）**：予約→決済→webhook→booked_count増加→success表示の一連は正常動作を確認。ただし以下の不具合を発見・修正：
   - 🔴**ブロッカー**：ショップ名義（instructor_id IS NULL）の予約が `api/create-checkout-session` で500エラーになり実質予約不可能だった。真因は`sql/clients.sql`の`sync_client_from_booking()`トリガーが`clients.instructor_id NOT NULL`前提のまま`shop_direct_listings_20260704.sql`のnullable化に追従しておらず、ショップ名義予約のINSERT時にトリガー内のNOT NULL制約違反で`create_pending_booking()`ごとロールバックしていたため（QA当初の「.eq nullが原因」という推測は誤りで、実際はこのトリガーが原因）。`NEW.instructor_id IS NULL`ならclients同期をスキップするよう修正済み（**要Supabase本番再適用**）
   - 🔴**セキュリティ**：anonキーでbookingsが全件SELECT可能（client_email等漏洩）と報告。`sql/`内のポリシー定義は正しく owner/admin限定になっているため、本番にStudio経由の重複ポリシー（S3のarticlesと同型の問題）が残っている可能性が高い。要本番pg_policies確認・再適用
@@ -643,6 +644,7 @@ window.addEventListener('beforeunload', e => {
 |---|---|---|
 | マイページ写真 | `{user_id}/mypage.{ext}` | `user_metadata.avatar_url` |
 | プロ写真 | `{user_id}/instructor.{ext}` | `instructors.photo_url` |
+| インストラクターカバー画像 | `{user_id}/instructor-cover.{ext}` | `instructors.cover_url` |
 | ショップロゴ | `{user_id}/shop-logo.{ext}` | `shops.logo_url` |
 | ショップカバー画像 | `{user_id}/shop-cover.{ext}` | `shops.cover_url` |
 

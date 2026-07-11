@@ -368,10 +368,6 @@ td.primary { color: var(--on-dark); font-weight: 500; }
     <div id="tab-slots" style="display:none;">
       <div class="section-header">
         <span class="section-title">空き枠一覧</span>
-        <button class="btn-primary" onclick="openSlotModal()">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg>
-          空き枠を追加
-        </button>
       </div>
       <div id="slots-content"><div class="spinner-wrap"><div class="spinner"></div></div></div>
     </div>
@@ -884,6 +880,7 @@ let myShopInstructors     = [];
 let editListingId         = null;
 let editSlotId            = null;
 let _newInstructorPhotoUrl = null; // アップロード済みの新しい写真URL
+let _newInstructorCoverUrl = null; // アップロード済みの新しいカバー画像URL
 let _newShopLogoUrl  = null; // アップロード済みの新しいロゴURL
 let _newShopCoverUrl = null; // アップロード済みの新しいカバー画像URL
 
@@ -1050,6 +1047,44 @@ function renderProfileForm() {
     </div>
 
     <div class="form-section-title">メディア・SNS</div>
+    <div class="form-group">
+      <label>カバー画像（プロフィール上部のバナー）</label>
+      <div id="p-cover-empty" onclick="document.getElementById('p-cover-file').click()" style="cursor:pointer;width:100%;height:120px;border-radius:8px;background:rgba(46,196,182,0.1);border:2px dashed rgba(46,196,182,0.3);display:${i.cover_url ? 'none' : 'flex'};align-items:center;justify-content:center;overflow:hidden;color:var(--teal);font-size:13px;">
+        <span>📷 タップして画像を選択</span>
+      </div>
+      <div id="p-cover-status" style="font-size:11px;color:var(--teal);margin-top:4px;"></div>
+      <input type="file" id="p-cover-file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="handleInstructorCoverFile(this)">
+
+      <div id="p-pos-wrap" style="display:${i.cover_url ? '' : 'none'};margin-top:8px;">
+        <div style="font-size:11px;color:var(--on-dark-soft);margin-bottom:6px;letter-spacing:0.08em;display:flex;align-items:center;justify-content:space-between;">
+          <span style="display:flex;align-items:center;gap:6px;">
+            表示位置の微調整
+            <span id="p-pos-label" style="color:var(--teal);font-family:monospace;font-size:10px;">${escHtml(i.cover_position || '50% 50%')}</span>
+          </span>
+          <button type="button" onclick="document.getElementById('p-cover-file').click()" style="font-size:11px;border:1px solid var(--hairline);background:transparent;color:var(--teal);border-radius:6px;padding:3px 8px;cursor:pointer;">画像を変更</button>
+        </div>
+        <div id="p-pos-preview" style="
+          width:100%;height:110px;border-radius:6px;overflow:hidden;
+          background-image:${i.cover_url ? `url('${escHtml(i.cover_url)}')` : 'none'};
+          background-size:cover;background-position:${escHtml(i.cover_position || '50% 50%')};
+          cursor:grab;position:relative;user-select:none;
+          border:1px solid var(--hairline);
+        ">
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
+            <div style="width:16px;height:16px;border:2px solid rgba(255,255,255,0.9);border-radius:50%;box-shadow:0 0 0 1px rgba(0,0,0,0.35),0 1px 5px rgba(0,0,0,0.6);"></div>
+          </div>
+          <div style="position:absolute;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.55);pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,0.8);">ドラッグ / スクロールで調整</div>
+        </div>
+        <div style="display:flex;justify-content:center;align-items:center;gap:4px;margin-top:6px;">
+          <button type="button" onclick="ipMovePos(-5,0)" style="width:30px;height:28px;font-size:13px;border:1px solid var(--hairline);background:transparent;color:var(--on-dark-mid);border-radius:6px;cursor:pointer;line-height:1;">←</button>
+          <button type="button" onclick="ipMovePos(0,-5)" style="width:30px;height:28px;font-size:13px;border:1px solid var(--hairline);background:transparent;color:var(--on-dark-mid);border-radius:6px;cursor:pointer;line-height:1;">↑</button>
+          <button type="button" onclick="ipResetPos()"    style="width:30px;height:28px;font-size:11px;border:1px solid var(--hairline);background:transparent;color:var(--on-dark-mid);border-radius:6px;cursor:pointer;line-height:1;">⊙</button>
+          <button type="button" onclick="ipMovePos(0,5)"  style="width:30px;height:28px;font-size:13px;border:1px solid var(--hairline);background:transparent;color:var(--on-dark-mid);border-radius:6px;cursor:pointer;line-height:1;">↓</button>
+          <button type="button" onclick="ipMovePos(5,0)"  style="width:30px;height:28px;font-size:13px;border:1px solid var(--hairline);background:transparent;color:var(--on-dark-mid);border-radius:6px;cursor:pointer;line-height:1;">→</button>
+        </div>
+      </div>
+      <input type="hidden" id="p-cover-pos" value="${escHtml(i.cover_position || '50% 50%')}">
+    </div>
     <div class="form-group"><label>紹介動画URL（YouTube / Vimeo）</label><input type="url" id="p-video" value="${escHtml(i.intro_video_url || '')}" placeholder="https://..."></div>
     <div class="form-group"><label>YouTube</label><input type="url" id="p-yt" value="${escHtml(i.youtube_url || '')}" placeholder="https://youtube.com/..."></div>
 
@@ -1065,6 +1100,7 @@ function renderProfileForm() {
       <button class="btn-primary" onclick="saveProfile()">プロフィールを保存</button>
     </div>
   `;
+  ipInitPosDrag();
 }
 
 async function saveProfile() {
@@ -1080,6 +1116,8 @@ async function saveProfile() {
     specialties:     toArr(document.getElementById('p-specs').value),
     languages:       collectLanguages('p'),
     photo_url:       _newInstructorPhotoUrl || myInstructor.photo_url || null,
+    cover_url:       _newInstructorCoverUrl || myInstructor.cover_url || null,
+    cover_position:  document.getElementById('p-cover-pos')?.value || '50% 50%',
     intro_video_url: document.getElementById('p-video').value.trim()  || null,
     youtube_url:     document.getElementById('p-yt').value.trim()     || null,
     is_public:       document.getElementById('p-public').checked,
@@ -1093,6 +1131,7 @@ async function saveProfile() {
 
   myInstructor = { ...myInstructor, ...payload };
   _newInstructorPhotoUrl = null;
+  _newInstructorCoverUrl = null;
   _isDirty = false;
   showToast('プロフィールを保存しました', 'success');
   renderProfileForm();
@@ -1128,6 +1167,115 @@ async function handleInstructorPhotoFile(input) {
   const { data } = _sb.storage.from('avatars').getPublicUrl(path);
   _newInstructorPhotoUrl = data.publicUrl;
   if (statusEl) statusEl.textContent = '✓ アップロード完了';
+}
+
+async function handleInstructorCoverFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('5MB以下の画像を選択してください', 'error'); return;
+  }
+
+  const objectUrl = URL.createObjectURL(file);
+  const emptyBox = document.getElementById('p-cover-empty');
+  if (emptyBox) emptyBox.style.display = 'none';
+  const statusEl = document.getElementById('p-cover-status');
+  if (statusEl) statusEl.textContent = 'アップロード中...';
+
+  // 新しい画像に差し替えたので表示位置は中央にリセットし、位置調整UIを更新
+  document.getElementById('p-cover-pos').value = '50% 50%';
+  const posWrap = document.getElementById('p-pos-wrap');
+  const posPrev = document.getElementById('p-pos-preview');
+  if (posWrap) posWrap.style.display = '';
+  if (posPrev) { posPrev.style.backgroundImage = `url('${objectUrl}')`; posPrev.style.backgroundPosition = '50% 50%'; }
+  const posLabel = document.getElementById('p-pos-label');
+  if (posLabel) posLabel.textContent = '50% 50%';
+  ipInitPosDrag();
+
+  const ext  = file.name.split('.').pop().toLowerCase();
+  const path = `${currentUser.id}/instructor-cover.${ext}`;
+
+  const { error } = await _sb.storage.from('avatars').upload(path, file, { upsert: true });
+  if (error) {
+    const msg = error.message || JSON.stringify(error);
+    if (statusEl) statusEl.textContent = '失敗: ' + msg;
+    showToast('失敗: ' + msg, 'error');
+    console.error('Storage upload error:', error);
+    return;
+  }
+
+  const { data } = _sb.storage.from('avatars').getPublicUrl(path);
+  _newInstructorCoverUrl = data.publicUrl + '?t=' + Date.now();
+  if (statusEl) statusEl.textContent = '✓ アップロード完了';
+}
+
+// ── カバー画像の表示位置調整（instructor用・shopの sp* と同方式） ──
+function ipParsePosXY() {
+  const val = (document.getElementById('p-cover-pos')?.value || '50% 50%').trim();
+  const m = val.match(/(\d+(?:\.\d+)?)%\s*(\d+(?:\.\d+)?)%/);
+  return m ? [parseFloat(m[1]), parseFloat(m[2])] : [50, 50];
+}
+
+function ipApplyPosXY(x, y) {
+  x = Math.max(0, Math.min(100, Math.round(x)));
+  y = Math.max(0, Math.min(100, Math.round(y)));
+  const pos = `${x}% ${y}%`;
+  const posInput = document.getElementById('p-cover-pos');
+  if (posInput) posInput.value = pos;
+  const label = document.getElementById('p-pos-label');
+  if (label) label.textContent = pos;
+  const prev = document.getElementById('p-pos-preview');
+  if (prev) prev.style.backgroundPosition = pos;
+}
+
+function ipMovePos(dx, dy) {
+  const [x, y] = ipParsePosXY();
+  ipApplyPosXY(x + dx, y + dy);
+}
+
+function ipResetPos() { ipApplyPosXY(50, 50); }
+
+function ipInitPosDrag() {
+  const prev = document.getElementById('p-pos-preview');
+  if (!prev || prev._dragReady) return;
+  prev._dragReady = true;
+
+  let dragging = false, sx, sy, spx, spy;
+
+  prev.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    dragging = true;
+    sx = e.clientX; sy = e.clientY;
+    [spx, spy] = ipParsePosXY();
+    prev.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    ipApplyPosXY(spx + (e.clientX - sx) * 0.25, spy + (e.clientY - sy) * 0.25);
+  });
+  document.addEventListener('mouseup', () => {
+    if (dragging) { dragging = false; prev.style.cursor = 'grab'; }
+  });
+
+  prev.addEventListener('wheel', e => {
+    e.preventDefault();
+    const [x, y] = ipParsePosXY();
+    ipApplyPosXY(x, y + (e.deltaY > 0 ? 3 : -3));
+  }, { passive: false });
+
+  prev.addEventListener('touchstart', e => {
+    const t = e.touches[0];
+    dragging = true; sx = t.clientX; sy = t.clientY;
+    [spx, spy] = ipParsePosXY();
+    e.preventDefault();
+  }, { passive: false });
+  document.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const t = e.touches[0];
+    ipApplyPosXY(spx + (t.clientX - sx) * 0.25, spy + (t.clientY - sy) * 0.25);
+  });
+  document.addEventListener('touchend', () => { dragging = false; });
 }
 
 // ── プロフィール新規作成 ──
@@ -1966,6 +2114,7 @@ function gotoSlotsToday() {
 function selectSlotDate(dateStr) {
   _calSelectedDate = dateStr;
   renderSlotsCalendar();
+  openSlotModal(null, dateStr);
 }
 
 function renderSlotsDayList() {
@@ -1974,7 +2123,6 @@ function renderSlotsDayList() {
   const header = `
     <div class="day-list-header">
       <span class="day-list-title">${_calSelectedDate ? fmtDate(_calSelectedDate) : ''}の空き枠</span>
-      <button class="btn-edit" onclick="openSlotModal(null, '${_calSelectedDate}')">＋ この日に追加</button>
     </div>`;
   const daySlots = (_slotsMap[_calSelectedDate] || []).slice()
     .sort((a, b) => (a.start_time || '').localeCompare(b.start_time || ''));

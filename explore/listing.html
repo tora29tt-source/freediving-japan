@@ -299,7 +299,7 @@ function normalizeOwner(raw, type) {
   if (!raw) return null;
   if (type === 'instructor') {
     return {
-      type, id: raw.id, name: raw.name, photo: raw.photo_url,
+      type, id: raw.id, name: raw.name, photo: raw.photo_url, cover_url: raw.cover_url,
       is_verified: raw.is_verified, prefecture: raw.prefecture, city: raw.city,
       areas: raw.areas || [], bio: raw.bio,
       certifications: raw.certifications || [], specialties: raw.specialties || [],
