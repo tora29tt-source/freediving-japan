@@ -201,6 +201,7 @@ td.primary { color: var(--on-dark); font-weight: 500; }
 .modal-backdrop.open { display: flex; }
 .modal { background: var(--ocean-mid); border: 1px solid var(--hairline); border-radius: 20px; padding: 28px 24px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 80px rgba(0,0,0,0.6); }
 .modal.modal-wide { max-width: 960px; }
+.modal.modal-xwide { max-width: 1120px; }
 /* モーダル内のプレビューは .modal 自体がスクロールコンテナなので top:0 で追従させる */
 .modal .pf-preview-pane { top: 0; }
 .modal-title { font-size: 17px; font-weight: 700; margin-bottom: 22px; }
@@ -299,6 +300,23 @@ td.primary { color: var(--on-dark); font-weight: 500; }
 .pf-preview-pane .pv-chip.cert { border-color: rgba(18,74,82,0.28); color: var(--teal-deep); background: rgba(18,74,82,0.06); }
 .pf-preview-pane .pv-empty { font-size: 12px; color: var(--ink-soft); }
 .pf-preview-note { font-size: 11px; color: var(--on-dark-soft); text-align: center; padding: 10px 16px 0; }
+
+/* ── コース(listing)プレビュー：explore/listing.html を模した見た目。pv-cover/pv-section/pv-chip 等は共通利用 ── */
+.pf-preview-pane .lv-header { padding: 14px 16px 12px; border-bottom: 1px solid var(--line); margin: 0 0 14px; }
+.pf-preview-pane .lv-category { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--teal-deep); font-weight: 700; margin-bottom: 6px; }
+.pf-preview-pane .lv-title { font-size: 15px; font-weight: 700; color: var(--ink); line-height: 1.4; margin-bottom: 8px; }
+.pf-preview-pane .lv-price-row { display: flex; align-items: baseline; gap: 6px; }
+.pf-preview-pane .lv-price-main { font-size: 18px; font-weight: 700; color: var(--ink); }
+.pf-preview-pane .lv-price-unit { font-size: 11px; color: var(--ink-soft); }
+.pf-preview-pane .lv-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 16px; margin-bottom: 18px; }
+.pf-preview-pane .lv-info-card { background: #f7f7f8; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; }
+.pf-preview-pane .lv-info-label { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 3px; }
+.pf-preview-pane .lv-info-value { font-size: 12px; font-weight: 600; color: var(--ink); }
+.pf-preview-pane .lv-flow-row { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.pf-preview-pane .lv-flow-row:last-child { border-bottom: none; }
+.pf-preview-pane .lv-flow-time { color: var(--teal-deep); font-weight: 700; font-size: 11px; white-space: nowrap; width: 46px; flex-shrink: 0; }
+.pf-preview-pane .lv-flow-body strong { display: block; font-size: 12px; color: var(--ink); }
+.pf-preview-pane .lv-flow-body span { display: block; font-size: 11px; color: var(--ink-mid); margin-top: 2px; line-height: 1.6; }
 
 @media (max-width: 900px) {
   .pf-split-wrap.pf-mode-split { grid-template-columns: 1fr; }
@@ -515,8 +533,11 @@ td.primary { color: var(--on-dark); font-weight: 500; }
 
 <!-- ── コース モーダル ── -->
 <div class="modal-backdrop" id="listing-modal">
-  <div class="modal">
+  <div class="modal modal-xwide">
     <div class="modal-title" id="listing-modal-title">コースを追加</div>
+
+    <div class="pf-split-wrap pf-mode-split" id="l-split">
+      <div class="pf-editor-pane">
 
     <div class="form-group" id="l-instructor-wrap" style="display:none;">
       <label>担当インストラクター（未定ならショップ名義で公開）</label>
@@ -785,6 +806,14 @@ td.primary { color: var(--on-dark); font-weight: 500; }
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeListingModal()">キャンセル</button>
       <button class="btn-primary" onclick="saveListing()"><span id="l-save-label">保存する</span></button>
+    </div>
+
+      </div>
+      <div class="pf-preview-pane">
+        <p class="pf-preview-label">公開ページのプレビュー</p>
+        <div class="pf-preview-scroll" id="listing-preview-scroll"></div>
+        <p class="pf-preview-note">※日程・空き状況、サブ写真、レビュー、他のプランは実際のページにのみ表示されます</p>
+      </div>
     </div>
   </div>
 </div>
@@ -1245,6 +1274,123 @@ function renderCreateShopPreview() {
   const areas = document.getElementById('csp-area-rows') ? collectAreaRows('csp-area-rows') : [];
   const langs = document.getElementById('csp-langs') ? collectLanguages('csp') : [];
   wrap.innerHTML = buildProfilePreviewCard({ isShop: true, name, bio, areas, certs: [], specs: [], langs, ytUrl: '', photoUrl: '', coverUrl: '' });
+}
+
+// ── コース(listing)プレビュー：explore/listing.html の見た目を模す（予約カレンダー・レビュー・他プランは対象外） ──
+function buildListingPreviewCard({ coverUrl, category, title, tags, price, priceUnit, level, pref, area, duration, season, minPax, maxPax, ageMin, ageMax, shuttle, deadline, desc, goal, flowSteps, meeting, priceInc, priceExc, bring, notes, cancel }) {
+  const coverHtml = coverUrl
+    ? `<img src="${escHtml(coverUrl)}" alt="">`
+    : `<div class="pv-cover-ph">メイン画像未設定</div>`;
+
+  const tagsHtml = tags.length
+    ? `<div class="pv-chips" style="margin-top:8px;">${tags.map(t => `<span class="pv-chip">${escHtml(t)}</span>`).join('')}</div>` : '';
+
+  const ageStr = ageMin ? (ageMax ? `${ageMin}〜${ageMax}歳` : `${ageMin}歳〜`) : (ageMax ? `〜${ageMax}歳` : null);
+  const infoCards = [
+    duration ? { label: '所要時間', value: duration } : null,
+    season   ? { label: '開催時期', value: season } : null,
+    level    ? { label: '対象レベル', value: level } : null,
+    minPax   ? { label: '最少催行', value: `${minPax}名〜` } : null,
+    maxPax   ? { label: '最大人数', value: `${maxPax}名` } : null,
+    ageStr   ? { label: '参加年齢', value: ageStr } : null,
+    shuttle  ? { label: '送迎', value: 'あり' } : null,
+    deadline ? { label: '予約締切', value: deadline } : null,
+    { label: 'エリア', value: [pref, area].filter(Boolean).join(' ') || '—' },
+  ].filter(Boolean);
+  const infoGridHtml = infoCards.length
+    ? `<div class="lv-info-grid">${infoCards.map(c => `<div class="lv-info-card"><p class="lv-info-label">${escHtml(c.label)}</p><p class="lv-info-value">${escHtml(c.value)}</p></div>`).join('')}</div>` : '';
+
+  const descHtml = desc
+    ? `<div class="pv-section"><p class="pv-section-title">このプランについて</p><p class="pv-text">${escHtml(desc).replace(/\n/g, '<br>')}</p></div>`
+    : `<div class="pv-section"><p class="pv-empty">説明が入力されるとここに表示されます</p></div>`;
+  const goalHtml = goal
+    ? `<div class="pv-section"><p class="pv-section-title">このコースの到達目標</p><p class="pv-text">${escHtml(goal).replace(/\n/g, '<br>')}</p></div>` : '';
+  const flowHtml = flowSteps.length
+    ? `<div class="pv-section"><p class="pv-section-title">当日の流れ</p>${flowSteps.map(s => `
+        <div class="lv-flow-row">
+          <span class="lv-flow-time">${escHtml(s.time || '')}</span>
+          <div class="lv-flow-body"><strong>${escHtml(s.title || '')}</strong>${s.desc ? `<span>${escHtml(s.desc)}</span>` : ''}</div>
+        </div>`).join('')}</div>` : '';
+  const meetingHtml = meeting
+    ? `<div class="pv-section"><p class="pv-section-title">集合場所</p><p class="pv-text">${escHtml(meeting)}</p></div>` : '';
+  const priceNoteHtml = (priceInc || priceExc)
+    ? `<div class="pv-section"><p class="pv-section-title">料金について</p>
+        ${priceInc ? `<p class="pv-text" style="margin-bottom:6px;"><strong style="color:var(--ink);">含まれるもの：</strong>${escHtml(priceInc).replace(/\n/g, '<br>')}</p>` : ''}
+        ${priceExc ? `<p class="pv-text"><strong style="color:var(--ink);">含まれないもの：</strong>${escHtml(priceExc).replace(/\n/g, '<br>')}</p>` : ''}
+      </div>` : '';
+  const bringHtml = bring
+    ? `<div class="pv-section"><p class="pv-section-title">持ち物・服装</p><p class="pv-text">${escHtml(bring).replace(/\n/g, '<br>')}</p></div>` : '';
+  const notesHtml = notes
+    ? `<div class="pv-section"><p class="pv-section-title">注意事項</p><p class="pv-text">${escHtml(notes).replace(/\n/g, '<br>')}</p></div>` : '';
+  const cancelHtml = cancel
+    ? `<div class="pv-section"><p class="pv-section-title">キャンセルポリシー</p><p class="pv-text">${escHtml(cancel).replace(/\n/g, '<br>')}</p></div>` : '';
+
+  return `
+    <div class="pv-cover">${coverHtml}</div>
+    <div class="lv-header">
+      <p class="lv-category">${escHtml(category || '')}</p>
+      <p class="lv-title">${escHtml(title)}</p>
+      ${tagsHtml}
+      <div class="lv-price-row">
+        <span class="lv-price-main">${price ? '¥' + Number(price).toLocaleString() : '要相談'}</span>
+        ${price ? `<span class="lv-price-unit">${escHtml(priceUnit || '')}</span>` : ''}
+      </div>
+    </div>
+    ${infoGridHtml}
+    <div class="pv-body">
+      ${descHtml}
+      ${goalHtml}
+      ${flowHtml}
+      ${meetingHtml}
+      ${priceNoteHtml}
+      ${bringHtml}
+      ${notesHtml}
+      ${cancelHtml}
+    </div>
+  `;
+}
+
+function renderListingPreview() {
+  const wrap = document.getElementById('listing-preview-scroll');
+  if (!wrap) return;
+
+  const title    = document.getElementById('l-title')?.value?.trim() || '（タイトル未入力）';
+  const desc     = document.getElementById('l-desc')?.value?.trim() || '';
+  const goal     = document.getElementById('l-goal')?.value?.trim() || '';
+  const level    = document.getElementById('l-level')?.value || '';
+  const category = document.getElementById('l-category')?.value || '';
+  const prefSel  = document.getElementById('l-pref');
+  const pref     = prefSel?.value === '海外'
+    ? (document.getElementById('l-pref-other')?.value?.trim() || '海外')
+    : (prefSel?.value || '');
+  const area      = document.getElementById('l-area')?.value?.trim() || '';
+  const price     = parseInt(document.getElementById('l-price')?.value) || null;
+  const priceUnit = document.getElementById('l-price-unit')?.value?.trim() || '';
+  const priceInc  = document.getElementById('l-price-inc')?.value?.trim() || '';
+  const priceExc  = document.getElementById('l-price-exc')?.value?.trim() || '';
+  const duration  = document.getElementById('l-duration')?.value?.trim() || '';
+  const season    = document.getElementById('l-season')?.value?.trim() || '';
+  const minPax    = document.getElementById('l-min-pax')?.value || '';
+  const maxPax    = document.getElementById('l-max-pax')?.value || '';
+  const ageMin    = document.getElementById('l-age-min')?.value || '';
+  const ageMax    = document.getElementById('l-age-max')?.value || '';
+  const shuttle   = document.getElementById('l-shuttle')?.checked || false;
+  const deadline  = document.getElementById('l-deadline')?.value?.trim() || '';
+  const meeting   = document.getElementById('l-meeting')?.value?.trim() || '';
+  const cancel    = document.getElementById('l-cancel')?.value?.trim() || '';
+  const bring     = document.getElementById('l-bring')?.value?.trim() || '';
+  const notes     = document.getElementById('l-notes')?.value?.trim() || '';
+  const tags      = (document.getElementById('l-tags')?.value || '').split(',').map(s => s.trim()).filter(Boolean);
+  const flowSteps = document.getElementById('l-flow-rows') ? collectFlowSteps() : [];
+
+  const imgEl    = document.getElementById('l-image-preview');
+  const coverUrl = (imgEl && imgEl.tagName === 'IMG') ? imgEl.src : '';
+
+  wrap.innerHTML = buildListingPreviewCard({
+    coverUrl, category, title, tags, price, priceUnit, level, pref, area,
+    duration, season, minPax, maxPax, ageMin, ageMax, shuttle, deadline,
+    desc, goal, flowSteps, meeting, priceInc, priceExc, bring, notes, cancel,
+  });
 }
 
 function renderProfileForm() {
@@ -2159,9 +2305,11 @@ function openListingModal(listingId = null, duplicateFromId = null) {
       (l.flow_steps || []).forEach(step => addFlowStep(step.title, step.desc, step.time));
       // ショップモード: 担当インストラクターを復元
       if (myRole === 'shop') setTimeout(() => { document.getElementById('l-instructor').value = l.instructor_id || ''; }, 50);
+      renderListingPreview();
     });
   }
   document.getElementById('listing-modal').classList.add('open');
+  renderListingPreview();
 }
 
 function closeListingModal() {
@@ -3277,6 +3425,10 @@ document.getElementById('cp-split')?.addEventListener('input',  renderCreateProf
 document.getElementById('cp-split')?.addEventListener('change', renderCreateProfilePreview);
 document.getElementById('csp-split')?.addEventListener('input',  renderCreateShopPreview);
 document.getElementById('csp-split')?.addEventListener('change', renderCreateShopPreview);
+
+// ── コース登録モーダルのプレビューも同様に入力へ追従（動的に追加される流れ/ギャラリー行もイベント委譲で拾える） ──
+document.getElementById('l-split')?.addEventListener('input',  renderListingPreview);
+document.getElementById('l-split')?.addEventListener('change', renderListingPreview);
 window.addEventListener('beforeunload', e => {
   if (!_isDirty) return;
   e.preventDefault();
