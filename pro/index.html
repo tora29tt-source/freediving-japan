@@ -200,6 +200,9 @@ td.primary { color: var(--on-dark); font-weight: 500; }
 .modal-backdrop { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.72); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
 .modal-backdrop.open { display: flex; }
 .modal { background: var(--ocean-mid); border: 1px solid var(--hairline); border-radius: 20px; padding: 28px 24px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 80px rgba(0,0,0,0.6); }
+.modal.modal-wide { max-width: 960px; }
+/* モーダル内のプレビューは .modal 自体がスクロールコンテナなので top:0 で追従させる */
+.modal .pf-preview-pane { top: 0; }
 .modal-title { font-size: 17px; font-weight: 700; margin-bottom: 22px; }
 .modal-actions { display: flex; gap: 10px; margin-top: 24px; }
 .modal-actions .btn-primary { flex: 1; justify-content: center; }
@@ -847,100 +850,118 @@ td.primary { color: var(--on-dark); font-weight: 500; }
 
 <!-- ── プロフィール作成 モーダル ── -->
 <div class="modal-backdrop" id="create-profile-modal">
-  <div class="modal">
+  <div class="modal modal-wide">
     <div class="modal-title">プロフィールを作成</div>
 
-    <div class="form-group">
-      <label>氏名 / 屋号 <span style="color:var(--warm);">*</span></label>
-      <input type="text" id="cp-name" placeholder="例：山田 海斗">
-    </div>
-    <div class="form-group">
-      <label>自己紹介</label>
-      <textarea id="cp-bio" placeholder="経歴・スタイル・得意なことなど..."></textarea>
-    </div>
+    <div class="pf-split-wrap pf-mode-split" id="cp-split">
+      <div class="pf-editor-pane">
+        <div class="form-group">
+          <label>氏名 / 屋号 <span style="color:var(--warm);">*</span></label>
+          <input type="text" id="cp-name" placeholder="例：山田 海斗">
+        </div>
+        <div class="form-group">
+          <label>自己紹介</label>
+          <textarea id="cp-bio" placeholder="経歴・スタイル・得意なことなど..."></textarea>
+        </div>
 
-    <div class="form-group">
-      <label>活動エリア <span style="color:var(--on-dark-soft);font-weight:400;">（時期を添えて追加）</span></label>
-      <div id="cp-area-rows">
-        <div class="area-row">
-          <input type="text" class="area-name" placeholder="例：沖縄" style="flex:1;">
-          <input type="text" class="area-season" placeholder="例：4月〜10月" style="flex:1;">
+        <div class="form-group">
+          <label>活動エリア <span style="color:var(--on-dark-soft);font-weight:400;">（時期を添えて追加）</span></label>
+          <div id="cp-area-rows">
+            <div class="area-row">
+              <input type="text" class="area-name" placeholder="例：沖縄" style="flex:1;">
+              <input type="text" class="area-season" placeholder="例：4月〜10月" style="flex:1;">
+            </div>
+          </div>
+          <button type="button" class="btn-edit" onclick="addAreaRow('cp-area-rows')" style="margin-top:8px;font-size:12px;">＋ エリアを追加</button>
+        </div>
+
+        <div class="form-group">
+          <label>資格</label>
+          <div class="check-group" id="cp-certs">
+            <label class="check-item"><input type="checkbox" value="AIDA"> AIDA</label>
+            <label class="check-item"><input type="checkbox" value="Molchanovs"> Molchanovs</label>
+            <label class="check-item"><input type="checkbox" value="PADI Freediver"> PADI Freediver</label>
+            <label class="check-item"><input type="checkbox" value="SSI Freediving"> SSI Freediving</label>
+            <label class="check-item"><input type="checkbox" value="CMAS"> CMAS</label>
+            <label class="check-item"><input type="checkbox" value="NAUI"> NAUI</label>
+            <label class="check-item"><input type="checkbox" value="__other__" onchange="toggleLangOther(this,'cp-cert-other')"> その他</label>
+          </div>
+          <input type="text" id="cp-cert-other" placeholder="例：STAB, PFI（カンマ区切り）" style="margin-top:8px;display:none;">
+        </div>
+
+        <div class="form-group">
+          <label>対応言語</label>
+          <div class="check-group" id="cp-langs">
+            <label class="check-item"><input type="checkbox" value="日本語" checked> 日本語</label>
+            <label class="check-item"><input type="checkbox" value="英語"> 英語</label>
+            <label class="check-item"><input type="checkbox" value="中国語"> 中国語</label>
+            <label class="check-item"><input type="checkbox" value="__other__" onchange="toggleLangOther(this,'cp-lang-other')"> その他</label>
+          </div>
+          <input type="text" id="cp-lang-other" placeholder="例：スペイン語、フランス語（カンマ区切り）" style="margin-top:8px;display:none;">
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-cancel" onclick="closeCreateProfile()">キャンセル</button>
+          <button class="btn-primary" onclick="createProfile()">作成する</button>
         </div>
       </div>
-      <button type="button" class="btn-edit" onclick="addAreaRow('cp-area-rows')" style="margin-top:8px;font-size:12px;">＋ エリアを追加</button>
-    </div>
-
-    <div class="form-group">
-      <label>資格</label>
-      <div class="check-group" id="cp-certs">
-        <label class="check-item"><input type="checkbox" value="AIDA"> AIDA</label>
-        <label class="check-item"><input type="checkbox" value="Molchanovs"> Molchanovs</label>
-        <label class="check-item"><input type="checkbox" value="PADI Freediver"> PADI Freediver</label>
-        <label class="check-item"><input type="checkbox" value="SSI Freediving"> SSI Freediving</label>
-        <label class="check-item"><input type="checkbox" value="CMAS"> CMAS</label>
-        <label class="check-item"><input type="checkbox" value="NAUI"> NAUI</label>
-        <label class="check-item"><input type="checkbox" value="__other__" onchange="toggleLangOther(this,'cp-cert-other')"> その他</label>
+      <div class="pf-preview-pane">
+        <p class="pf-preview-label">公開ページのプレビュー</p>
+        <div class="pf-preview-scroll" id="cp-preview-scroll"></div>
+        <p class="pf-preview-note">※写真・カバー画像は作成後に設定できます</p>
       </div>
-      <input type="text" id="cp-cert-other" placeholder="例：STAB, PFI（カンマ区切り）" style="margin-top:8px;display:none;">
-    </div>
-
-    <div class="form-group">
-      <label>対応言語</label>
-      <div class="check-group" id="cp-langs">
-        <label class="check-item"><input type="checkbox" value="日本語" checked> 日本語</label>
-        <label class="check-item"><input type="checkbox" value="英語"> 英語</label>
-        <label class="check-item"><input type="checkbox" value="中国語"> 中国語</label>
-        <label class="check-item"><input type="checkbox" value="__other__" onchange="toggleLangOther(this,'cp-lang-other')"> その他</label>
-      </div>
-      <input type="text" id="cp-lang-other" placeholder="例：スペイン語、フランス語（カンマ区切り）" style="margin-top:8px;display:none;">
-    </div>
-
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeCreateProfile()">キャンセル</button>
-      <button class="btn-primary" onclick="createProfile()">作成する</button>
     </div>
   </div>
 </div>
 
 <!-- ── ショップ作成 モーダル ── -->
 <div class="modal-backdrop" id="create-shop-modal">
-  <div class="modal">
+  <div class="modal modal-wide">
     <div class="modal-title">ショップを作成</div>
 
-    <div class="form-group">
-      <label>屋号 <span style="color:var(--warm);">*</span></label>
-      <input type="text" id="csp-name" placeholder="例：Blue Ocean Freediving">
-    </div>
-    <div class="form-group">
-      <label>自己紹介</label>
-      <textarea id="csp-bio" placeholder="ショップの特徴・得意なことなど..."></textarea>
-    </div>
+    <div class="pf-split-wrap pf-mode-split" id="csp-split">
+      <div class="pf-editor-pane">
+        <div class="form-group">
+          <label>屋号 <span style="color:var(--warm);">*</span></label>
+          <input type="text" id="csp-name" placeholder="例：Blue Ocean Freediving">
+        </div>
+        <div class="form-group">
+          <label>自己紹介</label>
+          <textarea id="csp-bio" placeholder="ショップの特徴・得意なことなど..."></textarea>
+        </div>
 
-    <div class="form-group">
-      <label>活動エリア <span style="color:var(--on-dark-soft);font-weight:400;">（時期を添えて追加）</span></label>
-      <div id="csp-area-rows">
-        <div class="area-row">
-          <input type="text" class="area-name" placeholder="例：沖縄" style="flex:1;">
-          <input type="text" class="area-season" placeholder="例：4月〜10月" style="flex:1;">
+        <div class="form-group">
+          <label>活動エリア <span style="color:var(--on-dark-soft);font-weight:400;">（時期を添えて追加）</span></label>
+          <div id="csp-area-rows">
+            <div class="area-row">
+              <input type="text" class="area-name" placeholder="例：沖縄" style="flex:1;">
+              <input type="text" class="area-season" placeholder="例：4月〜10月" style="flex:1;">
+            </div>
+          </div>
+          <button type="button" class="btn-edit" onclick="addAreaRow('csp-area-rows')" style="margin-top:8px;font-size:12px;">＋ エリアを追加</button>
+        </div>
+
+        <div class="form-group">
+          <label>対応言語</label>
+          <div class="check-group" id="csp-langs">
+            <label class="check-item"><input type="checkbox" value="日本語" checked> 日本語</label>
+            <label class="check-item"><input type="checkbox" value="英語"> 英語</label>
+            <label class="check-item"><input type="checkbox" value="中国語"> 中国語</label>
+            <label class="check-item"><input type="checkbox" value="__other__" onchange="toggleLangOther(this,'csp-lang-other')"> その他</label>
+          </div>
+          <input type="text" id="csp-lang-other" placeholder="例：スペイン語、フランス語（カンマ区切り）" style="margin-top:8px;display:none;">
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-cancel" onclick="closeShopCreate()">キャンセル</button>
+          <button class="btn-primary" onclick="createShopProfile()">作成する</button>
         </div>
       </div>
-      <button type="button" class="btn-edit" onclick="addAreaRow('csp-area-rows')" style="margin-top:8px;font-size:12px;">＋ エリアを追加</button>
-    </div>
-
-    <div class="form-group">
-      <label>対応言語</label>
-      <div class="check-group" id="csp-langs">
-        <label class="check-item"><input type="checkbox" value="日本語" checked> 日本語</label>
-        <label class="check-item"><input type="checkbox" value="英語"> 英語</label>
-        <label class="check-item"><input type="checkbox" value="中国語"> 中国語</label>
-        <label class="check-item"><input type="checkbox" value="__other__" onchange="toggleLangOther(this,'csp-lang-other')"> その他</label>
+      <div class="pf-preview-pane">
+        <p class="pf-preview-label">公開ページのプレビュー</p>
+        <div class="pf-preview-scroll" id="csp-preview-scroll"></div>
+        <p class="pf-preview-note">※写真・カバー画像は作成後に設定できます</p>
       </div>
-      <input type="text" id="csp-lang-other" placeholder="例：スペイン語、フランス語（カンマ区切り）" style="margin-top:8px;display:none;">
-    </div>
-
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeShopCreate()">キャンセル</button>
-      <button class="btn-primary" onclick="createShopProfile()">作成する</button>
     </div>
   </div>
 </div>
@@ -1128,6 +1149,53 @@ function setProfileMode(mode) {
 }
 
 // ── プレビュー描画：explore/profile.html と同じ見た目で今の入力内容を表示 ──
+// タブのプロフィール編集・新規作成モーダル（インストラクター/ショップ）の
+// 3箇所すべてが同じカードHTMLを組み立てられるよう共通化
+function buildProfilePreviewCard({ isShop, name, bio, areas, certs, specs, langs, ytUrl, photoUrl, coverUrl }) {
+  const coverHtml = coverUrl
+    ? `<img src="${escHtml(coverUrl)}" alt="">`
+    : `<div class="pv-cover-ph">カバー画像未設定</div>`;
+  const avatarHtml = photoUrl
+    ? `<img src="${escHtml(photoUrl)}" alt="">`
+    : `<div class="pv-avatar-ph">${escHtml((name || '?').charAt(0))}</div>`;
+
+  const bioHtml = bio
+    ? `<div class="pv-section"><p class="pv-section-title">自己紹介</p><p class="pv-text">${escHtml(bio).replace(/\n/g, '<br>')}</p></div>`
+    : `<div class="pv-section"><p class="pv-empty">自己紹介が入力されるとここに表示されます</p></div>`;
+  const certsHtml = certs.length
+    ? `<div class="pv-section"><p class="pv-section-title">保有資格</p><div class="pv-chips">${certs.map(c => `<span class="pv-chip cert">${escHtml(c)}</span>`).join('')}</div></div>` : '';
+  const specsHtml = specs.length
+    ? `<div class="pv-section"><p class="pv-section-title">専門・得意分野</p><div class="pv-chips">${specs.map(s => `<span class="pv-chip">${escHtml(s)}</span>`).join('')}</div></div>` : '';
+  const areasHtml = areas.length
+    ? `<div class="pv-section"><p class="pv-section-title">活動エリア</p><div class="pv-chips">${areas.map(a => `<span class="pv-chip">${escHtml(a)}</span>`).join('')}</div></div>` : '';
+  const langsHtml = langs.length
+    ? `<div class="pv-section"><p class="pv-section-title">対応言語</p><div class="pv-chips">${langs.map(l => `<span class="pv-chip">${escHtml(l)}</span>`).join('')}</div></div>` : '';
+  const snsHtml = ytUrl
+    ? `<div class="pv-section"><p class="pv-section-title">リンク</p><div class="pv-chips"><span class="pv-chip">YouTube</span></div></div>` : '';
+
+  return `
+    <div class="pv-cover">${coverHtml}</div>
+    <div class="pv-hero">
+      <div class="pv-hero-inner">
+        <div class="pv-avatar">${avatarHtml}</div>
+        <div class="pv-meta">
+          <p class="pv-type">${isShop ? 'ショップ' : 'インストラクター'}</p>
+          <p class="pv-name">${escHtml(name)}</p>
+          ${areas.length ? `<p class="pv-loc">${escHtml(areas.join(' ・ '))}</p>` : ''}
+        </div>
+      </div>
+    </div>
+    <div class="pv-body">
+      ${bioHtml}
+      ${certsHtml}
+      ${specsHtml}
+      ${areasHtml}
+      ${langsHtml}
+      ${snsHtml}
+    </div>
+  `;
+}
+
 function renderProfilePreview() {
   const wrap = document.getElementById('profile-preview-scroll');
   if (!wrap || (!myInstructor && !myShop)) return;
@@ -1154,48 +1222,29 @@ function renderProfilePreview() {
     if (m) coverUrl = m[2];
   }
 
-  const coverHtml = coverUrl
-    ? `<img src="${escHtml(coverUrl)}" alt="">`
-    : `<div class="pv-cover-ph">カバー画像未設定</div>`;
-  const avatarHtml = photoUrl
-    ? `<img src="${escHtml(photoUrl)}" alt="">`
-    : `<div class="pv-avatar-ph">${escHtml((name || '?').charAt(0))}</div>`;
+  wrap.innerHTML = buildProfilePreviewCard({ isShop, name, bio, areas, certs, specs, langs, ytUrl, photoUrl, coverUrl });
+}
 
-  const bioHtml = bio
-    ? `<div class="pv-section"><p class="pv-section-title">自己紹介</p><p class="pv-text">${escHtml(bio).replace(/\n/g, '<br>')}</p></div>`
-    : `<div class="pv-section"><p class="pv-empty">自己紹介が入力されるとここに表示されます</p></div>`;
-  const certsHtml = certs.length
-    ? `<div class="pv-section"><p class="pv-section-title">保有資格</p><div class="pv-chips">${certs.map(c => `<span class="pv-chip cert">${escHtml(c)}</span>`).join('')}</div></div>` : '';
-  const specsHtml = specs.length
-    ? `<div class="pv-section"><p class="pv-section-title">専門・得意分野</p><div class="pv-chips">${specs.map(s => `<span class="pv-chip">${escHtml(s)}</span>`).join('')}</div></div>` : '';
-  const areasHtml = areas.length
-    ? `<div class="pv-section"><p class="pv-section-title">活動エリア</p><div class="pv-chips">${areas.map(a => `<span class="pv-chip">${escHtml(a)}</span>`).join('')}</div></div>` : '';
-  const langsHtml = langs.length
-    ? `<div class="pv-section"><p class="pv-section-title">対応言語</p><div class="pv-chips">${langs.map(l => `<span class="pv-chip">${escHtml(l)}</span>`).join('')}</div></div>` : '';
-  const snsHtml = ytUrl
-    ? `<div class="pv-section"><p class="pv-section-title">リンク</p><div class="pv-chips"><span class="pv-chip">YouTube</span></div></div>` : '';
+// ── 新規作成モーダル（写真・カバーはまだ入力させないので name/bio/areas/certs/langs のみ反映） ──
+function renderCreateProfilePreview() {
+  const wrap = document.getElementById('cp-preview-scroll');
+  if (!wrap) return;
+  const name  = document.getElementById('cp-name')?.value?.trim() || '（氏名未入力）';
+  const bio   = document.getElementById('cp-bio')?.value?.trim() || '';
+  const areas = document.getElementById('cp-area-rows') ? collectAreaRows('cp-area-rows') : [];
+  const langs = document.getElementById('cp-langs') ? collectLanguages('cp') : [];
+  const certs = document.getElementById('cp-certs') ? collectCertifications('cp') : [];
+  wrap.innerHTML = buildProfilePreviewCard({ isShop: false, name, bio, areas, certs, specs: [], langs, ytUrl: '', photoUrl: '', coverUrl: '' });
+}
 
-  wrap.innerHTML = `
-    <div class="pv-cover">${coverHtml}</div>
-    <div class="pv-hero">
-      <div class="pv-hero-inner">
-        <div class="pv-avatar">${avatarHtml}</div>
-        <div class="pv-meta">
-          <p class="pv-type">${isShop ? 'ショップ' : 'インストラクター'}</p>
-          <p class="pv-name">${escHtml(name)}</p>
-          ${areas.length ? `<p class="pv-loc">${escHtml(areas.join(' ・ '))}</p>` : ''}
-        </div>
-      </div>
-    </div>
-    <div class="pv-body">
-      ${bioHtml}
-      ${certsHtml}
-      ${specsHtml}
-      ${areasHtml}
-      ${langsHtml}
-      ${snsHtml}
-    </div>
-  `;
+function renderCreateShopPreview() {
+  const wrap = document.getElementById('csp-preview-scroll');
+  if (!wrap) return;
+  const name  = document.getElementById('csp-name')?.value?.trim() || '（屋号未入力）';
+  const bio   = document.getElementById('csp-bio')?.value?.trim() || '';
+  const areas = document.getElementById('csp-area-rows') ? collectAreaRows('csp-area-rows') : [];
+  const langs = document.getElementById('csp-langs') ? collectLanguages('csp') : [];
+  wrap.innerHTML = buildProfilePreviewCard({ isShop: true, name, bio, areas, certs: [], specs: [], langs, ytUrl: '', photoUrl: '', coverUrl: '' });
 }
 
 function renderProfileForm() {
@@ -1322,9 +1371,6 @@ function renderProfileForm() {
       </div>
       <input type="hidden" id="p-cover-pos" value="${escHtml(i.cover_position || '50% 50%')}">
     </div>
-    <div class="form-group"><label>紹介動画URL（YouTube / Vimeo）</label><input type="url" id="p-video" value="${escHtml(i.intro_video_url || '')}" placeholder="https://..."></div>
-    <div class="form-group"><label>YouTube</label><input type="url" id="p-yt" value="${escHtml(i.youtube_url || '')}" placeholder="https://youtube.com/..."></div>
-
     <div class="form-section-title">公開設定</div>
     <div class="form-group">
       <div class="toggle-wrap">
@@ -1356,8 +1402,6 @@ async function saveProfile() {
     photo_url:       _newInstructorPhotoUrl || myInstructor.photo_url || null,
     cover_url:       _newInstructorCoverUrl || myInstructor.cover_url || null,
     cover_position:  document.getElementById('p-cover-pos')?.value || '50% 50%',
-    intro_video_url: document.getElementById('p-video').value.trim()  || null,
-    youtube_url:     document.getElementById('p-yt').value.trim()     || null,
     is_public:       document.getElementById('p-public').checked,
     updated_at:      new Date().toISOString(),
   };
@@ -1517,8 +1561,10 @@ function ipInitPosDrag() {
 function showCreateProfile(type) {
   if (type === 'shop') {
     document.getElementById('create-shop-modal').classList.add('open');
+    renderCreateShopPreview();
   } else {
     document.getElementById('create-profile-modal').classList.add('open');
+    renderCreateProfilePreview();
   }
 }
 function closeCreateProfile() {
@@ -3225,6 +3271,12 @@ document.addEventListener('change', () => { _isDirty = true; });
 // リスナーを付け直さず、常に存在する外側の要素に委譲する
 document.getElementById('pf-split')?.addEventListener('input',  pfMarkDirty);
 document.getElementById('pf-split')?.addEventListener('change', pfMarkDirty);
+
+// ── 新規作成モーダルのプレビューも同様に入力へ追従（こちらは保存前提のモーダルなので未保存フラグは不要） ──
+document.getElementById('cp-split')?.addEventListener('input',  renderCreateProfilePreview);
+document.getElementById('cp-split')?.addEventListener('change', renderCreateProfilePreview);
+document.getElementById('csp-split')?.addEventListener('input',  renderCreateShopPreview);
+document.getElementById('csp-split')?.addEventListener('change', renderCreateShopPreview);
 window.addEventListener('beforeunload', e => {
   if (!_isDirty) return;
   e.preventDefault();
