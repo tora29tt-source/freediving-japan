@@ -653,15 +653,10 @@ td.primary { color: var(--on-dark); font-weight: 500; }
       <p class="form-hint">都道府県より詳しい場所を自由に入力できます。よく使われているスポット名は入力中に候補として出ます（無ければ自由記入でOK）。探すページの検索対象になります。</p>
     </div>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label>料金（円）</label>
-        <input type="number" id="l-price" placeholder="例：8800">
-      </div>
-      <div class="form-group">
-        <label>料金単位</label>
-        <input type="text" id="l-price-unit" placeholder="例：〜/人" value="〜/人">
-      </div>
+    <div class="form-group">
+      <label>料金（円）</label>
+      <input type="number" id="l-price" placeholder="例：8800">
+      <input type="hidden" id="l-price-unit" value="〜/人">
     </div>
 
     <div class="form-row">
@@ -715,7 +710,21 @@ td.primary { color: var(--on-dark); font-weight: 500; }
       </div>
       <div class="form-group">
         <label>予約締切</label>
-        <input type="text" id="l-deadline" placeholder="例：前日17時まで">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <select id="l-deadline-days" onchange="toggleDeadlineOther()" style="flex:1;min-width:110px;">
+            <option value="0">当日</option>
+            <option value="1" selected>前日</option>
+            <option value="2">2日前</option>
+            <option value="3">3日前</option>
+            <option value="5">5日前</option>
+            <option value="7">7日前</option>
+            <option value="14">14日前</option>
+            <option value="other">その他（自由入力）</option>
+          </select>
+          <input type="time" id="l-deadline-time" value="18:00" style="flex:0 0 auto;width:auto;">
+          <span style="font-size:13px;color:var(--on-dark-soft);">まで</span>
+        </div>
+        <input type="text" id="l-deadline-other" placeholder="例：ご相談ください" style="margin-top:8px;display:none;">
       </div>
     </div>
     <div class="form-group">
