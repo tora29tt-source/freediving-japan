@@ -1885,8 +1885,6 @@ function renderShopProfileForm() {
       </div>
       <input type="hidden" id="sp-cover-pos" value="${escHtml(s.cover_position || '50% 50%')}">
     </div>
-    <div class="form-group"><label>YouTube</label><input type="url" id="sp-yt" value="${escHtml(s.youtube_url||'')}" placeholder="https://youtube.com/..."></div>
-
     <div class="form-section-title">公開設定</div>
     <div class="form-group">
       <div class="toggle-wrap">
@@ -1975,7 +1973,6 @@ async function saveShopProfile() {
     logo_url:      _newShopLogoUrl  || myShop.logo_url  || null,
     cover_url:     _newShopCoverUrl || myShop.cover_url || null,
     cover_position: document.getElementById('sp-cover-pos')?.value || '50% 50%',
-    youtube_url:   document.getElementById('sp-yt').value.trim()     || null,
     is_public:     document.getElementById('sp-public').checked,
     updated_at:    new Date().toISOString(),
   };
