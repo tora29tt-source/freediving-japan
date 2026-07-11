@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-07-10T00:04:09Z",
+  "updatedAt": "2026-07-10T23:56:53Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -2138,17 +2138,6 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA Okinawa Freediving Cup 2026",
-      "type": "Depth Competition",
-      "venue": "Truenorth Okinawa",
-      "cityCountry": "Okinawa, Japan",
-      "startDate": "2026-07-18",
-      "endDate": "2026-07-19",
-      "link": "https://www.aidainternational.org/Events/EventDetails-4958",
-      "month": 7,
-      "cat": "sea"
-    },
-    {
       "title": "AIDA Freediving Dynamic Challenge 2026 Suzuka #2",
       "type": "Pool Competition",
       "venue": "Miekotsu Group Sports No Mori Suzuka",
@@ -2156,6 +2145,17 @@
       "startDate": "2026-07-18",
       "endDate": "2026-07-18",
       "link": "https://www.aidainternational.org/Events/EventDetails-5079",
+      "month": 7,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA Osijek 1st cup",
+      "type": "Pool Competition",
+      "venue": "Osijek Otvoreni Bazen",
+      "cityCountry": "Osijek, Croatia",
+      "startDate": "2026-07-18",
+      "endDate": "2026-07-18",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5185",
       "month": 7,
       "cat": "pool"
     },
@@ -2710,17 +2710,6 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA Hydro Dynamic 2026",
-      "type": "Pool Competition",
-      "venue": "Bsfz Südstadt",
-      "cityCountry": "Maria Enzersdorf, Austria",
-      "startDate": "2026-10-17",
-      "endDate": "2026-10-18",
-      "link": "https://www.aidainternational.org/Events/EventDetails-4885",
-      "month": 10,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA HAYAMA FREEDIVING CHALLENGE 2026",
       "type": "Depth Competition",
       "venue": "Shinnase Fishing Port",
@@ -2730,6 +2719,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5150",
       "month": 10,
       "cat": "sea"
+    },
+    {
+      "title": "AIDA Hydro Dynamic 2026",
+      "type": "Pool Competition",
+      "venue": "Bsfz Südstadt",
+      "cityCountry": "Maria Enzersdorf, Austria",
+      "startDate": "2026-10-17",
+      "endDate": "2026-10-18",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4885",
+      "month": 10,
+      "cat": "pool"
     },
     {
       "title": "AIDA Freediving Dynamic Challenge 2026 Suzuka #5",
@@ -2750,17 +2750,6 @@
       "startDate": "2026-10-18",
       "endDate": "2026-10-22",
       "link": "https://www.aidainternational.org/Events/EventDetails-5094",
-      "month": 10,
-      "cat": "pool"
-    },
-    {
-      "title": "AIDA Malaysia Apnea Warrior Meet Challenge 5.0",
-      "type": "Pool Competition",
-      "venue": "Arena Sukan Kuala Lumpur",
-      "cityCountry": "Kuala Lumpur, Malaysia",
-      "startDate": "2026-10-18",
-      "endDate": "2026-10-18",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5152",
       "month": 10,
       "cat": "pool"
     },
