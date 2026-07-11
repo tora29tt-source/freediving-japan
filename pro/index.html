@@ -677,15 +677,21 @@ td.primary { color: var(--on-dark); font-weight: 500; }
     </div>
 
     <p class="form-section-title" style="margin-top:20px;">開催情報</p>
-    <div class="form-row">
-      <div class="form-group" data-pv-key="infogrid">
-        <label>所要時間</label>
-        <input type="text" id="l-duration" placeholder="例：2〜3時間">
-      </div>
-      <div class="form-group" data-pv-key="infogrid">
-        <label>開催期間</label>
-        <input type="text" id="l-season" placeholder="例：4月〜10月">
-      </div>
+    <div class="form-group" data-pv-key="infogrid">
+      <label>所要時間</label>
+      <select id="l-duration-select" onchange="toggleDurationOther()">
+        <option value="30分">30分</option>
+        <option value="1時間">1時間</option>
+        <option value="1時間30分">1時間30分</option>
+        <option value="2時間" selected>2時間</option>
+        <option value="2〜3時間">2〜3時間</option>
+        <option value="3時間">3時間</option>
+        <option value="半日（4〜5時間）">半日（4〜5時間）</option>
+        <option value="1日">1日</option>
+        <option value="2日以上">2日以上</option>
+        <option value="other">その他（自由入力）</option>
+      </select>
+      <input type="text" id="l-duration-other" placeholder="例：3泊4日" style="margin-top:8px;display:none;">
     </div>
     <div class="form-row">
       <div class="form-group" data-pv-key="infogrid">
@@ -743,6 +749,14 @@ td.primary { color: var(--on-dark); font-weight: 500; }
     <p class="form-section-title" style="margin-top:20px;">キャンセル・注意事項</p>
     <div class="form-group" data-pv-key="cancel">
       <label>キャンセルポリシー</label>
+      <select id="l-cancel-template" onchange="applyCancelTemplate()" style="margin-bottom:8px;">
+        <option value="">テンプレートを選ぶ（選択後も自由に編集できます）</option>
+        <option value="前日まで無料、当日100%">前日まで無料・当日100%</option>
+        <option value="3日前まで無料、前日50%、当日100%">3日前まで無料・前日50%・当日100%</option>
+        <option value="7日前まで無料、3日前から50%、前日・当日100%">7日前まで無料・3日前から50%・前日/当日100%</option>
+        <option value="悪天候等による運営都合の中止の場合は全額返金いたします。">悪天候中止のみ全額返金</option>
+        <option value="ご予約後のキャンセルは承っておりません。日程変更のみ1回まで無料です。">キャンセル不可・日程変更のみ1回無料</option>
+      </select>
       <textarea id="l-cancel" placeholder="例：3日前まで無料、前日50%、当日100%" style="min-height:64px;"></textarea>
     </div>
     <div class="form-group" data-pv-key="bring">
@@ -755,9 +769,20 @@ td.primary { color: var(--on-dark); font-weight: 500; }
     </div>
 
     <div class="form-group" data-pv-key="header">
-      <label>タグ（カンマ区切り）</label>
-      <input type="text" id="l-tags" placeholder="例：初心者OK, 当日予約OK, 英語対応">
-      <p class="form-hint">カンマで区切って複数入力できます</p>
+      <label>タグ</label>
+      <div class="check-group" id="l-tags-checks">
+        <label class="check-item"><input type="checkbox" value="初心者OK"> 初心者OK</label>
+        <label class="check-item"><input type="checkbox" value="経験者向け"> 経験者向け</label>
+        <label class="check-item"><input type="checkbox" value="当日予約OK"> 当日予約OK</label>
+        <label class="check-item"><input type="checkbox" value="少人数制"> 少人数制</label>
+        <label class="check-item"><input type="checkbox" value="英語対応"> 英語対応</label>
+        <label class="check-item"><input type="checkbox" value="女性インストラクター在籍"> 女性インストラクター在籍</label>
+        <label class="check-item"><input type="checkbox" value="写真データ付き"> 写真データ付き</label>
+        <label class="check-item"><input type="checkbox" value="ファミリー向け"> ファミリー向け</label>
+        <label class="check-item"><input type="checkbox" value="__other__" onchange="toggleLangOther(this,'l-tags-other')"> その他</label>
+      </div>
+      <input type="text" id="l-tags-other" placeholder="例：ペア割あり、記念撮影サービス（カンマ区切り）" style="margin-top:8px;display:none;">
+      <p class="form-hint">複数選択できます</p>
     </div>
 
     <p class="form-section-title" style="margin-top:20px;">設備・機材</p>
@@ -1344,7 +1369,7 @@ function renderCreateShopPreview() {
 }
 
 // ── コース(listing)プレビュー：explore/listing.html の見た目を模す（予約カレンダー・レビュー・他プランは対象外） ──
-function buildListingPreviewCard({ coverUrl, category, title, tags, price, priceUnit, level, pref, area, duration, season, minPax, maxPax, ageMin, ageMax, shuttle, deadline, desc, goal, flowSteps, meeting, priceInc, priceExc, bring, notes, cancel }) {
+function buildListingPreviewCard({ coverUrl, category, title, tags, price, priceUnit, level, pref, area, duration, minPax, maxPax, ageMin, ageMax, shuttle, deadline, desc, goal, flowSteps, meeting, priceInc, priceExc, bring, notes, cancel }) {
   const coverHtml = coverUrl
     ? `<img src="${escHtml(coverUrl)}" alt="">`
     : `<div class="pv-cover-ph">メイン画像未設定</div>`;
@@ -1355,7 +1380,6 @@ function buildListingPreviewCard({ coverUrl, category, title, tags, price, price
   const ageStr = ageMin ? (ageMax ? `${ageMin}〜${ageMax}歳` : `${ageMin}歳〜`) : (ageMax ? `〜${ageMax}歳` : null);
   const infoCards = [
     duration ? { label: '所要時間', value: duration } : null,
-    season   ? { label: '開催時期', value: season } : null,
     level    ? { label: '対象レベル', value: level } : null,
     minPax   ? { label: '最少催行', value: `${minPax}名〜` } : null,
     maxPax   ? { label: '最大人数', value: `${maxPax}名` } : null,
@@ -1435,8 +1459,7 @@ function renderListingPreview() {
   const priceUnit = document.getElementById('l-price-unit')?.value?.trim() || '';
   const priceInc  = document.getElementById('l-price-inc')?.value?.trim() || '';
   const priceExc  = document.getElementById('l-price-exc')?.value?.trim() || '';
-  const duration  = document.getElementById('l-duration')?.value?.trim() || '';
-  const season    = document.getElementById('l-season')?.value?.trim() || '';
+  const duration  = composeDuration();
   const minPax    = document.getElementById('l-min-pax')?.value || '';
   const maxPax    = document.getElementById('l-max-pax')?.value || '';
   const ageMin    = document.getElementById('l-age-min')?.value || '';
@@ -1447,7 +1470,7 @@ function renderListingPreview() {
   const cancel    = document.getElementById('l-cancel')?.value?.trim() || '';
   const bring     = document.getElementById('l-bring')?.value?.trim() || '';
   const notes     = document.getElementById('l-notes')?.value?.trim() || '';
-  const tags      = (document.getElementById('l-tags')?.value || '').split(',').map(s => s.trim()).filter(Boolean);
+  const tags      = document.getElementById('l-tags-checks') ? collectTags() : [];
   const flowSteps = document.getElementById('l-flow-rows') ? collectFlowSteps() : [];
 
   const imgEl    = document.getElementById('l-image-preview');
@@ -1455,7 +1478,7 @@ function renderListingPreview() {
 
   wrap.innerHTML = buildListingPreviewCard({
     coverUrl, category, title, tags, price, priceUnit, level, pref, area,
-    duration, season, minPax, maxPax, ageMin, ageMax, shuttle, deadline,
+    duration, minPax, maxPax, ageMin, ageMax, shuttle, deadline,
     desc, goal, flowSteps, meeting, priceInc, priceExc, bring, notes, cancel,
   });
   pvApplyHighlight('listing-preview-scroll');
@@ -2271,15 +2294,18 @@ function openListingModal(listingId = null, duplicateFromId = null) {
   const loadId = listingId || duplicateFromId;
   document.getElementById('listing-modal-title').textContent = listingId ? 'コースを編集' : (duplicateFromId ? 'コースを追加（複製）' : 'コースを追加');
   document.getElementById('l-save-label').textContent        = listingId ? '更新する' : '保存する';
-  ['l-title','l-desc','l-pref','l-pref-other','l-area','l-tags','l-image',
-   'l-price-inc','l-price-exc','l-duration','l-season','l-meeting',
+  ['l-title','l-desc','l-pref','l-pref-other','l-area','l-image',
+   'l-price-inc','l-price-exc','l-meeting',
    'l-cancel','l-bring','l-notes'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
+  document.getElementById('l-cancel-template').value = '';
   document.getElementById('l-pref-other').style.display = 'none';
   document.getElementById('l-price').value       = '';
   document.getElementById('l-price-unit').value  = '〜/人';
-  parseDeadlineIntoFields(null); // 予約締切を初期値（前日 18:00まで）にリセット
+  parseDeadlineIntoFields(null);  // 予約締切を初期値（前日 18:00まで）にリセット
+  parseDurationIntoFields(null); // 所要時間を初期値（2時間）にリセット
+  applyTagsIntoFields([]);       // タグのチェックをすべて外す
   document.getElementById('l-min-pax').value     = '';
   document.getElementById('l-max-pax').value     = '';
   document.getElementById('l-age-min').value     = '';
@@ -2338,8 +2364,7 @@ function openListingModal(listingId = null, duplicateFromId = null) {
       document.getElementById('l-price-unit').value  = l.price_unit  || '〜/人';
       document.getElementById('l-price-inc').value   = l.price_includes  || '';
       document.getElementById('l-price-exc').value   = l.price_excludes  || '';
-      document.getElementById('l-duration').value    = l.duration        || '';
-      document.getElementById('l-season').value      = l.season          || '';
+      parseDurationIntoFields(l.duration || '');
       document.getElementById('l-min-pax').value     = l.min_participants || '';
       document.getElementById('l-max-pax').value     = l.max_participants || '';
       document.getElementById('l-age-min').value     = l.age_min         || '';
@@ -2352,7 +2377,7 @@ function openListingModal(listingId = null, duplicateFromId = null) {
       document.getElementById('l-notes').value       = l.notes           || '';
       document.getElementById('l-level').value       = l.target_level    || '';
       document.getElementById('l-goal').value        = l.goal            || '';
-      document.getElementById('l-tags').value        = (l.tags || []).join(', ');
+      applyTagsIntoFields(l.tags || []);
       document.getElementById('l-image').value       = l.image_url       || '';
       document.getElementById('l-image-preview-wrap').innerHTML = l.image_url
         ? `<img id="l-image-preview" src="${escHtml(l.image_url)}" style="width:100%;height:100%;object-fit:cover;">`
@@ -2393,8 +2418,7 @@ async function saveListing() {
     : myInstructor.id;
   const shopId = myRole === 'shop' ? myShop.id : null;
 
-  const tagsRaw = document.getElementById('l-tags').value;
-  const tags    = tagsRaw.split(',').map(s => s.trim()).filter(Boolean);
+  const tags = collectTags();
 
   const payload = {
     instructor_id:       instructorId,
@@ -2412,8 +2436,8 @@ async function saveListing() {
     price_unit:          document.getElementById('l-price-unit').value.trim()     || '〜/人',
     price_includes:      document.getElementById('l-price-inc').value.trim()      || null,
     price_excludes:      document.getElementById('l-price-exc').value.trim()      || null,
-    duration:            document.getElementById('l-duration').value.trim()       || null,
-    season:              document.getElementById('l-season').value.trim()         || null,
+    duration:            composeDuration()                                       || null,
+    season:              null, // 開催期間は廃止（空き状況カレンダーで管理するため・2026-07-11）
     min_participants:    parseInt(document.getElementById('l-min-pax').value)     || null,
     max_participants:    parseInt(document.getElementById('l-max-pax').value)     || null,
     age_min:             parseInt(document.getElementById('l-age-min').value)     || null,
@@ -3040,6 +3064,69 @@ function parseDeadlineIntoFields(raw) {
   daysSel.value = 'other';
   otherInput.value = raw;
   toggleDeadlineOther();
+}
+
+// ── 所要時間：自由入力ではなくプリセット選択＋その他（2026-07-11・入力を減らす方針で変更） ──
+function toggleDurationOther() {
+  const isOther = document.getElementById('l-duration-select').value === 'other';
+  document.getElementById('l-duration-other').style.display = isOther ? '' : 'none';
+}
+
+function composeDuration() {
+  const sel = document.getElementById('l-duration-select');
+  if (!sel) return '';
+  if (sel.value === 'other') return document.getElementById('l-duration-other')?.value?.trim() || '';
+  return sel.value;
+}
+
+function parseDurationIntoFields(raw) {
+  const sel = document.getElementById('l-duration-select');
+  const other = document.getElementById('l-duration-other');
+  const known = Array.from(sel.options).map(o => o.value);
+  if (raw && known.includes(raw)) {
+    sel.value = raw;
+    other.value = '';
+  } else if (raw) {
+    sel.value = 'other';
+    other.value = raw;
+  } else {
+    sel.value = '2時間';
+    other.value = '';
+  }
+  toggleDurationOther();
+}
+
+// ── タグ：カンマ区切りの自由入力ではなくチェックボックス＋その他（資格・言語と同じ方式） ──
+function collectTags() {
+  const checked = collectChecked('l-tags-checks').filter(v => v !== '__other__');
+  const otherEl = document.getElementById('l-tags-other');
+  const others  = (otherEl && otherEl.value.trim())
+    ? otherEl.value.split(',').map(s => s.trim()).filter(Boolean)
+    : [];
+  return [...checked, ...others];
+}
+
+function applyTagsIntoFields(tagsList) {
+  const list = tagsList || [];
+  const checkboxes = document.querySelectorAll('#l-tags-checks input[type="checkbox"]');
+  const knownValues = Array.from(checkboxes).map(cb => cb.value).filter(v => v !== '__other__');
+  const matched   = list.filter(t => knownValues.includes(t));
+  const unmatched = list.filter(t => !knownValues.includes(t));
+  checkboxes.forEach(cb => {
+    if (cb.value === '__other__') { cb.checked = unmatched.length > 0; return; }
+    cb.checked = matched.includes(cb.value);
+  });
+  const otherEl = document.getElementById('l-tags-other');
+  otherEl.value = unmatched.join(', ');
+  otherEl.style.display = unmatched.length ? '' : 'none';
+}
+
+// ── キャンセルポリシー：テンプレートを選ぶと自由記述欄に反映（選んだ後も編集できる） ──
+function applyCancelTemplate() {
+  const sel = document.getElementById('l-cancel-template');
+  if (!sel.value) return;
+  document.getElementById('l-cancel').value = sel.value;
+  sel.value = '';
 }
 
 // スポット名の入力候補（2026-07-10・エリア設計の刷新）。種データ＋DB実データをdatalistに流し込む
