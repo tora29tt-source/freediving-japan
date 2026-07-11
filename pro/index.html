@@ -1478,9 +1478,9 @@ function renderProfileForm() {
       <input type="text" id="p-lang-other" value="${escHtml(otherLangs.join(', '))}" placeholder="例：スペイン語、フランス語（カンマ区切り）" style="margin-top:8px;${hasOther?'':'display:none;'}">
     </div>
 
-    <div class="form-section-title">メディア・SNS</div>
+    <div class="form-section-title">カバー画像</div>
     <div class="form-group">
-      <label>カバー画像（プロフィール上部のバナー）</label>
+      <label>プロフィール上部のバナー</label>
       <div id="p-cover-empty" onclick="document.getElementById('p-cover-file').click()" style="cursor:pointer;width:100%;height:150px;border-radius:8px;background:rgba(46,196,182,0.1);border:2px dashed rgba(46,196,182,0.3);display:${i.cover_url ? 'none' : 'flex'};align-items:center;justify-content:center;overflow:hidden;color:var(--teal);font-size:13px;">
         <span>📷 タップして画像を選択</span>
       </div>
@@ -1846,9 +1846,9 @@ function renderShopProfileForm() {
       <input type="text" id="sp-lang-other" value="${escHtml(sOtherLangs.join(', '))}" placeholder="例：スペイン語、フランス語（カンマ区切り）" style="margin-top:8px;${sHasOther?'':'display:none;'}">
     </div>
 
-    <div class="form-section-title">メディア・SNS</div>
+    <div class="form-section-title">カバー画像</div>
     <div class="form-group">
-      <label>カバー画像</label>
+      <label>プロフィール上部のバナー</label>
       <div id="sp-cover-empty" onclick="document.getElementById('sp-cover-file').click()" style="cursor:pointer;width:100%;height:150px;border-radius:8px;background:rgba(46,196,182,0.1);border:2px dashed rgba(46,196,182,0.3);display:${s.cover_url ? 'none' : 'flex'};align-items:center;justify-content:center;overflow:hidden;color:var(--teal);font-size:13px;">
         <span>📷 タップして画像を選択</span>
       </div>
