@@ -269,6 +269,13 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 - **2026-07-07：Chrome MCPでショップ名義商品の予約カレンダー表示を確認済み**（`explore/shops.html`→ショップカード→コース詳細→空き状況カレンダーが正常表示、コンソールエラーなし）。ただし決済（Stripe Checkout）までの一気通貫E2Eは未実施
 - **2026-07-05追記**：`pro/index.html`の`applyShopOwnerFilter()`は当初`instructor_shops`（在籍インストラクター）のIDも管理対象に含めていたが、在籍インストラクターを追加しただけでその人個人の既存商品・予約・問い合わせまでショップの管理画面に出てきてしまう不具合につながったため、`shop_id = 自ショップ`のみに限定するよう修正。**在籍インストラクター（instructor_shops）は「プロフィール表示用のロースター」であり、商品・予約等の管理権限を拡張するものではない**という方針を明確化
 - **2026-07-05追記**：`shops`にカバー画像の表示位置調整機能を追加（`pro/index.html`のショップ編集画面・記事エディタの`ae-cover-pos`と同方式のドラッグ/矢印UI）。DB側の`shops.cover_position`カラム（TEXT、例`"50% 50%"`）は **2026-07-06 Supabase本番に適用済み**（`sql/shops_cover_position_20260705.sql`・information_schemaで確認済み）
+- **2026-07-11 フルE2Eテスト実施（Chrome MCP・Stripeサンドボックス）**：予約→決済→webhook→booked_count増加→success表示の一連は正常動作を確認。ただし以下の不具合を発見・修正：
+  - 🔴**ブロッカー**：ショップ名義（instructor_id IS NULL）の予約が `api/create-checkout-session` で500エラーになり実質予約不可能だった。真因は`sql/clients.sql`の`sync_client_from_booking()`トリガーが`clients.instructor_id NOT NULL`前提のまま`shop_direct_listings_20260704.sql`のnullable化に追従しておらず、ショップ名義予約のINSERT時にトリガー内のNOT NULL制約違反で`create_pending_booking()`ごとロールバックしていたため（QA当初の「.eq nullが原因」という推測は誤りで、実際はこのトリガーが原因）。`NEW.instructor_id IS NULL`ならclients同期をスキップするよう修正済み（**要Supabase本番再適用**）
+  - 🔴**セキュリティ**：anonキーでbookingsが全件SELECT可能（client_email等漏洩）と報告。`sql/`内のポリシー定義は正しく owner/admin限定になっているため、本番にStudio経由の重複ポリシー（S3のarticlesと同型の問題）が残っている可能性が高い。要本番pg_policies確認・再適用
+  - ⚠️ `api/create-checkout-session.js`：クライアント指定のinstructorIdをそのまま予約に保存していた（ショップ名義枠に任意のinstructorIdを送りつけられる状態）→ 常にslot由来の値のみを信頼するよう修正
+  - ⚠️ `booking/success.html`：ショップ名義予約でも「インストラクターから連絡」固定表示・ショップ名非表示だった → 担当名＋インストラクター/ショップの呼称出し分けに修正（`api/booking-result.js`にinstructors/shops名を追加）
+  - ⚠️ `explore/listing.html`：`?listing=`のみ（owner指定なし）だと「見つかりませんでした」になっていた → listingsテーブルからownerを引いてリダイレクトするフォールバックを追加
+  - **未対応（要判断・意図的に見送り）**：ショップ名義予約でもinstructor_payout/platform_feeがインストラクター向け70/30分配のまま計算されている。ショップ精算をインストラクターと同じ分配にするか別設計にするか要確認
 
 ### `listings.category` タクソノミー変更（2026-07-10・secretary相談で確定）
 

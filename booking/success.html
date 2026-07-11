@@ -104,6 +104,11 @@ async function loadBooking() {
   const dateStr = d ? `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日` : '—';
   const timeStr = slot ? `${slot.start_time.slice(0,5)}〜${slot.end_time.slice(0,5)}` : '—';
 
+  // ショップ名義（担当インストラクター未定）の予約では booking.instructors が無く
+  // booking.shops のみが入る。どちらの場合も表示名・呼称を出し分ける
+  const ownerName  = booking.instructors?.name || booking.shops?.name || null;
+  const ownerLabel = booking.instructor_id ? 'インストラクター' : 'ショップ';
+
   card.innerHTML = `
     <div class="icon-wrap">
       <svg class="check-icon" viewBox="0 0 24 24">
@@ -112,15 +117,16 @@ async function loadBooking() {
       </svg>
     </div>
     <h1>予約が完了しました！</h1>
-    <p class="sub">ご予約ありがとうございます。<br>インストラクターから <strong>${escHtml(booking.client_email)}</strong> 宛にご連絡をお送りします。</p>
+    <p class="sub">ご予約ありがとうございます。<br>${ownerLabel}から <strong>${escHtml(booking.client_email)}</strong> 宛にご連絡をお送りします。</p>
     <div class="detail-box">
       <div class="detail-row"><span class="detail-key">プラン</span><span class="detail-val">${escHtml(listing?.title)}</span></div>
+      ${ownerName ? `<div class="detail-row"><span class="detail-key">${ownerLabel}</span><span class="detail-val">${escHtml(ownerName)}</span></div>` : ''}
       <div class="detail-row"><span class="detail-key">日時</span><span class="detail-val">${dateStr} ${timeStr}</span></div>
       <div class="detail-row"><span class="detail-key">参加人数</span><span class="detail-val">${booking.participant_count}名</span></div>
       <div class="detail-row"><span class="detail-key">合計金額</span><span class="detail-val">¥${booking.total_amount.toLocaleString()}</span></div>
       <div class="detail-row"><span class="detail-key">予約番号</span><span class="detail-val" style="font-size:11px;font-family:monospace">${booking.id.slice(0,8).toUpperCase()}</span></div>
     </div>
-    <p class="email-note">インストラクターから詳細のご連絡をお送りします。<br>当日は集合場所にお越しください。</p>
+    <p class="email-note">${ownerLabel}から詳細のご連絡をお送りします。<br>当日は集合場所にお越しください。</p>
     <a href="../explore/index.html" class="btn">
       <svg style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       他のプランを探す

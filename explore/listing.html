@@ -344,12 +344,41 @@ function ownerProfileQuery() {
 }
 
 if (!instructorId && !shopId) {
-  document.getElementById('pageContent').innerHTML = '<div class="main" style="padding-top:40px;text-align:center;color:var(--on-dark-soft)">インストラクター・ショップが見つかりませんでした。<br><a href="index.html" style="color:var(--teal)">一覧に戻る</a></div>';
+  if (listingId) {
+    // owner（id= / shop=）を省略して listing= だけで来た場合、
+    // listings テーブルから owner を引いて正しいURLへリダイレクトする
+    // （2026-07-11 E2Eで「listingのみだと見つかりませんでした」と指摘された不具合の修正）
+    resolveOwnerFromListingAndRedirect(listingId);
+  } else {
+    document.getElementById('pageContent').innerHTML = '<div class="main" style="padding-top:40px;text-align:center;color:var(--on-dark-soft)">インストラクター・ショップが見つかりませんでした。<br><a href="index.html" style="color:var(--teal)">一覧に戻る</a></div>';
+  }
 } else if (!listingId) {
   // コース未指定でこのページに来た場合はプロフィールページへ
   location.replace(`profile.html?${ownerProfileQuery()}`);
 } else {
   initPage();
+}
+
+async function resolveOwnerFromListingAndRedirect(lid) {
+  try {
+    const { data, error } = await _sb
+      .from('listings')
+      .select('instructor_id, shop_id')
+      .eq('id', lid)
+      .single();
+
+    if (error || !data || (!data.instructor_id && !data.shop_id)) {
+      document.getElementById('pageContent').innerHTML = '<div class="main" style="padding-top:40px;text-align:center;color:var(--on-dark-soft)">商品が見つかりませんでした。<br><a href="index.html" style="color:var(--teal)">一覧に戻る</a></div>';
+      return;
+    }
+
+    const ownerQuery = data.instructor_id
+      ? `id=${encodeURIComponent(data.instructor_id)}`
+      : `shop=${encodeURIComponent(data.shop_id)}`;
+    location.replace(`listing.html?${ownerQuery}&listing=${encodeURIComponent(lid)}`);
+  } catch {
+    document.getElementById('pageContent').innerHTML = '<div class="main" style="padding-top:40px;text-align:center;color:var(--on-dark-soft)">エラーが発生しました。<br><a href="index.html" style="color:var(--teal)">一覧に戻る</a></div>';
+  }
 }
 
 async function initPage() {

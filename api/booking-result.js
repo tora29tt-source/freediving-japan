@@ -27,8 +27,11 @@ export default async function handler(req, res) {
       .from('bookings')
       .select(`
         id, client_email, participant_count, total_amount, status,
+        instructor_id, shop_id,
         availability_slots ( slot_date, start_time, end_time ),
-        listings ( title )
+        listings ( title ),
+        instructors ( name ),
+        shops ( name )
       `)
       .eq('id', booking_id)
       .eq('stripe_session_id', session_id)

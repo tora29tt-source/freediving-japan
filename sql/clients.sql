@@ -44,9 +44,23 @@ CREATE TRIGGER clients_updated_at
 
 -- bookings INSERT 時に clients を自動 upsert
 -- → 新規予約が入るたびにクライアント行が自動生成される
+--
+-- 2026-07-11修正: clients.instructor_id は NOT NULL だが、
+-- shop_direct_listings_20260704.sql でショップ名義予約
+-- （bookings.instructor_id IS NULL）が可能になった際にこのトリガーが
+-- 未対応のまま残っていた。ショップ名義予約が作られるとこのトリガーの
+-- INSERT が NOT NULL 制約違反で例外を投げ、create_pending_booking()
+-- RPC 呼び出し全体がロールバック → api/create-checkout-session.js 側は
+-- 原因不明の500「予約状況の確認に失敗しました」として返していた
+-- （フルE2Eテスト 2026-07-11 で発覚・特定）。
+-- instructor_id が無い予約（ショップ名義）はclients同期の対象外としてスキップする。
 CREATE OR REPLACE FUNCTION sync_client_from_booking()
 RETURNS TRIGGER AS $$
 BEGIN
+  IF NEW.instructor_id IS NULL THEN
+    RETURN NEW;
+  END IF;
+
   INSERT INTO clients (instructor_id, email, name, phone)
   VALUES (NEW.instructor_id, NEW.client_email, NEW.client_name, NEW.client_phone)
   ON CONFLICT (instructor_id, email) DO UPDATE SET
