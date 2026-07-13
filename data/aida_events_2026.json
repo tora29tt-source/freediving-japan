@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-07-12T23:53:18Z",
+  "updatedAt": "2026-07-13T23:54:11Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -2039,17 +2039,6 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA LV Summer games",
-      "type": "Pool Competition",
-      "venue": "Rtu Kipsala Swimming Pool",
-      "cityCountry": "Riga, Latvia",
-      "startDate": "2026-07-04",
-      "endDate": "2026-07-04",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5140",
-      "month": 7,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA Nice Abyss Contest 2026 J1",
       "type": "Depth Competition",
       "venue": "Base Municipale De L Aigle Nautique",
@@ -2059,6 +2048,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5084",
       "month": 7,
       "cat": "sea"
+    },
+    {
+      "title": "AIDA LV Summer games",
+      "type": "Pool Competition",
+      "venue": "Rtu Kipsala Swimming Pool",
+      "cityCountry": "Riga, Latvia",
+      "startDate": "2026-07-04",
+      "endDate": "2026-07-04",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5140",
+      "month": 7,
+      "cat": "pool"
     },
     {
       "title": "AIDA Nice Abyss Contest 2026 J2",
@@ -2094,17 +2094,6 @@
       "cat": "sea"
     },
     {
-      "title": "BB CUP Ep.10 | PFI BREATHLESS | WORLD APNEA 2026",
-      "type": "Pool Competition",
-      "venue": "라움enc수영장 (Raum Swimming Pool)",
-      "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
-      "startDate": "2026-07-12",
-      "endDate": "2026-07-12",
-      "link": "https://www.aidainternational.org/EventPage/4966",
-      "month": 7,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA Malaysia Apnea Warrior Meet Challenge 2.0",
       "type": "Pool Competition",
       "venue": "Arena Sukan Kuala Lumour",
@@ -2112,6 +2101,17 @@
       "startDate": "2026-07-12",
       "endDate": "2026-07-12",
       "link": "https://www.aidainternational.org/Events/EventDetails-5146",
+      "month": 7,
+      "cat": "pool"
+    },
+    {
+      "title": "BB CUP Ep.10 | PFI BREATHLESS | WORLD APNEA 2026",
+      "type": "Pool Competition",
+      "venue": "라움enc수영장 (Raum Swimming Pool)",
+      "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
+      "startDate": "2026-07-12",
+      "endDate": "2026-07-12",
+      "link": "https://www.aidainternational.org/EventPage/4966",
       "month": 7,
       "cat": "pool"
     },
@@ -2125,6 +2125,17 @@
       "link": "https://www.aidainternational.org/EventPage/4932",
       "month": 7,
       "cat": "sea"
+    },
+    {
+      "title": "World Apnea Sukoon Attempts",
+      "type": "Pool Competition",
+      "venue": "Vertex Club",
+      "cityCountry": "Cairo, Egypt",
+      "startDate": "2026-07-17",
+      "endDate": "2026-07-18",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5174",
+      "month": 7,
+      "cat": "pool"
     },
     {
       "title": "World apnea sukoon competition",
@@ -2277,6 +2288,17 @@
       "startDate": "2026-07-28",
       "endDate": "2026-07-28",
       "link": "https://www.aidainternational.org/EventPage/5154",
+      "month": 7,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA One Breath Challenge 7 - Summer Times",
+      "type": "Pool Competition",
+      "venue": "Neom Hotel",
+      "cityCountry": "Dahab, Egypt",
+      "startDate": "2026-07-29",
+      "endDate": "2026-07-31",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5184",
       "month": 7,
       "cat": "pool"
     },
