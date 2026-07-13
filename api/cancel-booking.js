@@ -3,17 +3,22 @@
 //
 // 予約のキャンセル・返金を実行する（2026-07-12・secretary相談で確定したポリシーの実装）。
 //
-// 認可：Authorization: Bearer <supabase access_token> を必須とし、その呼び出し元
-// トークンで対象の bookings 行を SELECT できるか（RLS: bookings_select_owner_or_admin
-// ＝本人インストラクター／本人ショップ／管理者のみ）を確認する。通過できなければ
-// 権限なしとして 403 を返す。以降の実データ取得・Stripe返金・DB更新は
-// service_role で行う（RLSの可視性に依存させない・クライアント指定値は信用しない＝S9踏襲）。
+// 認可：Authorization: Bearer <supabase access_token> を必須とする。トークンから
+// 呼び出し元ユーザー（id・email）を取得し、対象 booking の instructor_id/shop_id の
+// オーナー、user_roles上のadmin/staff、または booking.client_email と一致するゲスト
+// 本人のいずれかであることを service_role 側で確認する（RLSの可視性任せにしない）。
+//
+// 権限による差：
+//   ・インストラクター/ショップ本人・管理者（＝privileged）は reason に 'weather' を
+//     指定でき、overrideAmount で提案額を上書きできる（admin/index.htmlの手動調整用）。
+//   ・予約者本人（ゲスト・client_email一致のみ）のセルフキャンセルは reason='guest' 固定、
+//     overrideAmount は無視する（自己申告で満額を主張できないようにするための制約）。
 //
 // キャンセル料率（プラットフォーム共通のフォールバックルール）：
 //   開催7日以上前　　　　　→ 全額返金（100%）
 //   開催3〜6日前　　　　　 → 50%返金
 //   開催2日前〜当日・無連絡 → 返金なし（0%）
-//   天候等ショップ都合の中止 → 無条件で全額返金
+//   天候等ショップ都合の中止 → 無条件で全額返金（privilegedのみ指定可）
 // 各リスティングの cancellation_policy（自由入力）が上記と異なる場合は、
 // admin側で提案額を編集してから確定する運用とする（自動判定は行わない）。
 //
@@ -72,23 +77,17 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 1. 認可チェック：呼び出し元トークンでスコープしたクライアントで
-    //    対象予約をSELECTできるか確認する（RLSがそのまま認可ゲートになる）。
+    // 1. トークンから呼び出し元ユーザー（id・email）を取得する
     const callerClient = createClient(process.env.SUPABASE_URL, SUPABASE_ANON_KEY, {
       global: { headers: { Authorization: `Bearer ${accessToken}` } },
     });
 
-    const { data: authCheck, error: authErr } = await callerClient
-      .from('bookings')
-      .select('id')
-      .eq('id', bookingId)
-      .single();
-
-    if (authErr || !authCheck) {
-      return res.status(403).json({ error: '予約が見つからないか、操作権限がありません' });
+    const { data: { user: caller }, error: userErr } = await callerClient.auth.getUser();
+    if (userErr || !caller) {
+      return res.status(401).json({ error: '認証情報が無効です' });
     }
 
-    // 2. 実データはRLSの可視性に依存させず service_role で取得する
+    // 2. 実データは RLS の可視性に依存させず service_role で取得する
     const { data: booking, error: fetchErr } = await supabaseAdmin
       .from('bookings')
       .select('*, availability_slots(id, slot_date, start_time)')
@@ -97,6 +96,39 @@ export default async function handler(req, res) {
 
     if (fetchErr || !booking) {
       return res.status(404).json({ error: '予約情報の取得に失敗しました' });
+    }
+
+    // 3. 権限判定（client指定値ではなくDB上の関係から判定する＝S9踏襲）
+    let isInstructorOwner = false;
+    if (booking.instructor_id) {
+      const { data: inst } = await supabaseAdmin
+        .from('instructors').select('user_id').eq('id', booking.instructor_id).single();
+      isInstructorOwner = inst?.user_id === caller.id;
+    }
+
+    let isShopOwner = false;
+    if (booking.shop_id) {
+      const { data: shop } = await supabaseAdmin
+        .from('shops').select('user_id').eq('id', booking.shop_id).single();
+      isShopOwner = shop?.user_id === caller.id;
+    }
+
+    const { data: roleRows } = await supabaseAdmin
+      .from('user_roles').select('role').eq('user_id', caller.id);
+    const isAdmin = (roleRows || []).some(r => ['admin', 'staff'].includes(r.role));
+
+    const isGuestSelf = !!caller.email && caller.email === booking.client_email;
+
+    const isPrivileged = isInstructorOwner || isShopOwner || isAdmin;
+
+    if (!isPrivileged && !isGuestSelf) {
+      return res.status(403).json({ error: '予約が見つからないか、操作権限がありません' });
+    }
+
+    // ゲスト本人によるセルフキャンセルは、天候等ショップ都合の申告・返金額の自己申告を許可しない
+    const effectiveReason = isPrivileged ? reason : 'guest';
+    if (!isPrivileged && reason === 'weather') {
+      return res.status(403).json({ error: '天候等ショップ都合の中止指定は運営・掲載事業者のみ行えます' });
     }
 
     if (!['paid', 'confirmed'].includes(booking.status)) {
@@ -112,10 +144,12 @@ export default async function handler(req, res) {
       booking.total_amount,
       slot?.slot_date,
       slot?.start_time,
-      reason
+      effectiveReason
     );
 
-    let refundAmount = typeof overrideAmount === 'number'
+    // overrideAmount はprivileged（インストラクター/ショップ本人・管理者）のみ有効。
+    // ゲストのセルフキャンセルは常に自動計算値を採用する。
+    let refundAmount = (isPrivileged && typeof overrideAmount === 'number')
       ? Math.round(overrideAmount)
       : suggestion.amount;
 
@@ -137,7 +171,7 @@ export default async function handler(req, res) {
         status:              newStatus,
         refund_amount:       refundAmount,
         cancelled_at:        new Date().toISOString(),
-        cancellation_reason: reason,
+        cancellation_reason: effectiveReason,
         updated_at:          new Date().toISOString(),
       })
       .eq('id', bookingId);

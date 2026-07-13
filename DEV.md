@@ -415,23 +415,29 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 **キャンセル料の帰属**：返金時に手元に残る分（50%返金時の残り半分・当日0%返金時の全額）は通常の予約と同じ10/90分配（プラットフォーム10%・インストラクター/ショップ90%）とする。
 
 **実装済み（2026-07-12・同日中に着手）**：
-- `sql/bookings_cancellation_20260712.sql`（未実行）：`bookings.refund_amount`/`cancelled_at`/`cancellation_reason`カラム追加、`decrement_booked_count()` RPC新設（`increment_booked_count`の対）
+- `sql/bookings_cancellation_20260712.sql`（**2026-07-13 Chrome経由でSupabase本番に適用済み・`information_schema`/`pg_proc`で確認済み**）：`bookings.refund_amount`/`cancelled_at`/`cancellation_reason`カラム追加、`decrement_booked_count()` RPC新設（`increment_booked_count`の対）
 - `api/cancel-booking.js`（新規）：認可は呼び出し元トークンでスコープしたクライアントが対象`bookings`行をSELECTできるか（RLS `bookings_select_owner_or_admin`）で判定 → 実データ取得・Stripe返金・DB更新はservice_roleで実行。返金%は暦日ベースの日数差（`slot_date`と当日を時刻無視で比較）で自動計算し、`overrideAmount`で手動上書き可能。`refundAmount>0`なら`status=refunded`・`0`なら`status=cancelled`に遷移し、`decrement_booked_count`で空き枠を解放する
 - `admin/index.html`：予約一覧に「キャンセル/返金」ボタン（status=paid/confirmedのみ表示）→ 既存の`.modal-backdrop`パターンを踏襲した`cancel-modal`で理由選択（通常/天候等ショップ都合）・提案額の自動表示・手動編集・実行を行う
 - `legal/terms.html`・`legal/tokushoho.html`：3段階の共通ルール表・天候等ショップ都合＝全額返金・Stripe経由の返金である旨を明記
 - `explore/listing.html`：`listings.cancellation_policy`が空の場合、「お問い合わせください」だった表示を共通ルールの3段階表示に変更
 - インラインJS（admin/index.html・explore/listing.html）・serverless function（api/cancel-booking.js）ともにNode `new Function()`でのパースエラー無しを確認済み
 
-**未実施（次のフォローアップ）**：
-- `sql/bookings_cancellation_20260712.sql`のSupabase本番適用（未実行のまま）
-- Stripeサンドボックスでの実際の返金E2E（Checkout→キャンセル操作→Stripe側の返金反映→`bookings`更新まで）は未検証
-- ゲスト自身によるセルフキャンセルUIは今回のスコープ外（起点は運営のadmin画面からの手動処理のみ）
-
 **バグ：ログイン予約者が自分の予約履歴を見られない（2026-07-12発見・チャットでSQL提示・要Supabase実行）**
 
 `mypage.html`の`loadBookingHistory()`は`bookings`を`client_email = ログインユーザーのメール`で検索して「予約履歴」に表示する設計だが、RLSポリシー`bookings_select_owner_or_admin`は本人インストラクター／本人ショップ／管理者のみを許可しており、予約者本人（ゲスト・ログインユーザー問わず）が自分の予約を閲覧できる条件が無かった。そのため予約履歴は常に空で表示されていた可能性が高い。`bookings_select_owner_or_admin`に`OR client_email = auth.email()`を追加する形で修正（SQLはチャットで提示・Supabase側で実行予定。CLAUDE.mdのルールによりRLSポリシー修正は`sql/`にファイル化しない）。
 
-副次的な効果として、`api/cancel-booking.js`の認可チェックはこのSELECT可否をそのまま使っているため、この修正によりログイン済みかつ予約時と同じメールアドレスのユーザーは自分の予約に対して`/api/cancel-booking`を呼び出せる状態になる（呼び出すUIはまだ無いため実害はないが、将来ログイン予約者向けセルフキャンセルUIを作る際の土台になる）。
+**ログイン予約者向けセルフキャンセル（2026-07-12・上記バグ修正の副次効果を活用して同日中に実装）**
+
+上記のRLS修正により、ログイン済みかつ予約時と同じメールアドレスのユーザーは`bookings`をSELECTできるようになった。`api/cancel-booking.js`の認可チェックはこのSELECT可否を利用しているため、そのままではゲスト自身が`/api/cancel-booking`を叩けてしまう状態になった。これを踏まえて以下を実装：
+
+- `api/cancel-booking.js`：認可を「SELECTできるか」だけでなく、呼び出し元ユーザー（`auth.getUser()`で取得）が①`instructors.user_id`一致（インストラクター本人）②`shops.user_id`一致（ショップ本人）③`user_roles`が`admin`/`staff`（管理者）④`booking.client_email`一致（予約者本人）のどれかを service_role で厳密に判定する方式に変更。①〜③（privileged）のみ`reason='weather'`指定・`overrideAmount`での提案額上書きが可能。④（ゲスト本人）は`reason='guest'`固定・`overrideAmount`は無視され、常に自動計算値のみが適用される（自己申告で満額を主張できないようにするための制約）
+- `mypage.html`：予約履歴の各予約（status=paid/confirmed）に「キャンセル」ボタンを追加。押すと`my-cancel-modal`が開き、開催日までの日数から自動計算した返金見込み（全額/50%/なし）を表示 → 確定で`/api/cancel-booking`を呼び出す
+- ゲスト（未ログイン）向けのセルフキャンセルは対象外のまま（起点は運営のadmin画面 or ログイン予約者本人のマイページの2経路になった）
+
+**未実施（次のフォローアップ）**：
+- ~~`sql/bookings_cancellation_20260712.sql`のSupabase本番適用~~ **2026-07-13実行済み**
+- 上記`bookings_select_owner_or_admin`のRLS修正SQL（チャット提示のみ・ファイル化なし）はSupabase未実行のまま残っている
+- Stripeサンドボックスでの実際の返金E2E（admin経由・mypage経由の両方）は未検証
 
 -----
 

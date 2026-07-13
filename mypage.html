@@ -712,6 +712,23 @@ body { padding-bottom: 72px; }
   </div>
 </div>
 
+<!-- ── 予約キャンセル モーダル（2026-07-12） ── -->
+<div class="modal-backdrop" id="my-cancel-modal">
+  <div class="modal">
+    <div class="modal-title">予約をキャンセルしますか？</div>
+    <div id="my-cancel-summary" style="font-size:13px;color:var(--sub);line-height:1.7;margin-bottom:12px;"></div>
+    <div id="my-cancel-suggestion" style="font-size:14px;color:var(--teal);font-weight:600;margin-bottom:8px;"></div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">
+      開催7日以上前：全額返金／3〜6日前：50%返金／2日前〜当日・無連絡：返金なし<br>
+      悪天候等の中止は事業者側で個別に全額返金対応します。
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="closeMyCancelModal()">閉じる</button>
+      <button class="modal-btn-primary" id="my-cancel-submit-btn" onclick="submitMyCancelBooking()">キャンセルする</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── 大会を作成 モーダル ── -->
 <div class="modal-backdrop" id="create-event-modal">
   <div class="modal" style="max-width:420px;">
@@ -1303,6 +1320,8 @@ function renderSummary(sessions) {
 }
 
 // 予約履歴
+let _myBookingsCache = [];
+
 async function loadBookingHistory(guestEmail) {
   const el = document.getElementById('booking-history-list');
   if (!el) return;
@@ -1312,7 +1331,7 @@ async function loadBookingHistory(guestEmail) {
     .select(`
       id, status, total_amount, participant_count, created_at,
       listing:listings(title),
-      slot:availability_slots(slot_date, start_time)
+      slot:availability_slots(id, slot_date, start_time)
     `)
     .eq('client_email', guestEmail)
     .order('created_at', { ascending: false })
@@ -1322,6 +1341,8 @@ async function loadBookingHistory(guestEmail) {
     el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">予約はまだありません</div>';
     return;
   }
+
+  _myBookingsCache = bookings;
 
   const MONTHS     = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const stLabel    = { paid:'決済済み', confirmed:'確定', pending:'保留中', cancelled:'キャンセル', refunded:'返金済み' };
@@ -1333,6 +1354,7 @@ async function loadBookingHistory(guestEmail) {
     const title   = b.listing?.title || '予約';
     const amount  = b.total_amount ? '¥' + b.total_amount.toLocaleString() : '';
     const st      = b.status || 'pending';
+    const canCancel = st === 'paid' || st === 'confirmed';
     return `
       <div class="bk-item">
         <div class="bk-date">
@@ -1346,9 +1368,91 @@ async function loadBookingHistory(guestEmail) {
         <div class="bk-right">
           <div class="bk-amount">${amount}</div>
           <div class="bk-status ${stClass[st] || 'bk-status-pending'}">${stLabel[st] || st}</div>
+          ${canCancel ? `<button class="modal-btn-cancel" style="margin-top:6px;padding:3px 10px;font-size:11px;" onclick="openMyCancelModal('${b.id}')">キャンセル</button>` : ''}
         </div>
       </div>`;
   }).join('');
+}
+
+// ============================================================
+// 予約セルフキャンセル（2026-07-12・ログイン予約者本人のみ対象）
+// ============================================================
+let _myCancelTargetId = null;
+
+function computeMyCancelSuggestion(booking) {
+  const totalAmount = booking.total_amount || 0;
+  const slot = booking.slot;
+  if (!slot?.slot_date) return { amount: 0, label: '開催日不明（サポートにご連絡ください）' };
+
+  const today = new Date();
+  const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const slotDateOnly  = new Date(`${slot.slot_date}T00:00:00`);
+  const daysUntil = Math.round((slotDateOnly.getTime() - todayDateOnly.getTime()) / (1000 * 60 * 60 * 24));
+
+  if (daysUntil >= 7) return { amount: totalAmount,                   label: `全額返金となります（開催${daysUntil}日前）` };
+  if (daysUntil >= 3) return { amount: Math.round(totalAmount * 0.5), label: `50%返金となります（開催${daysUntil}日前）` };
+  return { amount: 0, label: `返金はありません（開催${daysUntil}日前・直前のキャンセル）` };
+}
+
+function openMyCancelModal(bookingId) {
+  const booking = _myBookingsCache.find(b => b.id === bookingId);
+  if (!booking) { alert('予約データが見つかりません。ページを再読み込みしてください'); return; }
+
+  _myCancelTargetId = bookingId;
+  const suggestion = computeMyCancelSuggestion(booking);
+
+  document.getElementById('my-cancel-summary').innerHTML =
+    `${esc(booking.listing?.title || '予約')}／${booking.participant_count}名／合計 ¥${(booking.total_amount||0).toLocaleString()}`;
+  document.getElementById('my-cancel-suggestion').textContent = suggestion.label;
+
+  document.getElementById('my-cancel-modal').classList.add('open');
+}
+
+function closeMyCancelModal() {
+  document.getElementById('my-cancel-modal').classList.remove('open');
+  _myCancelTargetId = null;
+}
+
+async function submitMyCancelBooking() {
+  if (!_myCancelTargetId) return;
+
+  const { data: { session } } = await _sb.auth.getSession();
+  if (!session) { alert('セッションが切れています。再度ログインしてください'); return; }
+
+  const btn = document.getElementById('my-cancel-submit-btn');
+  const originalLabel = btn.textContent;
+  btn.textContent = '処理中...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/cancel-booking', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({
+        bookingId: _myCancelTargetId,
+        reason: 'guest',
+      }),
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      alert(result.error || 'キャンセル処理に失敗しました');
+      return;
+    }
+
+    closeMyCancelModal();
+    await loadBookingHistory(session.user.email);
+
+  } catch (err) {
+    alert('通信エラー: ' + err.message);
+  } finally {
+    btn.textContent = originalLabel;
+    btn.disabled = false;
+  }
 }
 
 // 自分の大会一覧描画
