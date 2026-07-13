@@ -1307,6 +1307,37 @@ td.name { color: var(--on-dark); font-weight: 500; }
   </div>
 </div>
 
+<!-- ── 予約キャンセル・返金 モーダル（2026-07-12） ── -->
+<div class="modal-backdrop" id="cancel-modal">
+  <div class="modal">
+    <div class="modal-title">予約のキャンセル・返金</div>
+
+    <div id="cancel-modal-summary" style="font-size:13px;color:var(--on-dark-soft);line-height:1.6;margin-bottom:12px;"></div>
+
+    <div class="form-group">
+      <label>理由</label>
+      <select id="cancel-reason" onchange="recomputeCancelSuggestion()">
+        <option value="guest">通常キャンセル（ゲスト都合）</option>
+        <option value="weather">天候等ショップ都合の中止（全額返金）</option>
+      </select>
+    </div>
+
+    <div id="cancel-suggestion" style="font-size:13px;color:var(--teal-light);margin-bottom:8px;"></div>
+
+    <div class="form-group">
+      <label>返金額（円・提案値を編集可。事業者独自のキャンセルポリシーがある場合はここで調整）</label>
+      <input type="number" id="cancel-amount" min="0" step="1">
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeCancelModal()">閉じる</button>
+      <button class="btn-primary" onclick="submitCancelBooking()">
+        <span id="cancel-submit-label">キャンセル・返金を実行</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ── 記事 フルページエディタ ── -->
 <div id="article-editor-page">
 
@@ -1866,7 +1897,7 @@ async function loadBookings() {
 
   let query = _sb
     .from('bookings')
-    .select('*, availability_slots(slot_date, start_time, end_time), listings(title), instructors(name), shops(name)')
+    .select('*, availability_slots(slot_date, start_time, end_time), listings(title, cancellation_policy), instructors(name), shops(name)')
     .order('created_at', { ascending: false });
 
   if (statusFilter) query = query.eq('status', statusFilter);
@@ -1877,6 +1908,8 @@ async function loadBookings() {
 
   if (error) { el.innerHTML = `<div class="empty">取得エラー: ${error.message}</div>`; return; }
   if (!bookings || bookings.length === 0) { el.innerHTML = '<div class="empty">予約がありません</div>'; return; }
+
+  _bookingsCache = bookings;
 
   el.innerHTML = `
     <div class="table-wrap">
@@ -1891,6 +1924,7 @@ async function loadBookings() {
             <th>金額</th>
             <th>ステータス</th>
             <th>変更</th>
+            <th>キャンセル・返金</th>
           </tr>
         </thead>
         <tbody>
@@ -1899,6 +1933,9 @@ async function loadBookings() {
       </table>
     </div>`;
 }
+
+// loadBookings() が最後に取得した一覧を保持（キャンセルモーダルでの再取得を避けるため）
+let _bookingsCache = [];
 
 function bookingRow(b) {
   const slot  = b.availability_slots;
@@ -1911,6 +1948,8 @@ function bookingRow(b) {
   const statusOpts = ['pending','paid','confirmed','cancelled','refunded']
     .map(s => `<option value="${s}"${b.status===s?' selected':''}>${s}</option>`)
     .join('');
+
+  const canCancel = b.status === 'paid' || b.status === 'confirmed';
 
   return `
     <tr>
@@ -1932,7 +1971,120 @@ function bookingRow(b) {
           ${statusOpts}
         </select>
       </td>
+      <td>
+        ${canCancel
+          ? `<button class="btn-cancel" style="padding:4px 10px;font-size:12px;" onclick="openCancelModal('${b.id}')">キャンセル/返金</button>`
+          : '—'}
+      </td>
     </tr>`;
+}
+
+// ============================================================
+// 予約キャンセル・返金（2026-07-12・secretary相談で確定したポリシーの実装）
+// ============================================================
+let _cancelTargetBooking = null;
+
+function computeCancelSuggestion(booking, reason) {
+  const totalAmount = booking.total_amount || 0;
+  const slot        = booking.availability_slots;
+
+  if (reason === 'weather') {
+    return { amount: totalAmount, label: '天候等ショップ都合（全額返金）' };
+  }
+  if (!slot?.slot_date) {
+    return { amount: 0, label: '開催日不明（要手動確認）' };
+  }
+
+  // 暦日ベースの差分（api/cancel-booking.jsのcomputeSuggestedRefundと同じロジック）
+  const today = new Date();
+  const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const slotDateOnly  = new Date(`${slot.slot_date}T00:00:00`);
+  const daysUntil = Math.round((slotDateOnly.getTime() - todayDateOnly.getTime()) / (1000 * 60 * 60 * 24));
+
+  if (daysUntil >= 7) return { amount: totalAmount,                   label: `開催${daysUntil}日前・7日以上前（全額返金）` };
+  if (daysUntil >= 3) return { amount: Math.round(totalAmount * 0.5), label: `開催${daysUntil}日前・3〜6日前（50%返金）` };
+  return { amount: 0, label: `開催${daysUntil}日前・2日前〜当日（返金なし）` };
+}
+
+function openCancelModal(bookingId) {
+  const booking = _bookingsCache.find(b => b.id === bookingId);
+  if (!booking) { showToast('予約データが見つかりません。一覧を再読み込みしてください', 'error'); return; }
+
+  _cancelTargetBooking = booking;
+
+  const slot = booking.availability_slots;
+  const dateLabel = slot?.slot_date ? `${fmtDate(slot.slot_date)} ${(slot.start_time||'').slice(0,5)}〜` : '開催日不明';
+
+  const shopPolicy = booking.listings?.cancellation_policy;
+
+  document.getElementById('cancel-modal-summary').innerHTML = `
+    ${escHtml(booking.listings?.title || '—')}<br>
+    ${dateLabel}／${escHtml(booking.client_name || '—')} 様／${booking.participant_count || 1}名／合計 ¥${(booking.total_amount||0).toLocaleString()}
+    ${shopPolicy ? `<br><span style="color:var(--warm);">事業者独自ポリシー：${escHtml(shopPolicy)}（提案額と異なる場合は下の返金額を手動調整）</span>` : ''}
+  `;
+  document.getElementById('cancel-reason').value = 'guest';
+  recomputeCancelSuggestion();
+
+  document.getElementById('cancel-modal').classList.add('open');
+}
+
+function recomputeCancelSuggestion() {
+  if (!_cancelTargetBooking) return;
+  const reason = document.getElementById('cancel-reason').value;
+  const suggestion = computeCancelSuggestion(_cancelTargetBooking, reason);
+  document.getElementById('cancel-suggestion').textContent = `提案額：¥${suggestion.amount.toLocaleString()}（${suggestion.label}）`;
+  document.getElementById('cancel-amount').value = suggestion.amount;
+}
+
+function closeCancelModal() {
+  document.getElementById('cancel-modal').classList.remove('open');
+  _cancelTargetBooking = null;
+}
+
+async function submitCancelBooking() {
+  if (!_cancelTargetBooking) return;
+
+  const reason = document.getElementById('cancel-reason').value;
+  const amountInput = document.getElementById('cancel-amount').value;
+  const overrideAmount = amountInput === '' ? undefined : Number(amountInput);
+
+  const { data: { session } } = await _sb.auth.getSession();
+  if (!session) { showToast('セッションが切れています。再ログインしてください', 'error'); return; }
+
+  const btn = document.getElementById('cancel-submit-label');
+  const originalLabel = btn.textContent;
+  btn.textContent = '処理中...';
+
+  try {
+    const res = await fetch('/api/cancel-booking', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({
+        bookingId: _cancelTargetBooking.id,
+        reason,
+        overrideAmount,
+      }),
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      showToast(result.error || '処理に失敗しました', 'error');
+      return;
+    }
+
+    showToast(`${result.status === 'refunded' ? '返金' : 'キャンセル'}処理が完了しました（¥${result.refundAmount.toLocaleString()}）`, 'success');
+    closeCancelModal();
+    loadBookings();
+
+  } catch (err) {
+    showToast('通信エラー: ' + err.message, 'error');
+  } finally {
+    btn.textContent = originalLabel;
+  }
 }
 
 async function updateBookingStatus(bookingId, newStatus, selectEl) {

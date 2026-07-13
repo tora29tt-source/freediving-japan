@@ -1,12 +1,12 @@
 # フォローアップ一覧（自動生成）
 
-生成: 2026-07-11 22:02 / `node ops/scan_followups.mjs`
+生成: 2026-07-13 09:24 / `node ops/scan_followups.mjs`
 
-## 🔴 未実行のSQL（0件）
+## 🔴 未実行のSQL（1件）
 
-なし
+- `sql/translations_20260712.sql`
 
-## 📋 MD内の積み残し（14件）
+## 📋 MD内の積み残し（16件）
 
 - **APP.md:127** — | タブバー（6タブ） | ❌ 未着手 |
 - **APP.md:128** — | トレーニングログ画面 | ❌ 未着手 |
@@ -20,7 +20,9 @@
 - **DEV.md:370** — - **未着手**：`courses`/`course_chapters`/`course_purchases`のカラムまで含めた詳細スキーマ設計、詳細ページ・視聴タブの実装（次はpmスキルで着手）
 - **DEV.md:378** — - **未着手（フォローアップ）**：カラム自体の削除（マイグレーション）は現時点で不要と判断、必要になれば別途対応
 - **DEV.md:396** — - **未着手（フォローアップ）**：既存記事の`author_bio`は未設定のためデフォルト文表示のまま。個別に紹介文を設定したい記事があれば管理画面から追記
-- **DEV.md:764** — - **`admin/admin-mobile.html` 認証なし** — localStorage のみで本番 DB には触れない（Phase 2 本番化時に要対応）
+- **DEV.md:489** — **未着手**：
+- **DEV.md:696** — |多言語対応（i18n）基盤                                      |🔄 着手開始（2026-07-12）。`sql/translations_20260712.sql`（未実行）・`api/translate-content.js`（実装済み・単体では未接続）まで完成。Googl
+- **DEV.md:838** — - **`admin/admin-mobile.html` 認証なし** — localStorage のみで本番 DB には触れない（Phase 2 本番化時に要対応）
 - **docs/INDEX.md:41** — | 安全・リスク管理（同意書・健康チェック・安全基準・規約条項・保険） | `docs/safety/`（書類パッケージ・実装は未着手） | [safety/README.md](./safety/README.md) | 2026-07-07 |
 
 ## ⚪ ステータスヘッダが無いSQL（2件）

@@ -488,10 +488,13 @@ function renderPage(owner, listing, otherListings, reviews = []) {
         ? `<p class="section-text">${escNl(bringText)}</p>`
         : '<p class="section-text" style="color:var(--on-dark-soft)">情報なし</p>');
 
-  // cancellation
+  // cancellation（事業者が独自ポリシーを未設定の場合はプラットフォーム共通ルールを表示・2026-07-12）
   const cancelHtml = listing?.cancellation_policy
     ? `<p class="section-text">${esc(listing.cancellation_policy)}</p>`
-    : '<p class="section-text" style="color:var(--on-dark-soft)">お問い合わせください</p>';
+    : `<div class="section-text">
+        <p style="margin:0 0 8px;">開催7日以上前：全額返金（100%）／3〜6日前：50%返金／2日前〜当日・無連絡：返金なし（0%）</p>
+        <p style="margin:0;color:var(--on-dark-soft);font-size:13px;">悪天候・海況不良等、事業者側の事由による中止の場合は無条件で全額返金します。</p>
+      </div>`;
 
   // other listings（このオーナーの他のプラン。プロフィール全体の一覧は profile.html 側の役割）
   const otherHtml = otherListings.length > 0

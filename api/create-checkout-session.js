@@ -65,8 +65,8 @@ export default async function handler(req, res) {
     const unitPrice   = listing.price || 0;
     const totalAmount = unitPrice * participantCount;
 
-    // 手数料計算（運営 30%、インストラクター 70%）
-    const platformFee      = Math.round(totalAmount * 0.30);
+    // 手数料計算（運営 10%、インストラクター 90%・2026-07-12変更）
+    const platformFee      = Math.round(totalAmount * 0.10);
     const instructorPayout = totalAmount - platformFee;
 
     // 予約の帰属（instructor_id / shop_id）は必ずDB由来の slot の値を正とする。

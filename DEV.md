@@ -6,7 +6,9 @@ tags: [dev, core-doc]
 
 ## リリース判定（2026-07-11・定期タスクによる自動判定／前回2026-07-10判定を更新）
 
-**問い：今すぐ友人インストラクターを1人招待して良いか → 判定：NO（ただし前回より前進。残りは実質2件・半日規模）**
+**問い：今すぐ友人インストラクターを1人招待して良いか → 判定：NO（ただし前回より前進。残りは実質1件・半日規模）**
+
+**2026-07-13追記**：下記ブロッカー1（新規SQL2件＋i18n用SQL計3件の本番適用）はChrome経由でSupabase SQL Editorに直接実行し、`information_schema`で存在確認まで完了。残るブロッカーは②予約決済E2Eのみ。
 
 ### 前回（07-10）からの変化
 
@@ -18,10 +20,11 @@ tags: [dev, core-doc]
 
 **必須（ブロッカー）**
 
-1. **新規SQL2件の本番適用を確認（未適用なら実行）** — 数分で終わるが、放置すると中核機能が壊れる
-   - `sql/listings_course_template_20260710.sql`（`listings.target_level`/`goal`追加）：**未適用だとpro/index.htmlのコース保存とexplore/listing.htmlの詳細表示が失敗する**（フロントは既に両カラムを読み書きしている）
-   - `sql/contact_messages_schema_20260710.sql`：未適用だとlegal/contact.htmlのお問い合わせ送信が失敗する
-   - 両ファイルともステータスヘッダ無し（DEV.mdルール違反状態）。確認後に`-- ステータス: 実行済み（日付）`を追記すること
+1. ~~**新規SQL2件の本番適用を確認（未適用なら実行）**~~ **2026-07-13 実行済み・解消**
+   - `sql/listings_course_template_20260710.sql`（`listings.target_level`/`goal`追加）：Chrome経由でSupabase SQL Editorに適用し、`information_schema.columns`で両カラムの存在を確認済み
+   - `sql/contact_messages_schema_20260710.sql`：同様に適用し、`information_schema.tables`でテーブル存在を確認済み
+   - 併せて`sql/translations_20260712.sql`（多言語対応i18n基盤）も同日適用済み
+   - 3ファイルとも`-- ステータス: 実行済み（2026-07-13）`ヘッダを追記済み
 2. **予約→決済のフルE2Eを現行コードで1回通す**（前回から継続・依然として結果記載なし）
    - 経路：explore→listing.html→空き枠カレンダー→Stripe Checkout（4242）→webhook→`bookings.status=paid`→success.html
    - ショップ名義商品（instructor_id無し）でも1回通す（カレンダー表示までは07-07確認済み・決済まで未実施）
@@ -39,7 +42,7 @@ tags: [dev, core-doc]
 ### 判定の根拠
 
 - **STRATEGY.md Phase 1ゴール照合**：友人招待に必要な機能（CRM・予約管理・トレーニングログ・プロフィール・リスティング）はWeb側で全て「✅完了」。前回唯一の障害だった「大改修の実機未検証」は07-10のQAでほぼ解消
-- **残る障害は2点のみ**：①07-10夜に追加された講習テンプレ・お問い合わせのDB依存が本番適用未確認（ステータスヘッダ無しのSQL2件をops/scan_followups.mjsも検出済み）②予約決済E2Eが現行コードで未実施。いずれも実装ではなく確認作業
+- **残る障害は1点のみ**：予約決済E2Eが現行コードで未実施（実装ではなく確認作業）。講習テンプレ・お問い合わせのDB依存は2026-07-13にSQL適用済みで解消
 - **RLS・セキュリティ**：ブロッカー無し。2026-06-26レビュー11件・2026-07-04監査S1〜S10全件対応済み。bookingsのINSERTはRPC限定、記事サニタイズ・XSS・ソフトデリートadminバグ対応済み。新設contact_messagesもINSERT文字数・カテゴリ制限＋SELECT/UPDATE管理者限定のRLS付きで設計されている（適用確認はブロッカー1に含む）→ 友人の実データが入っても事故らない状態
 - 判断方針：全部を完璧にしてからではなく「最小限で招待できる状態」を基準にした。ブロッカー2件を潰した時点でYESに切り替えてよい
 
@@ -246,7 +249,7 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 | `instructor_shops` | ✅ | 公開読み取り / 追加・削除はショップ本人 or インストラクター本人 or 管理者（2026-07-04追加） |
 | `listings` | ✅ | 公開: is_public / 本人インストラクター or 本人ショップ（owner） / 管理者 |
 | `availability_slots` | ✅ | 誰でも読み / 本人インストラクター or 本人ショップ（owner）のみ書き込み |
-| `bookings` | ✅ | 本人インストラクター or 本人ショップ or 管理者のみ閲覧 / 新規作成は `create_pending_booking()` RPC 経由のみ（直接INSERT不可・S1対応） |
+| `bookings` | ✅ | 本人インストラクター or 本人ショップ or 管理者 or 予約者本人（`client_email = auth.email()`・2026-07-12追加）のみ閲覧 / 新規作成は `create_pending_booking()` RPC 経由のみ（直接INSERT不可・S1対応） |
 | `shops` | ✅ | 公開 / 本人 / 管理者 |
 | `reviews` | ✅ | 公開 / 本人書き込み |
 | `inquiries` | ✅ | 誰でも新規作成 / 本人インストラクター or 本人ショップ or 管理者のみ閲覧・更新（2026-07-04追加） |
@@ -276,7 +279,7 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
   - ⚠️ `api/create-checkout-session.js`：クライアント指定のinstructorIdをそのまま予約に保存していた（ショップ名義枠に任意のinstructorIdを送りつけられる状態）→ 常にslot由来の値のみを信頼するよう修正
   - ⚠️ `booking/success.html`：ショップ名義予約でも「インストラクターから連絡」固定表示・ショップ名非表示だった → 担当名＋インストラクター/ショップの呼称出し分けに修正（`api/booking-result.js`にinstructors/shops名を追加）
   - ⚠️ `explore/listing.html`：`?listing=`のみ（owner指定なし）だと「見つかりませんでした」になっていた → listingsテーブルからownerを引いてリダイレクトするフォールバックを追加
-  - **未対応（要判断・意図的に見送り）**：ショップ名義予約でもinstructor_payout/platform_feeがインストラクター向け70/30分配のまま計算されている。ショップ精算をインストラクターと同じ分配にするか別設計にするか要確認
+  - **2026-07-12解決**：ショップ名義予約もインストラクターと同一の分配式を採用する方針で決着（別設計は不要と判断）。手数料率自体もこのタイミングでプラットフォーム10%/事業者90%に変更（下記「マッチング手数料率変更・キャンセル返金ポリシー設計」参照）
 
 ### 1アカウントで個人インストラクター＋自分のショップを両方登録できるようにする（2026-07-11・secretary相談で確定）
 
@@ -395,6 +398,41 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 - DB側の`articles.author_bio`カラム（TEXT、nullable）は **2026-07-06 Supabase本番に適用済み**（`sql/articles_author_bio_20260705.sql`・information_schemaで確認済み）
 - **未着手（フォローアップ）**：既存記事の`author_bio`は未設定のためデフォルト文表示のまま。個別に紹介文を設定したい記事があれば管理画面から追記
 
+### マッチング手数料率変更・キャンセル返金ポリシー設計（2026-07-12・secretary相談で確定）
+
+**背景**：`bookings.status`は`pending → paid → confirmed → cancelled / refunded`の5状態を定義済みだが、実際に返金を実行する処理（Stripe返金〜DB更新）は未実装。キャンセル料率も統一ルールが無く、`listings.cancellation_policy`（自由入力欄）に事業者が個別に書くのみだった。ダイビング予約マーケットプレイスの競合Dibee（同業態・Stripe決済代行モデル、手数料12%）の規約を調査し、これを参考にプラットフォーム共通のキャンセルポリシーと手数料率を再設計した。
+
+**マッチング手数料率**：プラットフォーム30% / インストラクター70% → **プラットフォーム10% / インストラクター90%** に変更（Dibee等の競合水準を参考）。ショップ名義予約も同一の分配式を適用する（旧・ショップ精算方式の未決事項もこれで解決）。実装済み：`api/create-checkout-session.js`の`platformFee`計算を`0.30`→`0.10`に修正。
+
+**キャンセル料率（3段階）**：
+- 開催7日以上前：全額返金（100%）
+- 開催3〜6日前：50%返金
+- 開催2日前〜当日・無連絡：返金なし（0%）
+- ショップ側都合の中止（天候不良・海況不良等）：無条件で全額返金
+
+**優先関係**：各リスティングの`cancellation_policy`（自由入力）が常に優先。この共通ルールは事業者が未設定の場合のみのフォールバックとして適用する。
+
+**キャンセル料の帰属**：返金時に手元に残る分（50%返金時の残り半分・当日0%返金時の全額）は通常の予約と同じ10/90分配（プラットフォーム10%・インストラクター/ショップ90%）とする。
+
+**実装済み（2026-07-12・同日中に着手）**：
+- `sql/bookings_cancellation_20260712.sql`（未実行）：`bookings.refund_amount`/`cancelled_at`/`cancellation_reason`カラム追加、`decrement_booked_count()` RPC新設（`increment_booked_count`の対）
+- `api/cancel-booking.js`（新規）：認可は呼び出し元トークンでスコープしたクライアントが対象`bookings`行をSELECTできるか（RLS `bookings_select_owner_or_admin`）で判定 → 実データ取得・Stripe返金・DB更新はservice_roleで実行。返金%は暦日ベースの日数差（`slot_date`と当日を時刻無視で比較）で自動計算し、`overrideAmount`で手動上書き可能。`refundAmount>0`なら`status=refunded`・`0`なら`status=cancelled`に遷移し、`decrement_booked_count`で空き枠を解放する
+- `admin/index.html`：予約一覧に「キャンセル/返金」ボタン（status=paid/confirmedのみ表示）→ 既存の`.modal-backdrop`パターンを踏襲した`cancel-modal`で理由選択（通常/天候等ショップ都合）・提案額の自動表示・手動編集・実行を行う
+- `legal/terms.html`・`legal/tokushoho.html`：3段階の共通ルール表・天候等ショップ都合＝全額返金・Stripe経由の返金である旨を明記
+- `explore/listing.html`：`listings.cancellation_policy`が空の場合、「お問い合わせください」だった表示を共通ルールの3段階表示に変更
+- インラインJS（admin/index.html・explore/listing.html）・serverless function（api/cancel-booking.js）ともにNode `new Function()`でのパースエラー無しを確認済み
+
+**未実施（次のフォローアップ）**：
+- `sql/bookings_cancellation_20260712.sql`のSupabase本番適用（未実行のまま）
+- Stripeサンドボックスでの実際の返金E2E（Checkout→キャンセル操作→Stripe側の返金反映→`bookings`更新まで）は未検証
+- ゲスト自身によるセルフキャンセルUIは今回のスコープ外（起点は運営のadmin画面からの手動処理のみ）
+
+**バグ：ログイン予約者が自分の予約履歴を見られない（2026-07-12発見・チャットでSQL提示・要Supabase実行）**
+
+`mypage.html`の`loadBookingHistory()`は`bookings`を`client_email = ログインユーザーのメール`で検索して「予約履歴」に表示する設計だが、RLSポリシー`bookings_select_owner_or_admin`は本人インストラクター／本人ショップ／管理者のみを許可しており、予約者本人（ゲスト・ログインユーザー問わず）が自分の予約を閲覧できる条件が無かった。そのため予約履歴は常に空で表示されていた可能性が高い。`bookings_select_owner_or_admin`に`OR client_email = auth.email()`を追加する形で修正（SQLはチャットで提示・Supabase側で実行予定。CLAUDE.mdのルールによりRLSポリシー修正は`sql/`にファイル化しない）。
+
+副次的な効果として、`api/cancel-booking.js`の認可チェックはこのSELECT可否をそのまま使っているため、この修正によりログイン済みかつ予約時と同じメールアドレスのユーザーは自分の予約に対して`/api/cancel-booking`を呼び出せる状態になる（呼び出すUIはまだ無いため実害はないが、将来ログイン予約者向けセルフキャンセルUIを作る際の土台になる）。
+
 -----
 
 ### 論理削除（ソフトデリート）方針（2026-07-03導入）
@@ -422,11 +460,65 @@ admin/index.html でインストラクター等を削除しようとすると「
 
 -----
 
+## 多言語対応（i18n）方式（2026-07-12・secretary相談で確定）
+
+**背景**：`instructors`/`shops`テーブルには先行して`name_en`/`bio_en`カラム（本人手入力想定）が用意されていたが、実際の表示側（explore・profile.html等）では未接続のままだった。インバウンド需要への対応を早めたいという相談から、対応言語・翻訳方式を再検討し直した。
+
+**対応言語**：英語・韓国語・中国語（日本のインバウンド需要は英語圏に限らないため、当初の英語のみ想定から拡大）
+
+**方式はコンテンツの性質でハイブリッドに分ける**：
+
+- **固定UI**（ナビ・ボタンラベル・フォーム項目名など運営が書く文章）＝ JSON翻訳ファイルによるi18n。量が少なく更新頻度も低いため人力で用意する
+- **UGC**（インストラクター・ショップの自己紹介文、コース説明、ゲストレビューなど利用者が書く文章）＝ **Google Cloud Translation API**による自動翻訳。運営が翻訳を追いかけられる量ではないため機械翻訳一択
+  - API選定理由：DeepLと比較検討した結果、日→英はDeepL・Google拮抗（直近はGoogleも追いついてきている）だが、日→韓・日→中はGoogleが優勢という評価が多く、3言語同時対応かつAPI一本化のシンプルさを優先してGoogle Cloud Translation APIに決定
+
+**翻訳のタイミング＝保存時キャッシュ方式（閲覧時にAPIは呼ばない）**：
+
+- インストラクター/ショップがプロフィール・コース説明を保存した瞬間、またはゲストがレビューを投稿した瞬間に、サーバーレス関数（`api/create-checkout-session.js`等と同様の置き場を想定）がGoogle Cloud Translation APIを呼び、英・韓・中3言語分をまとめて生成・保存する
+- 閲覧者は保存済みの翻訳を読むだけで、閲覧のたびにAPIを叩かない（速度・コスト両面で有利）
+- 翻訳が無い・失敗した場合は日本語原文にフォールバックする（空欄にはしない）
+
+**保存先：専用`translations`テーブルに集約**（`_en`/`_ko`/`_zh`のようにカラムを言語×フィールドの数だけ増やす方式は対象が増えるたびに破綻するため不採用）
+
+```
+translations(
+  table_name       TEXT,   -- 'instructors' / 'shops' / 'listings' / 'reviews' 等
+  row_id           UUID,
+  field_name       TEXT,   -- 'bio' / 'name' / 'description' 等
+  lang             TEXT,   -- 'en' / 'ko' / 'zh'
+  translated_text  TEXT,
+  source_hash      TEXT,   -- 元の日本語テキストのハッシュ（再翻訳要否の判定用）
+  is_manually_edited BOOLEAN DEFAULT FALSE,  -- 本人が手直しした場合はTRUE
+  translated_at    TIMESTAMPTZ
+)
+```
+
+- `source_hash`で元テキストが前回翻訳時から変わっていないか判定し、変わっていなければ再翻訳（＝API課金）をスキップする
+- `is_manually_edited`がTRUEの行は、日本語側が更新されても自動上書きしない（本人の手直しを機械翻訳が消す事故を防ぐ）。既存の`name_en`/`bio_en`手入力欄はこの「手動修正」の入り口として位置づけを変えて流用する想定
+- レビューは投稿後に編集されない前提のため、投稿時に1回翻訳して終わり（`source_hash`判定は不要）
+
+**対象範囲**：探す系（探すページ・インストラクター/ショッププロフィール・コース詳細）から着手。メディア記事は後続フェーズ（翻訳運用コストが継続的に発生するため）
+
+**実装済み（2026-07-12・pmスキルで着手）**：
+- `sql/translations_20260712.sql`（新規・`translations`テーブルDDL。ステータス: 未実行 — Takuyaが本番Supabaseに実行要）
+- `api/translate-content.js`（新規・POST。`{tableName, rowId, fields}`を受け取り、`source_hash`で変更検知・`is_manually_edited`行はスキップしつつGoogle Cloud Translation APIで英・韓・中を翻訳し`translations`テーブルにupsertする。構文チェック済み）
+
+**完了（2026-07-13）**：
+- Google Cloud Translation APIの有効化・APIキー取得・Vercel環境変数`GOOGLE_TRANSLATE_API_KEY`設定（Production/Preview/Development全環境に設定・Redeploy済み）
+
+**未着手**：
+- `pro/index.html`のプロフィール/コース保存処理から`api/translate-content.js`を呼ぶ配線（現状は関数単体があるだけで、どこからも呼ばれていない）
+- 表示側（`explore/profile.html`・`explore/listing.html`等）の言語切り替えUIと`translations`テーブル参照ロジック
+- 既存`name_en`/`bio_en`手入力欄の「自動翻訳の手直し欄」への位置づけ変更
+- レビュー投稿フローへの接続（投稿時に1回翻訳）
+
+-----
+
 ## Stripe 設定メモ
 
 - **モード**：サンドボックス（テスト環境）
 - **ビジネスモデル**：マーケットプレイス（プラットフォームが集金 → インストラクターへ送金）
-- **手数料分配**：プラットフォーム 30% / インストラクター 70%
+- **手数料分配**：プラットフォーム 10% / インストラクター 90%（2026-07-12更新。旧30%/70%）
 - **Webhook エンドポイント**：`https://freediving-japan.vercel.app/api/stripe-webhook`
 - **リッスンイベント**：`checkout.session.completed`, `checkout.session.expired`
 - **Vercel 環境変数**：`STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` / `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` / `NEXT_PUBLIC_SITE_URL` 設定済み
@@ -620,6 +712,7 @@ TOP (index.html)  ── Airbnb風マーケットプレイス（白基調）
 |サイト動線整備（2026-07-08）                             |✅ sitemap.xml/robots.txt/404.html 新設。skindiving/snorkeling/learn のフッターに大会・ランキング導線追加でナビ統一。行き止まり4ページ（AIDA_ranking/mouthfill/event-athlete/freediving-learn）に戻る導線追加。buoyancy の死にリンク（/tools/）修正。tools/session-planner.html 削除。**孤立ページ方針（2026-07-10決定）**：3ページとも公開ナビへの掲載は不要と判断。①`events/event-athlete.html`——大会管理画面（event-staff.html等）から主催者が選手ごとに個別URLを発行して共有する「選手用画面」という設計。**2026-07-10実装**：`event-staff.html`概要タブに「選手用ページ」カードを追加し、`event-athlete.html?id=<大会ID>`のURLを自動生成・ワンクリックコピーできるようにした（`copyAthleteLink()`）。②`learn/freediving-learn.html`——「フリーダイビングを学ぶ」動画コースの制作進捗管理ツール（チャプター追加・ステータス切替・メモ）で、Takuya向けの内製コンテンツ管理画面であり公開ページではない。③`pro/instructor-welcome.html`——リリース時に扱いを再検討（保留）。|
 |検索UI刷新・SVG地図検索（2026-07-08）                        |✅ 検索の重複UIを大胆に統合＋地図検索を自前SVG化。①explore/index.html：検索バーの「タイプ」selectを削除（intentタブに一本化）、都道府県`<select>`を廃止しフリーテキスト検索対象に`prefecture`を追加（?pref=リンクは検索語として互換維持）、条件・価格帯は「こだわり条件」折りたたみ（選択数バッジ付き）に集約。②地図：Google Maps依存を全廃（js/maps-config.js削除・APIキー不要）し、`js/area-map.js`（ブランドカラーのデフォルメSVG日本地図＋南西諸島拡大枠＋件数ピル。クリック絞込・再クリック解除・0件は減光・人気3エリアはパルス強調）を新設。explore はデフォルト表示、shops.html にも同コンポーネント導入（トグル式・ショップ/インストラクター件数連動）。③トップ＋ピラー3ページの検索バーからもタイプselect削除（エリア＋日程のみ）。スタイルは css/home.css の `.fj-*`/`.adv-*` に共通定義。※SVG地図は2026-07-10のエリア設計刷新でexplore/index.htmlからは廃止（shops.htmlのみ残存）。**2026-07-10 Chrome MCPで実機確認完了**：トップ＋ピラー3ページの検索ドロップダウン（area-picker.js：人気の都道府県7件＋よく検索されるスポット名チップ14件）が4ページとも正常表示、explore/index.htmlの都道府県チップ絞り込み・datalistサジェストも動作確認済み。全ページコンソールエラーなし|
 |iOSアプリ（React Native）                                 |🔄 開発中（環境構築済み・Expo Go動作確認済み。タブバー・ログ・Supabase連携・SNSシェアが未実装）|
+|多言語対応（i18n）基盤                                      |🔄 着手開始（2026-07-12）。`sql/translations_20260712.sql`（**2026-07-13本番適用済み**）・`api/translate-content.js`（実装済み・単体では未接続）まで完成。Google Cloud Translation APIキー未取得・保存フローからの呼び出し配線・表示側切替UIは未着手。詳細はDEV.md「多言語対応（i18n）方式」参照|
 
 -----
 
