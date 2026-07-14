@@ -334,10 +334,12 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 
 実装済み：`sql/bookings_cancellation_20260712.sql`（**2026-07-13本番適用済み**）／`api/cancel-booking.js`（RLS認可→Stripe返金→DB更新）／`admin/index.html`のキャンセル/返金ボタン／`legal/terms.html`等への明記／`mypage.html`からのログイン予約者本人によるセルフキャンセル（2026-07-12実装）。
 
-**2026-07-13 Stripeサンドボックス返金E2E実施**：
-- **adminパス：完了・成功**。Chrome経由で実際にゲスト予約（¥8,000・12日後開催）を作成→Stripeテストカード4242で決済→`bookings.status=paid`確認→`admin/index.html`の「キャンセル/返金」ボタンから実行→提案額が3段階ルール通り¥8,000（全額）で自動計算されているのを確認→実行後`status=refunded`・`refund_amount=8000`・`cancellation_reason='guest'`・`decrement_booked_count`により`availability_slots.booked_count`が0に戻ることまで確認済み
-- **mypageパス：ブロック（未実施）**。本番の`mypage.html`に`bookingHistorySection`要素が存在せず、ログイン予約者向けセルフキャンセルUI自体が本番未デプロイと判明（ローカルの`mypage.html`にはコードが存在するため、コミット/pushが本番に反映されていない可能性が高い）。`gcp`でのpush後に再検証が必要
+**2026-07-13〜14 Stripeサンドボックス返金E2E実施（全経路完了）**：
+- **adminパス：完了・成功**。Chrome経由で実際にゲスト予約を作成→Stripeテストカード4242で決済→`bookings.status=paid`確認→`admin/index.html`の「キャンセル/返金」ボタンから実行→提案額が3段階ルール通り自動計算されているのを確認（開催3日前のケースで50%＝¥4,000を確認）→実行後`status=refunded`・`cancellation_reason='guest'`・`decrement_booked_count`により`availability_slots.booked_count`が0に戻ることまで確認済み
+- **mypageパス：完了・成功**。テスト中に**本番バグを発見**：`mypage.html`の`loadBookingHistory()`が参照する`#booking-history-list`コンテナ要素がHTML側に一度も追加されておらず、ログイン予約者向けセルフキャンセルUI（予約履歴セクション自体）が本番で常に非表示になっていた。`#bookingHistorySection`（学んだ講座セクションと同じ表示/非表示パターン）を追加して修正し、`gcp`でpush・デプロイ済み。デプロイ後に実際の`paid`予約（開催3日前・¥8,000）でセルフキャンセルを実行し、`status=refunded`・`refund_amount=4000`・`cancellation_reason='guest'`まで確認済み
+- **追加スポットチェック（2026-07-14）**：push直後の本番反映確認を兼ね、別の実予約（開催日2日超過・無連絡扱い）でもmypageパスのセルフキャンセルを実行。モーダルの自動計算が「返金はありません（開催-2日前）」を正しく表示し、実行後`status=cancelled`・`refund_amount=0`・`cancellation_reason='guest'`・`booked_count`0への復元まで確認。これで3段階（100%／50%／0%）すべてのティアが本番で実地確認済みとなった
 - 予約者本人が自分の予約を閲覧できるようにするRLS修正SQLは2026-07-13にSupabaseへ適用済み（`pg_policies`で確認済み）
+- `explore/listing.html`の`cancellation_policy`未設定時フォールバック表示も、テスト用非公開リスティングを一時的に公開設定にして目視確認済み（確認後は非公開に戻し済み）。表示文言は想定通り
 
 詳細は[DECISIONS.md](docs/DECISIONS.md#2026-07-12マッチング手数料率変更キャンセル返金ポリシー)参照。
 
@@ -593,7 +595,7 @@ TOP (index.html)  ── Airbnb風マーケットプレイス（白基調）
 |/learn/ 有料講座ページ                                      |🔄 骨格完成・`courses`/`course_chapters`/`course_purchases`スキーマ本番適用済み。購入フロー・視聴タブとも2026-07-10本番E2Eテスト完了。**未着手**：実際の動画アップロード・vimeo_id登録（これが入るまで購入ボタンは有効化されない）|
 |メディア（/media/）                                        |✅ 基盤完成・media/一本化（2026-06-29）。admin/index.htmlメディアタブに統合|
 |サイト動線・検索UI・エリア設計                                    |✅ sitemap/robots/404新設、SVG地図→都道府県軸検索に刷新済み（詳細は[DECISIONS.md](docs/DECISIONS.md#2026-07-08サイト動線整備検索ui刷新svg地図後に一部廃止)参照）|
-|iOSアプリ（React Native）                                 |🔄 開発中（環境構築済み・Expo Go動作確認済み。タブバー・ログ・Supabase連携・SNSシェアが未実装）|
+|iOSアプリ（React Native）                                 |🔄 開発中（環境構築済み・Expo Go動作確認済み）。6タブのタブバー実装済み（2026-07-14・ホーム/ログ/タイマー/探す/情報/マイページ、探す・情報・マイページはWeb版へのブリッジ）。ログ画面は公開セッション一覧のみ実装。**要修正**：STAタイマーのSupabase保存処理がテーブルの実スキーマと不一致で機能していない可能性（詳細は[APP.md](APP.md#phase-1-実装状況2026-07-14更新)）。SNSシェアは未実装|
 |多言語対応（i18n）基盤                                      |🔄 着手開始（2026-07-12）。DB・API実装済み、Google Translate APIキー設定済み（2026-07-13）。呼び出し配線・表示側UIは未着手（「多言語対応（i18n）方式」参照）|
 
 -----

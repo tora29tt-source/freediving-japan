@@ -3107,25 +3107,36 @@ document.getElementById('timerWrap').addEventListener('click', () => {
     u.volume = 0;
     _synth.speak(u);
   }
+  // hold中・FC未記録ならリングタップもFC記録として扱う（Stopより優先）
+  if (tryRecordFC()) return;
   onMainBtn();
 });
 document.addEventListener('keydown', e => {
+  // テキスト入力中（プリセット名・メモ等）はショートカットを無効化し、
+  // スペースキーで文字入力できるようにする
+  const t = e.target;
+  const isTyping = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable);
+  if (isTyping) return;
   if (e.code==='Space') { e.preventDefault(); onMainBtn(); }
   if (e.code==='KeyR')  onReset();
 });
 
 // ── 1ST CONTRACTION: 画面のどこをタップしてもFCを記録 ──────
-// リング（#timerWrap）はStop用のタップ領域として既に使われているため、
-// ここでは触れず、それ以外の余白・背景タップをFC記録に割り当てる。
-// ボタン/リンク/セレクト/セットリスト行/モーダル等、他の操作を持つ要素は
-// closest()で除外し、既存の挙動と衝突しないようにする。
-document.addEventListener('click', (e) => {
-  if (phase !== 'hold') return;
-  if (currentFC !== null) return; // 既に記録済み
+// リング（#timerWrap）を含め、画面上の操作要素（ボタン/リンク/セレクト/
+// 入力欄/モーダル/セットリスト行）以外のどこをタップしてもFCを記録する。
+// リングタップは上のtimerWrapリスナー内でtryRecordFC()により優先処理される。
+function tryRecordFC() {
+  if (phase !== 'hold') return false;
+  if (currentFC !== null) return false; // 既に記録済み
   const fcBtn = document.getElementById('btnFC');
-  if (!fcBtn || fcBtn.style.display === 'none') return; // FC非対象（Relaxation等）
-  if (e.target.closest('#timerWrap, button, a, select, input, .overlay, .set-row, .log-item')) return;
+  if (!fcBtn || fcBtn.style.display === 'none') return false; // FC非対象（Relaxation等）
   onFC();
+  return true;
+}
+document.addEventListener('click', (e) => {
+  if (e.target.closest('#timerWrap')) return; // timerWrap自身のリスナーで処理済み
+  if (e.target.closest('button, a, select, input, .overlay, .set-row, .log-item')) return;
+  tryRecordFC();
 });
 
 // ── BLE SpO2 ──────────────────────────────────────────────

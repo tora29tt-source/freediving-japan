@@ -22,10 +22,22 @@ export default function AppTabs() {
       <TabList asChild>
         <CustomTabList>
           <TabTrigger name="home" href="/" asChild>
-            <TabButton>Home</TabButton>
+            <TabButton>ホーム</TabButton>
+          </TabTrigger>
+          <TabTrigger name="log" href="/log" asChild>
+            <TabButton>ログ</TabButton>
+          </TabTrigger>
+          <TabTrigger name="timer" href="/timer" asChild>
+            <TabButton>タイマー</TabButton>
           </TabTrigger>
           <TabTrigger name="explore" href="/explore" asChild>
-            <TabButton>Explore</TabButton>
+            <TabButton>探す</TabButton>
+          </TabTrigger>
+          <TabTrigger name="info" href="/info" asChild>
+            <TabButton>情報</TabButton>
+          </TabTrigger>
+          <TabTrigger name="mypage" href="/mypage" asChild>
+            <TabButton>マイページ</TabButton>
           </TabTrigger>
         </CustomTabList>
       </TabList>
@@ -55,7 +67,7 @@ export function CustomTabList(props: TabListProps) {
     <View {...props} style={styles.tabListContainer}>
       <ThemedView type="backgroundElement" style={styles.innerContainer}>
         <ThemedText type="smallBold" style={styles.brandText}>
-          Expo Starter
+          Freediving Japan
         </ThemedText>
 
         {props.children}

@@ -1,180 +1,79 @@
-import { Image } from 'expo-image';
-import { SymbolView } from 'expo-symbols';
-import { Platform, Pressable, ScrollView, StyleSheet } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+/**
+ * 探す — Freediving Japan App
+ * インストラクター・スクール検索（マッチング）
+ *
+ * ネイティブ実装はPhase 3予定。現状はWeb版の探すページをアプリ内ブラウザで開くブリッジ。
+ */
+
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ExternalLink } from '@/components/external-link';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Collapsible } from '@/components/ui/collapsible';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
 
-export default function TabTwoScreen() {
-  const safeAreaInsets = useSafeAreaInsets();
-  const insets = {
-    ...safeAreaInsets,
-    bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
-  };
-  const theme = useTheme();
+const C = {
+  oceanDeep: '#0b2d45',
+  oceanMid:  '#0e3d5c',
+  oceanLight:'#1a5f82',
+  teal:      '#2ec4b6',
+  tealLight: '#a8ece8',
+  sand:      '#fdf8f2',
+  muted:     '#8fb8cc',
+  border:    'rgba(168,236,232,0.14)',
+} as const;
 
-  const contentPlatformStyle = Platform.select({
-    android: {
-      paddingTop: insets.top,
-      paddingLeft: insets.left,
-      paddingRight: insets.right,
-      paddingBottom: insets.bottom,
-    },
-    web: {
-      paddingTop: Spacing.six,
-      paddingBottom: Spacing.four,
-    },
-  });
+const LINKS = [
+  { href: 'https://freediving-japan.vercel.app/explore/index.html' as const, icon: '🔍', title: 'インストラクター・スクールを探す', desc: 'エリア・種目で検索' },
+  { href: 'https://freediving-japan.vercel.app/explore/shops.html'  as const, icon: '🏠', title: 'ショップ一覧', desc: 'ショップ単位で探す' },
+];
 
+export default function ExploreScreen() {
   return (
-    <ScrollView
-      style={[styles.scrollView, { backgroundColor: theme.background }]}
-      contentInset={insets}
-      contentContainerStyle={[styles.contentContainer, contentPlatformStyle]}>
-      <ThemedView style={styles.container}>
-        <ThemedView style={styles.titleContainer}>
-          <ThemedText type="subtitle">Explore</ThemedText>
-          <ThemedText style={styles.centerText} themeColor="textSecondary">
-            This starter app includes example{'\n'}code to help you get started.
-          </ThemedText>
+    <SafeAreaView style={ss.container}>
+      <ScrollView contentContainerStyle={ss.scroll} showsVerticalScrollIndicator={false}>
+        <View style={ss.header}>
+          <Text style={ss.eyebrow}>MATCHING</Text>
+          <Text style={ss.title}>探す</Text>
+          <Text style={ss.subtitle}>
+            インストラクター検索・予約は現在Web版で提供中です。アプリ内ネイティブ対応は準備中です。
+          </Text>
+        </View>
 
-          <ExternalLink href="https://docs.expo.dev" asChild>
-            <Pressable style={({ pressed }) => pressed && styles.pressed}>
-              <ThemedView type="backgroundElement" style={styles.linkButton}>
-                <ThemedText type="link">Expo documentation</ThemedText>
-                <SymbolView
-                  tintColor={theme.text}
-                  name={{ ios: 'arrow.up.right.square', android: 'link', web: 'link' }}
-                  size={12}
-                />
-              </ThemedView>
-            </Pressable>
-          </ExternalLink>
-        </ThemedView>
-
-        <ThemedView style={styles.sectionsWrapper}>
-          <Collapsible title="File-based routing">
-            <ThemedText type="small">
-              This app has two screens: <ThemedText type="code">src/app/index.tsx</ThemedText> and{' '}
-              <ThemedText type="code">src/app/explore.tsx</ThemedText>
-            </ThemedText>
-            <ThemedText type="small">
-              The layout file in <ThemedText type="code">src/app/_layout.tsx</ThemedText> sets up
-              the tab navigator.
-            </ThemedText>
-            <ExternalLink href="https://docs.expo.dev/router/introduction">
-              <ThemedText type="linkPrimary">Learn more</ThemedText>
+        <View style={{ gap: 10 }}>
+          {LINKS.map(l => (
+            <ExternalLink key={l.href} href={l.href} asChild>
+              <Pressable style={ss.card}>
+                <View style={ss.cardIconWrap}><Text style={ss.cardIcon}>{l.icon}</Text></View>
+                <View style={{ flex: 1 }}>
+                  <Text style={ss.cardTitle}>{l.title}</Text>
+                  <Text style={ss.cardDesc}>{l.desc}</Text>
+                </View>
+                <Text style={ss.cardArrow}>›</Text>
+              </Pressable>
             </ExternalLink>
-          </Collapsible>
-
-          <Collapsible title="Android, iOS, and web support">
-            <ThemedView type="backgroundElement" style={styles.collapsibleContent}>
-              <ThemedText type="small">
-                You can open this project on Android, iOS, and the web. To open the web version,
-                press <ThemedText type="smallBold">w</ThemedText> in the terminal running this
-                project.
-              </ThemedText>
-              <Image
-                source={require('@/assets/images/tutorial-web.png')}
-                style={styles.imageTutorial}
-              />
-            </ThemedView>
-          </Collapsible>
-
-          <Collapsible title="Images">
-            <ThemedText type="small">
-              For static images, you can use the <ThemedText type="code">@2x</ThemedText> and{' '}
-              <ThemedText type="code">@3x</ThemedText> suffixes to provide files for different
-              screen densities.
-            </ThemedText>
-            <Image source={require('@/assets/images/react-logo.png')} style={styles.imageReact} />
-            <ExternalLink href="https://reactnative.dev/docs/images">
-              <ThemedText type="linkPrimary">Learn more</ThemedText>
-            </ExternalLink>
-          </Collapsible>
-
-          <Collapsible title="Light and dark mode components">
-            <ThemedText type="small">
-              This template has light and dark mode support. The{' '}
-              <ThemedText type="code">useColorScheme()</ThemedText> hook lets you inspect what the
-              user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-            </ThemedText>
-            <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-              <ThemedText type="linkPrimary">Learn more</ThemedText>
-            </ExternalLink>
-          </Collapsible>
-
-          <Collapsible title="Animations">
-            <ThemedText type="small">
-              This template includes an example of an animated component. The{' '}
-              <ThemedText type="code">src/components/ui/collapsible.tsx</ThemedText> component uses
-              the powerful <ThemedText type="code">react-native-reanimated</ThemedText> library to
-              animate opening this hint.
-            </ThemedText>
-          </Collapsible>
-        </ThemedView>
-        {Platform.OS === 'web' && <WebBadge />}
-      </ThemedView>
-    </ScrollView>
+          ))}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  scrollView: {
-    flex: 1,
+const ss = StyleSheet.create({
+  container: { flex: 1, backgroundColor: C.oceanDeep },
+  scroll:    { padding: 20, gap: 20 },
+
+  header:   { gap: 6, marginTop: 8 },
+  eyebrow:  { fontSize: 11, letterSpacing: 3, fontWeight: '700', color: C.teal, textTransform: 'uppercase' },
+  title:    { fontSize: 26, fontWeight: '700', color: C.sand },
+  subtitle: { fontSize: 12, color: C.muted, lineHeight: 17 },
+
+  card: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    backgroundColor: C.oceanMid, borderWidth: 1, borderColor: C.border,
+    borderRadius: 14, padding: 14,
   },
-  contentContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  container: {
-    maxWidth: MaxContentWidth,
-    flexGrow: 1,
-  },
-  titleContainer: {
-    gap: Spacing.three,
-    alignItems: 'center',
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.six,
-  },
-  centerText: {
-    textAlign: 'center',
-  },
-  pressed: {
-    opacity: 0.7,
-  },
-  linkButton: {
-    flexDirection: 'row',
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.two,
-    borderRadius: Spacing.five,
-    justifyContent: 'center',
-    gap: Spacing.one,
-    alignItems: 'center',
-  },
-  sectionsWrapper: {
-    gap: Spacing.five,
-    paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.three,
-  },
-  collapsibleContent: {
-    alignItems: 'center',
-  },
-  imageTutorial: {
-    width: '100%',
-    aspectRatio: 296 / 171,
-    borderRadius: Spacing.three,
-    marginTop: Spacing.two,
-  },
-  imageReact: {
-    width: 100,
-    height: 100,
-    alignSelf: 'center',
-  },
+  cardIconWrap: { width: 40, height: 40, borderRadius: 10, backgroundColor: 'rgba(46,196,182,0.14)', alignItems: 'center', justifyContent: 'center' },
+  cardIcon:     { fontSize: 18 },
+  cardTitle:    { fontSize: 14, fontWeight: '700', color: C.sand },
+  cardDesc:     { fontSize: 11, color: C.muted, marginTop: 2 },
+  cardArrow:    { fontSize: 20, fontWeight: '700', color: C.tealLight },
 });
