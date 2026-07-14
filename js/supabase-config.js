@@ -14,3 +14,10 @@ const { createClient } = window.supabase;
 const _sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: { flowType: 'implicit' }
 });
+// window._sb にも公開する（2026-07-14追加）：
+// classic <script> の const は window のプロパティにならないため、
+// 他ファイル（js/location-data.js の getClient() など）が `window._sb` を見て
+// 既存クライアントの有無を判定しても常に false になり、認証設定の異なる
+// 2つ目のGoTrueClientを作ってしまっていた（Multiple GoTrueClient instances
+// 警告の原因）。window._sb を明示的に立てて共有クライアントを検出可能にする。
+window._sb = _sb;

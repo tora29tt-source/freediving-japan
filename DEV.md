@@ -582,7 +582,7 @@ TOP (index.html)  ── Airbnb風マーケットプレイス（白基調）
 |大会情報（2026_competitions.html）                        |✅ 完成                        |
 |トレーニングログ（training-log.html）                         |✅ Supabase接続・保存・読み込み・編集・URLシェア・カレンダー表示実装済み|
 |マイページ（mypage.html）                                  |✅ Supabase接続完了（トレーニングカレンダー・サマリー・予約履歴・大会管理）|
-|STAタイマー（sta-timer.html）                             |✅ 大幅機能追加・デプロイ済み。プリセット名スペース入力不可・1stコントラクション記録範囲・録画状態不整合の3件を修正（2026-07-14）。**録画修正は実機未検証**（詳細は[DECISIONS.md](docs/DECISIONS.md#2026-07-14staタイマーsta-timerhtml不具合3件の調査修正)参照）|
+|STAタイマー（sta-timer.html）                             |✅ 大幅機能追加・デプロイ済み。プリセット名スペース入力不可・1stコントラクション記録範囲・録画状態不整合の3件を修正（2026-07-14）。同日Chrome MCPで3件とも動作確認済み（録画はモックカメラでの検証）。**実機（iPhone Safari）での最終確認はまだ**（詳細は[DECISIONS.md](docs/DECISIONS.md#2026-07-14staタイマーsta-timerhtml不具合3件の調査修正)参照）|
 |Mouthfill Calculator（mouthfill-calculator.html）     |✅ 完成・push済み                  |
 |インストラクターウェルカム（instructor-welcome.html）              |✅ 作成完了                      |
 |フリーダイビングを学ぶ（freediving-learn.html）                 |✅ 管理ツール完成・learn/index.html 骨格完成  |
