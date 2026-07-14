@@ -624,12 +624,18 @@ body { padding-bottom: 72px; }
     </div>
   </div>
 
-  <!-- 予約履歴（体験・コース予約。無ければ非表示） -->
+  <!-- 予約確認（自分がゲストとして行った予約の確認・キャンセル。プロダッシュボードの「予約管理」＝自分が受けた予約とは別物。無ければ非表示） -->
   <div class="section" id="bookingHistorySection" style="display:none;">
     <div class="sec-head">
-      <div class="sec-title">予約履歴</div>
+      <div class="sec-title">予約確認</div>
     </div>
-    <div id="booking-history-list"></div>
+    <div class="settings-card">
+      <div class="settings-row" onclick="openMyBookingsModal()">
+        <div class="settings-icon">📋</div>
+        <div class="settings-label">自分の予約を確認する<span id="my-bookings-count" style="color:var(--muted);font-weight:400;"></span></div>
+        <div class="settings-arrow">›</div>
+      </div>
+    </div>
   </div>
 
   <!-- 学んだ講座（/learn/ 有料講座。購入済みが無ければ非表示） -->
@@ -751,7 +757,8 @@ body { padding-bottom: 72px; }
 </div>
 
 <!-- ── 予約キャンセル モーダル（2026-07-12） ── -->
-<div class="modal-backdrop" id="my-cancel-modal">
+<!-- z-index:310 → 予約確認モーダルの上に重ねて開くため、通常のmodal-backdrop(300)より高くする -->
+<div class="modal-backdrop" id="my-cancel-modal" style="z-index:310;">
   <div class="modal">
     <div class="modal-title">予約をキャンセルしますか？</div>
     <div id="my-cancel-summary" style="font-size:13px;color:var(--sub);line-height:1.7;margin-bottom:12px;"></div>
@@ -763,6 +770,18 @@ body { padding-bottom: 72px; }
     <div class="modal-actions">
       <button class="modal-btn-cancel" onclick="closeMyCancelModal()">閉じる</button>
       <button class="modal-btn-primary" id="my-cancel-submit-btn" onclick="submitMyCancelBooking()">キャンセルする</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 予約確認 モーダル（自分がゲストとして行った予約の一覧・ここからキャンセルも行える） ── -->
+<div class="modal-backdrop" id="my-bookings-modal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-title">予約確認</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">自分が予約した内容の確認です。キャンセルもここから行えます。</div>
+    <div id="booking-history-list"></div>
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="closeMyBookingsModal()" style="flex:none;width:100%;">閉じる</button>
     </div>
   </div>
 </div>
@@ -1384,6 +1403,9 @@ async function loadBookingHistory(guestEmail) {
   if (section) section.style.display = '';
   _myBookingsCache = bookings;
 
+  const countEl = document.getElementById('my-bookings-count');
+  if (countEl) countEl.textContent = '（' + bookings.length + '件）';
+
   const MONTHS     = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const stLabel    = { paid:'決済済み', confirmed:'確定', pending:'保留中', cancelled:'キャンセル', refunded:'返金済み' };
   const stClass    = { paid:'bk-status-paid', confirmed:'bk-status-confirmed', pending:'bk-status-pending', cancelled:'bk-status-cancelled', refunded:'bk-status-cancelled' };
@@ -1452,6 +1474,17 @@ function closeMyCancelModal() {
   document.getElementById('my-cancel-modal').classList.remove('open');
   _myCancelTargetId = null;
 }
+
+// ── 予約確認モーダル（設定行クリックで開くポップアップ。この中の一覧からキャンセルモーダルへ進む） ──
+function openMyBookingsModal() {
+  document.getElementById('my-bookings-modal').classList.add('open');
+}
+function closeMyBookingsModal() {
+  document.getElementById('my-bookings-modal').classList.remove('open');
+}
+document.getElementById('my-bookings-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeMyBookingsModal();
+});
 
 async function submitMyCancelBooking() {
   if (!_myCancelTargetId) return;

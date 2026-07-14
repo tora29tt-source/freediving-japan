@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AIDA Japan ランキング</title>
+<link rel="stylesheet" href="../css/home.css">
 <style>
-:root{--bg:#04161f;--panel:#0c2738;--accent:#2ec4b6;--accent2:#a8ece8;--pool:#2ec4b6;--sea:#1a7a8a;--text:rgba(255,255,255,0.92);--muted:rgba(255,255,255,0.5);--line:rgba(168,236,232,0.14);--gold:#ffd24a;--silver:#cfd8e0;--bronze:#d6a36b;}
+:root{--bg:#ffffff;--panel:#ffffff;--accent:#1f6f78;--accent2:#c0563c;--pool:#1f6f78;--sea:#2a6f9e;--text:#222226;--muted:#8b8b90;--line:#e7e7ea;--gold:#a9780a;--silver:#8a8f96;--bronze:#9c5a2e;--shadow-card:0 6px 20px rgba(20,20,30,.08);}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;background:linear-gradient(180deg,#0e3d5c 0%,#0b2d45 22%,#06283a 55%,#04161f 100%);background-attachment:fixed;color:var(--text);min-height:100vh}
-header{padding:22px 20px 14px;border-bottom:1px solid var(--line)}
-header h1{font-size:21px;letter-spacing:.5px}header h1 span{color:var(--accent2)}
-header p{color:var(--muted);font-size:12.5px;margin-top:4px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 .wrap{max-width:1000px;margin:0 auto;padding:0 16px 60px}
+.page-hero{padding:26px 0 6px}
+.page-eyebrow{display:block;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.page-title{font-size:24px;font-weight:700;letter-spacing:-.02em;color:var(--text)}
+.page-title em{font-style:normal;color:var(--accent2)}
+.page-sub{color:var(--muted);font-size:12.5px;margin-top:6px;line-height:1.6}
 /* hero */
 .hero{margin:18px 0 24px}
 .hero h2{font-size:16px;letter-spacing:.5px}.hero h2 b{color:var(--accent2)}
@@ -19,12 +22,12 @@ header p{color:var(--muted);font-size:12.5px;margin-top:4px}
 .grouphd.sea{color:var(--sea)}.grouphd.sea .dot{background:var(--sea)}
 .grouphd small{color:var(--muted);font-weight:500;letter-spacing:0}
 .hgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.hcard{background:linear-gradient(180deg,#11324b,#0c2237);border:1px solid var(--line);border-radius:14px;padding:14px;border-top:3px solid var(--line)}
+.hcard{background:#fff;box-shadow:var(--shadow-card);border:1px solid var(--line);border-radius:14px;padding:14px;border-top:3px solid var(--line)}
 .hcard.pool{border-top-color:var(--pool)}.hcard.sea{border-top-color:var(--sea)}
 .hcard .dh{display:flex;align-items:baseline;gap:6px;margin-bottom:10px;border-bottom:1px solid var(--line);padding-bottom:8px}
 .hcard .dh .ja{font-size:13.5px;font-weight:700}.hcard .dh .en{font-size:9.5px;color:var(--muted);letter-spacing:.5px}
 .hrow{display:flex;align-items:center;gap:10px;padding:7px 0;cursor:pointer}
-.hrow:hover .hn{text-decoration:underline}.hrow+.hrow{border-top:1px dashed rgba(255,255,255,.06)}
+.hrow:hover .hn{text-decoration:underline}.hrow+.hrow{border-top:1px dashed rgba(20,20,30,.06)}
 .av{width:42px;height:42px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#06231c;background-size:cover;background-position:center;overflow:hidden}
 .av img{width:100%;height:100%;object-fit:cover}
 .gtag{font-size:9px;color:var(--muted);letter-spacing:1px}
@@ -42,12 +45,12 @@ header p{color:var(--muted);font-size:12.5px;margin-top:4px}
 .tab-cat{font-size:8.5px;font-weight:600;letter-spacing:.4px;padding:0 6px 7px;pointer-events:none;user-select:none;flex-shrink:0;opacity:.3;color:var(--muted);min-width:30px}
 .tab-row-wrap{border-bottom:1px solid var(--line)}
 .spacer{flex:1}
-.more-btn{display:block;width:100%;margin:14px 0;padding:10px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:8px;color:var(--muted);font-size:13px;cursor:pointer;text-align:center;transition:.15s}
-.more-btn:hover{background:rgba(255,255,255,.08);color:var(--text)}
+.more-btn{display:block;width:100%;margin:14px 0;padding:10px;background:rgba(20,20,30,.04);border:1px solid var(--line);border-radius:8px;color:var(--muted);font-size:13px;cursor:pointer;text-align:center;transition:.15s}
+.more-btn:hover{background:rgba(20,20,30,.08);color:var(--text)}
 select{padding:7px 10px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;font-size:13px}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
 .seg button{padding:7px 14px;background:var(--panel);color:var(--muted);border:0;cursor:pointer;font-size:13px}
-.seg button.active{background:var(--accent2);color:#06231c;font-weight:700}
+.seg button.active{background:var(--accent2);color:#fff;font-weight:700}
 .discHead{margin:10px 0 2px}.discHead .ja{font-size:19px;font-weight:700}
 .discHead .en{font-size:13px;font-weight:600;margin-left:8px;letter-spacing:.5px}
 .discHead.pool .en{color:var(--pool)}.discHead.sea .en{color:var(--sea)}.discHead.overall .en{color:var(--accent)}
@@ -56,7 +59,7 @@ select{padding:7px 10px;background:var(--panel);color:var(--text);border:1px sol
 .discHead .desc{color:var(--muted);font-size:13px;margin-top:5px;line-height:1.5}
 .ctx{font-size:12.5px;color:var(--muted);margin:10px 0 14px}.ctx b{color:var(--accent2)}
 .podium{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:12px;align-items:end;margin:8px 0 22px}
-.pod{background:linear-gradient(180deg,#11324b,#0c2237);border:1px solid var(--line);border-radius:14px;padding:16px 12px;text-align:center;cursor:pointer;transition:.15s;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:160px}
+.pod{background:#fff;box-shadow:var(--shadow-card);border:1px solid var(--line);border-radius:14px;padding:16px 12px;text-align:center;cursor:pointer;transition:.15s;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:160px}
 .pod:hover{transform:translateY(-3px);border-color:var(--accent)}
 .pod .pav{width:64px;height:64px;border-radius:50%;margin:0 auto 8px;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-weight:700;color:#06231c;font-size:20px;overflow:hidden;border:2px solid var(--line)}
 .pod .pav img{width:100%;height:100%;object-fit:cover}
@@ -125,10 +128,10 @@ footer{color:var(--muted);font-size:11px;text-align:center;padding:20px;border-t
 .sel-period{font-size:11px;color:var(--muted);margin-bottom:16px;line-height:1.6;padding:8px 12px;background:rgba(255,210,74,.06);border-left:3px solid rgba(255,210,74,.4);border-radius:0 6px 6px 0}
 .sel-period b{color:var(--gold)}
 .sel-gtabs{display:flex;gap:6px;margin-bottom:18px}
-.sel-gtab{padding:6px 18px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;transition:.15s}
-.sel-gtab.active{background:var(--accent);border-color:var(--accent);color:#06231c}
+.sel-gtab{padding:6px 18px;border-radius:16px;border:1px solid var(--line);background:rgba(20,20,30,.04);color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;transition:.15s}
+.sel-gtab.active{background:var(--accent);border-color:var(--accent);color:#fff}
 /* ===== 記録推移モーダル: チャート & レース ===== */
-.tl-vtab{padding:5px 12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--muted);cursor:pointer;font-size:11px;font-weight:700;transition:.15s}
+.tl-vtab{padding:5px 12px;border-radius:14px;border:1px solid var(--line);background:rgba(20,20,30,.03);color:var(--muted);cursor:pointer;font-size:11px;font-weight:700;transition:.15s}
 .tl-vtab.active{background:rgba(255,210,74,.15);border-color:rgba(255,210,74,.5);color:var(--gold)}
 .tl-axis{font-size:10px;fill:var(--muted)}
 .tl-grid{stroke:var(--line);stroke-width:1}
@@ -150,12 +153,12 @@ footer{color:var(--muted);font-size:11px;text-align:center;padding:20px;border-t
 #tlRaceYear{font-size:34px;font-weight:800;color:var(--text);line-height:1;font-variant-numeric:tabular-nums;letter-spacing:.5px;min-width:2.6em}
 @media (prefers-reduced-motion:reduce){.tl-path{transition:none!important}.tl-dot{transform:scale(1);animation:none}.tl-lbl{opacity:1;transition:none}.tl-bar-row,.tl-bar{transition:none}}
 .sel-disc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-.sel-disc-block{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.sel-disc-block{background:rgba(20,20,30,.03);border:1px solid var(--line);border-radius:12px;overflow:hidden}
 .sel-disc-label{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:rgba(46,196,182,.08);border-bottom:1px solid var(--line)}
 .sel-disc-label .dn{font-size:12px;font-weight:700;color:var(--pool)}
 .sel-disc-label .dn.sea{color:var(--sea)}
 .sel-disc-label .dq{font-size:10px;color:var(--muted)}
-.sel-row{display:flex;align-items:center;gap:9px;padding:7px 14px;border-bottom:1px solid rgba(255,255,255,.04)}
+.sel-row{display:flex;align-items:center;gap:9px;padding:7px 14px;border-bottom:1px solid rgba(20,20,30,.04)}
 .sel-row:last-child{border-bottom:none}
 .sel-row.selected{background:rgba(46,196,182,.06)}
 .sel-rk{font-size:11px;font-weight:800;width:26px;flex:none;text-align:center}
@@ -165,15 +168,31 @@ footer{color:var(--muted);font-size:11px;text-align:center;padding:20px;border-t
 .sel-res{font-size:12px;color:var(--accent2);font-weight:700;white-space:nowrap}
 .sel-date{font-size:10px;color:var(--muted);white-space:nowrap}
 .sel-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;white-space:nowrap;flex:none}
-.sel-badge.ok{background:rgba(74,222,128,.18);color:#4ade80;border:1px solid rgba(74,222,128,.35)}
-.sel-badge.out{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--line)}
-.sel-wc-note{margin-top:14px;padding:10px 14px;background:rgba(96,165,250,.07);border:1px solid rgba(96,165,250,.2);border-radius:8px;font-size:11px;color:rgba(255,255,255,.55);line-height:1.6}
-.sel-wc-note b{color:#60a5fa}
-@media(max-width:640px){.sel-disc-grid{grid-template-columns:1fr}}</style></head>
+.sel-badge.ok{background:rgba(22,163,74,.14);color:#16a34a;border:1px solid rgba(22,163,74,.35)}
+.sel-badge.out{background:rgba(20,20,30,.06);color:var(--muted);border:1px solid var(--line)}
+.sel-wc-note{margin-top:14px;padding:10px 14px;background:rgba(96,165,250,.07);border:1px solid rgba(96,165,250,.2);border-radius:8px;font-size:11px;color:rgba(20,20,30,.55);line-height:1.6}
+.sel-wc-note b{color:#2563eb}
+@media(max-width:640px){.sel-disc-grid{grid-template-columns:1fr}}</style>
+</head>
 <body>
-<header><div class="wrap"><a href="../index.html" style="color:var(--muted);font-size:12px;text-decoration:none">← Freediving Japan トップへ</a><h1>AIDA <span>Japan</span> ランキング</h1>
-<p>2000–2026 日本記録データベース<span style="margin-left:12px;font-size:.8em;opacity:.6">※ AIDAより自動取得（毎日 06:00 JST）。リアルタイムデータではありません。</span></p></div></header>
+<header class="hdr">
+  <div class="hdr-in">
+    <a class="logo" href="../index.html">FREEDIVING <span>JAPAN</span></a>
+    <div class="hdr-right">
+      <a class="hdr-link" href="../mypage.html">
+        <span class="avatar"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/></svg></span>
+        マイページ
+      </a>
+    </div>
+  </div>
+</header>
 <div class="wrap">
+  <a class="crumb" href="../index.html"><svg class="icon" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>ホームに戻る</a>
+  <div class="page-hero">
+    <span class="page-eyebrow">AIDA Japan Ranking</span>
+    <h1 class="page-title">国内<em>ランキング</em></h1>
+    <p class="page-sub">2000–2026 日本記録データベース<span style="margin-left:12px;opacity:.75">※ AIDAより自動取得（毎日 06:00 JST）。リアルタイムデータではありません。</span></p>
+  </div>
 <div class="hero" id="hero"></div>
 <div class="controls"><div class="tabs" id="tabs"></div><span class="spacer"></span>
 <div class="seg" id="genderSeg"><button data-g="Male" class="active">男子</button><button data-g="Female">女子</button></div>
@@ -202,7 +221,7 @@ footer{color:var(--muted);font-size:11px;text-align:center;padding:20px;border-t
     <div class="sel-disc-grid" id="selGrid"></div>
     <div class="sel-wc-note" id="selWcNote">
       <b>ワイルドカードについて</b>：AIDA世界ランキング1〜10位に入った日本人選手に付与される特別参加権。選考4名は固定。WC保有者は人数制限なく全員が選考枠とは別枠で出場可能。<br>
-      出典 → <a href="https://www.aidainternational.org/Ranking/WildCards" target="_blank" style="color:#60a5fa">AIDA WildCards</a>
+      出典 → <a href="https://www.aidainternational.org/Ranking/WildCards" target="_blank" style="color:#2563eb">AIDA WildCards</a>
     </div>
   </div>
 </div>
@@ -225,7 +244,7 @@ footer{color:var(--muted);font-size:11px;text-align:center;padding:20px;border-t
     <div class="sel-disc-grid" id="selSeaGrid"></div>
     <div class="sel-wc-note" id="selSeaWcNote">
       <b>ワイルドカードについて</b>：AIDA世界ランキング1〜10位に入った日本人選手に付与される特別参加権。選考4名は固定。WC保有者は人数制限なく全員が選考枠とは別枠で出場可能。<br>
-      出典 → <a href="https://www.aidainternational.org/Ranking/WildCards" target="_blank" style="color:#60a5fa">AIDA WildCards</a>
+      出典 → <a href="https://www.aidainternational.org/Ranking/WildCards" target="_blank" style="color:#2563eb">AIDA WildCards</a>
     </div>
   </div>
 </div>
@@ -240,14 +259,14 @@ footer{color:var(--muted);font-size:11px;text-align:center;padding:20px;border-t
       <div>
         <div style="font-size:11px;color:var(--muted);margin-bottom:5px">選手A</div>
         <input id="cmpInputA" type="text" placeholder="名前を入力…" autocomplete="off"
-          style="width:100%;padding:8px 12px;background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:13px;outline:none"
+          style="width:100%;padding:8px 12px;background:rgba(20,20,30,.07);border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:13px;outline:none"
           oninput="cmpSuggest('A')" onfocus="cmpSuggest('A')">
         <div id="cmpSugA" style="position:relative"></div>
       </div>
       <div>
         <div style="font-size:11px;color:var(--muted);margin-bottom:5px">選手B</div>
         <input id="cmpInputB" type="text" placeholder="名前を入力…" autocomplete="off"
-          style="width:100%;padding:8px 12px;background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:13px;outline:none"
+          style="width:100%;padding:8px 12px;background:rgba(20,20,30,.07);border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:13px;outline:none"
           oninput="cmpSuggest('B')" onfocus="cmpSuggest('B')">
         <div id="cmpSugB" style="position:relative"></div>
       </div>
@@ -353,7 +372,7 @@ Promise.all([
     // データ取得日時を表示
   })
   .catch(err => {
-    document.getElementById('hero').innerHTML='<p style="color:#e55;padding:20px">データ読み込みに失敗しました: '+err.message+'</p>';
+    document.getElementById('hero').innerHTML='<p style="color:#dc2626;padding:20px">データ読み込みに失敗しました: '+err.message+'</p>';
     console.error('Data load error:', err);
   });
 ;
@@ -437,12 +456,12 @@ function renderHero(){
     const cards=DISC.filter(d=>d[4]===cat).map(d=>{
       const rows=['Male','Female'].map(g=>{
         const rec=JP_RECORDS[d[0]+'|'+g];
-        if(!rec)return '<div class="hrow"><div class="av" style="background:#15334d"></div><div><div class="gtag">'+(g==='Male'?'男子':'女子')+'</div><div class="hn" style="color:var(--muted)">記録なし</div></div></div>';
+        if(!rec)return '<div class="hrow"><div class="av" style="background:#eef1f2"></div><div><div class="gtag">'+(g==='Male'?'男子':'女子')+'</div><div class="hn" style="color:var(--muted)">記録なし</div></div></div>';
         const t=resTag(rec.result);
         return '<div class="hrow" onclick="showAthlete(\''+esc(rec.name)+'\',false)">'+av(rec.name,'av')+'<div><div class="gtag">'+(g==='Male'?'男子':'女子')+'</div><div class="hn">'+rec.name+'</div></div><div class="hr"><div class="v">'+cleanRes(rec.result)+'</div>'+(t?'<div class="nr">'+t+'</div>':'')+'</div></div>';
       }).join('');
       const disc0=d[0];
-      const footer='<div style="margin-top:9px;padding-top:9px;border-top:1px solid rgba(255,255,255,.06)">'
+      const footer='<div style="margin-top:9px;padding-top:9px;border-top:1px solid rgba(20,20,30,.06)">'
         +'<span onclick="event.stopPropagation();showTl(\''+disc0+'\',null,\'Male\')" style="display:block;width:100%;text-align:center;font-size:10px;color:var(--gold);cursor:pointer;padding:4px 0;border-radius:6px;border:1px solid rgba(255,210,74,.2);background:rgba(255,210,74,.06);box-sizing:border-box">📅 歴代記録</span>'
         +'</div>';
       return '<div class="hcard '+cat+'"><div class="dh"><span class="ja">'+d[1]+'</span><span class="en">'+d[0]+'</span></div>'+rows+footer+'</div>';
@@ -602,7 +621,7 @@ function showAthlete(name,fromOverall){
       const bestRec=yearRecs.filter(r=>r.discipline===k).sort((a,b)=>(b.points||0)-(a.points||0))[0];
       const resTxt=bestRec?'<div style="font-size:10px;color:var(--muted)">'+bestRec.result+'</div>':'';
       const ptTxt=pt!=null?'<b style="color:'+(cat==='pool'?'var(--pool)':'var(--sea)')+'">'+pt+'</b><span style="font-size:10px;color:var(--muted)"> pt</span>':'<span style="color:var(--muted)">—</span>';
-      return '<div style="display:grid;grid-template-columns:90px 1fr 80px;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)">'
+      return '<div style="display:grid;grid-template-columns:90px 1fr 80px;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(20,20,30,.05)">'
         +'<div style="font-size:12px;color:var(--muted)">'+ja+' <span style="font-size:10px">'+k+'</span></div>'
         +'<div>'+bar+'</div>'
         +'<div style="text-align:right;font-size:13px">'+ptTxt+resTxt+'</div>'
@@ -626,7 +645,7 @@ function showAthlete(name,fromOverall){
       const cards=discs.map(([k,ja])=>{
         const r=map[k];
         const col=cat==='pool'?'var(--pool)':'var(--sea)';
-        if(!r)return '<div style="background:linear-gradient(180deg,#11324b,#0c2237);border:1px solid var(--line);border-radius:12px;padding:12px;border-top:3px solid var(--line);opacity:.5">'
+        if(!r)return '<div style="background:#fff;box-shadow:var(--shadow-card);border:1px solid var(--line);border-radius:12px;padding:12px;border-top:3px solid var(--line);opacity:.5">'
           +'<div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px">'+ja+' <span style="font-size:9px">'+k+'</span></div>'
           +'<div style="font-size:18px;font-weight:800;color:var(--muted)">—</div></div>';
         const jpRec=JP_RECORDS[k+'|'+r.gender];
@@ -635,7 +654,7 @@ function showAthlete(name,fromOverall){
         const domRank=getDomRank(k,r.gender,r.points);
         const rankTxt=domRank?'<span style="font-size:10px;color:var(--muted)"> · 国内'+domRank+'位</span>':'';
 
-        return '<div style="background:linear-gradient(180deg,#11324b,#0c2237);border:1px solid var(--line);border-radius:12px;padding:12px;border-top:3px solid '+col+'">'
+        return '<div style="background:#fff;box-shadow:var(--shadow-card);border:1px solid var(--line);border-radius:12px;padding:12px;border-top:3px solid '+col+'">'
           +'<div style="font-size:11px;font-weight:700;color:'+col+';margin-bottom:4px">'+ja+' <span style="font-size:9px;opacity:.7">'+k+'</span></div>'
           +'<div style="font-size:20px;font-weight:800;color:var(--text)">'+cleanRes(r.result)+tagBadge+'</div>'
           +'<div style="font-size:11px;color:var(--muted);margin-top:3px">'+(r.points!=null?r.points+' pt · ':'')+r.date.slice(0,4)+rankTxt+'</div>'
@@ -696,7 +715,7 @@ function formatTrendVal(disc, val){
 }
 
 function drawTrendChart(name){
-  const discColors = {STA:'#2ec4b6',DYN:'#22d3ee',DYNB:'#6ee7b7',DNF:'#a3e635',CWT:'#60a5fa',CWTB:'#818cf8',CNF:'#f472b6',FIM:'#fb923c'};
+  const discColors = {STA:'#1f6f78',DYN:'#0891b2',DYNB:'#059669',DNF:'#65a30d',CWT:'#2563eb',CWTB:'#4f46e5',CNF:'#db2777',FIM:'#ea580c'};
   const DJA2 = {STA:'STA',DYN:'DYN',DYNB:'DYNB',DNF:'DNF',CWT:'CWT',CWTB:'CWTB',CNF:'CNF',FIM:'FIM'};
 
   function drawGroup(canvasId, discs){
@@ -734,24 +753,24 @@ function drawTrendChart(name){
     const gW=W-padL-padR, gH=H-padT-padB;
 
     // 背景
-    ctx2.fillStyle='rgba(255,255,255,0.03)';
+    ctx2.fillStyle='rgba(20,20,30,0.03)';
     ctx2.beginPath(); ctx2.roundRect(0,0,W,H,8); ctx2.fill();
 
     // グリッド
     const gridN=4;
     for(let i=0;i<=gridN;i++){
       const yy=padT+gH*(1-i/gridN);
-      ctx2.strokeStyle='rgba(168,236,232,0.1)'; ctx2.lineWidth=1;
+      ctx2.strokeStyle='rgba(20,20,30,0.08)'; ctx2.lineWidth=1;
       ctx2.beginPath(); ctx2.moveTo(padL,yy); ctx2.lineTo(padL+gW,yy); ctx2.stroke();
       const v = minV+(maxV-minV)*i/gridN;
       // Y軸ラベル（STA種目が含まれる場合は時間表示）
       const labelDisc = activeDiscs.includes('STA') ? 'STA' : activeDiscs[0];
-      ctx2.fillStyle='rgba(255,255,255,0.4)'; ctx2.font='10px -apple-system,sans-serif'; ctx2.textAlign='right';
+      ctx2.fillStyle='rgba(20,20,30,0.4)'; ctx2.font='10px -apple-system,sans-serif'; ctx2.textAlign='right';
       ctx2.fillText(formatTrendVal(labelDisc, v), padL-5, yy+3.5);
     }
 
     // X軸
-    ctx2.fillStyle='rgba(255,255,255,0.4)'; ctx2.font='10px -apple-system,sans-serif'; ctx2.textAlign='center';
+    ctx2.fillStyle='rgba(20,20,30,0.4)'; ctx2.font='10px -apple-system,sans-serif'; ctx2.textAlign='center';
     const step = years.length > 1 ? gW/(years.length-1) : 0;
     // 年数が多い場合は間引き（目安：8年以上は2年おき、15年以上は4年おき）
     const skipN = years.length >= 15 ? 4 : years.length >= 8 ? 2 : 1;
@@ -789,7 +808,7 @@ function drawTrendChart(name){
     series.forEach(({disc,color})=>{
       ctx2.fillStyle=color; ctx2.fillRect(lx,ly-7,10,3);
       ctx2.font='9px -apple-system,sans-serif';
-      ctx2.fillStyle='rgba(255,255,255,0.6)'; ctx2.textAlign='left';
+      ctx2.fillStyle='rgba(20,20,30,0.6)'; ctx2.textAlign='left';
       ctx2.fillText(disc, lx+13, ly);
       lx += ctx2.measureText(disc).width + 28;
     });
@@ -825,7 +844,7 @@ function cmpSuggest(side){
   if(!q){box.innerHTML='';return;}
   const names=[...new Set(DATA.records.map(r=>r.name))].filter(n=>n.toLowerCase().includes(q)).slice(0,8);
   if(!names.length){box.innerHTML='';return;}
-  box.innerHTML='<div style="position:absolute;top:2px;left:0;right:0;background:#0c2738;border:1px solid var(--line);border-radius:8px;z-index:99;overflow:hidden">'
+  box.innerHTML='<div style="position:absolute;top:2px;left:0;right:0;background:#fff;box-shadow:var(--shadow-card);border:1px solid var(--line);border-radius:8px;z-index:99;overflow:hidden">'
     +names.map(n=>'<div onclick="cmpSelect(\''+side+'\',\''+esc(n)+'\')" style="padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--line)" onmouseover="this.style.background=\'rgba(46,196,182,.12)\'" onmouseout="this.style.background=\'\'">'+n+'</div>').join('')
     +'</div>';
 }
@@ -883,7 +902,7 @@ function renderCmp(){
   const totA=totalPt(recsA), totB=totalPt(recsB);
 
   document.getElementById('cmpResult').innerHTML=
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;background:rgba(255,255,255,.03);border-radius:12px;padding:12px 8px 4px;margin-bottom:12px">'
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;background:rgba(20,20,30,.03);border-radius:12px;padding:12px 8px 4px;margin-bottom:12px">'
     +'<div style="text-align:center">'
       +av(nameA,'cmpav')
       +'<div style="font-size:14px;font-weight:700;margin-top:8px">'+nameA+'</div>'
@@ -985,7 +1004,7 @@ function renderSelGrid(){
       const isSelected = isWC || isRegular;
       const rkCls = ['','r1','r2','r3','r4'][rank] || '';
       const badge = isWC
-        ? '<span class="sel-badge ok" style="background:rgba(96,165,250,.18);color:#60a5fa;border-color:rgba(96,165,250,.4)">WC</span>'
+        ? '<span class="sel-badge ok" style="background:rgba(96,165,250,.18);color:#2563eb;border-color:rgba(96,165,250,.4)">WC</span>'
         : isRegular
           ? '<span class="sel-badge ok">選考圏内</span>'
           : '<span class="sel-badge out">圏外</span>';
@@ -1097,7 +1116,7 @@ function renderSelSeaGrid(){
       const isSelected = isWC || isRegular;
       const rkCls = ['','r1','r2','r3','r4'][rank] || '';
       const badge = isWC
-        ? '<span class="sel-badge ok" style="background:rgba(96,165,250,.18);color:#60a5fa;border-color:rgba(96,165,250,.4)">WC</span>'
+        ? '<span class="sel-badge ok" style="background:rgba(96,165,250,.18);color:#2563eb;border-color:rgba(96,165,250,.4)">WC</span>'
         : isRegular
           ? '<span class="sel-badge ok">選考圏内</span>'
           : '<span class="sel-badge out">圏外</span>';
@@ -1147,7 +1166,7 @@ function showTl(disc, view, gender){
     const col = cat==='pool'?'var(--pool)':'var(--sea)';
     const bg  = cat==='pool'?'rgba(46,196,182,.15)':'rgba(42,109,181,.18)';
     const isActive = k===tlDisc;
-    return '<span onclick="setTlDisc(\''+k+'\',this)" style="padding:4px 12px;border-radius:16px;border:1px solid '+(isActive?col:'var(--line)')+';background:'+(isActive?bg:'rgba(255,255,255,.03)')+';color:'+(isActive?col:'var(--muted)')+';cursor:pointer;font-size:12px;font-weight:700;white-space:nowrap">'+k+'</span>';
+    return '<span onclick="setTlDisc(\''+k+'\',this)" style="padding:4px 12px;border-radius:16px;border:1px solid '+(isActive?col:'var(--line)')+';background:'+(isActive?bg:'rgba(20,20,30,.03)')+';color:'+(isActive?col:'var(--muted)')+';cursor:pointer;font-size:12px;font-weight:700;white-space:nowrap">'+k+'</span>';
   }
   const lbl = (txt,col) => '<span style="font-size:10px;font-weight:700;color:'+col+';letter-spacing:.08em;flex:none;min-width:34px">'+txt+'</span>';
   document.getElementById('tlDiscTabs').innerHTML =
@@ -1247,7 +1266,7 @@ function renderTlChart(){
   const dInfo = DISC.find(d=>d[0]===tlDisc);
   const cat = dInfo ? dInfo[4] : 'pool';
   const down = cat === 'sea';            // 深度系は「深いほど下」に反転
-  const col = cat === 'pool' ? '#2ec4b6' : '#2aa9e0';
+  const col = cat === 'pool' ? '#1f6f78' : '#2a6f9e';
   document.getElementById('tlChartCaption').textContent = down
     ? '深度系: 記録が深くなるほどラインは沈む · 金色 = 現在の日本記録'
     : '記録更新ごとにドットを打刻 · 金色 = 現在の日本記録';
@@ -1434,7 +1453,7 @@ function renderTlList(){
   const dInfo = DISC.find(d=>d[0]===tlDisc);
   const cat = dInfo ? dInfo[4] : 'pool';
   const col = cat==='pool' ? 'var(--pool)' : 'var(--sea)';
-  const colRgb = cat==='pool' ? '46,196,182' : '26,122,138';
+  const colRgb = cat==='pool' ? '31,111,120' : '42,111,158';
 
   if(!timeline.length){
     document.getElementById('tlContent').innerHTML='<div class="empty">データなし</div>';
@@ -1454,12 +1473,12 @@ function renderTlList(){
              transition-delay:${i*60}ms">
       <div style="display:flex;flex-direction:column;align-items:center;width:36px;flex:none">
         <div style="width:${isLatest?12:8}px;height:${isLatest?12:8}px;border-radius:50%;
-             background:${isLatest?col:'rgba(255,255,255,.2)'};
-             border:2px solid ${isLatest?col:'rgba(255,255,255,.3)'};
+             background:${isLatest?col:'rgba(20,20,30,.2)'};
+             border:2px solid ${isLatest?col:'rgba(20,20,30,.3)'};
              flex:none;margin-top:2px;
              ${isLatest?`box-shadow:0 0 10px rgba(${colRgb},.7),0 0 20px rgba(${colRgb},.3)`:''}">
         </div>
-        <div style="width:1px;flex:1;background:rgba(255,255,255,.08);margin-top:4px"></div>
+        <div style="width:1px;flex:1;background:rgba(20,20,30,.08);margin-top:4px"></div>
       </div>
       <div style="flex:1;min-width:0;padding-bottom:4px">
         <div style="font-size:10px;color:var(--muted);margin-bottom:4px">${r.date}</div>
@@ -1545,7 +1564,7 @@ function renderDistTabs(){
   document.getElementById('distTabs').innerHTML = DIST_DISCS.map(d => {
     const active = d===distDisc;
     const col = cat(d)==='pool' ? 'var(--pool)' : 'var(--sea)';
-    return `<span onclick="setDistDisc('${d}')" style="padding:5px 12px;border-radius:16px;border:1px solid ${active?col:'var(--line)'};background:${active?'rgba(46,196,182,.15)':'rgba(255,255,255,.03)'};color:${active?col:'var(--muted)'};cursor:pointer;font-size:12px;font-weight:700">${d}</span>`;
+    return `<span onclick="setDistDisc('${d}')" style="padding:5px 12px;border-radius:16px;border:1px solid ${active?col:'var(--line)'};background:${active?'rgba(46,196,182,.15)':'rgba(20,20,30,.03)'};color:${active?col:'var(--muted)'};cursor:pointer;font-size:12px;font-weight:700">${d}</span>`;
   }).join('');
 }
 
@@ -1606,23 +1625,23 @@ function renderDistChart(){
   if(maxVal === 0) return;
 
   // 背景
-  ctx.fillStyle = 'rgba(255,255,255,0.03)';
+  ctx.fillStyle = 'rgba(20,20,30,0.03)';
   ctx.beginPath(); ctx.roundRect(0,0,W,H,8); ctx.fill();
 
   // グリッド・Y軸
   const gridN = 4;
   for(let i = 0; i <= gridN; i++){
     const y = padT + gH * (1 - i/gridN);
-    ctx.strokeStyle = 'rgba(168,236,232,0.08)'; ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(20,20,30,0.06)'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL+gW, y); ctx.stroke();
-    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.fillStyle = 'rgba(20,20,30,0.4)';
     ctx.font = '9px -apple-system,sans-serif';
     ctx.textAlign = 'right';
     ctx.fillText(Math.round(maxVal * i / gridN), padL-4, y+3.5);
   }
 
   // バー描画
-  const COLORS = ['#2ec4b6', '#60a5fa', '#f472b6']; // total, male, female
+  const COLORS = ['#1f6f78', '#2563eb', '#db2777']; // total, male, female
   keys.forEach((k, i) => {
     const groupX = padL + groupW * i + groupW * 0.09;
     const vals = [total[k]||0, male[k]||0, female[k]||0];
@@ -1642,7 +1661,7 @@ function renderDistChart(){
 
       // 数値ラベル（Totalバーのみ、常に表示）
       if(j===0){
-        ctx.fillStyle = 'rgba(255,255,255,0.85)';
+        ctx.fillStyle = 'rgba(20,20,30,0.85)';
         ctx.font = `bold ${Math.min(9, Math.max(7, Math.floor(bw*0.55)))}px -apple-system,sans-serif`;
         ctx.textAlign = 'center';
         ctx.fillText(v, bx + bw*0.44, by - 3);
@@ -1650,7 +1669,7 @@ function renderDistChart(){
     });
 
     // X軸ラベル（全区間表示）
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.fillStyle = 'rgba(20,20,30,0.5)';
     ctx.font = '9px -apple-system,sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText(conf.fmtBin(k), padL + groupW*(i+0.5), H-8);
@@ -1673,7 +1692,7 @@ function renderDistChart(){
     ctx.fillStyle = col; ctx.globalAlpha = 0.88;
     ctx.fillRect(lx, ly-7, 10, 7);
     ctx.globalAlpha = 1;
-    ctx.fillStyle = 'rgba(255,255,255,0.65)';
+    ctx.fillStyle = 'rgba(20,20,30,0.65)';
     ctx.textAlign = 'left';
     ctx.fillText(label, lx+13, ly);
   });
