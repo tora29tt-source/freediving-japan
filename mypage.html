@@ -73,7 +73,7 @@ body { padding-bottom: 72px; }
 }
 
 /* アバター */
-.avatar-wrap { position: relative; flex-shrink: 0; }
+.avatar-wrap { position: relative; flex-shrink: 0; cursor: pointer; }
 .avatar {
   width: 72px; height: 72px; border-radius: 50%;
   background: linear-gradient(135deg, var(--ocean-light), #0e6a7a);
@@ -93,7 +93,9 @@ body { padding-bottom: 72px; }
 }
 
 .hero-info { flex: 1; animation: fadeUp 0.5s 0.1s ease both; opacity: 0; }
-.hero-name { font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -0.3px; }
+.hero-name { font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -0.3px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.hero-name:hover { color: var(--teal); }
+.hero-name .edit-pencil { font-size: 12px; opacity: 0.6; }
 .hero-email { font-size: 12px; color: var(--muted); margin-top: 2px; }
 .hero-badges { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
 .badge {
@@ -478,12 +480,12 @@ body { padding-bottom: 72px; }
   <div class="depth-lines" id="depthLines"></div>
 
   <div class="hero-inner">
-    <div class="avatar-wrap">
+    <div class="avatar-wrap" onclick="openProfileModal()" title="タップして写真を変更">
       <div class="avatar" id="heroAvatar" style="overflow:hidden;">…</div>
-      <div class="avatar-badge">🤿</div>
+      <div class="avatar-badge">📷</div>
     </div>
     <div class="hero-info">
-      <div class="hero-name" id="heroName">読み込み中...</div>
+      <div class="hero-name" id="heroName" onclick="openProfileModal()" title="タップして名前を編集"><span id="heroNameText">読み込み中...</span><span class="edit-pencil">✏️</span></div>
       <div class="hero-email" id="heroEmail"></div>
     </div>
   </div>
@@ -693,11 +695,6 @@ body { padding-bottom: 72px; }
       <div class="sec-title">設定</div>
     </div>
     <div class="settings-card">
-      <div class="settings-row" onclick="openProfileModal()">
-        <div class="settings-icon">👤</div>
-        <div class="settings-label">プロフィール編集</div>
-        <div class="settings-arrow">›</div>
-      </div>
       <div class="settings-row danger" onclick="handleLogout()">
         <div class="settings-icon">🚪</div>
         <div class="settings-label">ログアウト</div>
@@ -1591,7 +1588,7 @@ function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt
   } else {
     heroAvatar.textContent = initials;
   }
-  document.getElementById('heroName').textContent  = name;
+  document.getElementById('heroNameText').textContent = name;
   document.getElementById('heroEmail').textContent = user.email;
 
   // admin / staff / editor チェック → 管理画面ボタンを表示（一般ユーザーには非表示）
@@ -1705,7 +1702,7 @@ async function saveProfile() {
   } else {
     heroAvatar.textContent = name.replace(/\s+/g,'').slice(0,2).toUpperCase();
   }
-  document.getElementById('heroName').textContent = name;
+  document.getElementById('heroNameText').textContent = name;
 
   _isDirty = false;
   showMypageToast('プロフィールを保存しました', 'success');

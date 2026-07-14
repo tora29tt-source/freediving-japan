@@ -10,31 +10,26 @@
   --ocean-deep: #0b2d45;
   --ocean-mid:  #0e3d5c;
   --abyss:      #04161f;
-  --teal:       #2ec4b6;
-  --teal-light: #a8ece8;
+  --teal:       #1f6f78;
+  --teal-light: #2ec4b6;
   --foam:       #f0f9fb;
   --warm:       #f97316;
-  --on-dark:        rgba(255,255,255,0.92);
-  --on-dark-mid:    rgba(255,255,255,0.62);
-  --on-dark-soft:   rgba(255,255,255,0.40);
-  --hairline:       rgba(168,236,232,0.14);
-  --glass:          rgba(255,255,255,0.045);
+  --on-dark:        #222226;
+  --on-dark-mid:    #5b5b60;
+  --on-dark-soft:   #8b8b90;
+  --hairline:       #e7e7ea;
+  --glass:          #ffffff;
 
   /* course category colors */
-  --c-beginner: #2ec4b6;
-  --c-mid:      #7c9ef8;
-  --c-comp:     #fb7185;
-  --c-inst:     #fbbf24;
+  --c-beginner: #1f6f78;
+  --c-mid:      #4338ca;
+  --c-comp:     #be123c;
+  --c-inst:     #a16207;
 }
-html { background: var(--abyss); }
+html { background: #ffffff; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
-  background: linear-gradient(180deg,
-    var(--ocean-mid) 0%,
-    var(--ocean-deep) 22%,
-    #06283a 55%,
-    var(--abyss) 100%);
-  background-attachment: fixed;
+  background: #ffffff;
   color: var(--on-dark);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
@@ -84,7 +79,7 @@ body {
 .hero-inner { position: relative; z-index: 2; }
 .hero-tag {
   display: inline-flex; align-items: center; gap: 7px;
-  color: var(--teal-light); font-size: 11px; font-weight: 500;
+  color: var(--teal); font-size: 11px; font-weight: 500;
   letter-spacing: 0.22em; text-transform: uppercase; margin-bottom: 18px;
 }
 .hero-tag .icon { width: 14px; height: 14px; }
@@ -140,13 +135,14 @@ body {
 /* ── course card ── */
 .course-card {
   position: relative;
-  background: rgba(255,255,255,0.04);
+  background: #ffffff;
   border: 1px solid var(--hairline);
+  box-shadow: 0 6px 20px rgba(20,20,30,0.06);
   border-radius: 14px; overflow: hidden;
   display: flex; flex-direction: column;
   transition: border-color 0.2s, transform 0.2s;
 }
-.course-card:hover { border-color: rgba(255,255,255,0.18); transform: translateY(-2px); }
+.course-card:hover { border-color: #d8d8dc; transform: translateY(-2px); }
 .course-card.locked { opacity: 0.7; }
 
 .course-thumb {
@@ -168,9 +164,9 @@ body {
 .coming-pill {
   position: absolute; top: 10px; right: 10px;
   padding: 3px 10px; border-radius: 100px;
-  background: rgba(4,22,31,0.8); border: 1px solid var(--hairline);
+  background: rgba(4,22,31,0.8); border: 1px solid rgba(255,255,255,0.14);
   font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
-  color: var(--on-dark-soft); text-transform: uppercase;
+  color: rgba(255,255,255,0.7); text-transform: uppercase;
 }
 .play-circle {
   width: 48px; height: 48px; border-radius: 50%;
@@ -212,13 +208,13 @@ body {
 .course-price small { font-size: 11px; color: var(--on-dark-soft); font-weight: 400; margin-left: 2px; }
 .btn-buy {
   padding: 8px 18px; border-radius: 8px;
-  background: var(--teal); color: #04161f;
+  background: var(--teal); color: #fff;
   font-size: 12px; font-weight: 700; border: none; cursor: pointer;
   letter-spacing: 0.04em; transition: opacity 0.2s;
 }
 .btn-buy:hover { opacity: 0.85; }
 .btn-buy:disabled, .btn-buy.soon {
-  background: rgba(255,255,255,0.08); color: var(--on-dark-soft);
+  background: #f0f0f2; color: var(--on-dark-soft);
   cursor: default; opacity: 1;
 }
 
@@ -261,7 +257,7 @@ body {
   border-top: 1px solid var(--hairline); margin-top: 60px;
   font-size: 12px; color: var(--on-dark-soft);
 }
-.learn-footer a { color: var(--teal-light); text-decoration: none; }
+.learn-footer a { color: var(--teal); text-decoration: none; }
 
 /* ── responsive ── */
 @media (max-width: 480px) {

@@ -12,19 +12,20 @@
 <link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
 <style>
 :root {
-  --teal:       #2ec4b6;
-  --teal-light: #a8ece8;
-  --teal-dim:   rgba(46,196,182,0.12);
-  --warm:       #f97316;
-  --danger:     #ef4444;
-  --success:    #22c55e;
-  --bg:         #060f17;
-  --surface:    #0b2035;
-  --surface2:   #0f2a44;
-  --surface3:   #163354;
-  --text:       #e8f4f8;
-  --muted:      #5a8ca8;
-  --border:     #1a3f5c;
+  --teal:       #1f6f78;
+  --teal-btn:   #2ec4b6;
+  --teal-light: #0d7d72;
+  --teal-dim:   rgba(31,111,120,0.10);
+  --warm:       #c2410c;
+  --danger:     #dc2626;
+  --success:    #16a34a;
+  --bg:         #ffffff;
+  --surface:    #ffffff;
+  --surface2:   #f5f5f7;
+  --surface3:   #ececee;
+  --text:       #222226;
+  --muted:      #5b5b60;
+  --border:     #e2e2e6;
   --ocean:      #0e3d5c;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -38,8 +39,8 @@ html, body {
 .bg-layer {
   position: fixed; inset: 0; z-index: 0;
   background:
-    radial-gradient(ellipse 80% 55% at 50% 0%, #0e3d5c55 0%, transparent 70%),
-    radial-gradient(ellipse 50% 40% at 85% 100%, #2ec4b612 0%, transparent 60%);
+    radial-gradient(ellipse 80% 55% at 50% 0%, #0e3d5c11 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 85% 100%, #2ec4b60c 0%, transparent 60%);
 }
 .bubbles { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
 .bubble {
@@ -245,9 +246,9 @@ header {
 }
 .phase-label.hold   { color: var(--danger); }
 .phase-label.rest   { color: var(--success); }
-.phase-label.surface{ color: #eab308; }
+.phase-label.surface{ color: #a16207; }
 .phase-label.danger { color: var(--warm); }
-.phase-label.countdown { color: #eab308; }
+.phase-label.countdown { color: #a16207; }
 
 /* SET PROGRESS */
 .set-list-wrap {
@@ -287,7 +288,7 @@ header {
 }
 .set-phase-lbl.hold { color: var(--danger); }
 .set-phase-lbl.rest { color: var(--success); }
-.set-phase-lbl.surface { color: #eab308; }
+.set-phase-lbl.surface { color: #a16207; }
 .set-phase-lbl.pending { color: var(--border); }
 .set-sub {
   display: flex; gap: 5px; align-items: center; flex-wrap: wrap;
@@ -316,7 +317,7 @@ header {
   position: absolute; inset: 0; width: 100%; height: 100%;
   transform: rotate(-90deg); pointer-events: none;
 }
-.ring-track  { fill: none; stroke: var(--surface2); stroke-width: 4; }
+.ring-track  { fill: none; stroke: #e2e2e6; stroke-width: 4; }
 .ring-hold   { fill: none; stroke: transparent; stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset .1s linear, stroke .5s; }
 .ring-rest   { fill: none; stroke: transparent; stroke-width: 2; stroke-linecap: round; stroke-dasharray: 4 6; transition: stroke-dashoffset .1s linear; }
 .ring-spo2   { fill: none; stroke: transparent;  stroke-width: 7; stroke-linecap: round; transition: stroke-dashoffset .8s ease, stroke .5s; }
@@ -360,7 +361,7 @@ header {
 }
 .phase-ring-label.hold    { color: var(--danger); }
 .phase-ring-label.rest    { color: var(--success); }
-.phase-ring-label.surface { color: #eab308; }
+.phase-ring-label.surface { color: #a16207; }
 
 /* rest timer */
 .rest-timer {
@@ -409,7 +410,7 @@ header {
 }
 .surface-rest-lbl {
   font-size: clamp(9px, 2.2vw, 11px); letter-spacing: .1em;
-  color: rgba(255,255,255,.45); font-weight: 500; margin-top: 5px;
+  color: __KEEP_WHITE_45__; font-weight: 500; margin-top: 5px;
   font-variant-numeric: tabular-nums;
 }
 
@@ -460,8 +461,8 @@ header {
   font-size: 14px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700;
   cursor: pointer; transition: all .15s; -webkit-tap-highlight-color: transparent;
 }
-.btn-main.start { background: var(--teal); color: #0b2d45; }
-.btn-main.stop  { background: var(--ocean); color: var(--text); border: 1px solid var(--teal); }
+.btn-main.start { background: var(--teal-btn); color: #0b2d45; }
+.btn-main.stop  { background: #ffffff; color: var(--teal); border: 1px solid var(--teal); }
 .btn-main.rest  { background: var(--surface3); color: var(--muted); border: 1px solid var(--border); pointer-events: none; }
 .btn-main:active { transform: scale(.97); opacity: .85; }
 .btn-row { display: flex; gap: 7px; width: 100%; max-width: 300px; }
@@ -484,7 +485,7 @@ header {
   letter-spacing: .06em; cursor: pointer;
   -webkit-tap-highlight-color: transparent; transition: all .15s;
 }
-.sw-next-ring-btn:active { background: var(--teal); color: #0b2d45; transform: scale(.97); }
+.sw-next-ring-btn:active { background: var(--teal-btn); color: #0b2d45; transform: scale(.97); }
 .fc-btn {
   background: rgba(249,115,22,0.12); border: 2px solid var(--warm);
   border-radius: 16px; padding: 14px 20px;
@@ -579,7 +580,7 @@ header {
 }
 .sheet-btn:active { transform: scale(.97); }
 .sheet-btn.cancel  { background: var(--surface2); color: var(--muted); }
-.sheet-btn.confirm { background: var(--teal); color: #0b2d45; }
+.sheet-btn.confirm { background: var(--teal-btn); color: #0b2d45; }
 
 /* detail modal */
 .detail-meta { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 12px; }
@@ -590,7 +591,7 @@ header {
 /* TOAST */
 .toast {
   position: fixed; top: 56px; left: 50%; transform: translateX(-50%);
-  background: var(--teal); color: #0b2d45;
+  background: var(--teal-btn); color: #0b2d45;
   padding: 6px 16px; border-radius: 18px; font-size: 11px; font-weight: 700;
   z-index: 200; letter-spacing: .04em; opacity: 0; pointer-events: none;
   transition: opacity .2s; white-space: nowrap;
@@ -613,7 +614,7 @@ header {
 .complete-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
 .complete-btn {
   width: 100%; height: 44px; border-radius: 10px; border: none;
-  background: var(--teal); color: #0b2d45; font-size: 13px; font-weight: 700;
+  background: var(--teal-btn); color: #0b2d45; font-size: 13px; font-weight: 700;
   cursor: pointer; letter-spacing: .08em; text-transform: uppercase;
 }
 </style>
@@ -693,7 +694,7 @@ header {
     <div style="margin-top:8px;display:flex;gap:6px;align-items:center">
       <button class="btn-sub" id="btnCameraToggle" onclick="onCameraToggle()" style="flex:1;height:30px;font-size:10px;color:var(--muted)">📹 録画：OFF</button>
     </div>
-    <button onclick="onCfgStart()" style="margin-top:10px;width:100%;height:40px;border-radius:10px;border:none;background:var(--teal);color:#0b2d45;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;-webkit-tap-highlight-color:transparent">作成</button>
+    <button onclick="onCfgStart()" style="margin-top:10px;width:100%;height:40px;border-radius:10px;border:none;background:var(--teal-btn);color:#0b2d45;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;-webkit-tap-highlight-color:transparent">作成</button>
 
     </div>
   </div>
@@ -863,7 +864,7 @@ header {
       <div class="chart-wrap" style="height:90px"><canvas id="detailChart"></canvas></div>
     </div>
     <div class="detail-meta" id="detailMeta"></div>
-    <button id="detailClipBtn" onclick="openDetailClip()" style="display:none;width:100%;height:40px;border-radius:10px;border:1.5px solid var(--danger);background:rgba(239,68,68,.1);color:#ff8080;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;margin-bottom:10px;-webkit-tap-highlight-color:transparent">📹 このセットの録画を見る</button>
+    <button id="detailClipBtn" onclick="openDetailClip()" style="display:none;width:100%;height:40px;border-radius:10px;border:1.5px solid var(--danger);background:rgba(239,68,68,.1);color:#dc2626;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;margin-bottom:10px;-webkit-tap-highlight-color:transparent">📹 このセットの録画を見る</button>
     <div class="sheet-btns">
       <button class="sheet-btn cancel" onclick="closeDetail()">Close</button>
     </div>
@@ -1201,7 +1202,7 @@ function fmt(ms) {
 }
 function fmtMs(ms) { return '.' + String(Math.floor((ms%1000)/10)).padStart(2,'0'); }
 function spo2Class(v) { return v==null?'ok': v>=95?'ok': v>=90?'warn':'crit'; }
-function spo2Color(v) { return v==null?'transparent': v>=95?'#2ec4b6': v>=90?'#f97316':'#ef4444'; }
+function spo2Color(v) { return v==null?'transparent': v>=95?'#1f6f78': v>=90?'#c2410c':'#dc2626'; }
 function toast(msg, err=false) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.className = 'toast show' + (err?' err':'');
@@ -1367,7 +1368,7 @@ function showNameInput(defaultName, callback) {
 
   const saveBtn = document.createElement('button');
   saveBtn.textContent = '保存';
-  saveBtn.style.cssText = 'flex:2;height:40px;border-radius:10px;border:none;background:var(--teal);color:#0b2d45;font-size:13px;font-weight:700;cursor:pointer';
+  saveBtn.style.cssText = 'flex:2;height:40px;border-radius:10px;border:none;background:var(--teal-btn);color:#0b2d45;font-size:13px;font-weight:700;cursor:pointer';
   saveBtn.onclick = function() {
     overlay.style.display = 'none';
     callback(input.value.trim());
@@ -2384,7 +2385,7 @@ function startSurface() {
   showPhaseRingLabel('SP', 'surface');
   setHoldRing(0);
   setRestRing(0);
-  ringRest.style.stroke = '#eab308';
+  ringRest.style.stroke = '#a16207';
   ringHold.style.stroke = 'transparent';
   showPhase('surface', 'Surface Protocol');
   document.getElementById('btnPause').style.display = '';
@@ -2685,14 +2686,14 @@ function renderUnifiedList() {
     } else if (phase === 'surface') {
       const el = document.createElement('div');
       el.className = 'set-row current';
-      el.style.cssText = 'flex-direction:column;align-items:stretch;gap:3px;padding:5px 10px;border-color:#eab308;background:rgba(234,179,8,.04)';
+      el.style.cssText = 'flex-direction:column;align-items:stretch;gap:3px;padding:5px 10px;border-color:#a16207;background:rgba(161,98,7,.04)';
       el.innerHTML = `
-        <div style="display:flex;align-items:center;gap:6px;background:rgba(234,179,8,.08);border-radius:6px;padding:3px 6px;margin:0 -2px">
+        <div style="display:flex;align-items:center;gap:6px;background:rgba(161,98,7,.08);border-radius:6px;padding:3px 6px;margin:0 -2px">
           <span class="set-n">#${holdRank}</span>
-          <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#eab308;min-width:22px;flex-shrink:0">SP</span>
+          <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#a16207;min-width:22px;flex-shrink:0">SP</span>
           <span style="flex:1"></span>
-          <span style="font-size:8px;font-weight:800;letter-spacing:.1em;color:#eab308;opacity:.7;white-space:nowrap;margin-right:6px">YOU ARE HERE</span>
-          <span id="liveSurfaceTime" style="font-size:14px;font-variant-numeric:tabular-nums;color:#eab308;font-weight:400">0s</span>
+          <span style="font-size:8px;font-weight:800;letter-spacing:.1em;color:#a16207;opacity:.7;white-space:nowrap;margin-right:6px">YOU ARE HERE</span>
+          <span id="liveSurfaceTime" style="font-size:14px;font-variant-numeric:tabular-nums;color:#a16207;font-weight:400">0s</span>
         </div>`;
       list.appendChild(el);
     }
@@ -2714,9 +2715,9 @@ function renderUnifiedList() {
     prepEl.innerHTML = `
       <div style="display:flex;align-items:center;gap:6px">
         <span class="set-n"></span>
-        <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#eab308;min-width:22px;flex-shrink:0">Breath Up</span>
+        <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#a16207;min-width:22px;flex-shrink:0">Breath Up</span>
         <span style="flex:1"></span>
-        <span style="font-size:13px;font-variant-numeric:tabular-nums;font-weight:400;color:#eab308">${fmt(cfg.prepSec*1000)}</span>
+        <span style="font-size:13px;font-variant-numeric:tabular-nums;font-weight:400;color:#a16207">${fmt(cfg.prepSec*1000)}</span>
       </div>`;
     list.appendChild(prepEl);
   }
@@ -2806,14 +2807,14 @@ function renderUnifiedList() {
       }
 
       el.className = 'set-row current';
-      const curBorder = isHolding ? 'var(--danger)' : isPrepare ? '#eab308' : 'var(--teal)';
-      const curBg     = isHolding ? 'rgba(239,68,68,.04)' : isPrepare ? 'rgba(234,179,8,.04)' : 'rgba(46,196,182,.04)';
+      const curBorder = isHolding ? 'var(--danger)' : isPrepare ? '#a16207' : 'var(--teal)';
+      const curBg     = isHolding ? 'rgba(239,68,68,.04)' : isPrepare ? 'rgba(161,98,7,.04)' : 'rgba(46,196,182,.04)';
       el.style.cssText = `flex-direction:column;align-items:stretch;gap:3px;padding:5px 10px;border-color:${curBorder};background:${curBg}`;
 
       const holdLbl   = isPrepare ? 'Breath Up' : 'Hold';
-      const holdColor = isHolding ? 'var(--danger)' : isPrepare ? '#eab308' : 'var(--teal-light)';
+      const holdColor = isHolding ? 'var(--danger)' : isPrepare ? '#a16207' : 'var(--teal-light)';
       const holdBg    = isHolding ? 'background:rgba(239,68,68,.12);border-radius:6px;padding:3px 6px;margin:0 -2px'
-                      : isPrepare ? 'background:rgba(234,179,8,.08);border-radius:6px;padding:3px 6px;margin:0 -2px' : '';
+                      : isPrepare ? 'background:rgba(161,98,7,.08);border-radius:6px;padding:3px 6px;margin:0 -2px' : '';
 
       const holdTimeHtml = `<span id="liveHoldTime" style="font-size:14px;font-variant-numeric:tabular-nums;color:${holdColor};font-weight:400">${isHolding ? '00:00' : '—'}</span>`;
 
@@ -2821,7 +2822,7 @@ function renderUnifiedList() {
       const holdTimeDot = isHolding
         ? `<span style="font-size:8px;font-weight:800;letter-spacing:.1em;color:var(--danger);opacity:.7;white-space:nowrap;margin-right:6px">YOU ARE HERE</span>`
         : isPrepare
-        ? `<span style="font-size:8px;font-weight:800;letter-spacing:.1em;color:#eab308;opacity:.7;white-space:nowrap;margin-right:6px">YOU ARE HERE</span>`
+        ? `<span style="font-size:8px;font-weight:800;letter-spacing:.1em;color:#a16207;opacity:.7;white-space:nowrap;margin-right:6px">YOU ARE HERE</span>`
         : '';
 
       el.innerHTML = `
@@ -3278,7 +3279,7 @@ function drawSparkline(canvasId, pts, minY=70, maxY=100, h=null) {
   grad.addColorStop(0, lastColor.replace(')', ',0.25)').replace('rgb(','rgba(').replace('#2ec4b6','rgba(46,196,182').replace('#f97316','rgba(249,115,22').replace('#ef4444','rgba(239,68,68'));
   // simpler approach:
   const fillAlpha = '28';
-  const fillColor = lastColor === '#2ec4b6' ? 'rgba(46,196,182,0.15)' : lastColor === '#f97316' ? 'rgba(249,115,22,0.15)' : 'rgba(239,68,68,0.15)';
+  const fillColor = lastColor === '#1f6f78' ? 'rgba(31,111,120,0.15)' : lastColor === '#c2410c' ? 'rgba(194,65,12,0.15)' : 'rgba(239,68,68,0.15)';
   ctx.beginPath();
   ctx.moveTo(toX(0), H);
   pts.forEach((p,i) => ctx.lineTo(toX(i), toY(p.v)));
@@ -3299,7 +3300,7 @@ function drawSparkline(canvasId, pts, minY=70, maxY=100, h=null) {
   ctx.stroke();
 
   // y-axis labels
-  ctx.fillStyle = '#5a8ca8';
+  ctx.fillStyle = '#8b8b90';
   ctx.font = '8px -apple-system, sans-serif';
   [80, 90, 100].forEach(v => {
     if (v >= lo && v <= hi) {
@@ -3334,7 +3335,7 @@ function drawTimeChart(canvasId, pts, minY=70, maxY=100, h=null) {
   const toY = v => cH - ((v - lo) / (hi - lo)) * (cH - 6) - 2;
 
   const lastColor = spo2Color(vals[vals.length-1]);
-  const fillColor = lastColor === '#2ec4b6' ? 'rgba(46,196,182,0.15)' : lastColor === '#f97316' ? 'rgba(249,115,22,0.18)' : 'rgba(239,68,68,0.18)';
+  const fillColor = lastColor === '#1f6f78' ? 'rgba(31,111,120,0.15)' : lastColor === '#c2410c' ? 'rgba(194,65,12,0.18)' : 'rgba(239,68,68,0.18)';
 
   // fill area
   ctx.beginPath();
@@ -3357,12 +3358,12 @@ function drawTimeChart(canvasId, pts, minY=70, maxY=100, h=null) {
   ctx.stroke();
 
   // x-axis baseline
-  ctx.strokeStyle = '#1a3f5c';
+  ctx.strokeStyle = '#d8d8dc';
   ctx.lineWidth = 0.5;
   ctx.beginPath(); ctx.moveTo(PAD_L, cH); ctx.lineTo(W, cH); ctx.stroke();
 
   // y-axis labels (SpO2%)
-  ctx.fillStyle = '#5a8ca8';
+  ctx.fillStyle = '#8b8b90';
   ctx.font = `${window.devicePixelRatio>1?7:8}px -apple-system,sans-serif`;
   ctx.textAlign = 'right';
   [80, 90, 100].forEach(v => {
@@ -3378,9 +3379,9 @@ function drawTimeChart(canvasId, pts, minY=70, maxY=100, h=null) {
     if (x < PAD_L + 4 || x > W - 4) continue;
     const m = Math.floor(t/60), s = t%60;
     const lbl = m > 0 ? (s===0 ? m+':00' : m+':'+String(s).padStart(2,'0')) : s+'s';
-    ctx.fillStyle = '#5a8ca8';
+    ctx.fillStyle = '#8b8b90';
     ctx.fillText(lbl, x, H - 2);
-    ctx.strokeStyle = '#1a3f5c';
+    ctx.strokeStyle = '#d8d8dc';
     ctx.lineWidth = 0.5;
     ctx.beginPath(); ctx.moveTo(x, cH); ctx.lineTo(x, cH+3); ctx.stroke();
   }
@@ -3462,7 +3463,7 @@ function openSave() {
     const clipLabel = mode === 'free' ? `Dive #${i+1}` : `Set #${i+1}`;
     const clipIdx = cameraClips.findIndex(c => c.label === clipLabel);
     const clipBtn = clipIdx >= 0
-      ? `<button onclick="showClipInReview(${clipIdx})" style="height:26px;width:26px;border-radius:6px;border:1px solid var(--danger);background:rgba(239,68,68,.1);color:#ff8080;font-size:12px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">📹</button>`
+      ? `<button onclick="showClipInReview(${clipIdx})" style="height:26px;width:26px;border-radius:6px;border:1px solid var(--danger);background:rgba(239,68,68,.1);color:#dc2626;font-size:12px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">📹</button>`
       : '';
     const row = document.createElement('div');
     row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--surface2);border-radius:8px;flex-wrap:wrap';

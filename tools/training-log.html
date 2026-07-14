@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Training Log — Freediving Japan</title>
 <link rel="manifest" href="../manifest.json">
-<meta name="theme-color" content="#04161f">
+<meta name="theme-color" content="#ffffff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="FJ Timer">
@@ -16,20 +16,20 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <style>
 :root {
-  --bg: #04161f;
-  --surface: #0c2738;
-  --surface2: #123146;
-  --surface3: #18415c;
-  --border: rgba(168,236,232,0.14);
-  --accent: #2ec4b6;
-  --accent2: #a8ece8;
-  --accent-dim: rgba(46,196,182,0.12);
-  --text: rgba(255,255,255,0.92);
-  --muted: rgba(255,255,255,0.40);
-  --sub: rgba(255,255,255,0.62);
-  --success: #22c55e;
-  --warn: #f59e0b;
-  --danger: #ef4444;
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface2: #f5f5f7;
+  --surface3: #ececee;
+  --border: #e7e7ea;
+  --accent: #1f6f78;
+  --accent2: #0d7d72;
+  --accent-dim: rgba(31,111,120,0.10);
+  --text: #222226;
+  --muted: #8b8b90;
+  --sub: #5b5b60;
+  --success: #16a34a;
+  --warn: #b45309;
+  --danger: #dc2626;
   --r: 12px;
   --rs: 8px;
 }
@@ -37,8 +37,7 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
-  background: linear-gradient(180deg,#0e3d5c 0%,#0b2d45 22%,#06283a 55%,#04161f 100%);
-  background-attachment: fixed;
+  background: #ffffff;
   color: var(--text);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
@@ -49,7 +48,7 @@ body {
 .site-header {
   position: sticky;
   top: 0; z-index: 100;
-  background: rgba(6,32,46,0.60);
+  background: rgba(255,255,255,0.94);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--border);
@@ -163,7 +162,7 @@ textarea.fi { resize: vertical; min-height: 72px; }
 .chip:hover { border-color: var(--accent); color: var(--accent2); }
 .chip.sel { background: var(--accent); border-color: var(--accent); color: #fff; }
 .chip.sub { font-size: 11px; padding: 3px 10px; opacity: .85; }
-.chip.sub.sel { background: var(--accent2); border-color: var(--accent2); color: #0f172a; }
+.chip.sub.sel { background: var(--accent2); border-color: var(--accent2); color: #fff; }
 
 /* Dive rows */
 .dive-row { background: var(--surface2); border-radius: 10px; padding: 12px; margin-bottom: 10px; }
@@ -284,18 +283,18 @@ textarea.fi { resize: vertical; min-height: 72px; }
 table { width: 100%; border-collapse: collapse; }
 th { padding: 9px 12px; text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); background: var(--surface2); cursor: pointer; white-space: nowrap; }
 th:hover { color: var(--accent2); }
-td { padding: 9px 12px; font-size: 13px; border-bottom: 1px solid rgba(30,58,95,.4); white-space: nowrap; vertical-align: middle; }
+td { padding: 9px 12px; font-size: 13px; border-bottom: 1px solid var(--border); white-space: nowrap; vertical-align: middle; }
 tr:last-child td { border-bottom: none; }
 .trow:hover td { background: var(--accent-dim); cursor: pointer; }
 .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-.b-cwt,.b-cwtb,.b-fim { background: rgba(14,165,233,.18); color: var(--accent2); }
-.b-cnf { background: rgba(34,197,94,.18); color: #4ade80; }
-.b-sta { background: rgba(245,158,11,.18); color: #fbbf24; }
-.b-dyn,.b-dnf { background: rgba(239,68,68,.18); color: #f87171; }
-.b-sea { background: rgba(14,165,233,.2); color: #7dd3fc; }
-.b-pool { background: rgba(30,58,95,.5); color: var(--sub); }
-.b-dry { background: rgba(34,197,94,.15); color: #86efac; }
-.b-rvsta,.b-frcsta,.b-walk,.b-str,.b-gym,.b-cardio,.b-eq { background: rgba(34,197,94,.15); color: #86efac; }
+.b-cwt,.b-cwtb,.b-fim { background: rgba(3,105,161,.14); color: #0369a1; }
+.b-cnf { background: rgba(22,163,74,.14); color: #16a34a; }
+.b-sta { background: rgba(180,83,9,.14); color: #b45309; }
+.b-dyn,.b-dnf { background: rgba(220,38,38,.14); color: #dc2626; }
+.b-sea { background: rgba(3,105,161,.16); color: #0369a1; }
+.b-pool { background: rgba(30,58,95,.10); color: var(--sub); }
+.b-dry { background: rgba(22,163,74,.12); color: #16a34a; }
+.b-rvsta,.b-frcsta,.b-walk,.b-str,.b-gym,.b-cardio,.b-eq { background: rgba(22,163,74,.12); color: #16a34a; }
 
 /* ===== CALENDAR ===== */
 .cal-nav { display:flex; align-items:center; justify-content:space-between; padding:12px 18px; border-bottom:1px solid var(--border); }
@@ -1633,7 +1632,7 @@ function renderIvTable() {
       ? `<td style="padding:3px 3px"><input type="text" inputmode="numeric" class="fi iv-spo2" value="${spo2}" maxlength="3" placeholder="—" oninput="this.value=this.value.replace(/[^\\d]/g,'').slice(0,3)" style="padding:5px 2px;font-size:12px;width:100%;text-align:center"></td>`
       : '';
 
-    return `<tr data-row="${i}" style="border-bottom:1px solid rgba(30,54,95,.4)">
+    return `<tr data-row="${i}" style="border-bottom:1px solid rgba(20,20,30,.08)">
       <td style="padding:4px 2px;font-size:10px;font-weight:700;color:var(--accent2);white-space:nowrap;text-align:center">${i+1}</td>
       ${discCell}
       ${holdCell}
@@ -2163,9 +2162,9 @@ function renderDiveLog() {
       ${d.lapTimes?.length ? `<span style="font-size:10px;color:var(--muted)">📊${d.lapTimes.length}lap</span>` : ''}
       ${d.source==='interval' ? `<span style="font-size:10px;color:var(--sub)">🔁IV</span>` : ''}
       ${d.fc ? `<span style="font-size:10px;color:var(--sub)">FC ${d.fc}</span>` : ''}
-      ${d.minSpo2!=null ? `<span style="font-size:10px;padding:1px 5px;border-radius:4px;background:rgba(59,130,246,.18);color:#60a5fa">SpO₂ ${d.minSpo2}%</span>` : ''}
-      ${d.hypoxia ? `<span style="font-size:10px;padding:1px 5px;border-radius:4px;background:rgba(239,68,68,.2);color:#f87171">酸欠${d.hypoxia}</span>` : ''}
-      ${d.squeeze ? `<span style="font-size:10px;padding:1px 5px;border-radius:4px;background:rgba(245,158,11,.2);color:#fbbf24">SQ${d.squeeze}</span>` : ''}
+      ${d.minSpo2!=null ? `<span style="font-size:10px;padding:1px 5px;border-radius:4px;background:rgba(37,99,235,.12);color:#2563eb">SpO₂ ${d.minSpo2}%</span>` : ''}
+      ${d.hypoxia ? `<span style="font-size:10px;padding:1px 5px;border-radius:4px;background:rgba(220,38,38,.14);color:#dc2626">酸欠${d.hypoxia}</span>` : ''}
+      ${d.squeeze ? `<span style="font-size:10px;padding:1px 5px;border-radius:4px;background:rgba(180,83,9,.14);color:#b45309">SQ${d.squeeze}</span>` : ''}
       <button class="dive-log-del" style="color:var(--accent2);font-size:12px" onclick="editDive(${d.id})">編集</button>
       <button class="dive-log-del" onclick="removeDive(${d.id})">✕</button>
     </div>
@@ -2844,7 +2843,7 @@ let selectedDiveIdxs = new Set(); // for comparison
 let compareChart = null;
 let compareView = 'time';
 
-const COMPARE_COLORS = ['#ffffff','#ef4444','#f59e0b','#22c55e','#a78bfa','#fb923c'];
+const COMPARE_COLORS = ['#222226','#dc2626','#b45309','#16a34a','#7c3aed','#c2410c'];
 
 function previewDive(idx, evt) {
   // ⌘/Ctrl click → toggle compare selection
@@ -2943,9 +2942,9 @@ function renderCompareChart() {
     compareChart = new Chart(ctx, {
       type:'bar',
       data:{ labels:allBands, datasets },
-      options:{ indexAxis:'y', responsive:true, plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:10},boxWidth:10}}}, scales:{
-        x:{ticks:{color:'#64748b',font:{size:9},callback:v=>`${Math.abs(v)}m/s`},grid:{color:'rgba(30,58,95,.4)'}},
-        y:{ticks:{color:'#94a3b8',font:{size:9}},grid:{color:'rgba(30,58,95,.4)'}}
+      options:{ indexAxis:'y', responsive:true, plugins:{legend:{position:'bottom',labels:{color:'#5b5b60',font:{size:10},boxWidth:10}}}, scales:{
+        x:{ticks:{color:'#8b8b90',font:{size:9},callback:v=>`${Math.abs(v)}m/s`},grid:{color:'rgba(20,20,30,.08)'}},
+        y:{ticks:{color:'#5b5b60',font:{size:9}},grid:{color:'rgba(20,20,30,.08)'}}
       }}
     });
     document.getElementById('cmp-speed-table').innerHTML = '';
@@ -3014,7 +3013,7 @@ function renderCompareChart() {
             <th style="text-align:left;color:var(--muted);padding:4px 8px">深度帯</th>
             ${dives.map((d,di)=>`<th style="color:${COMPARE_COLORS[di]};padding:4px 8px">Dive ${idxs[di]+1} 降下</th><th style="color:${COMPARE_COLORS[di]};padding:4px 8px">Dive ${idxs[di]+1} 浮上</th>`).join('')}
           </tr></thead>
-          <tbody>${allZones.map(z=>`<tr style="border-top:1px solid rgba(30,58,95,.4)">
+          <tbody>${allZones.map(z=>`<tr style="border-top:1px solid rgba(20,20,30,.08)">
             <td style="color:var(--sub);padding:4px 8px">${z}</td>
             ${dives.map(d=>{ const b=(d.speed||[]).find(x=>x.zone===z); return `<td style="padding:4px 8px;font-weight:600">${b?.descMs?b.descMs+'m/s':'—'}</td><td style="padding:4px 8px;font-weight:600">${b?.ascMs?b.ascMs+'m/s':'—'}</td>`; }).join('')}
           </tr>`).join('')}</tbody>
@@ -3252,15 +3251,15 @@ function speedDepthCfg(speed) {
       indexAxis: 'y',
       responsive: true,
       plugins: {
-        legend:{ position:'bottom', labels:{ color:'#94a3b8', font:{size:10}, boxWidth:10 } },
+        legend:{ position:'bottom', labels:{ color:'#5b5b60', font:{size:10}, boxWidth:10 } },
         datalabels: { display: false }
       },
       scales: {
         x: {
-          ticks: { color:'#64748b', font:{size:9}, callback: v=>`${Math.abs(v)} m/s` },
-          grid: { color:'rgba(30,58,95,.4)' }
+          ticks: { color:'#8b8b90', font:{size:9}, callback: v=>`${Math.abs(v)} m/s` },
+          grid: { color:'rgba(20,20,30,.08)' }
         },
-        y: { ticks:{ color:'#94a3b8', font:{size:9} }, grid:{ color:'rgba(30,58,95,.4)' } }
+        y: { ticks:{ color:'#5b5b60', font:{size:9} }, grid: { color:'rgba(20,20,30,.08)' } }
       }
     },
     plugins: [barLabelPlugin]
@@ -3413,7 +3412,7 @@ function renderList() {
       <td>${scaleBadge(mN,['','違和感','明確'],['','var(--warn)','var(--danger)'])}</td>
       <td style="color:var(--sub);font-size:12px">${s.rhr?s.rhr+'bpm':'—'}</td>
       <td onclick="event.stopPropagation()" style="white-space:nowrap;display:flex;gap:6px;align-items:center;padding:10px 13px">
-        <button class="btn btn-sm" style="font-size:11px;padding:4px 10px;color:#a78bfa;border:1px solid rgba(167,139,250,.3);background:transparent;border-radius:6px;cursor:pointer" onclick="openShareCard('${s.id}')">📸 シェア</button>
+        <button class="btn btn-sm" style="font-size:11px;padding:4px 10px;color:#7c3aed;border:1px solid rgba(124,58,237,.3);background:transparent;border-radius:6px;cursor:pointer" onclick="openShareCard('${s.id}')">📸 シェア</button>
         <button class="btn btn-sm" style="font-size:11px;padding:4px 8px;color:var(--danger);border:1px solid rgba(239,68,68,.3);background:transparent;border-radius:6px;cursor:pointer" onclick="delSess('${s.id}')">削除</button>
       </td>
     </tr>`;
@@ -3588,9 +3587,9 @@ function renderDash() {
   const sorted=[...sessions].filter(s=>s.bestDepth).sort((a,b)=>a.date>b.date?1:-1);
   if(chD){chD.destroy();chD=null;}
   if(chT){chT.destroy();chT=null;}
-  chD=new Chart(document.getElementById('ch-depth').getContext('2d'),{type:'line',data:{labels:sorted.map(s=>s.date.slice(5)),datasets:[{data:sorted.map(s=>s.bestDepth),borderColor:'#2ec4b6',backgroundColor:'rgba(14,165,233,.1)',fill:true,tension:.3,pointRadius:4}]},options:lopts('m')});
+  chD=new Chart(document.getElementById('ch-depth').getContext('2d'),{type:'line',data:{labels:sorted.map(s=>s.date.slice(5)),datasets:[{data:sorted.map(s=>s.bestDepth),borderColor:'#1f6f78',backgroundColor:'rgba(31,111,120,.10)',fill:true,tension:.3,pointRadius:4}]},options:lopts('m')});
   const sortedT=[...sessions].filter(s=>s.bestTime).sort((a,b)=>a.date>b.date?1:-1);
-  chT=new Chart(document.getElementById('ch-time').getContext('2d'),{type:'line',data:{labels:sortedT.map(s=>s.date.slice(5)),datasets:[{data:sortedT.map(s=>t2s(s.bestTime)),borderColor:'#22c55e',backgroundColor:'rgba(34,197,94,.1)',fill:true,tension:.3,pointRadius:4}]},options:lopts('秒')});
+  chT=new Chart(document.getElementById('ch-time').getContext('2d'),{type:'line',data:{labels:sortedT.map(s=>s.date.slice(5)),datasets:[{data:sortedT.map(s=>t2s(s.bestTime)),borderColor:'#16a34a',backgroundColor:'rgba(22,163,74,.10)',fill:true,tension:.3,pointRadius:4}]},options:lopts('秒')});
   const discs=[...new Set(sessions.map(s=>s.discipline).filter(Boolean))];
   document.getElementById('pb-body').innerHTML=discs.length?`<table><thead><tr><th>種目</th><th>深度PB</th><th>タイムPB</th></tr></thead><tbody>${discs.map(d=>{
     const ds=sessions.filter(s=>s.discipline===d);
@@ -3599,7 +3598,7 @@ function renderDash() {
     return `<tr><td><span class="badge b-${d.toLowerCase()}">${d}</span></td><td style="font-weight:700;color:var(--accent2)">${dp?dp+'m':'—'}</td><td>${tp?.bestTime||'—'}</td></tr>`;
   }).join('')}</tbody></table>`:'<div style="color:var(--muted);padding:16px">データなし</div>';
 }
-function lopts(u){return{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#64748b',font:{size:11}},grid:{color:'rgba(30,58,95,.4)'}},y:{ticks:{color:'#64748b',font:{size:11},callback:v=>`${v}${u}`},grid:{color:'rgba(30,58,95,.4)'}}}};}
+function lopts(u){return{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#8b8b90',font:{size:11}},grid:{color:'rgba(20,20,30,.08)'}},y:{ticks:{color:'#8b8b90',font:{size:11},callback:v=>`${v}${u}`},grid:{color:'rgba(20,20,30,.08)'}}}};}
 
 // ===== TOAST =====
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}

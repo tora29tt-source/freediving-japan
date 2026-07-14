@@ -8,119 +8,119 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       min-height: 100vh;
-      background: linear-gradient(180deg, #0b2d45 0%, #040f1a 100%);
+      background: #ffffff;
       font-family: 'Hiragino Sans', 'Noto Sans JP', sans-serif;
-      color: #e8f4f8;
+      color: #222226;
       padding: 0 0 80px;
     }
     .container { max-width: 480px; margin: 0 auto; padding: 0 14px; }
     .header { text-align: center; padding: 24px 0 14px; }
-    .header-sub { font-size: 10px; letter-spacing: 0.3em; color: #2ec4b6; opacity: 0.7; margin-bottom: 5px; }
-    .header h1 { font-size: 21px; font-weight: 900; background: linear-gradient(135deg, #fff, #a8ece8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .header-sub { font-size: 10px; letter-spacing: 0.3em; color: #1f6f78; opacity: 0.7; margin-bottom: 5px; }
+    .header h1 { font-size: 21px; font-weight: 900; background: linear-gradient(135deg, #222226, #1f6f78); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     .mode-btns { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
-    .mode-btn { padding: 6px 18px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: 700; border: 1px solid rgba(46,196,182,0.3); background: rgba(46,196,182,0.1); color: #2ec4b6; }
-    .mode-btn.active { background: #2ec4b6; color: #0b2d45; border-color: #2ec4b6; }
+    .mode-btn { padding: 6px 18px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: 700; border: 1px solid rgba(46,196,182,0.3); background: rgba(46,196,182,0.1); color: #1f6f78; }
+    .mode-btn.active { background: #1f6f78; color: #fff; border-color: #1f6f78; }
 
-    .card { background: rgba(14,61,92,0.5); border: 1px solid rgba(46,196,182,0.2); border-radius: 18px; padding: 18px 16px; margin-bottom: 12px; }
-    label { font-size: 11px; color: #a8ece8; letter-spacing: 0.1em; display: block; margin-bottom: 6px; }
-    select { background: rgba(11,45,69,0.9); border: 1px solid rgba(46,196,182,0.4); border-radius: 7px; padding: 5px 8px; color: #2ec4b6; font-size: 14px; font-weight: 700; outline: none; cursor: pointer; }
+    .card { background: #ffffff; border: 1px solid #e7e7ea; box-shadow: 0 4px 16px rgba(20,20,30,0.06); border-radius: 18px; padding: 18px 16px; margin-bottom: 12px; }
+    label { font-size: 11px; color: #5b5b60; letter-spacing: 0.1em; display: block; margin-bottom: 6px; }
+    select { background: #f7f7f8; border: 1px solid rgba(46,196,182,0.4); border-radius: 7px; padding: 5px 8px; color: #1f6f78; font-size: 14px; font-weight: 700; outline: none; cursor: pointer; }
     .factor-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-    .factor-display { font-size: 18px; font-weight: 900; color: #2ec4b6; }
-    .factor-sub { font-size: 9px; color: rgba(168,236,232,0.45); }
+    .factor-display { font-size: 18px; font-weight: 900; color: #1f6f78; }
+    .factor-sub { font-size: 9px; color: rgba(20,20,30,0.45); }
     .reach-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; margin-bottom: 14px; }
     .reach-tag { background: rgba(46,196,182,0.06); border: 1px solid rgba(46,196,182,0.15); border-radius: 6px; padding: 3px 7px; font-size: 9px; }
-    .reach-tag span { font-size: 11px; font-weight: 700; color: #2ec4b6; }
+    .reach-tag span { font-size: 11px; font-weight: 700; color: #1f6f78; }
     .divider { border-top: 1px solid rgba(46,196,182,0.1); margin: 4px 0 14px; }
 
     /* Phase bar */
-    .phase-box { background: rgba(11,45,69,0.6); border-radius: 12px; padding: 14px 16px; }
-    .phase-box-title { font-size: 10px; color: rgba(168,236,232,0.5); margin-bottom: 12px; letter-spacing: 0.08em; }
+    .phase-box { background: #f7f7f8; border-radius: 12px; padding: 14px 16px; }
+    .phase-box-title { font-size: 10px; color: rgba(20,20,30,0.5); margin-bottom: 12px; letter-spacing: 0.08em; }
     .phase-inner { display: flex; gap: 12px; align-items: flex-start; }
     .bar-wrap { flex-shrink: 0; display: flex; gap: 6px; }
     .depth-labels { display: flex; flex-direction: column; justify-content: space-between; height: 160px; }
-    .depth-label { font-size: 8px; color: rgba(255,255,255,0.3); line-height: 1; }
-    .depth-label.active { color: #fff; font-weight: 700; }
+    .depth-label { font-size: 8px; color: rgba(20,20,30,0.3); line-height: 1; }
+    .depth-label.active { color: #222226; font-weight: 700; }
     .color-bar { width: 24px; height: 160px; border-radius: 6px; overflow: hidden; display: flex; flex-direction: column; }
-    .bar-jaw { background: rgba(46,196,182,0.85); }
-    .bar-cheek { background: rgba(255,255,255,0.3); }
-    .bar-tongue { background: rgba(168,236,232,0.12); }
+    .bar-jaw { background: #1f6f78; }
+    .bar-cheek { background: #e8b23d; }
+    .bar-tongue { background: #d4d4d8; }
     .phase-controls { flex: 1; display: flex; flex-direction: column; gap: 12px; }
     .phase-row { display: flex; align-items: center; justify-content: space-between; }
     .phase-name { font-size: 12px; font-weight: 700; }
-    .phase-thresh { font-size: 9px; color: rgba(255,255,255,0.3); }
-    .phase-select-row { display: flex; align-items: center; gap: 6px; font-size: 10px; color: rgba(255,255,255,0.4); }
+    .phase-thresh { font-size: 9px; color: rgba(20,20,30,0.3); }
+    .phase-select-row { display: flex; align-items: center; gap: 6px; font-size: 10px; color: rgba(20,20,30,0.4); }
 
     /* Charge */
     .charge-item { background: rgba(46,196,182,0.06); border: 1px solid rgba(46,196,182,0.2); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .charge-label { font-size: 10px; font-weight: 700; color: #2ec4b6; min-width: 48px; }
-    .charge-field { display: flex; align-items: center; gap: 5px; font-size: 10px; color: rgba(255,255,255,0.4); }
+    .charge-label { font-size: 10px; font-weight: 700; color: #1f6f78; min-width: 48px; }
+    .charge-field { display: flex; align-items: center; gap: 5px; font-size: 10px; color: rgba(20,20,30,0.4); }
     .btn-row { display: flex; gap: 8px; margin-top: 8px; margin-bottom: 14px; }
-    .btn-add { flex: 1; background: rgba(46,196,182,0.08); border: 1px solid rgba(46,196,182,0.25); border-radius: 10px; padding: 9px; color: #2ec4b6; font-size: 12px; font-weight: 700; cursor: pointer; }
-    .btn-topup { flex: 1; background: rgba(46,196,182,0.05); border: 1px solid rgba(46,196,182,0.15); border-radius: 10px; padding: 9px; color: rgba(168,236,232,0.6); font-size: 12px; font-weight: 700; cursor: pointer; }
-    .btn-remove { margin-left: auto; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 3px 8px; color: rgba(255,255,255,0.4); font-size: 11px; cursor: pointer; }
+    .btn-add { flex: 1; background: rgba(46,196,182,0.08); border: 1px solid rgba(46,196,182,0.25); border-radius: 10px; padding: 9px; color: #1f6f78; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .btn-topup { flex: 1; background: rgba(46,196,182,0.05); border: 1px solid rgba(46,196,182,0.15); border-radius: 10px; padding: 9px; color: rgba(20,20,30,0.6); font-size: 12px; font-weight: 700; cursor: pointer; }
+    .btn-remove { margin-left: auto; background: rgba(20,20,30,0.05); border: 1px solid rgba(20,20,30,0.1); border-radius: 6px; padding: 3px 8px; color: rgba(20,20,30,0.4); font-size: 11px; cursor: pointer; }
     .reach-banner { padding: 12px 14px; border-radius: 12px; background: rgba(46,196,182,0.06); border: 1px solid rgba(46,196,182,0.2); display: flex; justify-content: space-between; align-items: center; }
-    .reach-banner-label { font-size: 11px; color: rgba(168,236,232,0.6); line-height: 1.5; }
-    .reach-banner-depth { font-size: 28px; font-weight: 900; color: #fff; line-height: 1; }
-    .reach-banner-sub { font-size: 9px; color: rgba(168,236,232,0.4); margin-top: 2px; }
+    .reach-banner-label { font-size: 11px; color: rgba(20,20,30,0.6); line-height: 1.5; }
+    .reach-banner-depth { font-size: 28px; font-weight: 900; color: #222226; line-height: 1; }
+    .reach-banner-sub { font-size: 9px; color: rgba(20,20,30,0.4); margin-top: 2px; }
 
     /* Table */
-    .table-wrap { background: rgba(14,61,92,0.4); border: 1px solid rgba(46,196,182,0.15); border-radius: 18px; overflow: hidden; margin-bottom: 12px; }
+    .table-wrap { background: #ffffff; border: 1px solid #e7e7ea; box-shadow: 0 4px 16px rgba(20,20,30,0.06); border-radius: 18px; overflow: hidden; margin-bottom: 12px; }
     .table-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 14px 14px 14px; border-bottom: 1px solid rgba(46,196,182,0.08); }
-    .table-input-row { display: flex; align-items: center; gap: 8px; font-size: 11px; color: rgba(168,236,232,0.55); }
+    .table-input-row { display: flex; align-items: center; gap: 8px; font-size: 11px; color: rgba(20,20,30,0.55); }
     .ref-header { padding: 10px 10px 0; }
     .ref-header-row { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-bottom: 8px; }
-    .ref-label { font-size: 9px; color: rgba(168,236,232,0.4); }
-    .info-btn { width: 16px; height: 16px; border-radius: 50%; background: rgba(46,196,182,0.15); border: 1px solid rgba(46,196,182,0.3); color: rgba(168,236,232,0.7); font-size: 10px; font-weight: 900; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
-    .info-popup { display: none; margin-bottom: 8px; padding: 12px 14px; border-radius: 10px; background: rgba(11,45,69,0.9); border: 1px solid rgba(46,196,182,0.2); font-size: 10px; color: rgba(168,236,232,0.7); line-height: 1.9; }
+    .ref-label { font-size: 9px; color: rgba(20,20,30,0.4); }
+    .info-btn { width: 16px; height: 16px; border-radius: 50%; background: rgba(46,196,182,0.15); border: 1px solid rgba(46,196,182,0.3); color: rgba(20,20,30,0.7); font-size: 10px; font-weight: 900; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+    .info-popup { display: none; margin-bottom: 8px; padding: 12px 14px; border-radius: 10px; background: #f7f7f8; border: 1px solid rgba(46,196,182,0.2); font-size: 10px; color: rgba(20,20,30,0.7); line-height: 1.9; }
     .info-popup.show { display: block; }
     .info-example { background: rgba(46,196,182,0.08); border-radius: 8px; padding: 8px 10px; margin-top: 8px; font-family: monospace; font-size: 9px; line-height: 2; }
-    .table-header { display: grid; grid-template-columns: 40px 1fr 1fr 1fr; padding: 6px 10px 8px; border-bottom: 1px solid rgba(46,196,182,0.15); font-size: 8px; color: rgba(168,236,232,0.4); gap: 3px; }
+    .table-header { display: grid; grid-template-columns: 40px 1fr 1fr 1fr; padding: 6px 10px 8px; border-bottom: 1px solid rgba(46,196,182,0.15); font-size: 8px; color: rgba(20,20,30,0.4); gap: 3px; }
     .table-header span:nth-child(2), .table-header span:nth-child(3), .table-header span:nth-child(4) { text-align: center; }
-    .table-header span:nth-child(4) { color: rgba(168,236,232,0.35); }
+    .table-header span:nth-child(4) { color: rgba(20,20,30,0.35); }
     #table-body .row { display: grid; grid-template-columns: 40px 1fr 1fr 1fr; gap: 3px; padding: 6px 10px; border-bottom: 1px solid rgba(46,196,182,0.05); }
     .row.charge-row { background: rgba(46,196,182,0.08); }
     .row.before-row { background: rgba(46,196,182,0.03); }
-    .depth-cell .d { font-size: 12px; font-weight: 700; color: #2ec4b6; }
-    .depth-cell .bar-info { font-size: 7px; color: rgba(255,255,255,0.22); }
-    .depth-cell .tag { font-size: 7px; color: #2ec4b6; }
+    .depth-cell .d { font-size: 12px; font-weight: 700; color: #1f6f78; }
+    .depth-cell .bar-info { font-size: 7px; color: rgba(20,20,30,0.22); }
+    .depth-cell .tag { font-size: 7px; color: #1f6f78; }
     .pct-cell { display: flex; align-items: center; gap: 4px; }
     .pct-cell .pct { font-size: 14px; font-weight: 900; line-height: 1; }
-    .pct-cell .ml { font-size: 9px; color: rgba(255,255,255,0.28); margin-top: 1px; }
+    .pct-cell .ml { font-size: 9px; color: rgba(20,20,30,0.28); margin-top: 1px; }
     .phase-badge { font-size: 7px; font-weight: 700; border-radius: 4px; padding: 1px 4px; border: 1px solid; margin-top: 2px; display: inline-block; }
     svg.lung { width: 32px; height: 40px; }
     svg.mouth { width: 32px; height: 32px; }
 
     /* Viz */
-    .viz-card { background: rgba(14,61,92,0.4); border: 1px solid rgba(46,196,182,0.15); border-radius: 18px; padding: 14px; margin-bottom: 12px; }
-    .viz-title { font-size: 11px; color: #a8ece8; font-weight: 700; margin-bottom: 12px; }
+    .viz-card { background: #ffffff; border: 1px solid #e7e7ea; box-shadow: 0 4px 16px rgba(20,20,30,0.06); border-radius: 18px; padding: 14px; margin-bottom: 12px; }
+    .viz-title { font-size: 11px; color: #5b5b60; font-weight: 700; margin-bottom: 12px; }
     .phase-map { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 8px; }
     .phase-tile { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; }
     .phase-tile-box { width: 38px; height: 38px; border-radius: 6px; display: flex; align-items: center; justify-content: center; border: 1px solid; }
     .phase-tile-box span { font-size: 9px; font-weight: 700; }
     .phase-tile-name { font-size: 7px; font-weight: 700; }
-    .phase-tile-depth { font-size: 7px; color: rgba(255,255,255,0.3); }
+    .phase-tile-depth { font-size: 7px; color: rgba(20,20,30,0.3); }
     .phase-legend { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; font-size: 9px; }
     .phase-legend-item { display: flex; align-items: center; gap: 4px; }
     .legend-dot { width: 8px; height: 8px; border-radius: 2px; border: 1px solid; }
 
     /* Save */
-    .btn-save { width: 100%; background: linear-gradient(135deg, #2ec4b6, #1a5f82); border: none; border-radius: 14px; padding: 14px; color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; margin-bottom: 12px; }
+    .btn-save { width: 100%; background: linear-gradient(135deg, #1f6f78, #1a5f82); border: none; border-radius: 14px; padding: 14px; color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; margin-bottom: 12px; }
 
     /* Advanced overlay */
     #advanced-screen { display: none; }
     #advanced-screen.active { display: block; }
     #standard-screen.hidden { display: none; }
     .coming-soon-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.75); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
-    .coming-soon-icon { font-size: 36px; }
+    .coming-soon-icon { font-size: 36px; color: #fff; }
     .coming-soon-title { font-size: 20px; font-weight: 900; color: #fff; }
     .coming-soon-sub { font-size: 12px; color: rgba(255,255,255,0.5); }
-    .btn-back { padding: 10px 24px; border-radius: 8px; cursor: pointer; background: rgba(46,196,182,0.2); border: 1px solid #2ec4b6; color: #2ec4b6; font-size: 13px; font-weight: 700; margin-top: 8px; }
+    .btn-back { padding: 10px 24px; border-radius: 8px; cursor: pointer; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.35); color: #fff; font-size: 13px; font-weight: 700; margin-top: 8px; }
   </style>
 </head>
 <body>
 <div class="container">
   <div class="header">
-    <div class="header-sub"><a href="../mypage.html" style="color:#2ec4b6;text-decoration:none">← マイページ</a>&nbsp;·&nbsp;FREEDIVING JAPAN</div>
+    <div class="header-sub"><a href="../mypage.html" style="color:#1f6f78;text-decoration:none">← マイページ</a>&nbsp;·&nbsp;FREEDIVING JAPAN</div>
     <h1>Mouthfill Calculator</h1>
     <div class="mode-btns">
       <button class="mode-btn active" id="btn-standard" onclick="setScreen('standard')">Standard</button>
@@ -136,7 +136,7 @@
       <label>Surface Mouthfill (0m charge reach)</label>
       <div class="factor-row">
         <select id="reach-input" onchange="onReachChange()"></select>
-        <span style="font-size:12px;color:#2ec4b6;">m</span>
+        <span style="font-size:12px;color:#1f6f78;">m</span>
         <div>
           <div class="factor-display" id="factor-display">Factor 4</div>
           <div class="factor-sub" id="factor-sub">= (30 / 10) + 1</div>
@@ -159,7 +159,7 @@
           <div class="phase-controls">
             <div>
               <div class="phase-row">
-                <div class="phase-name" style="color:#2ec4b6">Jaw</div>
+                <div class="phase-name" style="color:#1f6f78">Jaw</div>
                 <div class="phase-thresh" id="jaw-thresh">76.9% threshold</div>
               </div>
               <div class="phase-select-row">
@@ -169,7 +169,7 @@
             </div>
             <div>
               <div class="phase-row">
-                <div class="phase-name" style="color:rgba(255,255,255,0.75)">Cheek</div>
+                <div class="phase-name" style="color:rgba(20,20,30,0.75)">Cheek</div>
                 <div class="phase-thresh" id="cheek-thresh">33.3% threshold</div>
               </div>
               <div class="phase-select-row">
@@ -178,9 +178,9 @@
               </div>
             </div>
             <div>
-              <div class="phase-name" style="color:rgba(168,236,232,0.4)">Tongue</div>
-              <div style="font-size:10px;color:rgba(168,236,232,0.35)" id="tongue-range">20m - 30m</div>
-              <div style="font-size:9px;color:rgba(168,236,232,0.25)" id="tongue-thresh">33.3% - 0%</div>
+              <div class="phase-name" style="color:rgba(20,20,30,0.4)">Tongue</div>
+              <div style="font-size:10px;color:rgba(20,20,30,0.35)" id="tongue-range">20m - 30m</div>
+              <div style="font-size:9px;color:rgba(20,20,30,0.25)" id="tongue-thresh">33.3% - 0%</div>
             </div>
           </div>
         </div>
@@ -216,8 +216,8 @@
         </div>
         <div class="table-input-row">
           マウスフィル容量
-          <select id="mf-ml" onchange="render()" style="border-color:rgba(168,236,232,0.3);color:#a8ece8;"></select>
-          <span style="color:#a8ece8;font-size:12px;">ml</span>
+          <select id="mf-ml" onchange="render()" style="border-color:rgba(31,111,120,0.3);color:#5b5b60;"></select>
+          <span style="color:#5b5b60;font-size:12px;">ml</span>
         </div>
       </div>
       <div class="ref-header">
@@ -226,15 +226,15 @@
           <span class="info-btn" onclick="toggleInfo()">?</span>
         </div>
         <div class="info-popup" id="info-popup">
-          <strong style="color:#2ec4b6">計算ロジック</strong><br>
+          <strong style="color:#1f6f78">計算ロジック</strong><br>
           ファクターはその人の実測能力値。<br>
           チャージ深度〜推定到達深度を直線で結んで各深度での残量を計算しています。
           <div class="info-example">
-            <strong style="color:#2ec4b6">Factor 4で30mに100%チャージした場合</strong><br>
-            推定到達深度 = (4気圧 × 4 - 1) × 10 = <strong style="color:#fff">150m</strong><br>
+            <strong style="color:#1f6f78">Factor 4で30mに100%チャージした場合</strong><br>
+            推定到達深度 = (4気圧 × 4 - 1) × 10 = <strong style="color:#222226">150m</strong><br>
             30m → 100% / 70m → 67% / 110m → 33% / 150m → 0%
           </div>
-          <div style="color:rgba(168,236,232,0.5);font-size:9px;margin-top:6px">
+          <div style="color:rgba(20,20,30,0.5);font-size:9px;margin-top:6px">
             同じ直線がチャージした深度からスライドして適用されます。
           </div>
         </div>
@@ -307,10 +307,10 @@ function calcReach(chargeDepth, fillPct) {
 function getPhase(pct) {
   const jawThresh = Math.round((100 / depthToBar(state.jawEnd)) * 10) / 10;
   const cheekThresh = Math.round((100 / depthToBar(state.cheekEnd)) * 10) / 10;
-  if (pct >= jawThresh) return { name: 'Jaw', color: '#2ec4b6' };
-  if (pct >= cheekThresh) return { name: 'Cheek', color: '#f0c040' };
-  if (pct > 0) return { name: 'Tongue', color: '#e0e0e0' };
-  return { name: '-', color: 'rgba(255,255,255,0.25)' };
+  if (pct >= jawThresh) return { name: 'Jaw', color: '#1f6f78' };
+  if (pct >= cheekThresh) return { name: 'Cheek', color: '#a16207' };
+  if (pct > 0) return { name: 'Tongue', color: '#6b7280' };
+  return { name: '-', color: '#c4c4c9' };
 }
 
 // ========== Init selects ==========
@@ -417,7 +417,7 @@ function render() {
   const tagsEl = document.getElementById('reach-tags');
   tagsEl.innerHTML = [5,10,15,20,25,30].map(cd => {
     const r = Math.round((depthToBar(cd) * f - 1) * 10);
-    return `<div class="reach-tag"><span style="color:rgba(168,236,232,0.5);font-size:9px">${cd}m→</span><span>${r}m</span></div>`;
+    return `<div class="reach-tag"><span style="color:rgba(20,20,30,0.5);font-size:9px">${cd}m→</span><span>${r}m</span></div>`;
   }).join('');
 
   // phase thresholds
@@ -454,15 +454,15 @@ function render() {
     <div class="charge-item">
       <span class="charge-label">${c.isTopup ? 'TOP UP' : 'CHARGE'}</span>
       <div class="charge-field">深度
-        <select onchange="updateCharge(${c.id},'depth',this.value)" style="border-color:rgba(46,196,182,0.4);color:#2ec4b6;font-size:13px;font-weight:700;">
+        <select onchange="updateCharge(${c.id},'depth',this.value)" style="border-color:rgba(46,196,182,0.4);color:#1f6f78;font-size:13px;font-weight:700;">
           ${Array.from({length:101},(_,i)=>`<option value="${i}" ${i===c.depth?'selected':''}>${i}m</option>`).join('')}
         </select>
       </div>
       ${!c.isTopup ? `<div class="charge-field">充填
-        <select onchange="updateCharge(${c.id},'fillPct',this.value)" style="border-color:rgba(46,196,182,0.4);color:#2ec4b6;font-size:13px;font-weight:700;">
+        <select onchange="updateCharge(${c.id},'fillPct',this.value)" style="border-color:rgba(46,196,182,0.4);color:#1f6f78;font-size:13px;font-weight:700;">
           ${[10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100].map(v=>`<option value="${v}" ${v===c.fillPct?'selected':''}>${v}%</option>`).join('')}
         </select>
-      </div>` : '<span style="font-size:10px;color:rgba(168,236,232,0.5)">→ 100%</span>'}
+      </div>` : '<span style="font-size:10px;color:rgba(20,20,30,0.5)">→ 100%</span>'}
       <button class="btn-remove" onclick="removeCharge(${c.id})">✕</button>
     </div>
   `).join('');
@@ -472,7 +472,7 @@ function render() {
   const bannerEl = document.getElementById('reach-banner');
   if (lastCharge) {
     const reach = calcReach(lastCharge.depth, lastCharge.fillPct);
-    document.getElementById('reach-banner-label').innerHTML = `${lastCharge.depth}mで${lastCharge.fillPct}%チャージ<br><span style="font-size:9px;color:rgba(168,236,232,0.35)">Factor ${Number.isInteger(f)?f:f.toFixed(2)}</span>`;
+    document.getElementById('reach-banner-label').innerHTML = `${lastCharge.depth}mで${lastCharge.fillPct}%チャージ<br><span style="font-size:9px;color:rgba(20,20,30,0.35)">Factor ${Number.isInteger(f)?f:f.toFixed(2)}</span>`;
     document.getElementById('reach-banner-depth').textContent = reach + 'm';
     bannerEl.style.display = 'flex';
   } else {
@@ -538,13 +538,13 @@ function computeDisplayPoints(sorted, f) {
 
 function lungSVG(pct) {
   const fill = Math.max(0.05, pct / 100);
-  return `<svg class="lung" viewBox="0 0 48 60"><defs><clipPath id="lc${Math.round(pct*10)}"><rect x="0" y="${60-fill*60}" width="48" height="${fill*60}"/></clipPath></defs><path d="M24,4 C24,4 10,8 8,20 C6,32 4,40 4,50 C4,56 8,58 14,56 C18,54 20,48 22,44 L24,40 L26,44 C28,48 30,54 34,56 C40,58 44,56 44,50 C44,40 42,32 40,20 C38,8 24,4 24,4Z" fill="none" stroke="rgba(46,196,182,0.3)" stroke-width="1.5"/><path d="M24,4 C24,4 10,8 8,20 C6,32 4,40 4,50 C4,56 8,58 14,56 C18,54 20,48 22,44 L24,40 L26,44 C28,48 30,54 34,56 C40,58 44,56 44,50 C44,40 42,32 40,20 C38,8 24,4 24,4Z" fill="#2ec4b6" opacity="${0.15+fill*0.5}" clip-path="url(#lc${Math.round(pct*10)})"/></svg>`;
+  return `<svg class="lung" viewBox="0 0 48 60"><defs><clipPath id="lc${Math.round(pct*10)}"><rect x="0" y="${60-fill*60}" width="48" height="${fill*60}"/></clipPath></defs><path d="M24,4 C24,4 10,8 8,20 C6,32 4,40 4,50 C4,56 8,58 14,56 C18,54 20,48 22,44 L24,40 L26,44 C28,48 30,54 34,56 C40,58 44,56 44,50 C44,40 42,32 40,20 C38,8 24,4 24,4Z" fill="none" stroke="rgba(46,196,182,0.3)" stroke-width="1.5"/><path d="M24,4 C24,4 10,8 8,20 C6,32 4,40 4,50 C4,56 8,58 14,56 C18,54 20,48 22,44 L24,40 L26,44 C28,48 30,54 34,56 C40,58 44,56 44,50 C44,40 42,32 40,20 C38,8 24,4 24,4Z" fill="#1f6f78" opacity="${0.15+fill*0.5}" clip-path="url(#lc${Math.round(pct*10)})"/></svg>`;
 }
 
 function mouthSVG(pct) {
   const fill = Math.max(0.02, pct / 100);
   const rx = 14*fill, ry = 10*fill+3;
-  return `<svg class="mouth" viewBox="0 0 48 48"><ellipse cx="24" cy="24" rx="20" ry="21" fill="none" stroke="rgba(249,115,22,0.25)" stroke-width="1.5"/><ellipse cx="24" cy="22" rx="${rx}" ry="${ry}" fill="#2ec4b6" opacity="${0.25+fill*0.55}"/></svg>`;
+  return `<svg class="mouth" viewBox="0 0 48 48"><ellipse cx="24" cy="24" rx="20" ry="21" fill="none" stroke="rgba(249,115,22,0.25)" stroke-width="1.5"/><ellipse cx="24" cy="22" rx="${rx}" ry="${ry}" fill="#1f6f78" opacity="${0.25+fill*0.55}"/></svg>`;
 }
 
 function pctCell(pct, ml, color, svgFn, phase) {
@@ -556,10 +556,10 @@ function renderTable(pts, f, jawThresh, cheekThresh) {
   const tbody = document.getElementById('table-body');
   tbody.innerHTML = pts.map((p, i) => {
     const cls = p.isChargePoint ? 'row charge-row' : p.isBefore ? 'row before-row' : 'row';
-    const depthColor = p.isChargePoint ? '#2ec4b6' : 'rgba(255,255,255,0.62)';
+    const depthColor = p.isChargePoint ? '#1f6f78' : 'rgba(20,20,30,0.62)';
     const tag = p.isBefore ? '<div class="tag">before</div>' : p.isChargePoint ? `<div class="tag">▶${p.chargeFillPct}%</div>` : '';
-    const sim = p.sim0m !== null ? pctCell(p.sim0m, Math.round(p.sim0m/100*state.mfMl), 'rgba(168,236,232,0.7)', mouthSVG, getPhase(p.sim0m)) : '<div style="color:rgba(255,255,255,0.15);font-size:11px;display:flex;align-items:center;justify-content:center">-</div>';
-    const mfColor = p.mfPct <= 0 ? 'rgba(255,255,255,0.2)' : '#2ec4b6';
+    const sim = p.sim0m !== null ? pctCell(p.sim0m, Math.round(p.sim0m/100*state.mfMl), 'rgba(20,20,30,0.7)', mouthSVG, getPhase(p.sim0m)) : '<div style="color:rgba(20,20,30,0.15);font-size:11px;display:flex;align-items:center;justify-content:center">-</div>';
+    const mfColor = p.mfPct <= 0 ? 'rgba(20,20,30,0.2)' : '#1f6f78';
     return `<div class="${cls}">
       <div class="depth-cell"><div class="d" style="color:${depthColor}">${p.d}m</div><div class="bar-info">${p.bar}気圧</div>${tag}</div>
       ${pctCell(p.lungPct, p.lungMl, '#7dd3fc', lungSVG, null)}
@@ -587,17 +587,17 @@ function renderChart(pts) {
   ctx.clearRect(0, 0, W, H);
 
   // grid
-  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+  ctx.strokeStyle = 'rgba(20,20,30,0.05)';
   ctx.lineWidth = 1;
   [0,25,50,75,100].forEach(pct => {
     ctx.beginPath(); ctx.moveTo(PL, ty(pct)); ctx.lineTo(W-PR, ty(pct)); ctx.stroke();
-    ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.font = '7px sans-serif'; ctx.textAlign = 'right';
+    ctx.fillStyle = 'rgba(20,20,30,0.25)'; ctx.font = '7px sans-serif'; ctx.textAlign = 'right';
     ctx.fillText(pct+'%', PL-4, ty(pct)+4);
   });
   const step = maxD <= 50 ? 10 : maxD <= 100 ? 20 : 30;
   for (let d = 0; d <= maxD; d += step) {
     ctx.beginPath(); ctx.moveTo(tx(d), PT); ctx.lineTo(tx(d), H-PB); ctx.stroke();
-    ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(20,20,30,0.25)'; ctx.textAlign = 'center';
     ctx.fillText(d+'m', tx(d), H-PB+12);
   }
 
@@ -608,16 +608,16 @@ function renderChart(pts) {
   ctx.stroke(); ctx.setLineDash([]);
 
   // mouth line
-  ctx.beginPath(); ctx.strokeStyle = '#2ec4b6'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.strokeStyle = '#1f6f78'; ctx.lineWidth = 2;
   clipped.forEach((p, i) => { if (i===0) ctx.moveTo(tx(p.d), ty(p.mfPct)); else ctx.lineTo(tx(p.d), ty(p.mfPct)); });
   ctx.stroke();
 
   // charge points
   clipped.filter(p => p.isChargePoint).forEach(p => {
     ctx.beginPath(); ctx.arc(tx(p.d), ty(p.mfPct), 5, 0, Math.PI*2);
-    ctx.fillStyle = '#2ec4b6'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+    ctx.fillStyle = '#1f6f78'; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2;
     ctx.fill(); ctx.stroke();
-    ctx.fillStyle = '#fff'; ctx.font = '7px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#222226'; ctx.font = '7px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(p.d+'m', tx(p.d), ty(p.mfPct)-10);
   });
 
@@ -626,9 +626,9 @@ function renderChart(pts) {
   ctx.beginPath(); ctx.moveTo(PL, PT+8); ctx.lineTo(PL+14, PT+8); ctx.stroke(); ctx.setLineDash([]);
   ctx.fillStyle = 'rgba(125,211,252,0.7)'; ctx.textAlign = 'left'; ctx.font = '7px sans-serif';
   ctx.fillText('肺', PL+17, PT+12);
-  ctx.strokeStyle = '#2ec4b6'; ctx.lineWidth = 2;
+  ctx.strokeStyle = '#1f6f78'; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(PL+30, PT+8); ctx.lineTo(PL+44, PT+8); ctx.stroke();
-  ctx.fillStyle = '#2ec4b6'; ctx.fillText('口', PL+47, PT+12);
+  ctx.fillStyle = '#1f6f78'; ctx.fillText('口', PL+47, PT+12);
 }
 
 function renderPhaseMap(pts, jawThresh, cheekThresh) {
@@ -647,9 +647,9 @@ function renderPhaseMap(pts, jawThresh, cheekThresh) {
   }).join('');
 
   document.getElementById('phase-legend').innerHTML = [
-    { name: 'Jaw', color: '#2ec4b6', range: `${jawThresh}%以上` },
-    { name: 'Cheek', color: '#f0c040', range: `${cheekThresh}〜${jawThresh}%` },
-    { name: 'Tongue', color: '#e0e0e0', range: `${cheekThresh}%以下` },
+    { name: 'Jaw', color: '#1f6f78', range: `${jawThresh}%以上` },
+    { name: 'Cheek', color: '#a16207', range: `${cheekThresh}〜${jawThresh}%` },
+    { name: 'Tongue', color: '#6b7280', range: `${cheekThresh}%以下` },
   ].map(p => `<div class="phase-legend-item"><div class="legend-dot" style="background:${p.color}33;border-color:${p.color}66"></div><span style="color:${p.color}">${p.name}: ${p.range}</span></div>`).join('');
 }
 
@@ -657,10 +657,10 @@ function renderRecords() {
   const el = document.getElementById('records-section');
   if (!state.records.length) { el.innerHTML = ''; return; }
   el.innerHTML = `<div class="table-wrap">
-    <div style="padding:12px 16px;border-bottom:1px solid rgba(46,196,182,0.1);font-size:11px;color:#a8ece8;letter-spacing:0.1em">記録</div>
+    <div style="padding:12px 16px;border-bottom:1px solid rgba(46,196,182,0.1);font-size:11px;color:#5b5b60;letter-spacing:0.1em">記録</div>
     ${state.records.map(r => `<div style="padding:10px 16px;border-bottom:1px solid rgba(46,196,182,0.05);display:flex;justify-content:space-between;align-items:center">
-      <div style="font-size:11px;color:rgba(255,255,255,0.32)">${r.label}</div>
-      <div style="font-size:12px;font-weight:700;color:#2ec4b6">F${r.factor} · ${r.charges}チャージ</div>
+      <div style="font-size:11px;color:rgba(20,20,30,0.32)">${r.label}</div>
+      <div style="font-size:12px;font-weight:700;color:#1f6f78">F${r.factor} · ${r.charges}チャージ</div>
     </div>`).join('')}
   </div>`;
 }

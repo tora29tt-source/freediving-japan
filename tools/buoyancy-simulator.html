@@ -10,36 +10,36 @@
   --ocean-deep: #0b2d45;
   --ocean-mid: #0e3d5c;
   --ocean-light: #1a5f82;
-  --teal: #2ec4b6;
-  --teal-light: #a8ece8;
-  --warm: #f97316;
+  --teal: #1f6f78;
+  --teal-light: #0d7d72;
+  --warm: #c2410c;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
   font-family: -apple-system, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
-  background: var(--ocean-deep);
-  color: #fff;
+  background: #ffffff;
+  color: #222226;
   min-height: 100vh;
   padding-bottom: 60px;
 }
 
 /* ── Header ── */
 header {
-  background: var(--ocean-mid);
+  background: #ffffff;
   padding: 0.85rem 1.4rem;
   display: flex;
   align-items: center;
   gap: 0.9rem;
-  border-bottom: 1px solid rgba(46,196,182,0.2);
+  border-bottom: 1px solid #e7e7ea;
   position: sticky;
   top: 0;
   z-index: 20;
 }
 
 header a.back {
-  color: var(--teal-light);
+  color: var(--teal);
   text-decoration: none;
   font-size: 0.78rem;
   white-space: nowrap;
@@ -69,10 +69,11 @@ header h1 {
 
 /* ── Card ── */
 .card {
-  background: var(--ocean-mid);
+  background: #ffffff;
   border-radius: 13px;
   padding: 1.1rem 1.15rem;
-  border: 1px solid rgba(46,196,182,0.13);
+  border: 1px solid #e7e7ea;
+  box-shadow: 0 4px 16px rgba(20,20,30,0.06);
 }
 
 .card-title {
@@ -92,7 +93,7 @@ header h1 {
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(168,236,232,0.45);
+  color: rgba(20,20,30,0.45);
   margin: 0.9rem 0 0.42rem;
 }
 
@@ -111,17 +112,17 @@ hr.sep {
 .field label {
   display: block;
   font-size: 0.72rem;
-  color: rgba(168,236,232,0.7);
+  color: rgba(20,20,30,0.7);
   margin-bottom: 0.26rem;
 }
 
 .field input[type="number"],
 .field select {
   width: 100%;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(46,196,182,0.22);
+  background: #f7f7f8;
+  border: 1px solid #d8d8dc;
   border-radius: 7px;
-  color: #fff;
+  color: #222226;
   padding: 0.46rem 0.72rem;
   font-size: 0.88rem;
   outline: none;
@@ -134,14 +135,14 @@ hr.sep {
 .field input:focus,
 .field select:focus {
   border-color: var(--teal);
-  background: rgba(255,255,255,0.1);
+  background: #ffffff;
 }
 
-.field select option { background: #0b2d45; }
+.field select option { background: #ffffff; color: #222226; }
 
 .hint {
   font-size: 0.67rem;
-  color: rgba(168,236,232,0.35);
+  color: rgba(20,20,30,0.35);
   margin-top: 0.22rem;
   line-height: 1.45;
 }
@@ -149,10 +150,10 @@ hr.sep {
 /* ── Toggle switch ── */
 .toggle {
   display: flex;
-  background: rgba(0,0,0,0.25);
+  background: #f0f0f2;
   border-radius: 7px;
   overflow: hidden;
-  border: 1px solid rgba(46,196,182,0.18);
+  border: 1px solid #e7e7ea;
 }
 
 .toggle button {
@@ -160,7 +161,7 @@ hr.sep {
   padding: 0.43rem 0.5rem;
   background: transparent;
   border: none;
-  color: rgba(255,255,255,0.38);
+  color: #8b8b90;
   font-size: 0.78rem;
   cursor: pointer;
   transition: all 0.15s;
@@ -206,7 +207,7 @@ hr.sep {
 
 .nb-sub {
   font-size: 0.7rem;
-  color: rgba(168,236,232,0.42);
+  color: rgba(20,20,30,0.42);
 }
 
 .stats {
@@ -223,10 +224,10 @@ hr.sep {
 }
 
 .stat-val { font-size: 0.9rem; font-weight: 700; }
-.stat-lbl { font-size: 0.62rem; color: rgba(168,236,232,0.4); margin-top: 0.08rem; }
+.stat-lbl { font-size: 0.62rem; color: rgba(20,20,30,0.4); margin-top: 0.08rem; }
 
-.clr-pos { color: #4ade80; }
-.clr-neg { color: #f87171; }
+.clr-pos { color: #16a34a; }
+.clr-neg { color: #dc2626; }
 .clr-neu { color: var(--teal); }
 
 /* ── Right column ── */
@@ -242,7 +243,7 @@ hr.sep {
   flex-wrap: wrap;
 }
 
-.leg { display: flex; align-items: center; gap: 0.35rem; font-size: 0.7rem; color: rgba(168,236,232,0.55); }
+.leg { display: flex; align-items: center; gap: 0.35rem; font-size: 0.7rem; color: rgba(20,20,30,0.55); }
 
 .leg-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
 
@@ -280,10 +281,10 @@ hr.sep {
   margin-bottom: 0.22rem;
 }
 
-.phase-card.pos .phase-title { color: #4ade80; }
-.phase-card.neg .phase-title { color: #60a5fa; }
+.phase-card.pos .phase-title { color: #16a34a; }
+.phase-card.neg .phase-title { color: #2563eb; }
 
-.phase-desc { font-size: 0.7rem; color: rgba(255,255,255,0.45); line-height: 1.5; }
+.phase-desc { font-size: 0.7rem; color: rgba(20,20,30,0.45); line-height: 1.5; }
 
 /* ── Recommendations ── */
 .rec-title {
@@ -307,8 +308,8 @@ hr.sep {
 }
 
 .rec-card {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(20,20,30,0.04);
+  border: 1px solid rgba(20,20,30,0.07);
   border-radius: 8px;
   padding: 0.58rem 0.4rem;
   text-align: center;
@@ -320,9 +321,9 @@ hr.sep {
   background: rgba(46,196,182,0.1);
 }
 
-.rec-d { font-size: 0.62rem; color: rgba(168,236,232,0.45); margin-bottom: 0.18rem; }
+.rec-d { font-size: 0.62rem; color: rgba(20,20,30,0.45); margin-bottom: 0.18rem; }
 .rec-w { font-size: 1.05rem; font-weight: 900; color: var(--warm); }
-.rec-u { font-size: 0.62rem; color: rgba(255,255,255,0.28); }
+.rec-u { font-size: 0.62rem; color: rgba(20,20,30,0.28); }
 
 /* ── Physics note ── */
 .physics-note {
@@ -330,12 +331,12 @@ hr.sep {
   border-radius: 8px;
   padding: 0.65rem 0.8rem;
   font-size: 0.67rem;
-  color: rgba(168,236,232,0.35);
+  color: rgba(20,20,30,0.35);
   line-height: 1.6;
   margin-top: 0.6rem;
 }
 
-.physics-note strong { color: rgba(168,236,232,0.55); }
+.physics-note strong { color: rgba(20,20,30,0.55); }
 
 /* ── Knowledge card ── */
 .know-section {
@@ -358,11 +359,11 @@ hr.sep {
 
 .know-body {
   font-size: 0.72rem;
-  color: rgba(168,236,232,0.5);
+  color: rgba(20,20,30,0.5);
   line-height: 1.65;
 }
 
-.know-body strong { color: rgba(168,236,232,0.8); }
+.know-body strong { color: rgba(20,20,30,0.8); }
 
 .formula-block {
   background: rgba(0,0,0,0.25);
@@ -371,13 +372,13 @@ hr.sep {
   padding: 0.6rem 0.8rem;
   margin: 0.55rem 0;
   font-size: 0.7rem;
-  color: rgba(168,236,232,0.6);
+  color: rgba(20,20,30,0.6);
   line-height: 1.8;
   font-feature-settings: "tnum";
 }
 
 .formula-block .hl { color: var(--teal); font-weight: 700; }
-.formula-block .dim { color: rgba(168,236,232,0.3); }
+.formula-block .dim { color: rgba(20,20,30,0.3); }
 
 .measure-steps {
   counter-reset: step;
@@ -392,7 +393,7 @@ hr.sep {
   align-items: flex-start;
   margin-bottom: 0.38rem;
   font-size: 0.71rem;
-  color: rgba(168,236,232,0.5);
+  color: rgba(20,20,30,0.5);
   line-height: 1.5;
 }
 
@@ -422,7 +423,7 @@ hr.sep {
 
 .formula-table th {
   text-align: left;
-  color: rgba(168,236,232,0.4);
+  color: rgba(20,20,30,0.4);
   font-weight: 600;
   padding: 0.22rem 0.5rem;
   border-bottom: 1px solid rgba(46,196,182,0.1);
@@ -430,18 +431,18 @@ hr.sep {
 
 .formula-table td {
   padding: 0.28rem 0.5rem;
-  color: rgba(168,236,232,0.55);
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: rgba(20,20,30,0.55);
+  border-bottom: 1px solid rgba(20,20,30,0.04);
   vertical-align: top;
 }
 
-.formula-table td:first-child { color: rgba(168,236,232,0.75); font-weight: 600; white-space: nowrap; }
+.formula-table td:first-child { color: rgba(20,20,30,0.75); font-weight: 600; white-space: nowrap; }
 .formula-table .mono { font-family: 'SF Mono', 'Consolas', monospace; font-size: 0.67rem; color: var(--teal); }
 
 /* ── Sensitivity analysis ── */
 .sens-subtitle {
   font-size: 0.67rem;
-  color: rgba(168,236,232,0.38);
+  color: rgba(20,20,30,0.38);
   margin-bottom: 0.7rem;
   line-height: 1.5;
 }
@@ -457,7 +458,7 @@ hr.sep {
   align-items: center;
   gap: 0.4rem;
   font-size: 0.67rem;
-  color: rgba(168,236,232,0.4);
+  color: rgba(20,20,30,0.4);
 }
 
 .sens-leg-dot {
@@ -477,20 +478,20 @@ hr.sep {
 
 .sens-lbl {
   font-size: 0.7rem;
-  color: rgba(168,236,232,0.65);
+  color: rgba(20,20,30,0.65);
   line-height: 1.3;
 }
 
 .sens-unit {
   display: block;
   font-size: 0.59rem;
-  color: rgba(168,236,232,0.28);
+  color: rgba(20,20,30,0.28);
   margin-top: 0.05rem;
 }
 
 .sens-bar-bg {
   height: 10px;
-  background: rgba(255,255,255,0.06);
+  background: rgba(20,20,30,0.06);
   border-radius: 5px;
   overflow: hidden;
 }
@@ -671,8 +672,8 @@ hr.sep {
         <canvas id="chart"></canvas>
       </div>
       <div class="legend">
-        <div class="leg"><div class="leg-dot" style="background:#4ade80;"></div>正の浮力（浮き上がる）</div>
-        <div class="leg"><div class="leg-dot" style="background:#60a5fa;"></div>負の浮力（沈む）</div>
+        <div class="leg"><div class="leg-dot" style="background:#16a34a;"></div>正の浮力（浮き上がる）</div>
+        <div class="leg"><div class="leg-dot" style="background:#2563eb;"></div>負の浮力（沈む）</div>
         <div class="leg"><div class="leg-dot" style="background:var(--teal);width:18px;height:2px;border-radius:1px;"></div>浮力ライン</div>
         <div class="leg"><div class="leg-dash"></div>NB深度</div>
       </div>
@@ -801,13 +802,13 @@ hr.sep {
           </thead>
           <tbody>
             <tr>
-              <td>体密度 ρ体<br><span style="font-weight:400;color:rgba(168,236,232,0.35);font-size:0.65rem;">Siri 式</span></td>
+              <td>体密度 ρ体<br><span style="font-weight:400;color:rgba(20,20,30,0.35);font-size:0.65rem;">Siri 式</span></td>
               <td><span class="mono">4.95 ÷ (体脂肪率/100 + 4.50)</span></td>
               <td>—</td>
             </tr>
             <tr>
-              <td>身体浮力<br><span style="font-weight:400;color:rgba(168,236,232,0.35);font-size:0.65rem;">（RV補正済み・一定）</span></td>
-              <td><span class="mono">体重 × (ρ水 / ρ体 − 1) − RV × ρ水</span><br><span style="color:rgba(168,236,232,0.3);font-size:0.65rem;">ρ体 = 入力した体密度</span></td>
+              <td>身体浮力<br><span style="font-weight:400;color:rgba(20,20,30,0.35);font-size:0.65rem;">（RV補正済み・一定）</span></td>
+              <td><span class="mono">体重 × (ρ水 / ρ体 − 1) − RV × ρ水</span><br><span style="color:rgba(20,20,30,0.3);font-size:0.65rem;">ρ体 = 入力した体密度</span></td>
               <td>なし（一定）</td>
             </tr>
             <tr>
@@ -828,7 +829,7 @@ hr.sep {
             <tr>
               <td>NB深度 d*</td>
               <td><span class="mono">10 × ( A / C − 1 )</span><br>
-                <span style="color:rgba(168,236,232,0.3);font-size:0.65rem;">
+                <span style="color:rgba(20,20,30,0.3);font-size:0.65rem;">
                   A = スーツ₀ + (TLC+パッキング)×ρ水<br>
                   C = 鉛効果 − 身体浮力（RV補正済み）
                 </span>
@@ -1205,7 +1206,7 @@ function update() {
     datasets.push({
       data: [{ x: nbD, y: 0 }],
       backgroundColor: 'var(--warm)',
-      borderColor: '#fff',
+      borderColor: '#ffffff',
       borderWidth: 1.5,
       pointRadius: 7,
       pointHoverRadius: 9,
@@ -1228,26 +1229,26 @@ function update() {
         title: {
           display: true,
           text: '深度 (m)',
-          color: 'rgba(168,236,232,0.55)',
+          color: 'rgba(20,20,30,0.55)',
           font: { size: 11 },
         },
-        ticks: { color: 'rgba(168,236,232,0.5)', font: { size: 10 } },
-        grid: { color: 'rgba(255,255,255,0.04)' },
+        ticks: { color: 'rgba(20,20,30,0.5)', font: { size: 10 } },
+        grid: { color: 'rgba(20,20,30,0.04)' },
       },
       y: {
         title: {
           display: true,
           text: '浮力 (kg)',
-          color: 'rgba(168,236,232,0.55)',
+          color: 'rgba(20,20,30,0.55)',
           font: { size: 11 },
         },
         ticks: {
-          color: 'rgba(168,236,232,0.5)',
+          color: 'rgba(20,20,30,0.5)',
           font: { size: 10 },
           callback: v => (v > 0 ? '+' : '') + v.toFixed(1),
         },
         grid: {
-          color: ctx => ctx.tick.value === 0 ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.04)',
+          color: ctx => ctx.tick.value === 0 ? 'rgba(20,20,30,0.22)' : 'rgba(20,20,30,0.04)',
           lineWidth: ctx => ctx.tick.value === 0 ? 1.5 : 1,
         },
       },
@@ -1277,11 +1278,11 @@ function update() {
             ];
           },
         },
-        backgroundColor: 'rgba(11,45,69,0.93)',
-        borderColor: 'rgba(46,196,182,0.35)',
+        backgroundColor: 'rgba(255,255,255,0.97)',
+        borderColor: 'rgba(31,111,120,0.35)',
         borderWidth: 1,
-        titleColor: '#a8ece8',
-        bodyColor: 'rgba(255,255,255,0.75)',
+        titleColor: '#1f6f78',
+        bodyColor: 'rgba(20,20,30,0.75)',
         padding: 10,
       },
     },

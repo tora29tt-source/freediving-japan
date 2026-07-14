@@ -8,6 +8,16 @@
 <script src="js/supabase-config.js"></script>
 <link rel="stylesheet" href="css/design-system.css">
 <style>
+/* auth.html 専用: design-system.css のダークトークンを白ベースに上書き
+   （design-system.css自体はmypage.htmlと共有のため変更しない） */
+:root {
+  --on-dark: #222226;
+  --on-dark-mid: #5b5b60;
+  --on-dark-soft: #8b8b90;
+  --hairline: #e7e7ea;
+  --glass: #ffffff;
+}
+html { background: #ffffff; }
 body {
   display: flex;
   flex-direction: column;
@@ -17,6 +27,7 @@ body {
   padding: 24px 16px;
   position: relative;
   overflow: hidden;
+  background: #ffffff;
 }
 
 /* 背景グロー */
@@ -25,8 +36,8 @@ body {
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(46,196,182,0.12) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 40% at 80% 80%, rgba(26,95,130,0.15) 0%, transparent 60%);
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(46,196,182,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 80% 80%, rgba(26,95,130,0.08) 0%, transparent 60%);
 }
 
 /* ロゴ */
@@ -48,13 +59,11 @@ body {
 .auth-card {
   width: 100%;
   max-width: 400px;
-  background: rgba(12,39,56,0.80);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: #ffffff;
   border: 1px solid var(--hairline);
   border-radius: 20px;
   padding: 32px 28px;
-  box-shadow: 0 24px 64px rgba(4,22,31,0.7), 0 0 0 1px rgba(168,236,232,0.06);
+  box-shadow: 0 6px 24px rgba(20,20,30,0.08);
   position: relative;
 }
 
@@ -66,13 +75,13 @@ body {
   transform: translateX(-50%);
   width: 60%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(168,236,232,0.4), transparent);
+  background: linear-gradient(90deg, transparent, rgba(31,111,120,0.3), transparent);
 }
 
 /* タブ */
 .tabs {
   display: flex;
-  background: rgba(255,255,255,0.04);
+  background: #f3f3f5;
   border: 1px solid var(--hairline);
   border-radius: var(--r-pill);
   padding: 4px;
@@ -155,7 +164,7 @@ body {
 .form-group input {
   width: 100%;
   padding: 13px 16px;
-  background: rgba(255,255,255,0.05);
+  background: #f7f7f8;
   border: 1px solid var(--hairline);
   border-radius: var(--r);
   font-size: 14px;
@@ -167,8 +176,8 @@ body {
 }
 .form-group input::placeholder { color: var(--on-dark-soft); }
 .form-group input:focus {
-  border-color: rgba(46,196,182,0.55);
-  background: rgba(255,255,255,0.08);
+  border-color: rgba(31,111,120,0.55);
+  background: #ffffff;
 }
 
 /* 送信ボタン */
@@ -204,15 +213,15 @@ body {
   line-height: 1.6;
 }
 .message.error {
-  background: rgba(239,68,68,0.12);
-  border: 1px solid rgba(239,68,68,0.25);
-  color: #fca5a5;
+  background: rgba(220,38,38,0.08);
+  border: 1px solid rgba(220,38,38,0.25);
+  color: #dc2626;
   display: block;
 }
 .message.success {
-  background: rgba(46,196,182,0.10);
-  border: 1px solid rgba(46,196,182,0.25);
-  color: var(--teal-light);
+  background: rgba(31,111,120,0.08);
+  border: 1px solid rgba(31,111,120,0.25);
+  color: #124a52;
   display: block;
 }
 

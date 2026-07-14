@@ -10,30 +10,25 @@
   --ocean-deep: #0b2d45;
   --ocean-mid:  #0e3d5c;
   --abyss:      #04161f;
-  --teal:       #2ec4b6;
-  --teal-light: #a8ece8;
+  --teal:       #1f6f78;
+  --teal-light: #2ec4b6;
   --foam:       #f0f9fb;
   --warm:       #f97316;
-  --on-dark:        rgba(255,255,255,0.92);
-  --on-dark-mid:    rgba(255,255,255,0.62);
-  --on-dark-soft:   rgba(255,255,255,0.40);
-  --hairline:       rgba(168,236,232,0.14);
-  --glass:          rgba(255,255,255,0.045);
+  --on-dark:        #222226;
+  --on-dark-mid:    #5b5b60;
+  --on-dark-soft:   #8b8b90;
+  --hairline:       #e7e7ea;
+  --glass:          #ffffff;
 
-  --c-beginner: #2ec4b6;
-  --c-mid:      #7c9ef8;
-  --c-comp:     #fb7185;
-  --c-inst:     #fbbf24;
+  --c-beginner: #1f6f78;
+  --c-mid:      #4338ca;
+  --c-comp:     #be123c;
+  --c-inst:     #a16207;
 }
-html { background: var(--abyss); }
+html { background: #ffffff; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
-  background: linear-gradient(180deg,
-    var(--ocean-mid) 0%,
-    var(--ocean-deep) 22%,
-    #06283a 55%,
-    var(--abyss) 100%);
-  background-attachment: fixed;
+  background: #ffffff;
   color: var(--on-dark);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
@@ -76,7 +71,7 @@ body {
   color: var(--on-dark-soft); text-decoration: none; font-size: 13px;
   margin-bottom: 24px; transition: color 0.2s;
 }
-.back-link:hover { color: var(--teal-light); }
+.back-link:hover { color: var(--teal); }
 
 /* ── level badge / cat badge ── */
 .level-badge {
@@ -91,8 +86,9 @@ body {
 
 /* ── hero ── */
 .course-hero {
-  background: rgba(255,255,255,0.04);
+  background: #ffffff;
   border: 1px solid var(--hairline);
+  box-shadow: 0 6px 24px rgba(20,20,30,0.08);
   border-radius: 16px; padding: 28px; margin-bottom: 28px;
 }
 .course-thumb {
@@ -131,13 +127,13 @@ body {
 .course-price small { font-size: 12px; color: var(--on-dark-soft); font-weight: 400; margin-left: 3px; }
 .btn-buy {
   padding: 11px 24px; border-radius: 10px;
-  background: var(--teal); color: #04161f;
+  background: var(--teal); color: #fff;
   font-size: 13px; font-weight: 700; border: none; cursor: pointer;
   letter-spacing: 0.04em; transition: opacity 0.2s;
 }
 .btn-buy:hover { opacity: 0.85; }
 .btn-buy:disabled, .btn-buy.soon {
-  background: rgba(255,255,255,0.08); color: var(--on-dark-soft);
+  background: #f0f0f2; color: var(--on-dark-soft);
   cursor: default; opacity: 1;
 }
 
@@ -155,7 +151,7 @@ body {
 .chapter-row {
   display: flex; align-items: center; gap: 14px;
   padding: 14px 16px; border-radius: 10px;
-  background: rgba(255,255,255,0.03); border: 1px solid var(--hairline);
+  background: #ffffff; border: 1px solid var(--hairline);
 }
 .chapter-num {
   width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
@@ -173,7 +169,7 @@ body {
 }
 .state-screen h2 { font-size: 18px; margin-bottom: 10px; color: var(--on-dark); }
 .state-screen p { font-size: 13px; line-height: 1.7; }
-.state-screen a { color: var(--teal-light); }
+.state-screen a { color: var(--teal); }
 
 /* ── footer ── */
 .learn-footer {
@@ -181,7 +177,7 @@ body {
   border-top: 1px solid var(--hairline); margin-top: 60px;
   font-size: 12px; color: var(--on-dark-soft);
 }
-.learn-footer a { color: var(--teal-light); text-decoration: none; }
+.learn-footer a { color: var(--teal); text-decoration: none; }
 
 @media (max-width: 480px) {
   .course-footer { flex-direction: column; align-items: stretch; gap: 14px; }
