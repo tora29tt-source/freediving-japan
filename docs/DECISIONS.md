@@ -20,7 +20,7 @@ DEV.mdの各セクションから該当箇所へのポインタが張られて�
 - `applyIntent(intent)`/`clearIntent()`を新設。画面にintent切り替えタブは無いため、`currentDate`と同じ「解除できるヒント」パターン（`intentHint`＋クリアボタン）で状態を可視化
 - `applyUrlParams()`の受け入れ値リストを旧`['try','learn','dive']`（`dive`は2026-07-08のintent分割で廃止済みの値）から現行5値`['try','learn','fundive','training','coaching']`に修正
 
-**実装**：`explore/index.html`。構文チェック（Node.jsで埋め込みJSをパース）のみ実施し、エラーなし。**実機ブラウザでの動作確認は未実施**（`index.html`/`skindiving.html`の「1日体験」「認定コース」チップから遷移し、正しく絞り込まれるか・クリアボタンが機能するかを次回確認要）。
+**実装**：`explore/index.html`。構文チェック（Node.jsで埋め込みJSをパース）に加え、2026-07-14 Chrome MCPで実機確認完了：`explore/index.html?intent=try`遷移→「体験」のプランのみ表示中ヒント＋1件に絞り込み、クリアボタンで全件（3件）表示に復帰、コンソールエラーなしを確認。
 
 -----
 

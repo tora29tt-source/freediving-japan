@@ -155,7 +155,7 @@ flowchart LR
 ## 7. 既知の制限・注意点
 
 - **`explore/index.html`に`intent`を切り替えるUIが存在しない**：ホーム／ピラーページの「1日体験」「認定コース」チップが`?intent=try`のようなURLパラメータで`explore/index.html`に渡すが、受け側の画面自体にはタブなどの切り替えUIが無く、絞り込み中は解除ボタン付きのヒント文（`intentHint`）が出るのみ。
-- **✅ 2026-07-14修正済み**：上記の`?intent=`受け渡しを実装する`applyIntent()`関数が実際には定義されておらず、「1日体験」「認定コース」チップを踏むと`ReferenceError`で一覧読み込み自体が止まっていた不具合を修正（`currentIntent`変数の新設・フィルタへの反映・ヒント表示・受け入れ値リストの現行taxonomyへの追随）。詳細は[DECISIONS.md](./DECISIONS.md#2026-07-14exploreindexhtmlのapplyintent未定義バグを修正)参照。**実機確認は未実施**。
+- **✅ 2026-07-14修正済み**：上記の`?intent=`受け渡しを実装する`applyIntent()`関数が実際には定義されておらず、「1日体験」「認定コース」チップを踏むと`ReferenceError`で一覧読み込み自体が止まっていた不具合を修正（`currentIntent`変数の新設・フィルタへの反映・ヒント表示・受け入れ値リストの現行taxonomyへの追随）。詳細は[DECISIONS.md](./DECISIONS.md#2026-07-14exploreindexhtmlのapplyintent未定義バグを修正)参照。2026-07-14 Chrome MCPで実機確認済み。
 - **`shops.areas`/`instructors.areas`は検索に使われない**：2026-07-14以降、都道府県チップは`prefecture`のみを見る。自由入力の「活動エリア」はプロフィールページの表示情報としてのみ残る。
 - **`shops`/`instructors`の`prefecture`が空のままの事業者がいる可能性**：2026-07-14のバックフィルは`areas`列のテキストから正規表現的に推測しただけのベストエフォートで、マッチしない地名（「瀬戸内」など複数県にまたがるものは対象外）は空のまま。事業者本人が`pro/index.html`で設定するまで都道府県チップには出てこない。
 - **`listings.area`と`shops/instructors.areas`は名前が似ているが別物**：前者はコース単位・14種の固定タグ寄り、後者は事業者単位・自由入力の季節ラベル付きテキスト。
