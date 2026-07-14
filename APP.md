@@ -125,10 +125,10 @@ Freediving Japan における App は「**Webと同じことができる、モ�
 |---|---|
 | STAタイマー フル実装 | ✅ 完了・シミュレーター動作確認済み |
 | タブバー（6タブ） | ✅ 完了（2026-07-14）。ホーム／ログ／タイマー／探す／情報／マイページ。`NativeTabs`＋SF Symbolsアイコン、`tsc --noEmit`通過確認済み。実機/シミュレーター動作確認は未実施 |
-| トレーニングログ画面 | 🔄 一覧表示のみ実装（2026-07-14）。`training_sessions`（正しいスキーマ）から`is_public=true`のセッションを匿名キーで取得・表示。新規登録・自分のログ閲覧はSupabase Auth未実装のため保留 |
-| Supabase 連携 | ⚠️ STAタイマーの保存処理（`sbInsert('training_sessions', ...)`）に**スキーマ不一致バグ**あり（2026-07-14発見）。送信カラム（`type`/`environment`/`duration_sec`等）が実テーブルのカラム（`env`/`date`/`training_dives`分離等）と一致せず、`user_id`も未設定のためRLSで弾かれる可能性大。**保存は実質的に機能していない可能性**。要修正 |
+| トレーニングログ画面 | 🔄 一覧表示のみ実装（2026-07-14）。`training_sessions`（正しいスキーマ）から`is_public=true`のセッションを匿名キーで取得・表示。自分の非公開ログ閲覧・新規登録UIは未実装（保存自体はタイマー画面から可能） |
+| Supabase 連携 | ✅ スキーマ不一致バグ修正済み（2026-07-14）。`@supabase/supabase-js`導入＋メール/パスワード認証（`useAuth`）を追加し、`training_sessions`＋`training_dives`の実カラムに合わせて2段階insertに書き換え。RLS通りログイン中ユーザーのみ保存可能。`tsc --noEmit`通過確認済み。**実機での保存動作確認は未実施** |
 | SNSシェア（画像生成） | ❌ 未着手 |
-| 探す／情報／マイページ | 🔄 暫定対応（2026-07-14）。ネイティブ実装前のブリッジとして、Web版の該当ページをアプリ内ブラウザ（`ExternalLink`）で開く形で実装 |
+| 探す／情報／マイページ | 🔄 暫定対応（2026-07-14）。ネイティブ実装前のブリッジとして、Web版の該当ページをアプリ内ブラウザ（`ExternalLink`）で開く形で実装。マイページのみメール/パスワードのネイティブログインフォームを追加済み（Googleログインは未対応・Web版へ誘導） |
 
 ### STAタイマー：実装済み機能（2026-06-21）
 
@@ -148,6 +148,13 @@ Freediving Japan における App は「**Webと同じことができる、モ�
 - `react-native-svg` は RN 0.85 と C++ ABI 非互換のため削除。pure RN の半円クリップ手法でリングを実装。
 - `expo-speech` / `expo-haptics` は try/catch で optional require（ビルドなしでも動く）。
 - タイマーエンジンは 50ms `setInterval` 単発。stale closure 回避のため全状態を `useRef` で管理。
+
+### 認証（2026-07-14追加）
+
+- `@supabase/supabase-js` ＋ `@react-native-async-storage/async-storage` ＋ `react-native-url-polyfill` を導入。`src/lib/supabase.ts`にクライアント定義（Webと同一Supabaseプロジェクト）。
+- `src/hooks/use-auth.tsx`（`AuthProvider`/`useAuth`）でセッションをアプリ全体に供給。`_layout.tsx`でルート直下にラップ。AppStateに応じてトークン自動リフレッシュをstart/stop。
+- 対応方式：メール/パスワードのみ（`mypage.tsx`にネイティブフォーム実装）。Googleログインは未対応（Web版`auth.html`へ`ExternalLink`で誘導）。
+- タイマー画面（`timer.tsx`）はセッションがある場合のみ`training_sessions`→`training_dives`の順でinsertする。未ログイン時は保存を試みず、ログインを促すアラートとマイページへのリンクを表示。
 
 ---
 
