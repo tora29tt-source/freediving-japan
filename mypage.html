@@ -594,6 +594,14 @@ body { padding-bottom: 72px; }
     </div>
   </div>
 
+  <!-- 予約履歴（体験・コース予約。無ければ非表示） -->
+  <div class="section" id="bookingHistorySection" style="display:none;">
+    <div class="sec-head">
+      <div class="sec-title">予約履歴</div>
+    </div>
+    <div id="booking-history-list"></div>
+  </div>
+
   <!-- 学んだ講座（/learn/ 有料講座。購入済みが無ければ非表示） -->
   <div class="section" id="learnSection" style="display:none;">
     <div class="sec-head">
@@ -1323,6 +1331,7 @@ function renderSummary(sessions) {
 let _myBookingsCache = [];
 
 async function loadBookingHistory(guestEmail) {
+  const section = document.getElementById('bookingHistorySection');
   const el = document.getElementById('booking-history-list');
   if (!el) return;
 
@@ -1338,10 +1347,11 @@ async function loadBookingHistory(guestEmail) {
     .limit(10);
 
   if (!bookings || !bookings.length) {
-    el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">予約はまだありません</div>';
+    if (section) section.style.display = 'none';
     return;
   }
 
+  if (section) section.style.display = '';
   _myBookingsCache = bookings;
 
   const MONTHS     = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];

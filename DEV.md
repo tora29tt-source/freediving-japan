@@ -4,11 +4,17 @@ tags: [dev, core-doc]
 
 # Freediving Japan — 開発・技術仕様
 
-## リリース判定（2026-07-11・定期タスクによる自動判定／前回2026-07-10判定を更新）
+## リリース判定（2026-07-13・ブロッカー2件とも解消）
 
-**問い：今すぐ友人インストラクターを1人招待して良いか → 判定：NO（ただし前回より前進。残りは実質1件・半日規模）**
+**問い：今すぐ友人インストラクターを1人招待して良いか → 判定：YES**
 
-**2026-07-13追記**：下記ブロッカー1（新規SQL2件＋i18n用SQL計3件の本番適用）はChrome経由でSupabase SQL Editorに直接実行し、`information_schema`で存在確認まで完了。残るブロッカーは②予約決済E2Eのみ。
+**2026-07-13追記**：ブロッカー1（新規SQL2件＋i18n用SQL計3件の本番適用）・ブロッカー2（予約決済フルE2E）とも解消。
+
+- ブロッカー1：Chrome経由でSupabase SQL Editorに直接実行し、`information_schema`で存在確認まで完了
+- ブロッカー2：Chrome MCPで本番実機E2Eを実施し、以下すべて成功を確認
+  - インストラクター名義商品：explore→listing.html→カレンダー→Stripe Checkout（4242）→webhook→`bookings.status=paid`→success.html まで通過
+  - ショップ名義商品（instructor_id無し）：同経路で決済まで通過（07-11の`sync_client_from_booking()`500エラー修正が本番で機能していることを確認）
+  - pro/index.htmlから新category/intent/エリア/対象レベル入力で新規コースを1件実登録→explore反映・都道府県フィルタ正常動作を確認（テスト用に作成した「QAテスト：スキンダイビング体験」は確認後に非公開化してexploreから除去済み）
 
 ### 前回（07-10）からの変化
 
@@ -16,20 +22,19 @@ tags: [dev, core-doc]
 - ✅ learn講座購入の本番E2E完了・法務ページ一式（about/contact/privacy/terms/**特商法**）新設 — 決済を伴う招待の前提が整った
 - ⚠️ ただし07-10 20:36のコミットで`pro/index.html`・`explore/listing.html`・legal各ページに**新規SQL2件に依存する変更**が入った（下記ブロッカー1）
 
-### 残タスク（優先順位順・上から着手）
+### 残タスク（ブロッカーは0件・以下は招待後でも良い後回しタスクのみ）
 
-**必須（ブロッカー）**
+**必須（ブロッカー）** — なし（2026-07-13時点で全解消）
 
 1. ~~**新規SQL2件の本番適用を確認（未適用なら実行）**~~ **2026-07-13 実行済み・解消**
    - `sql/listings_course_template_20260710.sql`（`listings.target_level`/`goal`追加）：Chrome経由でSupabase SQL Editorに適用し、`information_schema.columns`で両カラムの存在を確認済み
    - `sql/contact_messages_schema_20260710.sql`：同様に適用し、`information_schema.tables`でテーブル存在を確認済み
    - 併せて`sql/translations_20260712.sql`（多言語対応i18n基盤）も同日適用済み
    - 3ファイルとも`-- ステータス: 実行済み（2026-07-13）`ヘッダを追記済み
-2. **予約→決済のフルE2Eを現行コードで1回通す**（前回から継続・依然として結果記載なし）
-   - 経路：explore→listing.html→空き枠カレンダー→Stripe Checkout（4242）→webhook→`bookings.status=paid`→success.html
-   - ショップ名義商品（instructor_id無し）でも1回通す（カレンダー表示までは07-07確認済み・決済まで未実施）
-   - 併せて：pro/index.htmlから新category/intent/エリア/対象レベル入力で**新規コースを1件実登録→explore反映**まで確認（旧スモーク最低ライン②の未消化分。ブロッカー1のカラム確認も兼ねられる）
-   - 根拠：招待するのはインストラクター＝予約・決済と出品が中核価値。旧E2E成功は07-04ショップモデル・07-08検索UI・07-10タクソノミー/エリア/講習テンプレ変更より前のもので現行コードの保証にならない
+2. ~~**予約→決済のフルE2Eを現行コードで1回通す**~~ **2026-07-13 実施済み・解消**
+   - 経路：explore→listing.html→空き枠カレンダー→Stripe Checkout（4242）→webhook→`bookings.status=paid`→success.html を実機で確認
+   - ショップ名義商品（instructor_id無し）でも決済まで成功を確認
+   - pro/index.htmlから新category/intent/エリア/対象レベル入力で新規コースを1件実登録→explore反映・都道府県フィルタも確認（テストコースは確認後に非公開化済み）
 
 **後回しで良い（招待のブロッカーではない）**
 
@@ -41,10 +46,10 @@ tags: [dev, core-doc]
 
 ### 判定の根拠
 
-- **STRATEGY.md Phase 1ゴール照合**：友人招待に必要な機能（CRM・予約管理・トレーニングログ・プロフィール・リスティング）はWeb側で全て「✅完了」。前回唯一の障害だった「大改修の実機未検証」は07-10のQAでほぼ解消
-- **残る障害は1点のみ**：予約決済E2Eが現行コードで未実施（実装ではなく確認作業）。講習テンプレ・お問い合わせのDB依存は2026-07-13にSQL適用済みで解消
-- **RLS・セキュリティ**：ブロッカー無し。2026-06-26レビュー11件・2026-07-04監査S1〜S10全件対応済み。bookingsのINSERTはRPC限定、記事サニタイズ・XSS・ソフトデリートadminバグ対応済み。新設contact_messagesもINSERT文字数・カテゴリ制限＋SELECT/UPDATE管理者限定のRLS付きで設計されている（適用確認はブロッカー1に含む）→ 友人の実データが入っても事故らない状態
-- 判断方針：全部を完璧にしてからではなく「最小限で招待できる状態」を基準にした。ブロッカー2件を潰した時点でYESに切り替えてよい
+- **STRATEGY.md Phase 1ゴール照合**：友人招待に必要な機能（CRM・予約管理・トレーニングログ・プロフィール・リスティング）はWeb側で全て「✅完了」
+- **予約決済E2Eも現行コードで実機確認済み**（インストラクター名義・ショップ名義とも決済成功、新規コース登録→explore反映も確認）
+- **RLS・セキュリティ**：ブロッカー無し。2026-06-26レビュー11件・2026-07-04監査S1〜S10全件対応済み。bookingsのINSERTはRPC限定、記事サニタイズ・XSS・ソフトデリートadminバグ対応済み。新設contact_messagesもINSERT文字数・カテゴリ制限＋SELECT/UPDATE管理者限定のRLS付きで設計・適用確認済み → 友人の実データが入っても事故らない状態
+- 判断方針：全部を完璧にしてからではなく「最小限で招待できる状態」を基準にした。ブロッカー2件とも解消したためYES
 
 -----
 
@@ -256,73 +261,29 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 | `articles` | ✅ | 公開済み: 全員 / 認証済み: 全件 / 管理者: 全件（`articles_select` ポリシー）/ UPDATE: admin/staff は全件・editor は自分の記事のみ（published 変更不可）/ DELETE: admin/staff は全件・editor は自分の下書きのみ（`articles_review_flow_20260629.sql`） |
 | `user_roles` | ✅ | is_site_admin()=true のみ全操作（admin/staff/editor） |
 
-### ショップ／インストラクター 出品モデル（2026-07-04・secretary相談で確定）
+### ショップ／インストラクター 出品モデル（2026-07-04確定）
 
-**背景**：以前は listings/bookings 等が instructor_id 必須で、必ず個人インストラクター単位の商品という前提だった。実態はショップが担当者未定のまま商品を出すこともあり、インストラクターは複数ショップに同時に所属する（例：夏はVolcano Cup、冬は流氷フリーダイビング）。
+ショップは単体で商品を出品可能（`listings.shop_id`）、インストラクターは複数ショップに同時所属可能（`instructor_shops` N:M中間テーブル）。`listings`/`availability_slots`/`bookings`/`inquiries`/`reviews`は`instructor_id`をnullable化し`shop_id`を追加、`CHECK`でどちらか必須。実装済み・本番適用済み（DB: `sql/shop_direct_listings_20260704.sql`）。
 
-- **ショップは単体で商品を出品できる**（`listings.shop_id`）。担当インストラクター未定でもショップ名義で完結してよい
-- **インストラクターは複数ショップに同時所属できる**：新設した `instructor_shops`（N:M中間テーブル）で管理。季節・期間ラベルは持たず、フラットな所属一覧
-- **ショップ名義の商品に参考として担当インストラクターを併記することも可能**（`listings.instructor_id` と `shop_id` 両方セット可）
-- `listings` / `availability_slots` / `bookings` / `inquiries` / `reviews` は `instructor_id` を nullable化し `shop_id` を追加。`CHECK (instructor_id IS NOT NULL OR shop_id IS NOT NULL)` でどちらか必須を担保
-- `create_pending_booking()` RPC に `p_shop_id` を追加。未指定なら `availability_slots.shop_id` から自動補完（既存呼び出し側の互換維持）
-- 個人インストラクターが「自分をショップとして登録する」従来の運用は不要になったが、既存データはそのままで問題ない（併用可）
-- 実装（DB）：`sql/shop_direct_listings_20260704.sql`（Supabase本番適用済み）
-- 実装（UI・同日追加）：`pro/index.html`（ショップロールでコース/空き枠/予約/問い合わせをショップ名義対応、`instructor_shops`統合）／`admin/index.html`（ショップ選択・フィルタ追加）／`explore/index.html`・`explore/listing.html`（商品一覧・詳細・予約カレンダー・決済がショップ名義商品にも対応、`normalizeOwner()`でinstructor/shop共通化）／`api/create-checkout-session.js`（`shopId`対応）
-- **未着手（フォローアップ）**：`shops` テーブルはまだソフトデリート対象外（物理削除のまま）／ショップ名義商品ページの「指導歴」等インストラクター由来ラベルの文言調整
-- **2026-07-07：Chrome MCPでショップ名義商品の予約カレンダー表示を確認済み**（`explore/shops.html`→ショップカード→コース詳細→空き状況カレンダーが正常表示、コンソールエラーなし）。ただし決済（Stripe Checkout）までの一気通貫E2Eは未実施
-- **2026-07-05追記**：`pro/index.html`の`applyShopOwnerFilter()`は当初`instructor_shops`（在籍インストラクター）のIDも管理対象に含めていたが、在籍インストラクターを追加しただけでその人個人の既存商品・予約・問い合わせまでショップの管理画面に出てきてしまう不具合につながったため、`shop_id = 自ショップ`のみに限定するよう修正。**在籍インストラクター（instructor_shops）は「プロフィール表示用のロースター」であり、商品・予約等の管理権限を拡張するものではない**という方針を明確化
-- **2026-07-05追記**：`shops`にカバー画像の表示位置調整機能を追加（`pro/index.html`のショップ編集画面・記事エディタの`ae-cover-pos`と同方式のドラッグ/矢印UI）。DB側の`shops.cover_position`カラム（TEXT、例`"50% 50%"`）は **2026-07-06 Supabase本番に適用済み**（`sql/shops_cover_position_20260705.sql`・information_schemaで確認済み）
-- **2026-07-11追記**：instructor向けプロフィールページ（`explore/profile.html`）にバナー（カバー画像）表示枠があるにもかかわらず、`instructors`側に登録UI・カラムが存在しなかった不具合を修正。`shops`と同方式で`instructors.cover_url`／`instructors.cover_position`を追加し、`pro/index.html`のインストラクタープロフィール編集画面にアップロード＋ドラッグ/矢印での表示位置調整UIを追加（`handleInstructorCoverFile()` / `ip*`関数群）。`explore/profile.html`・`explore/listing.html`の表示側も`raw.cover_url`を参照するよう修正。DB側`sql/instructors_cover_20260711.sql`は**2026-07-11 Supabase本番に適用済み**（ユーザーがSQL Editorで実行）。**2026-07-11 実機確認済み**（画像アップロード→保存→公開ページのバナー反映まで動作確認OK）
-- **2026-07-11 フルE2Eテスト実施（Chrome MCP・Stripeサンドボックス）**：予約→決済→webhook→booked_count増加→success表示の一連は正常動作を確認。ただし以下の不具合を発見・修正：
-  - 🔴**ブロッカー**：ショップ名義（instructor_id IS NULL）の予約が `api/create-checkout-session` で500エラーになり実質予約不可能だった。真因は`sql/clients.sql`の`sync_client_from_booking()`トリガーが`clients.instructor_id NOT NULL`前提のまま`shop_direct_listings_20260704.sql`のnullable化に追従しておらず、ショップ名義予約のINSERT時にトリガー内のNOT NULL制約違反で`create_pending_booking()`ごとロールバックしていたため（QA当初の「.eq nullが原因」という推測は誤りで、実際はこのトリガーが原因）。`NEW.instructor_id IS NULL`ならclients同期をスキップするよう修正済み（**要Supabase本番再適用**）
-  - 🔴**セキュリティ**：anonキーでbookingsが全件SELECT可能（client_email等漏洩）と報告。`sql/`内のポリシー定義は正しく owner/admin限定になっているため、本番にStudio経由の重複ポリシー（S3のarticlesと同型の問題）が残っている可能性が高い。要本番pg_policies確認・再適用
-  - ⚠️ `api/create-checkout-session.js`：クライアント指定のinstructorIdをそのまま予約に保存していた（ショップ名義枠に任意のinstructorIdを送りつけられる状態）→ 常にslot由来の値のみを信頼するよう修正
-  - ⚠️ `booking/success.html`：ショップ名義予約でも「インストラクターから連絡」固定表示・ショップ名非表示だった → 担当名＋インストラクター/ショップの呼称出し分けに修正（`api/booking-result.js`にinstructors/shops名を追加）
-  - ⚠️ `explore/listing.html`：`?listing=`のみ（owner指定なし）だと「見つかりませんでした」になっていた → listingsテーブルからownerを引いてリダイレクトするフォールバックを追加
-  - **2026-07-12解決**：ショップ名義予約もインストラクターと同一の分配式を採用する方針で決着（別設計は不要と判断）。手数料率自体もこのタイミングでプラットフォーム10%/事業者90%に変更（下記「マッチング手数料率変更・キャンセル返金ポリシー設計」参照）
+**未着手**：`shops`テーブルはソフトデリート対象外（物理削除のまま）／ショップ名義商品ページの「指導歴」等インストラクター由来ラベルの文言調整
 
-### 1アカウントで個人インストラクター＋自分のショップを両方登録できるようにする（2026-07-11・secretary相談で確定）
+経緯・発見したバグ（ショップ管理範囲の誤り、カバー画像機能追加、E2Eテストで見つかったブロッカー・セキュリティ課題など）は[DECISIONS.md](docs/DECISIONS.md#2026-07-0407-11ショップインストラクター-出品モデル)参照。
 
-**背景**：現状`pro/index.html`の`boot()`は`instructors`・`shops`を`user_id`で両方チェックしているが`else if`で排他扱いになっており、新規登録の選択画面（インストラクター/ショップの2ボタン）もどちらのプロフィールも無いユーザーにしか出ない。そのため一度どちらかを作ると、同一アカウントでもう一方を追加登録する導線が無かった。
+### 1アカウントで個人インストラクター＋自分のショップを両方登録できるようにする（2026-07-11確定）
 
-**決定した運用モデル**：
-- 個人アカウント：インストラクター登録が基本。自分の店を持つ場合は同じアカウントでショップも追加登録できる（`instructors`行・`shops`行が同一`user_id`にひもづく）
-- ショップアカウント：ショップ登録のみ。所属インストラクターは既存の（別アカウントの）承認済みインストラクターを検索して`instructor_shops`で紐付ける（実装済み・変更なし）
-- ショップ登録の承認フロー：`shops`にstatusカラムは追加しない。インストラクターが追加でショップ登録する場合も審査不要（現状どおり即公開）
+個人アカウントはインストラクター登録が基本で、自分の店を持つ場合は同じアカウントでショップも追加登録できる。`pro/index.html`にrole-switch（両方持つユーザーのみ表示）とadd-role-banner（追加登録の導線）を実装済み。
 
-**実装済み（2026-07-11・同日中に着手）**：
-- `pro/index.html`の`boot()`のelse-ifを廃止。`instructors`・`shops`の有無をそれぞれ`myInstructor`/`myShop`に保持し、両方あれば個人インストラクター優先をデフォルト表示にする（`myRole = myInstructor ? 'instructor' : (myShop ? 'shop' : null)`）
-- ヘッダーに`role-switch`（個人名／ショップ名の2ボタン、両方持つユーザーにのみ表示）を追加。クリックで`setActiveRole()`が`myRole`を差し替え、プロフィール表示・現在アクティブなタブのデータ・問い合わせ/予約バッジを再取得する
-- `status-pending`/`status-rejected`のbody classは`applyStatusClasses()`に切り出し、instructorロール表示時のみ付与するよう修正（ショップロール表示中は承認待ちロックがかからないように）
-- プロフィールタブに`add-role-banner`を追加。片方のプロフィールしか無いユーザーには「＋ショップとして登録する」／「＋インストラクターとして登録する」の導線を表示し、`showCreateProfile()`から既存の作成モーダルを再利用（新規モーダルは作らず流用）
-- インラインJSの構文チェック済み（Node `new Function()`でパースエラー無し）
+**未実施**：実機QA未着手（個人のみ／ショップのみ／両方持つテストアカウントの3パターンで確認要）
 
-**未実施**：実機QA（Chrome MCP等での動作確認）は未着手。次回セッションで、個人のみ／ショップのみ／両方持つテストアカウントの3パターンで切替・バナー表示・承認待ちロックの挙動を確認する
+詳細は[DECISIONS.md](docs/DECISIONS.md#2026-07-111アカウントで個人インストラクター自分のショップを両方登録できるようにする)参照。
 
-### `listings.category` タクソノミー変更（2026-07-10・secretary相談で確定）
+### `listings.category` タクソノミー変更（2026-07-10確定）
 
-**背景**：旧6値（フリーダイビング体験／スキンダイビング体験／スクール・資格取得／トレーニング・アスリート向け／ツアー・ガイド／その他）は「ダイビング種別」と「目的」が混在しており、ホームの3ピラー（シュノーケル／スキン／フリー）に対応するcategory値が存在しなかった（特にシュノーケルに相当する値が皆無）。そのため`snorkeling.html`/`skindiving.html`は実データ接続ができず静的モックのまま、`freediving.html`はcategory一致＋タイトルキーワードOR条件という力技で絞り込んでいた。
+`category`は「ダイビング種別」専用の4値（**シュノーケリング／スキンダイビング／フリーダイビング／その他**）に統一。ダイビング種別軸(category) × 目的軸(intent) の組み合わせで表現。DB移行済み・本番実行済み（`sql/category_taxonomy_update_20260710.sql`等）。1件のリスティングは`category`と`intent`を独立した2列として持つ。
 
-- `category`を「ダイビング種別」専用の4値（**シュノーケリング／スキンダイビング／フリーダイビング／その他**）に統一。ダイビング種別軸(category) × 目的軸(intent) の組み合わせで表現する方針に変更
-- ピラーページのchips（「体験ツアー」「認定コース」等）をDB分類（tags列）に紐付ける案は当初見送ったが、同日中に再検討して実装（詳細は下記「ピラーページの人気タグチップ」参照）
-- `intent`の`dive`→`fundive`/`training`/`coaching`分割（`sql/intent_taxonomy_update_20260708.sql`）も同時に本番適用する
-- **DB移行**：`sql/category_taxonomy_update_20260710.sql`・`sql/intent_taxonomy_update_20260708.sql`ともに**2026-07-10 Supabase本番に実行済み**（intent側は制約追加とデータ移行の順序が逆になっていたバグを発見・修正してから実行）。categoryの既存リスティング再分類はタイトルキーワードによる推測移行のため、admin画面で目視確認推奨→**2026-07-10 Chrome MCPで目視確認完了**：本番listings全2件とも問題なし（「コーチングセッション」=フリーダイビング/coaching・「フリーダイビング体験(プールでも可能です」=フリーダイビング/try。手動修正不要）
-- **実装済み**：`pro/index.html`（カテゴリselect→新4値、検索タブ分類select→try/learn/fundive/training/coaching）／`admin/index.html`（カテゴリ名入力欄のプレースホルダーを新値に更新。intentのselectは元から新分類対応済みだった）／`index.html`（フリー枠の絞り込みにcategory条件を追加し、他種目の商品が紛れ込むのを修正）／`snorkeling.html`・`skindiving.html`（freediving.html同様にSupabase実データ接続を追加。該当0件時はモックを残す方針でfreediving.htmlより安全側に倒した）／`freediving.html`（category一致のみのシンプルなクエリに整理、タイトルキーワードOR条件を廃止）
-- explore/index.html・explore/shops.htmlはcategoryを表示・テキスト検索補助にしか使っておらず変更不要（確認済み）
+**検索・表示への影響**：ホーム3タブ・各ピラーページ（snorkeling/skindiving/freediving.html）は`category`で絞り込み。探すページ（explore/index.html）のタブは`intent`で絞り込み（従来通り、2軸は独立）。
 
-**この変更がデータ・検索に与える影響（確認用メモ）**
-
-- 1件のリスティングは「ダイビング種別（category）」と「目的（intent）」を**独立した2つの列**として持つ。1つのコースは必ずどちらも1つずつ選ぶ（ダイビング種別×目的の掛け合わせで表現。例：スキンダイビング×learn＝スキンダイビングの認定コース）
-- **実例（本番の唯一のリスティングで確認済み）**：「コーチングセッション」というリスティングは移行前 `category=トレーニング・アスリート向け` / `intent=dive` だったが、移行後は `category=フリーダイビング` / `intent=coaching` になった。旧categoryがダイビング種別不明だったためフリーダイビング扱いにフォールバックし、タイトルに「コーチング」を含んでいたためintent側はcoachingと判定された（推測移行なので、狙い通りか要目視確認）
-- **検索・表示への影響**：
-  - ホーム（index.html）の3タブ（シュノーケル／スキン／フリー）と各ピラーページ（snorkeling/skindiving/freediving.html）は`category`（ダイビング種別）で絞り込む。**ホームのタブ切り替えはこのcategory列と直接リンクしている**
-  - 探すページ（explore/index.html）の「やってみたい／ちゃんと学びたい／もっと潜りたい」タブは`category`ではなく`intent`で絞り込む（従来通り）
-  - この2軸は独立しているため、explore側でダイビング種別（シュノーケル/スキン/フリー）による絞り込みは今回追加していない。ホームの3ピラー経由でダイビング種別別に見せる導線と、探すページのintent別導線の2つが並立する形
-- **新規リスティング登録（pro/index.html）**：ダイビング種別は4択（シュノーケリング／スキンダイビング／フリーダイビング／その他）、目的は5択（やってみたい／ちゃんと学びたい／もっと潜りたい・ファンダイブ／もっと潜りたい・トレーニング／もっと潜りたい・コーチング）から選ぶだけになった
-
-**ダイビング種別ごとの目的（intent）制限（2026-07-10・同日追記で確定）**
-
-種目によって成立する「目的」が異なるため（スキン/シュノーケルにトレーニング・コーチングという競技的な目的は基本的に存在しない）、`pro/index.html`のUI側で選択肢を制限した。
+**ダイビング種別ごとの目的（intent）制限**（`pro/index.html`のUI側`INTENT_BY_CATEGORY`マップで選択肢を制限。DB側CHECK制約は未追加）：
 
 | ダイビング種別 | 選べる目的（intent） |
 |---|---|
@@ -331,158 +292,79 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 | フリーダイビング | 全5種（やってみたい／ちゃんと学びたい／ファンダイブ／トレーニング／コーチング） |
 | その他 | 全5種（制限なし） |
 
-- 実装：`pro/index.html`に`INTENT_BY_CATEGORY`マップと`applyCategoryIntentOptions()`を追加。ダイビング種別selectのonchangeで目的selectの選択肢を絞り込み、フォーム初期化時・編集読み込み時にも適用
-- DB側のCHECK制約は今回追加していない（admin/index.htmlの「カテゴリ名」欄が自由入力のままで、制約があるとadmin経由の保存が壊れるリスクがあるため）。UI側の制限のみで運用し、必要になればDB側も検討する
+**ピラーページの人気タグチップ**：固定チップではなく、実際のリスティングに付いた自由タグを集計し使用頻度順に表示（`loadPopularTags()`）。該当タグが無ければ見本チップを残す。チップクリックは`explore/index.html?tag=<タグ名>`に遷移。
 
-**ピラーページの人気タグチップ（2026-07-10・同日追記で確定）**
+経緯・実例・実機確認結果は[DECISIONS.md](docs/DECISIONS.md#2026-07-10listingscategory-タクソノミー変更エリア設計刷新learn実装方針)参照。
 
-以前「chipsをtags列に紐付けるのは不要」と決めた件の再検討。固定チップではなく、実際のリスティングに付いた自由タグ（`pro/index.html`の「タグ」欄で入力済み）を集計し、使用頻度順に表示する形に変更した。
+### エリア設計の刷新（2026-07-10確定）
 
-- `snorkeling.html`／`skindiving.html`／`freediving.html`：各ページで`category`一致の公開リスティングの`tags`を集計し、上位6件をチップとして表示（`loadPopularTags()`）。該当タグが1件も無ければ既存の見本チップ（体験ツアー等）を残す
-- チップクリック時のリンク先は`explore/index.html?tag=<タグ名>`
-- `explore/index.html`：`applyUrlParams()`に`tag`パラメータの読み込みを追加。該当タグを「こだわり条件」の`activeTags`に反映し、候補一覧（`#conditionChips`）に無いタグなら動的にチップを追加した上でパネルを開く
-- freediving.htmlの「動画で学ぶ／ランキング／大会」の3リンクはチップ集計の対象外（別枠として存置）
-- 本番データがまだ少ないため、当面は多くのページで「該当0件→見本チップのまま」になる見込み。リスティング登録が増えるにつれて自然に実データのチップへ切り替わる設計
+「エリア」固定14タクソノミーを廃止し、**都道府県（`listings.prefecture`）を検索・絞り込みの主軸**にする。事業者は都道府県配下のスポット名を自由入力（`datalist`サジェスト、種データ14件＋実データをマージ）。探すページのSVG地図（`js/area-map.js`）は`explore/index.html`からは廃止（`explore/shops.html`はスコープ外で旧方式のまま残存）。
 
-### エリア設計の刷新（2026-07-10・secretary相談で確定）
+実装済み：`js/location-data.js`（新規）／`js/area-picker.js`／`explore/index.html`・`pro/index.html`・`admin/index.html`。2026-07-10 Chrome MCPで実機QA完了（admin側`loadListings()`の`prefecture`欠落バグを発見・修正済み）。
 
-**背景**：`listings`には`prefecture`（47都道府県＋海外の自由選択）と`area`（沖縄/伊豆/鹿児島など14項目の固定タクソノミー、探すページの地図・チップ絞り込みに使用）の2つの場所関連フィールドがあり、出品者（インストラクター・ショップ）が`prefecture`だけ設定して`area`を未選択のまま保存すると、探すページの地図・チップからは見えなくなる（テキスト検索でのみヒット）落とし穴があった。実際に鹿児島県のショップ出品（Volcano Cupコーチング）がこの状態になり、地図上で0件に見える不具合として発覚した。
+**未着手**：`explore/shops.html`への同方式適用（`shops`/`instructors`の`prefecture`列が全レコードNULLのため、データバックフィルが先に必要）
 
-- 「エリア」という固定14タクソノミーの概念を廃止し、**都道府県を検索・絞り込みの主軸**にする
-- 事業者は都道府県配下の具体的なスポット名を**自由入力**で登録できる（例：沖縄県の恩納村）
-- 登録時（`pro/index.html`・`admin/index.html`）・検索時（探すページ・トップの検索バー）の両方で、**既存のスポット名をサジェストする同じ仕組み**を使う（事業者側／利用者側でUIロジックを揃える）
-- サジェストの初期データは今の14スポット名（沖縄・伊豆・紀伊半島・瀬戸内・鹿児島・東京・北海道・石垣島・宮古島・西表島・与那国島・久米島・慶良間諸島・奄美大島）を種にし、以降は実際の出品データ（DB上の`area`の重複しない値）を積み増していく
-- 探すページのSVG日本地図（`js/area-map.js`、14スポットのみピンがある）は**廃止**。都道府県チップ＋自由入力サジェストのテキスト中心UIに一本化する
-- **実装済み（2026-07-10）**：`js/location-data.js`（新規・47都道府県リスト＋スポット名サジェストの共通データ。`loadKnownSpots()`が種データ14件＋`listings.area`の実データをマージ）／`js/area-picker.js`（トップ・ピラーページの検索ドロップダウンを「人気の都道府県」＋「よく検索されるスポット名」チップに全面書き換え）／`explore/index.html`（SVG地図・`js/area-map.js`の読み込みを削除。`#areaChips`は`listings.prefecture`集計による動的生成に変更、`currentArea`→`currentPref`にリネーム。検索入力に`datalist`でスポット名サジェストを追加）／`pro/index.html`・`admin/index.html`（「エリア」固定select＋その他入力を廃止し、`datalist`付きテキスト入力に変更。保存・編集読み込みロジックも追随）
-- **未着手（フォローアップ）**：`explore/shops.html`は今回のスコープ外。まだ旧`js/area-map.js`＋14タクソノミーの`areas`部分一致フィルタのまま残っている（`shops`/`instructors`の`prefecture`列がフィルタに使える状態か未確認のため、データ確認してから着手する）。`js/area-map.js`自体は`explore/shops.html`が使用中のため削除しない
-- **2026-07-10：Chrome MCPで実機QA完了（エリア検索刷新一式）**
-  - `explore/index.html`：都道府県チップの表示・絞り込みOK（鹿児島県=2件／沖縄県=0件で正しく動作）、検索入力のdatalistサジェストOK（47都道府県＋スポット名の計61件）、旧SVG地図の要素・`js/area-map.js`の読み込みが完全に消えていることを確認。コンソールエラーなし（既知のGoTrueClient多重インスタンス警告のみ）
-  - `pro/index.html`：`#l-area`（datalist付きテキスト入力）にサジェスト14件が流し込まれることを実機確認。保存（`area`）・編集読み込み（`l.area`復元）のロジックもコードレビューで問題なし。コンソールエラーなし
-  - `admin/index.html`：リスティング編集モーダルで既存データ（都道府県=鹿児島県／スポット名=空欄）が正しく読み込まれること、`#listing-area`のdatalist（14件）を確認。**バグ発見・修正済み**：`loadListings()`のselectに`prefecture`が含まれておらず、一覧の「都道府県」列が常に「—」表示になっていた→selectに`prefecture`を追加して修正
-  - `explore/shops.html`（状態把握のみ・修正なし）：旧14タクソノミーチップ＋SVG地図のまま正常動作、コンソールエラーなし。**`shops.prefecture`／`instructors.prefecture`は全レコードNULL**のため、都道府県軸への移行はデータバックフィルが先に必要。現状の`areas`部分一致（例：「鹿児島（6月~10月）」が「鹿児島」チップにヒット）は機能しており、新方式（`listings.prefecture`軸）とはテーブルも画面も別のため直接の矛盾・重複は起きていない
+### /learn/ 有料講座：詳細ページ・視聴の実装方針（2026-07-10確定）
 
-### /learn/ 有料講座：詳細ページ・視聴の実装方針（2026-07-10・secretary相談で確定）
+講座詳細ページは`courses`テーブルから動的生成。購入導線は`/api/create-course-checkout-session.js`でStripe Checkout、購入記録は`course_purchases`テーブル。視聴はmypage新設タブからVimeo Player APIで再生。耳抜き入門・基礎完全講座から先行実装。
 
-**背景**：`learn/index.html`のコースカードは骨組みのみで、購入ボタンは全て`disabled`（準備中表示）。詳細ページが存在せず押した先が無い状態だった。撮影開始（耳抜き入門・基礎完全講座から）に合わせて、詳細ページと視聴の実装方針を先に固めた。
+**2026-07-10 本番E2Eテスト完了**（Chrome MCP）。**未着手**：実際の動画アップロード・vimeo_id登録（これが入って初めて購入ボタンが実際に有効化される）
 
-- 講座詳細ページは静的量産ではなく、**`courses`テーブル（既存`listings`と同様の設計思想）から動的生成**する
-- 購入導線：既存`/api/create-checkout-session.js`（予約決済用）を講座購入向けに拡張し、Stripe Checkout経由で決済
-- 購入記録：`course_purchases`的な新規テーブルに保存（`bookings`と同パターン）
-- 視聴：mypage側に新設タブから、購入済み講座のみ**Vimeo Player APIで再生**（購入履歴で認証。Vimeo動画自体は限定公開設定）
-- 着手順：4講座まとめてではなく、**耳抜き入門・基礎完全講座から**先行実装（撮影もここから開始予定）
-- **未着手**：`courses`/`course_chapters`/`course_purchases`のカラムまで含めた詳細スキーマ設計、詳細ページ・視聴タブの実装（次はpmスキルで着手）
+経緯・実機QA詳細は[DECISIONS.md](docs/DECISIONS.md#2026-07-10listingscategory-タクソノミー変更エリア設計刷新learn実装方針)参照。
 
-### `shops.shop_type` 廃止（2026-07-05・secretary相談で確定）
+### `shops.shop_type` 廃止（2026-07-05確定）
 
-**背景**：`shops.shop_type`（individual / school / operator）はショップ作成・編集フォームで選択させていたが、どこの検索・フィルタ・バッジ表示にも使われておらず装飾的な項目だった。また個人／ショップの区分は pro/index.html の登録導線（`showCreateProfile('instructor' | 'shop')`）で既に明示的に分かれており、`shops` 側に「個人」を残す意味がない。「スクールで探す」等の検索軸も listings の intent（try/learn/dive）で実現済みのため、ショップ単位の type 分けは不要と判断。
+`shops.shop_type`（individual/school/operator）はどこの検索・フィルタにも使われていなかったため、`pro/index.html`のフォームから選択欄を削除。DB側カラム・CHECK制約は既存データ保護のため未変更（未参照）。
 
-- `pro/index.html` のショップ作成モーダル・ショッププロフィール編集フォームから「ショップタイプ」選択欄を削除。insert/update ペイロードからも `shop_type` を除外
-- DB側の `shops.shop_type` カラム・CHECK制約（`individual`/`school`/`operator`）は既存データ保護のため**未変更**。今後どのコードからも参照されない想定
-- **未着手（フォローアップ）**：カラム自体の削除（マイグレーション）は現時点で不要と判断、必要になれば別途対応
+### ショップ/インストラクタープロフィールページと商品ページの分離（2026-07-05確定）
 
-### ショップ/インストラクタープロフィールページと商品ページの分離（2026-07-05・secretary相談で確定）
-
-**背景**：`explore/listing.html`が「プロフィール表示」と「商品（コース）詳細＋予約」の2役を1ファイルで兼務しており、コース未選択でアクセスした場合でも内部的に1件目のlistingを仮の「アクティブコース」として扱っていた。そのためコースを持たないショップ（登録直後など）は情報欄が空欄だらけになり、コースを持つショップでも「プロフィールを見に来たら特定コースの予約画面が出る」という混乱が生じていた。
-
-- **プロフィールページ**（bio・在籍インストラクター一覧・取り扱いコース一覧・レビュー。予約カレンダーなし）と、**商品ページ**（特定コースの詳細＋予約カレンダー。プロフィール要素は最小限）を別ファイルに分離する方針に変更
-- 新規ファイル：`explore/profile.html`（プロフィール専用）。`explore/listing.html`は商品詳細専用に縮小し、`listing=`パラメータで指す商品が無い場合は`profile.html`にフォールバックする
-- リンク更新対象：`explore/shops.html`（カードのリンク先）／`explore/index.html`（インストラクタープレビューモーダルのCTA）／`explore/listing.html`自身（運営者カードのリンク先）
-- **2026-07-07：Chrome MCPで動作確認済み**：`explore/shops.html`のショップカード→`profile.html`（自己紹介・在籍インストラクター・取り扱いコース表示）→コースカードクリックで`listing.html`（詳細＋予約カレンダー）への遷移、および`listing.html`にlistingパラメータ無しでアクセスした際の`profile.html`へのフォールバックをすべて確認。コンソールエラーなし
+`explore/listing.html`が「プロフィール表示」と「商品詳細＋予約」を兼務し混乱していたため分離。新規`explore/profile.html`（プロフィール専用）、`listing.html`は商品詳細専用に縮小し`listing=`が無ければ`profile.html`にフォールバック。2026-07-07 Chrome MCPで動作確認済み。
 
 ### 記事の著者紹介文をDBカラム化（2026-07-05）
 
-**背景**：記事詳細ページ・記事エディタのプレビューに表示される「著者紹介文」（編集部/著者の説明文）が`admin/index.html`と`media/article.html`双方のJS内にハードコードされており、特定個人名を含む文言が編集不可のまま埋め込まれていた。
+著者紹介文が`admin/index.html`と`media/article.html`双方にハードコードされ編集不可だった問題を解消。`admin/index.html`に「著者紹介文（任意）」欄を追加、`articles.author_bio`カラム本番適用済み。既存記事は未設定のためデフォルト文表示のまま。
 
-- `admin/index.html`の記事エディタに「著者紹介文（任意）」欄（`#ae-author-bio`）を追加。入力するとプレビュー・保存時に反映される
-- 空欄の場合は編集部/著者いずれも汎用的なデフォルト文（特定個人名なし）にフォールバック
-- DB側の`articles.author_bio`カラム（TEXT、nullable）は **2026-07-06 Supabase本番に適用済み**（`sql/articles_author_bio_20260705.sql`・information_schemaで確認済み）
-- **未着手（フォローアップ）**：既存記事の`author_bio`は未設定のためデフォルト文表示のまま。個別に紹介文を設定したい記事があれば管理画面から追記
+経緯詳細は[DECISIONS.md](docs/DECISIONS.md#2026-07-05shop_type廃止プロフィール-商品ページ分離記事著者紹介文dbカラム化)参照。
 
-### マッチング手数料率変更・キャンセル返金ポリシー設計（2026-07-12・secretary相談で確定）
+### マッチング手数料率変更・キャンセル返金ポリシー設計（2026-07-12確定）
 
-**背景**：`bookings.status`は`pending → paid → confirmed → cancelled / refunded`の5状態を定義済みだが、実際に返金を実行する処理（Stripe返金〜DB更新）は未実装。キャンセル料率も統一ルールが無く、`listings.cancellation_policy`（自由入力欄）に事業者が個別に書くのみだった。ダイビング予約マーケットプレイスの競合Dibee（同業態・Stripe決済代行モデル、手数料12%）の規約を調査し、これを参考にプラットフォーム共通のキャンセルポリシーと手数料率を再設計した。
+競合Dibee（手数料12%）を参考に、マッチング手数料率をプラットフォーム30%/インストラクター70%→**プラットフォーム10%/インストラクター90%**に変更（実装済み）。ショップ名義予約も同一分配。
 
-**マッチング手数料率**：プラットフォーム30% / インストラクター70% → **プラットフォーム10% / インストラクター90%** に変更（Dibee等の競合水準を参考）。ショップ名義予約も同一の分配式を適用する（旧・ショップ精算方式の未決事項もこれで解決）。実装済み：`api/create-checkout-session.js`の`platformFee`計算を`0.30`→`0.10`に修正。
+**キャンセル料率（3段階、`cancellation_policy`未設定時のフォールバック）**：開催7日以上前＝全額返金／3〜6日前＝50%返金／2日前〜当日・無連絡＝返金なし／ショップ都合の中止＝無条件全額返金。返金時に手元に残る分は通常予約と同じ10/90分配。
 
-**キャンセル料率（3段階）**：
-- 開催7日以上前：全額返金（100%）
-- 開催3〜6日前：50%返金
-- 開催2日前〜当日・無連絡：返金なし（0%）
-- ショップ側都合の中止（天候不良・海況不良等）：無条件で全額返金
+実装済み：`sql/bookings_cancellation_20260712.sql`（**2026-07-13本番適用済み**）／`api/cancel-booking.js`（RLS認可→Stripe返金→DB更新）／`admin/index.html`のキャンセル/返金ボタン／`legal/terms.html`等への明記／`mypage.html`からのログイン予約者本人によるセルフキャンセル（2026-07-12実装）。
 
-**優先関係**：各リスティングの`cancellation_policy`（自由入力）が常に優先。この共通ルールは事業者が未設定の場合のみのフォールバックとして適用する。
+**2026-07-13 Stripeサンドボックス返金E2E実施**：
+- **adminパス：完了・成功**。Chrome経由で実際にゲスト予約（¥8,000・12日後開催）を作成→Stripeテストカード4242で決済→`bookings.status=paid`確認→`admin/index.html`の「キャンセル/返金」ボタンから実行→提案額が3段階ルール通り¥8,000（全額）で自動計算されているのを確認→実行後`status=refunded`・`refund_amount=8000`・`cancellation_reason='guest'`・`decrement_booked_count`により`availability_slots.booked_count`が0に戻ることまで確認済み
+- **mypageパス：ブロック（未実施）**。本番の`mypage.html`に`bookingHistorySection`要素が存在せず、ログイン予約者向けセルフキャンセルUI自体が本番未デプロイと判明（ローカルの`mypage.html`にはコードが存在するため、コミット/pushが本番に反映されていない可能性が高い）。`gcp`でのpush後に再検証が必要
+- 予約者本人が自分の予約を閲覧できるようにするRLS修正SQLは2026-07-13にSupabaseへ適用済み（`pg_policies`で確認済み）
 
-**キャンセル料の帰属**：返金時に手元に残る分（50%返金時の残り半分・当日0%返金時の全額）は通常の予約と同じ10/90分配（プラットフォーム10%・インストラクター/ショップ90%）とする。
-
-**実装済み（2026-07-12・同日中に着手）**：
-- `sql/bookings_cancellation_20260712.sql`（**2026-07-13 Chrome経由でSupabase本番に適用済み・`information_schema`/`pg_proc`で確認済み**）：`bookings.refund_amount`/`cancelled_at`/`cancellation_reason`カラム追加、`decrement_booked_count()` RPC新設（`increment_booked_count`の対）
-- `api/cancel-booking.js`（新規）：認可は呼び出し元トークンでスコープしたクライアントが対象`bookings`行をSELECTできるか（RLS `bookings_select_owner_or_admin`）で判定 → 実データ取得・Stripe返金・DB更新はservice_roleで実行。返金%は暦日ベースの日数差（`slot_date`と当日を時刻無視で比較）で自動計算し、`overrideAmount`で手動上書き可能。`refundAmount>0`なら`status=refunded`・`0`なら`status=cancelled`に遷移し、`decrement_booked_count`で空き枠を解放する
-- `admin/index.html`：予約一覧に「キャンセル/返金」ボタン（status=paid/confirmedのみ表示）→ 既存の`.modal-backdrop`パターンを踏襲した`cancel-modal`で理由選択（通常/天候等ショップ都合）・提案額の自動表示・手動編集・実行を行う
-- `legal/terms.html`・`legal/tokushoho.html`：3段階の共通ルール表・天候等ショップ都合＝全額返金・Stripe経由の返金である旨を明記
-- `explore/listing.html`：`listings.cancellation_policy`が空の場合、「お問い合わせください」だった表示を共通ルールの3段階表示に変更
-- インラインJS（admin/index.html・explore/listing.html）・serverless function（api/cancel-booking.js）ともにNode `new Function()`でのパースエラー無しを確認済み
-
-**バグ：ログイン予約者が自分の予約履歴を見られない（2026-07-12発見・チャットでSQL提示・要Supabase実行）**
-
-`mypage.html`の`loadBookingHistory()`は`bookings`を`client_email = ログインユーザーのメール`で検索して「予約履歴」に表示する設計だが、RLSポリシー`bookings_select_owner_or_admin`は本人インストラクター／本人ショップ／管理者のみを許可しており、予約者本人（ゲスト・ログインユーザー問わず）が自分の予約を閲覧できる条件が無かった。そのため予約履歴は常に空で表示されていた可能性が高い。`bookings_select_owner_or_admin`に`OR client_email = auth.email()`を追加する形で修正（SQLはチャットで提示・Supabase側で実行予定。CLAUDE.mdのルールによりRLSポリシー修正は`sql/`にファイル化しない）。
-
-**ログイン予約者向けセルフキャンセル（2026-07-12・上記バグ修正の副次効果を活用して同日中に実装）**
-
-上記のRLS修正により、ログイン済みかつ予約時と同じメールアドレスのユーザーは`bookings`をSELECTできるようになった。`api/cancel-booking.js`の認可チェックはこのSELECT可否を利用しているため、そのままではゲスト自身が`/api/cancel-booking`を叩けてしまう状態になった。これを踏まえて以下を実装：
-
-- `api/cancel-booking.js`：認可を「SELECTできるか」だけでなく、呼び出し元ユーザー（`auth.getUser()`で取得）が①`instructors.user_id`一致（インストラクター本人）②`shops.user_id`一致（ショップ本人）③`user_roles`が`admin`/`staff`（管理者）④`booking.client_email`一致（予約者本人）のどれかを service_role で厳密に判定する方式に変更。①〜③（privileged）のみ`reason='weather'`指定・`overrideAmount`での提案額上書きが可能。④（ゲスト本人）は`reason='guest'`固定・`overrideAmount`は無視され、常に自動計算値のみが適用される（自己申告で満額を主張できないようにするための制約）
-- `mypage.html`：予約履歴の各予約（status=paid/confirmed）に「キャンセル」ボタンを追加。押すと`my-cancel-modal`が開き、開催日までの日数から自動計算した返金見込み（全額/50%/なし）を表示 → 確定で`/api/cancel-booking`を呼び出す
-- ゲスト（未ログイン）向けのセルフキャンセルは対象外のまま（起点は運営のadmin画面 or ログイン予約者本人のマイページの2経路になった）
-
-**未実施（次のフォローアップ）**：
-- ~~`sql/bookings_cancellation_20260712.sql`のSupabase本番適用~~ **2026-07-13実行済み**
-- 上記`bookings_select_owner_or_admin`のRLS修正SQL（チャット提示のみ・ファイル化なし）はSupabase未実行のまま残っている
-- Stripeサンドボックスでの実際の返金E2E（admin経由・mypage経由の両方）は未検証
+詳細は[DECISIONS.md](docs/DECISIONS.md#2026-07-12マッチング手数料率変更キャンセル返金ポリシー)参照。
 
 -----
 
 ### 論理削除（ソフトデリート）方針（2026-07-03導入）
 
-**ユーザー操作による「削除」はデータを物理削除せず `deleted_at` を立てて非表示化する。**
-`sql/soft_delete_20260703.sql` で導入済み。
+**ユーザー操作による「削除」はデータを物理削除せず `deleted_at` を立てて非表示化する。** `sql/soft_delete_20260703.sql` で導入済み。
 
-- **対象テーブル**（`deleted_at timestamptz` 追加済み）：`events` / `articles` / `listings` / `instructors` / `event_staff` / `event_shift_roles` / `athlete_entries` / `availability_slots`
-- **非表示の仕組み**：各テーブルに `RESTRICTIVE` な SELECT ポリシー `<table>_hide_deleted`（`USING (deleted_at IS NULL)`）を付与。既存の許可ポリシーに AND されるため、既存ポリシーを書き換えず DB レベルで削除行を隠せる。
-- **コード側**：削除は `.delete()` ではなく **`.update({ deleted_at: new Date().toISOString() })`** を使う。
-- **連鎖**：親を消したら子も連鎖ソフト削除（instructor → listings・slots、listing → slots）。大会は親が非表示になれば子（AP・リザルト等）も辿れず隠れるため個別更新は不要。
-- **ユニーク制約**：論理削除行が値を占有して再作成をブロックしないよう、`articles.slug` / `events.aida_id` は **部分ユニークインデックス**（`WHERE deleted_at IS NULL`）に置換済み。
-- **物理削除のまま残すもの**：内部の「全消し→入れ直し」系（`event_schedule` のラベル/マイルストーン/day/startlist、`event_staff_shifts`、`event_safety_assignments`、`athlete_entries` の一括再インポート）と `user_roles`（権限剥奪）。
-- **新テーブル追加時のルール**：ユーザーが削除しうるテーブルは原則 `deleted_at` カラム＋`<table>_hide_deleted` ポリシーを付け、削除は UPDATE で行う。
-- **復元UI**：未実装（当面は必要時に Supabase から直接 `deleted_at` を NULL に戻す）。
+- **対象テーブル**：`events`/`articles`/`listings`/`instructors`/`event_staff`/`event_shift_roles`/`athlete_entries`/`availability_slots`
+- **非表示の仕組み**：各テーブルに`RESTRICTIVE`な SELECTポリシー`<table>_hide_deleted`（`USING (deleted_at IS NULL)`）を付与
+- **コード側**：削除は`.delete()`ではなく`.update({ deleted_at: new Date().toISOString() })`を使う
+- **連鎖**：親を消したら子も連鎖ソフト削除（instructor→listings・slots、listing→slots）
+- **物理削除のまま残すもの**：内部の「全消し→入れ直し」系と`user_roles`（権限剥奪）
+- **復元UI**：未実装（当面はSupabaseから直接`deleted_at`をNULLに戻す）
 
-**バグ：管理者がソフトデリートできない（2026-07-07発見・修正済み）**
+**要フォローアップ**：`events`/`event_staff`/`event_shift_roles`/`athlete_entries`を読む他画面（`mypage.html`等）で削除済み行が残って見える場合、`.is('deleted_at', null)`条件の追加漏れの可能性あり（同種のバグを2026-07-07に2件発見・修正済み）。
 
-admin/index.html でインストラクター等を削除しようとすると「new row violates row-level security policy "<table>_hide_deleted"」でUPDATE自体が失敗していた。`<table>_hide_deleted` ポリシーは `deleted_at IS NULL` の行のみ可視化するRESTRICTIVEポリシーだが、`deleted_at` をセットした更新後の行がこの条件を満たさなくなるため、管理者による論理削除の書き込みそのものが弾かれていた。対象8テーブル全てのポリシーに `OR is_site_admin()` を追加するSQL（チャットでユーザーに提示・Supabase側で実行済み）で解消。
-
-**副作用バグ：admin一覧に削除済み行が残り続ける（2026-07-07発見・修正済み）**
-
-上記の `OR is_site_admin()` 追加により、管理者（is_site_admin）が実行するSELECTはRLS側で`deleted_at`を絞り込まなくなった。admin/index.htmlの一覧クエリ（`loadInstructors` / `loadListings` / `loadArticles` / `loadSlots` / `loadMasterData`）はこれまでRLSの`hide_deleted`ポリシーに絞り込みを委ねてクエリ側に`deleted_at`条件を書いていなかったため、削除操作後も一覧に残り続けていた。該当6箇所に`.is('deleted_at', null)`を追加して修正済み。
-**要フォローアップ**：`events` / `event_staff` / `event_shift_roles` / `athlete_entries` を読む他の画面（`mypage.html`, `events/event-staff.html` 等）も同じ仕組みで潜在的に同じ問題を抱えている可能性がある。管理者アカウントでそれらの画面を使う際に削除済みの大会・スタッフ等が残って見えたら、同様に`.is('deleted_at', null)`を追加する。
+経緯詳細は[DECISIONS.md](docs/DECISIONS.md#2026-07-03論理削除ソフトデリート方針)参照。
 
 -----
 
-## 多言語対応（i18n）方式（2026-07-12・secretary相談で確定）
+## 多言語対応（i18n）方式（2026-07-12確定）
 
-**背景**：`instructors`/`shops`テーブルには先行して`name_en`/`bio_en`カラム（本人手入力想定）が用意されていたが、実際の表示側（explore・profile.html等）では未接続のままだった。インバウンド需要への対応を早めたいという相談から、対応言語・翻訳方式を再検討し直した。
+対応言語は英語・韓国語・中国語。固定UI（ナビ・ボタン等）はJSON翻訳ファイルで人力対応、UGC（自己紹介文・コース説明・レビュー）はGoogle Cloud Translation APIによる自動翻訳（選定理由等の経緯は[DECISIONS.md](docs/DECISIONS.md#2026-07-12多言語対応i18n方式)参照）。
 
-**対応言語**：英語・韓国語・中国語（日本のインバウンド需要は英語圏に限らないため、当初の英語のみ想定から拡大）
-
-**方式はコンテンツの性質でハイブリッドに分ける**：
-
-- **固定UI**（ナビ・ボタンラベル・フォーム項目名など運営が書く文章）＝ JSON翻訳ファイルによるi18n。量が少なく更新頻度も低いため人力で用意する
-- **UGC**（インストラクター・ショップの自己紹介文、コース説明、ゲストレビューなど利用者が書く文章）＝ **Google Cloud Translation API**による自動翻訳。運営が翻訳を追いかけられる量ではないため機械翻訳一択
-  - API選定理由：DeepLと比較検討した結果、日→英はDeepL・Google拮抗（直近はGoogleも追いついてきている）だが、日→韓・日→中はGoogleが優勢という評価が多く、3言語同時対応かつAPI一本化のシンプルさを優先してGoogle Cloud Translation APIに決定
-
-**翻訳のタイミング＝保存時キャッシュ方式（閲覧時にAPIは呼ばない）**：
-
-- インストラクター/ショップがプロフィール・コース説明を保存した瞬間、またはゲストがレビューを投稿した瞬間に、サーバーレス関数（`api/create-checkout-session.js`等と同様の置き場を想定）がGoogle Cloud Translation APIを呼び、英・韓・中3言語分をまとめて生成・保存する
-- 閲覧者は保存済みの翻訳を読むだけで、閲覧のたびにAPIを叩かない（速度・コスト両面で有利）
-- 翻訳が無い・失敗した場合は日本語原文にフォールバックする（空欄にはしない）
+**翻訳のタイミング＝保存時キャッシュ方式（閲覧時にAPIは呼ばない）**：保存・投稿の瞬間にサーバーレス関数が英・韓・中3言語分をまとめて生成・保存し、閲覧者は保存済み翻訳を読むだけ。翻訳が無い・失敗した場合は日本語原文にフォールバック。
 
 **保存先：専用`translations`テーブルに集約**（`_en`/`_ko`/`_zh`のようにカラムを言語×フィールドの数だけ増やす方式は対象が増えるたびに破綻するため不採用）
 
@@ -685,40 +567,34 @@ TOP (index.html)  ── Airbnb風マーケットプレイス（白基調）
 
 ## 現在の実装状況
 
+各項目の経緯・実装詳細は該当セクション（本ファイル内）または[DECISIONS.md](docs/DECISIONS.md)参照。
+
 |ページ・機能                                              |状況                          |
 |----------------------------------------------------|----------------------------|
-|トップページ（index.html）                                  |✅ Airbnb風マーケットプレイスに全面刷新（2026-07-03）。白基調・検索バー・ピラータブでその場切替・横スクロールカード列。**カード内容は代表ダミー（値段/★/レビュー数）で実データ差し替えは未**。**2026-07-10追記**：フリーダイビングタブに「フリーダイビングの記事」セクション（`id="free-articles-row"`）を新設し、シュノーケル/スキンタブの記事セクション（`snorkel-article-row`/`skin-article-row`）と同一仕様に統一。従来「トレーニング・コーチング」枠（`free-article-row`、実体はlistings/コース表示）が`data-dynamic`属性を持つ存在しない要素を参照しており記事が一切差し込まれないデッドコードだったのを、`fillRow()`で`articles`テーブル（`slug`が`freediving-`始まり or `what-is-freediving`）を流し込む実装に修正|
-|ピラー専用3ページ（snorkeling/skindiving/freediving.html）    |✅ 新設（2026-07-03）。種目別の検索＋関連カテゴリチップ＋体験カード＋記事リスト。共通 css/home.css・js/home.js。**2026-07-10：category(ダイビング種別)タクソノミー整理に伴い3ページとも実データ接続化。人気タグ集計チップ（`loadPopularTags()`）も追加**|
-|検索バー連携（トップ／ピラー → explore）                      |✅ 実装（2026-07-03）。js/home.js が q/area/intent を組み立て /explore/ へ遷移。explore 側は applyUrlParams() で URL パラメータを読み初期絞り込み。**日程(date)は listings に該当データが無く現状フィルタ未使用**。**2026-07-10：`tag`パラメータ対応を追加（ピラーページの人気タグチップから絞り込み済みで遷移）**|
+|トップページ（index.html）                                  |✅ Airbnb風マーケットプレイスに全面刷新（2026-07-03）。**カード内容は代表ダミーで実データ差し替えは未**|
+|ピラー専用3ページ（snorkeling/skindiving/freediving.html）    |✅ 新設（2026-07-03）。category実データ接続・人気タグ集計チップ済み|
+|検索バー連携（トップ／ピラー → explore）                      |✅ 実装済み。**日程(date)フィルタは未使用**（該当データなし）|
 |ランキング（AIDA_ranking_prototype.html / site/index.html）|✅ 完成                        |
 |大会情報（2026_competitions.html）                        |✅ 完成                        |
-|トレーニングログ（training-log.html）                         |✅ Supabase接続・保存・読み込み・編集・URLシェア・カレンダー表示実装済み。バグ修正済み（2026-06-29：一覧表示崩れ・編集フォーム空白・タブ遷移時フォームリセット・ベストタイム計算）|
-|マイページ（mypage.html）                                  |✅ Supabase接続完了（トレーニングカレンダー・今月のサマリー・予約履歴・大会管理 すべて実データ表示）|
+|トレーニングログ（training-log.html）                         |✅ Supabase接続・保存・読み込み・編集・URLシェア・カレンダー表示実装済み|
+|マイページ（mypage.html）                                  |✅ Supabase接続完了（トレーニングカレンダー・サマリー・予約履歴・大会管理）|
 |STAタイマー（sta-timer.html）                             |✅ 大幅機能追加・デプロイ済み              |
 |Mouthfill Calculator（mouthfill-calculator.html）     |✅ 完成・push済み                  |
 |インストラクターウェルカム（instructor-welcome.html）              |✅ 作成完了                      |
 |フリーダイビングを学ぶ（freediving-learn.html）                 |✅ 管理ツール完成・learn/index.html 骨格完成  |
 |大会カウントダウン（events/competition-countdown.html）         |✅ 完成（スタンドアロン・Supabase不要）        |
 |認証画面（auth.html）                                     |✅ メール/パスワード・Googleログイン実装済み（Apple は Developer 登録待ち）|
-|Supabase DB                                        |✅ テーブル作成済み（training_sessions/dives/events/shops/instructors/listings/reviews）|
-|Supabase 認証接続                                      |✅ メール/パスワード・Google OAuth 接続済み|
-|マッチング（/explore/）                                    |🔄 先行実装中（Supabase: shops/instructors/listings/reviews スキーマ投入済み。explore/index.html・instructor.html 動作確認済み。本格公開は Phase 2。**検索強化: リアルタイム検索・インストラクター名検索・価格帯フィルタ・ソート機能 追加済み**。**2026-07-05: 位置情報の検索を都道府県ベースに刷新。** ①コースが無いショップ/インストラクターも見つけられるよう`explore/shops.html`（ショップ・インストラクターディレクトリ）を新設、フッター導線もそちらに変更。②当初コース登録フォームの「エリア」を自由入力→14種チップの選択式に変更したが、リストにない地名（鹿児島など）が検索から漏れる問題自体は残ったため、③根本対応として`listings.prefecture`を47都道府県＋「海外」のCHECK制約で固定し検索の正データに格上げ（`explore/index.html`に都道府県`<select>`フィルタ新設）。旧来の14種チップは「人気スポット」の任意タグに格下げして残す。海外掲載時の国名は新設`country`カラムに格納。詳細はEXPLORE_DESIGN.md・DB_SCHEMA_DESIGN.md参照）|
-|listings 全フィールド対応                                    |✅ pro/index.html に max_participants・flow_steps・gallery_urls 追加。instructor.html でギャラリー複数表示・price_includes/excludes・meeting_point・what_to_bring・season・booking_deadline・has_shuttle を表示対応|
-|予約・決済フロー（/explore/instructor.html + /api/）           |✅ 完成・動作確認済み（カレンダーUI → Stripe Checkout → 予約完了ページのフルフロー。E2Eテスト: status=paid 確認済み）|
-|Supabase: availability_slots / bookings テーブル          |✅ 作成済み・RLS設定済み|
-|Vercel API: /api/create-checkout-session.js            |✅ 実装済み・デプロイ済み|
-|Vercel API: /api/stripe-webhook.js                     |✅ 実装済み・Stripe Webhook登録済み|
-|booking/success.html                                   |✅ 実装済み（予約番号・日時・金額・プラン表示）|
-|管理画面（/admin/index.html）                              |✅ 実装済み（空き枠管理・予約一覧・ステータス変更）|
-|プロダッシュボード（pro/index.html）予約管理タブ                      |✅ 実装済み・テストデータ投入済み（全ステータス確認可）|
-|クライアント管理タブ（pro/index.html）                           |✅ 実装済み（bookingsから自動集約・検索・詳細・メモ保存）|
-|売り上げ管理タブ（pro/index.html）                              |✅ 実装済み（月次サマリー・棒グラフ・明細一覧・期間フィルタ）|
-|/learn/ 有料講座ページ                                      |🔄 learn/index.html 骨格完成・トップからリンク済み（先行通知機能なし）。**2026-07-10**：`courses`/`course_chapters`/`course_purchases`スキーマを本番Supabaseに実行済み（`sql/learn_courses_schema_20260710.sql`。courses=1件/course_chapters=8件、耳抜き入門講座`mimi-nuki-nyumon`をstatus=publishedで投入）。動的詳細ページ`learn/course.html`実装（slugでSupabaseから読込・シラバス表示）。**講座購入フロー実装**：`/api/create-course-checkout-session.js`（新規・Supabaseアクセストークンで本人確認→Stripe Checkoutセッション作成。既存`/api/create-checkout-session.js`はbookings用の空き枠ロジックが強く結合しているため流用せず新規作成）／`/api/stripe-webhook.js`にcourse_purchases分岐を追加（`metadata.purchase_id`で判別・冪等）／`learn/purchase-success.html`新規（決済後、webhook反映をポーリングして購入完了を表示）／`auth.html`に`?next=`遷移先パラメータ対応を追加（相対パスのみ許可・オープンリダイレクト対策）し、未ログインで購入しようとした場合に元のページへ戻れるようにした。**購入ボタンの出し分け**：`course_chapters.vimeo_id`が1件も無いうちは「準備中」表示のまま販売しない設計（動画0本の状態で課金しないためのガード）。チャプター名は「第n回（仮）」のプレースホルダーのまま（こうようさんとの構成打ち合わせが検討中のため）。**2026-07-10（続）視聴タブ実装**：`mypage.html`に「学んだ講座」セクション追加（`loadLearnedCourses()`。`course_purchases.status=paid`が0件なら非表示、あれば購入講座カードを表示・`learn/watch.html?slug=...`へリンク）。`learn/watch.html`新規（ログイン必須・`course_purchases`で本人の購入を確認してからチャプター一覧とVimeo Player埋め込みを表示。vimeo_idが無いチャプターは「動画準備中」でクリック不可）。**2026-07-10（続）本番E2Eテスト完了**：Chrome MCP経由で本番環境で実際にテスト決済まで確認済み（chapter_num=1に一時的にダミーvimeo_idを設定→購入ボタン有効化を確認→Stripeテストカード4242での決済→webhookがcourse_purchases.status=paidに更新→purchase-success.htmlが購入完了表示→mypage「学んだ講座」に表示→learn/watch.htmlで本人購入確認・動画再生・他チャプターロックまで一通り成功。テスト後は元のvimeo_id=NULL・購入レコード削除で本番データをクリーンな状態に復元済み）。**未着手**：実際の動画アップロード・vimeo_id登録（これが入って初めて購入ボタンが実際に有効化される）|
-|メディア（/media/）                                        |✅ 基盤完成・media/ 一本化（2026-06-29）index.html Supabase動的取得・article.html 記事詳細。CMS は admin/index.html メディアタブに統合。articles テーブル・カテゴリ9区分・RLS設定・初記事2本投入済み。articles/ → _old/ 退避済み。スマホ対応・ヘッダー統一済み|
-|サイト動線整備（2026-07-08）                             |✅ sitemap.xml/robots.txt/404.html 新設。skindiving/snorkeling/learn のフッターに大会・ランキング導線追加でナビ統一。行き止まり4ページ（AIDA_ranking/mouthfill/event-athlete/freediving-learn）に戻る導線追加。buoyancy の死にリンク（/tools/）修正。tools/session-planner.html 削除。**孤立ページ方針（2026-07-10決定）**：3ページとも公開ナビへの掲載は不要と判断。①`events/event-athlete.html`——大会管理画面（event-staff.html等）から主催者が選手ごとに個別URLを発行して共有する「選手用画面」という設計。**2026-07-10実装**：`event-staff.html`概要タブに「選手用ページ」カードを追加し、`event-athlete.html?id=<大会ID>`のURLを自動生成・ワンクリックコピーできるようにした（`copyAthleteLink()`）。②`learn/freediving-learn.html`——「フリーダイビングを学ぶ」動画コースの制作進捗管理ツール（チャプター追加・ステータス切替・メモ）で、Takuya向けの内製コンテンツ管理画面であり公開ページではない。③`pro/instructor-welcome.html`——リリース時に扱いを再検討（保留）。|
-|検索UI刷新・SVG地図検索（2026-07-08）                        |✅ 検索の重複UIを大胆に統合＋地図検索を自前SVG化。①explore/index.html：検索バーの「タイプ」selectを削除（intentタブに一本化）、都道府県`<select>`を廃止しフリーテキスト検索対象に`prefecture`を追加（?pref=リンクは検索語として互換維持）、条件・価格帯は「こだわり条件」折りたたみ（選択数バッジ付き）に集約。②地図：Google Maps依存を全廃（js/maps-config.js削除・APIキー不要）し、`js/area-map.js`（ブランドカラーのデフォルメSVG日本地図＋南西諸島拡大枠＋件数ピル。クリック絞込・再クリック解除・0件は減光・人気3エリアはパルス強調）を新設。explore はデフォルト表示、shops.html にも同コンポーネント導入（トグル式・ショップ/インストラクター件数連動）。③トップ＋ピラー3ページの検索バーからもタイプselect削除（エリア＋日程のみ）。スタイルは css/home.css の `.fj-*`/`.adv-*` に共通定義。※SVG地図は2026-07-10のエリア設計刷新でexplore/index.htmlからは廃止（shops.htmlのみ残存）。**2026-07-10 Chrome MCPで実機確認完了**：トップ＋ピラー3ページの検索ドロップダウン（area-picker.js：人気の都道府県7件＋よく検索されるスポット名チップ14件）が4ページとも正常表示、explore/index.htmlの都道府県チップ絞り込み・datalistサジェストも動作確認済み。全ページコンソールエラーなし|
+|Supabase DB / 認証接続                                  |✅ テーブル作成・RLS設定・メール/Google OAuth接続済み|
+|マッチング（/explore/）                                    |🔄 先行実装中（本格公開はPhase 2）。検索強化・都道府県ベースの位置検索・ショップ/インストラクターディレクトリ実装済み|
+|listings 全フィールド対応                                    |✅ pro/index.html・listing.htmlとも全項目の入力・表示対応済み|
+|予約・決済フロー                                            |✅ 完成・動作確認済み（カレンダーUI→Stripe Checkout→予約完了ページ、E2Eテスト済み）|
+|管理画面（/admin/index.html）                              |✅ 実装済み（空き枠・予約・インストラクター・リスティング・メディア・ユーザー管理）|
+|プロダッシュボード（pro/index.html）予約・クライアント・売上管理タブ            |✅ 実装済み|
+|/learn/ 有料講座ページ                                      |🔄 骨格完成・`courses`/`course_chapters`/`course_purchases`スキーマ本番適用済み。購入フロー・視聴タブとも2026-07-10本番E2Eテスト完了。**未着手**：実際の動画アップロード・vimeo_id登録（これが入るまで購入ボタンは有効化されない）|
+|メディア（/media/）                                        |✅ 基盤完成・media/一本化（2026-06-29）。admin/index.htmlメディアタブに統合|
+|サイト動線・検索UI・エリア設計                                    |✅ sitemap/robots/404新設、SVG地図→都道府県軸検索に刷新済み（詳細は[DECISIONS.md](docs/DECISIONS.md#2026-07-08サイト動線整備検索ui刷新svg地図後に一部廃止)参照）|
 |iOSアプリ（React Native）                                 |🔄 開発中（環境構築済み・Expo Go動作確認済み。タブバー・ログ・Supabase連携・SNSシェアが未実装）|
-|多言語対応（i18n）基盤                                      |🔄 着手開始（2026-07-12）。`sql/translations_20260712.sql`（**2026-07-13本番適用済み**）・`api/translate-content.js`（実装済み・単体では未接続）まで完成。Google Cloud Translation APIキー未取得・保存フローからの呼び出し配線・表示側切替UIは未着手。詳細はDEV.md「多言語対応（i18n）方式」参照|
+|多言語対応（i18n）基盤                                      |🔄 着手開始（2026-07-12）。DB・API実装済み、Google Translate APIキー設定済み（2026-07-13）。呼び出し配線・表示側UIは未着手（「多言語対応（i18n）方式」参照）|
 
 -----
 
@@ -818,70 +694,7 @@ DB 保存時：`result_time = t2s(d.time)`、`hold_time = d.holdTime`。
 
 ## 既知のバグ・セキュリティ課題
 
-*調査日：2026-06-26（コードベース全体レビュー + Bugbot 差分レビュー）*
+**2026-06-26コードベース全体レビュー**（予約・RLS・決済まわり11件）→ **全件2026-06-28対応済み**
+**2026-07-04セキュリティ監査**（S1〜S10 + 追加1件）→ **全件対応済み**（SQL: `sql/security_fix_20260704.sql`本番実行済み）
 
-**Bugbot（ブランチ差分）**：指摘なし  
-**手動レビュー**：予約・RLS・決済まわりに 11 件 → **全件 2026-06-28 対応済み**
-
-### サマリー
-
-| 重要度 | 件数 | 主な領域 |
-|--------|------|----------|
-| 高 | ~~4~~ → **0** | ✅ すべて対応済み |
-| 中 | ~~4~~ → **0** | ✅ すべて対応済み |
-| 低 | ~~3~~ → **0** | ✅ すべて対応済み |
-
-### ✅ 高（対応済み）
-
-| # | 内容 | 対応日 | 対応内容 |
-|---|------|--------|----------|
-| ~~1~~ | ~~予約データがログインユーザー全員に読める~~ | 2026-06-28 | `sql/rls_fix_20260628.sql` 実行済み |
-| ~~2~~ | ~~予約の更新もログインユーザー全員に許可~~ | 2026-06-28 | `sql/rls_fix_20260628.sql` 実行済み |
-| ~~3~~ | ~~予約完了ページが未ログインだと失敗~~ | 2026-06-28 | `api/booking-result.js` 追加・`success.html` API経由に変更・E2Eテスト済み |
-| ~~4~~ | ~~空き枠の書き込み権限が広すぎる~~ | 2026-06-28 | `sql/rls_fix_20260628.sql` 実行済み |
-
-### ✅ 中（対応済み）
-
-| # | 内容 | 対応日 | 対応内容 |
-|---|------|--------|----------|
-| ~~5~~ | ~~同時予約で満席超過~~ | 2026-06-28 | `pending` の `participant_count` 合計を残席計算に含める |
-| ~~6~~ | ~~Webhook の二重処理~~ | 2026-06-28 | 冪等性チェック（`status === 'paid'` ならスキップ）実装済み |
-| ~~7~~ | ~~Webhook の DB エラーを無視~~ | 2026-06-28 | `updateErr` / `rpcErr` 時に 500 を返す実装済み |
-| ~~8~~ | ~~非アクティブ枠も予約可能~~ | 2026-06-28 | `is_active` チェック追加、false なら 409 を返す |
-
-### ✅ 低（対応済み）
-
-| # | 内容 | 対応日 | 対応内容 |
-|---|------|--------|----------|
-| ~~9~~ | ~~存在しない確認メール表示~~ | 2026-06-28 | 「インストラクターからご連絡をお送りします」に文言修正 |
-| ~~10~~ | ~~Stripe キャンセル URL でリスティング情報が消える~~ | 2026-06-28 | `cancel_url` に `&listing=<listing_id>` を付与 |
-| ~~11~~ | ~~XSS の余地~~ | 2026-06-28 | `escHtml()` で対応済み（コードレビューで確認） |
-
-### 問題なし・軽微
-
-- **`guest_*` vs `client_*` カラム名** — `sql/rename_guest_to_client.sql` 適用済み。API・フロントと整合
-- **`admin/admin-mobile.html` 認証なし** — localStorage のみで本番 DB には触れない（Phase 2 本番化時に要対応）
-
------
-
-## セキュリティ監査（2026-07-04）→ 全件対応済み
-
-| # | 内容 | 対応内容 |
-|---|------|----------|
-| S1 | bookings 匿名INSERTが無制限 | ポリシー削除、予約作成は新設RPC `create_pending_booking()`（service_role限定）経由に一本化 |
-| S2 | 記事本文のサニタイズが実質無効 | DOMPurify導入、実際にサニタイズするよう修正 |
-| S3 | articles INSERTが認証済みなら誰でも公開可能 | 承認フロー準拠のポリシーに置換。**調査中に発見**：Studio上の重複ポリズが `articles` の INSERT/UPDATE/DELETE/SELECT を実質無制限化していたため合わせて削除（特に UPDATE は既存公開記事も改ざん可能な状態だった） |
-| S4 | `esc()` が属性用エスケープ非対応 | `explore/*`, `mypage.html`, `media/*` に `"` `'` も含む `esc()` を追加・適用 |
-| S5 | `href` にURLスキーム検証なし | `safeUrl()` を追加し http/https 以外を拒否（`explore/*`, `events/2026_competitions.html`） |
-| S6 | 予約確定のTOCTOU競合 | `create_pending_booking()` RPCで行ロック・原子化（旧・項目5の対応をさらに強化） |
-| S7 | SECURITY DEFINER関数のsearch_path未固定 | `is_site_admin()` / `increment_booked_count()` に `SET search_path = public` 追加 |
-| S8 | `event_results` UPDATEにWITH CHECKなし | `WITH CHECK (auth.uid() = judge_id)` 追加 |
-| S9 | `listingId` 未検証 | API側で `slot.listing_id` との一致を検証、保存はslot由来の値のみ使用 |
-| S10 | CORSワイルドカード | 確認の結果、`booking-result.js` がトークン照合方式のため実害なしと判断（対応不要） |
-| 追加 | `event_safety_assignments`/`event_shift_roles`/`event_staff_shifts` の書き込み系が未ログインでも可能だった | 対象ロールを `authenticated` に限定（読み取り系は現状維持） |
-
-**SQL**: `sql/security_fix_20260704.sql`（Supabase本番に実行済み・Chrome MCPで動作確認済み）
-
------
-
-*最終更新：2026-07-03（トップをAirbnb風マーケットプレイスに全面刷新・ピラー3ページ新設・共通 css/home.css＋js/home.js 導入・検索バー→explore の URLパラメータ連携実装）*
+対応内容の詳細（各項目の原因・修正方法）は[DECISIONS.md](docs/DECISIONS.md#2026-0626202606-28既知のバグセキュリティ課題コードベース全体レビュー→-全件対応済み)・[DECISIONS.md](docs/DECISIONS.md#2026-07-04セキュリティ監査-→-全件対応済み)参照。新しい脆弱性調査を行った場合はこの2セクションと同じ形式でDECISIONS.mdに追記する。
