@@ -262,6 +262,40 @@ body { padding-bottom: 72px; }
 .settings-row.danger .settings-label { color: #f87171; }
 .settings-row { cursor: pointer; }
 
+/* ── トグルスイッチ（通知設定） ── */
+.toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.toggle-row:last-child { border-bottom: none; }
+.toggle-row-label { font-size: 14px; color: var(--text); }
+.toggle-row-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.toggle-switch { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-switch .slider {
+  position: absolute; inset: 0; cursor: pointer;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 100px; transition: 0.15s;
+}
+.toggle-switch .slider::before {
+  content: ""; position: absolute; width: 18px; height: 18px;
+  left: 2px; top: 2px; background: var(--muted); border-radius: 50%;
+  transition: 0.15s;
+}
+.toggle-switch input:checked + .slider { background: rgba(46,196,182,0.25); border-color: var(--teal); }
+.toggle-switch input:checked + .slider::before { transform: translateX(18px); background: var(--teal); }
+
+/* ── プライバシー・セキュリティ ── */
+.privacy-action-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.privacy-action-row:last-child { border-bottom: none; }
+.privacy-action-title { font-size: 14px; color: var(--text); font-weight: 600; }
+.privacy-action-desc { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.privacy-action-btn {
+  padding: 8px 14px; background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); border-radius: var(--rs); font-size: 12px; font-weight: 700;
+  font-family: inherit; cursor: pointer; white-space: nowrap; text-decoration: none;
+}
+.privacy-action-btn:hover { border-color: rgba(255,255,255,0.3); }
+.privacy-action-btn.danger { color: #f87171; border-color: rgba(248,113,113,0.35); }
+.privacy-action-btn.danger:hover { background: rgba(248,113,113,0.08); }
+
 /* ── Modal ── */
 .modal-backdrop {
   display: none; position: fixed; inset: 0; z-index: 300;
@@ -698,21 +732,21 @@ body { padding-bottom: 72px; }
         <div class="settings-label">プロフィール編集</div>
         <div class="settings-arrow">›</div>
       </div>
-      <div class="settings-row">
+      <div class="settings-row" onclick="openNotifModal()">
         <div class="settings-icon">🔔</div>
         <div class="settings-label">通知設定</div>
         <div class="settings-arrow">›</div>
       </div>
-      <div class="settings-row">
+      <div class="settings-row" onclick="openPrivacyModal()">
         <div class="settings-icon">🔒</div>
         <div class="settings-label">プライバシー・セキュリティ</div>
         <div class="settings-arrow">›</div>
       </div>
-      <div class="settings-row">
+      <a href="legal/contact.html" class="settings-row" style="text-decoration:none;">
         <div class="settings-icon">❓</div>
         <div class="settings-label">ヘルプ・お問い合わせ</div>
         <div class="settings-arrow">›</div>
-      </div>
+      </a>
       <div class="settings-row danger" onclick="handleLogout()">
         <div class="settings-icon">🚪</div>
         <div class="settings-label">ログアウト</div>
@@ -749,6 +783,69 @@ body { padding-bottom: 72px; }
     <div class="modal-actions">
       <button class="modal-btn-cancel" onclick="closeProfileModal()">キャンセル</button>
       <button class="modal-btn-primary" id="pf-save-btn" onclick="saveProfile()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 通知設定モーダル ── -->
+<div class="modal-backdrop" id="notif-modal">
+  <div class="modal">
+    <div class="modal-title">通知設定</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">メールで届く通知を選択できます。</div>
+    <div class="toggle-row">
+      <div>
+        <div class="toggle-row-label">予約・大会のお知らせ</div>
+        <div class="toggle-row-desc">予約確認やリマインダーなど重要な通知</div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="notif-event">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="toggle-row">
+      <div>
+        <div class="toggle-row-label">キャンペーン・お知らせ</div>
+        <div class="toggle-row-desc">新機能やお得な情報</div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="notif-marketing">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="closeNotifModal()">キャンセル</button>
+      <button class="modal-btn-primary" id="notif-save-btn" onclick="saveNotifPrefs()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── プライバシー・セキュリティモーダル ── -->
+<div class="modal-backdrop" id="privacy-modal">
+  <div class="modal">
+    <div class="modal-title">プライバシー・セキュリティ</div>
+    <div class="privacy-action-row">
+      <div>
+        <div class="privacy-action-title">パスワード変更</div>
+        <div class="privacy-action-desc">登録メールに変更用リンクを送信します</div>
+      </div>
+      <button class="privacy-action-btn" onclick="sendPasswordReset()">送信</button>
+    </div>
+    <div class="privacy-action-row">
+      <div>
+        <div class="privacy-action-title">プライバシーポリシー</div>
+        <div class="privacy-action-desc">個人情報の取り扱いについて</div>
+      </div>
+      <a class="privacy-action-btn" href="legal/privacy.html" target="_blank" rel="noopener">見る</a>
+    </div>
+    <div class="privacy-action-row">
+      <div>
+        <div class="privacy-action-title">退会（アカウント削除）</div>
+        <div class="privacy-action-desc">お問い合わせよりご連絡ください</div>
+      </div>
+      <a class="privacy-action-btn danger" href="legal/contact.html">お問い合わせ</a>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="closePrivacyModal()" style="flex:none;width:100%;">閉じる</button>
     </div>
   </div>
 </div>
@@ -1729,6 +1826,55 @@ async function saveProfile() {
 
 document.getElementById('profile-modal').addEventListener('click', function(e) {
   if (e.target === this) closeProfileModal();
+});
+
+// ── 通知設定 ──
+function openNotifModal() {
+  if (!_currentUser) return;
+  const prefs = (_currentUser.user_metadata || {}).notif_prefs || {};
+  document.getElementById('notif-event').checked      = prefs.event      !== false; // 未設定はデフォルトON
+  document.getElementById('notif-marketing').checked  = prefs.marketing  === true;  // 未設定はデフォルトOFF
+  document.getElementById('notif-modal').classList.add('open');
+}
+function closeNotifModal() {
+  document.getElementById('notif-modal').classList.remove('open');
+}
+async function saveNotifPrefs() {
+  const notif_prefs = {
+    event:      document.getElementById('notif-event').checked,
+    marketing:  document.getElementById('notif-marketing').checked,
+  };
+  const btn = document.getElementById('notif-save-btn');
+  btn.disabled = true;
+  btn.textContent = '保存中...';
+  const { data, error } = await _sb.auth.updateUser({ data: { notif_prefs } });
+  btn.disabled = false;
+  btn.textContent = '保存する';
+  if (error) { showMypageToast('保存に失敗しました: ' + error.message, 'error'); return; }
+  _currentUser = data.user;
+  _isDirty = false;
+  showMypageToast('通知設定を保存しました', 'success');
+  closeNotifModal();
+}
+document.getElementById('notif-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeNotifModal();
+});
+
+// ── プライバシー・セキュリティ ──
+function openPrivacyModal() {
+  document.getElementById('privacy-modal').classList.add('open');
+}
+function closePrivacyModal() {
+  document.getElementById('privacy-modal').classList.remove('open');
+}
+async function sendPasswordReset() {
+  if (!_currentUser) return;
+  const { error } = await _sb.auth.resetPasswordForEmail(_currentUser.email);
+  if (error) { showMypageToast('送信に失敗しました: ' + error.message, 'error'); return; }
+  showMypageToast('パスワード変更用のメールを送信しました', 'success');
+}
+document.getElementById('privacy-modal').addEventListener('click', function(e) {
+  if (e.target === this) closePrivacyModal();
 });
 
 // ── 未保存警告 ────────────────────────────────────────
