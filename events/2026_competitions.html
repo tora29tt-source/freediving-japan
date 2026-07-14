@@ -4,22 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>2026年 大会情報 | AIDA Japan</title>
+<link rel="stylesheet" href="../css/home.css">
 <style>
 :root{
-  --bg:#04161f;--panel:#0c2738;--accent:#2ec4b6;--accent2:#a8ece8;
-  --pool:#2ec4b6;--sea:#1a7a8a;--text:rgba(255,255,255,0.92);--muted:rgba(255,255,255,0.5);
-  --line:rgba(168,236,232,0.14);--gold:#ffd24a;--wc:#f97316;
+  --bg:#ffffff;--panel:#ffffff;--accent:#1f6f78;--accent2:#c0563c;
+  --pool:#1f6f78;--sea:#2a6f9e;--text:#222226;--muted:#8b8b90;
+  --line:#e7e7ea;--gold:#a9780a;--wc:#c2410c;--shadow-card:0 6px 20px rgba(20,20,30,.08);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;background:linear-gradient(180deg,#0e3d5c 0%,#0b2d45 22%,#06283a 55%,#04161f 100%);background-attachment:fixed;color:var(--text);min-height:100vh}
+body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 
-header{padding:22px 20px 14px;border-bottom:1px solid var(--line)}
-header h1{font-size:21px;letter-spacing:.5px}
-header h1 span{color:var(--accent2)}
-header p{color:var(--muted);font-size:12.5px;margin-top:4px}
-
 .wrap{max-width:1000px;margin:0 auto;padding:0 16px 60px}
+.page-hero{padding:26px 0 6px}
+.page-eyebrow{display:block;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.page-title{font-size:24px;font-weight:700;letter-spacing:-.02em;color:var(--text)}
+.page-title em{font-style:normal;color:var(--accent2)}
+.page-sub{color:var(--muted);font-size:12.5px;margin-top:6px;line-height:1.6}
 
 /* TYPE BADGE inline */
 .type-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;white-space:nowrap}
@@ -36,7 +37,7 @@ header p{color:var(--muted);font-size:12.5px;margin-top:4px}
 .month-block{margin-bottom:6px;border:1px solid var(--line);border-radius:10px;overflow:hidden}
 .month-hd{
   display:flex;align-items:center;gap:10px;padding:12px 16px;
-  background:rgba(255,255,255,.03);cursor:pointer;user-select:none;
+  background:rgba(20,20,30,.03);cursor:pointer;user-select:none;
   border-bottom:1px solid transparent;transition:.15s;
 }
 .month-hd:hover{background:rgba(30,155,215,.07)}
@@ -58,7 +59,7 @@ header p{color:var(--muted);font-size:12.5px;margin-top:4px}
 
 /* TABLE */
 table{width:100%;border-collapse:collapse;font-size:12.5px}
-th{color:var(--muted);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:8px 14px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.015)}
+th{color:var(--muted);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:8px 14px;border-bottom:1px solid var(--line);background:rgba(20,20,30,.015)}
 td{padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
 tr:last-child td{border-bottom:none}
 tbody tr:hover td{background:rgba(30,155,215,.05)}
@@ -70,7 +71,7 @@ tbody tr:hover td{background:rgba(30,155,215,.05)}
 .date-col{white-space:nowrap;color:var(--muted);font-size:11.5px;width:110px}
 .tag{display:inline-block;font-size:9.5px;font-weight:700;padding:1px 7px;border-radius:3px;letter-spacing:.3px;margin-bottom:4px}
 .tag.wc{background:rgba(245,166,35,.2);color:var(--wc);border:1px solid rgba(245,166,35,.3)}
-.tag.jp{background:rgba(232,68,68,.15);color:#ff7070}
+.tag.jp{background:rgba(220,38,38,.12);color:#dc2626}
 
 /* WC row highlight */
 .wc-row td{background:rgba(245,166,35,.04)!important}
@@ -105,8 +106,8 @@ tbody tr:hover td{background:rgba(30,155,215,.05)}
 .sub-tabs{display:flex;gap:6px;margin-bottom:10px}
 .sub-tab{padding:7px 14px;border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:20px;cursor:pointer;font-size:12.5px;font-family:inherit;transition:.15s;border-left:3px solid transparent}
 .sub-tab.pool{border-left-color:var(--pool)}.sub-tab.sea{border-left-color:var(--sea)}
-.sub-tab.pool.active{background:var(--pool);border-color:var(--pool);color:#071420;font-weight:700}
-.sub-tab.sea.active{background:var(--sea);border-color:var(--sea);color:#071420;font-weight:700}
+.sub-tab.pool.active{background:var(--pool);border-color:var(--pool);color:#fff;font-weight:700}
+.sub-tab.sea.active{background:var(--sea);border-color:var(--sea);color:#fff;font-weight:700}
 .sub-panel{display:none}.sub-panel.active{display:block}
 .panel-box{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
 
@@ -123,14 +124,25 @@ footer{color:var(--muted);font-size:11px;text-align:center;padding:20px;border-t
 </style>
 </head>
 <body>
-<header>
-  <div class="wrap">
-    <h1>AIDA <span>Japan</span> 大会情報</h1>
-    <p>2026年度 公式競技大会一覧（出典: AIDA International）<span style="margin-left:12px;font-size:.8em;opacity:.6">※ AIDAより自動取得（毎日 08:00 JST）。リアルタイムデータではありません。</span></p>
+<header class="hdr">
+  <div class="hdr-in">
+    <a class="logo" href="../index.html">FREEDIVING <span>JAPAN</span></a>
+    <div class="hdr-right">
+      <a class="hdr-link" href="../mypage.html">
+        <span class="avatar"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/></svg></span>
+        マイページ
+      </a>
+    </div>
   </div>
 </header>
 
 <div class="wrap">
+  <a class="crumb" href="../index.html"><svg class="icon" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>ホームに戻る</a>
+  <div class="page-hero">
+    <span class="page-eyebrow">AIDA Japan Competitions</span>
+    <h1 class="page-title">大会<em>情報</em></h1>
+    <p class="page-sub">2026年度 公式競技大会一覧（出典: AIDA International）<span style="margin-left:12px;opacity:.75">※ AIDAより自動取得（毎日 08:00 JST）。リアルタイムデータではありません。</span></p>
+  </div>
 
   <!-- WORLD CHAMPIONSHIPS -->
   <div class="wc-banner" style="margin-top:22px">
