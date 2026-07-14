@@ -302,7 +302,7 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 
 実装済み：`js/location-data.js`（新規）／`js/area-picker.js`／`explore/index.html`・`pro/index.html`・`admin/index.html`。2026-07-10 Chrome MCPで実機QA完了（admin側`loadListings()`の`prefecture`欠落バグを発見・修正済み）。
 
-**2026-07-14追記**：`explore/shops.html`（ショップ・インストラクターディレクトリ）も同方式に統一し旧SVG地図を撤去。`pro/index.html`のプロフィール編集・新規作成フォームに「拠点の都道府県」欄を追加し`shops.prefecture`/`instructors.prefecture`（既存列）に保存するようにした。既存データはareas列からのベストエフォート推定バックフィルが必要（チャット提示のSQLを本番未実行）。詳細は[DECISIONS.md](docs/DECISIONS.md#2026-07-14exploreshopshtmlのエリア軸を都道府県に統一旧svg地図を撤去)参照。実機QA未実施。
+**2026-07-14追記**：`explore/shops.html`（ショップ・インストラクターディレクトリ）も同方式に統一し旧SVG地図を撤去。`pro/index.html`のプロフィール編集・新規作成フォームに「拠点の都道府県」欄を追加し`shops.prefecture`/`instructors.prefecture`（既存列）に保存するようにした。既存データはareas列からのベストエフォート推定バックフィルSQL（チャット提示）を本番実行済み。詳細は[DECISIONS.md](docs/DECISIONS.md#2026-07-14exploreshopshtmlのエリア軸を都道府県に統一旧svg地図を撤去)参照。2026-07-14 Chrome MCPで実機QA完了（shops.htmlの都道府県チップ絞り込み・タブ切替・pro/index.htmlのプロフィール編集画面での初期値表示を確認）。
 
 **未着手**：`explore/shops.html`への同方式適用（`shops`/`instructors`の`prefecture`列が全レコードNULLのため、データバックフィルが先に必要）
 
