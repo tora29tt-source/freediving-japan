@@ -947,8 +947,8 @@ function openBookingForm() {
             return `
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
             <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--on-dark-soft);flex:1;cursor:pointer;">
-              <input type="checkbox" class="bform-input" data-pax="${p}" data-gear="${g.name}" data-nosize="1">
-              ${g.name}${priceLabel}
+              <input type="checkbox" class="bform-input" style="width:auto;flex:0 0 auto;padding:0;" data-pax="${p}" data-gear="${g.name}" data-nosize="1">
+              <span style="flex:1;min-width:0;">${g.name}${priceLabel}</span>
             </label>
           </div>`;
           }

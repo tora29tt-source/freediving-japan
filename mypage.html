@@ -494,8 +494,8 @@ body { padding-bottom: 72px; }
 <!-- CONTENT -->
 <div class="content">
 
-  <!-- 講習・ツアー管理（pro向け・最上部） -->
-  <div class="section">
+  <!-- 講習・ツアー管理（インストラクター/ショップ登録済みのみ表示。2026-07-14・secretary相談で確定：未登録の一般ゲストには出さない） -->
+  <div class="section" id="proDashboardSection" style="display:none;">
     <div class="sec-head">
       <div class="sec-title">講習・ツアー管理</div>
     </div>
@@ -678,16 +678,13 @@ body { padding-bottom: 72px; }
     </div>
   </div>
 
-  <!-- インストラクター向け導線 -->
-  <div class="section">
-    <div style="display:flex;align-items:center;gap:12px;background:rgba(46,196,182,0.04);border:1px solid rgba(46,196,182,0.15);border-radius:12px;padding:14px 16px;opacity:0.5;cursor:default;position:relative;">
-      <span style="font-size:24px;flex-shrink:0">🤿</span>
-      <div>
-        <div style="font-size:14px;font-weight:700;color:#2ec4b6;margin-bottom:2px">インストラクターの方へ</div>
-        <div style="font-size:12px;color:rgba(255,255,255,0.6)">Freediving Japan への参加について</div>
-      </div>
-      <span style="margin-left:auto;display:inline-flex;align-items:center;gap:6px;background:rgba(4,22,31,0.6);border:1px solid rgba(168,236,232,0.2);color:rgba(168,236,232,0.6);font-size:10px;font-weight:500;padding:4px 10px;border-radius:100px;letter-spacing:0.08em;white-space:nowrap">開発中</span>
-    </div>
+  <!-- 事業者の方へ（未登録者のみ表示の控えめな一行リンク。2026-07-14・secretary相談で確定：旧「インストラクター向け導線」開発中バナーを置き換え） -->
+  <div class="section" id="bizLinkSection" style="display:none;">
+    <a href="pro/" class="settings-row" style="text-decoration:none;">
+      <div class="settings-icon">🎓</div>
+      <div class="settings-label">事業者の方へ</div>
+      <div class="settings-arrow">›</div>
+    </a>
   </div>
 
   <!-- 設定 -->
@@ -1226,6 +1223,19 @@ async function loadMypageData() {
   const today    = new Date().toISOString().split('T')[0];
   const past90   = new Date(Date.now() - 90*24*3600*1000).toISOString().split('T')[0];
   const future90 = new Date(Date.now() + 90*24*3600*1000).toISOString().split('T')[0];
+
+  // ── 事業者ロール判定（2026-07-14・secretary相談で確定：登録済みなら「プロダッシュボード」、
+  //    未登録なら控えめな「事業者の方へ」リンクのみを出し分ける。ステータス(pending/approved)は
+  //    /pro/側の既存バナーに任せ、ここでは登録の有無だけ見る） ──
+  const [{ data: myInst }, { data: myShop }] = await Promise.all([
+    _sb.from('instructors').select('id').eq('user_id', user.id).maybeSingle(),
+    _sb.from('shops').select('id').eq('user_id', user.id).maybeSingle(),
+  ]);
+  const hasBizRole = !!(myInst || myShop);
+  const proSection = document.getElementById('proDashboardSection');
+  const bizSection  = document.getElementById('bizLinkSection');
+  if (proSection) proSection.style.display = hasBizRole ? '' : 'none';
+  if (bizSection)  bizSection.style.display  = hasBizRole ? 'none' : '';
 
   // ── トレーニングセッション ──
   const { data: sessions } = await _sb

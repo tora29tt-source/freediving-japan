@@ -225,6 +225,19 @@ instructors.status = 'pending'（審査中バナー表示）
 instructors.status = 'approved'（リスティング・CRM・予約管理が解放）
 ```
 
+### mypage.htmlのロール別表示（2026-07-14・secretary相談で確定）
+
+**背景**：`mypage.html`はこれまでinstructors/shopsのロール判定を一切行っておらず、「講習・ツアー管理」カード（/pro/への大きな導線）と「インストラクター向け導線」バナー（開発中の未実装プレースホルダー）が、未登録の一般ゲストにも常時表示されていた。一般ゲストにとって無関係な事業者向け要素が常に目に入ることが、マイページの見づらさの主因と判断。
+
+**方針**：`mypage.html`の起動処理に、`pro/index.html`の`boot()`と同様の判定（`instructors`/`shops`をuser_idで検索）を追加し、以下の通り出し分ける。
+
+- **未登録**（instructors/shopsどちらにも紐づかない）：「講習・ツアー管理」の大きいカードは表示せず、代わりに「事業者の方へ」という控えめな一行リンクのみ表示。リンク先は`/pro/`（未登録者には既存の登録フォーム＝setup-guardが表示される）
+- **登録済み**（`instructors`/`shops`に紐づきあり。pending/approved問わず）：現行の「プロダッシュボード」カードをそのまま表示
+- 承認待ち（pending）・却下（rejected）等のステータス表示はマイページ側では持たず、`/pro/`側の既存バナー（pending-banner/rejected-banner）に一本化する（二重管理を避ける）
+- 現行の「インストラクター向け導線」バナー（開発中のダミー表示・実質何もしていない）は「事業者の方へ」リンクと役割が重複するため撤去する
+
+**未実装**：上記の`mypage.html`側ロール判定・条件分岐表示
+
 ### admin/index.html タブ権限
 
 | タブ | admin | staff | editor |
