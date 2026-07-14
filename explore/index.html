@@ -230,6 +230,7 @@
       <button class="sb-btn" type="submit"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>検索</button>
     </form>
     <p class="filter-hint" id="dateHint" style="display:none">この日以降に空きがあるプランを表示中 · <button class="date-clear-btn" onclick="clearDate()" type="button">クリア</button></p>
+    <p class="filter-hint" id="intentHint" style="display:none">「<span id="intentHintLabel"></span>」のプランのみ表示中 · <button class="date-clear-btn" onclick="clearIntent()" type="button">クリア</button></p>
   </div>
 
   <div class="filter-section">
@@ -331,6 +332,7 @@
 let allListings = [];
 let currentPref = '';
 let currentDate = '';
+let currentIntent = ''; // 2026-07-14修正：ホーム/ピラーページの「1日体験」「認定コース」チップ（?intent=）を受けて絞り込む
 let slotsByListing = new Map(); // listing_id -> availability_slots[]（日程フィルタ用。空き枠データがないlistingは対象外＝常に表示）
 let activeTags = new Set();
 let currentPrice = '';
@@ -555,6 +557,21 @@ function clearDate() {
   document.getElementById('dateInput').value = '';
   setDate('');
 }
+// ホーム/ピラーページの入口チップ（explore/index.html?intent=try 等）から渡ってくるintent絞り込み。
+// 2026-07-14修正：この関数自体が存在せず、?intent=付きURLで着地するとReferenceErrorが発生し
+// 以降のURLパラメータ処理・一覧読み込み（loadListings）まで止まっていた不具合を修正。
+// 画面上にintentタブは無いため、date同様の「解除できるヒント」で状態を可視化する。
+function applyIntent(intent) {
+  currentIntent = intent;
+  document.getElementById('intentHintLabel').textContent = badgeLabel[intent] || intent;
+  document.getElementById('intentHint').style.display = 'block';
+  renderListings();
+}
+function clearIntent() {
+  currentIntent = '';
+  document.getElementById('intentHint').style.display = 'none';
+  renderListings();
+}
 function toggleTag(el) {
   const tag = el.dataset.tag;
   if (activeTags.has(tag)) { activeTags.delete(tag); el.classList.remove('active'); }
@@ -581,6 +598,7 @@ function renderListings() {
   const q = document.getElementById('searchInput').value.toLowerCase().trim();
   let filtered = allListings.filter(l => {
     if (currentPref && l.prefecture !== currentPref) return false;
+    if (currentIntent && l.intent !== currentIntent) return false;
     if (currentDate) {
       const slots = slotsByListing.get(l.id);
       // 空き枠データを持つlistingだけ日程で絞り込む。データがないlisting（問い合わせベース等）は要相談として常に表示する
@@ -661,7 +679,7 @@ function applyUrlParams() {
   if (q) document.getElementById('searchInput').value = q;
   // 旧リンク互換：?pref= はフリーテキスト検索として扱う
   if (pref && !q) document.getElementById('searchInput').value = pref;
-  if (intent && ['try','learn','dive'].includes(intent)) {
+  if (intent && ['try','learn','fundive','training','coaching'].includes(intent)) {
     applyIntent(intent);
   }
   // ?area= はホーム／ピラーページの検索バー（都道府県名 or スポット名の自由入力）から来る。

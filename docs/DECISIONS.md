@@ -9,6 +9,21 @@ DEV.mdの各セクションから該当箇所へのポインタが張られて�
 
 -----
 
+## 2026-07-14：`explore/index.html`の`applyIntent`未定義バグを修正
+
+**背景**：検索機能のドキュメント化（[SEARCH_GUIDE.md](./SEARCH_GUIDE.md)）作業中に発見。`explore/index.html`の`applyUrlParams()`が`?intent=`付きURL（ホーム`index.html`・`skindiving.html`の「1日体験」「認定コース」入口チップ経由）を受けると`applyIntent(intent)`を呼ぶが、同ファイル内に`applyIntent`の定義が存在しなかった。おそらく過去のintentタブUI撤去時に道連れで消えたまま気づかれていなかった。
+
+**実際の影響**：`applyUrlParams()`内で`ReferenceError`が発生し同関数が中断、直後に呼ばれる`loadListings()`（一覧読み込み本体）まで実行されないため、これら2つの入口チップを踏むと探すページが一覧未読み込みのまま止まっていた（スケルトン表示のまま）。
+
+**対応**：
+- `currentIntent`変数を新設し、`renderListings()`のフィルタ条件に`l.intent !== currentIntent`を追加
+- `applyIntent(intent)`/`clearIntent()`を新設。画面にintent切り替えタブは無いため、`currentDate`と同じ「解除できるヒント」パターン（`intentHint`＋クリアボタン）で状態を可視化
+- `applyUrlParams()`の受け入れ値リストを旧`['try','learn','dive']`（`dive`は2026-07-08のintent分割で廃止済みの値）から現行5値`['try','learn','fundive','training','coaching']`に修正
+
+**実装**：`explore/index.html`。構文チェック（Node.jsで埋め込みJSをパース）のみ実施し、エラーなし。**実機ブラウザでの動作確認は未実施**（`index.html`/`skindiving.html`の「1日体験」「認定コース」チップから遷移し、正しく絞り込まれるか・クリアボタンが機能するかを次回確認要）。
+
+-----
+
 ## 2026-07-14：`explore/shops.html`のエリア軸を都道府県に統一（旧SVG地図を撤去）
 
 **背景**：2026-07-10のエリア設計刷新で`explore/index.html`は都道府県チップに統一したが、`explore/shops.html`（ショップ・インストラクターディレクトリ）は`shops.prefecture`/`instructors.prefecture`列が全レコードNULLのためスコープ外とし、旧SVG地図（`js/area-map.js`）＋14種固定エリアチップのまま残していた（[2026-07-10のエントリ](#2026-07-10listingscategory-タクソノミー変更エリア設計刷新learn実装方針)参照）。今回、残っていた「都道府県フィールド化」を実施しスコープを解消した。
