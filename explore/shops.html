@@ -127,32 +127,9 @@
   </div>
 
   <div class="filter-section">
-    <div class="filter-label-row">
-      <p class="filter-label">エリア</p>
-      <button class="map-toggle-btn" onclick="toggleAreaMap()" type="button">
-        <svg class="icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        <span id="mapToggleLabel">地図で選ぶ</span>
-      </button>
-    </div>
-    <div class="area-map-wrap" id="areaMapWrap">
-      <div id="areaMap"></div>
-    </div>
+    <p class="filter-label">都道府県</p>
     <div class="chip-row" id="areaChips">
-      <button class="chip active" data-area="" onclick="toggleArea(this)">全国</button>
-      <button class="chip" data-area="沖縄" onclick="toggleArea(this)">沖縄</button>
-      <button class="chip" data-area="石垣島" onclick="toggleArea(this)">石垣島</button>
-      <button class="chip" data-area="宮古島" onclick="toggleArea(this)">宮古島</button>
-      <button class="chip" data-area="西表島" onclick="toggleArea(this)">西表島</button>
-      <button class="chip" data-area="与那国島" onclick="toggleArea(this)">与那国島</button>
-      <button class="chip" data-area="久米島" onclick="toggleArea(this)">久米島</button>
-      <button class="chip" data-area="慶良間諸島" onclick="toggleArea(this)">慶良間諸島</button>
-      <button class="chip" data-area="奄美大島" onclick="toggleArea(this)">奄美大島</button>
-      <button class="chip" data-area="鹿児島" onclick="toggleArea(this)">鹿児島</button>
-      <button class="chip" data-area="伊豆" onclick="toggleArea(this)">伊豆</button>
-      <button class="chip" data-area="東京" onclick="toggleArea(this)">東京</button>
-      <button class="chip" data-area="紀伊半島" onclick="toggleArea(this)">紀伊半島</button>
-      <button class="chip" data-area="瀬戸内" onclick="toggleArea(this)">瀬戸内</button>
-      <button class="chip" data-area="北海道" onclick="toggleArea(this)">北海道</button>
+      <button class="chip active" data-area="" onclick="togglePref(this)">全国</button>
     </div>
   </div>
 
@@ -204,13 +181,13 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../js/supabase-config.js"></script>
-<script src="../js/area-map.js"></script>
+<script src="../js/location-data.js"></script>
 <script>
 // esc: DB由来の値をHTMLへ挿入する前にエスケープ（S4対策と同様の方針）
 function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
 let currentType  = 'shop';
-let currentArea  = '';
+let currentPref  = '';
 let currentSort  = 'default';
 const SORT_CYCLE  = ['default', 'rating'];
 const SORT_LABELS = { default: 'おすすめ順', rating: '評価順' };
@@ -219,10 +196,11 @@ const cache = { shop: null, instructor: null }; // 一度取得したら型ご�
 
 // ショップ/インストラクターの生データを共通の形に正規化する
 // （explore/listing.html の normalizeOwner() と同じ方針）
+// 2026-07-14：エリア軸をareas（自由入力チップ）→prefecture（都道府県・explore/index.htmlと同じ正データ）に統一
 function normalizeShop(raw) {
   return {
     type: 'shop', id: raw.id, name: raw.name, photo: raw.logo_url,
-    areas: raw.areas || [], bio: raw.bio,
+    prefecture: raw.prefecture || '', bio: raw.bio,
     avg_rating: raw.avg_rating, review_count: raw.review_count,
     typeLabel: 'ショップ',
     linkQuery: `shop=${esc(raw.id)}`,
@@ -231,7 +209,7 @@ function normalizeShop(raw) {
 function normalizeInstructor(raw) {
   return {
     type: 'instructor', id: raw.id, name: raw.name, photo: raw.photo_url,
-    areas: raw.areas || [], bio: raw.bio,
+    prefecture: raw.prefecture || '', bio: raw.bio,
     avg_rating: raw.shops?.avg_rating, review_count: raw.shops?.review_count,
     typeLabel: 'インストラクター',
     linkQuery: `id=${esc(raw.id)}`,
@@ -243,13 +221,13 @@ async function loadOwners(type) {
   if (cache[type]) return cache[type];
   if (type === 'shop') {
     const { data, error } = await _sb.from('shops')
-      .select('id, name, bio, areas, logo_url, avg_rating, review_count')
+      .select('id, name, bio, prefecture, logo_url, avg_rating, review_count')
       .eq('is_public', true);
     if (error) throw error;
     cache.shop = (data || []).map(normalizeShop);
   } else {
     const { data, error } = await _sb.from('instructors')
-      .select('id, name, bio, areas, photo_url, shops ( avg_rating, review_count )')
+      .select('id, name, bio, prefecture, photo_url, shops ( avg_rating, review_count )')
       .eq('is_public', true).eq('status', 'approved');
     if (error) throw error;
     cache.instructor = (data || []).map(normalizeInstructor);
@@ -266,40 +244,38 @@ async function setType(el, type) {
   await renderOwners();
 }
 
-function toggleArea(el) {
+// 都道府県チップを動的に生成する（explore/index.htmlのrenderPrefChips()と同方針。
+// 「人気の都道府県」は0件でも薄く常時表示し、それ以外は実際に該当者がいる都道府県だけ追加で出す）
+function renderPrefChips(prefCounts) {
+  const container = document.getElementById('areaChips');
+  const popular = (window.FJLocations && FJLocations.POPULAR_PREFECTURES) || [];
+  const extra = Object.keys(prefCounts)
+    .filter(p => prefCounts[p] > 0 && !popular.includes(p))
+    .sort((a, b) => prefCounts[b] - prefCounts[a]);
+  const prefs = [...popular, ...extra];
+
+  let html = `<button class="chip${currentPref === '' ? ' active' : ''}" data-area="" onclick="togglePref(this)">全国</button>`;
+  prefs.forEach(p => {
+    const count = prefCounts[p] || 0;
+    const cls = ['chip', currentPref === p ? 'active' : '', count === 0 ? 'dim' : ''].filter(Boolean).join(' ');
+    html += `<button class="${cls}" data-area="${esc(p)}" onclick="togglePref(this)">${esc(p)}</button>`;
+  });
+  container.innerHTML = html;
+}
+
+function updatePrefCounts(owners) {
+  const counts = {};
+  owners.forEach(o => {
+    if (o.prefecture) counts[o.prefecture] = (counts[o.prefecture] || 0) + 1;
+  });
+  renderPrefChips(counts);
+}
+
+function togglePref(el) {
   document.querySelectorAll('#areaChips .chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
-  currentArea = el.dataset.area || '';
-  areaMap.setActive(currentArea);
+  currentPref = el.dataset.area || '';
   renderOwners();
-}
-
-/* ── エリア地図（自前SVG / js/area-map.js）。explore/index.html と共通コンポーネント ── */
-const areaMap = FJAreaMap.render(document.getElementById('areaMap'), {
-  onSelect(area) {
-    const target = (area === currentArea) ? '' : area;
-    const chip = [...document.querySelectorAll('#areaChips .chip')].find(c => c.dataset.area === target);
-    if (chip) toggleArea(chip);
-  }
-});
-
-function toggleAreaMap() {
-  const wrap = document.getElementById('areaMapWrap');
-  const willOpen = !wrap.classList.contains('open');
-  wrap.classList.toggle('open', willOpen);
-  document.getElementById('mapToggleLabel').textContent = willOpen ? '地図を閉じる' : '地図で選ぶ';
-}
-
-// 現在の型（ショップ/インストラクター）の件数を地図ピンへ反映
-// エリアは「沖縄（4月〜10月）」のような表記があるため部分一致でカウント
-function updateMapCounts(owners) {
-  const counts = {};
-  document.querySelectorAll('#areaChips .chip').forEach(c => {
-    const area = c.dataset.area;
-    if (!area) return;
-    counts[area] = owners.filter(o => (o.areas || []).some(a => a.includes(area))).length;
-  });
-  areaMap.setCounts(counts);
 }
 
 function cycleSort() {
@@ -320,13 +296,12 @@ async function renderOwners() {
     return;
   }
 
-  updateMapCounts(owners);
+  updatePrefCounts(owners);
 
   const q = document.getElementById('searchInput').value.toLowerCase().trim();
   let filtered = owners.filter(o => {
-    // エリアはプロフィールの「活動エリア」に季節ラベル付きで入っていることがある（例：沖縄（4月〜10月））ため部分一致で判定
-    if (currentArea && !(o.areas || []).some(a => a.includes(currentArea))) return false;
-    if (q && !`${o.name} ${o.bio || ''}`.toLowerCase().includes(q)) return false;
+    if (currentPref && o.prefecture !== currentPref) return false;
+    if (q && !`${o.name} ${o.bio || ''} ${o.prefecture || ''}`.toLowerCase().includes(q)) return false;
     return true;
   });
 
@@ -348,7 +323,7 @@ async function renderOwners() {
     const ratingHtml = o.avg_rating
       ? `<span class="meta-item" style="color:var(--warm)">★ ${parseFloat(o.avg_rating).toFixed(1)}<span style="color:var(--ink-soft);margin-left:2px">(${esc(o.review_count || 0)})</span></span>`
       : '';
-    const areaHtml = (o.areas || []).slice(0, 2).map(a => `<span class="meta-item"><svg class="icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${esc(a)}</span>`).join('');
+    const areaHtml = o.prefecture ? `<span class="meta-item"><svg class="icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${esc(o.prefecture)}</span>` : '';
     return `<a class="owner-card" href="profile.html?${o.linkQuery}">
       ${avatarHtml}
       <div class="owner-body">

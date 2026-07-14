@@ -152,9 +152,9 @@ instructor/shop 共通の `normalizeOwner(raw, type)` ヘルパーで所有者�
 
 ```js
 // ショップ
-_sb.from('shops').select('id, name, bio, shop_type, areas, logo_url, avg_rating, review_count, is_verified').eq('is_public', true);
+_sb.from('shops').select('id, name, bio, prefecture, logo_url, avg_rating, review_count').eq('is_public', true);
 // インストラクター
-_sb.from('instructors').select('id, name, bio, areas, photo_url, is_verified, shops ( avg_rating, review_count )').eq('is_public', true).eq('status', 'approved');
+_sb.from('instructors').select('id, name, bio, prefecture, photo_url, shops ( avg_rating, review_count )').eq('is_public', true).eq('status', 'approved');
 ```
 
 型ごとに初回取得時にキャッシュし、「ショップ」「インストラクター」タブ切替では再フェッチしない。
@@ -163,11 +163,11 @@ _sb.from('instructors').select('id, name, bio, areas, photo_url, is_verified, sh
 
 | フィルタ | 実装 |
 |---|---|
-| エリアチップ | `explore/index.html`と同じ14種の人気スポットチップ。`(o.areas || []).some(a => a.includes(currentArea))` で部分一致判定（`areas`は「沖縄（4月〜10月）」のような季節ラベル付き文字列のため） |
-| キーワード検索 | 名前・bio の部分一致 |
+| 都道府県チップ | `explore/index.html`と同じ`renderPrefChips()`方式。`prefecture`列の完全一致で判定（2026-07-14〜。旧SVG地図・14種固定エリアチップ・`areas`列部分一致は撤去） |
+| キーワード検索 | 名前・bio・prefectureの部分一致 |
 | ソート | おすすめ順 / 評価順（`avg_rating`） |
 
-> **既知の制限：** `listings`側は2026-07-05に都道府県（47+海外・CHECK制約）を検索の正データにしたが、`shops.areas` / `instructors.areas`（本セクションのエリアチップが参照する側）は自由入力のまま。同じ「固定リストに無い地名は拾えない」問題がショップ/インストラクターのプロフィール検索にも残っている。listings側の対応が定着したら同様の都道府県フィールド化を検討する。
+> **2026-07-14解消：** `listings`側は2026-07-05に都道府県（47+海外・CHECK制約）を検索の正データにしたが、`shops.areas`/`instructors.areas`は自由入力のままで同じ問題が残っていた。`shops.prefecture`/`instructors.prefecture`（既存列・未使用のまま放置）を検索の正データに昇格し、`pro/index.html`のプロフィールフォームに入力欄を追加して解消。既存データはareas列からのベストエフォート推定バックフィルが必要（詳細は[DECISIONS.md](../docs/DECISIONS.md#2026-07-14exploreshopshtmlのエリア軸を都道府県に統一旧svg地図を撤去)参照）。
 
 ### カードのリンク先
 
@@ -215,8 +215,8 @@ _sb.from('instructors').select('id, name, bio, areas, photo_url, is_verified, sh
 | `bio` | text | 経歴・自己紹介 |
 | `photo_url` | text | 写真 URL |
 | `certifications` | jsonb | 資格リスト |
-| `areas` | jsonb | 対応エリアリスト |
-| `prefecture` | text | 都道府県 |
+| `areas` | text[] | 対応エリアリスト（季節ラベル付き自由入力。例：`沖縄（4月〜10月）`） |
+| `prefecture` | text | 都道府県（2026-07-14〜、`pro/index.html`から入力・検索の正データ） |
 | `city` | text | 市区町村 |
 | `experience_years` | int | 経験年数 |
 | `languages` | jsonb | 対応言語 |

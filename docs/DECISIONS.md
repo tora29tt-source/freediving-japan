@@ -9,6 +9,49 @@ DEV.mdの各セクションから該当箇所へのポインタが張られて�
 
 -----
 
+## 2026-07-14：`explore/shops.html`のエリア軸を都道府県に統一（旧SVG地図を撤去）
+
+**背景**：2026-07-10のエリア設計刷新で`explore/index.html`は都道府県チップに統一したが、`explore/shops.html`（ショップ・インストラクターディレクトリ）は`shops.prefecture`/`instructors.prefecture`列が全レコードNULLのためスコープ外とし、旧SVG地図（`js/area-map.js`）＋14種固定エリアチップのまま残していた（[2026-07-10のエントリ](#2026-07-10listingscategory-タクソノミー変更エリア設計刷新learn実装方針)参照）。今回、残っていた「都道府県フィールド化」を実施しスコープを解消した。
+
+**対応**：
+- `pro/index.html`：インストラクター/ショップの新規作成・編集フォーム（`cp-`/`csp-`/`p-`/`sp-`プレフィックスの4フォーム）に「拠点の都道府県」`<select>`を追加。`instructors.prefecture`/`shops.prefecture`（既存列・未使用のまま放置されていた）に保存する
+- `explore/shops.html`：`js/area-map.js`依存を撤去し`js/location-data.js`を読み込み。エリアチップは`explore/index.html`の`renderPrefChips()`と同方式で都道府県ベースに動的生成（人気都道府県は0件でも表示、それ以外は該当者がいる都道府県のみ追加表示）。データ取得も`shops.areas`/`instructors.areas`（自由入力・季節ラベル付き配列）から`prefecture`列に切替
+- 既存データのバックフィル：`areas`列の値（旧14タクソノミー由来の地名）から都道府県をベストエフォートで推定するSQLをチャットで提示・ユーザーがSupabase SQL Editorで実行（本ルールに従いファイル化せず）。マッチしない場合は`prefecture`はNULLのまま（プロフィール編集画面で手動設定可能）
+
+**未実施**：バックフィルSQLの本番実行・実機QA（都道府県チップ絞り込み・プロフィール編集フォームでの保存・地図UIの完全撤去を確認する必要あり）
+
+-----
+
+## 2026-07-14：STAタイマー（sta-timer.html）不具合3件の調査・修正
+
+**背景**：ユーザー報告により3件の不具合を確認。(1)(2)は再現手順から原因を特定して修正、(3)は「録画が保存されない/消える」「1秒程度しか録れていない」という報告を受けてコードレビューで原因候補を特定し修正した。**いずれも実機（iPhone Safari）での動作確認は未実施**。次回実機使用時の検証が必要。
+
+### (1) プリセット名保存時にスペースが入力できない
+
+**原因**：`document.addEventListener('keydown', ...)`がページ全体でスペースキーを「スタート/ストップ」ショートカットとして横取りし`preventDefault()`していたため、プリセット名入力欄・メモ欄（`#saveNote`）にフォーカスがあってもスペース入力が無効化されていた。
+
+**対策**：`keydown`ハンドラの先頭で`e.target`がinput/textarea/contentEditableの場合は即returnし、ショートカットを無効化。テキスト入力欄はこの2箇所のみと確認済み。
+
+### (2) 1st Contraction（FC）記録が小さいカードしか反応しない
+
+**原因**：「画面のどこをタップしてもFC記録」というロジック自体は既にあったが、画面の大部分を占めるメインリング（`#timerWrap`）だけが対象から除外され、Stop操作専用になっていた。結果としてユーザーは大きなリングではなく下部の小さい「1st Contraction」カードしか実用上押せなかった。
+
+**対策**：リングタップ時、Hold中かつFC未記録なら先にFC記録（`onFC()`）を行い、記録済みなら従来通りStopとして扱うよう変更（`tryRecordFC()`関数を新設）。
+
+### (3) 録画が保存されない／消える／1秒程度で途切れる（カメラ録画機能）
+
+**原因（コードレビューによる仮説）**：`camRecorder`/`isRecording`という2つの状態変数を、録画停止のトリガー箇所（`_finalizeRecordingThen`・Surface後30秒の自動停止タイマー・`stopAllCameraActivity`）がそれぞれ個別に直接操作しており、更新に漏れがあった。特にSurface後30秒の自動停止タイマーは`camRecorder.stop(); isRecording=false;`のみを行い、`camRecorder`変数自体はnullにしていなかった。
+
+`MediaRecorder.stop()`は仕様上、呼び出した瞬間に同期的に`state`を`'inactive'`にする（実際のチャンク確定・`onstop`発火は非同期）。そのため「stopは呼んだが後片付け中」の古い録画インスタンスが残っている状態で、直後に次のHoldが始まり`_finalizeRecordingThen()`が`camRecorder.state !== 'inactive'`を見て「待つ必要なし」と誤判定 → 古い録画がまだ終わっていないのに新しい`MediaRecorder`を同じcanvas・同じマイクトラックに対して起動してしまい、2つの録画インスタンスが一瞬重複する状態が発生し得た。Rest（休憩）時間がSurface後の固定録画時間（30秒）より短いフリーモードの通常運用では起きやすい条件だった。
+
+**対策**：録画停止を`_stopRecording(discard)`関数に一元化し、`stop()`を呼ぶのと同時に`camRecorder`/`isRecording`を同期的にリセット、`onstop`完了をPromiseで待てるようにした。`_finalizeRecordingThen`・Surface後30秒タイマー・`stopAllCameraActivity`の3箇所すべてをこの関数経由に変更。
+
+**検証状況**：構文チェック（Node.jsで埋め込みJSをパース）のみ実施し、エラーなし。**MediaRecorder/カメラの実際の録画時間・保存挙動は実機でのみ確認可能なため未検証**。次回、Rest 30秒未満の設定で連続ホールドし、各クリップが最後まで録れているか要確認。
+
+**実装**：`tools/sta-timer.html`（コミット: "fix: STAタイマー プリセット名にスペース入力不可を修正、1stコントラクション記録をリングタップでも可能に" / "fix: STAタイマー録画のcamRecorder状態不整合を修正"）
+
+-----
+
 ## 2026-07-12：多言語対応（i18n）方式
 
 **背景**：`instructors`/`shops`テーブルには先行して`name_en`/`bio_en`カラム（本人手入力想定）が用意されていたが、実際の表示側（explore・profile.html等）では未接続のままだった。インバウンド需要への対応を早めたいという相談から、対応言語・翻訳方式を再検討し直した。

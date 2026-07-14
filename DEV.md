@@ -298,9 +298,11 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 
 ### エリア設計の刷新（2026-07-10確定）
 
-「エリア」固定14タクソノミーを廃止し、**都道府県（`listings.prefecture`）を検索・絞り込みの主軸**にする。事業者は都道府県配下のスポット名を自由入力（`datalist`サジェスト、種データ14件＋実データをマージ）。探すページのSVG地図（`js/area-map.js`）は`explore/index.html`からは廃止（`explore/shops.html`はスコープ外で旧方式のまま残存）。
+「エリア」固定14タクソノミーを廃止し、**都道府県（`listings.prefecture`）を検索・絞り込みの主軸**にする。事業者は都道府県配下のスポット名を自由入力（`datalist`サジェスト、種データ14件＋実データをマージ）。探すページのSVG地図（`js/area-map.js`）は`explore/index.html`からは廃止。
 
 実装済み：`js/location-data.js`（新規）／`js/area-picker.js`／`explore/index.html`・`pro/index.html`・`admin/index.html`。2026-07-10 Chrome MCPで実機QA完了（admin側`loadListings()`の`prefecture`欠落バグを発見・修正済み）。
+
+**2026-07-14追記**：`explore/shops.html`（ショップ・インストラクターディレクトリ）も同方式に統一し旧SVG地図を撤去。`pro/index.html`のプロフィール編集・新規作成フォームに「拠点の都道府県」欄を追加し`shops.prefecture`/`instructors.prefecture`（既存列）に保存するようにした。既存データはareas列からのベストエフォート推定バックフィルが必要（チャット提示のSQLを本番未実行）。詳細は[DECISIONS.md](docs/DECISIONS.md#2026-07-14exploreshopshtmlのエリア軸を都道府県に統一旧svg地図を撤去)参照。実機QA未実施。
 
 **未着手**：`explore/shops.html`への同方式適用（`shops`/`instructors`の`prefecture`列が全レコードNULLのため、データバックフィルが先に必要）
 
@@ -580,7 +582,7 @@ TOP (index.html)  ── Airbnb風マーケットプレイス（白基調）
 |大会情報（2026_competitions.html）                        |✅ 完成                        |
 |トレーニングログ（training-log.html）                         |✅ Supabase接続・保存・読み込み・編集・URLシェア・カレンダー表示実装済み|
 |マイページ（mypage.html）                                  |✅ Supabase接続完了（トレーニングカレンダー・サマリー・予約履歴・大会管理）|
-|STAタイマー（sta-timer.html）                             |✅ 大幅機能追加・デプロイ済み              |
+|STAタイマー（sta-timer.html）                             |✅ 大幅機能追加・デプロイ済み。プリセット名スペース入力不可・1stコントラクション記録範囲・録画状態不整合の3件を修正（2026-07-14）。**録画修正は実機未検証**（詳細は[DECISIONS.md](docs/DECISIONS.md#2026-07-14staタイマーsta-timerhtml不具合3件の調査修正)参照）|
 |Mouthfill Calculator（mouthfill-calculator.html）     |✅ 完成・push済み                  |
 |インストラクターウェルカム（instructor-welcome.html）              |✅ 作成完了                      |
 |フリーダイビングを学ぶ（freediving-learn.html）                 |✅ 管理ツール完成・learn/index.html 骨格完成  |

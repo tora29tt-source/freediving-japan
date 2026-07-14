@@ -3957,25 +3957,54 @@ function getSupportedMimeType() {
   return '';
 }
 
+// ── 録画停止の一元化 ────────────────────────────────────────
+// camRecorder/isRecordingを直接いじる箇所が複数あると、状態更新の漏れが
+// 「停止済みのつもりが古いrecがまだ非同期で動いていて、次の録画開始判定
+// （camRecorder.state==='inactive'）をすり抜けて一瞬だけ2つのMediaRecorderが
+// 同じcanvas/audioトラックを取り合う」→ 結果1秒程度でちぎれた録画や
+// 保存漏れになるバグの温床だった（特にSurface後30秒の自動停止タイマーが
+// camRecorderをnullにせずisRecordingだけfalseにしていたため、直後に次の
+// Holdが始まると起きていた）。
+// 停止のトリガーは必ずこの関数を経由し、camRecorder/isRecordingを
+// 「stop()を呼んだ瞬間に」同期的にリセットしてから、onstop完了を
+// Promiseで待てるようにする。
+// discard=true: チャンク保存をスキップして破棄する（Reset/カメラOFF用。
+//   破棄しないとonReset後のcameraClips=[]の後に非同期onstopが
+//   古いクリップをpushして「リセットしたのに残る」状態になる）
+function _stopRecording(discard = false) {
+  clearTimeout(holdRecordTimeout);
+  clearTimeout(restRecordTimeout);
+  clearInterval(restRecordTimeout);
+  holdRecordTimeout = null; restRecordTimeout = null;
+
+  const _rec = camRecorder;
+  // 停止を要求した時点で即座に「非アクティブ」扱いにする。
+  // これにより後続のstartCamRecording()/ondataavailableのisCurrent判定が
+  // 常に最新の状態を見られる（古いrecがまだ非同期処理中でも二重録画にならない）。
+  camRecorder = null;
+  isRecording = false;
+  _savingAfterSurface = false;
+
+  if (!_rec || _rec.state === 'inactive') {
+    return Promise.resolve();
+  }
+  return new Promise(resolve => {
+    if (discard) {
+      _rec.onstop = () => { _syncCameraButtons(); resolve(); };
+    } else {
+      const _prev = _rec.onstop;
+      _rec.onstop = () => {
+        if (_prev) _prev.call(_rec); // 既存のonstop（チャンク保存）を先に実行
+        resolve();
+      };
+    }
+    _rec.stop();
+  });
+}
+
 // ── 録画中なら停止を待ってからコールバック、そうでなければ即実行 ──
 function _finalizeRecordingThen(cb) {
-  if (camRecorder && camRecorder.state !== 'inactive') {
-    // 残りのrestRecordTimeoutをキャンセルして即停止
-    clearTimeout(restRecordTimeout);
-    clearInterval(restRecordTimeout);
-    restRecordTimeout = null;
-    const _rec = camRecorder;
-    const _prev = _rec.onstop;
-    _rec.onstop = () => {
-      if (_prev) _prev.call(_rec); // 既存のonstop（チャンク保存）を先に実行
-      cb();                        // その後にコールバック（openSave等）
-    };
-    _rec.stop();
-    isRecording = false;
-    camRecorder = null;
-  } else {
-    cb();
-  }
+  _stopRecording(false).then(cb);
 }
 
 function stopCameraStream() {
@@ -3987,19 +4016,8 @@ function stopCameraStream() {
 }
 
 function stopAllCameraActivity() {
-  clearTimeout(holdRecordTimeout);
-  clearTimeout(restRecordTimeout);
-  clearInterval(restRecordTimeout);
-  holdRecordTimeout = null; restRecordTimeout = null;
-  _savingAfterSurface = false;
-  if (camRecorder && camRecorder.state !== 'inactive') {
-    // リセット/録画OFF時は録画途中のクリップを破棄する
-    // （破棄しないと、onReset後のcameraClips=[]の後に非同期のonstopが
-    //  古いクリップをpushして「リセットしたのに残る」状態になる）
-    camRecorder.onstop = () => { _syncCameraButtons(); };
-    camRecorder.stop();
-  }
-  camRecorder = null; isRecording = false; camRecordLabel = '';
+  _stopRecording(true);
+  camRecordLabel = '';
 }
 
 // ── IndexedDB: クリップ永続化（バックグラウンド復帰時の消失防止）────────
@@ -4127,8 +4145,11 @@ function onSurfaceStart() {
     if (Date.now() >= stopAt) {
       clearInterval(restRecordTimeout);
       restRecordTimeout = null;
-      if (camRecorder && camRecorder.state !== 'inactive') camRecorder.stop();
-      isRecording = false;
+      // _stopRecording()経由にする: camRecorderをnullにせずisRecordingだけ
+      // falseにすると、直後に次のHoldが始まった際に「まだ非同期停止中の
+      // 古いrec」を素通りして新しい録画を始めてしまい、2つのMediaRecorderが
+      // 一瞬重なって録画が数秒〜1秒で壊れる原因になっていた。
+      _stopRecording(false);
     }
   }, 500);
 }
