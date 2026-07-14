@@ -6,31 +6,33 @@
 
 /* ── 1. CSS Variables (Design Tokens) ───────────────────── */
 :root {
-  /* ── Color: Ocean Palette ── */
-  --abyss:        #04161f;   /* 最深部・背景ベース */
+  /* ── Color: Ocean Palette（アバター等の装飾グラデーション用に維持） ── */
+  --abyss:        #ffffff;   /* 背景ベース（白） */
   --ocean-deep:   #0b2d45;
   --ocean-mid:    #0e3d5c;
   --ocean-light:  #1a5f82;
   --ocean-teal:   #1a7a8a;
 
   /* ── Color: Accent ── */
-  --teal:         #2ec4b6;
-  --teal-light:   #a8ece8;
+  --teal:         #1f6f78;   /* テキスト・ボーダー用（濃色） */
+  --teal-btn:     #2ec4b6;   /* ボタン背景用（明色・#0b2d45文字とペア） */
+  --teal-btn-hover:#26ab9e;
+  --teal-light:   #0d7d72;   /* テキスト用（濃色） */
   --warm:         #f97316;
-  --warn:         #f59e0b;
+  --warn:         #b45309;
   --foam:         #f0f9fb;
 
   /* ── Color: Semantic ── */
-  --on-dark:      rgba(255,255,255,0.92);   /* 主テキスト */
-  --on-dark-mid:  rgba(255,255,255,0.62);   /* サブテキスト */
-  --on-dark-soft: rgba(255,255,255,0.40);   /* プレースホルダー等 */
-  --hairline:     rgba(168,236,232,0.14);   /* ボーダー */
-  --glass:        rgba(255,255,255,0.045);  /* カード背景 */
+  --on-dark:      #222226;   /* 主テキスト */
+  --on-dark-mid:  #5b5b60;   /* サブテキスト */
+  --on-dark-soft: #8b8b90;   /* プレースホルダー等 */
+  --hairline:     #e7e7ea;   /* ボーダー */
+  --glass:        #ffffff;   /* カード背景 */
 
   /* ── Surface (solid backgrounds) ── */
-  --surface:      #0c2738;
-  --surface-2:    #123146;
-  --accent-dim:   rgba(46,196,182,0.10);
+  --surface:      #ffffff;
+  --surface-2:    #f5f5f7;
+  --accent-dim:   rgba(31,111,120,0.10);
 
   /* ── Radius ── */
   --r-sm:  9px;
@@ -39,9 +41,9 @@
   --r-pill:100px;
 
   /* ── Shadow ── */
-  --shadow-sm: 0 2px 12px rgba(4,22,31,0.5);
-  --shadow-md: 0 8px 32px rgba(4,22,31,0.6);
-  --shadow-lg: 0 16px 48px rgba(4,22,31,0.7);
+  --shadow-sm: 0 2px 12px rgba(20,20,30,0.08);
+  --shadow-md: 0 8px 32px rgba(20,20,30,0.14);
+  --shadow-lg: 0 16px 48px rgba(20,20,30,0.18);
 
   /* ── Transition ── */
   --t-fast:   0.15s ease;
@@ -60,20 +62,13 @@
 
 /* ── 3. Base ─────────────────────────────────────────────── */
 html {
-  background: var(--abyss);
+  background: #ffffff;
   scroll-behavior: smooth;
 }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
-  background: linear-gradient(
-    180deg,
-    var(--ocean-mid)  0%,
-    var(--ocean-deep) 22%,
-    #06283a           55%,
-    var(--abyss)      100%
-  );
-  background-attachment: fixed;
+  background: #ffffff;
   color: var(--on-dark);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
@@ -101,7 +96,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(6,32,46,0.60);
+  background: rgba(255,255,255,0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--hairline);
@@ -155,7 +150,7 @@ body {
   gap: 8px;
   padding: 13px 28px;
   border-radius: var(--r-pill);
-  background: var(--teal);
+  background: var(--teal-btn);
   border: none;
   color: var(--ocean-deep);
   font-size: 14px;
@@ -165,7 +160,7 @@ body {
   cursor: pointer;
   transition: background var(--t-base), transform var(--t-fast);
 }
-.btn-primary:hover  { background: var(--teal-light); transform: translateY(-1px); }
+.btn-primary:hover  { background: var(--teal-btn-hover); transform: translateY(-1px); }
 .btn-primary:active { transform: translateY(0); }
 .btn-primary .icon  { width: 16px; height: 16px; }
 
@@ -178,7 +173,7 @@ body {
   padding: 12px 24px;
   border-radius: var(--r-pill);
   background: transparent;
-  border: 1px solid rgba(168,236,232,0.45);
+  border: 1px solid rgba(31,111,120,0.35);
   color: var(--on-dark);
   font-size: 13px;
   font-weight: 500;
@@ -238,8 +233,7 @@ body {
   text-decoration: none;
   color: inherit;
   display: block;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  box-shadow: var(--shadow-sm);
   transition: border-color var(--t-base), transform var(--t-base), background var(--t-base);
 }
 .card:hover {
@@ -303,11 +297,11 @@ body {
   display: flex; flex-direction: column; justify-content: flex-end; gap: 4px;
 }
 .photo-card-body h3 {
-  font-size: 13px; font-weight: 600; color: var(--on-dark); letter-spacing: 0.03em;
+  font-size: 13px; font-weight: 600; color: #fff; letter-spacing: 0.03em;
   display: flex; align-items: center; gap: 7px;
 }
-.photo-card-body h3 .icon { width: 15px; height: 15px; color: var(--teal-light); }
-.photo-card-body p  { font-size: 11px; color: var(--on-dark-mid); }
+.photo-card-body h3 .icon { width: 15px; height: 15px; color: #a8ece8; }
+.photo-card-body p  { font-size: 11px; color: rgba(255,255,255,0.75); }
 
 /* ── 10. Form Inputs ─────────────────────────────────────── */
 .input {

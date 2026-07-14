@@ -214,6 +214,11 @@ body { min-height: 100vh; }
 .owner-link-card:hover { border-color: var(--line-strong); box-shadow: var(--shadow-card); }
 .owner-link-arrow { color: var(--ink-soft); flex-shrink: 0; margin-left: auto; }
 .owner-link-arrow .icon { width: 16px; height: 16px; }
+/* ── 言語切替 ── */
+.lang-switcher { display: flex; gap: 4px; padding: 0 0 16px; }
+.lang-btn { padding: 5px 12px; border-radius: 100px; border: 1px solid var(--line-strong); background: #fff; font-size: 11px; font-weight: 600; color: var(--ink-mid); cursor: pointer; transition: all 0.15s; }
+.lang-btn.active { border-color: var(--ink); background: var(--ink); color: #fff; }
+.lang-notice { font-size: 11px; color: var(--ink-soft); display: block; margin-top: 6px; font-style: italic; }
 </style>
 </head>
 <body>
@@ -293,6 +298,35 @@ const instructorId = params.get('id');
 const shopId       = !instructorId ? params.get('shop') : null;
 const listingId    = params.get('listing');
 const isShopOwner  = !instructorId && !!shopId;
+
+// ── 言語切替 ──────────────────────────────────────────
+let _currentLang = 'ja';
+let _listingForTranslation = null;
+
+async function switchLang(lang) {
+  _currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  const titleEl = document.getElementById('listing-title');
+  const descEl  = document.getElementById('listing-desc');
+  if (lang === 'ja') {
+    if (titleEl) titleEl.innerHTML = esc(_listingForTranslation?.title || '');
+    if (descEl)  descEl.innerHTML  = escNl(_listingForTranslation?.description || '');
+    return;
+  }
+  if (!_listingForTranslation) return;
+  const { data } = await _sb.from('translations')
+    .select('field_name, translated_text')
+    .eq('table_name', 'listings')
+    .eq('row_id', _listingForTranslation.id)
+    .eq('lang', lang)
+    .in('field_name', ['title', 'description']);
+  const tMap = Object.fromEntries((data || []).map(r => [r.field_name, r.translated_text]));
+  if (titleEl && tMap.title) titleEl.innerHTML = esc(tMap.title);
+  if (descEl) descEl.innerHTML = tMap.description
+    ? escNl(tMap.description)
+    : `${escNl(_listingForTranslation?.description || '')}<span class="lang-notice">（翻訳準備中）</span>`;
+}
+// ─────────────────────────────────────────────────────
 
 // instructor / shop どちらの owner レコードも同じ形で扱えるように正規化する
 function normalizeOwner(raw, type) {
@@ -524,7 +558,7 @@ function renderPage(owner, listing, otherListings, reviews = []) {
       ${listing ? `
       <div class="listing-header">
         <p class="listing-category">${esc(listing.category)}</p>
-        <h1 class="listing-title">${esc(listing.title)}</h1>
+        <h1 class="listing-title" id="listing-title">${esc(listing.title)}</h1>
         ${(listing.tags || []).length > 0 ? `<div class="tag-row">${listing.tags.map(t => `<span class="tag${String(t).includes('OK') ? ' tag-hot' : ''}">${esc(t)}</span>`).join('')}</div>` : ''}
         <div class="price-row">
           <span class="price-main">${listing.price ? '¥' + listing.price.toLocaleString() : '要相談'}</span>
@@ -541,11 +575,19 @@ function renderPage(owner, listing, otherListings, reviews = []) {
       <!-- 写真（カバーとは別に、商品写真を全体表示） -->
       ${photoSectionHtml}
 
+      <!-- 言語切替 -->
+      <div class="lang-switcher">
+        <button class="lang-btn active" data-lang="ja" onclick="switchLang('ja')">日本語</button>
+        <button class="lang-btn" data-lang="en" onclick="switchLang('en')">EN</button>
+        <button class="lang-btn" data-lang="ko" onclick="switchLang('ko')">한국어</button>
+        <button class="lang-btn" data-lang="zh" onclick="switchLang('zh')">中文</button>
+      </div>
+
       <!-- description -->
       ${listing?.description ? `
       <div class="section">
         <p class="section-title">このプランについて</p>
-        <p class="section-text">${escNl(listing.description)}</p>
+        <p class="section-text" id="listing-desc">${escNl(listing.description)}</p>
       </div>` : ''}
 
       <!-- goal（到達目標） -->
@@ -689,6 +731,8 @@ function renderPage(owner, listing, otherListings, reviews = []) {
 
     </div><!-- /main -->
   `;
+  _listingForTranslation = listing;
+  _currentLang = 'ja';
 
 }
 

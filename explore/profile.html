@@ -87,6 +87,11 @@ body { min-height: 100vh; }
 .page-loading { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 50vh; gap: 16px; color: var(--ink-soft); }
 .spinner { width: 32px; height: 32px; border: 2px solid var(--line); border-top-color: var(--teal-deep); border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+/* ── 言語切替 ── */
+.lang-switcher { display: flex; gap: 4px; padding: 8px 16px 4px; }
+.lang-btn { padding: 5px 12px; border-radius: 100px; border: 1px solid var(--line-strong); background: #fff; font-size: 11px; font-weight: 600; color: var(--ink-mid); cursor: pointer; transition: all 0.15s; }
+.lang-btn.active { border-color: var(--ink); background: var(--ink); color: #fff; }
+.lang-notice { font-size: 11px; color: var(--ink-soft); display: block; margin-top: 6px; font-style: italic; }
 </style>
 </head>
 <body>
@@ -130,6 +135,36 @@ function listingQuery(listingId) {
   return `listing.html?${owner}&listing=${esc(listingId)}`;
 }
 function profileQuery(id) { return `profile.html?id=${esc(id)}`; }
+
+// ── 言語切替 ──────────────────────────────────────────
+let _currentLang = 'ja';
+let _ownerForTranslation = null;
+
+async function switchLang(lang) {
+  _currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  const nameEl = document.getElementById('owner-name');
+  const bioEl  = document.getElementById('owner-bio');
+  if (lang === 'ja') {
+    if (nameEl) nameEl.innerHTML = esc(_ownerForTranslation?.name || '');
+    if (bioEl)  bioEl.innerHTML  = escNl(_ownerForTranslation?.bio || '');
+    return;
+  }
+  if (!_ownerForTranslation) return;
+  const tableName = _ownerForTranslation.type === 'shop' ? 'shops' : 'instructors';
+  const { data } = await _sb.from('translations')
+    .select('field_name, translated_text')
+    .eq('table_name', tableName)
+    .eq('row_id', _ownerForTranslation.id)
+    .eq('lang', lang)
+    .in('field_name', ['name', 'bio']);
+  const tMap = Object.fromEntries((data || []).map(r => [r.field_name, r.translated_text]));
+  if (nameEl && tMap.name) nameEl.innerHTML = esc(tMap.name);
+  if (bioEl) bioEl.innerHTML = tMap.bio
+    ? escNl(tMap.bio)
+    : `${escNl(_ownerForTranslation?.bio || '')}<span class="lang-notice">（翻訳準備中）</span>`;
+}
+// ─────────────────────────────────────────────────────
 
 if (!instructorId && !shopId) {
   document.getElementById('pageContent').innerHTML = '<div class="main" style="padding-top:40px;text-align:center;color:var(--ink-soft)">インストラクター・ショップが見つかりませんでした。<br><a href="shops.html" style="color:var(--teal-deep)">一覧に戻る</a></div>';
@@ -286,7 +321,7 @@ function renderPage(owner, listings, reviews, roster) {
         <div class="hero-meta">
           <p class="type-label">${owner.type === 'shop' ? 'ショップ' : 'インストラクター'}</p>
           <div class="hero-name-row">
-            <span class="hero-name">${esc(owner.name)}</span>
+            <span class="hero-name" id="owner-name">${esc(owner.name)}</span>
             ${verifiedBadge}
           </div>
           ${locationParts ? `<p class="hero-location"><svg class="icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${locationParts}</p>` : ''}
@@ -294,10 +329,17 @@ function renderPage(owner, listings, reviews, roster) {
       </div>
     </div>
 
+    <div class="lang-switcher">
+      <button class="lang-btn active" data-lang="ja" onclick="switchLang('ja')">日本語</button>
+      <button class="lang-btn" data-lang="en" onclick="switchLang('en')">EN</button>
+      <button class="lang-btn" data-lang="ko" onclick="switchLang('ko')">한국어</button>
+      <button class="lang-btn" data-lang="zh" onclick="switchLang('zh')">中文</button>
+    </div>
+
     <div class="main">
       <div class="stats">${statsHtml}</div>
 
-      ${owner.bio ? `<div class="section"><p class="section-title">自己紹介</p><p class="section-text">${escNl(owner.bio)}</p></div>` : ''}
+      ${owner.bio ? `<div class="section"><p class="section-title">自己紹介</p><p class="section-text" id="owner-bio">${escNl(owner.bio)}</p></div>` : ''}
       ${certsHtml}
       ${specsHtml}
       ${areasHtml}
@@ -307,6 +349,8 @@ function renderPage(owner, listings, reviews, roster) {
       ${reviewsHtml}
     </div>
   `;
+  _ownerForTranslation = owner;
+  _currentLang = 'ja';
 }
 </script>
 </body>

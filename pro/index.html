@@ -1777,6 +1777,9 @@ async function saveProfile() {
   _isDirty = false;
   _profileDirty = false;
   showToast('プロフィールを保存しました', 'success');
+  // 翻訳キャッシュ更新（fire-and-forget）
+  { const _f = {}; if (payload.name) _f.name = payload.name; if (payload.bio) _f.bio = payload.bio;
+    if (Object.keys(_f).length) fetch('/api/translate-content', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tableName: 'instructors', rowId: myInstructor.id, fields: _f }) }).catch(() => {}); }
   renderProfileForm();
 }
 
@@ -2206,6 +2209,9 @@ async function saveShopProfile() {
   _isDirty = false;
   _profileDirty = false;
   showToast('プロフィールを保存しました', 'success');
+  // 翻訳キャッシュ更新（fire-and-forget）
+  { const _f = {}; if (payload.name) _f.name = payload.name; if (payload.bio) _f.bio = payload.bio;
+    if (Object.keys(_f).length) fetch('/api/translate-content', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tableName: 'shops', rowId: myShop.id, fields: _f }) }).catch(() => {}); }
   renderShopProfileForm();
 }
 
@@ -2590,15 +2596,19 @@ async function saveListing() {
     updated_at:          new Date().toISOString(),
   };
 
-  let error;
+  let error, _savedListingId = editListingId;
   if (editListingId) {
     ({ error } = await _sb.from('listings').update(payload).eq('id', editListingId));
   } else {
-    ({ error } = await _sb.from('listings').insert(payload));
+    const { data: _ins, error: _ie } = await _sb.from('listings').insert(payload).select('id').single();
+    error = _ie; _savedListingId = _ins?.id ?? null;
   }
   if (error) { showToast('保存に失敗しました: ' + error.message, 'error'); return; }
   _isDirty = false;
   showToast(editListingId ? 'コースを更新しました' : 'コースを追加しました', 'success');
+  // 翻訳キャッシュ更新（fire-and-forget）
+  if (_savedListingId) { const _f = {}; if (payload.title) _f.title = payload.title; if (payload.description) _f.description = payload.description;
+    if (Object.keys(_f).length) fetch('/api/translate-content', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tableName: 'listings', rowId: _savedListingId, fields: _f }) }).catch(() => {}); }
   closeListingModal();
   loadListings();
   populateSlotListings(); // 空き枠モーダルのリストも更新
