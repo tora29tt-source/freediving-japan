@@ -397,7 +397,7 @@ VALUES
   '沖縄県', '石垣島', '石垣市',
   6500, '〜/人',
   ARRAY['初心者OK', '子ども参加OK'],
-  '../images/family_group_beach_japan.jpg'
+  '../images/snorkeling_reef_okinawa_aerial.jpg'
 ),
 (
   (SELECT id FROM instructors WHERE name = '田中 美咲'),

@@ -84,7 +84,7 @@ INSERT INTO listings (
   ARRAY['水着', 'タオル', '日焼け止め（海洋環境配慮型）'],
   '前日18時まで無料キャンセル。当日キャンセルは100%頂きます。',
   '水温が低いためウェットスーツ着用必須（無料レンタル有）。波が高い日は安全のため中止する場合があります。',
-  '../images/kids_goggles_beach_japan.jpg',
+  '../images/snorkeling_reef_okinawa_aerial.jpg',
   TRUE, 0
 ),
 
@@ -160,7 +160,7 @@ INSERT INTO listings (
   ARRAY['水着', 'タオル', 'ラッシュガード（日焼け防止）'],
   '前日17時まで無料。当日は50%頂きます（荒天中止の場合は全額返金）。',
   '6歳未満のお子様は保護者同伴必須。ウミガメの出没は自然任せのため保証はできません。',
-  '../images/family_float_ring_beach_japan.jpg',
+  '../images/snorkeling_emerald_water_okinawa.jpg',
   TRUE, 0
 ),
 
