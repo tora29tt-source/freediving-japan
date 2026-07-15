@@ -506,213 +506,230 @@ body { padding-bottom: 72px; }
 
 <!-- CONTENT -->
 <div class="content">
+<div class="mypage-grid">
 
-  <!-- 講習・ツアー管理（インストラクター/ショップ登録済みのみ表示。2026-07-14・secretary相談で確定：未登録の一般ゲストには出さない） -->
-  <div class="section" id="proDashboardSection" style="display:none;">
-    <div class="sec-head">
-      <div class="sec-title">講習・ツアー管理</div>
-    </div>
-    <a class="menu-card wide" href="pro/" style="text-decoration:none;">
-      <span class="menu-icon">🎓</span>
-      <div class="menu-body">
-        <div class="menu-title">プロダッシュボード</div>
-        <div class="menu-sub">コース・空き枠・予約・問い合わせを管理</div>
-      </div>
-      <span class="menu-arrow">›</span>
-    </a>
-  </div>
+  <!-- ══ メイン：予約確認 → 事業者導線 → トレーニング記録（2026-07-14・secretary相談で確定の優先順） ══ -->
+  <div class="mypage-main">
 
-  <!-- カレンダー -->
-  <div class="section">
-    <div class="sec-head">
-      <div class="sec-title">トレーニングカレンダー</div>
-    </div>
-    <div class="cal-wrap">
-      <div class="cal-header">
-        <button class="cal-nav" onclick="prevMonth()">‹</button>
-        <div class="cal-title" id="calTitle"></div>
-        <button class="cal-nav" onclick="nextMonth()">›</button>
+    <!-- 予約確認（自分がゲストとして行った予約の確認・キャンセル。プロダッシュボードの「予約管理」＝自分が受けた予約とは別物。無ければ非表示） -->
+    <div class="section" id="bookingHistorySection" style="display:none;">
+      <div class="sec-head">
+        <div class="sec-title">予約確認</div>
       </div>
-      <div class="cal-grid" id="calGrid"></div>
-      <div class="cal-legend" style="flex-wrap:wrap;gap:8px 14px;">
-        <div class="legend-item"><div class="legend-dot dot-sea"></div>海</div>
-        <div class="legend-item"><div class="legend-dot dot-pool"></div>プール</div>
-        <div class="legend-item"><div class="legend-dot dot-dry"></div>ドライ</div>
-        <div class="legend-item"><div class="legend-dot dot-lesson"></div>講習</div>
-        <div class="legend-item"><div class="legend-dot dot-coaching"></div>コーチング</div>
-        <div class="legend-item"><div class="legend-dot dot-event"></div>大会</div>
-        <div class="legend-item"><div class="legend-dot dot-challenge"></div>チャレンジ</div>
-        <div class="legend-item" style="color:var(--muted);">点線＝予定</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- トレーニング統計 -->
-  <div class="section">
-    <div class="sec-head">
-      <div class="sec-title">今月のサマリー</div>
-      <a class="sec-link" href="tools/training-log.html">すべて見る →</a>
-    </div>
-
-    <!-- 上段：練習日数・最大深度 -->
-    <div class="stat-grid" style="margin-bottom:8px;">
-      <div class="stat-card">
-        <div class="stat-val" id="stat-days">—</div>
-        <div class="stat-lbl">練習日数</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-val" id="stat-sessions">—</div>
-        <div class="stat-lbl">セッション数</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-val" id="stat-rhr" style="font-size:16px;">—</div>
-        <div class="stat-lbl">平均RHR</div>
+      <div class="settings-card">
+        <div class="settings-row" onclick="openMyBookingsModal()">
+          <div class="settings-icon">📋</div>
+          <div class="settings-label">自分の予約を確認する<span id="my-bookings-count" style="color:var(--muted);font-weight:400;"></span></div>
+          <div class="settings-arrow">›</div>
+        </div>
       </div>
     </div>
 
-    <!-- 下段：海/プール/ドライの内訳 -->
-    <div class="stat-card" style="padding:12px 16px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <span style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">環境別内訳</span>
-        <span id="stat-env-total" style="font-size:11px;color:var(--muted);">—</span>
+    <!-- 講習・ツアー管理（インストラクター/ショップ登録済みのみ表示。未登録なら下の「事業者の方へ」だけが出る） -->
+    <div class="section" id="proDashboardSection" style="display:none;">
+      <div class="sec-head">
+        <div class="sec-title">講習・ツアー管理</div>
       </div>
-      <div id="stat-env-bar" style="display:flex;height:8px;border-radius:4px;overflow:hidden;gap:2px;margin-bottom:8px;">
-        <div style="flex:1;background:rgba(20,20,30,0.06);border-radius:4px;"></div>
-      </div>
-      <div id="stat-env-labels" style="display:flex;justify-content:space-between;">
-        <div style="font-size:11px;color:var(--muted);">読み込み中...</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- トレーニングメニュー -->
-  <div class="section">
-    <div class="sec-head">
-      <div class="sec-title">トレーニング</div>
-    </div>
-    <div class="menu-grid">
-      <a class="menu-card" href="tools/training-log.html">
-        <span class="menu-icon">📝</span>
-        <div class="menu-title">ログ</div>
-        <div class="menu-sub">ダイブ記録・分析</div>
-      </a>
-
-      <a class="menu-card" href="tools/sta-timer.html">
-        <span class="menu-icon">⏱️</span>
-        <div class="menu-title">タイマー</div>
-        <div class="menu-sub">O2・CO2テーブル</div>
-      </a>
-
-      <!-- 一旦非表示（後続で再度作ります・2026-07-11） -->
-      <a class="menu-card wide" href="tools/mouthfill-calculator.html" style="display:none;">
-        <span class="menu-icon">💨</span>
+      <a class="menu-card wide" href="pro/" style="text-decoration:none;">
+        <span class="menu-icon">🎓</span>
         <div class="menu-body">
-          <div class="menu-title">Mouthfill Calculator</div>
-          <div class="menu-sub">マウスフィルファクター・深度別残量計算</div>
+          <div class="menu-title">プロダッシュボード</div>
+          <div class="menu-sub">コース・空き枠・予約・問い合わせを管理</div>
         </div>
         <span class="menu-arrow">›</span>
       </a>
+    </div>
 
-      <!-- 一旦非表示（後続で再度作ります・2026-07-11） -->
-      <a class="menu-card wide" href="tools/buoyancy-simulator.html" style="display:none;">
-        <span class="menu-icon">🤿</span>
-        <div class="menu-body">
-          <div class="menu-title">浮力シュミレーター</div>
-          <div class="menu-sub">NB深度・感度分析・ウェイト最適化</div>
-        </div>
-        <span class="menu-arrow">›</span>
+    <!-- 事業者の方へ（未登録者のみ表示の控えめな一行リンク。旧「インストラクター向け導線」開発中バナーを置き換え） -->
+    <div class="section" id="bizLinkSection" style="display:none;">
+      <a href="pro/" class="settings-row" style="text-decoration:none;">
+        <div class="settings-icon">🎓</div>
+        <div class="settings-label">事業者の方へ</div>
+        <div class="settings-arrow">›</div>
       </a>
+    </div>
 
-      <div class="wip-wrap">
-        <div class="menu-card wide wip-card">
-          <span class="menu-icon">💬</span>
+    <!-- トレーニング記録 -->
+    <div class="group-label">トレーニング記録</div>
+
+    <!-- トレーニング統計 -->
+    <div class="section">
+      <div class="sec-head">
+        <div class="sec-title">今月のサマリー</div>
+        <a class="sec-link" href="tools/training-log.html">すべて見る →</a>
+      </div>
+
+      <!-- 上段：練習日数・最大深度 -->
+      <div class="stat-grid" style="margin-bottom:8px;">
+        <div class="stat-card">
+          <div class="stat-val" id="stat-days">—</div>
+          <div class="stat-lbl">練習日数</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="stat-sessions">—</div>
+          <div class="stat-lbl">セッション数</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="stat-rhr" style="font-size:16px;">—</div>
+          <div class="stat-lbl">平均RHR</div>
+        </div>
+      </div>
+
+      <!-- 下段：海/プール/ドライの内訳 -->
+      <div class="stat-card" style="padding:12px 16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">環境別内訳</span>
+          <span id="stat-env-total" style="font-size:11px;color:var(--muted);">—</span>
+        </div>
+        <div id="stat-env-bar" style="display:flex;height:8px;border-radius:4px;overflow:hidden;gap:2px;margin-bottom:8px;">
+          <div style="flex:1;background:rgba(20,20,30,0.06);border-radius:4px;"></div>
+        </div>
+        <div id="stat-env-labels" style="display:flex;justify-content:space-between;">
+          <div style="font-size:11px;color:var(--muted);">読み込み中...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- カレンダー -->
+    <div class="section">
+      <div class="sec-head">
+        <div class="sec-title">トレーニングカレンダー</div>
+      </div>
+      <div class="cal-wrap">
+        <div class="cal-header">
+          <button class="cal-nav" onclick="prevMonth()">‹</button>
+          <div class="cal-title" id="calTitle"></div>
+          <button class="cal-nav" onclick="nextMonth()">›</button>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+        <div class="cal-legend" style="flex-wrap:wrap;gap:8px 14px;">
+          <div class="legend-item"><div class="legend-dot dot-sea"></div>海</div>
+          <div class="legend-item"><div class="legend-dot dot-pool"></div>プール</div>
+          <div class="legend-item"><div class="legend-dot dot-dry"></div>ドライ</div>
+          <div class="legend-item"><div class="legend-dot dot-lesson"></div>講習</div>
+          <div class="legend-item"><div class="legend-dot dot-coaching"></div>コーチング</div>
+          <div class="legend-item"><div class="legend-dot dot-event"></div>大会</div>
+          <div class="legend-item"><div class="legend-dot dot-challenge"></div>チャレンジ</div>
+          <div class="legend-item" style="color:var(--muted);">点線＝予定</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- トレーニングメニュー -->
+    <div class="section">
+      <div class="sec-head">
+        <div class="sec-title">トレーニング</div>
+      </div>
+      <div class="menu-grid">
+        <a class="menu-card" href="tools/training-log.html">
+          <span class="menu-icon">📝</span>
+          <div class="menu-title">ログ</div>
+          <div class="menu-sub">ダイブ記録・分析</div>
+        </a>
+
+        <a class="menu-card" href="tools/sta-timer.html">
+          <span class="menu-icon">⏱️</span>
+          <div class="menu-title">タイマー</div>
+          <div class="menu-sub">O2・CO2テーブル</div>
+        </a>
+
+        <!-- 一旦非表示（後続で再度作ります・2026-07-11） -->
+        <a class="menu-card wide" href="tools/mouthfill-calculator.html" style="display:none;">
+          <span class="menu-icon">💨</span>
           <div class="menu-body">
-            <div class="menu-title">コーチング</div>
-            <div class="menu-sub">認定コーチにオンラインで相談</div>
+            <div class="menu-title">Mouthfill Calculator</div>
+            <div class="menu-sub">マウスフィルファクター・深度別残量計算</div>
           </div>
           <span class="menu-arrow">›</span>
+        </a>
+
+        <!-- 一旦非表示（後続で再度作ります・2026-07-11） -->
+        <a class="menu-card wide" href="tools/buoyancy-simulator.html" style="display:none;">
+          <span class="menu-icon">🤿</span>
+          <div class="menu-body">
+            <div class="menu-title">浮力シュミレーター</div>
+            <div class="menu-sub">NB深度・感度分析・ウェイト最適化</div>
+          </div>
+          <span class="menu-arrow">›</span>
+        </a>
+
+        <div class="wip-wrap">
+          <div class="menu-card wide wip-card">
+            <span class="menu-icon">💬</span>
+            <div class="menu-body">
+              <div class="menu-title">コーチング</div>
+              <div class="menu-sub">認定コーチにオンラインで相談</div>
+            </div>
+            <span class="menu-arrow">›</span>
+          </div>
+          <div class="wip-mask"><span class="wip-badge">🚧 開発中</span></div>
         </div>
-        <div class="wip-mask"><span class="wip-badge">🚧 開発中</span></div>
       </div>
     </div>
+
   </div>
 
-  <!-- 予約確認（自分がゲストとして行った予約の確認・キャンセル。プロダッシュボードの「予約管理」＝自分が受けた予約とは別物。無ければ非表示） -->
-  <div class="section" id="bookingHistorySection" style="display:none;">
-    <div class="sec-head">
-      <div class="sec-title">予約確認</div>
+  <!-- ══ サブ：学んだ講座 → 大会 → 設定（優先度は下げるが、権限・機能は従来通り維持） ══ -->
+  <div class="mypage-side">
+
+    <!-- 学んだ講座（/learn/ 有料講座。購入済みが無ければ非表示） -->
+    <div class="section" id="learnSection" style="display:none;">
+      <div class="sec-head">
+        <div class="sec-title">学んだ講座</div>
+        <a class="sec-link" href="learn/index.html">講座一覧 →</a>
+      </div>
+      <div class="menu-grid" id="learnCoursesList"></div>
     </div>
-    <div class="settings-card">
-      <div class="settings-row" onclick="openMyBookingsModal()">
-        <div class="settings-icon">📋</div>
-        <div class="settings-label">自分の予約を確認する<span id="my-bookings-count" style="color:var(--muted);font-weight:400;"></span></div>
-        <div class="settings-arrow">›</div>
+
+    <div class="group-label">大会</div>
+
+    <!-- 近日のイベント -->
+    <div class="section">
+      <div class="sec-head">
+        <div class="sec-title">近日のスケジュール</div>
+        <span style="font-size:12px;color:var(--muted);" id="upcomingRange"></span>
+      </div>
+      <div class="upcoming-list" id="upcomingList"></div>
+    </div>
+
+    <!-- 大会管理（作成権限は登録済み事業者に限らずログイン済みなら誰でも可・従来通り） -->
+    <div class="section">
+      <div class="sec-head">
+        <div class="sec-title">大会管理</div>
+      </div>
+      <div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;">
+
+        <!-- 大会を作成ボタン -->
+        <div style="padding:16px;border-bottom:1px solid var(--border);">
+          <button onclick="openCreateEvent()" style="width:100%;padding:12px;background:var(--teal);color:#fff;border:none;border-radius:var(--rs);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+            <span>＋</span> 大会を作成
+          </button>
+          <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px;">AIDAの大会データから選択して作成</div>
+        </div>
+
+        <!-- 作成済み大会一覧（Supabaseから動的レンダリング） -->
+        <div id="my-events-list">
+          <div style="padding:16px;text-align:center;color:var(--muted);font-size:13px;">読み込み中...</div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- 学んだ講座（/learn/ 有料講座。購入済みが無ければ非表示） -->
-  <div class="section" id="learnSection" style="display:none;">
-    <div class="sec-head">
-      <div class="sec-title">学んだ講座</div>
-      <a class="sec-link" href="learn/index.html">講座一覧 →</a>
-    </div>
-    <div class="menu-grid" id="learnCoursesList"></div>
-  </div>
-
-<!-- 近日のイベント -->
-  <div class="section">
-    <div class="sec-head">
-      <div class="sec-title">近日のスケジュール</div>
-      <span style="font-size:12px;color:var(--muted);" id="upcomingRange"></span>
-    </div>
-    <div class="upcoming-list" id="upcomingList"></div>
-  </div>
-
-  <!-- 大会管理 -->
-  <div class="section">
-    <div class="sec-head">
-      <div class="sec-title">大会管理</div>
-    </div>
-    <div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;">
-
-      <!-- 大会を作成ボタン -->
-      <div style="padding:16px;border-bottom:1px solid var(--border);">
-        <button onclick="openCreateEvent()" style="width:100%;padding:12px;background:var(--teal);color:#fff;border:none;border-radius:var(--rs);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
-          <span>＋</span> 大会を作成
-        </button>
-        <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px;">AIDAの大会データから選択して作成</div>
+    <!-- 設定 -->
+    <div class="section">
+      <div class="sec-head">
+        <div class="sec-title">設定</div>
       </div>
-
-      <!-- 作成済み大会一覧（Supabaseから動的レンダリング） -->
-      <div id="my-events-list">
-        <div style="padding:16px;text-align:center;color:var(--muted);font-size:13px;">読み込み中...</div>
+      <div class="settings-card">
+        <div class="settings-row danger" onclick="handleLogout()">
+          <div class="settings-icon">🚪</div>
+          <div class="settings-label">ログアウト</div>
+        </div>
       </div>
     </div>
+
   </div>
 
-  <!-- 事業者の方へ（未登録者のみ表示の控えめな一行リンク。2026-07-14・secretary相談で確定：旧「インストラクター向け導線」開発中バナーを置き換え） -->
-  <div class="section" id="bizLinkSection" style="display:none;">
-    <a href="pro/" class="settings-row" style="text-decoration:none;">
-      <div class="settings-icon">🎓</div>
-      <div class="settings-label">事業者の方へ</div>
-      <div class="settings-arrow">›</div>
-    </a>
-  </div>
-
-  <!-- 設定 -->
-  <div class="section">
-    <div class="sec-head">
-      <div class="sec-title">設定</div>
-    </div>
-    <div class="settings-card">
-      <div class="settings-row danger" onclick="handleLogout()">
-        <div class="settings-icon">🚪</div>
-        <div class="settings-label">ログアウト</div>
-      </div>
-    </div>
-  </div>
-
+</div>
 </div>
 
 <!-- ── プロフィール編集モーダル ── -->

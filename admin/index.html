@@ -827,6 +827,7 @@ td.name { color: var(--on-dark); font-weight: 500; }
       <button class="tab"        id="tab-btn-instructors" onclick="switchTab('instructors')">インストラクター</button>
       <button class="tab"        id="tab-btn-listings"    onclick="switchTab('listings')">リスティング</button>
       <button class="tab"        id="tab-btn-media"       onclick="switchTab('media')">メディア</button>
+      <button class="tab"        id="tab-btn-learn"       onclick="switchTab('learn')">学ぶ</button>
       <button class="tab"        id="tab-btn-users"       onclick="switchTab('users')" style="display:none;">ユーザー管理</button>
     </div>
   </div>
@@ -972,6 +973,21 @@ td.name { color: var(--on-dark); font-weight: 500; }
         </select>
       </div>
       <div id="articles-content">
+        <div class="spinner-wrap"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- ── 学ぶ（コース管理） ── -->
+    <div id="tab-learn" style="display:none;">
+      <div class="section-header">
+        <span class="section-title">コース管理</span>
+        <a href="/learn/index.html" target="_blank" class="btn-secondary" style="font-size:12px;padding:6px 14px;text-decoration:none;">学ぶページを見る</a>
+      </div>
+      <p style="font-size:13px;color:#5b5b60;margin-bottom:20px;line-height:1.7;">
+        Vimeo Pro にアップロードした動画の ID を各チャプターに登録してください。<br>
+        vimeo_id が 1 件でも登録されると、そのコースの購入ボタンが有効になります。
+      </p>
+      <div id="learn-content">
         <div class="spinner-wrap"><div class="spinner"></div></div>
       </div>
     </div>
@@ -1699,7 +1715,7 @@ function onSlotOwnerChange() {
 // Tabs
 // ============================================================
 function switchTab(name) {
-  const tabNames = ['slots', 'bookings', 'instructors', 'listings', 'media', 'users'];
+  const tabNames = ['slots', 'bookings', 'instructors', 'listings', 'media', 'learn', 'users'];
   document.querySelectorAll('.tab').forEach((t, i) => {
     t.classList.toggle('active', tabNames[i] === name);
   });
@@ -1712,6 +1728,7 @@ function switchTab(name) {
   if (name === 'instructors') loadInstructors();
   if (name === 'listings')    loadListings();
   if (name === 'media')       loadArticles();
+  if (name === 'learn')       loadCourses();
   if (name === 'users')       loadUsers();
 }
 
@@ -3455,6 +3472,149 @@ document.addEventListener('keydown', e => {
     toggleAeSidebar();
   }
 });
+
+// ============================================================
+// Learn — コース・チャプター管理
+// ============================================================
+async function loadCourses() {
+  const el = document.getElementById('learn-content');
+  el.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
+
+  const { data: courses, error } = await _sb
+    .from('courses')
+    .select('id, slug, title, category, status, price')
+    .order('created_at', { ascending: true });
+
+  if (error) { el.innerHTML = `<div class="empty">取得エラー: ${escHtml(error.message)}</div>`; return; }
+  if (!courses || courses.length === 0) { el.innerHTML = '<div class="empty">コースがありません</div>'; return; }
+
+  // チャプターをまとめて取得
+  const { data: allChapters } = await _sb
+    .from('course_chapters')
+    .select('id, course_id, chapter_num, title, vimeo_id, duration_sec')
+    .order('chapter_num', { ascending: true });
+
+  const chaptersByCourse = {};
+  (allChapters || []).forEach(ch => {
+    if (!chaptersByCourse[ch.course_id]) chaptersByCourse[ch.course_id] = [];
+    chaptersByCourse[ch.course_id].push(ch);
+  });
+
+  const CAT_JP = { beginner: '初心者', mid: '中級', comp: '競技', inst: 'インストラクター' };
+  const STATUS_JP = { published: '公開中', draft: '下書き' };
+
+  el.innerHTML = courses.map(course => {
+    const chapters = chaptersByCourse[course.id] || [];
+    const readyCount = chapters.filter(ch => !!ch.vimeo_id).length;
+    const statusBadge = course.status === 'published'
+      ? '<span style="background:rgba(46,196,182,0.15);color:#1f6f78;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:600;">公開中</span>'
+      : '<span style="background:#f0f0f2;color:#5b5b60;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:600;">下書き</span>';
+
+    const chapterRows = chapters.map(ch => `
+      <tr data-chapter-id="${ch.id}">
+        <td style="width:36px;text-align:center;color:#5b5b60;font-size:13px;">${ch.chapter_num}</td>
+        <td>
+          <input type="text" class="ch-title-input"
+            value="${escHtml(ch.title)}"
+            style="width:100%;padding:6px 8px;border:1px solid #e7e7ea;border-radius:6px;font-size:13px;color:#222226;"
+            onchange="markChapterDirty('${ch.id}')">
+        </td>
+        <td>
+          <input type="text" class="ch-vimeo-input" placeholder="例: 123456789"
+            value="${escHtml(ch.vimeo_id || '')}"
+            style="width:180px;padding:6px 8px;border:1px solid ${ch.vimeo_id ? '#1f6f78' : '#e7e7ea'};border-radius:6px;font-size:13px;color:#222226;font-family:monospace;"
+            onchange="markChapterDirty('${ch.id}')">
+        </td>
+        <td style="width:60px;text-align:center;">
+          ${ch.vimeo_id
+            ? `<a href="https://vimeo.com/${escHtml(ch.vimeo_id)}" target="_blank" style="color:#1f6f78;font-size:12px;">▶ 確認</a>`
+            : '<span style="color:#c0c0c5;font-size:12px;">-</span>'}
+        </td>
+        <td style="width:80px;text-align:right;">
+          <button class="ch-save-btn" data-chapter-id="${ch.id}" onclick="saveChapter('${ch.id}')"
+            style="padding:5px 12px;background:#1f6f78;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;opacity:0.4;pointer-events:none;">
+            保存
+          </button>
+        </td>
+      </tr>
+    `).join('');
+
+    return `
+      <div style="background:#fff;border:1px solid #e7e7ea;border-radius:12px;margin-bottom:20px;overflow:hidden;">
+        <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid #f0f0f2;">
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <span style="font-size:15px;font-weight:700;color:#222226;">${escHtml(course.title)}</span>
+              ${statusBadge}
+            </div>
+            <div style="font-size:12px;color:#8b8b90;">${CAT_JP[course.category] || course.category} ／ ¥${Number(course.price).toLocaleString('ja-JP')} ／ 動画登録済み: <strong style="color:${readyCount > 0 ? '#1f6f78' : '#e11d48'};">${readyCount}/${chapters.length}</strong></div>
+          </div>
+          <a href="/learn/course.html?slug=${escHtml(course.slug)}" target="_blank"
+            style="font-size:12px;color:#1f6f78;text-decoration:none;white-space:nowrap;">詳細ページ →</a>
+        </div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;">
+            <thead>
+              <tr style="background:#fafafa;font-size:11px;color:#8b8b90;text-transform:uppercase;letter-spacing:0.08em;">
+                <th style="padding:8px 12px;text-align:center;">#</th>
+                <th style="padding:8px 12px;text-align:left;">チャプタータイトル</th>
+                <th style="padding:8px 12px;text-align:left;">Vimeo ID</th>
+                <th style="padding:8px 12px;"></th>
+                <th style="padding:8px 12px;"></th>
+              </tr>
+            </thead>
+            <tbody style="font-size:13px;">
+              ${chapterRows || '<tr><td colspan="5" style="padding:16px;text-align:center;color:#8b8b90;">チャプターなし</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function markChapterDirty(chapterId) {
+  const btn = document.querySelector(`.ch-save-btn[data-chapter-id="${chapterId}"]`);
+  if (btn) { btn.style.opacity = '1'; btn.style.pointerEvents = 'auto'; }
+}
+
+async function saveChapter(chapterId) {
+  const row = document.querySelector(`tr[data-chapter-id="${chapterId}"]`);
+  if (!row) return;
+  const titleEl = row.querySelector('.ch-title-input');
+  const vimeoEl = row.querySelector('.ch-vimeo-input');
+  const btn     = row.querySelector('.ch-save-btn');
+
+  const title    = titleEl ? titleEl.value.trim() : null;
+  const vimeo_id = vimeoEl ? (vimeoEl.value.trim() || null) : null;
+
+  // vimeo_id は数字のみ許可
+  if (vimeo_id && !/^\d+$/.test(vimeo_id)) {
+    alert('Vimeo ID は数字のみで入力してください（例: 123456789）');
+    return;
+  }
+
+  if (btn) { btn.textContent = '保存中…'; btn.disabled = true; }
+
+  const { error } = await _sb
+    .from('course_chapters')
+    .update({ title, vimeo_id })
+    .eq('id', chapterId);
+
+  if (error) {
+    alert('保存エラー: ' + error.message);
+    if (btn) { btn.textContent = '保存'; btn.disabled = false; }
+    return;
+  }
+
+  showToast('チャプターを保存しました');
+  if (btn) { btn.textContent = '保存'; btn.disabled = false; btn.style.opacity = '0.4'; btn.style.pointerEvents = 'none'; }
+
+  // Vimeo ID の枠の色を更新
+  if (vimeoEl) vimeoEl.style.borderColor = vimeo_id ? '#1f6f78' : '#e7e7ea';
+
+  // ページを再描画して登録済み件数を更新
+  loadCourses();
+}
 
 // ============================================================
 // Init
