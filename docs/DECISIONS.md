@@ -145,7 +145,8 @@ translations(
 - `sql/translations_20260712.sql`（2026-07-13本番適用済み）
 - `api/translate-content.js`（実装済み。`{tableName, rowId, fields}`を受け取り`source_hash`で変更検知・`is_manually_edited`行はスキップしつつ英・韓・中を翻訳し`translations`テーブルにupsert）
 - Google Cloud Translation APIの有効化・APIキー取得・Vercel環境変数`GOOGLE_TRANSLATE_API_KEY`設定（2026-07-13完了・Production/Preview/Development全環境）
-- 未着手：`pro/index.html`からの呼び出し配線／表示側の言語切替UI／`name_en`等の位置づけ変更／レビュー投稿フローへの接続
+- **完了（2026-07-15）**：`pro/index.html`保存配線・`name_en`/`bio_en`手動翻訳保存（`is_manually_edited=TRUE`）・`explore/profile.html`・`explore/listing.html`の言語切替UI（コンテンツ＋固定UI文言）・`js/i18n.js`（en/ko/zh辞書）をすべて実装
+- 残：レビュー投稿フローへの接続（投稿フォーム未実装のため後回し）・メディア記事多言語化（後続フェーズ）
 
 -----
 

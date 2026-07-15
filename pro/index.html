@@ -1780,7 +1780,14 @@ async function saveProfile() {
   showToast('プロフィールを保存しました', 'success');
   // 翻訳キャッシュ更新（fire-and-forget）
   { const _f = {}; if (payload.name) _f.name = payload.name; if (payload.bio) _f.bio = payload.bio;
-    if (Object.keys(_f).length) fetch('/api/translate-content', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tableName: 'instructors', rowId: myInstructor.id, fields: _f }) }).catch(() => {}); }
+    // 手動入力の英語訳があれば is_manually_edited=TRUE で保存
+    const _manual = {};
+    if (payload.name_en) _manual['en'] = { ...(_manual['en'] || {}), name: payload.name_en };
+    if (payload.bio_en)  _manual['en'] = { ...(_manual['en'] || {}), bio:  payload.bio_en  };
+    const _body = { tableName: 'instructors', rowId: myInstructor.id, fields: _f };
+    if (Object.keys(_manual).length) _body.manualTranslations = _manual;
+    if (Object.keys(_f).length || Object.keys(_manual).length)
+      fetch('/api/translate-content', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(_body) }).catch(() => {}); }
   renderProfileForm();
 }
 

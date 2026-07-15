@@ -306,6 +306,8 @@ let _listingForTranslation = null;
 async function switchLang(lang) {
   _currentLang = lang;
   document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  // 固定UI文言を切り替え
+  if (window.I18N) window.I18N.apply(lang);
   const titleEl = document.getElementById('listing-title');
   const descEl  = document.getElementById('listing-desc');
   if (lang === 'ja') {
@@ -324,7 +326,7 @@ async function switchLang(lang) {
   if (titleEl && tMap.title) titleEl.innerHTML = esc(tMap.title);
   if (descEl) descEl.innerHTML = tMap.description
     ? escNl(tMap.description)
-    : `${escNl(_listingForTranslation?.description || '')}<span class="lang-notice">（翻訳準備中）</span>`;
+    : `${escNl(_listingForTranslation?.description || '')}<span class="lang-notice" data-i18n="lang_notice">（翻訳準備中）</span>`;
 }
 // ─────────────────────────────────────────────────────
 
@@ -470,7 +472,7 @@ function renderPage(owner, listing, otherListings, reviews = []) {
   const extraImages = listing?.gallery_urls || [];
   const photoSectionHtml = extraImages.length > 0
     ? `<div class="section">
-        <p class="section-title">写真</p>
+        <p class="section-title" data-i18n="section_photos">写真</p>
         <div class="photo-carousel" id="photoCarousel">
           ${extraImages.map((url, i) => `<img src="${esc(url)}" alt="${esc(listing?.title || '')} ${i + 2}" class="photo-carousel-img" data-idx="${i}"${i > 0 ? ' style="display:none;"' : ''}>`).join('')}
           ${extraImages.length > 1 ? `
@@ -488,14 +490,14 @@ function renderPage(owner, listing, otherListings, reviews = []) {
     ? (ageMax != null ? `${ageMin}〜${ageMax}歳` : `${ageMin}歳〜`)
     : null;
   const infoCards = [
-    listing?.duration ? { label: '所要時間', value: listing.duration } : (listing?.duration_minutes ? { label: '所要時間', value: formatDuration(listing.duration_minutes) } : null),
-    listing?.season   ? { label: '開催時期', value: listing.season } : null,
-    listing?.target_level ? { label: '対象レベル', value: listing.target_level } : null,
-    listing?.min_participants ? { label: '最少催行', value: `${listing.min_participants}名〜` } : null,
-    listing?.max_participants ? { label: '最大人数', value: `${listing.max_participants}名` } : null,
-    ageStr ? { label: '参加年齢', value: ageStr } : null,
-    listing?.has_shuttle ? { label: '送迎', value: 'あり' } : null,
-    listing?.booking_deadline ? { label: '予約締切', value: listing.booking_deadline } : null,
+    listing?.duration ? { i18n: 'label_duration', label: '所要時間', value: listing.duration } : (listing?.duration_minutes ? { i18n: 'label_duration', label: '所要時間', value: formatDuration(listing.duration_minutes) } : null),
+    listing?.season   ? { i18n: 'label_season', label: '開催時期', value: listing.season } : null,
+    listing?.target_level ? { i18n: 'label_target_level', label: '対象レベル', value: listing.target_level } : null,
+    listing?.min_participants ? { i18n: 'label_min_participants', label: '最少催行', value: `${listing.min_participants}名〜` } : null,
+    listing?.max_participants ? { i18n: 'label_max_participants', label: '最大人数', value: `${listing.max_participants}名` } : null,
+    ageStr ? { i18n: 'label_age', label: '参加年齢', value: ageStr } : null,
+    listing?.has_shuttle ? { i18n: 'label_shuttle', label: '送迎', value: 'あり' } : null,
+    listing?.booking_deadline ? { i18n: 'label_booking_deadline', label: '予約締切', value: listing.booking_deadline } : null,
     { label: 'エリア', value: listing?.area || inst.prefecture || '—' },
     { label: '指導歴', value: inst.experience_years ? `${inst.experience_years}年` : '—' },
   ].filter(Boolean);
@@ -569,7 +571,7 @@ function renderPage(owner, listing, otherListings, reviews = []) {
       <!-- basic info grid -->
       ${infoCards.length > 0 ? `
       <div class="info-grid">
-        ${infoCards.map(c => `<div class="info-card"><p class="info-label">${esc(c.label)}</p><p class="info-value">${esc(c.value)}</p></div>`).join('')}
+        ${infoCards.map(c => `<div class="info-card"><p class="info-label"${c.i18n ? ` data-i18n="${c.i18n}"` : ''}>${esc(c.label)}</p><p class="info-value">${esc(c.value)}</p></div>`).join('')}
       </div>` : ''}
 
       <!-- 写真（カバーとは別に、商品写真を全体表示） -->
@@ -586,7 +588,7 @@ function renderPage(owner, listing, otherListings, reviews = []) {
       <!-- description -->
       ${listing?.description ? `
       <div class="section">
-        <p class="section-title">このプランについて</p>
+        <p class="section-title" data-i18n="section_detail">このプランについて</p>
         <p class="section-text" id="listing-desc">${escNl(listing.description)}</p>
       </div>` : ''}
 
@@ -623,20 +625,20 @@ function renderPage(owner, listing, otherListings, reviews = []) {
 
       <!-- required items / what_to_bring -->
       <div class="section">
-        <p class="section-title">持ち物・服装</p>
+        <p class="section-title" data-i18n="section_bring">持ち物・服装</p>
         ${itemsHtml}
       </div>
 
       <!-- notes -->
       ${listing?.notes ? `
       <div class="section">
-        <p class="section-title">注意事項</p>
+        <p class="section-title" data-i18n="section_notes">注意事項</p>
         <p class="section-text">${escNl(listing.notes)}</p>
       </div>` : ''}
 
       <!-- cancellation -->
       <div class="section">
-        <p class="section-title">キャンセルポリシー</p>
+        <p class="section-title" data-i18n="section_cancel">キャンセルポリシー</p>
         ${cancelHtml}
       </div>
 
@@ -663,13 +665,13 @@ function renderPage(owner, listing, otherListings, reviews = []) {
       <!-- other listings -->
       ${otherListings.length > 0 ? `
       <div class="section">
-        <p class="section-title">${otherSectionTitle}</p>
+        <p class="section-title" data-i18n="section_other">${otherSectionTitle}</p>
         ${otherHtml}
       </div>` : ''}
 
       <!-- reviews -->
       <div class="section" id="reviewsSection">
-        <p class="section-title">レビュー${inst.avg_rating ? ` ★ ${parseFloat(inst.avg_rating).toFixed(1)}（${esc(inst.review_count)}件）` : ''}</p>
+        <p class="section-title" data-i18n="section_reviews">レビュー${inst.avg_rating ? ` ★ ${parseFloat(inst.avg_rating).toFixed(1)}（${esc(inst.review_count)}件）` : ''}</p>
         ${reviews.length > 0
           ? `<div style="display:flex;flex-direction:column;gap:12px">
               ${reviews.map(r => `
@@ -682,12 +684,12 @@ function renderPage(owner, listing, otherListings, reviews = []) {
                   ${r.body ? `<p style="font-size:13px;color:var(--on-dark-mid);line-height:1.7">${esc(r.body)}</p>` : ''}
                 </div>`).join('')}
             </div>`
-          : `<p style="font-size:13px;color:var(--on-dark-soft)">まだレビューがありません</p>`}
+          : `<p style="font-size:13px;color:var(--on-dark-soft)" data-i18n="empty_reviews">まだレビューがありません</p>`}
       </div>
 
       <!-- booking calendar -->
       <div class="booking-section" id="bookingSection">
-        <p class="booking-section-title">日程・空き状況</p>
+        <p class="booking-section-title" data-i18n="calendar_title">日程・空き状況</p>
 
         <!-- calendar -->
         <div class="cal-header">
@@ -723,7 +725,7 @@ function renderPage(owner, listing, otherListings, reviews = []) {
             </div>
           </div>
           <button class="proceed-btn" onclick="openBookingForm()">
-            予約手続きへ進む
+            <span data-i18n="btn_book">予約手続きへ進む</span>
             <svg style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.2" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           </button>
         </div>
@@ -1086,5 +1088,6 @@ async function proceedToCheckout() {
   }
 }
 </script>
+<script src="../js/i18n.js"></script>
 </body>
 </html>

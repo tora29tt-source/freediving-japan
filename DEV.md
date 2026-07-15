@@ -418,17 +418,27 @@ translations(
 **対象範囲**：探す系（探すページ・インストラクター/ショッププロフィール・コース詳細）から着手。メディア記事は後続フェーズ（翻訳運用コストが継続的に発生するため）
 
 **実装済み（2026-07-12・pmスキルで着手）**：
-- `sql/translations_20260712.sql`（新規・`translations`テーブルDDL。ステータス: 未実行 — Takuyaが本番Supabaseに実行要）
+- `sql/translations_20260712.sql`（新規・`translations`テーブルDDL。ステータス: 実行済み・2026-07-13）
 - `api/translate-content.js`（新規・POST。`{tableName, rowId, fields}`を受け取り、`source_hash`で変更検知・`is_manually_edited`行はスキップしつつGoogle Cloud Translation APIで英・韓・中を翻訳し`translations`テーブルにupsertする。構文チェック済み）
 
 **完了（2026-07-13）**：
 - Google Cloud Translation APIの有効化・APIキー取得・Vercel環境変数`GOOGLE_TRANSLATE_API_KEY`設定（Production/Preview/Development全環境に設定・Redeploy済み）
 
+**完了（2026-07-15）**：
+- `pro/index.html`のプロフィール保存（`saveProfile`）・ショッププロフィール保存（`saveShopProfile`）・コース保存（`saveListing`）から`api/translate-content.js`を呼ぶ配線（fire-and-forget）
+- `explore/profile.html`の言語切り替えUI（日本語/EN/한국어/中文）と`translations`テーブル参照ロジック（bio・nameフィールド）
+- `explore/listing.html`の言語切り替えUI（日本語/EN/한국어/中文）と`translations`テーブル参照ロジック（title・descriptionフィールド）
+
+**完了（2026-07-15）**：
+- `api/translate-content.js`を拡張し、`manualTranslations`パラメータで`is_manually_edited=TRUE`の手動訳を保存できるようにした
+- `pro/index.html`の`saveProfile`に`name_en`/`bio_en`の手入力値を`translations`テーブルに`is_manually_edited=TRUE`で保存する処理を追加
+- `js/i18n.js`を新規作成（英語・韓国語・中国語の固定UI文言辞書 + `applyI18n(lang)`関数）
+- `explore/profile.html`・`explore/listing.html`のセクションタイトル・ラベル・ボタン等に`data-i18n`キーを付与し、`switchLang()`で`I18N.apply(lang)`を呼ぶよう実装。言語切り替え時に固定UI文言も追従するようになった
+
 **未着手**：
-- `pro/index.html`のプロフィール/コース保存処理から`api/translate-content.js`を呼ぶ配線（現状は関数単体があるだけで、どこからも呼ばれていない）
-- 表示側（`explore/profile.html`・`explore/listing.html`等）の言語切り替えUIと`translations`テーブル参照ロジック
-- 既存`name_en`/`bio_en`手入力欄の「自動翻訳の手直し欄」への位置づけ変更
-- レビュー投稿フローへの接続（投稿時に1回翻訳）
+- レビュー投稿フローへの接続（投稿フォーム自体が未実装のため後回し）
+- メディア記事の多言語化（翻訳運用コストが継続的に発生するため後続フェーズ）
+- ホームページ・explore一覧・shopsページ等のナビゲーション部分の言語切り替えUI（現状は profile/listing のコンテンツページのみ）
 
 -----
 
@@ -624,7 +634,7 @@ TOP (index.html)  ── Airbnb風マーケットプレイス（白基調）
 |メディア（/media/）                                        |✅ 基盤完成・media/一本化（2026-06-29）。admin/index.htmlメディアタブに統合|
 |サイト動線・検索UI・エリア設計                                    |✅ sitemap/robots/404新設、SVG地図→都道府県軸検索に刷新済み（詳細は[DECISIONS.md](docs/DECISIONS.md#2026-07-08サイト動線整備検索ui刷新svg地図後に一部廃止)参照）|
 |iOSアプリ（React Native）                                 |🔄 開発中（環境構築済み・Expo Go動作確認済み）。6タブのタブバー実装済み（2026-07-14・ホーム/ログ/タイマー/探す/情報/マイページ、探す・情報・マイページはWeb版へのブリッジ）。Supabase Auth（メール/パスワード）を追加し、STAタイマーの保存処理を実スキーマ（`training_sessions`+`training_dives`）に合わせて修正済み（2026-07-14、詳細は[APP.md](APP.md#phase-1-実装状況2026-07-14更新)）。**実機での保存動作確認は未実施**。ログ画面は公開セッション一覧のみ・SNSシェアは未実装|
-|多言語対応（i18n）基盤                                      |🔄 着手開始（2026-07-12）。DB・API実装済み、Google Translate APIキー設定済み（2026-07-13）。呼び出し配線・表示側UIは未着手（「多言語対応（i18n）方式」参照）|
+|多言語対応（i18n）基盤                                      |✅ 完了（2026-07-15）。DB/API/Translate APIキー/pro保存配線/profile・listing言語切替UI/js/i18n.js（固定UI文言辞書）/name_en手動翻訳保存すべて実装済み。残：レビュー投稿フロー・メディア記事多言語化|
 
 -----
 

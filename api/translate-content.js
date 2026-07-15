@@ -74,7 +74,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { tableName, rowId, fields } = req.body || {};
+  const { tableName, rowId, fields, manualTranslations } = req.body || {};
 
   if (!tableName || !rowId || !fields || typeof fields !== 'object') {
     return res.status(400).json({ error: '必須パラメーターが不足しています（tableName / rowId / fields）' });
@@ -157,6 +157,40 @@ export default async function handler(req, res) {
         } catch (err) {
           console.error('translate-content: translation error', fieldName, lang, err);
           results.push({ fieldName, lang, status: 'error', error: err.message });
+        }
+      }
+    }
+
+    // 手動翻訳の保存（is_manually_edited=TRUE）
+    // manualTranslations: { en: { name: 'Kaito', bio: '...' }, ko: {...}, zh: {...} }
+    if (manualTranslations && typeof manualTranslations === 'object') {
+      for (const [lang, manualFields] of Object.entries(manualTranslations)) {
+        if (!TARGET_LANGS.includes(lang) || typeof manualFields !== 'object') continue;
+        for (const [fieldName, translatedText] of Object.entries(manualFields)) {
+          if (typeof translatedText !== 'string' || !translatedText.trim()) continue;
+          const trimmed = translatedText.trim();
+          const { error: upsertErr } = await supabase
+            .from('translations')
+            .upsert(
+              {
+                table_name: tableName,
+                row_id: rowId,
+                field_name: fieldName,
+                lang,
+                translated_text: trimmed,
+                source_hash: hashText(trimmed),
+                is_manually_edited: true,
+                translated_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              },
+              { onConflict: 'table_name,row_id,field_name,lang' }
+            );
+          if (upsertErr) {
+            console.error('translate-content: manual upsert error', upsertErr);
+            results.push({ fieldName, lang, status: 'error', error: upsertErr.message });
+          } else {
+            results.push({ fieldName, lang, status: 'manual_saved' });
+          }
         }
       }
     }

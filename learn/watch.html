@@ -64,8 +64,13 @@ body {
   overflow: hidden; margin-bottom: 8px;
   display: flex; align-items: center; justify-content: center;
 }
-.player-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+.player-wrap video { position: absolute; inset: 0; width: 100%; height: 100%; background: #000; }
 .player-empty { text-align: center; color: rgba(255,255,255,0.55); font-size: 13px; padding: 20px; }
+.player-loading {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,0.5); font-size: 13px; pointer-events: none;
+}
+.player-error { text-align: center; color: #f87171; font-size: 13px; padding: 20px; }
 .now-playing { font-size: 13px; color: var(--on-dark-mid); margin-bottom: 28px; }
 
 .section-heading { display: flex; align-items: center; gap: 10px; margin: 8px 0 16px; }
@@ -116,47 +121,118 @@ body {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js"></script>
 <script src="../js/supabase-config.js"></script>
 <script>
 function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
-// Vimeo IDのみ許可（英数字とハイフンのみ）。iframe src への不正値混入を防ぐ
-function safeVimeoId(id) {
-  return /^[a-zA-Z0-9_-]+$/.test(String(id || '')) ? String(id) : null;
-}
+let chaptersData  = [];
+let currentCourse = null;
+let currentSession = null;
+let hlsInstance   = null;
 
-let chaptersData = [];
-
+// ─── プレイヤー ────────────────────────────────────────────────────────────
 function renderPlayer(chapter) {
   const wrap = document.getElementById('playerWrap');
   const now  = document.getElementById('nowPlaying');
   if (!wrap) return;
 
-  const vid = chapter ? safeVimeoId(chapter.vimeo_id) : null;
-  if (vid) {
-    wrap.innerHTML = '<iframe src="https://player.vimeo.com/video/' + vid + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
-    if (now) now.textContent = '第' + chapter.chapter_num + '回：' + chapter.title;
-  } else {
+  if (!chapter || !chapter.video_path) {
     wrap.innerHTML = '<div class="player-empty">この講座の動画は現在準備中です。<br>撮影・編集が完了次第、順次公開します。</div>';
     if (now) now.textContent = '';
+    return;
   }
 
+  // ローディング表示
+  wrap.innerHTML = '<video id="videoEl" controls playsinline></video><div class="player-loading" id="playerLoading">読み込み中…</div>';
+  if (now) now.textContent = '第' + chapter.chapter_num + '回：' + esc(chapter.title);
+
+  // チャプター行のアクティブ状態を更新
   document.querySelectorAll('.chapter-row').forEach(function(row) {
-    row.classList.toggle('active', chapter && row.dataset.num == chapter.chapter_num);
+    row.classList.toggle('active', row.dataset.num == chapter.chapter_num);
   });
+
+  loadVideoToken(chapter);
+}
+
+async function loadVideoToken(chapter) {
+  const wrap = document.getElementById('playerWrap');
+
+  try {
+    const res = await fetch(
+      '/api/video-token?courseId=' + encodeURIComponent(currentCourse.id) +
+      '&chapterId=' + encodeURIComponent(chapter.id), {
+      headers: { 'Authorization': 'Bearer ' + currentSession.access_token }
+    });
+
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || 'トークン取得失敗');
+
+    const { token, videoPath, workerUrl } = json;
+    const src = workerUrl + '/' + videoPath + '?token=' + encodeURIComponent(token);
+
+    startHLS(src);
+
+  } catch (err) {
+    if (wrap) {
+      wrap.innerHTML = '<div class="player-error">動画の読み込みに失敗しました。<br>ページを再読み込みしてください。</div>';
+    }
+    console.error('video-token error:', err);
+  }
+}
+
+function startHLS(src) {
+  const videoEl = document.getElementById('videoEl');
+  const loading = document.getElementById('playerLoading');
+
+  if (!videoEl) return;
+
+  // 既存の hls インスタンスを破棄
+  if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
+
+  if (Hls.isSupported()) {
+    const hls = new Hls({ enableWorker: true });
+    hls.loadSource(src);
+    hls.attachMedia(videoEl);
+    hls.on(Hls.Events.MANIFEST_PARSED, function() {
+      if (loading) loading.style.display = 'none';
+      videoEl.play().catch(() => {});  // 自動再生（ブラウザが許可しない場合は無視）
+    });
+    hls.on(Hls.Events.ERROR, function(event, data) {
+      if (data.fatal) {
+        console.error('HLS fatal error:', data);
+        const wrap = document.getElementById('playerWrap');
+        if (wrap) wrap.innerHTML = '<div class="player-error">動画の再生に失敗しました。ページを再読み込みしてください。</div>';
+      }
+    });
+    hlsInstance = hls;
+
+  } else if (videoEl.canPlayType('application/vnd.apple.mpegurl')) {
+    // Safari はネイティブ HLS をサポート
+    videoEl.src = src;
+    videoEl.addEventListener('loadedmetadata', function() {
+      if (loading) loading.style.display = 'none';
+      videoEl.play().catch(() => {});
+    }, { once: true });
+  } else {
+    const wrap = document.getElementById('playerWrap');
+    if (wrap) wrap.innerHTML = '<div class="player-error">お使いのブラウザは動画再生に対応していません。</div>';
+  }
 }
 
 function selectChapter(num) {
   const ch = chaptersData.find(function(c) { return c.chapter_num == num; });
-  if (!ch || !ch.vimeo_id) return;
+  if (!ch || !ch.video_path) return;
   renderPlayer(ch);
 }
 
+// ─── 状態画面 ──────────────────────────────────────────────────────────────
 function renderState(title, body) {
   document.getElementById('watchContent').innerHTML =
     '<div class="state-screen"><h2>' + esc(title) + '</h2><p>' + body + '</p></div>';
 }
 
+// ─── メインロード ──────────────────────────────────────────────────────────
 async function loadWatch() {
   const slug = new URLSearchParams(location.search).get('slug');
   if (!slug) {
@@ -169,6 +245,7 @@ async function loadWatch() {
     location.href = '../auth.html?next=' + encodeURIComponent(location.pathname + location.search);
     return;
   }
+  currentSession = session;
 
   const { data: course, error: courseErr } = await _sb
     .from('courses')
@@ -180,6 +257,7 @@ async function loadWatch() {
     renderState('講座が見つかりません', '<a href="index.html">講座一覧</a>からお探しください。');
     return;
   }
+  currentCourse = course;
 
   const { data: purchase } = await _sb
     .from('course_purchases')
@@ -189,26 +267,27 @@ async function loadWatch() {
     .maybeSingle();
 
   if (purchase?.status !== 'paid') {
-    renderState('この講座はまだ購入されていません', '<a href="course.html?slug=' + encodeURIComponent(slug) + '">講座詳細ページ</a>から購入してください。');
+    renderState('この講座はまだ購入されていません',
+      '<a href="course.html?slug=' + encodeURIComponent(slug) + '">講座詳細ページ</a>から購入してください。');
     return;
   }
 
   const { data: chapters } = await _sb
     .from('course_chapters')
-    .select('chapter_num, title, vimeo_id')
+    .select('id, chapter_num, title, video_path')
     .eq('course_id', course.id)
     .order('chapter_num', { ascending: true });
 
   chaptersData = chapters || [];
 
   const chapterRows = chaptersData.map(function(ch) {
-    const ready = !!ch.vimeo_id;
+    const ready = !!ch.video_path;
     return '<div class="chapter-row ' + (ready ? 'ready' : 'disabled') + '" data-num="' + ch.chapter_num + '"' +
       (ready ? ' onclick="selectChapter(' + ch.chapter_num + ')"' : '') + '>' +
       '<div class="chapter-num">' + ch.chapter_num + '</div>' +
       '<div class="chapter-body">' +
         '<div class="chapter-title">' + esc(ch.title) + '</div>' +
-        '<div class="chapter-status">' + (ready ? '再生する' : '動画準備中') + '</div>' +
+        '<div class="chapter-status">' + (ready ? '▶ 再生する' : '動画準備中') + '</div>' +
       '</div>' +
     '</div>';
   }).join('');
@@ -216,15 +295,16 @@ async function loadWatch() {
   document.getElementById('watchContent').innerHTML =
     '<div class="course-title">' + esc(course.title) + '</div>' +
     '<div class="course-sub">' + esc(course.instructor_name || '') + '</div>' +
-    '<div class="player-wrap" id="playerWrap"></div>' +
+    '<div class="player-wrap" id="playerWrap"><div class="player-empty">左のリストからチャプターを選択してください。</div></div>' +
     '<div class="now-playing" id="nowPlaying"></div>' +
     (chaptersData.length ? (
       '<div class="section-heading"><div class="sh-line"></div><div class="sh-label">カリキュラム</div><div class="sh-line"></div></div>' +
       '<div class="chapter-list">' + chapterRows + '</div>'
     ) : '');
 
-  const firstReady = chaptersData.find(function(c) { return !!c.vimeo_id; });
-  renderPlayer(firstReady || null);
+  // 最初の視聴可能チャプターを自動再生
+  const firstReady = chaptersData.find(function(c) { return !!c.video_path; });
+  if (firstReady) renderPlayer(firstReady);
 }
 
 loadWatch();

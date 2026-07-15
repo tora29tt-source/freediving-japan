@@ -258,12 +258,12 @@ async function loadCourse() {
 
   const { data: chapters } = await _sb
     .from('course_chapters')
-    .select('chapter_num, title, vimeo_id')
+    .select('chapter_num, title, video_path')
     .eq('course_id', course.id)
     .order('chapter_num', { ascending: true });
 
-  // 動画が1本も無いうちは販売しない（撮影・アップロード完了後、chapters.vimeo_idが入ってから購入可能にする）
-  const hasContent = (chapters || []).some(function(ch) { return !!ch.vimeo_id; });
+  // 動画が1本も無いうちは販売しない（エンコード・アップロード完了後、chapters.video_pathが入ってから購入可能にする）
+  const hasContent = (chapters || []).some(function(ch) { return !!ch.video_path; });
 
   // ログイン中なら購入済みかどうかも確認し、ボタンの出し分けに使う
   let purchaseStatus = null;
@@ -282,7 +282,7 @@ async function loadCourse() {
   const catJp = CAT_JP[course.category] || '';
 
   const chapterRows = (chapters || []).map(function(ch) {
-    const ready = !!ch.vimeo_id;
+    const ready = !!ch.video_path;
     return '<div class="chapter-row">' +
       '<div class="chapter-num">' + ch.chapter_num + '</div>' +
       '<div class="chapter-body">' +

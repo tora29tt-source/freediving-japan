@@ -99,7 +99,7 @@ body { min-height: 100vh; }
 <header class="header">
   <a href="shops.html" class="back-btn">
     <svg class="icon" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-    ショップ・インストラクターを探す
+    <span data-i18n="back_to_list">ショップ・インストラクターを探す</span>
   </a>
   <a href="../index.html" class="logo">FREEDIVING <span>JAPAN</span></a>
 </header>
@@ -143,6 +143,8 @@ let _ownerForTranslation = null;
 async function switchLang(lang) {
   _currentLang = lang;
   document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  // 固定UI文言を切り替え
+  if (window.I18N) window.I18N.apply(lang);
   const nameEl = document.getElementById('owner-name');
   const bioEl  = document.getElementById('owner-bio');
   if (lang === 'ja') {
@@ -162,7 +164,7 @@ async function switchLang(lang) {
   if (nameEl && tMap.name) nameEl.innerHTML = esc(tMap.name);
   if (bioEl) bioEl.innerHTML = tMap.bio
     ? escNl(tMap.bio)
-    : `${escNl(_ownerForTranslation?.bio || '')}<span class="lang-notice">（翻訳準備中）</span>`;
+    : `${escNl(_ownerForTranslation?.bio || '')}<span class="lang-notice" data-i18n="lang_notice">（翻訳準備中）</span>`;
 }
 // ─────────────────────────────────────────────────────
 
@@ -239,35 +241,36 @@ function renderPage(owner, listings, reviews, roster) {
 
   const statsHtml = owner.type === 'instructor'
     ? `
-      <div class="stat"><div class="stat-val">${owner.experience_years != null ? esc(owner.experience_years) : '—'}</div><div class="stat-label">指導歴（年）</div></div>
-      <div class="stat"><div class="stat-val">${listings.length}</div><div class="stat-label">プラン数</div></div>
-      <div class="stat"><div class="stat-val">${(owner.certifications || []).length || '—'}</div><div class="stat-label">保有資格</div></div>`
+      <div class="stat"><div class="stat-val">${owner.experience_years != null ? esc(owner.experience_years) : '—'}</div><div class="stat-label" data-i18n="stat_experience">指導歴（年）</div></div>
+      <div class="stat"><div class="stat-val">${listings.length}</div><div class="stat-label" data-i18n="stat_plans">プラン数</div></div>
+      <div class="stat"><div class="stat-val">${(owner.certifications || []).length || '—'}</div><div class="stat-label" data-i18n="stat_certifications">保有資格</div></div>`
     : `
-      <div class="stat"><div class="stat-val">${listings.length}</div><div class="stat-label">取り扱いコース</div></div>
-      <div class="stat"><div class="stat-val">${roster.length}</div><div class="stat-label">在籍インストラクター</div></div>
-      <div class="stat"><div class="stat-val">${owner.avg_rating ? parseFloat(owner.avg_rating).toFixed(1) : '—'}</div><div class="stat-label">評価</div></div>`;
+      <div class="stat"><div class="stat-val">${listings.length}</div><div class="stat-label" data-i18n="stat_courses">取り扱いコース</div></div>
+      <div class="stat"><div class="stat-val">${roster.length}</div><div class="stat-label" data-i18n="stat_instructors">在籍インストラクター</div></div>
+      <div class="stat"><div class="stat-val">${owner.avg_rating ? parseFloat(owner.avg_rating).toFixed(1) : '—'}</div><div class="stat-label" data-i18n="stat_rating">評価</div></div>`;
 
   const certsHtml = (owner.certifications || []).length
-    ? `<div class="section"><p class="section-title">保有資格</p><div class="chips">${owner.certifications.map(c => `<span class="chip-item cert">${esc(c)}</span>`).join('')}</div></div>` : '';
+    ? `<div class="section"><p class="section-title" data-i18n="section_certifications">保有資格</p><div class="chips">${owner.certifications.map(c => `<span class="chip-item cert">${esc(c)}</span>`).join('')}</div></div>` : '';
   const specsHtml = (owner.specialties || []).length
-    ? `<div class="section"><p class="section-title">専門・得意分野</p><div class="chips">${owner.specialties.map(s => `<span class="chip-item">${esc(s)}</span>`).join('')}</div></div>` : '';
+    ? `<div class="section"><p class="section-title" data-i18n="section_specialties">専門・得意分野</p><div class="chips">${owner.specialties.map(s => `<span class="chip-item">${esc(s)}</span>`).join('')}</div></div>` : '';
   const areasHtml = (owner.areas || []).length
-    ? `<div class="section"><p class="section-title">活動エリア</p><div class="chips">${owner.areas.map(a => `<span class="chip-item"><svg class="icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${esc(a)}</span>`).join('')}</div></div>` : '';
+    ? `<div class="section"><p class="section-title" data-i18n="section_areas">活動エリア</p><div class="chips">${owner.areas.map(a => `<span class="chip-item"><svg class="icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${esc(a)}</span>`).join('')}</div></div>` : '';
 
   const snsLinks = [
     owner.instagram_url ? { url: owner.instagram_url, label: 'Instagram', icon: '<svg class="icon" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>' } : null,
     owner.youtube_url  ? { url: owner.youtube_url,  label: 'YouTube',   icon: '<svg class="icon" viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>' } : null,
-    owner.website_url  ? { url: owner.website_url,  label: 'ウェブサイト', icon: '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>' } : null,
+    owner.website_url  ? { url: owner.website_url,  label: '<span data-i18n="website">ウェブサイト</span>', icon: '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>' } : null,
   ].filter(Boolean).map(l => {
     const safe = safeUrl(l.url);
     return safe ? `<a class="sns-btn" href="${esc(safe)}" target="_blank" rel="noopener">${l.icon}${l.label}</a>` : '';
   }).join('');
-  const snsHtml = snsLinks ? `<div class="section"><p class="section-title">リンク</p><div class="sns-row">${snsLinks}</div></div>` : '';
+  const snsHtml = snsLinks ? `<div class="section"><p class="section-title" data-i18n="section_links">リンク</p><div class="sns-row">${snsLinks}</div></div>` : '';
 
   // 在籍インストラクター（ショップ）／ 所属ショップ（インストラクター）
+  const rosterI18nKey = owner.type === 'shop' ? 'section_roster_shop' : 'section_roster_instructor';
   const rosterTitle = owner.type === 'shop' ? '在籍インストラクター' : '所属ショップ';
   const rosterHtml = roster.length
-    ? `<div class="section"><p class="section-title">${rosterTitle}</p><div class="people-list">${roster.map(p => `
+    ? `<div class="section"><p class="section-title" data-i18n="${rosterI18nKey}">${rosterTitle}</p><div class="people-list">${roster.map(p => `
         <a class="person-card" href="${owner.type === 'shop' ? profileQuery(p.id) : `profile.html?shop=${esc(p.id)}`}">
           <div class="person-avatar">${(p.photo_url || p.logo_url)
             ? `<img src="${esc(p.photo_url || p.logo_url)}" alt="${esc(p.name)}">`
@@ -285,7 +288,7 @@ function renderPage(owner, listings, reviews, roster) {
 
   // 取り扱いコース一覧
   const coursesHtml = listings.length
-    ? `<div class="section"><p class="section-title">取り扱いコース一覧</p><div class="course-list">${listings.map(l => `
+    ? `<div class="section"><p class="section-title" data-i18n="section_courses">取り扱いコース一覧</p><div class="course-list">${listings.map(l => `
         <a class="course-card" href="${listingQuery(l.id)}">
           <div class="course-thumb">${l.image_url ? `<img src="${esc(l.image_url)}" alt="${esc(l.title)}">` : ''}</div>
           <div class="course-body">
@@ -294,10 +297,10 @@ function renderPage(owner, listings, reviews, roster) {
           </div>
           <div class="course-arrow"><svg class="icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
         </a>`).join('')}</div></div>`
-    : `<div class="section"><p class="section-title">取り扱いコース一覧</p><p class="empty-text">まだコースの登録がありません</p></div>`;
+    : `<div class="section"><p class="section-title" data-i18n="section_courses">取り扱いコース一覧</p><p class="empty-text" data-i18n="empty_courses">まだコースの登録がありません</p></div>`;
 
   const reviewsHtml = `<div class="section" id="reviewsSection">
-    <p class="section-title">レビュー${owner.avg_rating ? ` ★ ${parseFloat(owner.avg_rating).toFixed(1)}（${esc(owner.review_count || 0)}件）` : ''}</p>
+    <p class="section-title" data-i18n="section_reviews">レビュー${owner.avg_rating ? ` ★ ${parseFloat(owner.avg_rating).toFixed(1)}（${esc(owner.review_count || 0)}件）` : ''}</p>
     ${reviews.length > 0
       ? `<div style="display:flex;flex-direction:column;gap:12px">
           ${reviews.map(r => `
@@ -310,7 +313,7 @@ function renderPage(owner, listings, reviews, roster) {
               ${r.body ? `<p style="font-size:13px;color:var(--ink-mid);line-height:1.7">${esc(r.body)}</p>` : ''}
             </div>`).join('')}
         </div>`
-      : `<p class="empty-text">まだレビューがありません</p>`}
+      : `<p class="empty-text" data-i18n="empty_reviews">まだレビューがありません</p>`}
   </div>`;
 
   document.getElementById('pageContent').innerHTML = `
@@ -319,7 +322,7 @@ function renderPage(owner, listings, reviews, roster) {
       <div class="hero-inner">
         <div class="avatar">${avatarHtml}</div>
         <div class="hero-meta">
-          <p class="type-label">${owner.type === 'shop' ? 'ショップ' : 'インストラクター'}</p>
+          <p class="type-label" data-i18n="${owner.type === 'shop' ? 'type_shop' : 'type_instructor'}">${owner.type === 'shop' ? 'ショップ' : 'インストラクター'}</p>
           <div class="hero-name-row">
             <span class="hero-name" id="owner-name">${esc(owner.name)}</span>
             ${verifiedBadge}
@@ -339,7 +342,7 @@ function renderPage(owner, listings, reviews, roster) {
     <div class="main">
       <div class="stats">${statsHtml}</div>
 
-      ${owner.bio ? `<div class="section"><p class="section-title">自己紹介</p><p class="section-text" id="owner-bio">${escNl(owner.bio)}</p></div>` : ''}
+      ${owner.bio ? `<div class="section"><p class="section-title" data-i18n="section_bio">自己紹介</p><p class="section-text" id="owner-bio">${escNl(owner.bio)}</p></div>` : ''}
       ${certsHtml}
       ${specsHtml}
       ${areasHtml}
@@ -353,5 +356,6 @@ function renderPage(owner, listings, reviews, roster) {
   _currentLang = 'ja';
 }
 </script>
+<script src="../js/i18n.js"></script>
 </body>
 </html>
