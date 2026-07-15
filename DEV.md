@@ -317,7 +317,7 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 
 **2026-07-14追記**：`explore/shops.html`（ショップ・インストラクターディレクトリ）も同方式に統一し旧SVG地図を撤去。`pro/index.html`のプロフィール編集・新規作成フォームに「拠点の都道府県」欄を追加し`shops.prefecture`/`instructors.prefecture`（既存列）に保存するようにした。既存データはareas列からのベストエフォート推定バックフィルSQL（チャット提示）を本番実行済み。詳細は[DECISIONS.md](docs/DECISIONS.md#2026-07-14exploreshopshtmlのエリア軸を都道府県に統一旧svg地図を撤去)参照。2026-07-14 Chrome MCPで実機QA完了（shops.htmlの都道府県チップ絞り込み・タブ切替・pro/index.htmlのプロフィール編集画面での初期値表示を確認）。
 
-**未着手**：`explore/shops.html`への同方式適用（`shops`/`instructors`の`prefecture`列が全レコードNULLのため、データバックフィルが先に必要）
+**完了（2026-07-15）**：`shops`/`instructors`の`prefecture`バックフィル完了。本番確認SQLで NULL は `shops.Takuya Terajima freediving school` の1件のみと判明し、`UPDATE shops SET prefecture = '鹿児島県' WHERE id = 'f633a59f-...'` を本番実行済み。`explore/shops.html` の都道府県フィルタ全レコードで動作可能な状態になった。
 
 ### /learn/ 有料講座：詳細ページ・視聴の実装方針（2026-07-10確定）
 

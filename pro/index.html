@@ -11,26 +11,27 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
   --ocean-deep:  #0b2d45;
-  --ocean-mid:   #0e3d5c;
-  --ocean-light: #1a5f82;
-  --abyss:       #04161f;
-  --teal:        #2ec4b6;
-  --teal-light:  #a8ece8;
-  --warm:        #f97316;
-  --red:         #ef4444;
-  --green:       #22c55e;
+  --ocean-mid:   #ffffff;
+  --ocean-light: #0369a1;
+  --abyss:       #ffffff;
+  --teal:        #1f6f78;
+  --teal-btn:    #2ec4b6;
+  --teal-btn-hover: #26ab9e;
+  --teal-light:  #0d7d72;
+  --warm:        #c2410c;
+  --red:         #dc2626;
+  --green:       #16a34a;
   --yellow:      #eab308;
-  --on-dark:         rgba(255,255,255,0.92);
-  --on-dark-mid:     rgba(255,255,255,0.62);
-  --on-dark-soft:    rgba(255,255,255,0.38);
-  --hairline:        rgba(168,236,232,0.14);
-  --glass:           rgba(255,255,255,0.045);
+  --on-dark:         #222226;
+  --on-dark-mid:     #5b5b60;
+  --on-dark-soft:    #8b8b90;
+  --hairline:        #e7e7ea;
+  --glass:           #ffffff;
 }
 html { background: var(--abyss); }
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
-  background: linear-gradient(180deg, var(--ocean-mid) 0%, var(--ocean-deep) 22%, #06283a 55%, var(--abyss) 100%);
-  background-attachment: fixed;
+  background: var(--abyss);
   color: var(--on-dark);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
@@ -39,7 +40,7 @@ body {
 /* ── Header ── */
 .header {
   position: sticky; top: 0; z-index: 100;
-  background: rgba(6,32,46,0.7); backdrop-filter: blur(14px);
+  background: rgba(255,255,255,0.92); backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--hairline);
   padding: 0 20px; height: 56px;
   display: flex; align-items: center; justify-content: space-between;
@@ -80,7 +81,7 @@ body.status-rejected #rejected-banner { display: flex; }
 /* ── 個人/ショップ 切替（両方登録しているユーザーのみ表示） ── */
 .role-switch { display: none; align-items: center; gap: 2px; margin-left: 10px; padding: 2px; background: var(--glass); border: 1px solid var(--hairline); border-radius: 100px; }
 .role-switch-btn { font-size: 11px; font-weight: 600; color: var(--on-dark-soft); background: none; border: none; border-radius: 100px; padding: 5px 12px; cursor: pointer; font-family: inherit; transition: all 0.2s; white-space: nowrap; max-width: 140px; overflow: hidden; text-overflow: ellipsis; }
-.role-switch-btn.active { background: var(--teal); color: var(--ocean-deep); }
+.role-switch-btn.active { background: var(--teal-btn); color: var(--ocean-deep); }
 .role-switch-btn:not(.active):hover { color: var(--on-dark); }
 @media (max-width: 640px) { .role-switch-btn { max-width: 80px; } }
 
@@ -98,15 +99,15 @@ body.pf-wide .main { max-width: 1180px; }
 .section-title { font-size: 12px; font-weight: 600; color: var(--on-dark-soft); letter-spacing: 0.12em; text-transform: uppercase; }
 
 /* ── Buttons ── */
-.btn-primary { display: flex; align-items: center; gap: 6px; background: var(--teal); color: var(--ocean-deep); border: none; border-radius: 10px; padding: 9px 16px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: background 0.2s; white-space: nowrap; }
-.btn-primary:hover { background: var(--teal-light); }
+.btn-primary { display: flex; align-items: center; gap: 6px; background: var(--teal-btn); color: var(--ocean-deep); border: none; border-radius: 10px; padding: 9px 16px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: background 0.2s; white-space: nowrap; }
+.btn-primary:hover { background: var(--teal-btn-hover); }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-edit { background: rgba(46,196,182,0.12); color: var(--teal); border: 1px solid rgba(46,196,182,0.3); border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit; transition: all 0.2s; }
 .btn-edit:hover { background: rgba(46,196,182,0.22); }
 .btn-danger { background: rgba(239,68,68,0.12); color: var(--red); border: 1px solid rgba(239,68,68,0.25); border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit; transition: all 0.2s; }
 .btn-danger:hover { background: rgba(239,68,68,0.22); }
 .btn-cancel { flex: 1; padding: 11px 16px; background: transparent; border: 1px solid var(--hairline); border-radius: 10px; color: var(--on-dark-mid); font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; transition: all 0.2s; }
-.btn-cancel:hover { border-color: rgba(255,255,255,0.3); color: var(--on-dark); }
+.btn-cancel:hover { border-color: rgba(20,20,30,0.25); color: var(--on-dark); }
 
 /* ── Cards ── */
 .card { background: var(--glass); border: 1px solid var(--hairline); border-radius: 16px; padding: 22px 20px; margin-bottom: 14px; }
@@ -118,7 +119,7 @@ body.pf-wide .main { max-width: 1180px; }
 .form-group select,
 .form-group textarea {
   width: 100%; padding: 11px 13px;
-  background: rgba(255,255,255,0.07); border: 1px solid var(--hairline);
+  background: #f7f7f8; border: 1px solid var(--hairline);
   border-radius: 10px; color: var(--on-dark); font-size: 14px;
   font-family: inherit; outline: none; transition: border-color 0.2s;
   -webkit-appearance: none;
@@ -126,7 +127,7 @@ body.pf-wide .main { max-width: 1180px; }
 .form-group textarea { resize: vertical; min-height: 88px; line-height: 1.6; }
 .form-group input:focus,
 .form-group select:focus,
-.form-group textarea:focus { border-color: var(--teal); background: rgba(255,255,255,0.10); }
+.form-group textarea:focus { border-color: var(--teal); background: #ffffff; }
 .form-group select option { background: var(--ocean-mid); }
 .form-hint { font-size: 11px; color: var(--on-dark-soft); margin-top: 5px; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -136,16 +137,16 @@ body.pf-wide .main { max-width: 1180px; }
 /* ── Table ── */
 .table-wrap { overflow-x: auto; border-radius: 14px; border: 1px solid var(--hairline); }
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
-thead { background: rgba(255,255,255,0.04); }
+thead { background: #f5f5f7; }
 th { padding: 11px 14px; text-align: left; font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--on-dark-soft); white-space: nowrap; }
 td { padding: 12px 14px; border-top: 1px solid var(--hairline); color: var(--on-dark-mid); vertical-align: middle; }
-tr:hover td { background: rgba(255,255,255,0.025); }
+tr:hover td { background: rgba(20,20,30,0.03); }
 td.primary { color: var(--on-dark); font-weight: 500; }
 .actions { display: flex; gap: 6px; }
 
 /* ── 空き枠カレンダー ── */
 .cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-.cal-nav-btn { background: rgba(255,255,255,0.06); border: 1px solid var(--hairline); color: var(--on-dark-mid); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: all 0.2s; font-family: inherit; flex-shrink: 0; }
+.cal-nav-btn { background: rgba(20,20,30,0.05); border: 1px solid var(--hairline); color: var(--on-dark-mid); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: all 0.2s; font-family: inherit; flex-shrink: 0; }
 .cal-nav-btn:hover { border-color: rgba(46,196,182,0.4); color: var(--teal); }
 .cal-nav-mid { display: flex; align-items: center; gap: 10px; }
 .cal-month-label { font-size: 15px; font-weight: 700; color: var(--on-dark); min-width: 92px; text-align: center; }
@@ -153,8 +154,8 @@ td.primary { color: var(--on-dark); font-weight: 500; }
 .cal-today-btn:hover { background: rgba(46,196,182,0.1); }
 .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 24px; }
 .cal-dow { text-align: center; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--on-dark-soft); padding-bottom: 8px; }
-.cal-dow.sun { color: #f87171; }
-.cal-dow.sat { color: #60a5fa; }
+.cal-dow.sun { color: #dc2626; }
+.cal-dow.sat { color: #0369a1; }
 .cal-cell { aspect-ratio: 1/1; border-radius: 10px; border: 1px solid var(--hairline); background: var(--glass); padding: 6px 7px; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.15s; }
 .cal-cell.empty { visibility: hidden; pointer-events: none; border: none; }
 .cal-cell:hover { border-color: rgba(46,196,182,0.4); }
@@ -189,12 +190,12 @@ td.primary { color: var(--on-dark); font-weight: 500; }
 /* ── Badges ── */
 .badge { display: inline-block; padding: 3px 9px; border-radius: 100px; font-size: 11px; font-weight: 600; letter-spacing: 0.05em; white-space: nowrap; }
 .badge-public   { background: rgba(34,197,94,0.12);  color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
-.badge-private  { background: rgba(148,163,184,0.12); color: #94a3b8;     border: 1px solid rgba(148,163,184,0.2); }
+.badge-private  { background: rgba(148,163,184,0.12); color: #475569;     border: 1px solid rgba(148,163,184,0.2); }
 .badge-new      { background: rgba(249,115,22,0.15); color: var(--warm);  border: 1px solid rgba(249,115,22,0.3); }
 .badge-replied  { background: rgba(46,196,182,0.12); color: var(--teal);  border: 1px solid rgba(46,196,182,0.25); }
-.badge-closed   { background: rgba(148,163,184,0.12); color: #94a3b8;     border: 1px solid rgba(148,163,184,0.2); }
+.badge-closed   { background: rgba(148,163,184,0.12); color: #475569;     border: 1px solid rgba(148,163,184,0.2); }
 .badge-active   { background: rgba(34,197,94,0.12);  color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
-.badge-inactive { background: rgba(148,163,184,0.12); color: #94a3b8;     border: 1px solid rgba(148,163,184,0.2); }
+.badge-inactive { background: rgba(148,163,184,0.12); color: #475569;     border: 1px solid rgba(148,163,184,0.2); }
 
 /* ── Modal ── */
 .modal-backdrop { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.72); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
@@ -212,8 +213,8 @@ td.primary { color: var(--on-dark); font-weight: 500; }
 .toggle-wrap { display: flex; align-items: center; gap: 8px; }
 .toggle { position: relative; width: 40px; height: 22px; }
 .toggle input { opacity: 0; width: 0; height: 0; }
-.toggle-track { position: absolute; inset: 0; cursor: pointer; background: rgba(255,255,255,0.12); border-radius: 100px; transition: background 0.2s; }
-.toggle input:checked + .toggle-track { background: var(--teal); }
+.toggle-track { position: absolute; inset: 0; cursor: pointer; background: #e2e2e6; border-radius: 100px; transition: background 0.2s; }
+.toggle input:checked + .toggle-track { background: var(--teal-btn); }
 .toggle-track::after { content: ''; position: absolute; width: 16px; height: 16px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: transform 0.2s; }
 .toggle input:checked + .toggle-track::after { transform: translateX(18px); }
 .toggle-label { font-size: 13px; color: var(--on-dark-mid); }
@@ -257,9 +258,9 @@ td.primary { color: var(--on-dark); font-weight: 500; }
 .profile-meta p { font-size: 12px; color: var(--on-dark-soft); margin-top: 3px; }
 
 /* ── プロフィール 分割プレビュー（公開ページ = explore/profile.html を模した見た目） ── */
-.pf-mode-tabs { display: flex; gap: 2px; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 3px; width: fit-content; margin-bottom: 20px; }
+.pf-mode-tabs { display: flex; gap: 2px; background: #f0f0f2; border-radius: 8px; padding: 3px; width: fit-content; margin-bottom: 20px; }
 .pf-mode-tab { padding: 6px 16px; border-radius: 6px; font-size: 12px; font-weight: 600; color: var(--on-dark-soft); background: none; border: none; cursor: pointer; font-family: inherit; transition: all 0.15s; }
-.pf-mode-tab.active { background: rgba(255,255,255,0.14); color: var(--teal); }
+.pf-mode-tab.active { background: #ffffff; color: var(--teal); }
 
 .pf-split-wrap { display: block; }
 .pf-preview-pane { display: none; }
@@ -335,9 +336,9 @@ td.primary { color: var(--on-dark); font-weight: 500; }
 .setup-card p { color: var(--on-dark-soft); font-size: 13px; line-height: 1.8; margin-bottom: 28px; max-width: 360px; margin-left: auto; margin-right: auto; }
 
 /* ── Inquiry detail ── */
-.inq-body { font-size: 13px; line-height: 1.8; color: var(--on-dark-mid); background: rgba(255,255,255,0.04); border-radius: 10px; padding: 12px 14px; margin-top: 8px; white-space: pre-wrap; }
-.status-select { background: rgba(255,255,255,0.06); border: 1px solid var(--hairline); border-radius: 8px; color: var(--on-dark); font-size: 12px; padding: 5px 8px; cursor: pointer; font-family: inherit; outline: none; }
-.status-select option { background: #0e3d5c; }
+.inq-body { font-size: 13px; line-height: 1.8; color: var(--on-dark-mid); background: #f7f7f8; border-radius: 10px; padding: 12px 14px; margin-top: 8px; white-space: pre-wrap; }
+.status-select { background: #f7f7f8; border: 1px solid var(--hairline); border-radius: 8px; color: var(--on-dark); font-size: 12px; padding: 5px 8px; cursor: pointer; font-family: inherit; outline: none; }
+.status-select option { background: #ffffff; }
 
 /* ── Area rows ── */
 .area-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
@@ -394,7 +395,7 @@ td.primary { color: var(--on-dark); font-weight: 500; }
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg>
           インストラクターとして登録
         </button>
-        <button class="btn-primary" style="background:var(--ocean-light);border:1px solid rgba(46,196,182,0.4);" onclick="showCreateProfile('shop')">
+        <button class="btn-primary" style="background:var(--ocean-light);color:#fff;border:1px solid rgba(46,196,182,0.4);" onclick="showCreateProfile('shop')">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg>
           ショップとして登録
         </button>
@@ -429,7 +430,7 @@ td.primary { color: var(--on-dark); font-weight: 500; }
       </button>
       <button class="tab"         data-tab="bookings"  onclick="switchTab('bookings')">
         予約管理
-        <span id="booking-badge" style="display:none;margin-left:5px;background:var(--teal);color:var(--ocean-deep);border-radius:100px;padding:1px 6px;font-size:10px;font-weight:700;"></span>
+        <span id="booking-badge" style="display:none;margin-left:5px;background:var(--teal-btn);color:var(--ocean-deep);border-radius:100px;padding:1px 6px;font-size:10px;font-weight:700;"></span>
       </button>
       <button class="tab"         data-tab="clients"   onclick="switchTab('clients')">クライアント管理</button>
       <button class="tab"         data-tab="revenue"   onclick="switchTab('revenue')">売り上げ管理</button>
@@ -499,7 +500,7 @@ td.primary { color: var(--on-dark); font-weight: 500; }
         <span class="section-title">クライアント一覧</span>
         <input type="search" id="client-search" placeholder="名前・メール・電話で検索"
           oninput="filterClients()"
-          style="padding:8px 13px;background:rgba(255,255,255,0.07);border:1px solid var(--hairline);border-radius:10px;color:var(--on-dark);font-size:13px;font-family:inherit;outline:none;width:220px;">
+          style="padding:8px 13px;background:#f7f7f8;border:1px solid var(--hairline);border-radius:10px;color:var(--on-dark);font-size:13px;font-family:inherit;outline:none;width:220px;">
       </div>
       <div id="clients-content"><div class="spinner-wrap"><div class="spinner"></div></div></div>
     </div>
@@ -1639,7 +1640,7 @@ function renderProfileForm() {
         ${i.photo_url
           ? `<img id="p-photo-preview" src="${escHtml(i.photo_url)}" alt="${escHtml(i.name)}">`
           : `<span id="p-photo-preview">${escHtml((i.name || '?').charAt(0))}</span>`}
-        <div style="position:absolute;bottom:0;right:0;width:20px;height:20px;background:var(--teal);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;border:2px solid var(--ocean-mid);">📷</div>
+        <div style="position:absolute;bottom:0;right:0;width:20px;height:20px;background:var(--teal-btn);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;border:2px solid var(--ocean-mid);">📷</div>
       </div>
       <div class="profile-meta">
         <h2>${escHtml(i.name)}</h2>
@@ -2024,7 +2025,7 @@ function renderShopProfileForm() {
         ${s.logo_url
           ? `<img id="sp-logo-preview" src="${escHtml(s.logo_url)}" alt="${escHtml(s.name)}">`
           : `<span id="sp-logo-preview">${escHtml((s.name||'?').charAt(0))}</span>`}
-        <div style="position:absolute;bottom:0;right:0;width:20px;height:20px;background:var(--teal);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;border:2px solid var(--ocean-mid);">📷</div>
+        <div style="position:absolute;bottom:0;right:0;width:20px;height:20px;background:var(--teal-btn);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;border:2px solid var(--ocean-mid);">📷</div>
       </div>
       <div class="profile-meta">
         <h2>${escHtml(s.name)}</h2>
@@ -2130,7 +2131,7 @@ function renderShopRosterList() {
     return;
   }
   wrap.innerHTML = myShopInstructors.map(i => `
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--hairline);border-radius:10px;margin-bottom:8px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(20,20,30,0.03);border:1px solid var(--hairline);border-radius:10px;margin-bottom:8px;">
       <span>${escHtml(i.name)}</span>
       ${i._viaLegacy
         ? '<span style="font-size:11px;color:var(--on-dark-soft);">旧登録（解除不可）</span>'
@@ -2162,7 +2163,7 @@ async function searchInstructorsToAdd() {
   }
 
   resultsEl.innerHTML = filtered.map(i => `
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--hairline);border-radius:10px;margin-bottom:8px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(20,20,30,0.03);border:1px solid var(--hairline);border-radius:10px;margin-bottom:8px;">
       <span>${escHtml(i.name)}${i.prefecture ? ` <span style="font-size:11px;color:var(--on-dark-soft);">（${escHtml(i.prefecture)}）</span>` : ''}</span>
       <button type="button" class="btn-edit" onclick="addShopInstructor('${i.id}', '${escHtml(i.name)}')">追加</button>
     </div>`).join('');
@@ -2973,7 +2974,7 @@ async function loadBookings() {
   badge.textContent   = newCount;
 
   const statusLabel = { pending:'保留中', paid:'支払済', confirmed:'確認済', cancelled:'キャンセル', refunded:'返金済' };
-  const statusColor  = { pending:'var(--on-dark-soft)', paid:'var(--teal)', confirmed:'#4ade80', cancelled:'var(--on-dark-soft)', refunded:'var(--warm)' };
+  const statusColor  = { pending:'var(--on-dark-soft)', paid:'var(--teal)', confirmed:'#16a34a', cancelled:'var(--on-dark-soft)', refunded:'var(--warm)' };
 
   el.innerHTML = `<div style="overflow-x:auto;"><table class="data-table">
     <thead><tr>
@@ -3310,8 +3311,8 @@ function addRentalRow(name = '', price = '', needsSize = true) {
   const row = document.createElement('div');
   row.style.cssText = 'display:flex;gap:8px;align-items:center;';
   row.innerHTML = `
-    <input type="text"   class="rental-name"  placeholder="機材名（例：ウェットスーツ）" value="${escHtml(String(name))}"  style="flex:2;padding:8px 10px;background:var(--ocean-deep);border:1px solid var(--hairline);border-radius:6px;color:var(--on-dark);font-size:14px;">
-    <input type="number" class="rental-price" placeholder="料金（円）"                  value="${price !== '' ? price : ''}" style="flex:1;padding:8px 10px;background:var(--ocean-deep);border:1px solid var(--hairline);border-radius:6px;color:var(--on-dark);font-size:14px;" min="0">
+    <input type="text"   class="rental-name"  placeholder="機材名（例：ウェットスーツ）" value="${escHtml(String(name))}"  style="flex:2;padding:8px 10px;background:#f7f7f8;border:1px solid var(--hairline);border-radius:6px;color:var(--on-dark);font-size:14px;">
+    <input type="number" class="rental-price" placeholder="料金（円）"                  value="${price !== '' ? price : ''}" style="flex:1;padding:8px 10px;background:#f7f7f8;border:1px solid var(--hairline);border-radius:6px;color:var(--on-dark);font-size:14px;" min="0">
     <span style="color:var(--on-dark-soft);font-size:13px;white-space:nowrap;">円/回</span>
     <label style="display:flex;align-items:center;gap:4px;color:var(--on-dark-soft);font-size:12px;white-space:nowrap;">
       <input type="checkbox" class="rental-needs-size" ${needsSize ? 'checked' : ''}> サイズ選択あり
@@ -3430,10 +3431,10 @@ function addFlowStep(title = '', desc = '', time = '') {
   const container = document.getElementById('l-flow-rows');
   const idx = container.children.length + 1;
   const row = document.createElement('div');
-  row.style.cssText = 'background:var(--ocean-deep);border:1px solid var(--hairline);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px;';
+  row.style.cssText = 'background:#f7f7f8;border:1px solid var(--hairline);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px;';
   row.innerHTML = `
     <div style="display:flex;align-items:center;gap:8px;">
-      <span style="background:var(--teal);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">${idx}</span>
+      <span style="background:var(--teal-btn);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">${idx}</span>
       <input type="text" class="flow-title" placeholder="タイトル（例：受付・オリエンテーション）" value="${escHtml(title)}"
         style="flex:1;padding:7px 10px;background:var(--ocean-mid);border:1px solid var(--hairline);border-radius:6px;color:var(--on-dark);font-size:14px;">
       <input type="time" class="flow-time" step="300" value="${normalizeFlowTime(time)}"
@@ -3541,14 +3542,14 @@ function renderClients(clients) {
         <p style="font-size:11px;font-weight:600;color:var(--on-dark-soft);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;">予約履歴</p>
         <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">
           ${c.bookings.map(b => `
-            <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px 12px;background:var(--ocean-deep);border-radius:8px;">
+            <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px 12px;background:#f7f7f8;border-radius:8px;">
               <span style="color:var(--on-dark-mid);">${b.created_at?.slice(0,10)} · ${escHtml(b.listings?.title || '—')}</span>
               <span style="color:var(--teal);font-weight:600;">¥${(b.total_amount||0).toLocaleString()}</span>
             </div>`).join('')}
         </div>
         <p style="font-size:11px;font-weight:600;color:var(--on-dark-soft);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">メモ（自分だけ見える）</p>
         <textarea id="memo-${btoa(encodeURIComponent(c.email)).replace(/[^a-zA-Z0-9]/g,'')}"
-          style="width:100%;padding:10px;background:var(--ocean-deep);border:1px solid var(--hairline);border-radius:8px;color:var(--on-dark);font-size:13px;font-family:inherit;resize:vertical;min-height:72px;"
+          style="width:100%;padding:10px;background:#f7f7f8;border:1px solid var(--hairline);border-radius:8px;color:var(--on-dark);font-size:13px;font-family:inherit;resize:vertical;min-height:72px;"
           placeholder="受講歴・注意事項・次回提案など...">${escHtml(c.memo)}</textarea>
         <button class="btn-edit" style="margin-top:8px;" onclick="event.stopPropagation();saveClientMemo('${escHtml(c.email)}')">メモを保存</button>
       </div>
@@ -3668,9 +3669,9 @@ function renderRevenueChart(bookings) {
         <rect x="0" y="${chartH - h - 24}" width="${barW}" height="${h}"
           fill="rgba(46,196,182,0.7)" rx="4"/>
         <text x="${barW / 2}" y="${chartH - 8}" text-anchor="middle"
-          font-size="10" fill="rgba(255,255,255,0.5)">${label}</text>
+          font-size="10" fill="rgba(20,20,30,0.55)">${label}</text>
         <text x="${barW / 2}" y="${chartH - h - 29}" text-anchor="middle"
-          font-size="10" fill="rgba(46,196,182,0.9)">¥${(monthly[k]/10000).toFixed(1)}万</text>
+          font-size="10" fill="#1f6f78">¥${(monthly[k]/10000).toFixed(1)}万</text>
       </g>`;
   }).map((bar, i) => `<g transform="translate(${20 + i * (barW + 12)}, 0)">${bar}</g>`).join('');
 

@@ -14,14 +14,15 @@
   --border:   var(--hairline);
   --accent:   var(--teal);
   --accent2:  var(--teal-light);
+  --teal2:    var(--teal-light);
   --text:     var(--on-dark);
   --sub:      var(--on-dark-mid);
   --muted:    var(--on-dark-soft);
   /* このページ固有のサーフェス色 */
-  --surface:  #0c2738;
-  --surface2: #123146;
-  --accent-dim: rgba(46,196,182,0.10);
-  --warn:     #f59e0b;
+  --surface:  #ffffff;
+  --surface2: #f5f5f7;
+  --accent-dim: rgba(31,111,120,0.10);
+  --warn:     #b45309;
   --r:        14px;
   --rs:       9px;
 }
@@ -93,7 +94,7 @@ body { padding-bottom: 72px; }
 }
 
 .hero-info { flex: 1; animation: fadeUp 0.5s 0.1s ease both; opacity: 0; }
-.hero-name { font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -0.3px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.hero-name { font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
 .hero-name:hover { color: var(--teal); }
 .hero-name .edit-pencil { font-size: 12px; opacity: 0.6; }
 .hero-email { font-size: 12px; color: var(--muted); margin-top: 2px; }
@@ -103,15 +104,15 @@ body { padding-bottom: 72px; }
   padding: 3px 10px; border-radius: 100px;
   letter-spacing: 0.04em;
 }
-.badge-teal { background: rgba(46,196,182,0.18); color: var(--teal-light); border: 1px solid rgba(46,196,182,0.3); }
-.badge-gold { background: rgba(245,158,11,0.15); color: #fcd34d; border: 1px solid rgba(245,158,11,0.25); }
+.badge-teal { background: rgba(31,111,120,0.12); color: var(--teal-light); border: 1px solid rgba(31,111,120,0.3); }
+.badge-gold { background: rgba(180,83,9,0.12); color: #b45309; border: 1px solid rgba(180,83,9,0.25); }
 
 /* ===== PB STRIP ===== */
 .pb-strip {
   display: flex;
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
-  background: rgba(12,39,56,0.6);
+  background: #f5f5f7;
   animation: fadeUp 0.5s 0.2s ease both; opacity: 0;
 }
 .pb-item {
@@ -202,8 +203,8 @@ body { padding-bottom: 72px; }
 }
 .wip-badge {
   background: rgba(4,22,31,0.8);
-  border: 1px solid var(--border);
-  color: var(--muted);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.75);
   font-size: 10px; font-weight: 600;
   padding: 4px 12px; border-radius: 100px;
 }
@@ -234,8 +235,8 @@ body { padding-bottom: 72px; }
   padding: 3px 10px; border-radius: 100px;
   white-space: nowrap;
 }
-.tag-done { background: rgba(46,196,182,0.12); color: var(--teal-light); }
-.tag-upcoming { background: rgba(26,95,130,0.25); color: #7dd3fc; }
+.tag-done { background: rgba(31,111,120,0.12); color: var(--teal-light); }
+.tag-upcoming { background: rgba(3,105,161,0.12); color: #0369a1; }
 
 .list-empty {
   padding: 32px; text-align: center;
@@ -261,7 +262,7 @@ body { padding-bottom: 72px; }
 .settings-icon { font-size: 17px; width: 26px; text-align: center; flex-shrink: 0; }
 .settings-label { flex: 1; font-size: 14px; color: var(--text); }
 .settings-arrow { color: var(--muted); font-size: 14px; }
-.settings-row.danger .settings-label { color: #f87171; }
+.settings-row.danger .settings-label { color: #dc2626; }
 .settings-row { cursor: pointer; }
 
 /* ── Modal ── */
@@ -283,28 +284,28 @@ body { padding-bottom: 72px; }
 .modal-form-group input,
 .modal-form-group select {
   width: 100%; padding: 11px 13px;
-  background: rgba(255,255,255,0.07); border: 1px solid var(--border);
+  background: #f7f7f8; border: 1px solid var(--border);
   border-radius: 10px; color: var(--text); font-size: 14px;
   font-family: inherit; outline: none; transition: border-color 0.2s;
   -webkit-appearance: none;
 }
 .modal-form-group input:focus,
-.modal-form-group select:focus { border-color: var(--teal); background: rgba(255,255,255,0.1); }
+.modal-form-group select:focus { border-color: var(--teal); background: #ffffff; }
 .modal-form-group select option { background: var(--surface); }
 .modal-actions { display: flex; gap: 10px; margin-top: 24px; }
 .modal-btn-primary {
-  flex: 1; padding: 12px; background: var(--teal); color: var(--ocean-deep);
+  flex: 1; padding: 12px; background: var(--teal-btn); color: var(--ocean-deep);
   border: none; border-radius: 10px; font-size: 14px; font-weight: 700;
   cursor: pointer; font-family: inherit; transition: background 0.2s;
 }
-.modal-btn-primary:hover { background: var(--teal-light); }
+.modal-btn-primary:hover { background: var(--teal-btn-hover); }
 .modal-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 .modal-btn-cancel {
   flex: 1; padding: 12px; background: transparent; border: 1px solid var(--border);
   border-radius: 10px; color: var(--sub); font-size: 14px;
   cursor: pointer; font-family: inherit; transition: all 0.2s;
 }
-.modal-btn-cancel:hover { border-color: rgba(255,255,255,0.3); color: var(--text); }
+.modal-btn-cancel:hover { border-color: rgba(20,20,30,0.25); color: var(--text); }
 
 /* ── Toast ── */
 .toast-msg {
@@ -312,12 +313,12 @@ body { padding-bottom: 72px; }
   background: var(--surface); border: 1px solid var(--border);
   border-radius: 100px; padding: 12px 20px;
   font-size: 13px; color: var(--text);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  box-shadow: 0 8px 32px rgba(20,20,30,0.15);
   z-index: 400; transition: opacity 0.3s; pointer-events: none;
   white-space: nowrap; opacity: 1;
 }
-.toast-msg.success { border-color: rgba(46,196,182,0.4); }
-.toast-msg.error   { border-color: rgba(239,68,68,0.4); }
+.toast-msg.success { border-color: rgba(31,111,120,0.4); }
+.toast-msg.error   { border-color: rgba(220,38,38,0.4); }
 .toast-msg.hidden  { opacity: 0; }
 
 /* ===== BOTTOM NAV ===== */
@@ -428,7 +429,7 @@ body { padding-bottom: 72px; }
 }
 .badge-today { background:rgba(46,196,182,0.2); color:var(--teal2); }
 .badge-soon  { background:rgba(245,158,11,0.15); color:var(--warn); }
-.badge-later { background:rgba(255,255,255,0.06); color:var(--muted); }
+.badge-later { background:#f0f0f2; color:var(--muted); }
 
 /* ===== 予約履歴（bk-*） ===== */
 #booking-history-list { display:flex; flex-direction:column; gap:8px; }
@@ -458,7 +459,7 @@ body { padding-bottom: 72px; }
 .bk-status-paid      { background:rgba(46,196,182,0.15); color:var(--teal-light); }
 .bk-status-confirmed { background:rgba(46,196,182,0.15); color:var(--teal-light); }
 .bk-status-pending   { background:rgba(245,158,11,0.15); color:var(--warn); }
-.bk-status-cancelled { background:rgba(255,255,255,0.06); color:var(--muted); }
+.bk-status-cancelled { background:#f0f0f2; color:var(--muted); }
 
 @media (max-width: 480px) {
   .stat-val { font-size: 18px; }
@@ -471,7 +472,7 @@ body { padding-bottom: 72px; }
 <!-- HEADER -->
 <header class="header">
   <a class="logo" href="index.html">FREEDIVING <span>JAPAN</span></a>
-  <a id="admin-header-btn" href="admin/" style="display:none;font-size:12px;font-weight:600;letter-spacing:0.08em;padding:5px 12px;border-radius:100px;background:rgba(249,115,22,0.15);border:1px solid rgba(249,115,22,0.4);color:#f97316;text-decoration:none;">⚙️ 管理</a>
+  <a id="admin-header-btn" href="admin/" style="display:none;font-size:12px;font-weight:600;letter-spacing:0.08em;padding:5px 12px;border-radius:100px;background:rgba(194,65,12,0.10);border:1px solid rgba(194,65,12,0.35);color:#c2410c;text-decoration:none;">⚙️ 管理</a>
 </header>
 
 <!-- HERO -->
@@ -566,7 +567,7 @@ body { padding-bottom: 72px; }
         <span id="stat-env-total" style="font-size:11px;color:var(--muted);">—</span>
       </div>
       <div id="stat-env-bar" style="display:flex;height:8px;border-radius:4px;overflow:hidden;gap:2px;margin-bottom:8px;">
-        <div style="flex:1;background:rgba(255,255,255,0.1);border-radius:4px;"></div>
+        <div style="flex:1;background:rgba(20,20,30,0.06);border-radius:4px;"></div>
       </div>
       <div id="stat-env-labels" style="display:flex;justify-content:space-between;">
         <div style="font-size:11px;color:var(--muted);">読み込み中...</div>
@@ -780,16 +781,16 @@ body { padding-bottom: 72px; }
         <button id="ce-fetch-btn" onclick="fetchAidaEvent()"
           style="padding:8px 12px;background:rgba(46,196,182,0.15);border:1px solid rgba(46,196,182,0.4);color:var(--teal);border-radius:var(--rs);font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;">取得</button>
       </div>
-      <div id="ce-fetch-err" style="font-size:11px;color:#f87171;margin-top:6px;display:none;"></div>
+      <div id="ce-fetch-err" style="font-size:11px;color:#dc2626;margin-top:6px;display:none;"></div>
     </div>
 
     <!-- 大会情報入力 -->
     <div class="modal-form-group">
-      <label>大会名 <span style="color:#f87171;">*</span></label>
+      <label>大会名 <span style="color:#dc2626;">*</span></label>
       <input type="text" id="ce-name" placeholder="Volcano Cup 2026" style="font-size:13px;">
     </div>
     <div class="modal-form-group">
-      <label>開催日（開始）<span style="color:#f87171;">*</span></label>
+      <label>開催日（開始）<span style="color:#dc2626;">*</span></label>
       <input type="date" id="ce-date" style="font-size:13px;">
     </div>
     <div class="modal-form-group">
@@ -804,7 +805,7 @@ body { padding-bottom: 72px; }
       <label>種別</label>
       <input type="text" id="ce-type" placeholder="Pool Competition" style="font-size:13px;color:var(--muted);">
     </div>
-    <div id="ce-create-err" style="font-size:12px;color:#f87171;margin-top:8px;display:none;"></div>
+    <div id="ce-create-err" style="font-size:12px;color:#dc2626;margin-top:8px;display:none;"></div>
     <div class="modal-actions" style="margin-top:20px;">
       <button class="modal-btn-cancel" onclick="closeCreateEventModal()">キャンセル</button>
       <button class="modal-btn-primary" id="ce-create-btn" onclick="createEventConfirm()">大会を作成</button>
@@ -1350,7 +1351,7 @@ function renderSummary(sessions) {
   setEl('stat-env-total', days + '日');
 
   if (!totalEnv) {
-    setHtml('stat-env-bar',    '<div style="flex:1;background:rgba(255,255,255,0.1);border-radius:4px;"></div>');
+    setHtml('stat-env-bar',    '<div style="flex:1;background:rgba(20,20,30,0.06);border-radius:4px;"></div>');
     setHtml('stat-env-labels', '<div style="font-size:11px;color:var(--muted);">今月のセッションなし</div>');
     return;
   }
@@ -1538,7 +1539,7 @@ function renderMyEvents(events) {
     const bdr    = ev.is_published ? 'rgba(46,196,182,0.3)' : 'rgba(245,158,11,0.3)';
     const lbl    = ev.is_published ? '公開中' : 'Draft';
     return `
-      <a href="events/event-staff.html?id=${ev.id}" style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);text-decoration:none;color:inherit;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background=''">
+      <a href="events/event-staff.html?id=${ev.id}" style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);text-decoration:none;color:inherit;transition:background 0.15s;" onmouseover="this.style.background='rgba(20,20,30,0.03)'" onmouseout="this.style.background=''">
         <div style="flex:1;">
           <div style="font-size:14px;font-weight:700;">${esc(ev.name)}</div>
           <div style="font-size:11px;color:var(--muted);margin-top:2px;">${ds}${ev.location ? ' · ' + esc(ev.location) : ''}</div>

@@ -306,7 +306,7 @@ body {
 /* ── 10. Form Inputs ─────────────────────────────────────── */
 .input {
   width: 100%;
-  background: rgba(255,255,255,0.07);
+  background: #f7f7f8;
   border: 1px solid var(--hairline);
   border-radius: var(--r);
   padding: 13px 16px;
@@ -317,8 +317,8 @@ body {
 }
 .input::placeholder { color: var(--on-dark-soft); }
 .input:focus {
-  border-color: rgba(46,196,182,0.5);
-  background: rgba(255,255,255,0.10);
+  border-color: rgba(31,111,120,0.5);
+  background: #ffffff;
 }
 
 .input-label {
@@ -333,18 +333,17 @@ body {
 /* Search bar variant */
 .search-bar {
   width: 100%;
-  background: rgba(255,255,255,0.07);
+  background: #f7f7f8;
   border: 1px solid var(--hairline);
   border-radius: var(--r-pill);
   padding: 14px 52px 14px 48px;
   font-size: 14px;
   color: var(--on-dark);
   outline: none;
-  backdrop-filter: blur(8px);
   transition: border-color var(--t-base), background var(--t-base);
 }
 .search-bar::placeholder { color: var(--on-dark-soft); }
-.search-bar:focus { border-color: rgba(46,196,182,0.5); background: rgba(255,255,255,0.10); }
+.search-bar:focus { border-color: rgba(31,111,120,0.5); background: #ffffff; }
 
 /* ── 11. Section Headers ─────────────────────────────────── */
 .sec-header {
@@ -390,8 +389,8 @@ body {
 .badge-teal   { background: rgba(46,196,182,0.75);  color: var(--ocean-deep); }
 .badge-warm   { background: rgba(249,115,22,0.75);  color: #fff; }
 .badge-ocean  { background: rgba(26,95,130,0.85);   color: #fff; }
-.badge-ghost  { background: rgba(4,22,31,0.70); border: 1px solid var(--hairline); color: var(--on-dark-mid); }
-.badge-warn   { background: rgba(245,158,11,0.20); border: 1px solid rgba(245,158,11,0.35); color: #f59e0b; }
+.badge-ghost  { background: rgba(4,22,31,0.70); border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.75); }
+.badge-warn   { background: rgba(180,83,9,0.14); border: 1px solid rgba(180,83,9,0.3); color: #b45309; }
 
 /* WIP overlay */
 .wip-wrap  { position: relative; display: block; }
@@ -405,8 +404,8 @@ body {
 .wip-badge {
   display: inline-flex; align-items: center; gap: 6px;
   background: rgba(4,22,31,0.7);
-  border: 1px solid var(--hairline);
-  color: var(--on-dark-mid);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.75);
   font-size: 10px; font-weight: 500;
   padding: 5px 13px;
   border-radius: var(--r-pill);
@@ -447,8 +446,8 @@ body {
   white-space: nowrap;
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-.toast.success { border-color: rgba(46,196,182,0.4); color: var(--teal-light); }
-.toast.error   { border-color: rgba(249,115,22,0.4);  color: #fca370; }
+.toast.success { border-color: rgba(31,111,120,0.4); color: var(--teal-light); }
+.toast.error   { border-color: rgba(194,65,12,0.4);  color: #c2410c; }
 
 /* ── 16. Loading Spinner ─────────────────────────────────── */
 .spinner {
@@ -488,8 +487,8 @@ body {
 /* ── 20. Scrollbar ───────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(168,236,232,0.2); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(168,236,232,0.35); }
+::-webkit-scrollbar-thumb { background: rgba(20,20,30,0.15); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(20,20,30,0.25); }
 
 /* ── 21. Responsive ──────────────────────────────────────── */
 @media (min-width: 700px) {
