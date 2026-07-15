@@ -133,7 +133,17 @@ body { padding-bottom: 72px; }
 }
 
 /* ===== CONTENT ===== */
-.content { padding: 20px 16px 16px; max-width: 640px; margin: 0 auto; }
+.content { padding: 20px 16px 16px; max-width: 1040px; margin: 0 auto; }
+
+/* ===== 画面構成（メイン／サイドレール。2026-07-14・secretary相談で確定）=====
+   PC幅（900px超）ではメイン＋幅360px程度のサイドレールの2カラム（/pro/index.htmlの
+   .pf-split-wrap型に合わせた設計）。900px以下は優先度順の縦積みに戻る。 */
+.mypage-grid { display: grid; grid-template-columns: 1fr; gap: 24px; max-width: 640px; margin: 0 auto; }
+.mypage-side { display: flex; flex-direction: column; gap: 24px; }
+@media (min-width: 901px) {
+  .mypage-grid { grid-template-columns: minmax(0,1fr) minmax(0,360px); align-items: start; max-width: none; }
+}
+.group-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 4px 2px; }
 
 .section { margin-bottom: 24px; animation: fadeUp 0.5s ease both; opacity: 0; }
 .section:nth-child(1) { animation-delay: 0.25s; }
