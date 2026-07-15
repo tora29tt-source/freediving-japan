@@ -1,0 +1,14 @@
+name = "video-worker"
+main = "video-worker.js"
+compatibility_date = "2024-09-23"
+
+# Worker を freediving-japan アカウントにデプロイ
+# デプロイ後 URL: https://video-worker.<your-subdomain>.workers.dev
+# カスタムドメインを後で付けるには Cloudflare ダッシュボードの Workers > Triggers から設定
+
+[[r2_buckets]]
+binding = "VIDEOS"
+bucket_name = "learn-videos"
+
+# 本番シークレットは wrangler secret put VIDEO_JWT_SECRET で設定
+# ローカル開発用のみ .dev.vars を使う（.gitignore 済み）
