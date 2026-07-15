@@ -2267,6 +2267,12 @@ function setDisplayCountdown(s) {
 }
 
 function startHold() {
+  // Breath Upカウントダウンが無い場合（prepSec=0/freeモード）や2セット目以降は
+  // beginCountdownOrHold()/endRest()がrequestWakeLock()を経由せず直接ここに来るため、
+  // Hold開始時に必ずWake Lockを取得する。取得漏れがあると長いHold中に画面が
+  // 自動ロックされ、canvas描画・MediaRecorderのタイムスライスが止まり、
+  // 録画が数秒〜1秒程度しか保存されない不具合につながる。
+  requestWakeLock();
   phase = 'hold'; phaseStart = performance.now(); phaseMs = 0;
   spo2Buf = [];
   // 前のHoldのチャートをリセット（新しいデータが来るまで非表示）
