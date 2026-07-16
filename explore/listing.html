@@ -1089,5 +1089,18 @@ async function proceedToCheckout() {
 }
 </script>
 <script src="../js/i18n.js"></script>
+<script src="../js/lang-switcher.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  LangSwitcher.init(function(lang) {
+    LangSwitcher.setLang(lang);
+    if (typeof switchLang === 'function') switchLang(lang);
+  });
+});
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.lang-btn');
+  if (btn && btn.dataset.lang) LangSwitcher.setLang(btn.dataset.lang);
+});
+</script>
 </body>
 </html>

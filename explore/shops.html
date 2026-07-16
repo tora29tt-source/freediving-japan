@@ -99,13 +99,13 @@
     <div class="hdr-right">
       <a class="hdr-link" href="../mypage.html">
         <span class="avatar"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/></svg></span>
-        マイページ
+        <span data-i18n="nav_mypage">マイページ</span>
       </a>
     </div>
   </div>
 </header>
 <main class="main">
-  <a class="crumb" href="../index.html" style="margin:14px 0 0"><svg class="icon" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>ホームに戻る</a>
+  <a class="crumb" href="../index.html" style="margin:14px 0 0"><svg class="icon" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg><span data-i18n="back_home">ホームに戻る</span></a>
 
   <div class="search-hero">
     <p class="search-eyebrow">Find a Shop</p>
@@ -339,6 +339,14 @@ async function renderOwners() {
 }
 
 renderOwners();
+</script>
+
+<script src="../js/i18n.js"></script>
+<script src="../js/lang-switcher.js"></script>
+<script>
+LangSwitcher.init(function(lang) {
+  if (window.I18N) I18N.apply(lang);
+});
 </script>
 </body>
 </html>

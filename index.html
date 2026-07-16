@@ -23,7 +23,7 @@
     <div class="hdr-right">
       <a class="hdr-link" href="mypage.html">
         <span class="avatar"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/></svg></span>
-        マイページ
+        <span data-i18n="nav_mypage">マイページ</span>
       </a>
     </div>
   </div>
@@ -31,23 +31,23 @@
     <div class="tabs" id="tabs">
       <button class="tab active" data-tab="all">
         <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18"/></svg>
-        すべて
+        <span data-i18n="tab_all">すべて</span>
       </button>
       <button class="tab" data-tab="snorkel">
         <svg class="icon" viewBox="0 0 24 24"><path d="M2 16s2-3 5-3 4 3 5 3 2-3 5-3 5 3 5 3"/><path d="M7 12V6a2 2 0 0 1 2-2h1"/><circle cx="14" cy="9" r="2"/></svg>
-        シュノーケリング
+        <span data-i18n="tab_snorkel">シュノーケリング</span>
       </button>
       <button class="tab" data-tab="skin">
         <svg class="icon" viewBox="0 0 24 24"><path d="M6 4h8a2 2 0 0 1 2 2v3a5 5 0 0 1-5 5 5 5 0 0 1-5-5V4z"/><path d="M16 6h3a1 1 0 0 1 1 1v2"/><path d="M9 19s1-2 3-2 3 2 3 2"/></svg>
-        スキンダイビング
+        <span data-i18n="tab_skin">スキンダイビング</span>
       </button>
       <button class="tab" data-tab="free">
         <svg class="icon" viewBox="0 0 24 24"><path d="M12 3v10"/><path d="M8 9l4 4 4-4"/><path d="M4 17s2 2 4 2 3-2 4-2 2 2 4 2 4-2 4-2"/></svg>
-        フリーダイビング
+        <span data-i18n="tab_free">フリーダイビング</span>
       </button>
       <button class="tab" data-tab="know">
         <svg class="icon" viewBox="0 0 24 24"><path d="M4 4h7a3 3 0 0 1 3 3v13a3 3 0 0 0-3-3H4z"/><path d="M20 4h-7a3 3 0 0 0-3 3v13a3 3 0 0 1 3-3h7z"/></svg>
-        知る
+        <span data-i18n="tab_learn">知る</span>
       </button>
     </div>
   </div>
@@ -518,5 +518,12 @@
 })();
 </script>
 
+<script src="js/i18n.js"></script>
+<script src="js/lang-switcher.js"></script>
+<script>
+LangSwitcher.init(function(lang) {
+  if (window.I18N) I18N.apply(lang);
+});
+</script>
 </body>
 </html>

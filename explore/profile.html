@@ -359,5 +359,24 @@ function renderPage(owner, listings, reviews, roster) {
 }
 </script>
 <script src="../js/i18n.js"></script>
+<script src="../js/lang-switcher.js"></script>
+<script>
+// ページ描画後にLangSwitcherを初期化：
+// - ヘッダーにグローブアイコンを追加
+// - ブラウザ言語 or localStorage保存値を自動適用
+// - in-page .lang-btn との同期はlang-switcher.js内で処理済み
+document.addEventListener('DOMContentLoaded', function() {
+  LangSwitcher.init(function(lang) {
+    // in-page switchLang にも setLang を連携
+    LangSwitcher.setLang(lang);
+    if (typeof switchLang === 'function') switchLang(lang);
+  });
+});
+// in-page ボタンクリック時にlocalStorageも更新
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.lang-btn');
+  if (btn && btn.dataset.lang) LangSwitcher.setLang(btn.dataset.lang);
+});
+</script>
 </body>
 </html>
