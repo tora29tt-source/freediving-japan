@@ -622,7 +622,7 @@ TOP (index.html)  ── Airbnb風マーケットプレイス（白基調）
 |大会情報（2026_competitions.html）                        |✅ 完成                        |
 |トレーニングログ（training-log.html）                         |✅ Supabase接続・保存・読み込み・編集・URLシェア・カレンダー表示実装済み|
 |マイページ（mypage.html）                                  |✅ Supabase接続完了（トレーニングカレンダー・サマリー・予約履歴・大会管理）|
-|STAタイマー（sta-timer.html）                             |✅ 大幅機能追加・デプロイ済み。プリセット名スペース入力不可・1stコントラクション記録範囲・録画状態不整合の3件を修正（2026-07-14）。実機（iPhone Safari）でRest 30秒以上のTABLE/O2/CO2モードでも録画1秒切れが再発したため再調査、Wake Lock未取得（画面自動ロックで録画停止）が原因と判明し`startHold()`で無条件取得するよう修正（2026-07-15）。**この修正も実機未確認**（詳細は[DECISIONS.md](docs/DECISIONS.md#2026-07-15staタイマー録画1秒しか録れない再発wake-lock未取得が原因)参照）|
+|STAタイマー（sta-timer.html）                             |✅ 大幅機能追加・デプロイ済み。2026-07-14：録画状態不整合3件修正。2026-07-15：Wake Lock取得漏れ修正。2026-07-16：iOS Safari固有バグ（timeslice無視・onstop/ondataavailable逆順発火）を特定し、onstop 200ms遅延・iOS用preBuf無効化・visibilitychange拡張の3件を修正。**実機（iPhone Safari）での最終確認が必要**（O2 Basic・Rest 2:00・録画ONで各セットのクリップ長を確認）。詳細は[DECISIONS.md](docs/DECISIONS.md#2026-07-16staタイマー録画1秒しか録れない再々発--ios-safari-mediarecorder-固有動作が真因)参照|
 |Mouthfill Calculator（mouthfill-calculator.html）     |✅ 完成・push済み                  |
 |インストラクターウェルカム（instructor-welcome.html）              |✅ 作成完了                      |
 |フリーダイビングを学ぶ（freediving-learn.html）                 |✅ 管理ツール完成・learn/index.html 骨格完成  |

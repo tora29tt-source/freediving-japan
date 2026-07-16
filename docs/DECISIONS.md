@@ -96,11 +96,38 @@ Chrome MCP（内蔵ブラウザ、`http-server`経由でローカル配信）で
 
 **対策**：`startHold()`の先頭で`requestWakeLock()`を無条件に呼ぶよう変更。呼び出し経路（初回Breath Upカウントダウン経由／`prepSec=0`で直行／2セット目以降の`endRest()`経由）によらず、Hold開始のたびに必ずWake Lockを取得するようにした。
 
-**検証状況**：Chrome MCPで`navigator.wakeLock.request`をラップして呼び出し回数を計測し、Free/Stopwatchモードの初回Hold・TABLEモードの初回Hold双方で`startHold()`実行時に確実に呼ばれることを確認。2セット目以降が`endRest() → startHold()`を経由する実装であることもコードで確認済み（`startHold()`側で無条件に呼ぶ実装のため、経路によらず保証される）。**構文チェック済み・実機（iPhone Safari）での再現確認はまだ**。次回実機使用時に、O2 Basic相当（Hold 2分弱・Rest 2:00）で録画クリップが最後まで保存されるか確認が必要。
+**検証状況**：Chrome MCPで確認済み。**実機（iPhone Safari）で再現確認→依然として1秒録画が発生**（2026-07-16）。Wake Lock自体は取得されているが、根本原因が別にあることが判明。詳細は下記「2026-07-16」エントリを参照。
 
-**残課題（未対応）**：Free/Stopwatchモードの`endHold()`は、Hold終了と同時に`releaseWakeLock()`を呼んでいる（Surface Protocol＋Restへ遷移するタイミング）。カメラ録画はSurface開始後も最大30秒継続する仕様のため、この30秒の間に画面がロックされると同様の途切れが起き得る。今回のユーザー報告はTABLEモードだったためスコープ外としたが、Free/Stopwatchモードでも録画切れが再発する場合はこの箇所が疑わしい。
+**実装**：`tools/sta-timer.html`の`startHold()`（コミット: "fix: STAタイマー iOS録画1秒バグ修正…"）
 
-**実装**：`tools/sta-timer.html`の`startHold()`（コミット未作成・作業中）
+-----
+
+## 2026-07-16：STAタイマー録画「1秒しか録れない」再々発 — iOS Safari MediaRecorder 固有動作が真因
+
+**背景**：2026-07-15のWake Lock修正後も、ユーザーがiPhone SafariのO2/CO2モードで実機確認したところ録画が依然1秒しか保存されない事象を報告。Wake Lock修正は正しかったが、それとは別レイヤーのiOS Safari固有の問題が真因だった。
+
+**真の原因（2つの複合バグ）**：
+
+1. **iOS SafariはMediaRecorderの`timeslice`を無視する**  
+   `camRecorder.start(1000)` を呼んでも、iOS Safariは`ondataavailable`を1秒ごとに発火しない。起動直後に1回（コーデック初期化データのみ）発火し、以降は`stop()`が呼ばれたときのみ発火する。その結果、preBuf（ローリングバッファ）に蓄積されるのは起動時の1チャンクのみとなる。
+
+2. **iOS Safariは`onstop`を`ondataavailable`より先に発火する（仕様違反）**  
+   W3C仕様では`stop()`後は「`ondataavailable` → `onstop`」の順が保証されているが、iOS Safariはこの順序が逆になることがある。結果として`onstop`ハンドラが先に走り、`chunks`にある1チャンク分（コーデック初期化 ≒ 1秒）のみでblobを保存してしまう。その後`ondataavailable`が残りデータで発火しても手遅れで破棄される。
+
+**対策（3件）**：
+
+1. **`_stopRecording`に200ms遅延を追加**（メイン修正）  
+   `_rec.onstop`ハンドラを`setTimeout(200ms)`でラップし、`onstop`発火後に残りの`ondataavailable`チャンクが揃ってからblobを保存するよう変更。
+
+2. **iOS ではpreBuf=false（直接保存モード）に切り替え**  
+   `navigator.userAgent`でiOSを判定し、timesliceが動作しないiOS環境ではローリングバッファを使わず全チャンクを直接`chunks`へ流す。Hold全体（長い場合は数分）が保存対象になる（最後30秒限定でなくなる）。
+
+3. **`visibilitychange`ハンドラを全アクティブフェーズに拡張**  
+   `'hold'`/`'rest'`のみ対象だったWake Lock再取得条件に`'surface'`/`'countdown'`を追加。また`requestWakeLock()`の`catch{}`を`catch(e){console.warn(...)}`に変更してエラーを可視化（Low Power Mode等での失敗を検知可能に）。
+
+**検証状況**：コード修正・構文チェック済み。**実機（iPhone Safari）での確認が必要**。O2 Basicプリセット（Hold Manual・Rest 2:00・3セット以上）で録画ONにして、各セットのクリップが数十秒〜数分で保存されることを確認する。
+
+**実装**：`tools/sta-timer.html`（コミット: "fix: STAタイマー iOS録画1秒バグ修正 — onstop遅延200ms・iOS用preBuf無効化・visibilitychange拡張"）
 
 -----
 
