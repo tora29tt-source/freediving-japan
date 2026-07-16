@@ -529,7 +529,7 @@
       if (!_cachedShops.length) {
         const { data } = await sb
           .from('shops')
-          .select('id, name, prefecture, city, avg_rating, review_count, cover_image_url')
+          .select('id, name, prefecture, city, avg_rating, review_count, cover_url')
           .eq('is_public', true)
           .order('avg_rating', { ascending: false, nullsFirst: false })
           .limit(4);
@@ -553,7 +553,7 @@
       container.innerHTML = _cachedShops.map((shop, i) => {
         const displayName = nameTrans[shop.id] || shop.name || '';
         const location = [shop.prefecture, shop.city].filter(Boolean).join('・');
-        const img = shop.cover_image_url || FALLBACK_IMGS[i % FALLBACK_IMGS.length];
+        const img = shop.cover_url || FALLBACK_IMGS[i % FALLBACK_IMGS.length];
         const rating = shop.avg_rating
           ? `<span class="star">★${parseFloat(shop.avg_rating).toFixed(1)}</span> ・ レビュー${shop.review_count || 0}件`
           : '';
