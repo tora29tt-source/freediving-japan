@@ -438,6 +438,10 @@ translations(
 **完了（2026-07-16）**：
 - `explore/profile.html`の`switchLang()`を修正：非同期でbioのinnerHTMLを書き換えた後に`I18N.apply(lang)`を再呼び出しするよう変更（`lang_notice`スパンが動的生成後も正しく切り替わらない不具合を解消）
 - Chrome MCPによる本番実機QA完了（profile.html：EN/ko/zh全15キー・ja復元 ✅、listing.html：EN全16キー・ja復元 ✅）
+- `js/lang-switcher.js` 新規作成：ブラウザ言語自動検出・`localStorage(fj_lang)`永続化・ヘッダーグローブアイコンUI注入（全ページ共通）
+- `index.html`・`explore/*.html`・`freediving.html`・`skindiving.html`・`snorkeling.html` にナビ `data-i18n` 属性追加＋`LangSwitcher.init()` 統合
+- profile.html/listing.html ヘッダーに `<div class="hdr-right">` 追加（グローブアイコン注入先）
+- 本番QA完了（2026-07-16）：全ページ globe ✅ / localStorage 復元 ✅ / ページ間言語引き継ぎ ✅（index→explore→profile→listing で zh/ko/en が維持されることを Chrome MCP で確認）
 
 **未着手**：
 - レビュー投稿フローへの接続（投稿フォーム自体が未実装のため後回し）
@@ -638,7 +642,7 @@ TOP (index.html)  ── Airbnb風マーケットプレイス（白基調）
 |メディア（/media/）                                        |✅ 基盤完成・media/一本化（2026-06-29）。admin/index.htmlメディアタブに統合|
 |サイト動線・検索UI・エリア設計                                    |✅ sitemap/robots/404新設、SVG地図→都道府県軸検索に刷新済み（詳細は[DECISIONS.md](docs/DECISIONS.md#2026-07-08サイト動線整備検索ui刷新svg地図後に一部廃止)参照）|
 |iOSアプリ（React Native）                                 |🔄 開発中（環境構築済み・Expo Go動作確認済み）。6タブのタブバー実装済み（2026-07-14・ホーム/ログ/タイマー/探す/情報/マイページ、探す・情報・マイページはWeb版へのブリッジ）。Supabase Auth（メール/パスワード）を追加し、STAタイマーの保存処理を実スキーマ（`training_sessions`+`training_dives`）に合わせて修正済み（2026-07-14、詳細は[APP.md](APP.md#phase-1-実装状況2026-07-14更新)）。**実機での保存動作確認は未実施**。ログ画面は公開セッション一覧のみ・SNSシェアは未実装|
-|多言語対応（i18n）基盤                                      |✅ 完了（2026-07-15）。DB/API/Translate APIキー/pro保存配線/profile・listing言語切替UI/js/i18n.js（固定UI文言辞書）/name_en手動翻訳保存すべて実装済み。残：レビュー投稿フロー・メディア記事多言語化|
+|多言語対応（i18n）基盤                                      |✅ 完了（2026-07-16）。DB/API/Translate APIキー/pro保存配線/profile・listing言語切替UI/js/i18n.js（固定UI文言辞書）/name_en手動翻訳保存/lang-switcher.js（全ページ共通グローブUI・ブラウザ言語自動検出・localStorage永続化）すべて実装・本番QA済み。残：レビュー投稿フロー・メディア記事多言語化|
 
 -----
 

@@ -3482,7 +3482,7 @@ async function loadCourses() {
 
   const { data: courses, error } = await _sb
     .from('courses')
-    .select('id, slug, title, category, status, price, thumbnail_url, preview_video_url')
+    .select('id, slug, title, category, status, price, thumbnail_url, preview_video_url, level_label, target_level, instructor_name, instructor_title, description')
     .order('created_at', { ascending: true });
 
   if (error) { el.innerHTML = `<div class="empty">取得エラー: ${escHtml(error.message)}</div>`; return; }
