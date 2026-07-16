@@ -73,20 +73,30 @@ export default async function handler(req, res) {
   const { data: { user }, error: userErr } = await sb.auth.getUser(accessToken);
   if (userErr || !user) return res.status(401).json({ error: 'Unauthorized' });
 
-  // ── 購入確認 ─────────────────────────────────────────────────────────────
-  const { data: purchase, error: purchErr } = await sb
-    .from('course_purchases')
-    .select('status')
-    .eq('course_id', courseId)
+  // ── admin ロール確認（adminはバイパス） ────────────────────────────────
+  const { data: roleRow } = await sb
+    .from('user_roles')
+    .select('role')
     .eq('user_id', user.id)
     .maybeSingle();
+  const isAdmin = roleRow?.role === 'admin';
 
-  if (purchErr) {
-    console.error('video-token purchase check error:', purchErr.message);
-    return res.status(500).json({ error: 'Internal error' });
-  }
-  if (purchase?.status !== 'paid') {
-    return res.status(403).json({ error: 'Not purchased' });
+  // ── 購入確認（adminはスキップ） ─────────────────────────────────────────
+  if (!isAdmin) {
+    const { data: purchase, error: purchErr } = await sb
+      .from('course_purchases')
+      .select('status')
+      .eq('course_id', courseId)
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (purchErr) {
+      console.error('video-token purchase check error:', purchErr.message);
+      return res.status(500).json({ error: 'Internal error' });
+    }
+    if (purchase?.status !== 'paid') {
+      return res.status(403).json({ error: 'Not purchased' });
+    }
   }
 
   // ── チャプターの video_path を取得 ──────────────────────────────────────
