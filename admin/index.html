@@ -3577,8 +3577,78 @@ async function loadCourses() {
               <span style="font-size:11px;color:#8b8b90;">全員に公開</span>
             </div>
           </div>
-          <a href="/learn/course.html?slug=${escHtml(course.slug)}" target="_blank"
-            style="font-size:12px;color:#1f6f78;text-decoration:none;white-space:nowrap;">詳細ページ →</a>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
+            <button onclick="toggleCourseInfo('${course.id}')"
+              style="padding:6px 12px;background:#f0f0f2;border:none;border-radius:6px;font-size:12px;font-weight:600;color:#444;cursor:pointer;white-space:nowrap;">
+              ✏️ 基本情報
+            </button>
+            <a href="/learn/course.html?slug=${escHtml(course.slug)}" target="_blank"
+              style="font-size:12px;color:#1f6f78;text-decoration:none;white-space:nowrap;">詳細ページ →</a>
+          </div>
+        </div>
+        <!-- 基本情報編集フォーム -->
+        <div id="course-info-${course.id}" style="display:none;padding:16px 20px;border-bottom:1px solid #f0f0f2;background:#fafafa;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+            <div>
+              <div style="font-size:11px;color:#8b8b90;margin-bottom:4px;">コースタイトル</div>
+              <input id="ci-title-${course.id}" type="text" value="${escHtml(course.title || '')}"
+                style="width:100%;padding:7px 10px;border:1px solid #e7e7ea;border-radius:6px;font-size:13px;box-sizing:border-box;">
+            </div>
+            <div>
+              <div style="font-size:11px;color:#8b8b90;margin-bottom:4px;">カテゴリ</div>
+              <select id="ci-category-${course.id}"
+                style="width:100%;padding:7px 10px;border:1px solid #e7e7ea;border-radius:6px;font-size:13px;box-sizing:border-box;background:#fff;">
+                <option value="beginner" ${course.category==='beginner'?'selected':''}>初心者</option>
+                <option value="mid"      ${course.category==='mid'?'selected':''}>中級</option>
+                <option value="comp"     ${course.category==='comp'?'selected':''}>競技</option>
+                <option value="inst"     ${course.category==='inst'?'selected':''}>インストラクター</option>
+              </select>
+            </div>
+            <div>
+              <div style="font-size:11px;color:#8b8b90;margin-bottom:4px;">レベルラベル（バッジ右側）</div>
+              <input id="ci-level-${course.id}" type="text" value="${escHtml(course.level_label || '')}" placeholder="例: 入門"
+                style="width:100%;padding:7px 10px;border:1px solid #e7e7ea;border-radius:6px;font-size:13px;box-sizing:border-box;">
+            </div>
+            <div>
+              <div style="font-size:11px;color:#8b8b90;margin-bottom:4px;">対象レベル</div>
+              <input id="ci-target-${course.id}" type="text" value="${escHtml(course.target_level || '')}" placeholder="例: 初心者〜水深20m"
+                style="width:100%;padding:7px 10px;border:1px solid #e7e7ea;border-radius:6px;font-size:13px;box-sizing:border-box;">
+            </div>
+            <div>
+              <div style="font-size:11px;color:#8b8b90;margin-bottom:4px;">インストラクター名</div>
+              <input id="ci-iname-${course.id}" type="text" value="${escHtml(course.instructor_name || '')}"
+                style="width:100%;padding:7px 10px;border:1px solid #e7e7ea;border-radius:6px;font-size:13px;box-sizing:border-box;">
+            </div>
+            <div>
+              <div style="font-size:11px;color:#8b8b90;margin-bottom:4px;">インストラクター肩書き</div>
+              <input id="ci-ititle-${course.id}" type="text" value="${escHtml(course.instructor_title || '')}" placeholder="例: AIDA インストラクター"
+                style="width:100%;padding:7px 10px;border:1px solid #e7e7ea;border-radius:6px;font-size:13px;box-sizing:border-box;">
+            </div>
+            <div>
+              <div style="font-size:11px;color:#8b8b90;margin-bottom:4px;">価格（税込・円）</div>
+              <input id="ci-price-${course.id}" type="number" value="${escHtml(String(course.price || 0))}"
+                style="width:100%;padding:7px 10px;border:1px solid #e7e7ea;border-radius:6px;font-size:13px;box-sizing:border-box;">
+            </div>
+            <div>
+              <div style="font-size:11px;color:#8b8b90;margin-bottom:4px;">公開ステータス</div>
+              <select id="ci-status-${course.id}"
+                style="width:100%;padding:7px 10px;border:1px solid #e7e7ea;border-radius:6px;font-size:13px;box-sizing:border-box;background:#fff;">
+                <option value="draft"     ${course.status==='draft'?'selected':''}>下書き</option>
+                <option value="published" ${course.status==='published'?'selected':''}>公開中</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-bottom:12px;">
+            <div style="font-size:11px;color:#8b8b90;margin-bottom:4px;">説明文</div>
+            <textarea id="ci-desc-${course.id}" rows="3"
+              style="width:100%;padding:7px 10px;border:1px solid #e7e7ea;border-radius:6px;font-size:13px;resize:vertical;box-sizing:border-box;font-family:inherit;">${escHtml(course.description || '')}</textarea>
+          </div>
+          <div style="text-align:right;">
+            <button onclick="saveCourseInfo('${course.id}')"
+              style="padding:8px 20px;background:#1f6f78;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">
+              保存
+            </button>
+          </div>
         </div>
         <div style="overflow-x:auto;">
           <table style="width:100%;border-collapse:collapse;">
@@ -3603,6 +3673,30 @@ async function loadCourses() {
 function markChapterDirty(chapterId) {
   const btn = document.querySelector(`.ch-save-btn[data-chapter-id="${chapterId}"]`);
   if (btn) { btn.style.opacity = '1'; btn.style.pointerEvents = 'auto'; }
+}
+
+function toggleCourseInfo(courseId) {
+  const el = document.getElementById('course-info-' + courseId);
+  if (el) el.style.display = el.style.display === 'none' ? '' : 'none';
+}
+
+async function saveCourseInfo(courseId) {
+  const g = id => document.getElementById(id + '-' + courseId)?.value.trim() || null;
+  const payload = {
+    title:            g('ci-title'),
+    category:         g('ci-category'),
+    level_label:      g('ci-level'),
+    target_level:     g('ci-target'),
+    instructor_name:  g('ci-iname'),
+    instructor_title: g('ci-ititle'),
+    price:            Number(g('ci-price')) || 0,
+    status:           g('ci-status'),
+    description:      g('ci-desc'),
+  };
+  const { error } = await _sb.from('courses').update(payload).eq('id', courseId);
+  if (error) { alert('保存エラー: ' + error.message); return; }
+  showToast('コース情報を保存しました');
+  loadCourses();
 }
 
 async function uploadCourseThumb(courseId, input) {
