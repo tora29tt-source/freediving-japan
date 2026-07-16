@@ -337,6 +337,8 @@ let slotsByListing = new Map(); // listing_id -> availability_slots[]（日程�
 let activeTags = new Set();
 let currentPrice = '';
 let currentSort = 'recommended'; // recommended | price_asc | price_desc | rating
+let currentLang = 'ja'; // 現在の表示言語
+let _trans = {}; // 翻訳キャッシュ: "tableName/rowId/fieldName/lang" → translated_text
 const SORT_CYCLE = ['recommended','price_asc','price_desc','rating'];
 const SORT_LABELS = { recommended:'おすすめ順', price_asc:'価格安い順', price_desc:'価格高い順', rating:'評価順' };
 const badgeLabel = { try: '体験', learn: '資格', fundive: 'ファンダイブ', training: 'トレーニング', coaching: 'コーチング' };
@@ -491,6 +493,36 @@ function renderModal(inst) {
   `;
 }
 
+// 翻訳キャッシュから取得（なければ null）
+function getTrans(tableName, rowId, fieldName, lang) {
+  if (lang === 'ja' || !rowId) return null;
+  return _trans[`${tableName}/${rowId}/${fieldName}/${lang}`] || null;
+}
+
+// listings一覧の title / name を一括取得してキャッシュ
+async function loadTranslations(listings, lang) {
+  if (lang === 'ja' || !listings.length) { _trans = {}; return; }
+  try {
+    const listingIds = listings.map(l => l.id);
+    const instructorIds = [...new Set(listings.filter(l => l.instructor_id).map(l => l.instructor_id))];
+    const shopIds = [...new Set(listings.map(l => l.shop_id).filter(Boolean))];
+    const allIds = [...listingIds, ...instructorIds, ...shopIds];
+    const { data } = await _sb
+      .from('translations')
+      .select('table_name, row_id, field_name, lang, translated_text')
+      .in('row_id', allIds)
+      .eq('lang', lang)
+      .in('field_name', ['title', 'name']);
+    _trans = {};
+    (data || []).forEach(t => {
+      _trans[`${t.table_name}/${t.row_id}/${t.field_name}/${t.lang}`] = t.translated_text;
+    });
+  } catch (e) {
+    console.warn('translations fetch failed:', e);
+    _trans = {};
+  }
+}
+
 async function loadListings() {
   try {
     const today = new Date().toISOString().slice(0, 10);
@@ -507,6 +539,7 @@ async function loadListings() {
       if (!slotsByListing.has(s.listing_id)) slotsByListing.set(s.listing_id, []);
       slotsByListing.get(s.listing_id).push(s);
     });
+    await loadTranslations(allListings, currentLang);
     updateCounts();
     renderListings();
   } catch (err) {
@@ -647,14 +680,17 @@ function renderListings() {
       : '';
     // インストラクター名義ならインストラクターページへ、ショップ名義（担当者未定）ならショップIDで遷移
     const ownerLinkParam = l.instructor_id ? `id=${esc(l.instructor_id)}` : `shop=${esc(l.shop_id)}`;
+    const displayTitle   = getTrans('listings', l.id, 'title', currentLang) || l.title;
+    const displayInstName = getTrans('instructors', l.instructor_id, 'name', currentLang) || (inst?.name || '');
+    const displayShopName = getTrans('shops', l.shop_id, 'name', currentLang) || (ownerShop?.name || 'ショップ');
     const ownerBtn = inst
-      ? `<button class="instructor-btn" onclick="openInstructorModal('${esc(l.instructor_id)}', event)">${verified}${esc(inst.name || '')}</button>`
-      : `<span class="instructor-btn" style="cursor:default;">${esc(ownerShop?.name || 'ショップ')}</span>`;
+      ? `<button class="instructor-btn" onclick="openInstructorModal('${esc(l.instructor_id)}', event)">${verified}${esc(displayInstName)}</button>`
+      : `<span class="instructor-btn" style="cursor:default;">${esc(displayShopName)}</span>`;
     return `<a class="listing-card" href="listing.html?${ownerLinkParam}&listing=${esc(l.id)}">
       <div class="listing-thumb">${thumb}<span class="listing-badge ${badgeClass[l.intent]}">${badgeLabel[l.intent]}</span></div>
       <div class="listing-body">
         <span class="listing-category">${esc(l.category)}</span>
-        <p class="listing-name">${esc(l.title)}</p>
+        <p class="listing-name">${esc(displayTitle)}</p>
         <div class="listing-meta">
           <span class="meta-item"><svg class="icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${esc(l.area)}${l.location_detail ? '・' + esc(l.location_detail) : ''}</span>
           ${ratingHtml}
@@ -731,8 +767,13 @@ loadListings();
 <script src="../js/i18n.js"></script>
 <script src="../js/lang-switcher.js"></script>
 <script>
-LangSwitcher.init(function(lang) {
+LangSwitcher.init(async function(lang) {
   if (window.I18N) I18N.apply(lang);
+  if (lang !== currentLang) {
+    currentLang = lang;
+    await loadTranslations(allListings, lang);
+    renderListings();
+  }
 });
 </script>
 </body>
