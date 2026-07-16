@@ -3630,9 +3630,10 @@ function closeDetail(){document.getElementById('detailOverlay').classList.remove
 
 // ── WAKE LOCK ─────────────────────────────────────────────
 let wakeLock=null;
-async function requestWakeLock(){try{if('wakeLock'in navigator)wakeLock=await navigator.wakeLock.request('screen');}catch{}}
+async function requestWakeLock(){try{if('wakeLock'in navigator)wakeLock=await navigator.wakeLock.request('screen');}catch(e){console.warn('Wake Lock取得失敗（Low Power Modeまたは非対応環境）:',e.message);}}
 function releaseWakeLock(){if(wakeLock){wakeLock.release();wakeLock=null;}}
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&(phase==='hold'||phase==='rest'))requestWakeLock();});
+// Surface・countdown中も含めた全アクティブフェーズで Wake Lock を再取得する
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&(phase==='hold'||phase==='rest'||phase==='surface'||phase==='countdown'))requestWakeLock();});
 // ── PREP HELP TOGGLE ─────────────────────────────────────
 function togglePrepHelp() {
   const tip = document.getElementById('prepHelpTip');
@@ -4008,8 +4009,12 @@ function _stopRecording(discard = false) {
     } else {
       const _prev = _rec.onstop;
       _rec.onstop = () => {
-        if (_prev) _prev.call(_rec); // 既存のonstop（チャンク保存）を先に実行
-        resolve();
+        // iOS Safari は仕様と逆順（onstop → ondataavailable）で発火することがある。
+        // 200ms 待機して残りの ondataavailable チャンクを全部受け取ってから保存する。
+        setTimeout(() => {
+          if (_prev) _prev.call(_rec); // 既存のonstop（チャンク保存）を実行
+          resolve();
+        }, 200);
       };
     }
     _rec.stop();
@@ -4189,7 +4194,11 @@ function onHoldStartCamera() {
       camOverlay.phase  = 'hold';
       camOverlay.holdMs = 0;
       camOverlay.setNum = `${currentSet+1}/${totalSets()}`;
-      startCamRecording(`Set #${currentSet+1}`, true); // preBuf=true: ローリングバッファ
+      // iOS Safari は MediaRecorder の timeslice を無視し ondataavailable を
+      // stop() 時にしか発火しない。そのため rolling preBuf が機能せず
+      // preChunks に1チャンクしか蓄積されない。iOS では直接保存モード(false)を使う。
+      const usePreBuf = !/iPad|iPhone|iPod/.test(navigator.userAgent);
+      startCamRecording(`Set #${currentSet+1}`, usePreBuf);
     }
   });
 }

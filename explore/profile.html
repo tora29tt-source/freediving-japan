@@ -165,6 +165,8 @@ async function switchLang(lang) {
   if (bioEl) bioEl.innerHTML = tMap.bio
     ? escNl(tMap.bio)
     : `${escNl(_ownerForTranslation?.bio || '')}<span class="lang-notice" data-i18n="lang_notice">（翻訳準備中）</span>`;
+  // bio更新後に再度適用（lang_notice等の動的生成要素を対象にするため）
+  if (window.I18N) window.I18N.apply(lang);
 }
 // ─────────────────────────────────────────────────────
 

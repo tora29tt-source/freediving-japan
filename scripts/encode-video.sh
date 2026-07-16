@@ -41,16 +41,17 @@ echo "  720p + 480p の2品質 HLS を生成します（6秒セグメント）"
 echo ""
 
 ffmpeg -y -i "$INPUT" \
-  -filter_complex "[0:v]split=2[v720][v480]" \
+  -filter_complex \
+    "[0:v]split=2[v_raw720][v_raw480]; \
+     [v_raw720]scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2[v720]; \
+     [v_raw480]scale=854:480:force_original_aspect_ratio=decrease,pad=854:480:(ow-iw)/2:(oh-ih)/2[v480]" \
   \
   -map "[v720]" \
-    -vf "scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2" \
-    -c:v libx264 -crf 22 -preset fast -profile:v high -level 4.1 \
+    -c:v libx264 -pix_fmt yuv420p -crf 22 -preset fast -profile:v high -level 4.1 \
     -x264-params "keyint=72:min-keyint=72:scenecut=0" \
   \
   -map "[v480]" \
-    -vf "scale=854:480:force_original_aspect_ratio=decrease,pad=854:480:(ow-iw)/2:(oh-ih)/2" \
-    -c:v libx264 -crf 24 -preset fast -profile:v main -level 3.1 \
+    -c:v libx264 -pix_fmt yuv420p -crf 24 -preset fast -profile:v main -level 3.1 \
     -x264-params "keyint=72:min-keyint=72:scenecut=0" \
   \
   -map 0:a -map 0:a \

@@ -74,7 +74,7 @@ tags: [dev, core-doc]
 - **モバイルアプリ**：React Native（iOS・App Store配信）
 - **バックエンド・認証・DB**：Supabase（Project ID: bbhqvbpsuccbdcnhnobm / Tokyo）
 - **決済**：Stripe（フリーダイビングを学ぶ の有料講座）
-- **動画配信**：Vimeo Pro（フリーダイビングを学ぶ の動画ホスティング）
+- **動画配信**：Cloudflare R2 + HLS（自前ホスティング）/ Cloudflare Worker（認証プロキシ）/ hls.js（ブラウザ再生）
 - **スタイル**：CSS変数でデザイントークン管理
 - **フォント**：-apple-system / Hiragino Sans / Noto Sans JP
 - **データ**：JSON（rankings.json, athlete_photos.json 等）
