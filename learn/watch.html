@@ -108,17 +108,17 @@ body {
   <a href="../index.html" class="logo">FREEDIVING <span>JAPAN</span></a>
   <a href="../mypage.html" class="icon-btn">
     <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-    マイページ
+    <span data-i18n="nav_mypage">マイページ</span>
   </a>
 </header>
 
 <div class="container">
   <a href="../mypage.html" class="back-link">
     <svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24" stroke="currentColor" fill="none"><path d="M15 19l-7-7 7-7"/></svg>
-    マイページへ戻る
+    <span data-i18n="watch_back">マイページへ戻る</span>
   </a>
 
-  <div id="watchContent"><div class="state-screen">読み込み中...</div></div>
+  <div id="watchContent"><div class="state-screen" data-i18n="loading">読み込み中...</div></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -141,7 +141,7 @@ function renderPlayer(chapter) {
   if (!wrap) return;
 
   if (!chapter || !chapter.video_path) {
-    wrap.innerHTML = '<div class="player-empty">この講座の動画は現在準備中です。<br>撮影・編集が完了次第、順次公開します。</div>';
+    wrap.innerHTML = '<div class="player-empty">' + T('watch_preparing', 'この講座の動画は現在準備中です。<br>撮影・編集が完了次第、順次公開します。') + '</div>';
     if (now) now.textContent = '';
     return;
   }
@@ -149,8 +149,8 @@ function renderPlayer(chapter) {
   VideoProgress.detach();
   currentChapter = chapter;
 
-  wrap.innerHTML = '<video id="videoEl" controls playsinline></video><div class="player-loading" id="playerLoading">読み込み中…</div>';
-  if (now) now.textContent = '第' + chapter.chapter_num + '回：' + chapter.title;
+  wrap.innerHTML = '<video id="videoEl" controls playsinline></video><div class="player-loading" id="playerLoading">' + T('loading', '読み込み中…') + '</div>';
+  if (now) now.textContent = T('ch_prefix', '第{n}回：').replace('{n}', chapter.chapter_num) + chapter.title;
 
   document.querySelectorAll('.chapter-row').forEach(function(row) {
     row.classList.toggle('active', row.dataset.num == chapter.chapter_num);
@@ -172,7 +172,7 @@ async function loadVideoToken(chapter) {
     const src = json.workerUrl + '/' + json.videoPath + '?token=' + encodeURIComponent(json.token);
     startHLS(src, chapter);
   } catch (err) {
-    if (wrap) wrap.innerHTML = '<div class="player-error">動画の読み込みに失敗しました。<br>ページを再読み込みしてください。</div>';
+    if (wrap) wrap.innerHTML = '<div class="player-error">' + T('player_err_load', '動画の読み込みに失敗しました。ページを再読み込みしてください。') + '</div>';
     console.error('video-token error:', err);
   }
 }
@@ -204,7 +204,7 @@ async function startHLS(src, chapter) {
     hls.on(Hls.Events.ERROR, function(event, data) {
       if (data.fatal) {
         const wrap = document.getElementById('playerWrap');
-        if (wrap) wrap.innerHTML = '<div class="player-error">動画の再生に失敗しました。ページを再読み込みしてください。</div>';
+        if (wrap) wrap.innerHTML = '<div class="player-error">' + T('player_err_play', '動画の再生に失敗しました。ページを再読み込みしてください。') + '</div>';
       }
     });
     hlsInstance = hls;
@@ -213,15 +213,15 @@ async function startHLS(src, chapter) {
     videoEl.addEventListener('loadedmetadata', onReady, { once: true });
   } else {
     const wrap = document.getElementById('playerWrap');
-    if (wrap) wrap.innerHTML = '<div class="player-error">お使いのブラウザは動画再生に対応していません。</div>';
+    if (wrap) wrap.innerHTML = '<div class="player-error">' + T('player_err_browser', 'お使いのブラウザは動画再生に対応していません。') + '</div>';
   }
 }
 
 function showResumeToast(seconds) {
   const m = Math.floor(seconds / 60), s = Math.floor(seconds % 60);
-  const label = m > 0 ? m + '分' + s + '秒' : s + '秒';
+  const label = m > 0 ? m + T('unit_min', '分') + s + T('unit_sec', '秒') : s + T('unit_sec', '秒');
   const toast = document.createElement('div');
-  toast.textContent = '前回の続き（' + label + '）から再生しています';
+  toast.textContent = T('resume_from', '前回の続き（{t}）から再生しています').replace('{t}', label);
   toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1f6f78;color:#fff;padding:8px 16px;border-radius:8px;font-size:13px;z-index:999;white-space:nowrap;';
   document.body.appendChild(toast);
   setTimeout(function() { toast.remove(); }, 4000);
@@ -243,7 +243,7 @@ function renderState(title, body) {
 async function loadWatch() {
   const slug = new URLSearchParams(location.search).get('slug');
   if (!slug) {
-    renderState('講座が見つかりません', '<a href="index.html">講座一覧</a>からお探しください。');
+    renderState(T('course_notfound', '講座が見つかりません'), '<a href="index.html">' + T('course_list', '講座一覧') + '</a>' + T('course_notfound_sub', 'からお探しください。'));
     return;
   }
 
@@ -261,7 +261,7 @@ async function loadWatch() {
     .single();
 
   if (courseErr || !course) {
-    renderState('講座が見つかりません', '<a href="index.html">講座一覧</a>からお探しください。');
+    renderState(T('course_notfound', '講座が見つかりません'), '<a href="index.html">' + T('course_list', '講座一覧') + '</a>' + T('course_notfound_sub', 'からお探しください。'));
     return;
   }
   currentCourse = course;
@@ -274,8 +274,8 @@ async function loadWatch() {
     .maybeSingle();
 
   if (purchase?.status !== 'paid') {
-    renderState('この講座はまだ購入されていません',
-      '<a href="course.html?slug=' + encodeURIComponent(slug) + '">講座詳細ページ</a>から購入してください。');
+    renderState(T('watch_not_purchased', 'この講座はまだ購入されていません'),
+      '<a href="course.html?slug=' + encodeURIComponent(slug) + '">' + T('watch_course_page', '講座詳細ページ') + '</a>' + T('watch_buy_from', 'から購入してください。'));
     return;
   }
 
@@ -295,7 +295,7 @@ async function loadWatch() {
       '<div class="chapter-body">' +
         '<div class="chapter-title">' + esc(ch.title) + '</div>' +
         (ch.hook ? '<div class="chapter-hook">' + esc(ch.hook) + '</div>' : '') +
-        '<div class="chapter-status">' + (ready ? '▶ 再生する' : '動画準備中') + '</div>' +
+        '<div class="chapter-status">' + (ready ? '▶ ' + T('watch_play', '再生する') : T('watch_video_preparing', '動画準備中')) + '</div>' +
       '</div>' +
     '</div>';
   }).join('');
@@ -303,10 +303,10 @@ async function loadWatch() {
   document.getElementById('watchContent').innerHTML =
     '<div class="course-title">' + esc(course.title) + '</div>' +
     '<div class="course-sub">' + esc(course.instructor_name || '') + '</div>' +
-    '<div class="player-wrap" id="playerWrap"><div class="player-empty">左のリストからチャプターを選択してください。</div></div>' +
+    '<div class="player-wrap" id="playerWrap"><div class="player-empty">' + T('watch_pick_chapter', '左のリストからチャプターを選択してください。') + '</div></div>' +
     '<div class="now-playing" id="nowPlaying"></div>' +
     (chaptersData.length ? (
-      '<div class="section-heading"><div class="sh-line"></div><div class="sh-label">カリキュラム</div><div class="sh-line"></div></div>' +
+      '<div class="section-heading"><div class="sh-line"></div><div class="sh-label">' + T('course_curriculum', 'カリキュラム') + '</div><div class="sh-line"></div></div>' +
       '<div class="chapter-list">' + chapterRows + '</div>'
     ) : '');
 
@@ -326,6 +326,16 @@ async function loadWatch() {
 }
 
 loadWatch();
+</script>
+<script src="../js/i18n.js"></script>
+<script src="../js/lang-switcher.js"></script>
+<script>
+let currentLang = 'ja';
+const T = (key, ja) => (window.I18N ? I18N.t(currentLang, key, ja) || ja : ja);
+LangSwitcher.init(function(lang){
+  if (window.I18N) I18N.apply(lang);
+  currentLang = lang;
+});
 </script>
 </body>
 </html>

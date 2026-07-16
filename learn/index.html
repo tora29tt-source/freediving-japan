@@ -275,7 +275,7 @@ body {
   <div class="header-icons">
     <a href="../mypage.html" class="icon-btn">
       <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-      マイページ
+      <span data-i18n="nav_mypage">マイページ</span>
     </a>
   </div>
 </header>
@@ -286,12 +286,12 @@ body {
   <div class="hero-inner">
     <div class="hero-tag">
       <svg class="icon" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h7v16H6a2 2 0 0 0-2 2z"/><path d="M20 5a2 2 0 0 0-2-2h-5v16h5a2 2 0 0 1 2 2z"/></svg>
-      フリーダイビングを学ぶ
+      <span data-i18n="learn_hero_tag">フリーダイビングを学ぶ</span>
     </div>
-    <h1 class="hero-title">
+    <h1 class="hero-title" data-i18n-html="learn_hero_title">
       海に潜る<em>技術と知識</em>を、<br>本物の選手から学ぶ。
     </h1>
-    <p class="hero-sub">
+    <p class="hero-sub" data-i18n-html="learn_hero_sub">
       耳抜きの基礎から競技向けトレーニングまで。<br>
       動画教材は現在撮影・編集中です。公開までしばらくお待ちください。
     </p>
@@ -302,68 +302,68 @@ body {
 
   <!-- Category tabs -->
   <div class="cat-tabs">
-    <button class="cat-tab active" data-cat="all" onclick="filterCat(this)">すべて</button>
+    <button class="cat-tab active" data-cat="all" onclick="filterCat(this)" data-i18n="learn_filter_all">すべて</button>
     <button class="cat-tab" data-cat="beginner" onclick="filterCat(this)">
-      <span class="cat-dot" style="background:var(--c-beginner)"></span>初心者
+      <span class="cat-dot" style="background:var(--c-beginner)"></span><span data-i18n="learn_filter_beginner">初心者</span>
     </button>
     <button class="cat-tab" data-cat="mid" onclick="filterCat(this)">
-      <span class="cat-dot" style="background:var(--c-mid)"></span>中級
+      <span class="cat-dot" style="background:var(--c-mid)"></span><span data-i18n="learn_filter_mid">中級</span>
     </button>
     <button class="cat-tab" data-cat="comp" onclick="filterCat(this)">
-      <span class="cat-dot" style="background:var(--c-comp)"></span>競技
+      <span class="cat-dot" style="background:var(--c-comp)"></span><span data-i18n="learn_filter_comp">競技</span>
     </button>
     <button class="cat-tab" data-cat="inst" onclick="filterCat(this)">
-      <span class="cat-dot" style="background:var(--c-inst)"></span>インストラクター
+      <span class="cat-dot" style="background:var(--c-inst)"></span><span data-i18n="learn_filter_inst">インストラクター</span>
     </button>
   </div>
 
   <!-- Courses grid -->
   <div class="course-grid" id="courseGrid">
-    <div style="grid-column:1/-1;text-align:center;padding:40px 0;color:var(--on-dark-soft);font-size:13px;">読み込み中…</div>
+    <div style="grid-column:1/-1;text-align:center;padding:40px 0;color:var(--on-dark-soft);font-size:13px;" data-i18n="loading">読み込み中…</div>
   </div><!-- /course-grid -->
 
   <!-- FAQ -->
   <div class="faq">
-    <div class="faq-title">よくある質問</div>
+    <div class="faq-title" data-i18n="faq_title">よくある質問</div>
 
     <div class="faq-item">
       <button class="faq-q" onclick="toggleFaq(this)">
-        どんな人が対象ですか？
+        <span data-i18n="faq_q1">どんな人が対象ですか？</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
       </button>
-      <div class="faq-a">フリーダイビング未経験の完全初心者から、競技大会を目指す選手まで幅広く対象にしています。各コースに「対象レベル」が明記されているので、自分に合ったものを選んでください。</div>
+      <div class="faq-a" data-i18n="faq_a1">フリーダイビング未経験の完全初心者から、競技大会を目指す選手まで幅広く対象にしています。各コースに「対象レベル」が明記されているので、自分に合ったものを選んでください。</div>
     </div>
 
     <div class="faq-item">
       <button class="faq-q" onclick="toggleFaq(this)">
-        購入後、いつでも視聴できますか？
+        <span data-i18n="faq_q2">購入後、いつでも視聴できますか？</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
       </button>
-      <div class="faq-a">購入後は期限なしで何度でも視聴できます。スマートフォン・タブレット・PCに対応しています。</div>
+      <div class="faq-a" data-i18n="faq_a2">購入後は期限なしで何度でも視聴できます。スマートフォン・タブレット・PCに対応しています。</div>
     </div>
 
     <div class="faq-item">
       <button class="faq-q" onclick="toggleFaq(this)">
-        体験ダイビングや資格取得とどう違いますか？
+        <span data-i18n="faq_q3">体験ダイビングや資格取得とどう違いますか？</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
       </button>
-      <div class="faq-a">動画教材は自分のペースで繰り返し学べる「予習・復習ツール」です。実際の海での練習や資格取得は、<a href="../explore/index.html">体験・コース検索</a>からインストラクターを探してください。</div>
+      <div class="faq-a" data-i18n-html="faq_a3">動画教材は自分のペースで繰り返し学べる「予習・復習ツール」です。実際の海での練習や資格取得は、<a href="../explore/index.html">体験・コース検索</a>からインストラクターを探してください。</div>
     </div>
 
     <div class="faq-item">
       <button class="faq-q" onclick="toggleFaq(this)">
-        返金は可能ですか？
+        <span data-i18n="faq_q4">返金は可能ですか？</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
       </button>
-      <div class="faq-a">購入から7日以内、かつ動画を50%以上視聴していない場合に限り返金対応します。詳細は購入後のメールをご確認ください。</div>
+      <div class="faq-a" data-i18n="faq_a4">購入から7日以内、かつ動画を50%以上視聴していない場合に限り返金対応します。詳細は購入後のメールをご確認ください。</div>
     </div>
 
     <div class="faq-item">
       <button class="faq-q" onclick="toggleFaq(this)">
-        いつ公開されますか？
+        <span data-i18n="faq_q5">いつ公開されますか？</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
       </button>
-      <div class="faq-a">現在撮影・編集中です。公開日は未定ですが、SNS（Instagram・YouTube）でお知らせしますのでフォローしてください。</div>
+      <div class="faq-a" data-i18n="faq_a5">現在撮影・編集中です。公開日は未定ですが、SNS（Instagram・YouTube）でお知らせしますのでフォローしてください。</div>
     </div>
 
   </div>
@@ -371,15 +371,15 @@ body {
 </div><!-- /container -->
 
 <footer class="learn-footer">
-  <a href="../index.html">← Freediving Japan トップへ</a>
+  <a href="../index.html" data-i18n="learn_foot_top">← Freediving Japan トップへ</a>
   &nbsp;·&nbsp;
-  <a href="../explore/index.html">体験・コースを探す</a>
+  <a href="../explore/index.html" data-i18n="foot_search_course">体験・コースを探す</a>
   &nbsp;·&nbsp;
-  <a href="../media/index.html">記事・コラム</a>
+  <a href="../media/index.html" data-i18n="foot_articles">記事・コラム</a>
   &nbsp;·&nbsp;
-  <a href="../events/2026_competitions.html">大会情報</a>
+  <a href="../events/2026_competitions.html" data-i18n="foot_events">大会情報</a>
   &nbsp;·&nbsp;
-  <a href="../rankings/AIDA_ranking.html">国内ランキング</a>
+  <a href="../rankings/AIDA_ranking.html" data-i18n="foot_rankings">国内ランキング</a>
 </footer>
 
 
@@ -393,6 +393,7 @@ function esc(s) {
 
 const CAT_COLOR = { beginner: 'var(--c-beginner)', mid: 'var(--c-mid)', comp: 'var(--c-comp)', inst: 'var(--c-inst)' };
 const CAT_JP    = { beginner: '初心者', mid: '中級', comp: '競技', inst: 'インストラクター' };
+const catLabel = c => T('learn_filter_' + (c === 'beginner' ? 'beginner' : c), CAT_JP[c] || c);
 const LEVEL_CLS = { beginner: 'level-beginner', mid: 'level-mid', comp: 'level-comp', inst: 'level-inst' };
 
 function playCircleSvg(cat) {
@@ -433,7 +434,7 @@ async function loadCourses() {
     .order('created_at', { ascending: true });
 
   if (error || !courses || courses.length === 0) {
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--on-dark-soft);font-size:14px;">現在公開中の講座はありません。</div>';
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--on-dark-soft);font-size:14px;">' + T('learn_empty', '現在公開中の講座はありません。') + '</div>';
     return;
   }
 
@@ -467,7 +468,7 @@ async function loadCourses() {
   grid.innerHTML = courses.map(function(course) {
     var cat   = course.category;
     var color = CAT_COLOR[cat] || 'var(--teal-light)';
-    var catJp = CAT_JP[cat] || cat;
+    var catJp = catLabel(cat);
     var info  = chInfo[course.id] || { total: 0, ready: 0 };
     var hasContent   = info.ready > 0;
     var purchStatus  = purchasedIds[course.id] || null;
@@ -477,11 +478,11 @@ async function loadCourses() {
 
     var btnHtml;
     if (purchStatus === 'paid') {
-      btnHtml = '<a href="watch.html?slug=' + esc(course.slug) + '" class="btn-buy" style="text-decoration:none;display:inline-block;">視聴する</a>';
+      btnHtml = '<a href="watch.html?slug=' + esc(course.slug) + '" class="btn-buy" style="text-decoration:none;display:inline-block;">' + T('learn_watch', '視聴する') + '</a>';
     } else if (hasContent) {
-      btnHtml = '<button class="btn-buy" onclick="location.href=\'course.html?slug=' + esc(course.slug) + '\'">購入する</button>';
+      btnHtml = '<button class="btn-buy" onclick="location.href=\'course.html?slug=' + esc(course.slug) + '\'">' + T('learn_buy', '購入する') + '</button>';
     } else {
-      btnHtml = '<button class="btn-buy soon" disabled>準備中</button>';
+      btnHtml = '<button class="btn-buy soon" disabled>' + T('learn_coming_soon', '準備中') + '</button>';
     }
 
     var comingSoon = hasContent ? '' : '<span class="coming-pill">COMING SOON</span>';
@@ -505,12 +506,12 @@ async function loadCourses() {
           '<span>' + authorLabel + '</span>' +
         '</div>' +
         '<div class="course-meta">' +
-          (info.total > 0 ? '<span class="course-meta-item"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><path d="M12 2a9 9 0 1 0 0 18A9 9 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg>全' + info.total + 'レッスン</span>' : '') +
+          (info.total > 0 ? '<span class="course-meta-item"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><path d="M12 2a9 9 0 1 0 0 18A9 9 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg>' + T('learn_total_prefix', '全') + info.total + T('learn_lessons_suffix', 'レッスン') + '</span>' : '') +
           (course.target_level ? '<span class="course-meta-item"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><path d="M3 9l9-4 9 4-9 4-9-4z"/></svg>' + esc(course.target_level) + '</span>' : '') +
         '</div>' +
       '</div>' +
       '<div class="course-footer">' +
-        '<div class="course-price">¥' + Number(course.price).toLocaleString('ja-JP') + '<small>（税込）</small></div>' +
+        '<div class="course-price">¥' + Number(course.price).toLocaleString('ja-JP') + '<small>' + T('tax_incl', '（税込）') + '</small></div>' +
         btnHtml +
       '</div>' +
     '</div>';
@@ -528,5 +529,15 @@ async function loadCourses() {
 loadCourses();
 </script>
 
+<script src="../js/i18n.js"></script>
+<script src="../js/lang-switcher.js"></script>
+<script>
+let currentLang = 'ja';
+const T = (key, ja) => (window.I18N ? I18N.t(currentLang, key, ja) || ja : ja);
+LangSwitcher.init(function(lang){
+  if (window.I18N) I18N.apply(lang);
+  currentLang = lang;
+});
+</script>
 </body>
 </html>

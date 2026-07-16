@@ -64,25 +64,25 @@ const slug   = params.get('slug');
 function renderError(msg) {
   document.getElementById('card').innerHTML =
     '<div style="font-size:40px;margin-bottom:16px">⚠️</div>' +
-    '<h1 style="margin-bottom:12px">エラー</h1>' +
+    '<h1 style="margin-bottom:12px">' + T('bk_error', 'エラー') + '</h1>' +
     '<p class="sub">' + msg + '</p>' +
-    '<a href="index.html" class="btn btn-ghost">講座一覧へ戻る</a>';
+    '<a href="index.html" class="btn btn-ghost">' + T('course_back_list', '講座一覧へ戻る') + '</a>';
 }
 
 async function pollPurchase() {
   const { data: { session } } = await _sb.auth.getSession();
   if (!session) {
-    renderError('ログイン状態が確認できませんでした。<br><a href="../auth.html">ログイン</a>し直してから、マイページでご確認ください。');
+    renderError(T('ps_err_login', 'ログイン状態が確認できませんでした。<br><a href="../auth.html">ログイン</a>し直してから、マイページでご確認ください。'));
     return;
   }
   if (!slug) {
-    renderError('講座情報が見つかりませんでした。');
+    renderError(T('ps_err_course', '講座情報が見つかりませんでした。'));
     return;
   }
 
   const { data: course } = await _sb.from('courses').select('id, title').eq('slug', slug).single();
   if (!course) {
-    renderError('講座情報が見つかりませんでした。');
+    renderError(T('ps_err_course', '講座情報が見つかりませんでした。'));
     return;
   }
 
@@ -98,10 +98,10 @@ async function pollPurchase() {
     if (purchase?.status === 'paid') {
       document.getElementById('card').innerHTML =
         '<div class="icon-wrap"><svg class="check-icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>' +
-        '<h1>購入が完了しました！</h1>' +
-        '<p class="sub"><strong>' + esc(course.title) + '</strong><br>マイページからいつでも視聴できます。</p>' +
-        '<a href="../mypage.html" class="btn">マイページへ</a>' +
-        '<a href="index.html" class="btn btn-ghost">他の講座を見る</a>';
+        '<h1>' + T('ps_done', '購入が完了しました！') + '</h1>' +
+        '<p class="sub"><strong>' + esc(course.title) + '</strong><br>' + T('ps_done_sub', 'マイページからいつでも視聴できます。') + '</p>' +
+        '<a href="../mypage.html" class="btn">' + T('ps_to_mypage', 'マイページへ') + '</a>' +
+        '<a href="index.html" class="btn btn-ghost">' + T('ps_other_courses', '他の講座を見る') + '</a>';
       return;
     }
     await new Promise(r => setTimeout(r, 1500));
@@ -109,12 +109,22 @@ async function pollPurchase() {
 
   // まだ反映されていない場合（webhook遅延 or 失敗）
   document.getElementById('card').innerHTML =
-    '<h1 style="margin-bottom:12px">お支払いを確認中です</h1>' +
-    '<p class="sub">決済の反映に少し時間がかかっています。<br>数分待ってからマイページをご確認ください。反映されない場合はお問い合わせください。</p>' +
-    '<a href="../mypage.html" class="btn btn-ghost">マイページへ</a>';
+    '<h1 style="margin-bottom:12px">' + T('ps_checking', 'お支払いを確認中です') + '</h1>' +
+    '<p class="sub">' + T('ps_checking_sub', '決済の反映に少し時間がかかっています。<br>数分待ってからマイページをご確認ください。反映されない場合はお問い合わせください。') + '</p>' +
+    '<a href="../mypage.html" class="btn btn-ghost">' + T('ps_to_mypage', 'マイページへ') + '</a>';
 }
 
 pollPurchase();
+</script>
+<script src="../js/i18n.js"></script>
+<script src="../js/lang-switcher.js"></script>
+<script>
+let currentLang = 'ja';
+const T = (key, ja) => (window.I18N ? I18N.t(currentLang, key, ja) || ja : ja);
+LangSwitcher.init(function(lang){
+  if (window.I18N) I18N.apply(lang);
+  currentLang = lang;
+});
 </script>
 </body>
 </html>

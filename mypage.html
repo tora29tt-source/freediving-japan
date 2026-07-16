@@ -1134,21 +1134,21 @@ function closeCreateEventModal() {
 async function fetchAidaEvent() {
   const raw = document.getElementById('ce-url-input').value.trim();
   if (!raw) {
-    showCeErr('fetch', 'URL または ID を入力してください。');
+    showCeErr('fetch', T('mp_err_url_required', 'URL または ID を入力してください。'));
     return;
   }
 
   // URL から ID を抽出（例: EventDetails-5067 → 5067）
   const idMatch = raw.match(/EventDetails[_-](\d+)/i) || raw.match(/^(\d+)$/);
   if (!idMatch) {
-    showCeErr('fetch', 'URL 形式が正しくありません。例: .../EventDetails-5067 または 5067');
+    showCeErr('fetch', T('mp_err_url_format', 'URL 形式が正しくありません。例: .../EventDetails-5067 または 5067'));
     return;
   }
   const aida_id = idMatch[1];
 
   const btn = document.getElementById('ce-fetch-btn');
   btn.disabled = true;
-  btn.textContent = '取得中...';
+  btn.textContent = T('mp_fetching', '取得中...');
   document.getElementById('ce-fetch-err').style.display = 'none';
 
   try {
@@ -1166,10 +1166,10 @@ async function fetchAidaEvent() {
       (data.event_type || '') + (_ceDisciplines.length ? ' — ' + _ceDisciplines.join(' ') : '');
     document.getElementById('ce-create-err').style.display = 'none';
   } catch (err) {
-    showCeErr('fetch', 'データ取得に失敗しました: ' + err.message);
+    showCeErr('fetch', T('mp_err_fetch_failed', 'データ取得に失敗しました: ') + err.message);
   } finally {
     btn.disabled = false;
-    btn.textContent = '取得する';
+    btn.textContent = T('mp_fetch', '取得する');
   }
 }
 
@@ -1180,18 +1180,18 @@ async function createEventConfirm() {
   const location = document.getElementById('ce-location').value.trim();
 
   if (!name || !date) {
-    showCeErr('create', '大会名と開催日は必須です。');
+    showCeErr('create', T('mp_err_event_required', '大会名と開催日は必須です。'));
     return;
   }
 
   const btn = document.getElementById('ce-create-btn');
   btn.disabled = true;
-  btn.textContent = '作成中...';
+  btn.textContent = T('mp_creating', '作成中...');
   document.getElementById('ce-create-err').style.display = 'none';
 
   try {
     const { data: { session } } = await _sb.auth.getSession();
-    if (!session) throw new Error('ログインが必要です。');
+    if (!session) throw new Error(T('mp_err_login_required', 'ログインが必要です。'));
 
     const { data: ev, error } = await _sb
       .from('events')
@@ -1221,14 +1221,14 @@ async function createEventConfirm() {
     renderMyEvents(myEvents || []);
 
     // 作成した大会の管理画面へ誘導
-    if (ev && ev.id && confirm('大会「' + name + '」を作成しました。管理画面を開きますか？')) {
+    if (ev && ev.id && confirm(T('mp_event_created', '大会「{name}」を作成しました。管理画面を開きますか？').replace('{name}', name))) {
       window.location.href = 'events/event-staff.html?id=' + ev.id; // mypage.html は root にある
     }
   } catch (err) {
-    showCeErr('create', '作成に失敗しました: ' + (err.message || err));
+    showCeErr('create', T('mp_err_create_failed', '作成に失敗しました: ') + (err.message || err));
   } finally {
     btn.disabled = false;
-    btn.textContent = '大会を作成';
+    btn.textContent = T('mp_create_event', '大会を作成');
   }
 }
 
@@ -1391,11 +1391,11 @@ function renderSummary(sessions) {
   sessions.forEach(s => { if (cnt[s.env] !== undefined) cnt[s.env]++; });
   const totalEnv = cnt.sea + cnt.pool + cnt.dry;
 
-  setEl('stat-env-total', days + '日');
+  setEl('stat-env-total', days + T('unit_days', '日'));
 
   if (!totalEnv) {
     setHtml('stat-env-bar',    '<div style="flex:1;background:rgba(20,20,30,0.06);border-radius:4px;"></div>');
-    setHtml('stat-env-labels', '<div style="font-size:11px;color:var(--muted);">今月のセッションなし</div>');
+    setHtml('stat-env-labels', '<div style="font-size:11px;color:var(--muted);">' + T('mp_no_sessions', '今月のセッションなし') + '</div>');
     return;
   }
 
@@ -1406,9 +1406,9 @@ function renderSummary(sessions) {
   ].join(''));
 
   setHtml('stat-env-labels', [
-    cnt.sea  ? `<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub);"><div style="width:8px;height:8px;border-radius:50%;background:#2ec4b6;flex-shrink:0;"></div>海 ${cnt.sea}日</div>` : '',
-    cnt.pool ? `<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub);"><div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;flex-shrink:0;"></div>プール ${cnt.pool}日</div>` : '',
-    cnt.dry  ? `<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub);"><div style="width:8px;height:8px;border-radius:50%;background:#f97316;flex-shrink:0;"></div>ドライ ${cnt.dry}日</div>` : '',
+    cnt.sea  ? `<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub);"><div style="width:8px;height:8px;border-radius:50%;background:#2ec4b6;flex-shrink:0;"></div>${T('env_sea','海')} ${cnt.sea}${T('unit_days','日')}</div>` : '',
+    cnt.pool ? `<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub);"><div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;flex-shrink:0;"></div>${T('env_pool','プール')} ${cnt.pool}${T('unit_days','日')}</div>` : '',
+    cnt.dry  ? `<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub);"><div style="width:8px;height:8px;border-radius:50%;background:#f97316;flex-shrink:0;"></div>${T('env_dry','ドライ')} ${cnt.dry}${T('unit_days','日')}</div>` : '',
   ].join(''));
 }
 
@@ -1440,16 +1440,16 @@ async function loadBookingHistory(guestEmail) {
   _myBookingsCache = bookings;
 
   const countEl = document.getElementById('my-bookings-count');
-  if (countEl) countEl.textContent = '（' + bookings.length + '件）';
+  if (countEl) countEl.textContent = '（' + bookings.length + T('unit_count', '件') + '）';
 
   const MONTHS     = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const stLabel    = { paid:'決済済み', confirmed:'確定', pending:'保留中', cancelled:'キャンセル', refunded:'返金済み' };
+  const stLabel    = { paid:T('st_paid','決済済み'), confirmed:T('st_confirmed','確定'), pending:T('st_pending','保留中'), cancelled:T('st_cancelled','キャンセル'), refunded:T('st_refunded','返金済み') };
   const stClass    = { paid:'bk-status-paid', confirmed:'bk-status-confirmed', pending:'bk-status-pending', cancelled:'bk-status-cancelled', refunded:'bk-status-cancelled' };
 
   el.innerHTML = bookings.map(b => {
     const d       = new Date(b.slot?.slot_date || b.created_at);
     const timeStr = b.slot?.start_time ? b.slot.start_time.slice(0, 5) + ' · ' : '';
-    const title   = b.listing?.title || '予約';
+    const title   = b.listing?.title || T('mp_booking', '予約');
     const amount  = b.total_amount ? '¥' + b.total_amount.toLocaleString() : '';
     const st      = b.status || 'pending';
     const canCancel = st === 'paid' || st === 'confirmed';
@@ -1461,12 +1461,12 @@ async function loadBookingHistory(guestEmail) {
         </div>
         <div class="bk-info">
           <div class="bk-title">${esc(title)}</div>
-          <div class="bk-meta">${timeStr}${b.participant_count}名</div>
+          <div class="bk-meta">${timeStr}${b.participant_count}${T('bk_people_suffix','名')}</div>
         </div>
         <div class="bk-right">
           <div class="bk-amount">${amount}</div>
           <div class="bk-status ${stClass[st] || 'bk-status-pending'}">${stLabel[st] || st}</div>
-          ${canCancel ? `<button class="modal-btn-cancel" style="margin-top:6px;padding:3px 10px;font-size:11px;" onclick="openMyCancelModal('${b.id}')">キャンセル</button>` : ''}
+          ${canCancel ? `<button class="modal-btn-cancel" style="margin-top:6px;padding:3px 10px;font-size:11px;" onclick="openMyCancelModal('${b.id}')">${T('btn_cancel','キャンセル')}</button>` : ''}
         </div>
       </div>`;
   }).join('');
@@ -1480,27 +1480,27 @@ let _myCancelTargetId = null;
 function computeMyCancelSuggestion(booking) {
   const totalAmount = booking.total_amount || 0;
   const slot = booking.slot;
-  if (!slot?.slot_date) return { amount: 0, label: '開催日不明（サポートにご連絡ください）' };
+  if (!slot?.slot_date) return { amount: 0, label: T('mp_refund_unknown', '開催日不明（サポートにご連絡ください）') };
 
   const today = new Date();
   const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   const slotDateOnly  = new Date(`${slot.slot_date}T00:00:00`);
   const daysUntil = Math.round((slotDateOnly.getTime() - todayDateOnly.getTime()) / (1000 * 60 * 60 * 24));
 
-  if (daysUntil >= 7) return { amount: totalAmount,                   label: `全額返金となります（開催${daysUntil}日前）` };
-  if (daysUntil >= 3) return { amount: Math.round(totalAmount * 0.5), label: `50%返金となります（開催${daysUntil}日前）` };
-  return { amount: 0, label: `返金はありません（開催${daysUntil}日前・直前のキャンセル）` };
+  if (daysUntil >= 7) return { amount: totalAmount,                   label: T('mp_refund_full', `全額返金となります（開催${daysUntil}日前）`).replace('{n}', daysUntil) };
+  if (daysUntil >= 3) return { amount: Math.round(totalAmount * 0.5), label: T('mp_refund_half', `50%返金となります（開催${daysUntil}日前）`).replace('{n}', daysUntil) };
+  return { amount: 0, label: T('mp_refund_none', `返金はありません（開催${daysUntil}日前・直前のキャンセル）`).replace('{n}', daysUntil) };
 }
 
 function openMyCancelModal(bookingId) {
   const booking = _myBookingsCache.find(b => b.id === bookingId);
-  if (!booking) { alert('予約データが見つかりません。ページを再読み込みしてください'); return; }
+  if (!booking) { alert(T('mp_err_booking_notfound', '予約データが見つかりません。ページを再読み込みしてください')); return; }
 
   _myCancelTargetId = bookingId;
   const suggestion = computeMyCancelSuggestion(booking);
 
   document.getElementById('my-cancel-summary').innerHTML =
-    `${esc(booking.listing?.title || '予約')}／${booking.participant_count}名／合計 ¥${(booking.total_amount||0).toLocaleString()}`;
+    `${esc(booking.listing?.title || T('mp_booking','予約'))}／${booking.participant_count}${T('bk_people_suffix','名')}／${T('bk_total','合計')} ¥${(booking.total_amount||0).toLocaleString()}`;
   document.getElementById('my-cancel-suggestion').textContent = suggestion.label;
 
   document.getElementById('my-cancel-modal').classList.add('open');
@@ -1526,11 +1526,11 @@ async function submitMyCancelBooking() {
   if (!_myCancelTargetId) return;
 
   const { data: { session } } = await _sb.auth.getSession();
-  if (!session) { alert('セッションが切れています。再度ログインしてください'); return; }
+  if (!session) { alert(T('mp_err_session_expired', 'セッションが切れています。再度ログインしてください')); return; }
 
   const btn = document.getElementById('my-cancel-submit-btn');
   const originalLabel = btn.textContent;
-  btn.textContent = '処理中...';
+  btn.textContent = T('processing', '処理中...');
   btn.disabled = true;
 
   try {
@@ -1549,7 +1549,7 @@ async function submitMyCancelBooking() {
     const result = await res.json();
 
     if (!res.ok) {
-      alert(result.error || 'キャンセル処理に失敗しました');
+      alert(result.error || T('mp_err_cancel_failed', 'キャンセル処理に失敗しました'));
       return;
     }
 
@@ -1557,7 +1557,7 @@ async function submitMyCancelBooking() {
     await loadBookingHistory(session.user.email);
 
   } catch (err) {
-    alert('通信エラー: ' + err.message);
+    alert(T('mp_err_network', '通信エラー: ') + err.message);
   } finally {
     btn.textContent = originalLabel;
     btn.disabled = false;
@@ -1569,18 +1569,20 @@ function renderMyEvents(events) {
   const el = document.getElementById('my-events-list');
   if (!el) return;
   if (!events.length) {
-    el.innerHTML = '<div style="padding:16px;text-align:center;color:var(--muted);font-size:13px;">作成済みの大会はありません</div>';
+    el.innerHTML = '<div style="padding:16px;text-align:center;color:var(--muted);font-size:13px;">' + T('mp_no_events', '作成済みの大会はありません') + '</div>';
     return;
   }
   el.innerHTML = events.map(ev => {
     const d      = new Date(ev.date + 'T00:00:00');
-    const fmtD   = d => d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日';
+    const fmtD   = d => currentLang === 'ja'
+      ? d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日'
+      : d.toLocaleDateString(currentLang === 'ko' ? 'ko-KR' : currentLang === 'zh' ? 'zh-CN' : 'en-US', { year:'numeric', month:'short', day:'numeric' });
     const dEnd   = ev.date_end && ev.date_end !== ev.date ? new Date(ev.date_end + 'T00:00:00') : null;
     const ds     = dEnd ? fmtD(d) + '〜' + fmtD(dEnd) : fmtD(d);
     const bg     = ev.is_published ? 'rgba(46,196,182,0.15)' : 'rgba(245,158,11,0.15)';
     const col    = ev.is_published ? 'var(--teal)' : 'var(--warn)';
     const bdr    = ev.is_published ? 'rgba(46,196,182,0.3)' : 'rgba(245,158,11,0.3)';
-    const lbl    = ev.is_published ? '公開中' : 'Draft';
+    const lbl    = ev.is_published ? T('mp_published', '公開中') : 'Draft';
     return `
       <a href="events/event-staff.html?id=${ev.id}" style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);text-decoration:none;color:inherit;transition:background 0.15s;" onmouseover="this.style.background='rgba(20,20,30,0.03)'" onmouseout="this.style.background=''">
         <div style="flex:1;">
@@ -1597,7 +1599,7 @@ function renderMyEvents(events) {
 
 // ログアウト
 async function handleLogout() {
-  if (!confirm('ログアウトしますか？')) return;
+  if (!confirm(T('mp_logout_confirm', 'ログアウトしますか？'))) return;
   await _sb.auth.signOut();
   window.location.href = 'auth.html';
 }
@@ -1697,47 +1699,47 @@ async function handleAvatarFile(input) {
   const file = input.files[0];
   if (!file) return;
   if (file.size > 5 * 1024 * 1024) {
-    showMypageToast('5MB以下の画像を選択してください', 'error'); return;
+    showMypageToast(T('mp_err_img_size', '5MB以下の画像を選択してください'), 'error'); return;
   }
 
   // ローカルプレビュー
   setAvatarPreview(URL.createObjectURL(file));
-  document.getElementById('pf-upload-status').textContent = 'アップロード中...';
+  document.getElementById('pf-upload-status').textContent = T('mp_uploading', 'アップロード中...');
 
   const ext  = file.name.split('.').pop().toLowerCase();
   const path = `${_currentUser.id}/mypage.${ext}`;
 
   const { error } = await _sb.storage.from('avatars').upload(path, file, { upsert: true });
   if (error) {
-    document.getElementById('pf-upload-status').textContent = 'アップロード失敗';
-    showMypageToast('アップロードに失敗しました: ' + error.message, 'error');
+    document.getElementById('pf-upload-status').textContent = T('mp_upload_failed', 'アップロード失敗');
+    showMypageToast(T('mp_err_upload', 'アップロードに失敗しました: ') + error.message, 'error');
     return;
   }
 
   const { data } = _sb.storage.from('avatars').getPublicUrl(path);
   _newAvatarUrl = data.publicUrl;
-  document.getElementById('pf-upload-status').textContent = '✓ アップロード完了';
+  document.getElementById('pf-upload-status').textContent = T('mp_upload_done', '✓ アップロード完了');
 }
 
 async function saveProfile() {
   const name = document.getElementById('pf-name').value.trim();
-  if (!name) { showMypageToast('表示名を入力してください', 'error'); return; }
+  if (!name) { showMypageToast(T('mp_err_name_required', '表示名を入力してください'), 'error'); return; }
 
   const meta       = _currentUser.user_metadata || {};
   const avatarUrl  = _newAvatarUrl || meta.avatar_url || meta.picture || null;
 
   const btn = document.getElementById('pf-save-btn');
   btn.disabled = true;
-  btn.textContent = '保存中...';
+  btn.textContent = T('saving', '保存中...');
 
   const { data, error } = await _sb.auth.updateUser({
     data: { name, avatar_url: avatarUrl }
   });
 
   btn.disabled = false;
-  btn.textContent = '保存する';
+  btn.textContent = T('btn_save', '保存する');
 
-  if (error) { showMypageToast('保存に失敗しました: ' + error.message, 'error'); return; }
+  if (error) { showMypageToast(T('mp_err_save', '保存に失敗しました: ') + error.message, 'error'); return; }
 
   _currentUser = data.user;
   const heroAvatar = document.getElementById('heroAvatar');
@@ -1749,7 +1751,7 @@ async function saveProfile() {
   document.getElementById('heroNameText').textContent = name;
 
   _isDirty = false;
-  showMypageToast('プロフィールを保存しました', 'success');
+  showMypageToast(T('mp_profile_saved', 'プロフィールを保存しました'), 'success');
   closeProfileModal();
 }
 

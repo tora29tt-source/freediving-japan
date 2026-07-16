@@ -232,7 +232,7 @@ body {
   <div class="header-icons">
     <a href="../mypage.html" class="icon-btn">
       <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-      マイページ
+      <span data-i18n="nav_mypage">マイページ</span>
     </a>
   </div>
 </header>
@@ -240,21 +240,21 @@ body {
 <div class="container" id="pageRoot">
   <a href="index.html" class="back-link">
     <svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24" stroke="currentColor" fill="none"><path d="M15 19l-7-7 7-7"/></svg>
-    講座一覧へ戻る
+    <span data-i18n="course_back_list">講座一覧へ戻る</span>
   </a>
 
   <!-- Supabaseからの読み込み結果をここに描画する -->
   <div id="courseContent">
-    <div class="state-screen">読み込み中...</div>
+    <div class="state-screen" data-i18n="loading">読み込み中...</div>
   </div>
 </div>
 
 <footer class="learn-footer">
-  <a href="../index.html">← Freediving Japan トップへ</a>
+  <a href="../index.html" data-i18n="learn_foot_top">← Freediving Japan トップへ</a>
   &nbsp;·&nbsp;
-  <a href="index.html">学ぶトップへ</a>
+  <a href="index.html" data-i18n="learn_foot_learn_top">学ぶトップへ</a>
   &nbsp;·&nbsp;
-  <a href="../explore/index.html">体験・コースを探す</a>
+  <a href="../explore/index.html" data-i18n="foot_search_course">体験・コースを探す</a>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -282,7 +282,7 @@ function selectChapter(el, ch) {
   if (!ch.video_path) return;
   document.querySelectorAll('.chapter-row').forEach(function(r) { r.classList.remove('active'); });
   el.classList.add('active');
-  document.getElementById('nowPlaying').textContent = '第' + ch.chapter_num + '回：' + ch.title;
+  document.getElementById('nowPlaying').textContent = T('ch_prefix', '第{n}回：').replace('{n}', ch.chapter_num) + ch.title;
   loadVideoToken(ch);
 }
 
@@ -290,7 +290,7 @@ async function loadVideoToken(ch) {
   const wrap = document.getElementById('playerWrap');
   if (!wrap) return;
   VideoProgress.detach();
-  wrap.innerHTML = '<video id="videoEl" controls playsinline></video><div class="player-loading" id="playerLoading">読み込み中…</div>';
+  wrap.innerHTML = '<video id="videoEl" controls playsinline></video><div class="player-loading" id="playerLoading">' + T('loading', '読み込み中…') + '</div>';
 
   try {
     const res = await fetch(
@@ -303,7 +303,7 @@ async function loadVideoToken(ch) {
     const src = json.workerUrl + '/' + json.videoPath + '?token=' + encodeURIComponent(json.token);
     startHLS(src, ch);
   } catch (err) {
-    if (wrap) wrap.innerHTML = '<div class="player-error">動画の読み込みに失敗しました。ページを再読み込みしてください。</div>';
+    if (wrap) wrap.innerHTML = '<div class="player-error">' + T('player_err_load', '動画の読み込みに失敗しました。ページを再読み込みしてください。') + '</div>';
     console.error('video-token error:', err);
   }
 }
@@ -321,9 +321,9 @@ async function startHLS(src, chapter) {
     if (savedPos > 5) {
       videoEl.currentTime = savedPos;
       const m = Math.floor(savedPos / 60), s = Math.floor(savedPos % 60);
-      const label = m > 0 ? m + '分' + s + '秒' : s + '秒';
+      const label = m > 0 ? m + T('unit_min', '分') + s + T('unit_sec', '秒') : s + T('unit_sec', '秒');
       const toast = document.createElement('div');
-      toast.textContent = '前回の続き（' + label + '）から再生しています';
+      toast.textContent = T('resume_from', '前回の続き（{t}）から再生しています').replace('{t}', label);
       toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1f6f78;color:#fff;padding:8px 16px;border-radius:8px;font-size:13px;z-index:999;white-space:nowrap;';
       document.body.appendChild(toast);
       setTimeout(function() { toast.remove(); }, 4000);
@@ -340,7 +340,7 @@ async function startHLS(src, chapter) {
     hls.on(Hls.Events.ERROR, function(event, data) {
       if (data.fatal) {
         const wrap = document.getElementById('playerWrap');
-        if (wrap) wrap.innerHTML = '<div class="player-error">動画の再生に失敗しました。ページを再読み込みしてください。</div>';
+        if (wrap) wrap.innerHTML = '<div class="player-error">' + T('player_err_play', '動画の再生に失敗しました。ページを再読み込みしてください。') + '</div>';
       }
     });
     hlsInstance = hls;
@@ -349,7 +349,7 @@ async function startHLS(src, chapter) {
     videoEl.addEventListener('loadedmetadata', onReady, { once: true });
   } else {
     const wrap = document.getElementById('playerWrap');
-    if (wrap) wrap.innerHTML = '<div class="player-error">お使いのブラウザは動画再生に対応していません。</div>';
+    if (wrap) wrap.innerHTML = '<div class="player-error">' + T('player_err_browser', 'お使いのブラウザは動画再生に対応していません。') + '</div>';
   }
 }
 
@@ -357,13 +357,13 @@ async function startHLS(src, chapter) {
 async function loadCourse() {
   const slug = new URLSearchParams(location.search).get('slug');
   if (!slug) {
-    renderState('講座が見つかりません', '<a href="index.html">講座一覧</a>からお探しください。');
+    renderState(T('course_notfound', '講座が見つかりません'), '<a href="index.html">' + T('course_list', '講座一覧') + '</a>' + T('course_notfound_sub', 'からお探しください。'));
     return;
   }
 
   const { data: course, error } = await _sb.from('courses').select('*').eq('slug', slug).single();
   if (error || !course) {
-    renderState('この講座はまだ公開されていません', '公開まで今しばらくお待ちください。<br><a href="index.html">講座一覧</a>へ戻る。');
+    renderState(T('course_unpublished', 'この講座はまだ公開されていません'), T('course_unpublished_sub', '公開まで今しばらくお待ちください。') + '<br><a href="index.html">' + T('course_list', '講座一覧') + '</a>');
     return;
   }
   currentCourse = course;
@@ -395,7 +395,7 @@ async function loadCourse() {
   let thumbContent;
   if (isPaid) {
     // 購入済み：インラインプレイヤー
-    thumbContent = '<div class="player-wrap" id="playerWrap"><div class="player-loading">チャプターを選んで再生</div></div>';
+    thumbContent = '<div class="player-wrap" id="playerWrap"><div class="player-loading">' + T('course_pick_chapter', 'チャプターを選んで再生') + '</div></div>';
   } else if (course.preview_video_url) {
     const poster = course.thumbnail_url ? ' poster="' + esc(course.thumbnail_url) + '"' : '';
     thumbContent =
@@ -422,7 +422,7 @@ async function loadCourse() {
         '<div class="chapter-body">' +
           '<div class="chapter-title">' + esc(ch.title) + '</div>' +
           (ch.hook ? '<div class="chapter-hook">' + esc(ch.hook) + '</div>' : '') +
-          '<div class="chapter-status' + (ready ? ' ready' : '') + '">' + (ready ? '▶ 視聴する' : '準備中') + '</div>' +
+          '<div class="chapter-status' + (ready ? ' ready' : '') + '">' + (ready ? '▶ ' + T('learn_watch', '視聴する') : T('learn_coming_soon', '準備中')) + '</div>' +
         '</div>' +
       '</div>';
     } else {
@@ -431,7 +431,7 @@ async function loadCourse() {
         '<div class="chapter-body">' +
           '<div class="chapter-title">' + esc(ch.title) + '</div>' +
           (ch.hook ? '<div class="chapter-hook">' + esc(ch.hook) + '</div>' : '') +
-          '<div class="chapter-status' + (ready ? ' ready' : '') + '">' + (ready ? '▶ 視聴可能（購入後）' : '準備中') + '</div>' +
+          '<div class="chapter-status' + (ready ? ' ready' : '') + '">' + (ready ? '▶ ' + T('course_watchable_after', '視聴可能（購入後）') : T('learn_coming_soon', '準備中')) + '</div>' +
         '</div>' +
       '</div>';
     }
@@ -440,11 +440,11 @@ async function loadCourse() {
   // ── CTA バー ──
   let buyButtonHtml;
   if (isPaid) {
-    buyButtonHtml = '<span style="font-size:13px;color:var(--teal);font-weight:600;">✓ 購入済み</span>';
+    buyButtonHtml = '<span style="font-size:13px;color:var(--teal);font-weight:600;">✓ ' + T('course_purchased', '購入済み') + '</span>';
   } else if (hasContent) {
-    buyButtonHtml = '<button class="btn-buy" id="buyBtn" onclick="purchaseCourse()">購入する</button>';
+    buyButtonHtml = '<button class="btn-buy" id="buyBtn" onclick="purchaseCourse()">' + T('learn_buy', '購入する') + '</button>';
   } else {
-    buyButtonHtml = '<button class="btn-buy soon" disabled>準備中</button>';
+    buyButtonHtml = '<button class="btn-buy soon" disabled>' + T('learn_coming_soon', '準備中') + '</button>';
   }
 
   document.getElementById('courseContent').innerHTML =
@@ -459,7 +459,7 @@ async function loadCourse() {
         '<span>' + esc(course.instructor_name) + (course.instructor_title ? '（' + esc(course.instructor_title) + '）' : '') + '</span>' +
       '</div>' +
       '<div class="course-meta">' +
-        (chaptersData.length ? '<span class="course-meta-item">全' + chaptersData.length + 'レッスン</span>' : '') +
+        (chaptersData.length ? '<span class="course-meta-item">' + T('learn_total_prefix', '全') + chaptersData.length + T('learn_lessons_suffix', 'レッスン') + '</span>' : '') +
         (course.target_level ? '<span class="course-meta-item">' + esc(course.target_level) + '</span>' : '') +
       '</div>' +
       (course.description ? '<p class="course-desc">' + esc(course.description) + '</p>' : '') +
@@ -470,7 +470,7 @@ async function loadCourse() {
     ) : '') +
     '<div style="height:80px"></div>' +
     '<div class="buy-cta-bar">' +
-      '<div class="buy-cta-price">¥' + Number(course.price).toLocaleString('ja-JP') + '<small>（税込）</small></div>' +
+      '<div class="buy-cta-price">¥' + Number(course.price).toLocaleString('ja-JP') + '<small>' + T('tax_incl', '（税込）') + '</small></div>' +
       buyButtonHtml +
     '</div>';
 
@@ -489,7 +489,7 @@ async function loadCourse() {
         r.classList.toggle('active', r.dataset && r.dataset.num == startCh.chapter_num);
       });
       const nowEl = document.getElementById('nowPlaying');
-      if (nowEl) nowEl.textContent = '第' + startCh.chapter_num + '回：' + startCh.title;
+      if (nowEl) nowEl.textContent = T('ch_prefix', '第{n}回：').replace('{n}', startCh.chapter_num) + startCh.title;
       loadVideoToken(startCh);
     }
   }
@@ -503,7 +503,7 @@ async function purchaseCourse() {
     return;
   }
   const btn = document.getElementById('buyBtn');
-  if (btn) { btn.disabled = true; btn.textContent = '処理中...'; }
+  if (btn) { btn.disabled = true; btn.textContent = T('processing', '処理中...'); }
   try {
     const res = await fetch('/api/create-course-checkout-session', {
       method: 'POST',
@@ -513,19 +513,29 @@ async function purchaseCourse() {
     const json = await res.json();
     if (!res.ok) {
       if (json.alreadyPurchased) { location.href = location.href; return; }
-      alert(json.error || '購入処理でエラーが発生しました');
-      if (btn) { btn.disabled = false; btn.textContent = '購入する'; }
+      alert(json.error || T('purchase_err', '購入処理でエラーが発生しました'));
+      if (btn) { btn.disabled = false; btn.textContent = T('learn_buy', '購入する'); }
       return;
     }
     location.href = json.url;
   } catch (e) {
-    alert('通信エラーが発生しました。もう一度お試しください');
-    if (btn) { btn.disabled = false; btn.textContent = '購入する'; }
+    alert(T('network_err', '通信エラーが発生しました。もう一度お試しください'));
+    if (btn) { btn.disabled = false; btn.textContent = T('learn_buy', '購入する'); }
   }
 }
 
 loadCourse();
 </script>
 
+<script src="../js/i18n.js"></script>
+<script src="../js/lang-switcher.js"></script>
+<script>
+let currentLang = 'ja';
+const T = (key, ja) => (window.I18N ? I18N.t(currentLang, key, ja) || ja : ja);
+LangSwitcher.init(function(lang){
+  if (window.I18N) I18N.apply(lang);
+  currentLang = lang;
+});
+</script>
 </body>
 </html>
