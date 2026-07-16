@@ -301,12 +301,24 @@ async function loadCourse() {
     buyButtonHtml = '<button class="btn-buy soon" disabled>準備中（撮影完了後に購入可能になります）</button>';
   }
 
-  const thumbContent = course.thumbnail_url
-    ? '<img src="' + esc(course.thumbnail_url) + '" alt="" ' +
+  let thumbContent;
+  if (course.preview_video_url) {
+    // 全員に公開するサマリー動画
+    const poster = course.thumbnail_url ? ' poster="' + esc(course.thumbnail_url) + '"' : '';
+    thumbContent =
+      '<video controls playsinline preload="metadata"' + poster +
+      ' style="position:absolute;inset:0;width:100%;height:100%;border-radius:12px;background:#000;">' +
+      '<source src="' + esc(course.preview_video_url) + '" type="video/mp4">' +
+      '</video>';
+  } else if (course.thumbnail_url) {
+    thumbContent =
+      '<img src="' + esc(course.thumbnail_url) + '" alt="" ' +
       'style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:12px;">' +
       '<div class="play-circle" style="position:relative;z-index:1;">' +
-      '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>'
-    : '<div class="play-circle"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>';
+      '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>';
+  } else {
+    thumbContent = '<div class="play-circle"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>';
+  }
 
   document.getElementById('courseContent').innerHTML =
     '<div class="course-hero">' +

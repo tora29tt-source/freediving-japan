@@ -3482,7 +3482,7 @@ async function loadCourses() {
 
   const { data: courses, error } = await _sb
     .from('courses')
-    .select('id, slug, title, category, status, price, thumbnail_url')
+    .select('id, slug, title, category, status, price, thumbnail_url, preview_video_url')
     .order('created_at', { ascending: true });
 
   if (error) { el.innerHTML = `<div class="empty">取得エラー: ${escHtml(error.message)}</div>`; return; }
@@ -3548,17 +3548,34 @@ async function loadCourses() {
             </div>
             <div style="font-size:12px;color:#8b8b90;">${CAT_JP[course.category] || course.category} ／ ¥${Number(course.price).toLocaleString('ja-JP')} ／ 動画登録済み: <strong style="color:${readyCount > 0 ? '#1f6f78' : '#e11d48'};">${readyCount}/${chapters.length}</strong></div>
           </div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            ${course.thumbnail_url
-              ? `<img src="${escHtml(course.thumbnail_url)}" alt="" style="width:80px;height:45px;object-fit:cover;border-radius:6px;border:1px solid #e7e7ea;">`
-              : `<div style="width:80px;height:45px;background:#f0f0f2;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;border:1px dashed #c0c0c5;">🖼</div>`}
-            <button type="button" id="thumb-btn-${course.id}"
-              onclick="document.getElementById('course-thumb-file-${course.id}').click()"
-              style="padding:6px 12px;background:rgba(46,196,182,0.12);border:1px solid rgba(46,196,182,0.3);color:#1f6f78;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">
-              📤 ${course.thumbnail_url ? '差し替え' : 'アップロード'}
-            </button>
-            <input type="file" id="course-thumb-file-${course.id}" accept="image/*" style="display:none"
-              onchange="uploadCourseThumb('${course.id}', this)">
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:11px;color:#8b8b90;width:80px;flex-shrink:0;">サムネイル</span>
+              ${course.thumbnail_url
+                ? `<img src="${escHtml(course.thumbnail_url)}" alt="" style="width:80px;height:45px;object-fit:cover;border-radius:6px;border:1px solid #e7e7ea;">`
+                : `<div style="width:80px;height:45px;background:#f0f0f2;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;border:1px dashed #c0c0c5;">🖼</div>`}
+              <button type="button" id="thumb-btn-${course.id}"
+                onclick="document.getElementById('course-thumb-file-${course.id}').click()"
+                style="padding:6px 12px;background:rgba(46,196,182,0.12);border:1px solid rgba(46,196,182,0.3);color:#1f6f78;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">
+                📤 ${course.thumbnail_url ? '差し替え' : 'アップロード'}
+              </button>
+              <input type="file" id="course-thumb-file-${course.id}" accept="image/*" style="display:none"
+                onchange="uploadCourseThumb('${course.id}', this)">
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:11px;color:#8b8b90;width:80px;flex-shrink:0;">サマリー動画</span>
+              ${course.preview_video_url
+                ? `<video src="${escHtml(course.preview_video_url)}" style="width:80px;height:45px;object-fit:cover;border-radius:6px;border:1px solid #e7e7ea;" muted></video>`
+                : `<div style="width:80px;height:45px;background:#f0f0f2;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;border:1px dashed #c0c0c5;">🎬</div>`}
+              <button type="button" id="preview-btn-${course.id}"
+                onclick="document.getElementById('course-preview-file-${course.id}').click()"
+                style="padding:6px 12px;background:rgba(46,196,182,0.12);border:1px solid rgba(46,196,182,0.3);color:#1f6f78;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">
+                📤 ${course.preview_video_url ? '差し替え' : 'アップロード'}
+              </button>
+              <input type="file" id="course-preview-file-${course.id}" accept="video/mp4,video/mov,video/quicktime" style="display:none"
+                onchange="uploadCoursePreview('${course.id}', this)">
+              <span style="font-size:11px;color:#8b8b90;">全員に公開</span>
+            </div>
           </div>
           <a href="/learn/course.html?slug=${escHtml(course.slug)}" target="_blank"
             style="font-size:12px;color:#1f6f78;text-decoration:none;white-space:nowrap;">詳細ページ →</a>
@@ -3614,6 +3631,36 @@ async function uploadCourseThumb(courseId, input) {
   if (saveErr) { alert('保存エラー: ' + saveErr.message); input.value = ''; return; }
 
   showToast('サムネイルを保存しました');
+  input.value = '';
+  loadCourses();
+}
+
+async function uploadCoursePreview(courseId, input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 200 * 1024 * 1024) { alert('200MB以下の動画にしてください'); input.value = ''; return; }
+
+  const btn = document.getElementById('preview-btn-' + courseId);
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ アップロード中…'; }
+
+  const ext  = file.name.split('.').pop().toLowerCase();
+  const safe = file.name.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\-_.]/g, '').replace(/\.[^.]+$/, '');
+  const path = `course-previews/${courseId}_${Date.now()}_${safe}.${ext}`;
+
+  const { error: upErr } = await _sb.storage
+    .from('article-images')
+    .upload(path, file, { contentType: file.type, upsert: false });
+
+  if (btn) { btn.disabled = false; btn.innerHTML = '📤 差し替え'; }
+
+  if (upErr) { alert('アップロード失敗: ' + upErr.message); input.value = ''; return; }
+
+  const { data: { publicUrl } } = _sb.storage.from('article-images').getPublicUrl(path);
+
+  const { error: saveErr } = await _sb.from('courses').update({ preview_video_url: publicUrl }).eq('id', courseId);
+  if (saveErr) { alert('保存エラー: ' + saveErr.message); input.value = ''; return; }
+
+  showToast('サマリー動画を保存しました');
   input.value = '';
   loadCourses();
 }

@@ -9,6 +9,18 @@
 
 const I18N_DICT = {
   en: {
+    /* --- グローバルナビ --- */
+    nav_mypage:           'My Page',
+    back_home:            'Back to Home',
+    tab_all:              'All',
+    tab_snorkel:          'Snorkeling',
+    tab_skin:             'Skin Diving',
+    tab_free:             'Freediving',
+    tab_learn:            'Learn',
+    search_placeholder:   'Search by area or keyword',
+    explore_title:        'Find Instructors & Shops',
+    explore_subtitle:     'Find a certified freediving instructor or shop in Japan',
+
     /* --- 共通 --- */
     back_to_list:         'Find Instructors & Shops',
     lang_notice:          '(Translation coming soon)',
@@ -69,6 +81,18 @@ const I18N_DICT = {
   },
 
   ko: {
+    /* --- 글로벌 네비 --- */
+    nav_mypage:           '마이페이지',
+    back_home:            '홈으로 돌아가기',
+    tab_all:              '전체',
+    tab_snorkel:          '스노클링',
+    tab_skin:             '스킨다이빙',
+    tab_free:             '프리다이빙',
+    tab_learn:            '배우기',
+    search_placeholder:   '지역 또는 키워드로 검색',
+    explore_title:        '강사 & 샵 찾기',
+    explore_subtitle:     '일본의 프리다이빙 강사 또는 샵을 찾아보세요',
+
     /* --- 공통 --- */
     back_to_list:         '강사 & 샵 찾기',
     lang_notice:          '(번역 준비 중)',
@@ -129,6 +153,18 @@ const I18N_DICT = {
   },
 
   zh: {
+    /* --- 全局导航 --- */
+    nav_mypage:           '我的页面',
+    back_home:            '返回主页',
+    tab_all:              '全部',
+    tab_snorkel:          '浮潜',
+    tab_skin:             '皮肤潜水',
+    tab_free:             '自由潜水',
+    tab_learn:            '学习',
+    search_placeholder:   '按区域或关键词搜索',
+    explore_title:        '查找教练和店铺',
+    explore_subtitle:     '在日本寻找认证自由潜水教练或店铺',
+
     /* --- 通用 --- */
     back_to_list:         '查找教练和店铺',
     lang_notice:          '（翻译准备中）',
