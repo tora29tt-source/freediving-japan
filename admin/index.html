@@ -3549,14 +3549,16 @@ async function loadCourses() {
             <div style="font-size:12px;color:#8b8b90;">${CAT_JP[course.category] || course.category} ／ ¥${Number(course.price).toLocaleString('ja-JP')} ／ 動画登録済み: <strong style="color:${readyCount > 0 ? '#1f6f78' : '#e11d48'};">${readyCount}/${chapters.length}</strong></div>
           </div>
           <div style="display:flex;align-items:center;gap:8px;">
-            <input type="url" id="thumb-${course.id}" placeholder="サムネイルURL"
-              value="${escHtml(course.thumbnail_url || '')}"
-              style="width:260px;padding:6px 10px;border:1px solid #e7e7ea;border-radius:6px;font-size:12px;color:#222226;"
-              oninput="document.getElementById('thumb-save-${course.id}').style.opacity='1';document.getElementById('thumb-save-${course.id}').style.pointerEvents='auto';">
-            <button id="thumb-save-${course.id}" onclick="saveCourseThumb('${course.id}')"
-              style="padding:6px 12px;background:#1f6f78;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;opacity:0.4;pointer-events:none;white-space:nowrap;">
-              保存
+            ${course.thumbnail_url
+              ? `<img src="${escHtml(course.thumbnail_url)}" alt="" style="width:80px;height:45px;object-fit:cover;border-radius:6px;border:1px solid #e7e7ea;">`
+              : `<div style="width:80px;height:45px;background:#f0f0f2;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;border:1px dashed #c0c0c5;">🖼</div>`}
+            <button type="button" id="thumb-btn-${course.id}"
+              onclick="document.getElementById('course-thumb-file-${course.id}').click()"
+              style="padding:6px 12px;background:rgba(46,196,182,0.12);border:1px solid rgba(46,196,182,0.3);color:#1f6f78;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">
+              📤 ${course.thumbnail_url ? '差し替え' : 'アップロード'}
             </button>
+            <input type="file" id="course-thumb-file-${course.id}" accept="image/*" style="display:none"
+              onchange="uploadCourseThumb('${course.id}', this)">
           </div>
           <a href="/learn/course.html?slug=${escHtml(course.slug)}" target="_blank"
             style="font-size:12px;color:#1f6f78;text-decoration:none;white-space:nowrap;">詳細ページ →</a>
@@ -3586,16 +3588,34 @@ function markChapterDirty(chapterId) {
   if (btn) { btn.style.opacity = '1'; btn.style.pointerEvents = 'auto'; }
 }
 
-async function saveCourseThumb(courseId) {
-  const input = document.getElementById('thumb-' + courseId);
-  const btn   = document.getElementById('thumb-save-' + courseId);
-  if (!input) return;
-  const thumbnail_url = input.value.trim() || null;
-  if (btn) { btn.textContent = '保存中…'; btn.disabled = true; }
-  const { error } = await _sb.from('courses').update({ thumbnail_url }).eq('id', courseId);
-  if (error) { alert('保存エラー: ' + error.message); if (btn) { btn.textContent = '保存'; btn.disabled = false; } return; }
-  showToast('サムネイルURLを保存しました');
-  if (btn) { btn.textContent = '保存'; btn.disabled = false; btn.style.opacity = '0.4'; btn.style.pointerEvents = 'none'; }
+async function uploadCourseThumb(courseId, input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { alert('5MB以下の画像にしてください'); input.value = ''; return; }
+
+  const btn = document.getElementById('thumb-btn-' + courseId);
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ アップロード中…'; }
+
+  const ext  = file.name.split('.').pop().toLowerCase();
+  const safe = file.name.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\-_.]/g, '').replace(/\.[^.]+$/, '');
+  const path = `course-covers/${courseId}_${Date.now()}_${safe}.${ext}`;
+
+  const { error: upErr } = await _sb.storage
+    .from('article-images')
+    .upload(path, file, { contentType: file.type, upsert: false });
+
+  if (btn) { btn.disabled = false; btn.innerHTML = '📤 差し替え'; }
+
+  if (upErr) { alert('アップロード失敗: ' + upErr.message); input.value = ''; return; }
+
+  const { data: { publicUrl } } = _sb.storage.from('article-images').getPublicUrl(path);
+
+  const { error: saveErr } = await _sb.from('courses').update({ thumbnail_url: publicUrl }).eq('id', courseId);
+  if (saveErr) { alert('保存エラー: ' + saveErr.message); input.value = ''; return; }
+
+  showToast('サムネイルを保存しました');
+  input.value = '';
+  loadCourses();
 }
 
 async function saveChapter(chapterId) {
