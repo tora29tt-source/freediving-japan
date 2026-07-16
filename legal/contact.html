@@ -32,50 +32,57 @@
 </style>
 </head>
 <body>
+<script src="../js/i18n.js"></script>
+<script src="../js/lang-switcher.js"></script>
+<script>
+let currentLang = 'ja';
+const T = (key, ja) => (window.I18N ? I18N.t(currentLang, key, ja) || ja : ja);
+LangSwitcher.init(function(lang){ if(window.I18N) I18N.apply(lang); currentLang = lang; });
+</script>
 <header class="hdr">
   <div class="hdr-in">
     <a class="logo" href="../index.html">FREEDIVING <span>JAPAN</span></a>
     <div class="hdr-right">
-      <a class="hdr-link" href="../mypage.html"><span class="avatar"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/></svg></span>マイページ</a>
+      <a class="hdr-link" href="../mypage.html"><span class="avatar"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/></svg></span><span data-i18n="nav_mypage">マイページ</span></a>
     </div>
   </div>
 </header>
 <main class="legal-main">
   <a class="crumb" href="../index.html" style="margin:14px 0 0;display:inline-flex;"><svg class="icon" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg><span data-i18n="back_home">ホームに戻る</span></a>
-  <h1 class="legal-title">お問い合わせ</h1>
-  <p class="legal-lead">本サービスに関するご質問・ご要望は下記フォームより受け付けています。予約済みのコース内容に関するご質問は、予約先のインストラクター・ショップへ直接お問い合わせいただくとスムーズです。</p>
+  <h1 class="legal-title" data-i18n="foot_contact">お問い合わせ</h1>
+  <p class="legal-lead" data-i18n="ct_lead">本サービスに関するご質問・ご要望は下記フォームより受け付けています。予約済みのコース内容に関するご質問は、予約先のインストラクター・ショップへ直接お問い合わせいただくとスムーズです。</p>
 
   <form class="cform" id="contactForm">
     <div class="cform-group">
-      <label class="cform-label" for="cf-category">お問い合わせの種類<span class="req">必須</span></label>
+      <label class="cform-label" for="cf-category"><span data-i18n="ct_category">お問い合わせの種類</span><span class="req" data-i18n="ct_required">必須</span></label>
       <select class="cform-select" id="cf-category" required>
-        <option value="">選択してください</option>
-        <option value="booking">予約・キャンセルについて</option>
-        <option value="course">動画講座について</option>
-        <option value="listing">掲載希望（インストラクター・ショップ）</option>
-        <option value="privacy">個人情報の開示等の請求</option>
-        <option value="other">その他</option>
+        <option value="" data-i18n="ct_select">選択してください</option>
+        <option value="booking" data-i18n="ct_opt_booking">予約・キャンセルについて</option>
+        <option value="course" data-i18n="ct_opt_course">動画講座について</option>
+        <option value="listing" data-i18n="ct_opt_listing">掲載希望（インストラクター・ショップ）</option>
+        <option value="privacy" data-i18n="ct_opt_privacy">個人情報の開示等の請求</option>
+        <option value="other" data-i18n="ct_opt_other">その他</option>
       </select>
     </div>
     <div class="cform-group">
-      <label class="cform-label" for="cf-name">お名前<span class="req">必須</span></label>
-      <input class="cform-input" id="cf-name" type="text" placeholder="山田 太郎" required maxlength="100">
+      <label class="cform-label" for="cf-name"><span data-i18n="auth_name">お名前</span><span class="req" data-i18n="ct_required">必須</span></label>
+      <input class="cform-input" id="cf-name" type="text" placeholder="山田 太郎" data-i18n-ph="auth_name_ph" required maxlength="100">
     </div>
     <div class="cform-group">
-      <label class="cform-label" for="cf-email">メールアドレス<span class="req">必須</span></label>
+      <label class="cform-label" for="cf-email"><span data-i18n="auth_email">メールアドレス</span><span class="req" data-i18n="ct_required">必須</span></label>
       <input class="cform-input" id="cf-email" type="email" placeholder="your@email.com" required maxlength="200">
     </div>
     <div class="cform-group">
-      <label class="cform-label" for="cf-message">お問い合わせ内容<span class="req">必須</span></label>
-      <textarea class="cform-textarea" id="cf-message" required maxlength="4000" placeholder="できるだけ具体的にご記入ください"></textarea>
+      <label class="cform-label" for="cf-message"><span data-i18n="ct_message">お問い合わせ内容</span><span class="req" data-i18n="ct_required">必須</span></label>
+      <textarea class="cform-textarea" id="cf-message" required maxlength="4000" placeholder="できるだけ具体的にご記入ください" data-i18n-ph="ct_message_ph"></textarea>
     </div>
     <div class="hp-field" aria-hidden="true">
       <label>この欄には入力しないでください<input type="text" id="cf-website" tabindex="-1" autocomplete="off"></label>
     </div>
-    <p class="cform-note">送信いただいた内容は<a href="privacy.html">プライバシーポリシー</a>に基づいて取り扱います。通常2〜3営業日以内にメールで返信します。</p>
+    <p class="cform-note" data-i18n-html="ct_note">送信いただいた内容は<a href="privacy.html" data-i18n="foot_privacy">プライバシーポリシー</a>に基づいて取り扱います。通常2〜3営業日以内にメールで返信します。</p>
     <button class="cform-submit" type="submit" id="cfSubmit">
       <svg class="icon" style="width:16px;height:16px;" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-      送信する
+      <span data-i18n="ct_submit">送信する</span>
     </button>
     <div class="cform-status" id="cfStatus"></div>
   </form>
@@ -85,7 +92,7 @@
     <div class="foot-col"><h4 data-i18n="foot_explore">探す</h4><a href="../snorkeling.html" data-i18n="tab_snorkel">シュノーケリング</a><a href="../skindiving.html" data-i18n="tab_skin">スキンダイビング</a><a href="../freediving.html" data-i18n="tab_free">フリーダイビング</a><a href="../explore/shops.html" data-i18n="foot_search_shop">ショップ/インストラクターを探す</a></div>
     <div class="foot-col"><h4 data-i18n="foot_learn_read">学ぶ・読む</h4><a href="../learn/index.html" data-i18n="foot_video_learn">動画で学ぶ</a><a href="../media/index.html" data-i18n="foot_articles">記事・コラム</a></div>
     <div class="foot-col"><h4 data-i18n="foot_competition">競技</h4><a href="../events/2026_competitions.html" data-i18n="foot_events">大会情報</a><a href="../rankings/AIDA_ranking.html" data-i18n="foot_rankings">国内ランキング</a></div>
-    <div class="foot-col"><h4 data-i18n="foot_other">その他</h4><a href="../mypage.html" data-i18n="nav_mypage">マイページ</a><a href="about.html">運営者情報</a><a href="terms.html">利用規約</a><a href="privacy.html">プライバシーポリシー</a><a href="tokushoho.html">特定商取引法に基づく表記</a><a href="contact.html">お問い合わせ</a></div>
+    <div class="foot-col"><h4 data-i18n="foot_other">その他</h4><a href="../mypage.html" data-i18n="nav_mypage">マイページ</a><a href="about.html" data-i18n="foot_about">運営者情報</a><a href="terms.html" data-i18n="foot_terms">利用規約</a><a href="privacy.html" data-i18n="foot_privacy">プライバシーポリシー</a><a href="tokushoho.html" data-i18n="foot_tokushoho">特定商取引法に基づく表記</a><a href="contact.html" data-i18n="foot_contact">お問い合わせ</a></div>
   </div>
   <div class="foot-bottom"><div class="wrap">© 2026 FREEDIVING JAPAN（仮）</div></div>
 </footer>
@@ -118,18 +125,18 @@
     if (!payload.category || !payload.name || !payload.email || !payload.message) return;
 
     btn.disabled = true;
-    btn.textContent = '送信中…';
+    btn.textContent = T('ct_sending', '送信中…');
     try {
       const { error } = await _sb.from('contact_messages').insert(payload);
       if (error) throw error;
       form.reset();
-      showStatus('ok', 'お問い合わせを受け付けました。通常2〜3営業日以内に、ご入力いただいたメールアドレス宛に返信いたします。');
-      btn.textContent = '送信しました';
+      showStatus('ok', T('ct_ok', 'お問い合わせを受け付けました。通常2〜3営業日以内に、ご入力いただいたメールアドレス宛に返信いたします。'));
+      btn.textContent = T('ct_sent', '送信しました');
     } catch (err) {
       console.error('contact submit error:', err);
-      showStatus('ng', '送信に失敗しました。時間をおいて再度お試しください。');
+      showStatus('ng', T('ct_ng', '送信に失敗しました。時間をおいて再度お試しください。'));
       btn.disabled = false;
-      btn.textContent = '送信する';
+      btn.textContent = T('ct_submit', '送信する');
     }
   });
 })();

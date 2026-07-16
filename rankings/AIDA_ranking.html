@@ -175,13 +175,18 @@ footer{color:var(--muted);font-size:11px;text-align:center;padding:20px;border-t
 @media(max-width:640px){.sel-disc-grid{grid-template-columns:1fr}}</style>
 </head>
 <body>
+<script src="../js/i18n.js"></script>
+<script src="../js/lang-switcher.js"></script>
+<script>
+function TT(key, ja) { return window.I18N ? I18N.t(LangSwitcher.getLang(), key, ja) || ja : ja; }
+</script>
 <header class="hdr">
   <div class="hdr-in">
     <a class="logo" href="../index.html">FREEDIVING <span>JAPAN</span></a>
     <div class="hdr-right">
       <a class="hdr-link" href="../mypage.html">
         <span class="avatar"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/></svg></span>
-        マイページ
+        <span data-i18n="nav_mypage">マイページ</span>
       </a>
     </div>
   </div>
@@ -190,12 +195,12 @@ footer{color:var(--muted);font-size:11px;text-align:center;padding:20px;border-t
   <a class="crumb" href="../index.html"><svg class="icon" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg><span data-i18n="back_home">ホームに戻る</span></a>
   <div class="page-hero">
     <span class="page-eyebrow">AIDA Japan Ranking</span>
-    <h1 class="page-title">国内<em>ランキング</em></h1>
-    <p class="page-sub">2000–2026 日本記録データベース<span style="margin-left:12px;opacity:.75">※ AIDAより自動取得（毎日 06:00 JST）。リアルタイムデータではありません。</span></p>
+    <h1 class="page-title" data-i18n-html="rk_title">国内<em>ランキング</em></h1>
+    <p class="page-sub"><span data-i18n="rk_sub">2000–2026 日本記録データベース</span><span style="margin-left:12px;opacity:.75" data-i18n="events_sub_note">※ AIDAより自動取得（毎日 06:00 JST）。リアルタイムデータではありません。</span></p>
   </div>
 <div class="hero" id="hero"></div>
 <div class="controls"><div class="tabs" id="tabs"></div><span class="spacer"></span>
-<div class="seg" id="genderSeg"><button data-g="Male" class="active">男子</button><button data-g="Female">女子</button></div>
+<div class="seg" id="genderSeg"><button data-g="Male" class="active" data-i18n="male">男子</button><button data-g="Female" data-i18n="female">女子</button></div>
 <select id="yearSel"></select><button onclick="showCmp()" title="選手比較" style="padding:7px 11px;background:rgba(168,236,232,.07);border:1px solid rgba(168,236,232,.25);border-radius:8px;color:var(--accent2);font-size:15px;cursor:pointer;line-height:1;transition:.15s" onmouseover="this.style.background='rgba(168,236,232,.15)'" onmouseout="this.style.background='rgba(168,236,232,.07)'">⚖️</button></div>
 <div class="discHead" id="discHead"></div><div class="ctx" id="ctx"></div>
 <div id="podiumArea"></div><div id="tableArea"></div>
@@ -327,7 +332,7 @@ footer{color:var(--muted);font-size:11px;text-align:center;padding:20px;border-t
 let DATA = {records:[], overall:[]};
 
 // ローディング
-document.getElementById('hero').innerHTML='<p style="color:var(--muted);padding:20px">データ読み込み中...</p>';
+document.getElementById('hero').innerHTML='<p style="color:var(--muted);padding:20px">'+TT('loading','データ読み込み中...')+'</p>';
 
 let WC_DATA = { japan: {}, updated: '', year: 0 };
 
@@ -372,7 +377,7 @@ Promise.all([
     // データ取得日時を表示
   })
   .catch(err => {
-    document.getElementById('hero').innerHTML='<p style="color:#dc2626;padding:20px">データ読み込みに失敗しました: '+err.message+'</p>';
+    document.getElementById('hero').innerHTML='<p style="color:#dc2626;padding:20px">'+TT('err_load','データ読み込みに失敗しました')+': '+err.message+'</p>';
     console.error('Data load error:', err);
   });
 ;
@@ -402,7 +407,7 @@ const DJA=Object.fromEntries(DISC.map(d=>[d[0],d[1]]));
 const DCAT=Object.fromEntries(DISC.map(d=>[d[0],d[4]]));
 let state={disc:'DYN',gender:'Male',year:'all'};
 const tabs=document.getElementById('tabs');
-const TAB_GROUPS=[{cat:'pool',label:'プール'},{cat:'sea',label:'海'},{cat:'overall',label:'総合'}];
+const TAB_GROUPS=[{cat:'pool',get label(){return TT('env_pool','プール');}},{cat:'sea',get label(){return TT('env_sea','海');}},{cat:'overall',get label(){return TT('rk_overall','総合');}}];
 TAB_GROUPS.forEach(g=>{
   const row=document.createElement('div');row.className='tab-row tab-row-wrap';
   const lbl=document.createElement('span');lbl.className='tab-cat '+g.cat;lbl.textContent=g.label;row.appendChild(lbl);
@@ -414,9 +419,9 @@ yearSel.onchange=()=>{state.year=yearSel.value;render();};
 
 function buildYearSel(){
   yearSel.innerHTML='';
-  const allOpt=document.createElement('option');allOpt.value='all';allOpt.textContent='全年度（歴代）';yearSel.appendChild(allOpt);
+  const allOpt=document.createElement('option');allOpt.value='all';allOpt.textContent=TT('rk_all_years','全年度（歴代）');yearSel.appendChild(allOpt);
   const years=[...new Set(DATA.records.map(r=>r.year))].sort().reverse();
-  years.forEach(y=>{const o=document.createElement('option');o.value=y;o.textContent=y+'年';yearSel.appendChild(o);});
+  years.forEach(y=>{const o=document.createElement('option');o.value=y;o.textContent=y+TT('rk_year_suffix','年');yearSel.appendChild(o);});
   yearSel.value=state.year;
 }
 document.querySelectorAll('#genderSeg button').forEach(b=>b.onclick=()=>{state.gender=b.dataset.g;document.querySelectorAll('#genderSeg button').forEach(x=>x.classList.toggle('active',x===b));render();});
@@ -456,9 +461,9 @@ function renderHero(){
     const cards=DISC.filter(d=>d[4]===cat).map(d=>{
       const rows=['Male','Female'].map(g=>{
         const rec=JP_RECORDS[d[0]+'|'+g];
-        if(!rec)return '<div class="hrow"><div class="av" style="background:#eef1f2"></div><div><div class="gtag">'+(g==='Male'?'男子':'女子')+'</div><div class="hn" style="color:var(--muted)">記録なし</div></div></div>';
+        if(!rec)return '<div class="hrow"><div class="av" style="background:#eef1f2"></div><div><div class="gtag">'+(g==='Male'?TT('male','男子'):TT('female','女子'))+'</div><div class="hn" style="color:var(--muted)">'+TT('rk_no_record','記録なし')+'</div></div></div>';
         const t=resTag(rec.result);
-        return '<div class="hrow" onclick="showAthlete(\''+esc(rec.name)+'\',false)">'+av(rec.name,'av')+'<div><div class="gtag">'+(g==='Male'?'男子':'女子')+'</div><div class="hn">'+rec.name+'</div></div><div class="hr"><div class="v">'+cleanRes(rec.result)+'</div>'+(t?'<div class="nr">'+t+'</div>':'')+'</div></div>';
+        return '<div class="hrow" onclick="showAthlete(\''+esc(rec.name)+'\',false)">'+av(rec.name,'av')+'<div><div class="gtag">'+(g==='Male'?TT('male','男子'):TT('female','女子'))+'</div><div class="hn">'+rec.name+'</div></div><div class="hr"><div class="v">'+cleanRes(rec.result)+'</div>'+(t?'<div class="nr">'+t+'</div>':'')+'</div></div>';
       }).join('');
       const disc0=d[0];
       const footer='<div style="margin-top:9px;padding-top:9px;border-top:1px solid rgba(20,20,30,.06)">'
@@ -468,9 +473,9 @@ function renderHero(){
     }).join('');
     return '<div class="grouphd '+cat+'"><span class="dot"></span>'+label+' <small>'+sub+'</small></div><div class="hgrid">'+cards+'</div>';
   }
-  document.getElementById('hero').innerHTML='<h2>現在の<b>日本記録</b></h2>'
-    +group('pool','プール種目','水平距離・時間を競う')
-    +group('sea','海（深度）種目','ロープ沿いに深さを競う')
+  document.getElementById('hero').innerHTML='<h2>'+TT('rk_current_records','現在の<b>日本記録</b>')+'</h2>'
+    +group('pool',TT('rk_pool_disc','プール種目'),TT('rk_pool_desc','水平距離・時間を競う'))
+    +group('sea',TT('rk_sea_disc','海（深度）種目'),TT('rk_sea_desc','ロープ沿いに深さを競う'))
     +'<div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:10px">'
     +'<div onclick="showSelModal()" style="cursor:pointer;padding:12px 18px;border-radius:14px;background:linear-gradient(135deg,rgba(255,210,74,.18),rgba(255,150,20,.08));border:1px solid rgba(255,210,74,.35);transition:.15s" onmouseover="this.style.borderColor=\'rgba(255,210,74,.7)\'" onmouseout="this.style.borderColor=\'rgba(255,210,74,.35)\'">'
     +'<div style="font-size:18px;margin-bottom:3px">🏅</div>'
@@ -488,7 +493,7 @@ function renderHero(){
 function render(){
   document.querySelectorAll('#tabs .tab').forEach(t=>t.classList.toggle('active',t.dataset.k===state.disc));
   const info=DISC.find(d=>d[0]===state.disc);const cat=info[4];
-  const gj=state.gender==='Male'?'男子':'女子';
+  const gj=state.gender==='Male'?TT('male','男子'):TT('female','女子');
   const badge=cat==='pool'?'<span class="badge pool">プール</span>':cat==='sea'?'<span class="badge sea">海・深度</span>':'';
   document.getElementById('discHead').className='discHead '+cat;
   document.getElementById('discHead').innerHTML='<span class="ja">'+info[1]+'</span><span class="en">'+info[2]+'</span>'+badge+'<div class="desc">'+info[3]+'</div>';
@@ -522,7 +527,7 @@ function render(){
              :DATA.records.filter(r=>r.discipline===state.disc&&r.year===state.year&&r.gender===state.gender).sort((a,b)=>a.rank-b.rank);
   }
   const pod=document.getElementById('podiumArea'),area=document.getElementById('tableArea');
-  if(!rows.length){pod.innerHTML='';area.innerHTML='<div class="empty">この条件のデータはありません</div>';return;}
+  if(!rows.length){pod.innerHTML='';area.innerHTML='<div class="empty">'+TT('rk_empty','この条件のデータはありません')+'</div>';return;}
   const top=rows.slice(0,3),order=[1,0,2];
   pod.innerHTML='<div class="podium">'+order.map(i=>{const r=top[i];if(!r)return '<div></div>';
     const cls=['p1','p2','p3'][r.rank-1]||'';
@@ -633,7 +638,7 @@ function showAthlete(name,fromOverall){
       +rows+totalLine+'</div>';
   }
   const genders=[...new Set(recs.map(r=>r.gender))];
-  const gtxt=genders.includes('Male')?'男子':genders.includes('Female')?'女子':'';
+  const gtxt=genders.includes('Male')?TT('male','男子'):genders.includes('Female')?TT('female','女子'):'';
   function bestPerDisc(){
     const map={};
     recs.forEach(r=>{
@@ -1700,4 +1705,7 @@ function renderDistChart(){
   document.getElementById('distInfo').textContent =
     'Source: AIDA International · Data as of '+(DATA.updatedAt||'');
 }
-</script></body></html>
+</script><script>
+LangSwitcher.init(function(lang){ if (window.I18N) I18N.apply(lang); });
+</script>
+</body></html>

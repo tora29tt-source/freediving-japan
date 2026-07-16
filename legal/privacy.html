@@ -25,14 +25,15 @@
   <div class="hdr-in">
     <a class="logo" href="../index.html">FREEDIVING <span>JAPAN</span></a>
     <div class="hdr-right">
-      <a class="hdr-link" href="../mypage.html"><span class="avatar"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/></svg></span>マイページ</a>
+      <a class="hdr-link" href="../mypage.html"><span class="avatar"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/></svg></span><span data-i18n="nav_mypage">マイページ</span></a>
     </div>
   </div>
 </header>
 <main class="legal-main">
   <a class="crumb" href="../index.html" style="margin:14px 0 0;display:inline-flex;"><svg class="icon" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg><span data-i18n="back_home">ホームに戻る</span></a>
-  <h1 class="legal-title">プライバシーポリシー</h1>
-  <p class="legal-updated">制定：2026年7月10日</p>
+  <h1 class="legal-title" data-i18n="foot_privacy">プライバシーポリシー</h1>
+  <div data-lang-block="ja" data-lang-group="legal">
+<p class="legal-updated">制定：2026年7月10日</p>
 
   <div class="legal-body">
     <p>寺嶋拓哉（以下「当方」）は、「FREEDIVING JAPAN」（以下「本サービス」）における利用者の個人情報を、以下の方針に基づき取り扱います。</p>
@@ -88,15 +89,68 @@
     <h2>9. お問い合わせ窓口</h2>
     <p>本ポリシーに関するお問い合わせは、<a href="contact.html">お問い合わせフォーム</a>までお願いします。</p>
   </div>
+
+</div>
+<div data-lang-block="en" data-lang-group="legal" hidden>
+<p class="legal-updated">Established: July 10, 2026 (English translation for reference; the Japanese version is the official text.)</p>
+<div class="legal-body">
+<p>Takuya Terajima (the "Operator") handles Users' personal information on "FREEDIVING JAPAN" (the "Service") in accordance with the following policy.</p>
+<h2>1. Information We Collect</h2>
+<ul>
+<li><strong>Account information</strong>: name, email address and profile image obtained when signing in with a Google account</li>
+<li><strong>Booking information</strong>: name, email address, phone number (optional), number of participants, rental requests, etc. entered when booking</li>
+<li><strong>Purchase information</strong>: purchase history of video courses, etc. Credit card numbers are processed by our payment processor (Stripe) and are not stored by the Operator</li>
+<li><strong>Inquiries</strong>: name, email address and message entered in the contact form</li>
+<li><strong>Usage data</strong>: settings stored via cookies / localStorage, access logs</li>
+</ul>
+<h2>2. Purposes of Use</h2>
+<ul>
+<li>To intermediate bookings, send booking notifications and relay communication with Listed Operators</li>
+<li>To provide video courses, manage purchases and verify viewing rights</li>
+<li>To respond to inquiries</li>
+<li>To prevent fraud and improve the quality of the Service</li>
+<li>To send important notices</li>
+</ul>
+<h2>3. Provision to Third Parties</h2>
+<p>The Operator does not provide personal information to third parties without consent, except:</p>
+<ul>
+<li>providing your name, contact details and booking details to the Listed Operator (instructor / shop) you booked, to the extent necessary to complete the booking;</li>
+<li>where required by law;</li>
+<li>where necessary to protect life, body or property and obtaining consent is difficult.</li>
+</ul>
+<h2>4. External Services</h2>
+<p>The Service uses the following external services, to which necessary data is transmitted. See each company's privacy policy for details.</p>
+<ul>
+<li><strong>Supabase</strong> (database & authentication)</li>
+<li><strong>Stripe</strong> (credit card payments)</li>
+<li><strong>Google</strong> (sign-in)</li>
+<li><strong>Vimeo</strong> (video streaming)</li>
+<li><strong>Vercel</strong> (hosting)</li>
+</ul>
+<h2>5. Security</h2>
+<p>The Operator takes reasonable security measures — such as encrypted communication (HTTPS) and access control (database row-level security) — to prevent unauthorized access, leakage or loss of personal information.</p>
+<h2>6. Cookies</h2>
+<p>The Service uses cookies and localStorage to keep you signed in and save your settings. You can disable them in your browser settings, but some features may become unavailable.</p>
+<h2>7. Disclosure, Correction, Suspension of Use and Deletion</h2>
+<p>Users may request disclosure, correction, suspension of use or deletion of their personal information held by the Operator via the <a href="contact.html">contact form</a>. After identity verification, we will respond without delay in accordance with the law.</p>
+<h2>8. Revisions</h2>
+<p>This policy may be revised in response to legal amendments or changes to the Service. Material changes will be announced on the Service.</p>
+<h2>9. Contact</h2>
+<p>For inquiries about this policy, please use the <a href="contact.html">contact form</a>.</p>
+</div>
+</div>
 </main>
 <footer class="foot">
   <div class="foot-in">
     <div class="foot-col"><h4 data-i18n="foot_explore">探す</h4><a href="../snorkeling.html" data-i18n="tab_snorkel">シュノーケリング</a><a href="../skindiving.html" data-i18n="tab_skin">スキンダイビング</a><a href="../freediving.html" data-i18n="tab_free">フリーダイビング</a><a href="../explore/shops.html" data-i18n="foot_search_shop">ショップ/インストラクターを探す</a></div>
     <div class="foot-col"><h4 data-i18n="foot_learn_read">学ぶ・読む</h4><a href="../learn/index.html" data-i18n="foot_video_learn">動画で学ぶ</a><a href="../media/index.html" data-i18n="foot_articles">記事・コラム</a></div>
     <div class="foot-col"><h4 data-i18n="foot_competition">競技</h4><a href="../events/2026_competitions.html" data-i18n="foot_events">大会情報</a><a href="../rankings/AIDA_ranking.html" data-i18n="foot_rankings">国内ランキング</a></div>
-    <div class="foot-col"><h4 data-i18n="foot_other">その他</h4><a href="../mypage.html" data-i18n="nav_mypage">マイページ</a><a href="about.html">運営者情報</a><a href="terms.html">利用規約</a><a href="privacy.html">プライバシーポリシー</a><a href="tokushoho.html">特定商取引法に基づく表記</a><a href="contact.html">お問い合わせ</a></div>
+    <div class="foot-col"><h4 data-i18n="foot_other">その他</h4><a href="../mypage.html" data-i18n="nav_mypage">マイページ</a><a href="about.html" data-i18n="foot_about">運営者情報</a><a href="terms.html" data-i18n="foot_terms">利用規約</a><a href="privacy.html" data-i18n="foot_privacy">プライバシーポリシー</a><a href="tokushoho.html" data-i18n="foot_tokushoho">特定商取引法に基づく表記</a><a href="contact.html" data-i18n="foot_contact">お問い合わせ</a></div>
   </div>
   <div class="foot-bottom"><div class="wrap">© 2026 FREEDIVING JAPAN（仮）</div></div>
 </footer>
+<script src="../js/i18n.js"></script>
+<script src="../js/lang-switcher.js"></script>
+<script>LangSwitcher.init(function(lang){ if(window.I18N) I18N.apply(lang); });</script>
 </body>
 </html>

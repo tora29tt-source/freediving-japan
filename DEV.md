@@ -451,10 +451,22 @@ translations(
 - profile.html/listing.html ヘッダーに `<div class="hdr-right">` 追加（グローブアイコン注入先）
 - 本番QA完了（2026-07-16）：全ページ globe ✅ / localStorage 復元 ✅ / ページ間言語引き継ぎ ✅（index→explore→profile→listing で zh/ko/en が維持されることを Chrome MCP で確認）
 
+**完了（2026-07-17・全ページ展開）**：
+- 訪問者向け全25ページにi18n適用完了（switcher＋data-i18n＋動的文言のT()化）：
+  - 予約動線：auth（ログイン）/ mypage / booking/success / 404 / explore一覧 / explore/shops
+  - コンテンツ：freediving・skindiving・snorkeling（3種目LP本文）/ learn 4ページ（index・course・watch・purchase-success）/ media 2ページ
+  - legal 5ページ：terms・privacy・tokushoho・about は**全文EN併記**（`data-lang-block`方式・ko/zhはEN版にフォールバック）、contact はフォームdata-i18n化
+  - events/2026_competitions（国名はja以外で英語原文表示）・rankings/AIDA_ranking（主要UI）
+- `js/i18n.js` 基盤改善：ko/zh欠落キーは**enへフォールバック**→ja、`data-lang-block`（長文の言語ブロック切替）、`<html lang>`自動更新。辞書は en 約500キー / ko・zh 約400キー
+- `js/lang-switcher.js`：ヘッダーが無いページ（auth等）は右上フローティンググローブにフォールバック
+- メディア記事本文はUIのみ翻訳＋ja以外では「この記事は日本語のみ」注記を本文冒頭に表示（本文翻訳は後続フェーズのまま）
+
 **未着手**：
 - レビュー投稿フローへの接続（投稿フォーム自体が未実装のため後回し）
-- メディア記事の多言語化（翻訳運用コストが継続的に発生するため後続フェーズ）
-- ホームページ・explore一覧・shopsページ等のナビゲーション部分の言語切り替えUI（現状は profile/listing のコンテンツページのみ）
+- メディア記事本文の多言語化（翻訳運用コストが継続的に発生するため後続フェーズ）
+- tools 4ページ（sta-timer・training-log・buoyancy-simulator・mouthfill-calculator）の内部UI翻訳（大規模アプリのため別セッションで対応。ログインゲート内のため優先度低）
+- 運営系ページは対象外：pro/・admin/・events/event-staff・events/competition-countdown・learn/freediving-learn（コース管理）
+- 実機QA（Chrome MCPでの言語切替・全ページ表示確認）は未実施
 
 -----
 
@@ -650,7 +662,7 @@ TOP (index.html)  ── Airbnb風マーケットプレイス（白基調）
 |メディア（/media/）                                        |✅ 基盤完成・media/一本化（2026-06-29）。admin/index.htmlメディアタブに統合|
 |サイト動線・検索UI・エリア設計                                    |✅ sitemap/robots/404新設、SVG地図→都道府県軸検索に刷新済み（詳細は[DECISIONS.md](docs/DECISIONS.md#2026-07-08サイト動線整備検索ui刷新svg地図後に一部廃止)参照）|
 |iOSアプリ（React Native）                                 |🔄 開発中（環境構築済み・Expo Go動作確認済み）。6タブのタブバー実装済み（2026-07-14・ホーム/ログ/タイマー/探す/情報/マイページ、探す・情報・マイページはWeb版へのブリッジ）。Supabase Auth（メール/パスワード）を追加し、STAタイマーの保存処理を実スキーマ（`training_sessions`+`training_dives`）に合わせて修正済み（2026-07-14、詳細は[APP.md](APP.md#phase-1-実装状況2026-07-14更新)）。**実機での保存動作確認は未実施**。ログ画面は公開セッション一覧のみ・SNSシェアは未実装|
-|多言語対応（i18n）基盤                                      |✅ 完了（2026-07-16）。DB/API/Translate APIキー/pro保存配線/profile・listing言語切替UI/js/i18n.js（固定UI文言辞書）/name_en手動翻訳保存/lang-switcher.js（全ページ共通グローブUI・ブラウザ言語自動検出・localStorage永続化）すべて実装・本番QA済み。残：レビュー投稿フロー・メディア記事多言語化|
+|多言語対応（i18n）基盤                                      |✅ 完了（2026-07-16基盤・2026-07-17全ページ展開）。DB/API/Translate APIキー/pro保存配線/js/i18n.js（en約500キー・ko/zh約400キー・enフォールバック・lang-block）/lang-switcher.js（グローブUI・フローティングフォールバック）。訪問者向け全25ページ適用済み・legal4ページ全文EN併記。残：レビュー投稿フロー・メディア記事本文・tools4ページ内部UI・実機QA|
 
 -----
 
