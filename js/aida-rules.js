@@ -76,6 +76,7 @@ function aidaGetLang() {
  */
 function aidaSpeak(textOrObj, rateOverride) {
   if (!window.speechSynthesis) return;
+  if (textOrObj == null) return; // typeof null === 'object' のためここで弾く
   var text = (typeof textOrObj === 'object')
     ? (textOrObj[_aidaLang] || textOrObj.en)
     : textOrObj;

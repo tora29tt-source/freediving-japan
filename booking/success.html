@@ -59,6 +59,12 @@ h1 { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
   <div class="spinner" id="spinner"></div>
 </div>
 
+<script src="../js/i18n.js"></script>
+<script src="../js/lang-switcher.js"></script>
+<script>
+// 多言語対応（動的描画のみのページなので t() を直接使う）
+const T = (key, ja) => I18N.t(LangSwitcher.getLang(), key, ja) || ja;
+</script>
 <script>
 // XSS対策: HTMLエスケープ
 function escHtml(str) {
@@ -75,12 +81,20 @@ const params     = new URLSearchParams(location.search);
 const bookingId  = params.get('booking_id');
 const sessionId  = params.get('session_id');
 
+let _booking = null; // 言語切替時の再描画用キャッシュ
+
+function fmtDate(d) {
+  const lang = LangSwitcher.getLang();
+  if (lang === 'ja') return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+  const locale = lang === 'ko' ? 'ko-KR' : lang === 'zh' ? 'zh-CN' : 'en-US';
+  return d.toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
 async function loadBooking() {
   const card    = document.getElementById('card');
-  const spinner = document.getElementById('spinner');
 
   if (!bookingId || !sessionId) {
-    renderError(card, '予約情報が見つかりませんでした。');
+    renderError(card, T('bk_err_notfound', '予約情報が見つかりませんでした。'));
     return;
   }
 
@@ -92,22 +106,25 @@ async function loadBooking() {
   const json = await res.json();
 
   if (!res.ok || !json.booking) {
-    renderError(card, '予約情報の取得に失敗しました。');
+    renderError(card, T('bk_err_fetch', '予約情報の取得に失敗しました。'));
     return;
   }
 
-  const booking = json.booking;
+  _booking = json.booking;
+  renderBooking(document.getElementById('card'), _booking);
+}
 
+function renderBooking(card, booking) {
   const slot    = booking.availability_slots;
   const listing = booking.listings;
   const d       = slot ? new Date(slot.slot_date + 'T00:00:00') : null;
-  const dateStr = d ? `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日` : '—';
+  const dateStr = d ? fmtDate(d) : '—';
   const timeStr = slot ? `${slot.start_time.slice(0,5)}〜${slot.end_time.slice(0,5)}` : '—';
 
   // ショップ名義（担当インストラクター未定）の予約では booking.instructors が無く
   // booking.shops のみが入る。どちらの場合も表示名・呼称を出し分ける
   const ownerName  = booking.instructors?.name || booking.shops?.name || null;
-  const ownerLabel = booking.instructor_id ? 'インストラクター' : 'ショップ';
+  const ownerLabel = booking.instructor_id ? T('bk_instructor', 'インストラクター') : T('bk_shop', 'ショップ');
 
   card.innerHTML = `
     <div class="icon-wrap">
@@ -116,33 +133,39 @@ async function loadBooking() {
         <polyline points="22 4 12 14.01 9 11.01"/>
       </svg>
     </div>
-    <h1>予約が完了しました！</h1>
-    <p class="sub">ご予約ありがとうございます。<br>${ownerLabel}から <strong>${escHtml(booking.client_email)}</strong> 宛にご連絡をお送りします。</p>
+    <h1>${T('bk_done', '予約が完了しました！')}</h1>
+    <p class="sub">${T('bk_thanks', 'ご予約ありがとうございます。')}<br>${T('bk_contact_notice', `${ownerLabel}から <strong>${escHtml(booking.client_email)}</strong> 宛にご連絡をお送りします。`).replace('{owner}', ownerLabel).replace('{email}', `<strong>${escHtml(booking.client_email)}</strong>`)}</p>
     <div class="detail-box">
-      <div class="detail-row"><span class="detail-key">プラン</span><span class="detail-val">${escHtml(listing?.title)}</span></div>
+      <div class="detail-row"><span class="detail-key">${T('bk_plan', 'プラン')}</span><span class="detail-val">${escHtml(listing?.title)}</span></div>
       ${ownerName ? `<div class="detail-row"><span class="detail-key">${ownerLabel}</span><span class="detail-val">${escHtml(ownerName)}</span></div>` : ''}
-      <div class="detail-row"><span class="detail-key">日時</span><span class="detail-val">${dateStr} ${timeStr}</span></div>
-      <div class="detail-row"><span class="detail-key">参加人数</span><span class="detail-val">${booking.participant_count}名</span></div>
-      <div class="detail-row"><span class="detail-key">合計金額</span><span class="detail-val">¥${booking.total_amount.toLocaleString()}</span></div>
-      <div class="detail-row"><span class="detail-key">予約番号</span><span class="detail-val" style="font-size:11px;font-family:monospace">${booking.id.slice(0,8).toUpperCase()}</span></div>
+      <div class="detail-row"><span class="detail-key">${T('bk_datetime', '日時')}</span><span class="detail-val">${dateStr} ${timeStr}</span></div>
+      <div class="detail-row"><span class="detail-key">${T('bk_participants', '参加人数')}</span><span class="detail-val">${booking.participant_count}${T('bk_people_suffix', '名')}</span></div>
+      <div class="detail-row"><span class="detail-key">${T('bk_total', '合計金額')}</span><span class="detail-val">¥${booking.total_amount.toLocaleString()}</span></div>
+      <div class="detail-row"><span class="detail-key">${T('bk_ref', '予約番号')}</span><span class="detail-val" style="font-size:11px;font-family:monospace">${booking.id.slice(0,8).toUpperCase()}</span></div>
     </div>
-    <p class="email-note">${ownerLabel}から詳細のご連絡をお送りします。<br>当日は集合場所にお越しください。</p>
+    <p class="email-note">${T('bk_email_note', `${ownerLabel}から詳細のご連絡をお送りします。<br>当日は集合場所にお越しください。`).replace('{owner}', ownerLabel)}</p>
     <a href="../explore/index.html" class="btn">
       <svg style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      他のプランを探す
+      ${T('bk_find_other', '他のプランを探す')}
     </a>
-    <a href="../index.html" class="btn btn-ghost">トップに戻る</a>
+    <a href="../index.html" class="btn btn-ghost">${T('back_home', 'トップに戻る')}</a>
   `;
 }
 
 function renderError(card, msg) {
   card.innerHTML = `
     <div style="font-size:40px;margin-bottom:16px">⚠️</div>
-    <h1 style="margin-bottom:12px">エラー</h1>
+    <h1 style="margin-bottom:12px">${T('bk_error', 'エラー')}</h1>
     <p class="sub">${msg}</p>
-    <a href="../index.html" class="btn btn-ghost">トップに戻る</a>
+    <a href="../index.html" class="btn btn-ghost">${T('back_home', 'トップに戻る')}</a>
   `;
 }
+
+// 言語切替時に再描画
+LangSwitcher.init(lang => {
+  I18N.apply(lang);
+  if (_booking) renderBooking(document.getElementById('card'), _booking);
+});
 
 loadBooking();
 </script>

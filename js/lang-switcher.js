@@ -68,6 +68,16 @@
       }
       .hdr-lang-opt:hover { background: var(--bg-sub, #f0f0f0); }
       .hdr-lang-opt.active { color: var(--accent, #0057d8); font-weight: 700; }
+      /* ヘッダーが無いページ用のフローティング表示 */
+      .fj-lang-float {
+        position: fixed; top: 14px; right: 14px; z-index: 10000;
+      }
+      .fj-lang-float .hdr-lang-btn {
+        background: #fff; border: 1px solid #e0e0e0; border-radius: 999px;
+        padding: 7px 12px; box-shadow: 0 2px 10px rgba(0,0,0,.12);
+        color: #333;
+      }
+      .fj-lang-float .hdr-lang-btn:hover { background: #f5f5f5; }
     `;
     document.head.appendChild(s);
   }
@@ -75,14 +85,20 @@
   /* ── ヘッダーUI注入 ── */
   function injectHeaderSwitcher(onChangeFn) {
     // .hdr-right / .header-icons / .hdr-in（いずれか最初に見つかったもの）に注入
-    const hdrRight = document.querySelector('.hdr-right') || document.querySelector('.header-icons') || document.querySelector('.hdr-in');
-    if (!hdrRight || document.querySelector('.hdr-lang')) return;
+    // どれも無いページ（auth.html等）では右上フローティング表示にフォールバック
+    let hdrRight = document.querySelector('.hdr-right') || document.querySelector('.header-icons') || document.querySelector('.hdr-in');
+    let floating = false;
+    if (!hdrRight) {
+      hdrRight = document.body;
+      floating = true;
+    }
+    if (document.querySelector('.hdr-lang')) return;
 
     injectCSS();
     const current = getLang();
 
     const wrapper = document.createElement('div');
-    wrapper.className = 'hdr-lang';
+    wrapper.className = 'hdr-lang' + (floating ? ' fj-lang-float' : '');
     wrapper.innerHTML = `
       <button class="hdr-lang-btn" aria-label="言語切替 / Language">
         <svg class="ls-icon" viewBox="0 0 24 24">

@@ -482,7 +482,9 @@ body { padding-bottom: 72px; }
 <!-- HEADER -->
 <header class="header">
   <a class="logo" href="index.html">FREEDIVING <span>JAPAN</span></a>
-  <a id="admin-header-btn" href="admin/" style="display:none;font-size:12px;font-weight:600;letter-spacing:0.08em;padding:5px 12px;border-radius:100px;background:rgba(194,65,12,0.10);border:1px solid rgba(194,65,12,0.35);color:#c2410c;text-decoration:none;">⚙️ 管理</a>
+  <div class="hdr-right" style="display:flex;align-items:center;gap:8px;">
+    <a id="admin-header-btn" href="admin/" style="display:none;font-size:12px;font-weight:600;letter-spacing:0.08em;padding:5px 12px;border-radius:100px;background:rgba(194,65,12,0.10);border:1px solid rgba(194,65,12,0.35);color:#c2410c;text-decoration:none;">⚙️ 管理</a>
+  </div>
 </header>
 
 <!-- HERO -->
@@ -514,12 +516,12 @@ body { padding-bottom: 72px; }
     <!-- 予約確認（自分がゲストとして行った予約の確認・キャンセル。プロダッシュボードの「予約管理」＝自分が受けた予約とは別物。無ければ非表示） -->
     <div class="section" id="bookingHistorySection" style="display:none;">
       <div class="sec-head">
-        <div class="sec-title">予約確認</div>
+        <div class="sec-title" data-i18n="mp_bookings">予約確認</div>
       </div>
       <div class="settings-card">
         <div class="settings-row" onclick="openMyBookingsModal()">
           <div class="settings-icon">📋</div>
-          <div class="settings-label">自分の予約を確認する<span id="my-bookings-count" style="color:var(--muted);font-weight:400;"></span></div>
+          <div class="settings-label"><span data-i18n="mp_bookings_check">自分の予約を確認する</span><span id="my-bookings-count" style="color:var(--muted);font-weight:400;"></span></div>
           <div class="settings-arrow">›</div>
         </div>
       </div>
@@ -528,13 +530,13 @@ body { padding-bottom: 72px; }
     <!-- 講習・ツアー管理（インストラクター/ショップ登録済みのみ表示。未登録なら下の「事業者の方へ」だけが出る） -->
     <div class="section" id="proDashboardSection" style="display:none;">
       <div class="sec-head">
-        <div class="sec-title">講習・ツアー管理</div>
+        <div class="sec-title" data-i18n="mp_pro_manage">講習・ツアー管理</div>
       </div>
       <a class="menu-card wide" href="pro/" style="text-decoration:none;">
         <span class="menu-icon">🎓</span>
         <div class="menu-body">
-          <div class="menu-title">プロダッシュボード</div>
-          <div class="menu-sub">コース・空き枠・予約・問い合わせを管理</div>
+          <div class="menu-title" data-i18n="mp_pro_dashboard">プロダッシュボード</div>
+          <div class="menu-sub" data-i18n="mp_pro_dashboard_sub">コース・空き枠・予約・問い合わせを管理</div>
         </div>
         <span class="menu-arrow">›</span>
       </a>
@@ -544,41 +546,41 @@ body { padding-bottom: 72px; }
     <div class="section" id="bizLinkSection" style="display:none;">
       <a href="pro/" class="settings-row" style="text-decoration:none;">
         <div class="settings-icon">🎓</div>
-        <div class="settings-label">事業者の方へ</div>
+        <div class="settings-label" data-i18n="mp_for_business">事業者の方へ</div>
         <div class="settings-arrow">›</div>
       </a>
     </div>
 
     <!-- トレーニング記録 -->
-    <div class="group-label">トレーニング記録</div>
+    <div class="group-label" data-i18n="mp_training_log">トレーニング記録</div>
 
     <!-- トレーニング統計 -->
     <div class="section">
       <div class="sec-head">
-        <div class="sec-title">今月のサマリー</div>
-        <a class="sec-link" href="tools/training-log.html">すべて見る →</a>
+        <div class="sec-title" data-i18n="mp_month_summary">今月のサマリー</div>
+        <a class="sec-link" href="tools/training-log.html" data-i18n="mp_see_all">すべて見る →</a>
       </div>
 
       <!-- 上段：練習日数・最大深度 -->
       <div class="stat-grid" style="margin-bottom:8px;">
         <div class="stat-card">
           <div class="stat-val" id="stat-days">—</div>
-          <div class="stat-lbl">練習日数</div>
+          <div class="stat-lbl" data-i18n="mp_practice_days">練習日数</div>
         </div>
         <div class="stat-card">
           <div class="stat-val" id="stat-sessions">—</div>
-          <div class="stat-lbl">セッション数</div>
+          <div class="stat-lbl" data-i18n="mp_sessions">セッション数</div>
         </div>
         <div class="stat-card">
           <div class="stat-val" id="stat-rhr" style="font-size:16px;">—</div>
-          <div class="stat-lbl">平均RHR</div>
+          <div class="stat-lbl" data-i18n="mp_avg_rhr">平均RHR</div>
         </div>
       </div>
 
       <!-- 下段：海/プール/ドライの内訳 -->
       <div class="stat-card" style="padding:12px 16px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <span style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">環境別内訳</span>
+          <span style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;" data-i18n="mp_env_breakdown">環境別内訳</span>
           <span id="stat-env-total" style="font-size:11px;color:var(--muted);">—</span>
         </div>
         <div id="stat-env-bar" style="display:flex;height:8px;border-radius:4px;overflow:hidden;gap:2px;margin-bottom:8px;">
@@ -593,7 +595,7 @@ body { padding-bottom: 72px; }
     <!-- カレンダー -->
     <div class="section">
       <div class="sec-head">
-        <div class="sec-title">トレーニングカレンダー</div>
+        <div class="sec-title" data-i18n="mp_training_calendar">トレーニングカレンダー</div>
       </div>
       <div class="cal-wrap">
         <div class="cal-header">
@@ -603,14 +605,14 @@ body { padding-bottom: 72px; }
         </div>
         <div class="cal-grid" id="calGrid"></div>
         <div class="cal-legend" style="flex-wrap:wrap;gap:8px 14px;">
-          <div class="legend-item"><div class="legend-dot dot-sea"></div>海</div>
-          <div class="legend-item"><div class="legend-dot dot-pool"></div>プール</div>
-          <div class="legend-item"><div class="legend-dot dot-dry"></div>ドライ</div>
-          <div class="legend-item"><div class="legend-dot dot-lesson"></div>講習</div>
-          <div class="legend-item"><div class="legend-dot dot-coaching"></div>コーチング</div>
-          <div class="legend-item"><div class="legend-dot dot-event"></div>大会</div>
-          <div class="legend-item"><div class="legend-dot dot-challenge"></div>チャレンジ</div>
-          <div class="legend-item" style="color:var(--muted);">点線＝予定</div>
+          <div class="legend-item"><div class="legend-dot dot-sea"></div><span data-i18n="env_sea">海</span></div>
+          <div class="legend-item"><div class="legend-dot dot-pool"></div><span data-i18n="env_pool">プール</span></div>
+          <div class="legend-item"><div class="legend-dot dot-dry"></div><span data-i18n="env_dry">ドライ</span></div>
+          <div class="legend-item"><div class="legend-dot dot-lesson"></div><span data-i18n="ev_lesson">講習</span></div>
+          <div class="legend-item"><div class="legend-dot dot-coaching"></div><span data-i18n="ev_coaching">コーチング</span></div>
+          <div class="legend-item"><div class="legend-dot dot-event"></div><span data-i18n="ev_event">大会</span></div>
+          <div class="legend-item"><div class="legend-dot dot-challenge"></div><span data-i18n="ev_challenge">チャレンジ</span></div>
+          <div class="legend-item" style="color:var(--muted);" data-i18n="mp_dotted_planned">点線＝予定</div>
         </div>
       </div>
     </div>
@@ -618,19 +620,19 @@ body { padding-bottom: 72px; }
     <!-- トレーニングメニュー -->
     <div class="section">
       <div class="sec-head">
-        <div class="sec-title">トレーニング</div>
+        <div class="sec-title" data-i18n="mp_training">トレーニング</div>
       </div>
       <div class="menu-grid">
         <a class="menu-card" href="tools/training-log.html">
           <span class="menu-icon">📝</span>
-          <div class="menu-title">ログ</div>
-          <div class="menu-sub">ダイブ記録・分析</div>
+          <div class="menu-title" data-i18n="mp_log">ログ</div>
+          <div class="menu-sub" data-i18n="mp_log_sub">ダイブ記録・分析</div>
         </a>
 
         <a class="menu-card" href="tools/sta-timer.html">
           <span class="menu-icon">⏱️</span>
-          <div class="menu-title">タイマー</div>
-          <div class="menu-sub">O2・CO2テーブル</div>
+          <div class="menu-title" data-i18n="mp_timer">タイマー</div>
+          <div class="menu-sub" data-i18n="mp_timer_sub">O2・CO2テーブル</div>
         </a>
 
         <!-- 一旦非表示（後続で再度作ります・2026-07-11） -->
@@ -657,12 +659,12 @@ body { padding-bottom: 72px; }
           <div class="menu-card wide wip-card">
             <span class="menu-icon">💬</span>
             <div class="menu-body">
-              <div class="menu-title">コーチング</div>
-              <div class="menu-sub">認定コーチにオンラインで相談</div>
+              <div class="menu-title" data-i18n="ev_coaching">コーチング</div>
+              <div class="menu-sub" data-i18n="mp_coaching_sub">認定コーチにオンラインで相談</div>
             </div>
             <span class="menu-arrow">›</span>
           </div>
-          <div class="wip-mask"><span class="wip-badge">🚧 開発中</span></div>
+          <div class="wip-mask"><span class="wip-badge" data-i18n="mp_wip">🚧 開発中</span></div>
         </div>
       </div>
     </div>
@@ -675,18 +677,18 @@ body { padding-bottom: 72px; }
     <!-- 学んだ講座（/learn/ 有料講座。購入済みが無ければ非表示） -->
     <div class="section" id="learnSection" style="display:none;">
       <div class="sec-head">
-        <div class="sec-title">学んだ講座</div>
-        <a class="sec-link" href="learn/index.html">講座一覧 →</a>
+        <div class="sec-title" data-i18n="mp_my_courses">学んだ講座</div>
+        <a class="sec-link" href="learn/index.html" data-i18n="mp_course_list">講座一覧 →</a>
       </div>
       <div class="menu-grid" id="learnCoursesList"></div>
     </div>
 
-    <div class="group-label">大会</div>
+    <div class="group-label" data-i18n="ev_event">大会</div>
 
     <!-- 近日のイベント -->
     <div class="section">
       <div class="sec-head">
-        <div class="sec-title">近日のスケジュール</div>
+        <div class="sec-title" data-i18n="mp_upcoming">近日のスケジュール</div>
         <span style="font-size:12px;color:var(--muted);" id="upcomingRange"></span>
       </div>
       <div class="upcoming-list" id="upcomingList"></div>
@@ -695,21 +697,21 @@ body { padding-bottom: 72px; }
     <!-- 大会管理（作成権限は登録済み事業者に限らずログイン済みなら誰でも可・従来通り） -->
     <div class="section">
       <div class="sec-head">
-        <div class="sec-title">大会管理</div>
+        <div class="sec-title" data-i18n="mp_event_manage">大会管理</div>
       </div>
       <div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;">
 
         <!-- 大会を作成ボタン -->
         <div style="padding:16px;border-bottom:1px solid var(--border);">
           <button onclick="openCreateEvent()" style="width:100%;padding:12px;background:var(--teal);color:#fff;border:none;border-radius:var(--rs);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
-            <span>＋</span> 大会を作成
+            <span>＋</span> <span data-i18n="mp_create_event">大会を作成</span>
           </button>
-          <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px;">AIDAの大会データから選択して作成</div>
+          <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px;" data-i18n="mp_create_event_sub">AIDAの大会データから選択して作成</div>
         </div>
 
         <!-- 作成済み大会一覧（Supabaseから動的レンダリング） -->
         <div id="my-events-list">
-          <div style="padding:16px;text-align:center;color:var(--muted);font-size:13px;">読み込み中...</div>
+          <div style="padding:16px;text-align:center;color:var(--muted);font-size:13px;" data-i18n="loading">読み込み中...</div>
         </div>
       </div>
     </div>
@@ -717,12 +719,12 @@ body { padding-bottom: 72px; }
     <!-- 設定 -->
     <div class="section">
       <div class="sec-head">
-        <div class="sec-title">設定</div>
+        <div class="sec-title" data-i18n="mp_settings">設定</div>
       </div>
       <div class="settings-card">
         <div class="settings-row danger" onclick="handleLogout()">
           <div class="settings-icon">🚪</div>
-          <div class="settings-label">ログアウト</div>
+          <div class="settings-label" data-i18n="mypage_logout">ログアウト</div>
         </div>
       </div>
     </div>
@@ -735,13 +737,13 @@ body { padding-bottom: 72px; }
 <!-- ── プロフィール編集モーダル ── -->
 <div class="modal-backdrop" id="profile-modal">
   <div class="modal">
-    <div class="modal-title">プロフィール編集</div>
+    <div class="modal-title" data-i18n="mp_edit_profile">プロフィール編集</div>
     <div class="modal-form-group">
-      <label>表示名</label>
+      <label data-i18n="mp_display_name">表示名</label>
       <input type="text" id="pf-name" placeholder="山田 海斗">
     </div>
     <div class="modal-form-group">
-      <label>プロフィール写真</label>
+      <label data-i18n="mp_profile_photo">プロフィール写真</label>
       <div style="display:flex;align-items:center;gap:16px;margin-top:4px;">
         <div id="pf-avatar-circle" onclick="document.getElementById('pf-file').click()"
           style="width:72px;height:72px;border-radius:50%;overflow:hidden;border:2px solid rgba(46,196,182,0.3);cursor:pointer;background:rgba(46,196,182,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -749,16 +751,16 @@ body { padding-bottom: 72px; }
           <span id="pf-avatar-placeholder" style="font-size:26px;">📷</span>
         </div>
         <div>
-          <div style="font-size:13px;color:var(--sub);">タップして写真を変更</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:3px;">JPG / PNG / WEBP（5MB以下）</div>
+          <div style="font-size:13px;color:var(--sub);" data-i18n="mp_tap_change_photo">タップして写真を変更</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px;" data-i18n="mp_photo_formats">JPG / PNG / WEBP（5MB以下）</div>
           <div id="pf-upload-status" style="font-size:11px;color:var(--teal);margin-top:4px;"></div>
         </div>
       </div>
       <input type="file" id="pf-file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="handleAvatarFile(this)">
     </div>
     <div class="modal-actions">
-      <button class="modal-btn-cancel" onclick="closeProfileModal()">キャンセル</button>
-      <button class="modal-btn-primary" id="pf-save-btn" onclick="saveProfile()">保存する</button>
+      <button class="modal-btn-cancel" onclick="closeProfileModal()" data-i18n="btn_cancel">キャンセル</button>
+      <button class="modal-btn-primary" id="pf-save-btn" onclick="saveProfile()" data-i18n="btn_save">保存する</button>
     </div>
   </div>
 </div>
@@ -767,16 +769,16 @@ body { padding-bottom: 72px; }
 <!-- z-index:310 → 予約確認モーダルの上に重ねて開くため、通常のmodal-backdrop(300)より高くする -->
 <div class="modal-backdrop" id="my-cancel-modal" style="z-index:310;">
   <div class="modal">
-    <div class="modal-title">予約をキャンセルしますか？</div>
+    <div class="modal-title" data-i18n="mp_cancel_title">予約をキャンセルしますか？</div>
     <div id="my-cancel-summary" style="font-size:13px;color:var(--sub);line-height:1.7;margin-bottom:12px;"></div>
     <div id="my-cancel-suggestion" style="font-size:14px;color:var(--teal);font-weight:600;margin-bottom:8px;"></div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">
+    <div style="font-size:12px;color:var(--muted);margin-bottom:4px;" data-i18n-html="mp_cancel_policy">
       開催7日以上前：全額返金／3〜6日前：50%返金／2日前〜当日・無連絡：返金なし<br>
       悪天候等の中止は事業者側で個別に全額返金対応します。
     </div>
     <div class="modal-actions">
-      <button class="modal-btn-cancel" onclick="closeMyCancelModal()">閉じる</button>
-      <button class="modal-btn-primary" id="my-cancel-submit-btn" onclick="submitMyCancelBooking()">キャンセルする</button>
+      <button class="modal-btn-cancel" onclick="closeMyCancelModal()" data-i18n="btn_close">閉じる</button>
+      <button class="modal-btn-primary" id="my-cancel-submit-btn" onclick="submitMyCancelBooking()" data-i18n="mp_cancel_confirm">キャンセルする</button>
     </div>
   </div>
 </div>
@@ -784,11 +786,11 @@ body { padding-bottom: 72px; }
 <!-- ── 予約確認 モーダル（自分がゲストとして行った予約の一覧・ここからキャンセルも行える） ── -->
 <div class="modal-backdrop" id="my-bookings-modal">
   <div class="modal" style="max-width:480px;">
-    <div class="modal-title">予約確認</div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">自分が予約した内容の確認です。キャンセルもここから行えます。</div>
+    <div class="modal-title" data-i18n="mp_bookings">予約確認</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;" data-i18n="mp_bookings_desc">自分が予約した内容の確認です。キャンセルもここから行えます。</div>
     <div id="booking-history-list"></div>
     <div class="modal-actions">
-      <button class="modal-btn-cancel" onclick="closeMyBookingsModal()" style="flex:none;width:100%;">閉じる</button>
+      <button class="modal-btn-cancel" onclick="closeMyBookingsModal()" style="flex:none;width:100%;" data-i18n="btn_close">閉じる</button>
     </div>
   </div>
 </div>
@@ -796,46 +798,46 @@ body { padding-bottom: 72px; }
 <!-- ── 大会を作成 モーダル ── -->
 <div class="modal-backdrop" id="create-event-modal">
   <div class="modal" style="max-width:420px;">
-    <div class="modal-title">🏆 大会を作成</div>
+    <div class="modal-title">🏆 <span data-i18n="mp_create_event">大会を作成</span></div>
 
     <!-- AIDA取得（任意） -->
     <div style="background:rgba(46,196,182,0.07);border:1px solid rgba(46,196,182,0.2);border-radius:var(--rs);padding:12px 14px;margin-bottom:18px;">
-      <div style="font-size:11px;font-weight:700;color:var(--teal);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px;">AIDAから初期データ取得（任意）</div>
+      <div style="font-size:11px;font-weight:700;color:var(--teal);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px;" data-i18n="mp_aida_fetch">AIDAから初期データ取得（任意）</div>
       <div style="display:flex;gap:8px;">
         <input type="text" id="ce-url-input"
           placeholder="EventDetails-5067 または 5067"
           style="flex:1;font-size:12px;padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);outline:none;">
         <button id="ce-fetch-btn" onclick="fetchAidaEvent()"
-          style="padding:8px 12px;background:rgba(46,196,182,0.15);border:1px solid rgba(46,196,182,0.4);color:var(--teal);border-radius:var(--rs);font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;">取得</button>
+          style="padding:8px 12px;background:rgba(46,196,182,0.15);border:1px solid rgba(46,196,182,0.4);color:var(--teal);border-radius:var(--rs);font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;" data-i18n="mp_fetch">取得</button>
       </div>
       <div id="ce-fetch-err" style="font-size:11px;color:#dc2626;margin-top:6px;display:none;"></div>
     </div>
 
     <!-- 大会情報入力 -->
     <div class="modal-form-group">
-      <label>大会名 <span style="color:#dc2626;">*</span></label>
+      <label><span data-i18n="mp_event_name">大会名</span> <span style="color:#dc2626;">*</span></label>
       <input type="text" id="ce-name" placeholder="Volcano Cup 2026" style="font-size:13px;">
     </div>
     <div class="modal-form-group">
-      <label>開催日（開始）<span style="color:#dc2626;">*</span></label>
+      <label><span data-i18n="mp_event_start">開催日（開始）</span><span style="color:#dc2626;">*</span></label>
       <input type="date" id="ce-date" style="font-size:13px;">
     </div>
     <div class="modal-form-group">
-      <label>終了日 <span style="font-size:10px;color:var(--muted);font-weight:400;">（複数日の場合）</span></label>
+      <label><span data-i18n="mp_event_end">終了日</span> <span style="font-size:10px;color:var(--muted);font-weight:400;" data-i18n="mp_event_end_note">（複数日の場合）</span></label>
       <input type="date" id="ce-date-end" style="font-size:13px;">
     </div>
     <div class="modal-form-group">
-      <label>場所</label>
+      <label data-i18n="mp_event_location">場所</label>
       <input type="text" id="ce-location" placeholder="東京アクアティクスセンター" style="font-size:13px;">
     </div>
     <div class="modal-form-group">
-      <label>種別</label>
+      <label data-i18n="mp_event_type">種別</label>
       <input type="text" id="ce-type" placeholder="Pool Competition" style="font-size:13px;color:var(--muted);">
     </div>
     <div id="ce-create-err" style="font-size:12px;color:#dc2626;margin-top:8px;display:none;"></div>
     <div class="modal-actions" style="margin-top:20px;">
-      <button class="modal-btn-cancel" onclick="closeCreateEventModal()">キャンセル</button>
-      <button class="modal-btn-primary" id="ce-create-btn" onclick="createEventConfirm()">大会を作成</button>
+      <button class="modal-btn-cancel" onclick="closeCreateEventModal()" data-i18n="btn_cancel">キャンセル</button>
+      <button class="modal-btn-primary" id="ce-create-btn" onclick="createEventConfirm()" data-i18n="mp_create_event">大会を作成</button>
     </div>
   </div>
 </div>
@@ -845,7 +847,21 @@ body { padding-bottom: 72px; }
 
 <!-- BOTTOM NAV -->
 
+<script src="js/i18n.js"></script>
+<script src="js/lang-switcher.js"></script>
 <script>
+// ── 多言語対応 ──
+let currentLang = 'ja';
+const T = (key, ja) => (window.I18N ? I18N.t(currentLang, key, ja) || ja : ja);
+LangSwitcher.init(function(lang) {
+  if (window.I18N) I18N.apply(lang);
+  if (lang !== currentLang) {
+    currentLang = lang;
+    // 動的描画部分を言語切替に追従させる
+    if (typeof renderUpcoming === 'function') { try { renderUpcoming(); } catch(e){} }
+  }
+});
+
 // 深度ライン装飾
 const container = document.getElementById('depthLines');
 [10,20,30,40,50].forEach((m, i) => {
@@ -1022,7 +1038,7 @@ function renderUpcoming() {
   today.setHours(0,0,0,0);
   var in14 = new Date(today); in14.setDate(today.getDate() + 14);
 
-  rangeEl.textContent = '今後14日間';
+  rangeEl.textContent = T('mp_next_14', '今後14日間');
 
   // トレーニング予定とイベントをまとめる
   var items = [];
@@ -1032,7 +1048,7 @@ function renderUpcoming() {
     var d = new Date(dateStr);
     if (d >= today && d <= in14) {
       plannedTraining[dateStr].forEach(function(type) {
-        var labels = { sea:'海トレ', pool:'プールトレ', dry:'ドライトレ' };
+        var labels = { sea:T('mp_sea_training','海トレ'), pool:T('mp_pool_training','プールトレ'), dry:T('mp_dry_training','ドライトレ') };
         var colors = { sea:'#2ec4b6', pool:'#3b82f6', dry:'#f97316' };
         items.push({ date: d, dateStr: dateStr, title: labels[type], type: type, color: colors[type], planned: true });
       });
@@ -1062,7 +1078,7 @@ function renderUpcoming() {
   items.sort(function(a,b){ return a.date - b.date; });
 
   if (!items.length) {
-    el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">近日の予定はありません</div>';
+    el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">' + T('mp_no_upcoming', '近日の予定はありません') + '</div>';
     return;
   }
 
@@ -1071,10 +1087,10 @@ function renderUpcoming() {
 
   el.innerHTML = items.map(function(item) {
     var diffDays = Math.round((item.date - today) / 86400000);
-    var diffLabel = diffDays === 0 ? '今日' : diffDays === 1 ? '明日' : diffDays === 2 ? '明後日' : diffDays + '日後';
+    var diffLabel = diffDays === 0 ? T('mp_today','今日') : diffDays === 1 ? T('mp_tomorrow','明日') : diffDays === 2 ? T('mp_day_after','明後日') : T('mp_days_later', diffDays + '日後').replace('{n}', diffDays);
     var badgeClass = diffDays <= 1 ? 'badge-today' : diffDays <= 3 ? 'badge-soon' : 'badge-later';
-    var durationStr = item.duration && item.duration > 1 ? item.duration + '日間' : '';
-    var plannedStr = item.planned ? '（予定）' : '';
+    var durationStr = item.duration && item.duration > 1 ? T('mp_days_span', item.duration + '日間').replace('{n}', item.duration) : '';
+    var plannedStr = item.planned ? T('mp_planned','（予定）') : '';
     var icon = item.icon || (item.type === 'sea' ? '🌊' : item.type === 'pool' ? '🏊' : '🏠');
 
     return '<div class="upcoming-item">' +

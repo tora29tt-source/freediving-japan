@@ -529,8 +529,20 @@ const I18N_DICT = {
  * data-i18n="キー" 属性を持つ要素のテキストを指定言語に切り替える。
  * ja の場合は HTML の元のテキストに戻す（data-i18n-ja に退避済みのものを復元）。
  */
+/**
+ * 訳語検索（フォールバック付き）
+ * ko/zh でキーが無い場合は en に落とし、en にも無ければ undefined を返す。
+ */
+function lookup(lang, key) {
+  if (lang === 'ja') return undefined;
+  return I18N_DICT[lang]?.[key] ?? I18N_DICT.en?.[key];
+}
+
 window.I18N = {
   apply(lang) {
+    // <html lang=""> を更新（スクリーンリーダー・翻訳拡張・SEO対策）
+    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang;
+
     // テキストノード翻訳
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.dataset.i18n;
@@ -538,8 +550,7 @@ window.I18N = {
       if (lang === 'ja') {
         el.textContent = el.dataset.i18nJa;
       } else {
-        const translated = I18N_DICT[lang]?.[key];
-        el.textContent = translated || el.dataset.i18nJa;
+        el.textContent = lookup(lang, key) || el.dataset.i18nJa;
       }
     });
     // innerHTML 翻訳（data-i18n-html 属性）
@@ -549,8 +560,7 @@ window.I18N = {
       if (lang === 'ja') {
         el.innerHTML = el.dataset.i18nHtmlJa;
       } else {
-        const translated = I18N_DICT[lang]?.[key];
-        el.innerHTML = translated || el.dataset.i18nHtmlJa;
+        el.innerHTML = lookup(lang, key) || el.dataset.i18nHtmlJa;
       }
     });
     // placeholder 翻訳（data-i18n-ph 属性）
@@ -560,13 +570,26 @@ window.I18N = {
       if (lang === 'ja') {
         el.placeholder = el.dataset.i18nPhJa;
       } else {
-        const translated = I18N_DICT[lang]?.[key];
-        el.placeholder = translated || el.dataset.i18nPhJa;
+        el.placeholder = lookup(lang, key) || el.dataset.i18nPhJa;
       }
+    });
+    // 言語ブロック切替（data-lang-block 属性・legal等の長文全文翻訳用）
+    // 同じ data-lang-group 内で、現在言語のブロックを表示し他を隠す。
+    // 現在言語のブロックが無ければ en → ja の順でフォールバック。
+    const groups = {};
+    document.querySelectorAll('[data-lang-block]').forEach(el => {
+      const g = el.dataset.langGroup || 'default';
+      (groups[g] = groups[g] || []).push(el);
+    });
+    Object.values(groups).forEach(els => {
+      const langs = els.map(e => e.dataset.langBlock);
+      let show = lang;
+      if (!langs.includes(show)) show = langs.includes('en') ? 'en' : 'ja';
+      els.forEach(e => { e.hidden = e.dataset.langBlock !== show; });
     });
   },
   t(lang, key, fallback) {
     if (lang === 'ja') return fallback || '';
-    return I18N_DICT[lang]?.[key] || fallback || '';
+    return lookup(lang, key) || fallback || '';
   },
 };

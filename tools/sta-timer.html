@@ -1074,13 +1074,15 @@ function timeCallTargetSec() {
 function timeCallText(sec) {
   const m = Math.floor(sec / 60), s = sec % 60;
   if (_announcerLang === 'ja') {
+    if (m === 0)  return `${s}秒`;
     if (s === 0)  return `${m}分`;
     if (s === 30) return `${m}分半`;
     return `${m}分${s}秒`;
   } else {
+    if (m === 0)  return `${s} seconds`;
     if (s === 0)  return `${m} minute${m===1?'':'s'}`;
-    if (s === 30) return `${m} minutes thirty`;
-    return `${m} minutes ${s} seconds`;
+    if (s === 30) return `${m} minute${m===1?'':'s'} thirty`;
+    return `${m} minute${m===1?'':'s'} ${s} seconds`;
   }
 }
 
@@ -1197,10 +1199,10 @@ function setSpo2Ring(v) {
 
 // ── UTIL ─────────────────────────────────────────────────
 function fmt(ms) {
-  const s = Math.floor(ms / 1000);
+  const s = Math.max(0, Math.floor(ms / 1000)); // 負のms（クロックずれ等）をクランプ
   return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
 }
-function fmtMs(ms) { return '.' + String(Math.floor((ms%1000)/10)).padStart(2,'0'); }
+function fmtMs(ms) { const p = Math.max(0, ms); return '.' + String(Math.floor((p%1000)/10)).padStart(2,'0'); }
 // ローカル日付として YYYY-MM-DD を組み立てる（toISOString はUTC変換でズレるため使わない）
 function toLocalDateStr(d) {
   const y = d.getFullYear();

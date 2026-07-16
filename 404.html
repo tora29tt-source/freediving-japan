@@ -16,8 +16,11 @@
 <body>
 <div class="box">
   <div class="code">404</div>
-  <p>お探しのページは見つかりませんでした。<br>移動または削除された可能性があります。</p>
-  <a href="/">トップページへ戻る</a>
+  <p data-i18n-html="nf_message">お探しのページは見つかりませんでした。<br>移動または削除された可能性があります。</p>
+  <a href="/" data-i18n="back_home">トップページへ戻る</a>
 </div>
+<script src="/js/i18n.js"></script>
+<script src="/js/lang-switcher.js"></script>
+<script>LangSwitcher.init(lang => I18N.apply(lang));</script>
 </body>
 </html>

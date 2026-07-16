@@ -67,7 +67,8 @@ aws s3 sync "./$LOCAL_DIR" "s3://${BUCKET}/${LOCAL_DIR}" \
   --exclude "*" \
   --include "*.m3u8" \
   --content-type "application/vnd.apple.mpegurl" \
-  --no-progress
+  --no-progress \
+  --no-verify-ssl
 
 # .ts セグメント
 aws s3 sync "./$LOCAL_DIR" "s3://${BUCKET}/${LOCAL_DIR}" \
@@ -76,7 +77,8 @@ aws s3 sync "./$LOCAL_DIR" "s3://${BUCKET}/${LOCAL_DIR}" \
   --exclude "*" \
   --include "*.ts" \
   --content-type "video/mp2t" \
-  --no-progress
+  --no-progress \
+  --no-verify-ssl
 
 echo ""
 echo "✅ アップロード完了！"

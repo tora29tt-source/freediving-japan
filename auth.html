@@ -6,6 +6,8 @@
 <title>ログイン | Freediving Japan</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase-config.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/lang-switcher.js"></script>
 <link rel="stylesheet" href="css/design-system.css">
 <style>
 /* auth.html 専用: design-system.css のダークトークンを白ベースに上書き
@@ -250,8 +252,8 @@ body {
 
 <div class="auth-card">
   <div class="tabs">
-    <div class="tab active" onclick="switchTab('login')">ログイン</div>
-    <div class="tab" onclick="switchTab('signup')">新規登録</div>
+    <div class="tab active" onclick="switchTab('login')" data-i18n="auth_tab_login">ログイン</div>
+    <div class="tab" onclick="switchTab('signup')" data-i18n="auth_tab_signup">新規登録</div>
   </div>
 
   <!-- ── ログインフォーム ── -->
@@ -263,7 +265,7 @@ body {
         <path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"/>
         <path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"/>
       </svg>
-      Googleでログイン
+      <span data-i18n="auth_google_login">Googleでログイン</span>
     </button>
     <!-- Apple login: disabled until Apple Developer credentials are configured
     <button class="social-btn" onclick="signInApple()">
@@ -274,17 +276,17 @@ body {
     </button>
     -->
 
-    <div class="divider">または</div>
+    <div class="divider" data-i18n="auth_or">または</div>
 
     <div class="form-group">
-      <label>メールアドレス</label>
+      <label data-i18n="auth_email">メールアドレス</label>
       <input type="email" id="loginEmail" placeholder="example@email.com" autocomplete="email">
     </div>
     <div class="form-group">
-      <label>パスワード</label>
+      <label data-i18n="auth_password">パスワード</label>
       <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
     </div>
-    <button class="btn" onclick="handleLogin()">ログイン</button>
+    <button class="btn" onclick="handleLogin()" data-i18n="auth_btn_login">ログイン</button>
   </div>
 
   <!-- ── 新規登録フォーム ── -->
@@ -296,7 +298,7 @@ body {
         <path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"/>
         <path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"/>
       </svg>
-      Googleで登録
+      <span data-i18n="auth_google_signup">Googleで登録</span>
     </button>
     <!-- Apple signup: disabled until Apple Developer credentials are configured
     <button class="social-btn" onclick="signInApple()">
@@ -307,21 +309,21 @@ body {
     </button>
     -->
 
-    <div class="divider">または</div>
+    <div class="divider" data-i18n="auth_or">または</div>
 
     <div class="form-group">
-      <label>お名前</label>
-      <input type="text" id="signupName" placeholder="山田 太郎" autocomplete="name">
+      <label data-i18n="auth_name">お名前</label>
+      <input type="text" id="signupName" placeholder="山田 太郎" data-i18n-ph="auth_name_ph" autocomplete="name">
     </div>
     <div class="form-group">
-      <label>メールアドレス</label>
+      <label data-i18n="auth_email">メールアドレス</label>
       <input type="email" id="signupEmail" placeholder="example@email.com" autocomplete="email">
     </div>
     <div class="form-group">
-      <label>パスワード（8文字以上）</label>
+      <label data-i18n="auth_password8">パスワード（8文字以上）</label>
       <input type="password" id="signupPassword" placeholder="••••••••" autocomplete="new-password">
     </div>
-    <button class="btn" onclick="handleSignup()">アカウント作成</button>
+    <button class="btn" onclick="handleSignup()" data-i18n="auth_btn_signup">アカウント作成</button>
   </div>
 
   <div id="message" class="message"></div>
@@ -329,10 +331,14 @@ body {
 
 <a class="back-link" href="index.html">
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M11 6l-6 6 6 6"/></svg>
-  トップページに戻る
+  <span data-i18n="back_home">トップページに戻る</span>
 </a>
 
 <script>
+// 多言語対応: 保存済み言語で固定UIを切替（ヘッダーが無いのでフローティングUI）
+const T = (key, ja) => I18N.t(LangSwitcher.getLang(), key, ja) || ja;
+LangSwitcher.init(lang => I18N.apply(lang));
+
 // ログイン後の戻り先（?next=）。他オリジンへのオープンリダイレクトを防ぐため、
 // 相対パス（"/"始まり・"//"や":"を含まない）のみ許可する（S5と同様の考え方）
 function safeNextPath() {
@@ -376,14 +382,14 @@ async function signInGoogle() {
   const isInAppBrowser = /FBAN|FBAV|Instagram|Line\/|MicroMessenger|GSA\//.test(ua)
     || (ua.includes('Safari') === false && ua.includes('Chrome') === false && /iPhone|iPad/.test(ua));
   if (isInAppBrowser) {
-    showMessage('このブラウザではGoogleログインできません。SafariまたはChromeで開いてください。', 'error');
+    showMessage(T('auth_err_inapp', 'このブラウザではGoogleログインできません。SafariまたはChromeで開いてください。'), 'error');
     return;
   }
   const { error } = await _sb.auth.signInWithOAuth({
     provider: 'google',
     options: { redirectTo: window.location.origin + '/auth.html' }
   });
-  if (error) showMessage(error.message || 'Googleログインに失敗しました', 'error');
+  if (error) showMessage(error.message || T('auth_err_google', 'Googleログインに失敗しました'), 'error');
 }
 
 async function signInApple() {
@@ -397,15 +403,15 @@ async function signInApple() {
 async function handleLogin() {
   const email    = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
-  if (!email || !password) return showMessage('メールとパスワードを入力してください', 'error');
+  if (!email || !password) return showMessage(T('auth_err_missing', 'メールとパスワードを入力してください'), 'error');
 
   const btn = document.querySelector('#loginForm .btn');
-  btn.disabled = true; btn.textContent = 'ログイン中...';
+  btn.disabled = true; btn.textContent = T('auth_logging_in', 'ログイン中...');
 
   const { error } = await _sb.auth.signInWithPassword({ email, password });
   if (error) {
-    showMessage('メールアドレスまたはパスワードが正しくありません', 'error');
-    btn.disabled = false; btn.textContent = 'ログイン';
+    showMessage(T('auth_err_credentials', 'メールアドレスまたはパスワードが正しくありません'), 'error');
+    btn.disabled = false; btn.textContent = T('auth_btn_login', 'ログイン');
   }
   // 成功時: onAuthStateChange の SIGNED_IN がリダイレクトを処理する
 }
@@ -414,11 +420,11 @@ async function handleSignup() {
   const name     = document.getElementById('signupName').value.trim();
   const email    = document.getElementById('signupEmail').value.trim();
   const password = document.getElementById('signupPassword').value;
-  if (!name || !email || !password) return showMessage('すべての項目を入力してください', 'error');
-  if (password.length < 8) return showMessage('パスワードは8文字以上にしてください', 'error');
+  if (!name || !email || !password) return showMessage(T('auth_err_all_fields', 'すべての項目を入力してください'), 'error');
+  if (password.length < 8) return showMessage(T('auth_err_pw_length', 'パスワードは8文字以上にしてください'), 'error');
 
   const btn = document.querySelector('#signupForm .btn');
-  btn.disabled = true; btn.textContent = '登録中...';
+  btn.disabled = true; btn.textContent = T('auth_signing_up', '登録中...');
 
   const { data, error } = await _sb.auth.signUp({
     email, password,
@@ -431,16 +437,16 @@ async function handleSignup() {
     }
   });
   if (error) {
-    const msg = error.message || (error.code ? `エラー: ${error.code}` : 'アカウント作成に失敗しました');
+    const msg = error.message || (error.code ? `Error: ${error.code}` : T('auth_err_signup', 'アカウント作成に失敗しました'));
     showMessage(msg, 'error');
-    btn.disabled = false; btn.textContent = 'アカウント作成';
+    btn.disabled = false; btn.textContent = T('auth_btn_signup', 'アカウント作成');
   } else if (data.session) {
     // メール確認不要 → onAuthStateChange の SIGNED_IN がリダイレクト
     // (window.location.href は onAuthStateChange に任せる)
   } else {
     // メール確認が必要な場合
-    showMessage(`${email} に確認メールを送信しました。メール内のリンクをクリックしてください。`, 'success');
-    btn.disabled = false; btn.textContent = 'アカウント作成';
+    showMessage(T('auth_confirm_sent', `${email} に確認メールを送信しました。メール内のリンクをクリックしてください。`).replace('{email}', email), 'success');
+    btn.disabled = false; btn.textContent = T('auth_btn_signup', 'アカウント作成');
   }
 }
 

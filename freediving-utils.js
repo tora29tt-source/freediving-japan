@@ -57,8 +57,9 @@ function buildPenaltySelect(selectEl, options) {
 function buildTimeSelect(mEl, sEl, options) {
   options = options || {};
   var maxMin = options.maxMin || 29;
-  var selectedM = options.selectedM || null;
-  var selectedS = options.selectedS || null;
+  // 0（"00"）はfalsyのため「|| null」だと潰れる。null/undefined/空文字のみnull扱いにする
+  var selectedM = (options.selectedM != null && options.selectedM !== '') ? options.selectedM : null;
+  var selectedS = (options.selectedS != null && options.selectedS !== '') ? options.selectedS : null;
 
   mEl.innerHTML = '<option value="">mm</option>';
   for (var m = 0; m <= maxMin; m++) {
@@ -84,8 +85,9 @@ function buildTimeSelect(mEl, sEl, options) {
 // =============================================
 function buildOTSelect(hEl, mEl, options) {
   options = options || {};
-  var selectedH = options.selectedH || null;
-  var selectedM = options.selectedM || null;
+  // 0時・0分（"00"）を有効値として通すため「|| null」を使わない
+  var selectedH = (options.selectedH != null && options.selectedH !== '') ? options.selectedH : null;
+  var selectedM = (options.selectedM != null && options.selectedM !== '') ? options.selectedM : null;
 
   hEl.innerHTML = '<option value="">hh</option>';
   for (var h = 0; h <= 23; h++) {

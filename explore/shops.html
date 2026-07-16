@@ -109,12 +109,12 @@
 
   <div class="search-hero">
     <p class="search-eyebrow">Find a Shop</p>
-    <h1 class="search-title">どこの<em>ショップ・インストラクター</em>にする？</h1>
+    <h1 class="search-title" data-i18n-html="shops_title">どこの<em>ショップ・インストラクター</em>にする？</h1>
     <div class="search-bar-wrap">
       <div class="search-icon-left">
         <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       </div>
-      <input class="search-bar" type="search" placeholder="ショップ名・インストラクター名で検索" id="searchInput">
+      <input class="search-bar" type="search" placeholder="ショップ名・インストラクター名で検索" data-i18n-ph="shops_search_ph" id="searchInput">
       <button class="search-btn" onclick="renderOwners()">
         <svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </button>
@@ -122,14 +122,14 @@
   </div>
 
   <div class="intent-tabs" id="typeTabs">
-    <button class="intent-tab active" data-type="shop" onclick="setType(this,'shop')">ショップ</button>
-    <button class="intent-tab" data-type="instructor" onclick="setType(this,'instructor')">インストラクター</button>
+    <button class="intent-tab active" data-type="shop" onclick="setType(this,'shop')" data-i18n="type_shop">ショップ</button>
+    <button class="intent-tab" data-type="instructor" onclick="setType(this,'instructor')" data-i18n="type_instructor">インストラクター</button>
   </div>
 
   <div class="filter-section">
-    <p class="filter-label">都道府県</p>
+    <p class="filter-label" data-i18n="filter_pref_short">都道府県</p>
     <div class="chip-row" id="areaChips">
-      <button class="chip active" data-area="" onclick="togglePref(this)">全国</button>
+      <button class="chip active" data-area="" onclick="togglePref(this)" data-i18n="chip_nationwide">全国</button>
     </div>
   </div>
 
@@ -139,7 +139,7 @@
     <div class="divider-line"></div>
   </div>
   <div class="result-header">
-    <p class="result-count"><span id="countNum">—</span> 件</p>
+    <p class="result-count"><span id="countNum">—</span><span data-i18n="unit_results"> 件</span></p>
     <button class="sort-btn" id="sortBtn" onclick="cycleSort()">
       <svg class="icon" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="9" y1="18" x2="15" y2="18"/></svg>
       <span id="sortLabel">おすすめ順</span>
@@ -155,25 +155,25 @@
 <footer class="foot">
   <div class="foot-in">
     <div class="foot-col">
-      <h4>探す</h4>
-      <a href="../snorkeling.html">シュノーケリング</a>
-      <a href="../skindiving.html">スキンダイビング</a>
-      <a href="../freediving.html">フリーダイビング</a>
-      <a href="index.html">コース・体験を探す</a>
+      <h4 data-i18n="foot_explore">探す</h4>
+      <a href="../snorkeling.html" data-i18n="tab_snorkel">シュノーケリング</a>
+      <a href="../skindiving.html" data-i18n="tab_skin">スキンダイビング</a>
+      <a href="../freediving.html" data-i18n="tab_free">フリーダイビング</a>
+      <a href="index.html" data-i18n="foot_search_course">コース・体験を探す</a>
     </div>
     <div class="foot-col">
-      <h4>学ぶ・読む</h4>
-      <a href="../learn/index.html">動画で学ぶ</a>
-      <a href="../media/index.html">記事・コラム</a>
+      <h4 data-i18n="foot_learn_read">学ぶ・読む</h4>
+      <a href="../learn/index.html" data-i18n="foot_video_learn">動画で学ぶ</a>
+      <a href="../media/index.html" data-i18n="foot_articles">記事・コラム</a>
     </div>
     <div class="foot-col">
-      <h4>競技</h4>
-      <a href="../events/2026_competitions.html">大会情報</a>
-      <a href="../rankings/AIDA_ranking.html">国内ランキング</a>
+      <h4 data-i18n="foot_competition">競技</h4>
+      <a href="../events/2026_competitions.html" data-i18n="foot_events">大会情報</a>
+      <a href="../rankings/AIDA_ranking.html" data-i18n="foot_rankings">国内ランキング</a>
     </div>
     <div class="foot-col">
-      <h4>その他</h4>
-      <a href="../mypage.html">マイページ</a><a href="../legal/about.html">運営者情報</a><a href="../legal/terms.html">利用規約</a><a href="../legal/privacy.html">プライバシーポリシー</a><a href="../legal/tokushoho.html">特定商取引法に基づく表記</a><a href="../legal/contact.html">お問い合わせ</a>
+      <h4 data-i18n="foot_other">その他</h4>
+      <a href="../mypage.html" data-i18n="nav_mypage">マイページ</a><a href="../legal/about.html" data-i18n="foot_about">運営者情報</a><a href="../legal/terms.html" data-i18n="foot_terms">利用規約</a><a href="../legal/privacy.html" data-i18n="foot_privacy">プライバシーポリシー</a><a href="../legal/tokushoho.html" data-i18n="foot_tokushoho">特定商取引法に基づく表記</a><a href="../legal/contact.html" data-i18n="foot_contact">お問い合わせ</a>
     </div>
   </div>
   <div class="foot-bottom"><div class="wrap">© 2026 FREEDIVING JAPAN（仮）</div></div>
@@ -189,8 +189,12 @@ function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt
 let currentType  = 'shop';
 let currentPref  = '';
 let currentSort  = 'default';
+let currentLang  = 'ja';
+// 固定UI文言の動的参照ヘルパー（currentLangに追従）
+const T = (key, ja) => (window.I18N ? I18N.t(currentLang, key, ja) || ja : ja);
 const SORT_CYCLE  = ['default', 'rating'];
-const SORT_LABELS = { default: 'おすすめ順', rating: '評価順' };
+const SORT_LABELS_JA = { default: 'おすすめ順', rating: '評価順' };
+const sortLabelOf = k => T(k === 'default' ? 'sort_recommended' : 'sort_rating', SORT_LABELS_JA[k]);
 
 const cache = { shop: null, instructor: null }; // 一度取得したら型ごとにキャッシュ
 
@@ -202,7 +206,7 @@ function normalizeShop(raw) {
     type: 'shop', id: raw.id, name: raw.name, photo: raw.logo_url,
     prefecture: raw.prefecture || '', bio: raw.bio,
     avg_rating: raw.avg_rating, review_count: raw.review_count,
-    typeLabel: 'ショップ',
+    typeLabelKey: 'type_shop', typeLabelJa: 'ショップ',
     linkQuery: `shop=${esc(raw.id)}`,
   };
 }
@@ -211,7 +215,7 @@ function normalizeInstructor(raw) {
     type: 'instructor', id: raw.id, name: raw.name, photo: raw.photo_url,
     prefecture: raw.prefecture || '', bio: raw.bio,
     avg_rating: raw.shops?.avg_rating, review_count: raw.shops?.review_count,
-    typeLabel: 'インストラクター',
+    typeLabelKey: 'type_instructor', typeLabelJa: 'インストラクター',
     linkQuery: `id=${esc(raw.id)}`,
   };
 }
@@ -239,8 +243,7 @@ async function setType(el, type) {
   document.querySelectorAll('#typeTabs .intent-tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
   currentType = type;
-  document.getElementById('typeLabel').textContent = type === 'shop' ? 'ショップ一覧' : 'インストラクター一覧';
-  document.getElementById('searchInput').placeholder = type === 'shop' ? 'ショップ名で検索' : 'インストラクター名で検索';
+  updateTypeUI();
   await renderOwners();
 }
 
@@ -254,7 +257,7 @@ function renderPrefChips(prefCounts) {
     .sort((a, b) => prefCounts[b] - prefCounts[a]);
   const prefs = [...popular, ...extra];
 
-  let html = `<button class="chip${currentPref === '' ? ' active' : ''}" data-area="" onclick="togglePref(this)">全国</button>`;
+  let html = `<button class="chip${currentPref === '' ? ' active' : ''}" data-area="" onclick="togglePref(this)">${T('chip_nationwide', '全国')}</button>`;
   prefs.forEach(p => {
     const count = prefCounts[p] || 0;
     const cls = ['chip', currentPref === p ? 'active' : '', count === 0 ? 'dim' : ''].filter(Boolean).join(' ');
@@ -281,8 +284,19 @@ function togglePref(el) {
 function cycleSort() {
   const idx = SORT_CYCLE.indexOf(currentSort);
   currentSort = SORT_CYCLE[(idx + 1) % SORT_CYCLE.length];
-  document.getElementById('sortLabel').textContent = SORT_LABELS[currentSort];
+  document.getElementById('sortLabel').textContent = sortLabelOf(currentSort);
   renderOwners();
+}
+
+// タイプ切替・言語切替で変わるUI文言をまとめて更新
+function updateTypeUI() {
+  document.getElementById('typeLabel').textContent = currentType === 'shop'
+    ? T('shops_list_shop', 'ショップ一覧')
+    : T('shops_list_instructor', 'インストラクター一覧');
+  document.getElementById('searchInput').placeholder = currentType === 'shop'
+    ? T('shops_search_ph_shop', 'ショップ名で検索')
+    : T('shops_search_ph_inst', 'インストラクター名で検索');
+  document.getElementById('sortLabel').textContent = sortLabelOf(currentSort);
 }
 
 async function renderOwners() {
@@ -292,7 +306,7 @@ async function renderOwners() {
     owners = await loadOwners(currentType);
   } catch (err) {
     console.error(err);
-    container.innerHTML = '<div class="empty-state"><div class="empty-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><p class="empty-title">データを読み込めませんでした</p><p class="empty-desc">しばらく経ってから再度お試しください</p></div>';
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><p class="empty-title">${T('err_load', 'データを読み込めませんでした')}</p><p class="empty-desc">${T('err_retry', 'しばらく経ってから再度お試しください')}</p></div>`;
     return;
   }
 
@@ -312,7 +326,7 @@ async function renderOwners() {
   document.getElementById('countNum').textContent = filtered.length;
 
   if (filtered.length === 0) {
-    container.innerHTML = '<div class="empty-state"><div class="empty-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><p class="empty-title">該当する結果がありません</p><p class="empty-desc">条件を変えてもう一度お試しください</p></div>';
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><p class="empty-title">${T('empty_results', '該当する結果がありません')}</p><p class="empty-desc">${T('empty_results_desc', '条件を変えてもう一度お試しください')}</p></div>`;
     return;
   }
 
@@ -328,7 +342,7 @@ async function renderOwners() {
       ${avatarHtml}
       <div class="owner-body">
         <div class="owner-name-row">
-          <span class="owner-type">${esc(o.typeLabel)}</span>
+          <span class="owner-type">${esc(T(o.typeLabelKey, o.typeLabelJa))}</span>
         </div>
         <p class="owner-name">${esc(o.name)}</p>
         <div class="owner-meta">${areaHtml}${ratingHtml}</div>
@@ -346,6 +360,11 @@ renderOwners();
 <script>
 LangSwitcher.init(function(lang) {
   if (window.I18N) I18N.apply(lang);
+  if (lang !== currentLang) {
+    currentLang = lang;
+    updateTypeUI();
+    renderOwners();
+  }
 });
 </script>
 </body>

@@ -752,5 +752,6 @@ DB 保存時：`result_time = t2s(d.time)`、`hold_time = d.holdTime`。
 
 **2026-06-26コードベース全体レビュー**（予約・RLS・決済まわり11件）→ **全件2026-06-28対応済み**
 **2026-07-04セキュリティ監査**（S1〜S10 + 追加1件）→ **全件対応済み**（SQL: `sql/security_fix_20260704.sql`本番実行済み）
+**2026-07-17自動QA（ユニットテスト46件）**（falsy-zero/null/負値クランプ/timeCall表記の7件: `buildTimeSelect`・`buildOTSelect`の0値selected、`aidaSpeak(null)`クラッシュ、`fmt`/`fmtMs`負ms、`timeCallText`のm=0表記と英語単数形）→ **全件対応済み・All Green**。回帰テスト: `node ops/qa/unit_test.mjs`
 
 対応内容の詳細（各項目の原因・修正方法）は[DECISIONS.md](docs/DECISIONS.md#2026-0626202606-28既知のバグセキュリティ課題コードベース全体レビュー→-全件対応済み)・[DECISIONS.md](docs/DECISIONS.md#2026-07-04セキュリティ監査-→-全件対応済み)参照。新しい脆弱性調査を行った場合はこの2セクションと同じ形式でDECISIONS.mdに追記する。

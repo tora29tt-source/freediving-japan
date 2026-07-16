@@ -214,54 +214,54 @@
   </div>
 </header>
 <main class="main">
-  <a class="crumb" href="../index.html" style="margin:14px 0 0"><svg class="icon" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>ホームに戻る</a>
+  <a class="crumb" href="../index.html" style="margin:14px 0 0"><svg class="icon" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg><span data-i18n="back_home">ホームに戻る</span></a>
 
   <div style="margin:18px 0 4px;">
     <form class="searchbar" id="exploreSearchbar">
       <label class="sb-seg">
-        <div class="sb-label">エリア</div>
-        <input class="sb-input" name="area" id="searchInput" list="spotSuggestList" placeholder="都道府県・スポット名・スクール名で検索" autocomplete="off">
+        <div class="sb-label" data-i18n="sb_area">エリア</div>
+        <input class="sb-input" name="area" id="searchInput" list="spotSuggestList" placeholder="都道府県・スポット名・スクール名で検索" data-i18n-ph="explore_search_ph" autocomplete="off">
         <datalist id="spotSuggestList"></datalist>
       </label>
       <label class="sb-seg sb-when">
-        <div class="sb-label">日程</div>
+        <div class="sb-label" data-i18n="sb_date">日程</div>
         <input class="sb-input" name="date" id="dateInput" type="date">
       </label>
-      <button class="sb-btn" type="submit"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>検索</button>
+      <button class="sb-btn" type="submit"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><span data-i18n="sb_search">検索</span></button>
     </form>
-    <p class="filter-hint" id="dateHint" style="display:none">この日以降に空きがあるプランを表示中 · <button class="date-clear-btn" onclick="clearDate()" type="button">クリア</button></p>
-    <p class="filter-hint" id="intentHint" style="display:none">「<span id="intentHintLabel"></span>」のプランのみ表示中 · <button class="date-clear-btn" onclick="clearIntent()" type="button">クリア</button></p>
+    <p class="filter-hint" id="dateHint" style="display:none"><span data-i18n="date_hint">この日以降に空きがあるプランを表示中</span> · <button class="date-clear-btn" onclick="clearDate()" type="button" data-i18n="clear">クリア</button></p>
+    <p class="filter-hint" id="intentHint" style="display:none">「<span id="intentHintLabel"></span>」<span data-i18n="intent_hint">のプランのみ表示中</span> · <button class="date-clear-btn" onclick="clearIntent()" type="button" data-i18n="clear">クリア</button></p>
   </div>
 
   <div class="filter-section">
     <div class="filter-label-row">
-      <p class="filter-label">都道府県から探す</p>
+      <p class="filter-label" data-i18n="filter_pref">都道府県から探す</p>
     </div>
     <div class="chip-row" id="areaChips">
-      <button class="chip active" data-area="" onclick="togglePref(this)">全国</button>
+      <button class="chip active" data-area="" onclick="togglePref(this)" data-i18n="chip_nationwide">全国</button>
     </div>
   </div>
   <div class="filter-section">
     <button class="adv-toggle" id="advToggle" onclick="toggleAdv()" type="button">
       <svg class="icon" viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
-      こだわり条件
+      <span data-i18n="adv_conditions">こだわり条件</span>
       <span class="adv-badge" id="advBadge">0</span>
       <svg class="icon adv-chev" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
     <div class="adv-panel" id="advPanel">
-      <p class="filter-label">条件</p>
+      <p class="filter-label" data-i18n="filter_conditions">条件</p>
       <div class="chip-row" id="conditionChips">
-        <button class="chip" data-tag="当日予約OK" onclick="toggleTag(this)">当日予約OK</button>
-        <button class="chip" data-tag="初心者OK" onclick="toggleTag(this)">初心者OK</button>
-        <button class="chip" data-tag="資格取得コース" onclick="toggleTag(this)">資格取得コース</button>
-        <button class="chip" data-tag="貸切可" onclick="toggleTag(this)">貸切可</button>
-        <button class="chip" data-tag="英語対応" onclick="toggleTag(this)">英語対応</button>
-        <button class="chip" data-tag="女性インストラクター" onclick="toggleTag(this)">女性インストラクター</button>
-        <button class="chip" data-tag="子ども参加OK" onclick="toggleTag(this)">子ども参加OK</button>
+        <button class="chip" data-tag="当日予約OK" onclick="toggleTag(this)" data-i18n="tag_same_day">当日予約OK</button>
+        <button class="chip" data-tag="初心者OK" onclick="toggleTag(this)" data-i18n="tag_beginner">初心者OK</button>
+        <button class="chip" data-tag="資格取得コース" onclick="toggleTag(this)" data-i18n="tag_cert_course">資格取得コース</button>
+        <button class="chip" data-tag="貸切可" onclick="toggleTag(this)" data-i18n="tag_private">貸切可</button>
+        <button class="chip" data-tag="英語対応" onclick="toggleTag(this)" data-i18n="tag_english">英語対応</button>
+        <button class="chip" data-tag="女性インストラクター" onclick="toggleTag(this)" data-i18n="tag_female_inst">女性インストラクター</button>
+        <button class="chip" data-tag="子ども参加OK" onclick="toggleTag(this)" data-i18n="tag_kids">子ども参加OK</button>
       </div>
-      <p class="filter-label">価格帯</p>
+      <p class="filter-label" data-i18n="filter_price">価格帯</p>
       <div class="chip-row" id="priceChips">
-        <button class="chip active" data-price="" onclick="togglePrice(this)">すべて</button>
+        <button class="chip active" data-price="" onclick="togglePrice(this)" data-i18n="chip_all">すべて</button>
         <button class="chip" data-price="0-5000" onclick="togglePrice(this)">〜¥5,000</button>
         <button class="chip" data-price="5001-15000" onclick="togglePrice(this)">¥5,000〜¥15,000</button>
         <button class="chip" data-price="15001-999999" onclick="togglePrice(this)">¥15,000〜</button>
@@ -270,11 +270,11 @@
   </div>
   <div class="divider">
     <div class="divider-line"></div>
-    <span class="divider-label">体験・スクールを探す</span>
+    <span class="divider-label" data-i18n="divider_search">体験・スクールを探す</span>
     <div class="divider-line"></div>
   </div>
   <div class="result-header">
-    <p class="result-count"><span id="countNum">—</span> 件</p>
+    <p class="result-count"><span id="countNum">—</span><span data-i18n="unit_results"> 件</span></p>
     <button class="sort-btn" id="sortBtn" onclick="cycleSort()">
       <svg class="icon" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="9" y1="18" x2="15" y2="18"/></svg>
       <span id="sortLabel">おすすめ順</span>
@@ -301,25 +301,25 @@
 <footer class="foot">
   <div class="foot-in">
     <div class="foot-col">
-      <h4>探す</h4>
-      <a href="../snorkeling.html">シュノーケリング</a>
-      <a href="../skindiving.html">スキンダイビング</a>
-      <a href="../freediving.html">フリーダイビング</a>
-      <a href="shops.html">ショップ/インストラクターを探す</a>
+      <h4 data-i18n="foot_explore">探す</h4>
+      <a href="../snorkeling.html" data-i18n="tab_snorkel">シュノーケリング</a>
+      <a href="../skindiving.html" data-i18n="tab_skin">スキンダイビング</a>
+      <a href="../freediving.html" data-i18n="tab_free">フリーダイビング</a>
+      <a href="shops.html" data-i18n="foot_search_shop">ショップ/インストラクターを探す</a>
     </div>
     <div class="foot-col">
-      <h4>学ぶ・読む</h4>
-      <a href="../learn/index.html">動画で学ぶ</a>
-      <a href="../media/index.html">記事・コラム</a>
+      <h4 data-i18n="foot_learn_read">学ぶ・読む</h4>
+      <a href="../learn/index.html" data-i18n="foot_video_learn">動画で学ぶ</a>
+      <a href="../media/index.html" data-i18n="foot_articles">記事・コラム</a>
     </div>
     <div class="foot-col">
-      <h4>競技</h4>
-      <a href="../events/2026_competitions.html">大会情報</a>
-      <a href="../rankings/AIDA_ranking.html">国内ランキング</a>
+      <h4 data-i18n="foot_competition">競技</h4>
+      <a href="../events/2026_competitions.html" data-i18n="foot_events">大会情報</a>
+      <a href="../rankings/AIDA_ranking.html" data-i18n="foot_rankings">国内ランキング</a>
     </div>
     <div class="foot-col">
-      <h4>その他</h4>
-      <a href="../mypage.html">マイページ</a><a href="../legal/about.html">運営者情報</a><a href="../legal/terms.html">利用規約</a><a href="../legal/privacy.html">プライバシーポリシー</a><a href="../legal/tokushoho.html">特定商取引法に基づく表記</a><a href="../legal/contact.html">お問い合わせ</a>
+      <h4 data-i18n="foot_other">その他</h4>
+      <a href="../mypage.html" data-i18n="nav_mypage">マイページ</a><a href="../legal/about.html" data-i18n="foot_about">運営者情報</a><a href="../legal/terms.html" data-i18n="foot_terms">利用規約</a><a href="../legal/privacy.html" data-i18n="foot_privacy">プライバシーポリシー</a><a href="../legal/tokushoho.html" data-i18n="foot_tokushoho">特定商取引法に基づく表記</a><a href="../legal/contact.html" data-i18n="foot_contact">お問い合わせ</a>
     </div>
   </div>
   <div class="foot-bottom"><div class="wrap">© 2026 FREEDIVING JAPAN（仮）</div></div>
@@ -340,8 +340,12 @@ let currentSort = 'recommended'; // recommended | price_asc | price_desc | ratin
 let currentLang = 'ja'; // 現在の表示言語
 let _trans = {}; // 翻訳キャッシュ: "tableName/rowId/fieldName/lang" → translated_text
 const SORT_CYCLE = ['recommended','price_asc','price_desc','rating'];
-const SORT_LABELS = { recommended:'おすすめ順', price_asc:'価格安い順', price_desc:'価格高い順', rating:'評価順' };
-const badgeLabel = { try: '体験', learn: '資格', fundive: 'ファンダイブ', training: 'トレーニング', coaching: 'コーチング' };
+// 固定UI文言の動的参照ヘルパー（currentLangに追従）
+const T = (key, ja) => (window.I18N ? I18N.t(currentLang, key, ja) || ja : ja);
+const SORT_LABELS_JA = { recommended:'おすすめ順', price_asc:'価格安い順', price_desc:'価格高い順', rating:'評価順' };
+const sortLabel = k => T('sort_' + k, SORT_LABELS_JA[k]);
+const BADGE_LABEL_JA = { try: '体験', learn: '資格', fundive: 'ファンダイブ', training: 'トレーニング', coaching: 'コーチング' };
+const badgeLabelOf = k => T('badge_' + k, BADGE_LABEL_JA[k] || k);
 const badgeClass = { try: 'badge-try', learn: 'badge-learn', fundive: 'badge-fundive', training: 'badge-training', coaching: 'badge-coaching' };
 const instructorCache = {};
 
@@ -383,7 +387,7 @@ async function openInstructorModal(instructorId, e) {
   if (e) { e.preventDefault(); e.stopPropagation(); }
   document.getElementById('modalOverlay').classList.add('open');
   document.getElementById('modalSheet').classList.add('open');
-  document.getElementById('modalBody').innerHTML = `<div style="padding:40px 0;text-align:center;color:var(--on-dark-soft);font-size:13px">読み込み中…</div>`;
+  document.getElementById('modalBody').innerHTML = `<div style="padding:40px 0;text-align:center;color:var(--on-dark-soft);font-size:13px">${T('loading', '読み込み中…')}</div>`;
   document.body.style.overflow = 'hidden';
 
   try {
@@ -394,7 +398,7 @@ async function openInstructorModal(instructorId, e) {
     }
     renderModal(instructorCache[instructorId]);
   } catch (err) {
-    document.getElementById('modalBody').innerHTML = `<div style="padding:40px 0;text-align:center;color:var(--on-dark-soft);font-size:13px">情報を取得できませんでした</div>`;
+    document.getElementById('modalBody').innerHTML = `<div style="padding:40px 0;text-align:center;color:var(--on-dark-soft);font-size:13px">${T('err_fetch_info', '情報を取得できませんでした')}</div>`;
   }
 }
 
@@ -418,14 +422,14 @@ function renderModal(inst) {
     : `<div class="m-avatar-ph"><svg class="icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>`;
 
   const verifiedBadge = inst.is_verified
-    ? `<span class="m-verified"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>認定済み</span>` : '';
+    ? `<span class="m-verified"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>${T('verified', '認定済み')}</span>` : '';
 
   const locationParts = esc([inst.prefecture, inst.city].filter(Boolean).join(' '));
 
   const snsLinks = [
     inst.instagram_url ? { url: inst.instagram_url, label: 'Instagram', icon: '<svg class="icon" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>' } : null,
     inst.youtube_url  ? { url: inst.youtube_url,  label: 'YouTube',   icon: '<svg class="icon" viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>' } : null,
-    inst.website_url  ? { url: inst.website_url,  label: 'ウェブサイト', icon: '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>' } : null,
+    inst.website_url  ? { url: inst.website_url,  label: T('website', 'ウェブサイト'), icon: '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>' } : null,
   ].filter(Boolean).map(l => {
     const safe = safeUrl(l.url);
     return safe ? `<a class="m-sns-btn" href="${esc(safe)}" target="_blank" rel="noopener">${l.icon}${l.label}</a>` : '';
@@ -443,51 +447,51 @@ function renderModal(inst) {
 
     <div class="m-stats">
       <div class="m-stat">
-        <div class="m-stat-val">${inst.experience_years != null ? esc(inst.experience_years) : '—'}<span style="font-size:12px;font-weight:400;color:var(--on-dark-soft)"> 年</span></div>
-        <div class="m-stat-label">指導歴</div>
+        <div class="m-stat-val">${inst.experience_years != null ? esc(inst.experience_years) : '—'}<span style="font-size:12px;font-weight:400;color:var(--on-dark-soft)"> ${T('unit_years', '年')}</span></div>
+        <div class="m-stat-label">${T('stat_experience_label', '指導歴')}</div>
       </div>
       <div class="m-stat">
         <div class="m-stat-val">${listingCount}</div>
-        <div class="m-stat-label">プラン数</div>
+        <div class="m-stat-label">${T('stat_plans', 'プラン数')}</div>
       </div>
       <div class="m-stat">
         <div class="m-stat-val">${certs.length || '—'}</div>
-        <div class="m-stat-label">保有資格</div>
+        <div class="m-stat-label">${T('stat_certifications', '保有資格')}</div>
       </div>
     </div>
 
     ${certs.length ? `
     <div class="m-section">
-      <p class="m-sec-title">保有資格</p>
+      <p class="m-sec-title">${T('section_certifications', '保有資格')}</p>
       <div class="m-chips">${certs.map(c => `<span class="m-chip cert">${esc(c)}</span>`).join('')}</div>
     </div>` : ''}
 
     ${specs.length ? `
     <div class="m-section">
-      <p class="m-sec-title">専門・得意分野</p>
+      <p class="m-sec-title">${T('section_specialties', '専門・得意分野')}</p>
       <div class="m-chips">${specs.map(s => `<span class="m-chip">${esc(s)}</span>`).join('')}</div>
     </div>` : ''}
 
     ${areas.length ? `
     <div class="m-section">
-      <p class="m-sec-title">活動エリア</p>
+      <p class="m-sec-title">${T('section_areas', '活動エリア')}</p>
       <div class="m-areas">${areas.map(a => `<span class="m-area-badge"><svg class="icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${esc(a)}</span>`).join('')}</div>
     </div>` : ''}
 
     ${inst.bio ? `
     <div class="m-section">
-      <p class="m-sec-title">自己紹介</p>
+      <p class="m-sec-title">${T('section_bio', '自己紹介')}</p>
       <p class="m-bio">${esc(inst.bio)}</p>
     </div>` : ''}
 
     ${snsHtml ? `
     <div class="m-section">
-      <p class="m-sec-title">リンク</p>
+      <p class="m-sec-title">${T('section_links', 'リンク')}</p>
       <div class="m-sns">${snsHtml}</div>
     </div>` : ''}
 
     <a class="m-cta" href="profile.html?id=${esc(inst.id)}" onclick="closeModal()">
-      このインストラクターのプロフィールを見る
+      ${T('view_profile', 'このインストラクターのプロフィールを見る')}
       <svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
     </a>
   `;
@@ -544,7 +548,7 @@ async function loadListings() {
     renderListings();
   } catch (err) {
     console.error(err);
-    document.getElementById('listings').innerHTML = '<div class="empty-state"><div class="empty-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><p class="empty-title">データを読み込めませんでした</p><p class="empty-desc">しばらく経ってから再度お試しください</p></div>';
+    document.getElementById('listings').innerHTML = `<div class="empty-state"><div class="empty-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><p class="empty-title">${T('err_load', 'データを読み込めませんでした')}</p><p class="empty-desc">${T('err_retry', 'しばらく経ってから再度お試しください')}</p></div>`;
   }
 }
 
@@ -596,7 +600,7 @@ function clearDate() {
 // 画面上にintentタブは無いため、date同様の「解除できるヒント」で状態を可視化する。
 function applyIntent(intent) {
   currentIntent = intent;
-  document.getElementById('intentHintLabel').textContent = badgeLabel[intent] || intent;
+  document.getElementById('intentHintLabel').textContent = badgeLabelOf(intent);
   document.getElementById('intentHint').style.display = 'block';
   renderListings();
 }
@@ -622,7 +626,7 @@ function togglePrice(el) {
 function cycleSort() {
   const idx = SORT_CYCLE.indexOf(currentSort);
   currentSort = SORT_CYCLE[(idx + 1) % SORT_CYCLE.length];
-  document.getElementById('sortLabel').textContent = SORT_LABELS[currentSort];
+  document.getElementById('sortLabel').textContent = sortLabel(currentSort);
   renderListings();
 }
 function applyFilters() { renderListings(); }
@@ -666,7 +670,7 @@ function renderListings() {
   document.getElementById('countNum').textContent = filtered.length;
   const container = document.getElementById('listings');
   if (filtered.length === 0) {
-    container.innerHTML = '<div class="empty-state"><div class="empty-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><p class="empty-title">該当する結果がありません</p><p class="empty-desc">条件を変えてもう一度お試しください</p></div>';
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><p class="empty-title">${T('empty_results', '該当する結果がありません')}</p><p class="empty-desc">${T('empty_results_desc', '条件を変えてもう一度お試しください')}</p></div>`;
     return;
   }
   container.innerHTML = filtered.map(l => {
@@ -682,12 +686,12 @@ function renderListings() {
     const ownerLinkParam = l.instructor_id ? `id=${esc(l.instructor_id)}` : `shop=${esc(l.shop_id)}`;
     const displayTitle   = getTrans('listings', l.id, 'title', currentLang) || l.title;
     const displayInstName = getTrans('instructors', l.instructor_id, 'name', currentLang) || (inst?.name || '');
-    const displayShopName = getTrans('shops', l.shop_id, 'name', currentLang) || (ownerShop?.name || 'ショップ');
+    const displayShopName = getTrans('shops', l.shop_id, 'name', currentLang) || (ownerShop?.name || T('type_shop', 'ショップ'));
     const ownerBtn = inst
       ? `<button class="instructor-btn" onclick="openInstructorModal('${esc(l.instructor_id)}', event)">${verified}${esc(displayInstName)}</button>`
       : `<span class="instructor-btn" style="cursor:default;">${esc(displayShopName)}</span>`;
     return `<a class="listing-card" href="listing.html?${ownerLinkParam}&listing=${esc(l.id)}">
-      <div class="listing-thumb">${thumb}<span class="listing-badge ${badgeClass[l.intent]}">${badgeLabel[l.intent]}</span></div>
+      <div class="listing-thumb">${thumb}<span class="listing-badge ${badgeClass[l.intent]}">${badgeLabelOf(l.intent)}</span></div>
       <div class="listing-body">
         <span class="listing-category">${esc(l.category)}</span>
         <p class="listing-name">${esc(displayTitle)}</p>
@@ -697,7 +701,7 @@ function renderListings() {
           ${(l.tags || []).slice(0,2).map(t => `<span class="meta-item">${esc(t)}</span>`).join('')}
         </div>
         <div class="listing-footer">
-          <p class="listing-price">${l.price ? '¥' + l.price.toLocaleString() : '要相談'}<span>${l.price ? esc(l.price_unit || '') : ''}</span></p>
+          <p class="listing-price">${l.price ? '¥' + l.price.toLocaleString() : T('price_ask', '要相談')}<span>${l.price ? esc(l.price_unit || '') : ''}</span></p>
           ${ownerBtn}
         </div>
       </div>
@@ -771,6 +775,7 @@ LangSwitcher.init(async function(lang) {
   if (window.I18N) I18N.apply(lang);
   if (lang !== currentLang) {
     currentLang = lang;
+    document.getElementById('sortLabel').textContent = sortLabel(currentSort);
     await loadTranslations(allListings, lang);
     renderListings();
   }
