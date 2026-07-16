@@ -74,7 +74,8 @@
 
   /* ── ヘッダーUI注入 ── */
   function injectHeaderSwitcher(onChangeFn) {
-    const hdrRight = document.querySelector('.hdr-right');
+    // .hdr-right / .header-icons / .hdr-in（いずれか最初に見つかったもの）に注入
+    const hdrRight = document.querySelector('.hdr-right') || document.querySelector('.header-icons') || document.querySelector('.hdr-in');
     if (!hdrRight || document.querySelector('.hdr-lang')) return;
 
     injectCSS();
