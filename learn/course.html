@@ -301,11 +301,16 @@ async function loadCourse() {
     buyButtonHtml = '<button class="btn-buy soon" disabled>準備中（撮影完了後に購入可能になります）</button>';
   }
 
+  const thumbContent = course.thumbnail_url
+    ? '<img src="' + esc(course.thumbnail_url) + '" alt="" ' +
+      'style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:12px;">' +
+      '<div class="play-circle" style="position:relative;z-index:1;">' +
+      '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>'
+    : '<div class="play-circle"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>';
+
   document.getElementById('courseContent').innerHTML =
     '<div class="course-hero">' +
-      '<div class="course-thumb">' +
-        '<div class="play-circle"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>' +
-      '</div>' +
+      '<div class="course-thumb">' + thumbContent + '</div>' +
       '<span class="level-badge ' + levelClass + '">' + esc(catJp) + (course.level_label ? ' ・ ' + esc(course.level_label) : '') + '</span>' +
       '<h1 class="course-title">' + esc(course.title) + '</h1>' +
       '<div class="course-author">' +

@@ -3482,7 +3482,7 @@ async function loadCourses() {
 
   const { data: courses, error } = await _sb
     .from('courses')
-    .select('id, slug, title, category, status, price')
+    .select('id, slug, title, category, status, price, thumbnail_url')
     .order('created_at', { ascending: true });
 
   if (error) { el.innerHTML = `<div class="empty">取得エラー: ${escHtml(error.message)}</div>`; return; }
@@ -3548,6 +3548,16 @@ async function loadCourses() {
             </div>
             <div style="font-size:12px;color:#8b8b90;">${CAT_JP[course.category] || course.category} ／ ¥${Number(course.price).toLocaleString('ja-JP')} ／ 動画登録済み: <strong style="color:${readyCount > 0 ? '#1f6f78' : '#e11d48'};">${readyCount}/${chapters.length}</strong></div>
           </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <input type="url" id="thumb-${course.id}" placeholder="サムネイルURL"
+              value="${escHtml(course.thumbnail_url || '')}"
+              style="width:260px;padding:6px 10px;border:1px solid #e7e7ea;border-radius:6px;font-size:12px;color:#222226;"
+              oninput="document.getElementById('thumb-save-${course.id}').style.opacity='1';document.getElementById('thumb-save-${course.id}').style.pointerEvents='auto';">
+            <button id="thumb-save-${course.id}" onclick="saveCourseThumb('${course.id}')"
+              style="padding:6px 12px;background:#1f6f78;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;opacity:0.4;pointer-events:none;white-space:nowrap;">
+              保存
+            </button>
+          </div>
           <a href="/learn/course.html?slug=${escHtml(course.slug)}" target="_blank"
             style="font-size:12px;color:#1f6f78;text-decoration:none;white-space:nowrap;">詳細ページ →</a>
         </div>
@@ -3574,6 +3584,18 @@ async function loadCourses() {
 function markChapterDirty(chapterId) {
   const btn = document.querySelector(`.ch-save-btn[data-chapter-id="${chapterId}"]`);
   if (btn) { btn.style.opacity = '1'; btn.style.pointerEvents = 'auto'; }
+}
+
+async function saveCourseThumb(courseId) {
+  const input = document.getElementById('thumb-' + courseId);
+  const btn   = document.getElementById('thumb-save-' + courseId);
+  if (!input) return;
+  const thumbnail_url = input.value.trim() || null;
+  if (btn) { btn.textContent = '保存中…'; btn.disabled = true; }
+  const { error } = await _sb.from('courses').update({ thumbnail_url }).eq('id', courseId);
+  if (error) { alert('保存エラー: ' + error.message); if (btn) { btn.textContent = '保存'; btn.disabled = false; } return; }
+  showToast('サムネイルURLを保存しました');
+  if (btn) { btn.textContent = '保存'; btn.disabled = false; btn.style.opacity = '0.4'; btn.style.pointerEvents = 'none'; }
 }
 
 async function saveChapter(chapterId) {
