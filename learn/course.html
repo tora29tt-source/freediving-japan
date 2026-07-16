@@ -226,6 +226,16 @@ body {
 </style>
 </head>
 <body>
+<script src="../js/i18n.js"></script>
+<script src="../js/lang-switcher.js"></script>
+<script>
+let currentLang = 'ja';
+const T = (key, ja) => (window.I18N ? I18N.t(currentLang, key, ja) || ja : ja);
+LangSwitcher.init(function(lang){
+  if (window.I18N) I18N.apply(lang);
+  currentLang = lang;
+});
+</script>
 
 <header class="header">
   <a href="../index.html" class="logo">FREEDIVING <span>JAPAN</span></a>
@@ -527,15 +537,5 @@ async function purchaseCourse() {
 loadCourse();
 </script>
 
-<script src="../js/i18n.js"></script>
-<script src="../js/lang-switcher.js"></script>
-<script>
-let currentLang = 'ja';
-const T = (key, ja) => (window.I18N ? I18N.t(currentLang, key, ja) || ja : ja);
-LangSwitcher.init(function(lang){
-  if (window.I18N) I18N.apply(lang);
-  currentLang = lang;
-});
-</script>
 </body>
 </html>

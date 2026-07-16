@@ -10,6 +10,16 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+<script src="../js/i18n.js"></script>
+<script src="../js/lang-switcher.js"></script>
+<script>
+let currentLang = 'ja';
+const T = (key, ja) => (window.I18N ? I18N.t(currentLang, key, ja) || ja : ja);
+LangSwitcher.init(function(lang){
+  if (window.I18N) I18N.apply(lang);
+  currentLang = lang;
+});
+</script>
 
 <header class="hdr">
   <div class="hdr-in">
@@ -17,7 +27,7 @@
     <div class="hdr-right">
       <a class="hdr-link" href="../mypage.html">
         <span class="avatar"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/></svg></span>
-        マイページ
+        <span data-i18n="nav_mypage">マイページ</span>
       </a>
     </div>
   </div>
@@ -30,22 +40,22 @@
     <img class="phero-img" src="../images/index_記事コラム.JPG" alt="">
     <div class="phero-scrim"></div>
     <div class="phero-copy">
-      <p class="phero-eyebrow">読む · コラム</p>
-      <h1 class="phero-title">フリーダイビングを知る</h1>
-      <p class="phero-sub">現役ダイバーのインタビュー、海外ニュース翻訳、技術・安全解説。一次情報から届けます。</p>
+      <p class="phero-eyebrow" data-i18n="media_eyebrow">読む · コラム</p>
+      <h1 class="phero-title" data-i18n="media_hero_title">フリーダイビングを知る</h1>
+      <p class="phero-sub" data-i18n="media_hero_sub">現役ダイバーのインタビュー、海外ニュース翻訳、技術・安全解説。一次情報から届けます。</p>
     </div>
   </section>
 
   <div class="chips" style="margin:22px 0 8px;">
-    <button class="chip active" data-cat="all" onclick="filterArticles('all', this)">すべて</button>
+    <button class="chip active" data-cat="all" onclick="filterArticles('all', this)" data-i18n="media_all">すべて</button>
     <button class="chip" data-cat="interview" onclick="filterArticles('interview', this)">
-      <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/></svg>インタビュー
+      <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/></svg><span data-i18n="media_cat_interview">インタビュー</span>
     </button>
     <button class="chip" data-cat="news" onclick="filterArticles('news', this)">
-      <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg>海外ニュース
+      <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg><span data-i18n="media_cat_news">海外ニュース</span>
     </button>
     <button class="chip" data-cat="tips" onclick="filterArticles('tips', this)">
-      <svg class="icon" viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.3 1 2.5h6c0-1.2.2-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>技術・安全
+      <svg class="icon" viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.3 1 2.5h6c0-1.2.2-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg><span data-i18n="media_cat_tech">技術・安全</span>
     </button>
   </div>
 
@@ -53,7 +63,7 @@
     <a class="lcard" id="featured-card" href="#" style="display:block;">
       <div class="lcard-media" style="aspect-ratio:16/8;">
         <img class="lcard-img" id="featured-img" src="" alt="">
-        <span class="lcard-badge" id="featured-badge">注目の記事</span>
+        <span class="lcard-badge" id="featured-badge" data-i18n="media_featured">注目の記事</span>
       </div>
       <div class="lcard-body">
         <p class="lcard-title" id="featured-title" style="font-size:19px; white-space:normal;"></p>
@@ -64,23 +74,23 @@
   </section>
 
   <section class="section" id="section-interview" style="display:none;">
-    <div class="section-head"><h2>インタビュー</h2></div>
+    <div class="section-head"><h2 data-i18n="media_cat_interview">インタビュー</h2></div>
     <div id="list-interview"></div>
   </section>
 
   <section class="section" id="section-news" style="display:none;">
-    <div class="section-head"><h2>海外ニュース</h2></div>
+    <div class="section-head"><h2 data-i18n="media_cat_news">海外ニュース</h2></div>
     <div class="row" id="list-news"></div>
   </section>
 
   <section class="section" id="section-tips" style="display:none;">
-    <div class="section-head"><h2>技術・安全</h2></div>
+    <div class="section-head"><h2 data-i18n="media_cat_tech">技術・安全</h2></div>
     <div id="list-tips"></div>
   </section>
 
   <div id="empty-state" style="display:none; text-align:center; padding:70px 0; color:var(--ink-soft);">
     <svg class="icon" style="width:36px;height:36px;margin-bottom:14px;" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
-    <p style="font-size:14px;">記事を準備中です</p>
+    <p style="font-size:14px;" data-i18n="media_preparing">記事を準備中です</p>
   </div>
 </main>
 
@@ -96,7 +106,7 @@
     <div class="foot-col">
       <h4 data-i18n="foot_learn_read">学ぶ・読む</h4>
       <a href="../learn/index.html" data-i18n="foot_video_learn">動画で学ぶ</a>
-      <a href="index.html">記事・コラム</a>
+      <a href="index.html" data-i18n="foot_articles">記事・コラム</a>
     </div>
     <div class="foot-col">
       <h4 data-i18n="foot_competition">競技</h4>
@@ -167,11 +177,11 @@ function renderDBArticles(articles) {
     featuredSection.dataset.hasData = '1';
     const tab = CAT_TO_TAB[featured.category] || 'tips';
     const dateStr = fmtDate(featured.published_at);
-    const readTime = featured.read_time_min ? featured.read_time_min + '分' : '';
+    const readTime = featured.read_time_min ? featured.read_time_min + T('unit_min', '分') : '';
     document.getElementById('featured-card').href = `article.html?slug=${featured.slug}`;
     featuredSection.dataset.category = tab;
     document.getElementById('featured-img').src = featured.thumbnail_url || FALLBACK_IMG;
-    document.getElementById('featured-badge').textContent = CAT_LABELS[featured.category] || '注目の記事';
+    document.getElementById('featured-badge').textContent = T('media_cat_' + featured.category, CAT_LABELS[featured.category] || '注目の記事');
     document.getElementById('featured-title').textContent = featured.title;
     document.getElementById('featured-excerpt').textContent = featured.lead_text || '';
     const metaBits = [readTime, dateStr, featured.author_type].filter(Boolean);
@@ -188,7 +198,7 @@ function renderDBArticles(articles) {
     const tab = CAT_TO_TAB[a.category] || 'tips';
     const catLabel = CAT_LABELS[a.category] || a.category;
     const dateStr = fmtDate(a.published_at);
-    const readTime = a.read_time_min ? a.read_time_min + '分' : '';
+    const readTime = a.read_time_min ? a.read_time_min + T('unit_min', '分') : '';
     const thumb = a.thumbnail_url || FALLBACK_IMG;
     const url = `article.html?slug=${a.slug}`;
 

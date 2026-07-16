@@ -366,26 +366,36 @@ body { font-family: var(--font-body); color: var(--text); background: white; lin
 </style>
 </head>
 <body>
+<script src="../js/i18n.js"></script>
+<script src="../js/lang-switcher.js"></script>
+<script>
+let currentLang = 'ja';
+const T = (key, ja) => (window.I18N ? I18N.t(currentLang, key, ja) || ja : ja);
+LangSwitcher.init(function(lang){
+  if (window.I18N) I18N.apply(lang);
+  currentLang = lang;
+});
+</script>
 
 <div id="progress-bar"></div>
 
 <header class="site-header">
   <a href="../index.html" class="site-logo">FREEDIVING <span>JAPAN</span></a>
   <nav class="site-nav">
-    <a href="index.html">メディア</a>
-    <a href="../explore/">スクールを探す</a>
-    <a href="../learn/">学ぶ</a>
+    <a href="index.html" data-i18n="foot_articles">メディア</a>
+    <a href="../explore/" data-i18n="foot_search_course">スクールを探す</a>
+    <a href="../learn/" data-i18n="tab_learn">学ぶ</a>
   </nav>
 </header>
 
 <div class="breadcrumb">
-  <a href="../index.html">ホーム</a><span class="sep">›</span>
-  <a href="index.html">メディア</a><span class="sep">›</span>
-  <span id="breadcrumbTitle">記事</span>
+  <a href="../index.html" data-i18n="crumb_home">ホーム</a><span class="sep">›</span>
+  <a href="index.html" data-i18n="foot_articles">メディア</a><span class="sep">›</span>
+  <span id="breadcrumbTitle" data-i18n="media_article">記事</span>
 </div>
 
 <div id="pageContent">
-  <div class="page-message"><p>読み込み中…</p></div>
+  <div class="page-message"><p data-i18n="loading">読み込み中…</p></div>
 </div>
 
 <footer class="site-footer">
@@ -393,7 +403,7 @@ body { font-family: var(--font-body); color: var(--text); background: white; lin
 </footer>
 
 <!-- フローティングボタン -->
-<a href="index.html" id="fab-back">← メディア</a>
+<a href="index.html" id="fab-back">← <span data-i18n="foot_articles">メディア</span></a>
 <button id="scroll-top" aria-label="トップへ戻る">↑</button>
 
 <script>
@@ -428,7 +438,7 @@ async function loadArticle() {
   const slug = params.get('slug');
   const id   = params.get('id');
 
-  if (!slug && !id) { showError('URLにスラッグまたはIDが指定されていません'); return; }
+  if (!slug && !id) { showError(T('media_err_no_slug', 'URLにスラッグまたはIDが指定されていません')); return; }
 
   let query = sb.from('articles').select('*').eq('is_published', true);
   if (slug) query = query.eq('slug', slug);
@@ -436,7 +446,7 @@ async function loadArticle() {
 
   const { data, error } = await query.single();
 
-  if (error || !data) { showError('記事が見つかりません'); return; }
+  if (error || !data) { showError(T('media_err_notfound', '記事が見つかりません')); return; }
 
   renderArticle(data);
   loadRelated(data.category, data.id);
@@ -448,7 +458,7 @@ function renderArticle(a) {
 
   const catLabel      = CAT_LABELS[a.category] || a.category;
   const dateStr       = a.published_at ? new Date(a.published_at).toLocaleDateString('ja-JP', { year:'numeric', month:'long', day:'numeric' }) : '';
-  const readTime      = a.read_time_min ? `約${a.read_time_min}分` : '';
+  const readTime      = a.read_time_min ? T('media_read_time', `約${a.read_time_min}分`).replace('{n}', a.read_time_min) : '';
   const authorTypeNorm = a.author_type === 'editorial' ? '編集部' : (a.author_type || '編集部');
   const authorDisplay = authorTypeNorm === 'ゲスト' && a.author_name ? a.author_name : authorTypeNorm;
 
@@ -474,37 +484,37 @@ function renderArticle(a) {
         <div class="hero-meta">
           <span class="by">By <strong>${esc(authorDisplay)}</strong></span>
           ${dateStr   ? `<span class="date">${dateStr}</span>` : ''}
-          ${readTime  ? `<span class="read-time">📖 ${readTime}で読める</span>` : ''}
+          ${readTime  ? `<span class="read-time">📖 ${readTime}${T('media_read_suffix', 'で読める')}</span>` : ''}
         </div>
       </div>
     </div>
 
     <div class="share-bar">
-      <span class="share-label">シェア</span>
+      <span class="share-label">${T('share', 'シェア')}</span>
       <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(a.title)}&url=${encodeURIComponent(location.href)}"
          target="_blank" rel="noopener" class="share-btn share-x">
-        𝕏 でシェア
+        𝕏 ${T('share_x', 'でシェア')}
       </a>
       <a href="https://line.me/R/msg/text/?${encodeURIComponent(a.title + '\n' + location.href)}"
          target="_blank" rel="noopener" class="share-btn share-line">
         LINE
       </a>
-      <button class="share-btn share-copy" onclick="copyUrl(this)">🔗 URLをコピー</button>
+      <button class="share-btn share-copy" onclick="copyUrl(this)">🔗 ${T('copy_url', 'URLをコピー')}</button>
     </div>
 
     <div class="article-wrap">
       ${a.lead_text ? `<p class="lead">${esc(a.lead_text)}</p>` : ''}
 
-      ${sanitizeContent(a.content) || '<div class="article-body"><p>本文準備中です。</p></div>'}
+      ${currentLang !== 'ja' ? `<div class="article-body" style="margin-bottom:14px;"><p style="background:rgba(46,196,182,0.08);border:1px solid rgba(46,196,182,0.25);border-radius:10px;padding:10px 14px;font-size:13px;">${T('ja_only_notice', 'この記事は現在日本語のみです。')}</p></div>` : ''}${sanitizeContent(a.content) || '<div class="article-body"><p>' + T('media_body_preparing', '本文準備中です。') + '</p></div>'}
 
       ${tagsHtml}
 
       <hr class="article-divider">
 
       <div class="cta-box">
-        <h3>スクール・インストラクターを探す</h3>
-        <p>全国のフリーダイビングスクール・インストラクターをFreediving Japanで検索できます。</p>
-        <a href="../explore/" class="cta-btn">スクールを探してみる →</a>
+        <h3>${T('media_cta_title', 'スクール・インストラクターを探す')}</h3>
+        <p>${T('media_cta_desc', '全国のフリーダイビングスクール・インストラクターをFreediving Japanで検索できます。')}</p>
+        <a href="../explore/" class="cta-btn">${T('media_cta_btn', 'スクールを探してみる →')}</a>
       </div>
 
       <div class="author-box">
@@ -537,7 +547,7 @@ async function loadRelated(category, currentId) {
   if (!section || !data || data.length === 0) return;
 
   section.innerHTML = `
-    <h2>関連記事</h2>
+    <h2>${T('media_related', '関連記事')}</h2>
     <div class="related-grid">
       ${data.map(r => {
         const href  = r.slug ? `article.html?slug=${esc(r.slug)}` : `article.html?id=${esc(r.id)}`;
@@ -560,7 +570,7 @@ async function loadRelated(category, currentId) {
 // ── URLコピー ──
 function copyUrl(btn) {
   navigator.clipboard.writeText(location.href).then(() => {
-    btn.textContent = '✅ コピーしました';
+    btn.textContent = '✅ ' + T('copied', 'コピーしました');
     btn.classList.add('copied');
     setTimeout(() => {
       btn.textContent = '🔗 URLをコピー';
