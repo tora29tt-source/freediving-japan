@@ -428,7 +428,7 @@ async function loadCourses() {
 
   var { data: courses, error } = await _sb
     .from('courses')
-    .select('id, slug, title, category, level_label, instructor_name, instructor_title, target_level, price')
+    .select('id, slug, title, category, level_label, instructor_name, instructor_title, target_level, price, thumbnail_url')
     .eq('status', 'published')
     .order('created_at', { ascending: true });
 
@@ -487,13 +487,12 @@ async function loadCourses() {
     var comingSoon = hasContent ? '' : '<span class="coming-pill">COMING SOON</span>';
     var clickable  = 'style="cursor:pointer;" onclick="location.href=\'course.html?slug=' + esc(course.slug) + '\'"';
 
+    var thumbInner = course.thumbnail_url
+      ? '<img src="' + esc(course.thumbnail_url) + '" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">' + comingSoon
+      : '<div class="course-thumb-accent"></div><div class="course-cat-stripe" style="background:' + color + '"></div>' + playCircleSvg(cat) + comingSoon;
+
     return '<div class="course-card' + (hasContent ? '' : ' locked') + '" data-cat="' + esc(cat) + '" ' + clickable + '>' +
-      '<div class="course-thumb">' +
-        '<div class="course-thumb-accent"></div>' +
-        '<div class="course-cat-stripe" style="background:' + color + '"></div>' +
-        playCircleSvg(cat) +
-        comingSoon +
-      '</div>' +
+      '<div class="course-thumb">' + thumbInner + '</div>' +
       '<div class="course-body">' +
         '<div>' +
           '<span class="course-cat-badge" style="color:' + color + '">' +
@@ -503,7 +502,6 @@ async function loadCourses() {
         '</div>' +
         '<div class="course-title">' + esc(course.title) + '</div>' +
         '<div class="course-author">' +
-          '<div class="author-avatar">' + authorChar + '</div>' +
           '<span>' + authorLabel + '</span>' +
         '</div>' +
         '<div class="course-meta">' +
