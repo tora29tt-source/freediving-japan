@@ -114,24 +114,7 @@
 
     <section class="section">
       <div class="section-head"><h2 data-i18n="sec_nearby_schools">近くのスクール・インストラクター</h2></div>
-      <div class="row">
-        <a class="lcard" href="explore/index.html">
-          <div class="lcard-media"><img class="lcard-img" src="images/index_インストラクター.JPG" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div>
-          <div class="lcard-body"><p class="lcard-title">【テスト】AIDAインストラクター</p><p class="lcard-meta">東京・葉山</p><p class="lcard-foot"><span class="star">★5.0</span> ・ レビュー42件</p></div>
-        </a>
-        <a class="lcard" href="explore/index.html">
-          <div class="lcard-media"><img class="lcard-img" src="images/index_インストラクターカード.JPG" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div>
-          <div class="lcard-body"><p class="lcard-title">【テスト】スキンダイビング専門スクール</p><p class="lcard-meta">静岡・伊豆</p><p class="lcard-foot"><span class="star">★4.9</span> ・ レビュー31件</p></div>
-        </a>
-        <a class="lcard" href="explore/index.html">
-          <div class="lcard-media"><img class="lcard-img" src="images/index_中級_Depth_training_dahab_2.JPG" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div>
-          <div class="lcard-body"><p class="lcard-title">【テスト】深度トレーニング対応スクール</p><p class="lcard-meta">神奈川・三浦</p><p class="lcard-foot"><span class="star">★4.8</span> ・ レビュー27件</p></div>
-        </a>
-        <a class="lcard" href="explore/index.html">
-          <div class="lcard-media"><img class="lcard-img" src="images/gear_fins_beach.jpg" alt=""><span class="lcard-save" data-save><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg></span></div>
-          <div class="lcard-body"><p class="lcard-title">【テスト】シュノーケルツアー主催</p><p class="lcard-meta">沖縄・宮古島</p><p class="lcard-foot"><span class="star">★4.9</span> ・ レビュー58件</p></div>
-        </a>
-      </div>
+      <div class="row" id="nearby-schools-row"></div>
     </section>
 
   </div>
@@ -521,8 +504,81 @@
 <script src="js/i18n.js"></script>
 <script src="js/lang-switcher.js"></script>
 <script>
-LangSwitcher.init(function(lang) {
+/* ── 近くのスクール・インストラクター — DBから動的取得 ── */
+(function () {
+  const _SURL = 'https://bbhqvbpsuccbdcnhnobm.supabase.co';
+  const _SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJiaHF2YnBzdWNjYmRjbmhub2JtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyODQwMzksImV4cCI6MjA5NTg2MDAzOX0.MexR8_hY56m3XRff0EJOQM3uQShXr2L9kGyYXLSzKbs';
+  const FALLBACK_IMGS = [
+    'images/index_インストラクター.JPG',
+    'images/index_インストラクターカード.JPG',
+    'images/index_中級_Depth_training_dahab_2.JPG',
+    'images/gear_fins_beach.jpg',
+  ];
+  const SAVE_SVG = '<svg class="icon" viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-8.6C1 9.5 2.5 6 6 6c2 0 3.2 1.1 4 2.3C10.8 7.1 12 6 14 6c3.5 0 5 3.5 3.5 6.4C19 16.6 12 21 12 21z"/></svg>';
+
+  let _cachedShops = [];
+
+  async function loadNearbySchools(lang) {
+    const { createClient } = window.supabase || {};
+    if (!createClient) return;
+    const sb = createClient(_SURL, _SKEY);
+    const container = document.getElementById('nearby-schools-row');
+    if (!container) return;
+
+    try {
+      if (!_cachedShops.length) {
+        const { data } = await sb
+          .from('shops')
+          .select('id, name, prefecture, city, avg_rating, review_count, cover_image_url')
+          .eq('is_public', true)
+          .order('avg_rating', { ascending: false, nullsFirst: false })
+          .limit(4);
+        _cachedShops = data || [];
+      }
+      if (!_cachedShops.length) return;
+
+      // 翻訳取得
+      let nameTrans = {};
+      if (lang && lang !== 'ja' && _cachedShops.length) {
+        const { data: trans } = await sb
+          .from('translations')
+          .select('row_id, translated_text')
+          .in('row_id', _cachedShops.map(s => s.id))
+          .eq('table_name', 'shops')
+          .eq('field_name', 'name')
+          .eq('lang', lang);
+        (trans || []).forEach(t => { nameTrans[t.row_id] = t.translated_text; });
+      }
+
+      container.innerHTML = _cachedShops.map((shop, i) => {
+        const displayName = nameTrans[shop.id] || shop.name || '';
+        const location = [shop.prefecture, shop.city].filter(Boolean).join('・');
+        const img = shop.cover_image_url || FALLBACK_IMGS[i % FALLBACK_IMGS.length];
+        const rating = shop.avg_rating
+          ? `<span class="star">★${parseFloat(shop.avg_rating).toFixed(1)}</span> ・ レビュー${shop.review_count || 0}件`
+          : '';
+        return `<a class="lcard" href="explore/profile.html?shop=${encodeURIComponent(shop.id)}">
+          <div class="lcard-media"><img class="lcard-img" src="${img}" alt="${displayName}" loading="lazy"><span class="lcard-save" data-save>${SAVE_SVG}</span></div>
+          <div class="lcard-body"><p class="lcard-title">${displayName}</p><p class="lcard-meta">${location}</p><p class="lcard-foot">${rating}</p></div>
+        </a>`;
+      }).join('');
+    } catch (e) {
+      console.warn('loadNearbySchools error:', e);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const lang = window.LangSwitcher ? LangSwitcher.getLang() : 'ja';
+    loadNearbySchools(lang);
+  });
+
+  // 言語切り替え時に再レンダリング
+  window._reloadNearbySchools = loadNearbySchools;
+})();
+
+LangSwitcher.init(async function(lang) {
   if (window.I18N) I18N.apply(lang);
+  if (window._reloadNearbySchools) await _reloadNearbySchools(lang);
 });
 </script>
 </body>

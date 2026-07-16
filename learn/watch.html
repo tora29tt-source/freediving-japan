@@ -93,6 +93,7 @@ body {
 }
 .chapter-body { flex: 1; min-width: 0; }
 .chapter-title { font-size: 13px; font-weight: 600; }
+.chapter-hook { font-size: 12px; color: var(--on-dark-mid); line-height: 1.5; margin: 3px 0 2px; }
 .chapter-status { font-size: 11px; color: var(--on-dark-soft); margin-top: 2px; }
 
 .state-screen { text-align: center; padding: 80px 20px; color: var(--on-dark-mid); }
@@ -274,7 +275,7 @@ async function loadWatch() {
 
   const { data: chapters } = await _sb
     .from('course_chapters')
-    .select('id, chapter_num, title, video_path')
+    .select('id, chapter_num, title, hook, video_path')
     .eq('course_id', course.id)
     .order('chapter_num', { ascending: true });
 
@@ -287,6 +288,7 @@ async function loadWatch() {
       '<div class="chapter-num">' + ch.chapter_num + '</div>' +
       '<div class="chapter-body">' +
         '<div class="chapter-title">' + esc(ch.title) + '</div>' +
+        (ch.hook ? '<div class="chapter-hook">' + esc(ch.hook) + '</div>' : '') +
         '<div class="chapter-status">' + (ready ? '▶ 再生する' : '動画準備中') + '</div>' +
       '</div>' +
     '</div>';
