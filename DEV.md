@@ -435,6 +435,10 @@ translations(
 - `js/i18n.js`を新規作成（英語・韓国語・中国語の固定UI文言辞書 + `applyI18n(lang)`関数）
 - `explore/profile.html`・`explore/listing.html`のセクションタイトル・ラベル・ボタン等に`data-i18n`キーを付与し、`switchLang()`で`I18N.apply(lang)`を呼ぶよう実装。言語切り替え時に固定UI文言も追従するようになった
 
+**完了（2026-07-16）**：
+- `explore/profile.html`の`switchLang()`を修正：非同期でbioのinnerHTMLを書き換えた後に`I18N.apply(lang)`を再呼び出しするよう変更（`lang_notice`スパンが動的生成後も正しく切り替わらない不具合を解消）
+- Chrome MCPによる本番実機QA完了（profile.html：EN/ko/zh全15キー・ja復元 ✅、listing.html：EN全16キー・ja復元 ✅）
+
 **未着手**：
 - レビュー投稿フローへの接続（投稿フォーム自体が未実装のため後回し）
 - メディア記事の多言語化（翻訳運用コストが継続的に発生するため後続フェーズ）
