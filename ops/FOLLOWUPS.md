@@ -1,23 +1,21 @@
 # フォローアップ一覧（自動生成）
 
-生成: 2026-07-15 03:06 / `node ops/scan_followups.mjs`
+生成: 2026-07-15 22:01 / `node ops/scan_followups.mjs`
 
 ## 🔴 未実行のSQL（0件）
 
 なし
 
-## 📋 MD内の積み残し（11件）
+## 📋 MD内の積み残し（9件）
 
 - **APP.md:130** — | SNSシェア（画像生成） | ❌ 未着手 |
 - **DEV.md:294** — **未着手**：`shops`テーブルはソフトデリート対象外（物理削除のまま）／ショップ名義商品ページの「指導歴」等インストラクター由来ラベルの文言調整
 - **DEV.md:302** — **未実施**：実機QA未着手（個人のみ／ショップのみ／両方持つテストアカウントの3パターンで確認要）
 - **DEV.md:438** — **未着手**：
 - **DEV.md:636** — |iOSアプリ（React Native）                                 |🔄 開発中（環境構築済み・Expo Go動作確認済み）。6タブのタブバー実装済み（2026-07-14・ホーム/ログ/タイマー/探す/情報/マイページ、探す・情報・マイページはWeb版へのブリッジ）。Supa
-- **DEV.md:637** — |多言語対応（i18n）基盤                                      |🔄 着手開始（2026-07-12）。DB・API実装済み、Google Translate APIキー設定済み（2026-07-13）。呼び出し配線・表示側UIは未着手（「多言語対応（i18n）方式」参照）|
-- **docs/DECISIONS.md:148** — - 未着手：`pro/index.html`からの呼び出し配線／表示側の言語切替UI／`name_en`等の位置づけ変更／レビュー投稿フローへの接続
-- **docs/DECISIONS.md:197** — **未実施**：実機QA未着手（個人のみ／ショップのみ／両方持つテストアカウントの3パターンで切替・バナー表示・承認待ちロックの挙動を確認する必要あり）
-- **docs/DECISIONS.md:237** — - **未着手**：実際の動画アップロード・vimeo_id登録（これが入って初めて購入ボタンが実際に有効化される）
-- **docs/DECISIONS.md:318** — 問題なし・軽微：`guest_*`vs`client_*`カラム名（`sql/rename_guest_to_client.sql`適用済み）／`admin/admin-mobile.html`認証なし（localStorageのみで本番DBに触れないため実害なし、Phase 2本番化時に要対応）
+- **docs/DECISIONS.md:198** — **未実施**：実機QA未着手（個人のみ／ショップのみ／両方持つテストアカウントの3パターンで切替・バナー表示・承認待ちロックの挙動を確認する必要あり）
+- **docs/DECISIONS.md:238** — - **未着手**：実際の動画アップロード・vimeo_id登録（これが入って初めて購入ボタンが実際に有効化される）
+- **docs/DECISIONS.md:319** — 問題なし・軽微：`guest_*`vs`client_*`カラム名（`sql/rename_guest_to_client.sql`適用済み）／`admin/admin-mobile.html`認証なし（localStorageのみで本番DBに触れないため実害なし、Phase 2本番化時に要対応）
 - **docs/INDEX.md:41** — | 安全・リスク管理（同意書・健康チェック・安全基準・規約条項・保険） | `docs/safety/`（書類パッケージ・実装は未着手） | [safety/README.md](./safety/README.md) | 2026-07-07 |
 
 ## ⚪ ステータスヘッダが無いSQL（0件）

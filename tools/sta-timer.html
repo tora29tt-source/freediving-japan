@@ -1201,6 +1201,13 @@ function fmt(ms) {
   return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
 }
 function fmtMs(ms) { return '.' + String(Math.floor((ms%1000)/10)).padStart(2,'0'); }
+// ローカル日付として YYYY-MM-DD を組み立てる（toISOString はUTC変換でズレるため使わない）
+function toLocalDateStr(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
 function spo2Class(v) { return v==null?'ok': v>=95?'ok': v>=90?'warn':'crit'; }
 function spo2Color(v) { return v==null?'transparent': v>=95?'#1f6f78': v>=90?'#c2410c':'#dc2626'; }
 function toast(msg, err=false) {
@@ -3517,7 +3524,7 @@ async function confirmSave() {
   const minS = holdOnly.filter(d=>d.minSpo2!=null).map(d=>d.minSpo2);
   const sessionData = {
     id:         Date.now().toString(),
-    date:       new Date().toISOString().slice(0,10),
+    date:       toLocalDateStr(new Date()),
     env:        sessionEnv,
     discipline: disc,
     tableMode:  mode,
