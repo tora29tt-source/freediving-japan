@@ -289,6 +289,7 @@ function selectChapter(el, ch) {
 async function loadVideoToken(ch) {
   const wrap = document.getElementById('playerWrap');
   if (!wrap) return;
+  VideoProgress.detach();
   wrap.innerHTML = '<video id="videoEl" controls playsinline></video><div class="player-loading" id="playerLoading">読み込み中…</div>';
 
   try {
@@ -300,27 +301,42 @@ async function loadVideoToken(ch) {
     const json = await res.json();
     if (!res.ok) throw new Error(json.error || 'トークン取得失敗');
     const src = json.workerUrl + '/' + json.videoPath + '?token=' + encodeURIComponent(json.token);
-    startHLS(src);
+    startHLS(src, ch);
   } catch (err) {
     if (wrap) wrap.innerHTML = '<div class="player-error">動画の読み込みに失敗しました。ページを再読み込みしてください。</div>';
     console.error('video-token error:', err);
   }
 }
 
-function startHLS(src) {
+async function startHLS(src, chapter) {
   const videoEl = document.getElementById('videoEl');
   const loading = document.getElementById('playerLoading');
   if (!videoEl) return;
   if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
 
+  const savedPos = chapter ? await VideoProgress.restore(chapter.id) : 0;
+
+  function onReady() {
+    if (loading) loading.style.display = 'none';
+    if (savedPos > 5) {
+      videoEl.currentTime = savedPos;
+      const m = Math.floor(savedPos / 60), s = Math.floor(savedPos % 60);
+      const label = m > 0 ? m + '分' + s + '秒' : s + '秒';
+      const toast = document.createElement('div');
+      toast.textContent = '前回の続き（' + label + '）から再生しています';
+      toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1f6f78;color:#fff;padding:8px 16px;border-radius:8px;font-size:13px;z-index:999;white-space:nowrap;';
+      document.body.appendChild(toast);
+      setTimeout(function() { toast.remove(); }, 4000);
+    }
+    videoEl.play().catch(function() {});
+    if (chapter) VideoProgress.attach(videoEl, chapter.id);
+  }
+
   if (Hls.isSupported()) {
     const hls = new Hls({ enableWorker: true });
     hls.loadSource(src);
     hls.attachMedia(videoEl);
-    hls.on(Hls.Events.MANIFEST_PARSED, function() {
-      if (loading) loading.style.display = 'none';
-      videoEl.play().catch(function() {});
-    });
+    hls.on(Hls.Events.MANIFEST_PARSED, onReady);
     hls.on(Hls.Events.ERROR, function(event, data) {
       if (data.fatal) {
         const wrap = document.getElementById('playerWrap');
@@ -330,10 +346,7 @@ function startHLS(src) {
     hlsInstance = hls;
   } else if (videoEl.canPlayType('application/vnd.apple.mpegurl')) {
     videoEl.src = src;
-    videoEl.addEventListener('loadedmetadata', function() {
-      if (loading) loading.style.display = 'none';
-      videoEl.play().catch(function() {});
-    }, { once: true });
+    videoEl.addEventListener('loadedmetadata', onReady, { once: true });
   } else {
     const wrap = document.getElementById('playerWrap');
     if (wrap) wrap.innerHTML = '<div class="player-error">お使いのブラウザは動画再生に対応していません。</div>';
@@ -461,11 +474,24 @@ async function loadCourse() {
       buyButtonHtml +
     '</div>';
 
-  // 購入済みで最初のチャプターがある場合は自動再生
-  if (isPaid && chaptersData.length && chaptersData[0].video_path) {
-    const firstRow = document.querySelector('.chapter-row.active');
-    loadVideoToken(chaptersData[0]);
-    document.getElementById('nowPlaying').textContent = '第1回：' + chaptersData[0].title;
+  // 購入済み：進捗を確認して最後に見ていたチャプターから再開
+  if (isPaid) {
+    const readyChapters = chaptersData.filter(function(c) { return !!c.video_path; });
+    if (readyChapters.length) {
+      const progressMap = await VideoProgress.restoreAll(course.id);
+      let startCh = readyChapters[0];
+      const inProgress = readyChapters.find(function(c) {
+        return progressMap[c.id] && !progressMap[c.id].completed && progressMap[c.id].position_seconds > 5;
+      });
+      if (inProgress) startCh = inProgress;
+      // アクティブ行を更新
+      document.querySelectorAll('.chapter-row').forEach(function(r) {
+        r.classList.toggle('active', r.dataset && r.dataset.num == startCh.chapter_num);
+      });
+      const nowEl = document.getElementById('nowPlaying');
+      if (nowEl) nowEl.textContent = '第' + startCh.chapter_num + '回：' + startCh.title;
+      loadVideoToken(startCh);
+    }
   }
 }
 

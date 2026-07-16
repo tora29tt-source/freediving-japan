@@ -3,6 +3,8 @@ site/.DS_Store
 __pycache__/
 *.pyc
 .env
+node_modules/
+test-results/
 
 # Obsidian（個人環境依存の設定のみ除外。プラグイン設定はチーム共有のためコミットする）
 .obsidian/workspace.json
