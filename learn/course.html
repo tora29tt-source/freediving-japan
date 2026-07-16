@@ -147,21 +147,41 @@ body {
   font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
   color: var(--on-dark-soft); font-weight: 500; white-space: nowrap;
 }
-.chapter-list { display: flex; flex-direction: column; gap: 8px; }
+.chapter-list { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--hairline); border-radius: 12px; overflow: hidden; }
 .chapter-row {
-  display: flex; align-items: center; gap: 14px;
-  padding: 14px 16px; border-radius: 10px;
-  background: #ffffff; border: 1px solid var(--hairline);
+  display: grid; grid-template-columns: 40px 1fr;
+  gap: 0 14px; padding: 16px 18px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--hairline);
+  align-items: start;
 }
+.chapter-row:last-child { border-bottom: none; }
 .chapter-num {
-  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
   background: rgba(46,196,182,0.12); color: var(--teal);
   display: flex; align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 700;
+  font-size: 12px; font-weight: 700; margin-top: 1px;
 }
 .chapter-body { flex: 1; min-width: 0; }
-.chapter-title { font-size: 13px; font-weight: 600; }
-.chapter-status { font-size: 11px; color: var(--on-dark-soft); margin-top: 2px; }
+.chapter-title { font-size: 13px; font-weight: 600; line-height: 1.4; margin-bottom: 3px; }
+.chapter-hook { font-size: 12px; color: var(--on-dark-mid); line-height: 1.6; margin-bottom: 5px; }
+.chapter-status { font-size: 11px; color: var(--on-dark-soft); }
+.chapter-status.ready { color: var(--teal); }
+
+/* ── sticky buy CTA ── */
+.buy-cta-bar {
+  position: sticky; bottom: 0; left: 0; right: 0;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid var(--hairline);
+  padding: 14px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; z-index: 50;
+  max-width: 760px; margin: 0 auto;
+}
+.buy-cta-price { font-size: 20px; font-weight: 700; }
+.buy-cta-price small { font-size: 11px; color: var(--on-dark-soft); font-weight: 400; margin-left: 2px; }
 
 /* ── state screens ── */
 .state-screen {
@@ -258,7 +278,7 @@ async function loadCourse() {
 
   const { data: chapters } = await _sb
     .from('course_chapters')
-    .select('chapter_num, title, video_path')
+    .select('chapter_num, title, hook, video_path')
     .eq('course_id', course.id)
     .order('chapter_num', { ascending: true });
 
@@ -287,7 +307,8 @@ async function loadCourse() {
       '<div class="chapter-num">' + ch.chapter_num + '</div>' +
       '<div class="chapter-body">' +
         '<div class="chapter-title">' + esc(ch.title) + '</div>' +
-        '<div class="chapter-status">' + (ready ? '視聴可能' : '動画準備中') + '</div>' +
+        (ch.hook ? '<div class="chapter-hook">' + esc(ch.hook) + '</div>' : '') +
+        '<div class="chapter-status' + (ready ? ' ready' : '') + '">' + (ready ? '▶ 視聴可能' : '準備中') + '</div>' +
       '</div>' +
     '</div>';
   }).join('');
@@ -326,7 +347,6 @@ async function loadCourse() {
       '<span class="level-badge ' + levelClass + '">' + esc(catJp) + (course.level_label ? ' ・ ' + esc(course.level_label) : '') + '</span>' +
       '<h1 class="course-title">' + esc(course.title) + '</h1>' +
       '<div class="course-author">' +
-        '<div class="author-avatar">' + avatarChar(course.instructor_name) + '</div>' +
         '<span>' + esc(course.instructor_name) + (course.instructor_title ? '（' + esc(course.instructor_title) + '）' : '') + '</span>' +
       '</div>' +
       '<div class="course-meta">' +
@@ -334,16 +354,18 @@ async function loadCourse() {
         (course.target_level ? '<span class="course-meta-item">' + esc(course.target_level) + '</span>' : '') +
       '</div>' +
       (course.description ? '<p class="course-desc">' + esc(course.description) + '</p>' : '') +
-      '<div class="course-footer">' +
-        '<div class="course-price">¥' + Number(course.price).toLocaleString('ja-JP') + '<small>（税込）</small></div>' +
-        buyButtonHtml +
-      '</div>' +
     '</div>' +
 
     (chapterRows ? (
-      '<div class="section-heading"><div class="sh-line"></div><div class="sh-label">カリキュラム</div><div class="sh-line"></div></div>' +
+      '<div class="section-heading"><div class="sh-line"></div><div class="sh-label" data-i18n="course_curriculum">カリキュラム</div><div class="sh-line"></div></div>' +
       '<div class="chapter-list">' + chapterRows + '</div>'
-    ) : '');
+    ) : '') +
+
+    '<div style="height:80px"></div>' +
+    '<div class="buy-cta-bar">' +
+      '<div class="buy-cta-price">¥' + Number(course.price).toLocaleString('ja-JP') + '<small>（税込）</small></div>' +
+      buyButtonHtml +
+    '</div>';
 }
 
 async function purchaseCourse() {
