@@ -344,7 +344,7 @@ instructors.status = 'approved'（リスティング・CRM・予約管理が解�
 
 **js/video-progress.js**：進捗保存・復元モジュール（`VideoProgress.attach(videoEl, chapterId)` でバインド、`VideoProgress.restore(chapterId)` で位置を取得）。
 
-**2026-07-10 本番E2Eテスト完了**（Chrome MCP）。**実機未確認**：hook表示・進捗保存再開。**SQL適用要**：チャット履歴の2本（hook追加＋course_progress作成）。
+**2026-07-10 本番E2Eテスト完了**（Chrome MCP）。**2026-07-17 実機再生確認済み**：`sql/learn_video_progress_20260717.sql`（preview_video_url／video_path／hookカラム追加＋course_progress作成）をSupabase本番適用。adminで第1〜2回にvideo_path登録後、購入済みアカウントでHLS再生を確認。※`js/video-progress.js`がuntrackedのまま本番404だった件は、GitHub障害でVercel自動デプロイが止まっていたのが原因。障害復旧後にファイル込みで再デプロイされ200化して解消。**hookデータのINSERTは未**（チャプター名が「第N回（仮）」のままのため、こうようさんとの構成確定後にUPDATE）。
 
 経緯・実機QA詳細は[DECISIONS.md](docs/DECISIONS.md#2026-07-10listingscategory-タクソノミー変更エリア設計刷新learn実装方針)参照。
 
@@ -466,7 +466,14 @@ translations(
 - メディア記事本文の多言語化（翻訳運用コストが継続的に発生するため後続フェーズ）
 - tools 4ページ（sta-timer・training-log・buoyancy-simulator・mouthfill-calculator）の内部UI翻訳（大規模アプリのため別セッションで対応。ログインゲート内のため優先度低）
 - 運営系ページは対象外：pro/・admin/・events/event-staff・events/competition-countdown・learn/freediving-learn（コース管理）
-- 実機QA（Chrome MCPでの言語切替・全ページ表示確認）は未実施
+
+**QA（2026-07-17・Playwrightヘッドレスで実施済み）**：
+- 全22ページ×EN指定で JSエラーなし・`<html lang>`切替・グローブ注入を確認 → ALL PASS
+- 言語切替操作（ja→ko→zh→en→ja）のUI追従とlocalStorage永続化 → PASS
+- legalページ：ko指定時にEN版へフォールバック表示（ja版hidden）→ PASS
+- 日本語残存スキャン：主要9ページで固定UIの漏れゼロ（残るのは©表記の「（仮）」・DBモックデータ・botハニーポットのみ）
+- 修正済み不具合：T()が初期描画時に言語未反映になるタイミング問題（localStorage直読み化）／explore2ページのi18n.js読み込み順／都道府県チップの英語表示（`I18N.pref`・en/koはローマ字、zhは漢字のまま）
+- 本番実機（デプロイ後のChrome確認）のみ任意で残
 
 -----
 
@@ -658,7 +665,7 @@ TOP (index.html)  ── Airbnb風マーケットプレイス（白基調）
 |予約・決済フロー                                            |✅ 完成・動作確認済み（カレンダーUI→Stripe Checkout→予約完了ページ、E2Eテスト済み）|
 |管理画面（/admin/index.html）                              |✅ 実装済み（空き枠・予約・インストラクター・リスティング・メディア・ユーザー管理）|
 |プロダッシュボード（pro/index.html）予約・クライアント・売上管理タブ            |✅ 実装済み|
-|/learn/ 有料講座ページ                                      |🔄 購入フロー・HLS視聴フロー実装済み（2026-07-16大幅改修）。**変更点**：①サムネイル／サマリー動画をDB管理（thumbnail_url/preview_video_url）②course.htmlに購入済みユーザー向けインラインHLSプレイヤー統合（watch.htmlへの遷移不要）③チャプターhookテキスト（course_chapters.hook）追加・カリキュラム一覧に表示④スティッキー購入CTAバー⑤視聴進捗保存・再開（course_progressテーブル・js/video-progress.js）。**SQL適用要**：`course_chapters.hook`カラム追加・hookデータINSERT・`course_progress`テーブル作成（チャット履歴参照）。**実機未確認**：hook表示・進捗保存再開|
+|/learn/ 有料講座ページ                                      |✅ 購入フロー・HLS視聴フロー実装済み（2026-07-16大幅改修／2026-07-17 SQL適用・実機再生確認済み）。**変更点**：①サムネイル／サマリー動画をDB管理（thumbnail_url/preview_video_url）②course.htmlに購入済みユーザー向けインラインHLSプレイヤー統合（watch.htmlへの遷移不要）③チャプターhookテキスト（course_chapters.hook）追加・カリキュラム一覧に表示④スティッキー購入CTAバー⑤視聴進捗保存・再開（course_progressテーブル・js/video-progress.js）。**SQL適用済み**：`sql/learn_video_progress_20260717.sql`（preview_video_url／video_path／hookカラム＋course_progressテーブル）をSupabase本番に適用。**残**：hookデータのINSERT（チャプター名確定後）・第3回以降の動画アップロード＆video_path登録|
 |メディア（/media/）                                        |✅ 基盤完成・media/一本化（2026-06-29）。admin/index.htmlメディアタブに統合|
 |サイト動線・検索UI・エリア設計                                    |✅ sitemap/robots/404新設、SVG地図→都道府県軸検索に刷新済み（詳細は[DECISIONS.md](docs/DECISIONS.md#2026-07-08サイト動線整備検索ui刷新svg地図後に一部廃止)参照）|
 |iOSアプリ（React Native）                                 |🔄 開発中（環境構築済み・Expo Go動作確認済み）。6タブのタブバー実装済み（2026-07-14・ホーム/ログ/タイマー/探す/情報/マイページ、探す・情報・マイページはWeb版へのブリッジ）。Supabase Auth（メール/パスワード）を追加し、STAタイマーの保存処理を実スキーマ（`training_sessions`+`training_dives`）に合わせて修正済み（2026-07-14、詳細は[APP.md](APP.md#phase-1-実装状況2026-07-14更新)）。**実機での保存動作確認は未実施**。ログ画面は公開セッション一覧のみ・SNSシェアは未実装|

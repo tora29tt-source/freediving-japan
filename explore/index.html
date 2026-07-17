@@ -327,6 +327,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../js/supabase-config.js"></script>
+<script src="../js/i18n.js"></script>
+<script src="../js/lang-switcher.js"></script>
 <script src="../js/location-data.js"></script>
 <script>
 let allListings = [];
@@ -341,7 +343,7 @@ let currentLang = 'ja'; // 現在の表示言語
 let _trans = {}; // 翻訳キャッシュ: "tableName/rowId/fieldName/lang" → translated_text
 const SORT_CYCLE = ['recommended','price_asc','price_desc','rating'];
 // 固定UI文言の動的参照ヘルパー（currentLangに追従）
-const T = (key, ja) => (window.I18N ? I18N.t(currentLang, key, ja) || ja : ja);
+const T = (key, ja) => (window.I18N && window.LangSwitcher ? I18N.t(LangSwitcher.getLang(), key, ja) || ja : ja);
 const SORT_LABELS_JA = { recommended:'おすすめ順', price_asc:'価格安い順', price_desc:'価格高い順', rating:'評価順' };
 const sortLabel = k => T('sort_' + k, SORT_LABELS_JA[k]);
 const BADGE_LABEL_JA = { try: '体験', learn: '資格', fundive: 'ファンダイブ', training: 'トレーニング', coaching: 'コーチング' };
@@ -570,11 +572,11 @@ function renderPrefChips(prefCounts) {
     .sort((a, b) => prefCounts[b] - prefCounts[a]);
   const prefs = [...popular, ...extra];
 
-  let html = `<button class="chip${currentPref === '' ? ' active' : ''}" data-area="" onclick="togglePref(this)">全国</button>`;
+  let html = `<button class="chip${currentPref === '' ? ' active' : ''}" data-area="" onclick="togglePref(this)">${T('chip_nationwide', '全国')}</button>`;
   prefs.forEach(p => {
     const count = prefCounts[p] || 0;
     const cls = ['chip', currentPref === p ? 'active' : '', count === 0 ? 'dim' : ''].filter(Boolean).join(' ');
-    html += `<button class="${cls}" data-area="${esc(p)}" onclick="togglePref(this)">${esc(p)}</button>`;
+    html += `<button class="${cls}" data-area="${esc(p)}" onclick="togglePref(this)">${esc(window.I18N && window.LangSwitcher ? I18N.pref(LangSwitcher.getLang(), p) : p)}</button>`;
   });
   container.innerHTML = html;
 }
@@ -768,8 +770,6 @@ applyUrlParams();
 loadListings();
 </script>
 
-<script src="../js/i18n.js"></script>
-<script src="../js/lang-switcher.js"></script>
 <script>
 LangSwitcher.init(async function(lang) {
   if (window.I18N) I18N.apply(lang);

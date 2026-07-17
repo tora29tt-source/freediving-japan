@@ -1,4 +1,4 @@
--- ステータス: 未実行
+-- ステータス: 実行済み（2026-07-17・Supabase本番に適用・実機再生確認済み）
 -- =============================================
 -- /learn/ 動画配信 + 視聴進捗：不足カラム追加 + course_progress 新設
 -- 2026-07-17・course.html / video-progress.js / admin(course editor) が

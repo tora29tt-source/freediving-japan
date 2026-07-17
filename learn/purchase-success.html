@@ -48,7 +48,7 @@ h1 { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
 <script src="../js/lang-switcher.js"></script>
 <script>
 let currentLang = 'ja';
-const T = (key, ja) => (window.I18N ? I18N.t(currentLang, key, ja) || ja : ja);
+const T = (key, ja) => (window.I18N && window.LangSwitcher ? I18N.t(LangSwitcher.getLang(), key, ja) || ja : ja);
 LangSwitcher.init(function(lang){
   if (window.I18N) I18N.apply(lang);
   currentLang = lang;

@@ -1421,6 +1421,23 @@ const I18N_DICT = {
  * ja の場合は HTML の元のテキストに戻す（data-i18n-ja に退避済みのものを復元）。
  */
 /**
+ * 都道府県名の表示訳（データ値は日本語のまま、表示のみ変換）
+ * zh は漢字がそのまま読めるため日本語表記を使う。en/ko はローマ字表記。
+ */
+const PREF_EN = {
+  '北海道':'Hokkaido','青森県':'Aomori','岩手県':'Iwate','宮城県':'Miyagi','秋田県':'Akita',
+  '山形県':'Yamagata','福島県':'Fukushima','茨城県':'Ibaraki','栃木県':'Tochigi','群馬県':'Gunma',
+  '埼玉県':'Saitama','千葉県':'Chiba','東京都':'Tokyo','神奈川県':'Kanagawa','新潟県':'Niigata',
+  '富山県':'Toyama','石川県':'Ishikawa','福井県':'Fukui','山梨県':'Yamanashi','長野県':'Nagano',
+  '岐阜県':'Gifu','静岡県':'Shizuoka','愛知県':'Aichi','三重県':'Mie','滋賀県':'Shiga',
+  '京都府':'Kyoto','大阪府':'Osaka','兵庫県':'Hyogo','奈良県':'Nara','和歌山県':'Wakayama',
+  '鳥取県':'Tottori','島根県':'Shimane','岡山県':'Okayama','広島県':'Hiroshima','山口県':'Yamaguchi',
+  '徳島県':'Tokushima','香川県':'Kagawa','愛媛県':'Ehime','高知県':'Kochi','福岡県':'Fukuoka',
+  '佐賀県':'Saga','長崎県':'Nagasaki','熊本県':'Kumamoto','大分県':'Oita','宮崎県':'Miyazaki',
+  '鹿児島県':'Kagoshima','沖縄県':'Okinawa',
+};
+
+/**
  * 訳語検索（フォールバック付き）
  * ko/zh でキーが無い場合は en に落とし、en にも無ければ undefined を返す。
  */
@@ -1482,5 +1499,13 @@ window.I18N = {
   t(lang, key, fallback) {
     if (lang === 'ja') return fallback || '';
     return lookup(lang, key) || fallback || '';
+  },
+  /**
+   * 都道府県名の表示訳。ja/zh は日本語表記のまま、en/ko はローマ字表記を返す。
+   * データ値（data-area等）には使わず、表示専用。
+   */
+  pref(lang, jaName) {
+    if (lang === 'ja' || lang === 'zh') return jaName;
+    return PREF_EN[jaName] || jaName;
   },
 };

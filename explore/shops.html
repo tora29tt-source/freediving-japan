@@ -181,6 +181,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../js/supabase-config.js"></script>
+<script src="../js/i18n.js"></script>
+<script src="../js/lang-switcher.js"></script>
 <script src="../js/location-data.js"></script>
 <script>
 // esc: DB由来の値をHTMLへ挿入する前にエスケープ（S4対策と同様の方針）
@@ -191,7 +193,7 @@ let currentPref  = '';
 let currentSort  = 'default';
 let currentLang  = 'ja';
 // 固定UI文言の動的参照ヘルパー（currentLangに追従）
-const T = (key, ja) => (window.I18N ? I18N.t(currentLang, key, ja) || ja : ja);
+const T = (key, ja) => (window.I18N && window.LangSwitcher ? I18N.t(LangSwitcher.getLang(), key, ja) || ja : ja);
 const SORT_CYCLE  = ['default', 'rating'];
 const SORT_LABELS_JA = { default: 'おすすめ順', rating: '評価順' };
 const sortLabelOf = k => T(k === 'default' ? 'sort_recommended' : 'sort_rating', SORT_LABELS_JA[k]);
@@ -261,7 +263,7 @@ function renderPrefChips(prefCounts) {
   prefs.forEach(p => {
     const count = prefCounts[p] || 0;
     const cls = ['chip', currentPref === p ? 'active' : '', count === 0 ? 'dim' : ''].filter(Boolean).join(' ');
-    html += `<button class="${cls}" data-area="${esc(p)}" onclick="togglePref(this)">${esc(p)}</button>`;
+    html += `<button class="${cls}" data-area="${esc(p)}" onclick="togglePref(this)">${esc(window.I18N && window.LangSwitcher ? I18N.pref(LangSwitcher.getLang(), p) : p)}</button>`;
   });
   container.innerHTML = html;
 }
@@ -337,7 +339,7 @@ async function renderOwners() {
     const ratingHtml = o.avg_rating
       ? `<span class="meta-item" style="color:var(--warm)">★ ${parseFloat(o.avg_rating).toFixed(1)}<span style="color:var(--ink-soft);margin-left:2px">(${esc(o.review_count || 0)})</span></span>`
       : '';
-    const areaHtml = o.prefecture ? `<span class="meta-item"><svg class="icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${esc(o.prefecture)}</span>` : '';
+    const areaHtml = o.prefecture ? `<span class="meta-item"><svg class="icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${esc(window.I18N && window.LangSwitcher ? I18N.pref(LangSwitcher.getLang(), o.prefecture) : o.prefecture)}</span>` : '';
     return `<a class="owner-card" href="profile.html?${o.linkQuery}">
       ${avatarHtml}
       <div class="owner-body">
@@ -355,8 +357,6 @@ async function renderOwners() {
 renderOwners();
 </script>
 
-<script src="../js/i18n.js"></script>
-<script src="../js/lang-switcher.js"></script>
 <script>
 LangSwitcher.init(function(lang) {
   if (window.I18N) I18N.apply(lang);
