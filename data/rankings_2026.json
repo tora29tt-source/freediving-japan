@@ -1,6 +1,6 @@
 {
  "year": 2026,
- "updatedAt": "2026-07-20",
+ "updatedAt": "2026-07-21",
  "records": [
   {
    "year": "2026",
@@ -653,6 +653,39 @@
   },
   {
    "year": "2026",
+   "discipline": "CWTB",
+   "gender": "Male",
+   "rank": 1,
+   "name": "Hayato Yasuhisa",
+   "result": "50 m",
+   "points": 50.0,
+   "date": "2026-07-19",
+   "event": "AIDA Okinawa Freediving Cup 2026"
+  },
+  {
+   "year": "2026",
+   "discipline": "CWTB",
+   "gender": "Male",
+   "rank": 2,
+   "name": "Goutarou Mori",
+   "result": "49 m",
+   "points": 49.0,
+   "date": "2026-07-18",
+   "event": "AIDA Okinawa Freediving Cup 2026"
+  },
+  {
+   "year": "2026",
+   "discipline": "CWTB",
+   "gender": "Male",
+   "rank": 3,
+   "name": "Shundo Katsura",
+   "result": "39 m",
+   "points": 39.0,
+   "date": "2026-07-19",
+   "event": "AIDA Okinawa Freediving Cup 2026"
+  },
+  {
+   "year": "2026",
    "discipline": "CNF",
    "gender": "Male",
    "rank": 1,
@@ -661,6 +694,17 @@
    "points": 38.0,
    "date": "2026-06-26",
    "event": "AIDA Official Friday #13"
+  },
+  {
+   "year": "2026",
+   "discipline": "FIM",
+   "gender": "Male",
+   "rank": 1,
+   "name": "Takanori Kumazawa",
+   "result": "44 m",
+   "points": 44.0,
+   "date": "2026-07-18",
+   "event": "AIDA Okinawa Freediving Cup 2026"
   },
   {
    "year": "2026",
@@ -1676,6 +1720,39 @@
   },
   {
    "year": "2026",
+   "discipline": "CWT",
+   "gender": "Female",
+   "rank": 4,
+   "name": "Ryoko Watariguchi",
+   "result": "37 m",
+   "points": 37.0,
+   "date": "2026-07-19",
+   "event": "AIDA Okinawa Freediving Cup 2026"
+  },
+  {
+   "year": "2026",
+   "discipline": "CWTB",
+   "gender": "Female",
+   "rank": 1,
+   "name": "Kanako Togane",
+   "result": "33 m",
+   "points": 33.0,
+   "date": "2026-07-19",
+   "event": "AIDA Okinawa Freediving Cup 2026"
+  },
+  {
+   "year": "2026",
+   "discipline": "CWTB",
+   "gender": "Female",
+   "rank": 2,
+   "name": "Chihiro Handa",
+   "result": "30 m",
+   "points": 30.0,
+   "date": "2026-07-19",
+   "event": "AIDA Okinawa Freediving Cup 2026"
+  },
+  {
+   "year": "2026",
    "discipline": "CNF",
    "gender": "Female",
    "rank": 1,
@@ -1848,14 +1925,14 @@
    "year": "2026",
    "gender": "Male",
    "rank": 10,
-   "name": "Takuya Terajima",
-   "total": "171.3",
-   "disc_STA": 94.8,
-   "disc_DYN": null,
-   "disc_DYNB": 76.5,
+   "name": "Shundo Katsura",
+   "total": "174.9",
+   "disc_STA": 39.4,
+   "disc_DYN": 53.0,
+   "disc_DYNB": 43.5,
    "disc_DNF": null,
    "disc_CWT": null,
-   "disc_CWTB": null,
+   "disc_CWTB": 39.0,
    "disc_CNF": null,
    "disc_FIM": null
   },
