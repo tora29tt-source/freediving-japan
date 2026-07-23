@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-07-23T00:00:48Z",
+  "updatedAt": "2026-07-23T23:59:43Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -2039,17 +2039,6 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA Nice Abyss Contest 2026 J1",
-      "type": "Depth Competition",
-      "venue": "Base Municipale De L Aigle Nautique",
-      "cityCountry": "Nice, France",
-      "startDate": "2026-07-04",
-      "endDate": "2026-07-04",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5084",
-      "month": 7,
-      "cat": "sea"
-    },
-    {
       "title": "AIDA LV Summer games",
       "type": "Pool Competition",
       "venue": "Rtu Kipsala Swimming Pool",
@@ -2059,6 +2048,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5140",
       "month": 7,
       "cat": "pool"
+    },
+    {
+      "title": "AIDA Nice Abyss Contest 2026 J1",
+      "type": "Depth Competition",
+      "venue": "Base Municipale De L Aigle Nautique",
+      "cityCountry": "Nice, France",
+      "startDate": "2026-07-04",
+      "endDate": "2026-07-04",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5084",
+      "month": 7,
+      "cat": "sea"
     },
     {
       "title": "AIDA Nice Abyss Contest 2026 J2",
@@ -2215,6 +2215,17 @@
       "cat": "pool"
     },
     {
+      "title": "AIDA Lastovo Super Deep week 1",
+      "type": "Depth Competition",
+      "venue": "Lastovo",
+      "cityCountry": "Zaklopatica, Croatia",
+      "startDate": "2026-07-24",
+      "endDate": "2026-07-26",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5186",
+      "month": 7,
+      "cat": "sea"
+    },
+    {
       "title": "Deep Dominica Depth Competition AIDA",
       "type": "Depth Competition",
       "venue": "Deep Dominica",
@@ -2279,6 +2290,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5166",
       "month": 7,
       "cat": "pool"
+    },
+    {
+      "title": "AIDA Lastovo Super Deep week 2",
+      "type": "Depth Competition",
+      "venue": "Lastovo",
+      "cityCountry": "Zaklopatica, Croatia",
+      "startDate": "2026-07-27",
+      "endDate": "2026-08-01",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5187",
+      "month": 7,
+      "cat": "sea"
     },
     {
       "title": "AIDA UAE STA Performance Night 2026 | Summer Heats",
@@ -2358,6 +2380,17 @@
       "cat": "sea"
     },
     {
+      "title": "AIDA Lastovo Super Deep week 3",
+      "type": "Depth Competition",
+      "venue": "Lastovo",
+      "cityCountry": "Zaklopatica, Croatia",
+      "startDate": "2026-08-02",
+      "endDate": "2026-08-09",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5188",
+      "month": 8,
+      "cat": "sea"
+    },
+    {
       "title": "TEAM AMAMI - Typhoon Sunday",
       "type": "Pool Competition",
       "venue": "Naze Undo Koen Okunai Pool",
@@ -2424,6 +2457,17 @@
       "cat": "sea"
     },
     {
+      "title": "AIDA Germany National Record Attempt Lake 2026",
+      "type": "Depth Competition",
+      "venue": "Starnberger See",
+      "cityCountry": "Münsing, Germany",
+      "startDate": "2026-08-08",
+      "endDate": "2026-08-09",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5195",
+      "month": 8,
+      "cat": "sea"
+    },
+    {
       "title": "Gil\\`s Mini Freediving Competition – Eilat | AIDA",
       "type": "Depth Competition",
       "venue": "Red Sea Eilat",
@@ -2475,6 +2519,17 @@
       "startDate": "2026-08-19",
       "endDate": "2026-08-23",
       "link": "https://www.aidainternational.org/Events/EventDetails-4923",
+      "month": 8,
+      "cat": "sea"
+    },
+    {
+      "title": "World Apnea Official Friday #14",
+      "type": "Depth Competition",
+      "venue": "Freedive Superhome",
+      "cityCountry": "Panglao, Bohol, Philippines",
+      "startDate": "2026-08-21",
+      "endDate": "2026-08-21",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5201",
       "month": 8,
       "cat": "sea"
     },
@@ -2585,6 +2640,28 @@
       "startDate": "2026-09-01",
       "endDate": "2026-09-08",
       "link": "https://www.aidainternational.org/Events/EventDetails-5156",
+      "month": 9,
+      "cat": "sea"
+    },
+    {
+      "title": "World Apnea Official Tuesday #15",
+      "type": "Depth Competition",
+      "venue": "Freedive Superhome",
+      "cityCountry": "Panglao, Bohol, Philippines",
+      "startDate": "2026-09-01",
+      "endDate": "2026-09-01",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5202",
+      "month": 9,
+      "cat": "sea"
+    },
+    {
+      "title": "World Apnea Official Friday #16",
+      "type": "Depth Competition",
+      "venue": "Freedive Superhome",
+      "cityCountry": "Panglao, Bohol, Philippines",
+      "startDate": "2026-09-04",
+      "endDate": "2026-09-04",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5203",
       "month": 9,
       "cat": "sea"
     },
