@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-07-21T23:55:45Z",
+  "updatedAt": "2026-07-23T00:00:48Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -2199,7 +2199,7 @@
       "cityCountry": "Ajaccio, France",
       "startDate": "2026-07-23",
       "endDate": "2026-07-26",
-      "link": "https://www.aidainternational.org/Events/EventDetails-4960",
+      "link": "https://www.aidainternational.org/EventPage/4960",
       "month": 7,
       "cat": "sea"
     },
