@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-07-23T23:59:43Z",
+  "updatedAt": "2026-07-25T00:02:52Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -2039,17 +2039,6 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA LV Summer games",
-      "type": "Pool Competition",
-      "venue": "Rtu Kipsala Swimming Pool",
-      "cityCountry": "Riga, Latvia",
-      "startDate": "2026-07-04",
-      "endDate": "2026-07-04",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5140",
-      "month": 7,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA Nice Abyss Contest 2026 J1",
       "type": "Depth Competition",
       "venue": "Base Municipale De L Aigle Nautique",
@@ -2059,6 +2048,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5084",
       "month": 7,
       "cat": "sea"
+    },
+    {
+      "title": "AIDA LV Summer games",
+      "type": "Pool Competition",
+      "venue": "Rtu Kipsala Swimming Pool",
+      "cityCountry": "Riga, Latvia",
+      "startDate": "2026-07-04",
+      "endDate": "2026-07-04",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5140",
+      "month": 7,
+      "cat": "pool"
     },
     {
       "title": "AIDA Nice Abyss Contest 2026 J2",
@@ -2160,17 +2160,6 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA Freediving Dynamic Challenge 2026 Suzuka #2",
-      "type": "Pool Competition",
-      "venue": "Miekotsu Group Sports No Mori Suzuka",
-      "cityCountry": "Suzuka, Japan",
-      "startDate": "2026-07-18",
-      "endDate": "2026-07-18",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5079",
-      "month": 7,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA Osijek 1st cup",
       "type": "Pool Competition",
       "venue": "Osijek Otvoreni Bazen",
@@ -2178,6 +2167,17 @@
       "startDate": "2026-07-18",
       "endDate": "2026-07-18",
       "link": "https://www.aidainternational.org/Events/EventDetails-5185",
+      "month": 7,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA Freediving Dynamic Challenge 2026 Suzuka #2",
+      "type": "Pool Competition",
+      "venue": "Miekotsu Group Sports No Mori Suzuka",
+      "cityCountry": "Suzuka, Japan",
+      "startDate": "2026-07-18",
+      "endDate": "2026-07-18",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5079",
       "month": 7,
       "cat": "pool"
     },
@@ -2204,17 +2204,6 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA 2nd Fabiolous Competition",
-      "type": "Mixed Competition",
-      "venue": "Apostelsee",
-      "cityCountry": "Ettenheim, Germany",
-      "startDate": "2026-07-24",
-      "endDate": "2026-07-26",
-      "link": "https://www.aidainternational.org/Events/EventDetails-4901",
-      "month": 7,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA Lastovo Super Deep week 1",
       "type": "Depth Competition",
       "venue": "Lastovo",
@@ -2224,6 +2213,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5186",
       "month": 7,
       "cat": "sea"
+    },
+    {
+      "title": "AIDA 2nd Fabiolous Competition",
+      "type": "Mixed Competition",
+      "venue": "Apostelsee",
+      "cityCountry": "Ettenheim, Germany",
+      "startDate": "2026-07-24",
+      "endDate": "2026-07-26",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4901",
+      "month": 7,
+      "cat": "pool"
     },
     {
       "title": "Deep Dominica Depth Competition AIDA",
