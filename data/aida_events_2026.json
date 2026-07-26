@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-07-26T00:00:46Z",
+  "updatedAt": "2026-07-26T23:58:56Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -2094,17 +2094,6 @@
       "cat": "sea"
     },
     {
-      "title": "BB CUP Ep.10 | PFI BREATHLESS | WORLD APNEA 2026",
-      "type": "Pool Competition",
-      "venue": "라움enc수영장 (Raum Swimming Pool)",
-      "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
-      "startDate": "2026-07-12",
-      "endDate": "2026-07-12",
-      "link": "https://www.aidainternational.org/EventPage/4966",
-      "month": 7,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA Malaysia Apnea Warrior Meet Challenge 2.0",
       "type": "Pool Competition",
       "venue": "Arena Sukan Kuala Lumour",
@@ -2112,6 +2101,17 @@
       "startDate": "2026-07-12",
       "endDate": "2026-07-12",
       "link": "https://www.aidainternational.org/Events/EventDetails-5146",
+      "month": 7,
+      "cat": "pool"
+    },
+    {
+      "title": "BB CUP Ep.10 | PFI BREATHLESS | WORLD APNEA 2026",
+      "type": "Pool Competition",
+      "venue": "라움enc수영장 (Raum Swimming Pool)",
+      "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
+      "startDate": "2026-07-12",
+      "endDate": "2026-07-12",
+      "link": "https://www.aidainternational.org/EventPage/4966",
       "month": 7,
       "cat": "pool"
     },
@@ -2204,17 +2204,6 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA Lastovo Super Deep week 1",
-      "type": "Depth Competition",
-      "venue": "Lastovo",
-      "cityCountry": "Zaklopatica, Croatia",
-      "startDate": "2026-07-24",
-      "endDate": "2026-07-26",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5186",
-      "month": 7,
-      "cat": "sea"
-    },
-    {
       "title": "AIDA 2nd Fabiolous Competition",
       "type": "Mixed Competition",
       "venue": "Apostelsee",
@@ -2224,6 +2213,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-4901",
       "month": 7,
       "cat": "pool"
+    },
+    {
+      "title": "AIDA Lastovo Super Deep week 1",
+      "type": "Depth Competition",
+      "venue": "Lastovo",
+      "cityCountry": "Zaklopatica, Croatia",
+      "startDate": "2026-07-24",
+      "endDate": "2026-07-26",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5186",
+      "month": 7,
+      "cat": "sea"
     },
     {
       "title": "Deep Dominica Depth Competition AIDA",
@@ -2259,17 +2259,6 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA UAE FIM Performance Night 2026 | Summer Heats",
-      "type": "Depth Competition",
-      "venue": "Deep Dive Dubai",
-      "cityCountry": "Dubai, United Arab Emirates",
-      "startDate": "2026-07-25",
-      "endDate": "2026-07-25",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5182",
-      "month": 7,
-      "cat": "sea"
-    },
-    {
       "title": "AIDA Garden City Friendly",
       "type": "Pool Competition",
       "venue": "Crystal Pool",
@@ -2279,6 +2268,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5141",
       "month": 7,
       "cat": "pool"
+    },
+    {
+      "title": "AIDA UAE FIM Performance Night 2026 | Summer Heats",
+      "type": "Depth Competition",
+      "venue": "Deep Dive Dubai",
+      "cityCountry": "Dubai, United Arab Emirates",
+      "startDate": "2026-07-25",
+      "endDate": "2026-07-25",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5182",
+      "month": 7,
+      "cat": "sea"
     },
     {
       "title": "24th FREEDIVINGFRIENDS CUP AIDA INDOOR FESTIVAL",
