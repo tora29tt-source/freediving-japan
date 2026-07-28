@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-07-26T23:58:56Z",
+  "updatedAt": "2026-07-28T00:01:57Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -2413,17 +2413,6 @@
       "cat": "sea"
     },
     {
-      "title": "TEAM AMAMI - DEEP Monday",
-      "type": "Depth Competition",
-      "venue": "Oshima Strait",
-      "cityCountry": "Amami, Japan",
-      "startDate": "2026-08-03",
-      "endDate": "2026-08-03",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5132",
-      "month": 8,
-      "cat": "sea"
-    },
-    {
       "title": "TEAM AMAMI - Typhoon Monday",
       "type": "Pool Competition",
       "venue": "Naze Undo Koen Okunai Pool,",
@@ -2433,6 +2422,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5173",
       "month": 8,
       "cat": "pool"
+    },
+    {
+      "title": "TEAM AMAMI - DEEP Monday",
+      "type": "Depth Competition",
+      "venue": "Oshima Strait",
+      "cityCountry": "Amami, Japan",
+      "startDate": "2026-08-03",
+      "endDate": "2026-08-03",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5132",
+      "month": 8,
+      "cat": "sea"
     },
     {
       "title": "AIDA Manado Depth Competition MDC 2026",
@@ -2545,17 +2545,6 @@
       "cat": "pool"
     },
     {
-      "title": "BB CUP Ep.11 | PFI BREATHLESS | WORLD APNEA 2026",
-      "type": "Pool Competition",
-      "venue": "라움enc수영장 (Raum Swimming Pool)",
-      "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
-      "startDate": "2026-08-23",
-      "endDate": "2026-08-23",
-      "link": "https://www.aidainternational.org/EventPage/4967",
-      "month": 8,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA Freediving Dynamic Challenge 2026 Suzuka #3",
       "type": "Pool Competition",
       "venue": "Miekotsu Group Sports No Mori Suzuka",
@@ -2563,6 +2552,17 @@
       "startDate": "2026-08-23",
       "endDate": "2026-08-23",
       "link": "https://www.aidainternational.org/Events/EventDetails-5080",
+      "month": 8,
+      "cat": "pool"
+    },
+    {
+      "title": "BB CUP Ep.11 | PFI BREATHLESS | WORLD APNEA 2026",
+      "type": "Pool Competition",
+      "venue": "라움enc수영장 (Raum Swimming Pool)",
+      "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
+      "startDate": "2026-08-23",
+      "endDate": "2026-08-23",
+      "link": "https://www.aidainternational.org/EventPage/4967",
       "month": 8,
       "cat": "pool"
     },
@@ -2631,17 +2631,6 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5170",
       "month": 8,
       "cat": "pool"
-    },
-    {
-      "title": "AIDA Apoyo Crater Challenge 2026",
-      "type": "Depth Competition",
-      "venue": "Freediving Nicaragua",
-      "cityCountry": "Catarina, Nicaragua",
-      "startDate": "2026-09-01",
-      "endDate": "2026-09-08",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5156",
-      "month": 9,
-      "cat": "sea"
     },
     {
       "title": "World Apnea Official Tuesday #15",
