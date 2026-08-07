@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-08-07T01:42:00Z",
+  "updatedAt": "2026-08-07T23:32:28Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -2094,17 +2094,6 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA Malaysia Apnea Warrior Meet Challenge 2.0",
-      "type": "Pool Competition",
-      "venue": "Arena Sukan Kuala Lumour",
-      "cityCountry": "Setapak Kuala Lumpur, Malaysia",
-      "startDate": "2026-07-12",
-      "endDate": "2026-07-12",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5146",
-      "month": 7,
-      "cat": "pool"
-    },
-    {
       "title": "BB CUP Ep.10 | PFI BREATHLESS | WORLD APNEA 2026",
       "type": "Pool Competition",
       "venue": "라움enc수영장 (Raum Swimming Pool)",
@@ -2112,6 +2101,17 @@
       "startDate": "2026-07-12",
       "endDate": "2026-07-12",
       "link": "https://www.aidainternational.org/EventPage/4966",
+      "month": 7,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA Malaysia Apnea Warrior Meet Challenge 2.0",
+      "type": "Pool Competition",
+      "venue": "Arena Sukan Kuala Lumour",
+      "cityCountry": "Setapak Kuala Lumpur, Malaysia",
+      "startDate": "2026-07-12",
+      "endDate": "2026-07-12",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5146",
       "month": 7,
       "cat": "pool"
     },
@@ -2204,17 +2204,6 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA 2nd Fabiolous Competition",
-      "type": "Mixed Competition",
-      "venue": "Apostelsee",
-      "cityCountry": "Ettenheim, Germany",
-      "startDate": "2026-07-24",
-      "endDate": "2026-07-26",
-      "link": "https://www.aidainternational.org/Events/EventDetails-4901",
-      "month": 7,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA Lastovo Super Deep week 1",
       "type": "Depth Competition",
       "venue": "Lastovo",
@@ -2224,6 +2213,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5186",
       "month": 7,
       "cat": "sea"
+    },
+    {
+      "title": "AIDA 2nd Fabiolous Competition",
+      "type": "Mixed Competition",
+      "venue": "Apostelsee",
+      "cityCountry": "Ettenheim, Germany",
+      "startDate": "2026-07-24",
+      "endDate": "2026-07-26",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4901",
+      "month": 7,
+      "cat": "pool"
     },
     {
       "title": "Deep Dominica Depth Competition AIDA",
@@ -2391,17 +2391,6 @@
       "cat": "sea"
     },
     {
-      "title": "TEAM AMAMI - Typhoon Sunday",
-      "type": "Pool Competition",
-      "venue": "Naze Undo Koen Okunai Pool",
-      "cityCountry": "Nase, Japan",
-      "startDate": "2026-08-02",
-      "endDate": "2026-08-02",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5172",
-      "month": 8,
-      "cat": "pool"
-    },
-    {
       "title": "TEAM AMAMI - DEEP Sunday",
       "type": "Depth Competition",
       "venue": "Oshima Strait",
@@ -2413,13 +2402,13 @@
       "cat": "sea"
     },
     {
-      "title": "TEAM AMAMI - Typhoon Monday",
+      "title": "TEAM AMAMI - Typhoon Sunday",
       "type": "Pool Competition",
-      "venue": "Naze Undo Koen Okunai Pool,",
-      "cityCountry": "Amami, Japan",
-      "startDate": "2026-08-03",
-      "endDate": "2026-08-03",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5173",
+      "venue": "Naze Undo Koen Okunai Pool",
+      "cityCountry": "Nase, Japan",
+      "startDate": "2026-08-02",
+      "endDate": "2026-08-02",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5172",
       "month": 8,
       "cat": "pool"
     },
@@ -2433,6 +2422,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5132",
       "month": 8,
       "cat": "sea"
+    },
+    {
+      "title": "TEAM AMAMI - Typhoon Monday",
+      "type": "Pool Competition",
+      "venue": "Naze Undo Koen Okunai Pool,",
+      "cityCountry": "Amami, Japan",
+      "startDate": "2026-08-03",
+      "endDate": "2026-08-03",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5173",
+      "month": 8,
+      "cat": "pool"
     },
     {
       "title": "AIDA Manado Depth Competition MDC 2026",
@@ -2512,17 +2512,6 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA Malaysia Apnea Warrior Meet Challenge 3.0",
-      "type": "Pool Competition",
-      "venue": "Arena Sukan Kuala Lumpur",
-      "cityCountry": "Kuala Lumpur, Malaysia",
-      "startDate": "2026-08-16",
-      "endDate": "2026-08-16",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5138",
-      "month": 8,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA Asikkala Depth Challenge 2026",
       "type": "Depth Competition",
       "venue": "Kinisselkä",
@@ -2532,6 +2521,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5211",
       "month": 8,
       "cat": "sea"
+    },
+    {
+      "title": "AIDA Malaysia Apnea Warrior Meet Challenge 3.0",
+      "type": "Pool Competition",
+      "venue": "Arena Sukan Kuala Lumpur",
+      "cityCountry": "Kuala Lumpur, Malaysia",
+      "startDate": "2026-08-16",
+      "endDate": "2026-08-16",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5138",
+      "month": 8,
+      "cat": "pool"
     },
     {
       "title": "Queenstown Freediving Club 2026 AIDA Competition Series 3",
@@ -2589,17 +2589,6 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA Freediving Dynamic Challenge 2026 Suzuka #3",
-      "type": "Pool Competition",
-      "venue": "Miekotsu Group Sports No Mori Suzuka",
-      "cityCountry": "Suzuka, Japan",
-      "startDate": "2026-08-23",
-      "endDate": "2026-08-23",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5080",
-      "month": 8,
-      "cat": "pool"
-    },
-    {
       "title": "BB CUP Ep.11 | PFI BREATHLESS | WORLD APNEA 2026",
       "type": "Pool Competition",
       "venue": "라움enc수영장 (Raum Swimming Pool)",
@@ -2607,6 +2596,17 @@
       "startDate": "2026-08-23",
       "endDate": "2026-08-23",
       "link": "https://www.aidainternational.org/EventPage/4967",
+      "month": 8,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA Freediving Dynamic Challenge 2026 Suzuka #3",
+      "type": "Pool Competition",
+      "venue": "Miekotsu Group Sports No Mori Suzuka",
+      "cityCountry": "Suzuka, Japan",
+      "startDate": "2026-08-23",
+      "endDate": "2026-08-23",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5080",
       "month": 8,
       "cat": "pool"
     },
@@ -2633,17 +2633,6 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA Deep70",
-      "type": "Depth Competition",
-      "venue": "Steinbruchsee Wildschütz",
-      "cityCountry": "Mockrehna Ot Wildschütz, Germany",
-      "startDate": "2026-08-29",
-      "endDate": "2026-08-30",
-      "link": "https://www.aidainternational.org/EventPage/5143",
-      "month": 8,
-      "cat": "sea"
-    },
-    {
       "title": "AIDA Volcano Cup Staff Edition 2026",
       "type": "Depth Competition",
       "venue": "Kinko Bay In Kagoshima",
@@ -2655,15 +2644,26 @@
       "cat": "sea"
     },
     {
-      "title": "Emerald City Apnea Challenge - Official Training",
+      "title": "AIDA Deep70",
       "type": "Depth Competition",
-      "venue": "Seacrest Cove 1",
-      "cityCountry": "Seattle, United States",
-      "startDate": "2026-08-30",
+      "venue": "Steinbruchsee Wildschütz",
+      "cityCountry": "Mockrehna Ot Wildschütz, Germany",
+      "startDate": "2026-08-29",
       "endDate": "2026-08-30",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5175",
+      "link": "https://www.aidainternational.org/EventPage/5143",
       "month": 8,
       "cat": "sea"
+    },
+    {
+      "title": "AIDA Road to Merdeka Freediver Team Battle",
+      "type": "Pool Competition",
+      "venue": "The Campus Ampang",
+      "cityCountry": "Ampang Selangor, Malaysia",
+      "startDate": "2026-08-30",
+      "endDate": "2026-08-30",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5169",
+      "month": 8,
+      "cat": "pool"
     },
     {
       "title": "AIDA 2nd 마지막 승부 : The Final Showdown",
@@ -2677,15 +2677,15 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA Road to Merdeka Freediver Team Battle",
-      "type": "Pool Competition",
-      "venue": "The Campus Ampang",
-      "cityCountry": "Ampang Selangor, Malaysia",
+      "title": "Emerald City Apnea Challenge - Official Training",
+      "type": "Depth Competition",
+      "venue": "Seacrest Cove 1",
+      "cityCountry": "Seattle, United States",
       "startDate": "2026-08-30",
       "endDate": "2026-08-30",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5169",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5175",
       "month": 8,
-      "cat": "pool"
+      "cat": "sea"
     },
     {
       "title": "AIDA Merdeka Freediver Team Battle",
