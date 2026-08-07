@@ -47611,16 +47611,27 @@
    "gender": "Female",
    "rank": 5,
    "name": "Sanae Kabakura",
-   "result": "58 m",
-   "points": 58.0,
-   "date": "2026-07-07",
-   "event": "AIDA DOUBLE K IDA 24th DEPTH CHALLENGE"
+   "result": "60 m",
+   "points": 60.0,
+   "date": "2026-08-03",
+   "event": "TEAM AMAMI - DEEP Monday"
   },
   {
    "year": "2026",
    "discipline": "CWT",
    "gender": "Female",
    "rank": 6,
+   "name": "Ai Ogoshi",
+   "result": "50 m",
+   "points": 45.0,
+   "date": "2026-08-03",
+   "event": "TEAM AMAMI - DEEP Monday"
+  },
+  {
+   "year": "2026",
+   "discipline": "CWT",
+   "gender": "Female",
+   "rank": 7,
    "name": "Ryoko Watariguchi",
    "result": "37 m",
    "points": 37.0,
@@ -47644,10 +47655,10 @@
    "gender": "Female",
    "rank": 2,
    "name": "Miho Hikosaka",
-   "result": "45 m",
-   "points": 45.0,
-   "date": "2026-08-02",
-   "event": "TEAM AMAMI - DEEP Sunday"
+   "result": "55 m",
+   "points": 55.0,
+   "date": "2026-08-03",
+   "event": "TEAM AMAMI - DEEP Monday"
   },
   {
    "year": "2026",
@@ -47692,6 +47703,17 @@
    "points": 65.0,
    "date": "2026-04-22",
    "event": "AIDA Mabini Depth Quest - Season 4"
+  },
+  {
+   "year": "2026",
+   "discipline": "CNF",
+   "gender": "Female",
+   "rank": 3,
+   "name": "Shoko Kobayashi",
+   "result": "48 m",
+   "points": 48.0,
+   "date": "2026-08-03",
+   "event": "TEAM AMAMI - DEEP Monday"
   },
   {
    "year": "2026",
@@ -72637,14 +72659,14 @@
    "gender": "Female",
    "rank": 3,
    "name": "Shoko Kobayashi",
-   "total": "366.1",
+   "total": "414.1",
    "disc_STA": 62.6,
    "disc_DYN": 95.5,
    "disc_DYNB": 87.5,
    "disc_DNF": 57.5,
    "disc_CWT": null,
    "disc_CWTB": 63.0,
-   "disc_CNF": null,
+   "disc_CNF": 48.0,
    "disc_FIM": null
   },
   {
@@ -72711,6 +72733,21 @@
    "year": "2026",
    "gender": "Female",
    "rank": 8,
+   "name": "Miho Hikosaka",
+   "total": "291.2",
+   "disc_STA": 57.2,
+   "disc_DYN": 85.5,
+   "disc_DYNB": 93.5,
+   "disc_DNF": null,
+   "disc_CWT": null,
+   "disc_CWTB": 55.0,
+   "disc_CNF": null,
+   "disc_FIM": null
+  },
+  {
+   "year": "2026",
+   "gender": "Female",
+   "rank": 9,
    "name": "Miyuki Komiyama",
    "total": "281.7",
    "disc_STA": 62.2,
@@ -72719,21 +72756,6 @@
    "disc_DNF": 51.5,
    "disc_CWT": null,
    "disc_CWTB": null,
-   "disc_CNF": null,
-   "disc_FIM": null
-  },
-  {
-   "year": "2026",
-   "gender": "Female",
-   "rank": 9,
-   "name": "Miho Hikosaka",
-   "total": "281.2",
-   "disc_STA": 57.2,
-   "disc_DYN": 85.5,
-   "disc_DYNB": 93.5,
-   "disc_DNF": null,
-   "disc_CWT": null,
-   "disc_CWTB": 45.0,
    "disc_CNF": null,
    "disc_FIM": null
   },
