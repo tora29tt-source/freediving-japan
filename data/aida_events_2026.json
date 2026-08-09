@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-08-08T23:27:23Z",
+  "updatedAt": "2026-08-09T23:30:19Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -2413,17 +2413,6 @@
       "cat": "sea"
     },
     {
-      "title": "TEAM AMAMI - Typhoon Monday",
-      "type": "Pool Competition",
-      "venue": "Naze Undo Koen Okunai Pool,",
-      "cityCountry": "Amami, Japan",
-      "startDate": "2026-08-03",
-      "endDate": "2026-08-03",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5173",
-      "month": 8,
-      "cat": "pool"
-    },
-    {
       "title": "TEAM AMAMI - DEEP Monday",
       "type": "Depth Competition",
       "venue": "Oshima Strait",
@@ -2433,6 +2422,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5132",
       "month": 8,
       "cat": "sea"
+    },
+    {
+      "title": "TEAM AMAMI - Typhoon Monday",
+      "type": "Pool Competition",
+      "venue": "Naze Undo Koen Okunai Pool,",
+      "cityCountry": "Amami, Japan",
+      "startDate": "2026-08-03",
+      "endDate": "2026-08-03",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5173",
+      "month": 8,
+      "cat": "pool"
     },
     {
       "title": "AIDA Manado Depth Competition MDC 2026",
@@ -2512,17 +2512,6 @@
       "cat": "pool"
     },
     {
-      "title": "Queenstown Freediving Club 2026 AIDA Competition Series 3",
-      "type": "Pool Competition",
-      "venue": "Alpine Aqualand",
-      "cityCountry": "Queenstown, New Zealand",
-      "startDate": "2026-08-16",
-      "endDate": "2026-08-16",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5208",
-      "month": 8,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA Malaysia Apnea Warrior Meet Challenge 3.0",
       "type": "Pool Competition",
       "venue": "Arena Sukan Kuala Lumpur",
@@ -2543,6 +2532,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5211",
       "month": 8,
       "cat": "sea"
+    },
+    {
+      "title": "Queenstown Freediving Club 2026 AIDA Competition Series 3",
+      "type": "Pool Competition",
+      "venue": "Alpine Aqualand",
+      "cityCountry": "Queenstown, New Zealand",
+      "startDate": "2026-08-16",
+      "endDate": "2026-08-16",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5208",
+      "month": 8,
+      "cat": "pool"
     },
     {
       "title": "AIDA DOUBLE K IDA 25th DEPTH CHALLENGE",
@@ -2622,17 +2622,6 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA Volcano Cup Staff Edition 2026",
-      "type": "Depth Competition",
-      "venue": "Kinko Bay In Kagoshima",
-      "cityCountry": "Kagoshima, Japan",
-      "startDate": "2026-08-29",
-      "endDate": "2026-08-30",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5167",
-      "month": 8,
-      "cat": "sea"
-    },
-    {
       "title": "AIDA Deep70",
       "type": "Depth Competition",
       "venue": "Steinbruchsee Wildschütz",
@@ -2640,6 +2629,17 @@
       "startDate": "2026-08-29",
       "endDate": "2026-08-30",
       "link": "https://www.aidainternational.org/EventPage/5143",
+      "month": 8,
+      "cat": "sea"
+    },
+    {
+      "title": "AIDA Volcano Cup Staff Edition 2026",
+      "type": "Depth Competition",
+      "venue": "Kinko Bay In Kagoshima",
+      "cityCountry": "Kagoshima, Japan",
+      "startDate": "2026-08-29",
+      "endDate": "2026-08-30",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5167",
       "month": 8,
       "cat": "sea"
     },
@@ -2673,17 +2673,6 @@
       "startDate": "2026-08-30",
       "endDate": "2026-08-30",
       "link": "https://www.aidainternational.org/Events/EventDetails-5192",
-      "month": 8,
-      "cat": "pool"
-    },
-    {
-      "title": "AIDA Merdeka Freediver Team Battle",
-      "type": "Team Competition",
-      "venue": "The Campus Ampang",
-      "cityCountry": "Ampang Selangor, Malaysia",
-      "startDate": "2026-08-31",
-      "endDate": "2026-08-31",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5170",
       "month": 8,
       "cat": "pool"
     },
