@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-08-10T23:33:42Z",
+  "updatedAt": "2026-08-11T23:39:09Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -2727,7 +2727,7 @@
       "cityCountry": "Limassol, Cyprus",
       "startDate": "2026-09-18",
       "endDate": "2026-09-26",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5177",
+      "link": "https://www.aidainternational.org/EventPage/5177",
       "month": 9,
       "cat": "sea"
     },
