@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-08-17T23:21:00Z",
+  "updatedAt": "2026-08-18T23:30:36Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -2562,7 +2562,7 @@
       "cityCountry": "Panglao, Bohol, Philippines",
       "startDate": "2026-08-21",
       "endDate": "2026-08-21",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5201",
+      "link": "https://www.aidainternational.org/EventPage/5201",
       "month": 8,
       "cat": "sea"
     },
@@ -2727,7 +2727,7 @@
       "cityCountry": "Panglao, Bohol, Philippines",
       "startDate": "2026-09-01",
       "endDate": "2026-09-01",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5202",
+      "link": "https://www.aidainternational.org/EventPage/5202",
       "month": 9,
       "cat": "sea"
     },
@@ -2738,7 +2738,7 @@
       "cityCountry": "Panglao, Bohol, Philippines",
       "startDate": "2026-09-04",
       "endDate": "2026-09-04",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5203",
+      "link": "https://www.aidainternational.org/EventPage/5203",
       "month": 9,
       "cat": "sea"
     },
