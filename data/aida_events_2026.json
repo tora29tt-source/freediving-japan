@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-08-20T23:24:20Z",
+  "updatedAt": "2026-08-21T23:22:18Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -2567,17 +2567,6 @@
       "cat": "sea"
     },
     {
-      "title": "Static Battle 2026",
-      "type": "Pool Competition",
-      "venue": "Planeta Sport",
-      "cityCountry": "Kyiv, Ukraine",
-      "startDate": "2026-08-22",
-      "endDate": "2026-08-23",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5194",
-      "month": 8,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA Swiss Depth Championships 2026",
       "type": "Depth Competition",
       "venue": "Tauchplatz Grosser Parkplatz",
@@ -2589,13 +2578,13 @@
       "cat": "sea"
     },
     {
-      "title": "BB CUP Ep.11 | PFI BREATHLESS | WORLD APNEA 2026",
+      "title": "Static Battle 2026",
       "type": "Pool Competition",
-      "venue": "라움enc수영장 (Raum Swimming Pool)",
-      "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
-      "startDate": "2026-08-23",
+      "venue": "Planeta Sport",
+      "cityCountry": "Kyiv, Ukraine",
+      "startDate": "2026-08-22",
       "endDate": "2026-08-23",
-      "link": "https://www.aidainternational.org/EventPage/4967",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5194",
       "month": 8,
       "cat": "pool"
     },
@@ -2607,6 +2596,17 @@
       "startDate": "2026-08-23",
       "endDate": "2026-08-23",
       "link": "https://www.aidainternational.org/Events/EventDetails-5080",
+      "month": 8,
+      "cat": "pool"
+    },
+    {
+      "title": "BB CUP Ep.11 | PFI BREATHLESS | WORLD APNEA 2026",
+      "type": "Pool Competition",
+      "venue": "라움enc수영장 (Raum Swimming Pool)",
+      "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
+      "startDate": "2026-08-23",
+      "endDate": "2026-08-23",
+      "link": "https://www.aidainternational.org/EventPage/4967",
       "month": 8,
       "cat": "pool"
     },
@@ -2655,13 +2655,13 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA Road to Merdeka Freediver Team Battle",
+      "title": "AIDA 2nd 마지막 승부 : The Final Showdown",
       "type": "Pool Competition",
-      "venue": "The Campus Ampang",
-      "cityCountry": "Ampang Selangor, Malaysia",
+      "venue": "Hanyang Sports Center Swimming Pool",
+      "cityCountry": "Gyeonggi-Do, Republic of Korea",
       "startDate": "2026-08-30",
       "endDate": "2026-08-30",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5169",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5192",
       "month": 8,
       "cat": "pool"
     },
@@ -2675,28 +2675,6 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5175",
       "month": 8,
       "cat": "sea"
-    },
-    {
-      "title": "AIDA 2nd 마지막 승부 : The Final Showdown",
-      "type": "Pool Competition",
-      "venue": "Hanyang Sports Center Swimming Pool",
-      "cityCountry": "Gyeonggi-Do, Republic of Korea",
-      "startDate": "2026-08-30",
-      "endDate": "2026-08-30",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5192",
-      "month": 8,
-      "cat": "pool"
-    },
-    {
-      "title": "AIDA Merdeka Freediver Team Battle",
-      "type": "Team Competition",
-      "venue": "The Campus Ampang",
-      "cityCountry": "Ampang Selangor, Malaysia",
-      "startDate": "2026-08-31",
-      "endDate": "2026-08-31",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5170",
-      "month": 8,
-      "cat": "pool"
     },
     {
       "title": "AIDA Apoyo Crater Challenge 2026",
@@ -3146,17 +3124,6 @@
       "startDate": "2026-10-18",
       "endDate": "2026-10-22",
       "link": "https://www.aidainternational.org/Events/EventDetails-5094",
-      "month": 10,
-      "cat": "pool"
-    },
-    {
-      "title": "AIDA BE National Cup CETMA - Round 3",
-      "type": "Pool Competition",
-      "venue": "De Sportdoze",
-      "cityCountry": "Blankenbergue, Belgium",
-      "startDate": "2026-10-18",
-      "endDate": "2026-10-18",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5230",
       "month": 10,
       "cat": "pool"
     },
