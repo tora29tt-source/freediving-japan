@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-08-21T23:22:18Z",
+  "updatedAt": "2026-08-22T23:19:12Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -2578,13 +2578,13 @@
       "cat": "sea"
     },
     {
-      "title": "Static Battle 2026",
+      "title": "AIDA Static Battle 2026",
       "type": "Pool Competition",
       "venue": "Planeta Sport",
       "cityCountry": "Kyiv, Ukraine",
       "startDate": "2026-08-22",
       "endDate": "2026-08-23",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5194",
+      "link": "https://www.aidainternational.org/EventPage/5194",
       "month": 8,
       "cat": "pool"
     },
