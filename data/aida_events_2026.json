@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-08-22T23:19:12Z",
+  "updatedAt": "2026-08-23T23:19:59Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -2589,17 +2589,6 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA Freediving Dynamic Challenge 2026 Suzuka #3",
-      "type": "Pool Competition",
-      "venue": "Miekotsu Group Sports No Mori Suzuka",
-      "cityCountry": "Suzuka, Japan",
-      "startDate": "2026-08-23",
-      "endDate": "2026-08-23",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5080",
-      "month": 8,
-      "cat": "pool"
-    },
-    {
       "title": "BB CUP Ep.11 | PFI BREATHLESS | WORLD APNEA 2026",
       "type": "Pool Competition",
       "venue": "라움enc수영장 (Raum Swimming Pool)",
@@ -2607,6 +2596,17 @@
       "startDate": "2026-08-23",
       "endDate": "2026-08-23",
       "link": "https://www.aidainternational.org/EventPage/4967",
+      "month": 8,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA Freediving Dynamic Challenge 2026 Suzuka #3",
+      "type": "Pool Competition",
+      "venue": "Miekotsu Group Sports No Mori Suzuka",
+      "cityCountry": "Suzuka, Japan",
+      "startDate": "2026-08-23",
+      "endDate": "2026-08-23",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5080",
       "month": 8,
       "cat": "pool"
     },
@@ -2864,17 +2864,6 @@
       "cat": "pool"
     },
     {
-      "title": "World Apnea Vis-Min Pool Championship",
-      "type": "Pool Competition",
-      "venue": "Lorenzo G. Teves Memorial Aqua Center",
-      "cityCountry": "Dumaguete, Philippines",
-      "startDate": "2026-09-25",
-      "endDate": "2026-09-27",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5207",
-      "month": 9,
-      "cat": "pool"
-    },
-    {
       "title": "CEBU IDA OFFICIAL WEEKEND 3rd",
       "type": "Depth Competition",
       "venue": "Double K International Academy",
@@ -2884,6 +2873,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5109",
       "month": 9,
       "cat": "sea"
+    },
+    {
+      "title": "World Apnea Vis-Min Pool Championship",
+      "type": "Pool Competition",
+      "venue": "Lorenzo G. Teves Memorial Aqua Center",
+      "cityCountry": "Dumaguete, Philippines",
+      "startDate": "2026-09-25",
+      "endDate": "2026-09-27",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5207",
+      "month": 9,
+      "cat": "pool"
     },
     {
       "title": "WORLD APNEA 2026 Depth Championships-Limassol Cyprus",
@@ -2904,17 +2904,6 @@
       "startDate": "2026-09-27",
       "endDate": "2026-09-27",
       "link": "https://www.aidainternational.org/Events/EventDetails-5145",
-      "month": 9,
-      "cat": "pool"
-    },
-    {
-      "title": "AIDA Freediving Dynamic Challenge 2026 Suzuka #4",
-      "type": "Pool Competition",
-      "venue": "Miekotsu Group Sports No Mori Suzuka",
-      "cityCountry": "Suzuka, Japan",
-      "startDate": "2026-09-27",
-      "endDate": "2026-09-27",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5081",
       "month": 9,
       "cat": "pool"
     },
