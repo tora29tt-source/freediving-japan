@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-08-25T23:24:14Z",
+  "updatedAt": "2026-08-27T04:14:23Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -2589,17 +2589,6 @@
       "cat": "pool"
     },
     {
-      "title": "BB CUP Ep.11 | PFI BREATHLESS | WORLD APNEA 2026",
-      "type": "Pool Competition",
-      "venue": "라움enc수영장 (Raum Swimming Pool)",
-      "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
-      "startDate": "2026-08-23",
-      "endDate": "2026-08-23",
-      "link": "https://www.aidainternational.org/EventPage/4967",
-      "month": 8,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA Freediving Dynamic Challenge 2026 Suzuka #3",
       "type": "Pool Competition",
       "venue": "Miekotsu Group Sports No Mori Suzuka",
@@ -2607,6 +2596,17 @@
       "startDate": "2026-08-23",
       "endDate": "2026-08-23",
       "link": "https://www.aidainternational.org/Events/EventDetails-5080",
+      "month": 8,
+      "cat": "pool"
+    },
+    {
+      "title": "BB CUP Ep.11 | PFI BREATHLESS | WORLD APNEA 2026",
+      "type": "Pool Competition",
+      "venue": "라움enc수영장 (Raum Swimming Pool)",
+      "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
+      "startDate": "2026-08-23",
+      "endDate": "2026-08-23",
+      "link": "https://www.aidainternational.org/EventPage/4967",
       "month": 8,
       "cat": "pool"
     },
@@ -2622,17 +2622,6 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA Apoyo Crater Challenge Warm-Up Comp",
-      "type": "Depth Competition",
-      "venue": "Freediving Nicaragua",
-      "cityCountry": "Catarina, Nicaragua",
-      "startDate": "2026-08-28",
-      "endDate": "2026-08-30",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5206",
-      "month": 8,
-      "cat": "sea"
-    },
-    {
       "title": "2ND WORLD APNEA DREAM CUP DEPTH COMPETITION",
       "type": "Depth Competition",
       "venue": "Napaling Point",
@@ -2640,17 +2629,6 @@
       "startDate": "2026-08-28",
       "endDate": "2026-08-29",
       "link": "https://www.aidainternational.org/Events/EventDetails-5205",
-      "month": 8,
-      "cat": "sea"
-    },
-    {
-      "title": "AIDA Deep70",
-      "type": "Depth Competition",
-      "venue": "Steinbruchsee Wildschütz",
-      "cityCountry": "Mockrehna Ot Wildschütz, Germany",
-      "startDate": "2026-08-29",
-      "endDate": "2026-08-30",
-      "link": "https://www.aidainternational.org/EventPage/5143",
       "month": 8,
       "cat": "sea"
     },
@@ -2666,15 +2644,15 @@
       "cat": "sea"
     },
     {
-      "title": "Emerald City Apnea Challenge - Official Training",
-      "type": "Depth Competition",
-      "venue": "Seacrest Cove 1",
-      "cityCountry": "Seattle, United States",
+      "title": "AIDA Road to Merdeka Freediver Team Battle",
+      "type": "Pool Competition",
+      "venue": "The Campus Ampang",
+      "cityCountry": "Ampang Selangor, Malaysia",
       "startDate": "2026-08-30",
       "endDate": "2026-08-30",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5175",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5169",
       "month": 8,
-      "cat": "sea"
+      "cat": "pool"
     },
     {
       "title": "AIDA 2nd 마지막 승부 : The Final Showdown",
@@ -2688,15 +2666,15 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA Road to Merdeka Freediver Team Battle",
-      "type": "Pool Competition",
-      "venue": "The Campus Ampang",
-      "cityCountry": "Ampang Selangor, Malaysia",
+      "title": "Emerald City Apnea Challenge - Official Training",
+      "type": "Depth Competition",
+      "venue": "Seacrest Cove 1",
+      "cityCountry": "Seattle, United States",
       "startDate": "2026-08-30",
       "endDate": "2026-08-30",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5169",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5175",
       "month": 8,
-      "cat": "pool"
+      "cat": "sea"
     },
     {
       "title": "AIDA Merdeka Freediver Team Battle",
