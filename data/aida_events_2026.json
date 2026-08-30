@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-08-29T04:01:47Z",
+  "updatedAt": "2026-08-30T01:04:14Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -2787,6 +2787,17 @@
       "cat": "pool"
     },
     {
+      "title": "AIDA Lake Annecy Challenge - LAC 26",
+      "type": "Depth Competition",
+      "venue": "Planete Apnée",
+      "cityCountry": "Veyrier Du Lac, France",
+      "startDate": "2026-09-05",
+      "endDate": "2026-09-05",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5243",
+      "month": 9,
+      "cat": "sea"
+    },
+    {
       "title": "AIDA SYNERGIC STATICNOVA - BEYOND BREATH - 2026",
       "type": "Pool Competition",
       "venue": "Private Pool At Pulo Mas , Jakarta, Indonesia",
@@ -2919,6 +2930,17 @@
       "cat": "pool"
     },
     {
+      "title": "AIDA Singapore Static Open 2026",
+      "type": "Pool Competition",
+      "venue": "Changi Beach Club",
+      "cityCountry": "Singapore, Singapore",
+      "startDate": "2026-09-19",
+      "endDate": "2026-09-21",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5242",
+      "month": 9,
+      "cat": "pool"
+    },
+    {
       "title": "AIDA UAE CWT Performance Night 2026 | Summer Heats",
       "type": "Depth Competition",
       "venue": "Deep Dive Dubai",
@@ -2952,17 +2974,6 @@
       "cat": "pool"
     },
     {
-      "title": "CEBU IDA OFFICIAL WEEKEND 3rd",
-      "type": "Depth Competition",
-      "venue": "Double K International Academy",
-      "cityCountry": "Cebu Mactan, Philippines",
-      "startDate": "2026-09-25",
-      "endDate": "2026-09-27",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5109",
-      "month": 9,
-      "cat": "sea"
-    },
-    {
       "title": "World Apnea Vis-Min Pool Championship",
       "type": "Pool Competition",
       "venue": "Lorenzo G. Teves Memorial Aqua Center",
@@ -2972,6 +2983,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5207",
       "month": 9,
       "cat": "pool"
+    },
+    {
+      "title": "CEBU IDA OFFICIAL WEEKEND 3rd",
+      "type": "Depth Competition",
+      "venue": "Double K International Academy",
+      "cityCountry": "Cebu Mactan, Philippines",
+      "startDate": "2026-09-25",
+      "endDate": "2026-09-27",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5109",
+      "month": 9,
+      "cat": "sea"
     },
     {
       "title": "WORLD APNEA 2026 Depth Championships-Limassol Cyprus",
@@ -3150,7 +3172,7 @@
       "cat": "pool"
     },
     {
-      "title": "2nd Blue World Freediving AIDA Depth Trophy",
+      "title": "2° Blue World Freediving AIDA Depth Trophy",
       "type": "Depth Competition",
       "venue": "Acitrezza",
       "cityCountry": "Acitrezza, Italy",
