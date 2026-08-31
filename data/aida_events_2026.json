@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-08-30T01:04:14Z",
+  "updatedAt": "2026-08-31T01:06:03Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -2644,6 +2644,17 @@
       "cat": "sea"
     },
     {
+      "title": "AIDA Volcano Cup Staff Edition 2026",
+      "type": "Depth Competition",
+      "venue": "Kinko Bay In Kagoshima",
+      "cityCountry": "Kagoshima, Japan",
+      "startDate": "2026-08-29",
+      "endDate": "2026-08-30",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5167",
+      "month": 8,
+      "cat": "sea"
+    },
+    {
       "title": "AIDA Deep70",
       "type": "Depth Competition",
       "venue": "Steinbruchsee Wildschütz",
@@ -2655,15 +2666,15 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA Volcano Cup Staff Edition 2026",
-      "type": "Depth Competition",
-      "venue": "Kinko Bay In Kagoshima",
-      "cityCountry": "Kagoshima, Japan",
-      "startDate": "2026-08-29",
+      "title": "AIDA Road to Merdeka Freediver Team Battle",
+      "type": "Pool Competition",
+      "venue": "The Campus Ampang",
+      "cityCountry": "Ampang Selangor, Malaysia",
+      "startDate": "2026-08-30",
       "endDate": "2026-08-30",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5167",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5169",
       "month": 8,
-      "cat": "sea"
+      "cat": "pool"
     },
     {
       "title": "Emerald City Apnea Challenge - Official Training",
@@ -2684,17 +2695,6 @@
       "startDate": "2026-08-30",
       "endDate": "2026-08-30",
       "link": "https://www.aidainternational.org/Events/EventDetails-5192",
-      "month": 8,
-      "cat": "pool"
-    },
-    {
-      "title": "AIDA Road to Merdeka Freediver Team Battle",
-      "type": "Pool Competition",
-      "venue": "The Campus Ampang",
-      "cityCountry": "Ampang Selangor, Malaysia",
-      "startDate": "2026-08-30",
-      "endDate": "2026-08-30",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5169",
       "month": 8,
       "cat": "pool"
     },
