@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-09-01T01:39:21Z",
+  "updatedAt": "2026-09-02T00:49:45Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -2644,17 +2644,6 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA Deep70",
-      "type": "Depth Competition",
-      "venue": "Steinbruchsee Wildschütz",
-      "cityCountry": "Mockrehna Ot Wildschütz, Germany",
-      "startDate": "2026-08-29",
-      "endDate": "2026-08-30",
-      "link": "https://www.aidainternational.org/EventPage/5143",
-      "month": 8,
-      "cat": "sea"
-    },
-    {
       "title": "AIDA Volcano Cup Staff Edition 2026",
       "type": "Depth Competition",
       "venue": "Kinko Bay In Kagoshima",
@@ -2662,6 +2651,17 @@
       "startDate": "2026-08-29",
       "endDate": "2026-08-30",
       "link": "https://www.aidainternational.org/Events/EventDetails-5167",
+      "month": 8,
+      "cat": "sea"
+    },
+    {
+      "title": "AIDA Deep70",
+      "type": "Depth Competition",
+      "venue": "Steinbruchsee Wildschütz",
+      "cityCountry": "Mockrehna Ot Wildschütz, Germany",
+      "startDate": "2026-08-29",
+      "endDate": "2026-08-30",
+      "link": "https://www.aidainternational.org/EventPage/5143",
       "month": 8,
       "cat": "sea"
     },
@@ -2809,17 +2809,6 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA OKINAWA FREEDIVING CUP 2026 ISHIGAKI",
-      "type": "Depth Competition",
-      "venue": "Off The Coast Of Ishigaki Island",
-      "cityCountry": "Okinawa, Japan",
-      "startDate": "2026-09-11",
-      "endDate": "2026-09-12",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5171",
-      "month": 9,
-      "cat": "sea"
-    },
-    {
       "title": "AIDA Boalt Depth Summer Memories",
       "type": "Depth Competition",
       "venue": "Boalt Kalkbrott",
@@ -2831,13 +2820,13 @@
       "cat": "sea"
     },
     {
-      "title": "2026 Tamera AIDA Depth Festival",
+      "title": "AIDA OKINAWA FREEDIVING CUP 2026 ISHIGAKI",
       "type": "Depth Competition",
-      "venue": "28, Sillijebang 2-Gil",
-      "cityCountry": "Gangwon-Do, Republic of Korea",
-      "startDate": "2026-09-13",
-      "endDate": "2026-09-13",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5234",
+      "venue": "Off The Coast Of Ishigaki Island",
+      "cityCountry": "Okinawa, Japan",
+      "startDate": "2026-09-11",
+      "endDate": "2026-09-12",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5171",
       "month": 9,
       "cat": "sea"
     },
@@ -2897,17 +2886,6 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA Singapore Static Open 2026",
-      "type": "Pool Competition",
-      "venue": "Changi Beach Club",
-      "cityCountry": "Singapore, Singapore",
-      "startDate": "2026-09-19",
-      "endDate": "2026-09-21",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5242",
-      "month": 9,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA Singapore Pool Freediving Open 2026",
       "type": "Pool Competition",
       "venue": "Changi Beach Club",
@@ -2915,6 +2893,17 @@
       "startDate": "2026-09-19",
       "endDate": "2026-09-21",
       "link": "https://www.aidainternational.org/Events/EventDetails-5153",
+      "month": 9,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA Singapore Static Open 2026",
+      "type": "Pool Competition",
+      "venue": "Changi Beach Club",
+      "cityCountry": "Singapore, Singapore",
+      "startDate": "2026-09-19",
+      "endDate": "2026-09-21",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5242",
       "month": 9,
       "cat": "pool"
     },
