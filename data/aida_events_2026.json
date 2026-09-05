@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-09-04T00:47:55Z",
+  "updatedAt": "2026-09-05T00:37:18Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -2479,6 +2479,17 @@
       "cat": "pool"
     },
     {
+      "title": "Queenstown Freediving Club 2026 AIDA Competition Series 3",
+      "type": "Pool Competition",
+      "venue": "Alpine Aqualand",
+      "cityCountry": "Queenstown, New Zealand",
+      "startDate": "2026-08-16",
+      "endDate": "2026-08-16",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5208",
+      "month": 8,
+      "cat": "pool"
+    },
+    {
       "title": "AIDA Malaysia Apnea Warrior Meet Challenge 3.0",
       "type": "Pool Competition",
       "venue": "Arena Sukan Kuala Lumpur",
@@ -2499,17 +2510,6 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5211",
       "month": 8,
       "cat": "sea"
-    },
-    {
-      "title": "Queenstown Freediving Club 2026 AIDA Competition Series 3",
-      "type": "Pool Competition",
-      "venue": "Alpine Aqualand",
-      "cityCountry": "Queenstown, New Zealand",
-      "startDate": "2026-08-16",
-      "endDate": "2026-08-16",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5208",
-      "month": 8,
-      "cat": "pool"
     },
     {
       "title": "AIDA DOUBLE K IDA 25th DEPTH CHALLENGE",
@@ -2589,17 +2589,6 @@
       "cat": "pool"
     },
     {
-      "title": "BB CUP Ep.11 | PFI BREATHLESS | WORLD APNEA 2026",
-      "type": "Pool Competition",
-      "venue": "라움enc수영장 (Raum Swimming Pool)",
-      "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
-      "startDate": "2026-08-23",
-      "endDate": "2026-08-23",
-      "link": "https://www.aidainternational.org/EventPage/4967",
-      "month": 8,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA Freediving Dynamic Challenge 2026 Suzuka #3",
       "type": "Pool Competition",
       "venue": "Miekotsu Group Sports No Mori Suzuka",
@@ -2607,6 +2596,17 @@
       "startDate": "2026-08-23",
       "endDate": "2026-08-23",
       "link": "https://www.aidainternational.org/Events/EventDetails-5080",
+      "month": 8,
+      "cat": "pool"
+    },
+    {
+      "title": "BB CUP Ep.11 | PFI BREATHLESS | WORLD APNEA 2026",
+      "type": "Pool Competition",
+      "venue": "라움enc수영장 (Raum Swimming Pool)",
+      "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
+      "startDate": "2026-08-23",
+      "endDate": "2026-08-23",
+      "link": "https://www.aidainternational.org/EventPage/4967",
       "month": 8,
       "cat": "pool"
     },
@@ -3403,13 +3403,13 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA Philippines National Pool Championship 2026",
+      "title": "Höstapneaden 2026, AIDA Rules",
       "type": "Pool Competition",
-      "venue": "Lipa City Community Park",
-      "cityCountry": "Lipa City, Philippines",
+      "venue": "Valhallabadet",
+      "cityCountry": "Gothenburg, Sweden",
       "startDate": "2026-11-27",
       "endDate": "2026-11-29",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5149",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5232",
       "month": 11,
       "cat": "pool"
     },
@@ -3425,13 +3425,13 @@
       "cat": "pool"
     },
     {
-      "title": "Höstapneaden 2026, AIDA Rules",
+      "title": "AIDA Philippines National Pool Championship 2026",
       "type": "Pool Competition",
-      "venue": "Valhallabadet",
-      "cityCountry": "Gothenburg, Sweden",
+      "venue": "Lipa City Community Park",
+      "cityCountry": "Lipa City, Philippines",
       "startDate": "2026-11-27",
       "endDate": "2026-11-29",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5232",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5149",
       "month": 11,
       "cat": "pool"
     },
@@ -3447,17 +3447,6 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA Freediving Dynamic Challenge 2026 Suzuka #6",
-      "type": "Pool Competition",
-      "venue": "Miekotsu Group Sports No Mori Suzuka",
-      "cityCountry": "Suzuka, Japan",
-      "startDate": "2026-11-28",
-      "endDate": "2026-11-28",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5083",
-      "month": 11,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA Seanomad Mini Comp V",
       "type": "Pool Competition",
       "venue": "Spartak Swimming Pool",
@@ -3465,6 +3454,17 @@
       "startDate": "2026-11-28",
       "endDate": "2026-11-28",
       "link": "https://www.aidainternational.org/Events/EventDetails-5038",
+      "month": 11,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA Freediving Dynamic Challenge 2026 Suzuka #6",
+      "type": "Pool Competition",
+      "venue": "Miekotsu Group Sports No Mori Suzuka",
+      "cityCountry": "Suzuka, Japan",
+      "startDate": "2026-11-28",
+      "endDate": "2026-11-28",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5083",
       "month": 11,
       "cat": "pool"
     },
