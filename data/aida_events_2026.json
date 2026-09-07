@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-09-06T00:34:47Z",
+  "updatedAt": "2026-09-07T00:41:51Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -2776,17 +2776,6 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA Pool Day Series 2026 : APNEA First White Card",
-      "type": "Pool Competition",
-      "venue": "Chulabhorn Walailak Swimming Pool",
-      "cityCountry": "Bangkok, Thailand",
-      "startDate": "2026-09-05",
-      "endDate": "2026-09-05",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5228",
-      "month": 9,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA Lake Annecy Challenge - LAC 26",
       "type": "Depth Competition",
       "venue": "Planete Apnée",
@@ -2796,6 +2785,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5243",
       "month": 9,
       "cat": "sea"
+    },
+    {
+      "title": "AIDA Pool Day Series 2026 : APNEA First White Card",
+      "type": "Pool Competition",
+      "venue": "Chulabhorn Walailak Swimming Pool",
+      "cityCountry": "Bangkok, Thailand",
+      "startDate": "2026-09-05",
+      "endDate": "2026-09-05",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5228",
+      "month": 9,
+      "cat": "pool"
     },
     {
       "title": "2026 AIDA台北例行賽9月場",
@@ -2974,15 +2974,15 @@
       "cat": "pool"
     },
     {
-      "title": "25TH FREEDIVINGFRIENDS CUP WORLD APNEA INDOOR FESTIVAL",
-      "type": "Pool Competition",
-      "venue": "Nambu University International Swimming Pool",
-      "cityCountry": "Jeonnam-Gwangju, Republic of Korea",
-      "startDate": "2026-09-21",
-      "endDate": "2026-09-21",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5233",
+      "title": "CEBU IDA OFFICIAL WEEKEND 3rd",
+      "type": "Depth Competition",
+      "venue": "Double K International Academy",
+      "cityCountry": "Cebu Mactan, Philippines",
+      "startDate": "2026-09-25",
+      "endDate": "2026-09-27",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5109",
       "month": 9,
-      "cat": "pool"
+      "cat": "sea"
     },
     {
       "title": "World Apnea Vis-Min Pool Championship",
@@ -2996,17 +2996,6 @@
       "cat": "pool"
     },
     {
-      "title": "CEBU IDA OFFICIAL WEEKEND 3rd",
-      "type": "Depth Competition",
-      "venue": "Double K International Academy",
-      "cityCountry": "Cebu Mactan, Philippines",
-      "startDate": "2026-09-25",
-      "endDate": "2026-09-27",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5109",
-      "month": 9,
-      "cat": "sea"
-    },
-    {
       "title": "WORLD APNEA 2026 Depth Championships-Limassol Cyprus",
       "type": "World Championship",
       "venue": "Limassol Bay",
@@ -3018,17 +3007,6 @@
       "cat": "wc"
     },
     {
-      "title": "AIDA MALAYSIA APNEA WARRIOR MEET CHALLENGE 4.0",
-      "type": "Pool Competition",
-      "venue": "Arena Sukan Kuala Lumpur",
-      "cityCountry": "Kuala Lumpur, Malaysia",
-      "startDate": "2026-09-27",
-      "endDate": "2026-09-27",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5145",
-      "month": 9,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA Freediving Dynamic Challenge 2026 Suzuka #4",
       "type": "Pool Competition",
       "venue": "Miekotsu Group Sports No Mori Suzuka",
@@ -3036,6 +3014,17 @@
       "startDate": "2026-09-27",
       "endDate": "2026-09-27",
       "link": "https://www.aidainternational.org/Events/EventDetails-5081",
+      "month": 9,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA MALAYSIA APNEA WARRIOR MEET CHALLENGE 4.0",
+      "type": "Pool Competition",
+      "venue": "Arena Sukan Kuala Lumpur",
+      "cityCountry": "Kuala Lumpur, Malaysia",
+      "startDate": "2026-09-27",
+      "endDate": "2026-09-27",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5145",
       "month": 9,
       "cat": "pool"
     },
