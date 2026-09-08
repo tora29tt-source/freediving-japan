@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-09-07T00:41:51Z",
+  "updatedAt": "2026-09-08T00:54:54Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -3084,6 +3084,17 @@
       "cat": "pool"
     },
     {
+      "title": "AIDA NakedBlue2026-Master Cup",
+      "type": "Depth Competition",
+      "venue": "Moonseom",
+      "cityCountry": "Jeju, Republic of Korea",
+      "startDate": "2026-10-09",
+      "endDate": "2026-10-11",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5116",
+      "month": 10,
+      "cat": "sea"
+    },
+    {
       "title": "AIDA Bajau 50 Apnea Competition 2026",
       "type": "Pool Competition",
       "venue": "Parque Olímpico Roca",
@@ -3095,17 +3106,6 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA NakedBlue2026-Master Cup",
-      "type": "Depth Competition",
-      "venue": "Moonseom",
-      "cityCountry": "Jeju, Republic of Korea",
-      "startDate": "2026-10-09",
-      "endDate": "2026-10-11",
-      "link": "https://www.aidainternational.org/EventPage/5116",
-      "month": 10,
-      "cat": "sea"
-    },
-    {
       "title": "3RD WORLD APNEA DREAM CUP DEPTH COMPETITION",
       "type": "Depth Competition",
       "venue": "Napaling Point",
@@ -3113,17 +3113,6 @@
       "startDate": "2026-10-09",
       "endDate": "2026-10-10",
       "link": "https://www.aidainternational.org/Events/EventDetails-5209",
-      "month": 10,
-      "cat": "sea"
-    },
-    {
-      "title": "Atlantic Cup 2026",
-      "type": "Depth Competition",
-      "venue": "Radazul",
-      "cityCountry": "El Rosario, Spain",
-      "startDate": "2026-10-10",
-      "endDate": "2026-10-11",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5241",
       "month": 10,
       "cat": "sea"
     },
@@ -3194,15 +3183,15 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA Hydro Dynamic 2026",
-      "type": "Pool Competition",
-      "venue": "Bsfz Südstadt",
-      "cityCountry": "Maria Enzersdorf, Austria",
+      "title": "AIDA UAE FIM Performance Night 2026 | Autumn Round",
+      "type": "Depth Competition",
+      "venue": "Deep Dive Dubai",
+      "cityCountry": "Dubai, United Arab Emirates",
       "startDate": "2026-10-17",
       "endDate": "2026-10-18",
-      "link": "https://www.aidainternational.org/Events/EventDetails-4885",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5220",
       "month": 10,
-      "cat": "pool"
+      "cat": "sea"
     },
     {
       "title": "AIDA HAYAMA FREEDIVING CHALLENGE 2026",
@@ -3216,15 +3205,15 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA UAE FIM Performance Night 2026 | Autumn Round",
-      "type": "Depth Competition",
-      "venue": "Deep Dive Dubai",
-      "cityCountry": "Dubai, United Arab Emirates",
+      "title": "AIDA Hydro Dynamic 2026",
+      "type": "Pool Competition",
+      "venue": "Bsfz Südstadt",
+      "cityCountry": "Maria Enzersdorf, Austria",
       "startDate": "2026-10-17",
       "endDate": "2026-10-18",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5220",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4885",
       "month": 10,
-      "cat": "sea"
+      "cat": "pool"
     },
     {
       "title": "AIDA Freediving Dynamic Challenge 2026 Suzuka #5",
@@ -3249,17 +3238,6 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA Malaysia Apnea Warrior Meet Challenge 5.0",
-      "type": "Pool Competition",
-      "venue": "Arena Sukan Kuala Lumpur",
-      "cityCountry": "Kuala Lumpur, Malaysia",
-      "startDate": "2026-10-18",
-      "endDate": "2026-10-18",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5152",
-      "month": 10,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA BE National Cup CETMA - Round 3",
       "type": "Pool Competition",
       "venue": "De Sportdoze",
@@ -3267,6 +3245,17 @@
       "startDate": "2026-10-18",
       "endDate": "2026-10-18",
       "link": "https://www.aidainternational.org/Events/EventDetails-5230",
+      "month": 10,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA Malaysia Apnea Warrior Meet Challenge 5.0",
+      "type": "Pool Competition",
+      "venue": "Arena Sukan Kuala Lumpur",
+      "cityCountry": "Kuala Lumpur, Malaysia",
+      "startDate": "2026-10-18",
+      "endDate": "2026-10-18",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5152",
       "month": 10,
       "cat": "pool"
     },
