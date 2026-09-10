@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-09-09T01:03:50Z",
+  "updatedAt": "2026-09-10T00:51:31Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -2303,17 +2303,6 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA UAE STA Performance Night 2026 | Summer Heats",
-      "type": "Pool Competition",
-      "venue": "Al Furjan Club",
-      "cityCountry": "Dubai, United Arab Emirates",
-      "startDate": "2026-07-28",
-      "endDate": "2026-07-28",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5181",
-      "month": 7,
-      "cat": "pool"
-    },
-    {
       "title": "Freedive Utila Static Vibes",
       "type": "Pool Competition",
       "venue": "The Point Pool Bar And Grill",
@@ -2321,6 +2310,17 @@
       "startDate": "2026-07-28",
       "endDate": "2026-07-28",
       "link": "https://www.aidainternational.org/EventPage/5154",
+      "month": 7,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA UAE STA Performance Night 2026 | Summer Heats",
+      "type": "Pool Competition",
+      "venue": "Al Furjan Club",
+      "cityCountry": "Dubai, United Arab Emirates",
+      "startDate": "2026-07-28",
+      "endDate": "2026-07-28",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5181",
       "month": 7,
       "cat": "pool"
     },
@@ -2776,17 +2776,6 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA Lake Annecy Challenge - LAC 26",
-      "type": "Depth Competition",
-      "venue": "Planete Apnée",
-      "cityCountry": "Veyrier Du Lac, France",
-      "startDate": "2026-09-05",
-      "endDate": "2026-09-05",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5243",
-      "month": 9,
-      "cat": "sea"
-    },
-    {
       "title": "AIDA Pool Day Series 2026 : APNEA First White Card",
       "type": "Pool Competition",
       "venue": "Chulabhorn Walailak Swimming Pool",
@@ -2796,6 +2785,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5228",
       "month": 9,
       "cat": "pool"
+    },
+    {
+      "title": "AIDA Lake Annecy Challenge - LAC 26",
+      "type": "Depth Competition",
+      "venue": "Planete Apnée",
+      "cityCountry": "Veyrier Du Lac, France",
+      "startDate": "2026-09-05",
+      "endDate": "2026-09-05",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5243",
+      "month": 9,
+      "cat": "sea"
     },
     {
       "title": "2026 AIDA台北例行賽9月場",
@@ -2826,18 +2826,7 @@
       "cityCountry": "Sharm El Sheikh, Egypt",
       "startDate": "2026-09-09",
       "endDate": "2026-09-16",
-      "link": "https://www.aidainternational.org/Events/EventDetails-4912",
-      "month": 9,
-      "cat": "sea"
-    },
-    {
-      "title": "AIDA OKINAWA FREEDIVING CUP 2026 ISHIGAKI",
-      "type": "Depth Competition",
-      "venue": "Off The Coast Of Ishigaki Island",
-      "cityCountry": "Okinawa, Japan",
-      "startDate": "2026-09-11",
-      "endDate": "2026-09-12",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5171",
+      "link": "https://www.aidainternational.org/EventPage/4912",
       "month": 9,
       "cat": "sea"
     },
@@ -2853,13 +2842,13 @@
       "cat": "sea"
     },
     {
-      "title": "2026 Tamera AIDA Depth Festival",
+      "title": "AIDA OKINAWA FREEDIVING CUP 2026 ISHIGAKI",
       "type": "Depth Competition",
-      "venue": "28, Sillijebang 2-Gil",
-      "cityCountry": "Gangwon-Do, Republic of Korea",
-      "startDate": "2026-09-13",
-      "endDate": "2026-09-13",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5234",
+      "venue": "Off The Coast Of Ishigaki Island",
+      "cityCountry": "Okinawa, Japan",
+      "startDate": "2026-09-11",
+      "endDate": "2026-09-12",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5171",
       "month": 9,
       "cat": "sea"
     },
@@ -2873,6 +2862,17 @@
       "link": "https://www.aidainternational.org/EventPage/4968",
       "month": 9,
       "cat": "pool"
+    },
+    {
+      "title": "2026 Tamera AIDA Depth Festival",
+      "type": "Depth Competition",
+      "venue": "28, Sillijebang 2-Gil",
+      "cityCountry": "Gangwon-Do, Republic of Korea",
+      "startDate": "2026-09-13",
+      "endDate": "2026-09-13",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5234",
+      "month": 9,
+      "cat": "sea"
     },
     {
       "title": "AIDA UAE DYN Performance Night 2026 | Summer Heats",
