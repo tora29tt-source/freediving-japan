@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-09-11T00:50:37Z",
+  "updatedAt": "2026-09-12T00:55:40Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -2904,17 +2904,6 @@
       "startDate": "2026-09-18",
       "endDate": "2026-09-26",
       "link": "https://www.aidainternational.org/EventPage/5177",
-      "month": 9,
-      "cat": "sea"
-    },
-    {
-      "title": "AIDA Volcano Cup 2026",
-      "type": "Depth Competition",
-      "venue": "Kinko Bay In Kagoshima",
-      "cityCountry": "Kagoshima, Japan",
-      "startDate": "2026-09-18",
-      "endDate": "2026-09-22",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5162",
       "month": 9,
       "cat": "sea"
     },
