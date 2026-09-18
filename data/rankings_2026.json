@@ -1,6 +1,6 @@
 {
  "year": 2026,
- "updatedAt": "2026-09-17",
+ "updatedAt": "2026-09-18",
  "records": [
   {
    "year": "2026",
@@ -664,6 +664,28 @@
   },
   {
    "year": "2026",
+   "discipline": "CWT",
+   "gender": "Male",
+   "rank": 2,
+   "name": "Heima Fujimoto",
+   "result": "30 m",
+   "points": 30.0,
+   "date": "2026-09-12",
+   "event": "AIDA OKINAWA FREEDIVING CUP 2026 ISHIGAKI"
+  },
+  {
+   "year": "2026",
+   "discipline": "CWT",
+   "gender": "Male",
+   "rank": 3,
+   "name": "Takeshi Fujimoto",
+   "result": "22 m",
+   "points": 22.0,
+   "date": "2026-09-12",
+   "event": "AIDA OKINAWA FREEDIVING CUP 2026 ISHIGAKI"
+  },
+  {
+   "year": "2026",
    "discipline": "CWTB",
    "gender": "Male",
    "rank": 1,
@@ -701,10 +723,10 @@
    "gender": "Male",
    "rank": 4,
    "name": "Shundo Katsura",
-   "result": "39 m",
-   "points": 39.0,
-   "date": "2026-07-19",
-   "event": "AIDA Okinawa Freediving Cup 2026"
+   "result": "43 m",
+   "points": 43.0,
+   "date": "2026-09-11",
+   "event": "AIDA OKINAWA FREEDIVING CUP 2026 ISHIGAKI"
   },
   {
    "year": "2026",
@@ -749,6 +771,17 @@
    "points": 44.0,
    "date": "2026-07-18",
    "event": "AIDA Okinawa Freediving Cup 2026"
+  },
+  {
+   "year": "2026",
+   "discipline": "FIM",
+   "gender": "Male",
+   "rank": 3,
+   "name": "Heima Fujimoto",
+   "result": "28 m",
+   "points": 28.0,
+   "date": "2026-09-11",
+   "event": "AIDA OKINAWA FREEDIVING CUP 2026 ISHIGAKI"
   },
   {
    "year": "2026",
@@ -1812,10 +1845,10 @@
    "gender": "Female",
    "rank": 8,
    "name": "Ryoko Watariguchi",
-   "result": "37 m",
-   "points": 37.0,
-   "date": "2026-07-19",
-   "event": "AIDA Okinawa Freediving Cup 2026"
+   "result": "40 m",
+   "points": 40.0,
+   "date": "2026-09-11",
+   "event": "AIDA OKINAWA FREEDIVING CUP 2026 ISHIGAKI"
   },
   {
    "year": "2026",
@@ -1981,6 +2014,28 @@
    "points": 60.0,
    "date": "2026-08-30",
    "event": "AIDA Volcano Cup Staff Edition 2026"
+  },
+  {
+   "year": "2026",
+   "discipline": "FIM",
+   "gender": "Female",
+   "rank": 5,
+   "name": "Ryoko Watariguchi",
+   "result": "34 m",
+   "points": 34.0,
+   "date": "2026-09-12",
+   "event": "AIDA OKINAWA FREEDIVING CUP 2026 ISHIGAKI"
+  },
+  {
+   "year": "2026",
+   "discipline": "FIM",
+   "gender": "Female",
+   "rank": 6,
+   "name": "Yui Nakayama",
+   "result": "20 m",
+   "points": 20.0,
+   "date": "2026-09-12",
+   "event": "AIDA OKINAWA FREEDIVING CUP 2026 ISHIGAKI"
   }
  ],
  "overall": [
@@ -2123,14 +2178,14 @@
    "year": "2026",
    "gender": "Male",
    "rank": 10,
-   "name": "Shinya Oi",
-   "total": "177.2",
-   "disc_STA": 75.2,
-   "disc_DYN": 102.0,
-   "disc_DYNB": null,
+   "name": "Shundo Katsura",
+   "total": "178.9",
+   "disc_STA": 39.4,
+   "disc_DYN": 53.0,
+   "disc_DYNB": 43.5,
    "disc_DNF": null,
    "disc_CWT": null,
-   "disc_CWTB": null,
+   "disc_CWTB": 43.0,
    "disc_CNF": null,
    "disc_FIM": null
   },
