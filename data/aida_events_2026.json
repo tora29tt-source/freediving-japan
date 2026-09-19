@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-09-18T01:02:56Z",
+  "updatedAt": "2026-09-19T00:58:46Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -2754,17 +2754,6 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA·2026 ONE.GAME FREEDIVING POOL-COMPETITION·TIANJIN STOP",
-      "type": "Pool Competition",
-      "venue": "Teda Aqua World Swimming Venue",
-      "cityCountry": "Tianjin, China",
-      "startDate": "2026-09-05",
-      "endDate": "2026-09-06",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5222",
-      "month": 9,
-      "cat": "pool"
-    },
-    {
       "title": "Emerald City Apnea Challenge - AIDA Depth Competition",
       "type": "Depth Competition",
       "venue": "Seacrest Park Cove 1",
@@ -2776,15 +2765,15 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA Lake Annecy Challenge - LAC 26",
-      "type": "Depth Competition",
-      "venue": "Planete Apnée",
-      "cityCountry": "Veyrier Du Lac, France",
+      "title": "AIDA·2026 ONE.GAME FREEDIVING POOL-COMPETITION·TIANJIN STOP",
+      "type": "Pool Competition",
+      "venue": "Teda Aqua World Swimming Venue",
+      "cityCountry": "Tianjin, China",
       "startDate": "2026-09-05",
-      "endDate": "2026-09-05",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5243",
+      "endDate": "2026-09-06",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5222",
       "month": 9,
-      "cat": "sea"
+      "cat": "pool"
     },
     {
       "title": "AIDA Pool Day Series 2026 : APNEA First White Card",
@@ -2807,6 +2796,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5227",
       "month": 9,
       "cat": "pool"
+    },
+    {
+      "title": "AIDA Lake Annecy Challenge - LAC 26",
+      "type": "Depth Competition",
+      "venue": "Planete Apnée",
+      "cityCountry": "Veyrier Du Lac, France",
+      "startDate": "2026-09-05",
+      "endDate": "2026-09-05",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5243",
+      "month": 9,
+      "cat": "sea"
     },
     {
       "title": "AIDA SYNERGIC STATICNOVA - BEYOND BREATH - 2026",
@@ -2941,6 +2941,17 @@
       "cat": "pool"
     },
     {
+      "title": "AIDA Singapore Pool Freediving Open 2026",
+      "type": "Pool Competition",
+      "venue": "Changi Beach Club",
+      "cityCountry": "Singapore, Singapore",
+      "startDate": "2026-09-19",
+      "endDate": "2026-09-21",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5153",
+      "month": 9,
+      "cat": "pool"
+    },
+    {
       "title": "No fins challenge 2026",
       "type": "Depth Competition",
       "venue": "Chillhihi Freediving",
@@ -2963,13 +2974,13 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA Singapore Pool Freediving Open 2026",
-      "type": "Pool Competition",
-      "venue": "Changi Beach Club",
-      "cityCountry": "Singapore, Singapore",
+      "title": "xwater cup-Depth Freediving Challenge",
+      "type": "Mixed Competition",
+      "venue": "Xwater",
+      "cityCountry": "Jiande, China",
       "startDate": "2026-09-19",
-      "endDate": "2026-09-21",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5153",
+      "endDate": "2026-09-19",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5250",
       "month": 9,
       "cat": "pool"
     },
