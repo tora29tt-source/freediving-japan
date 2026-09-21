@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-09-20T00:40:07Z",
+  "updatedAt": "2026-09-21T00:52:10Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -2974,17 +2974,6 @@
       "cat": "pool"
     },
     {
-      "title": "xwater cup-Depth Freediving Challenge",
-      "type": "Mixed Competition",
-      "venue": "Xwater",
-      "cityCountry": "Jiande, China",
-      "startDate": "2026-09-19",
-      "endDate": "2026-09-19",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5250",
-      "month": 9,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA UAE CWT Performance Night 2026 | Summer Heats",
       "type": "Depth Competition",
       "venue": "Deep Dive Dubai",
@@ -2994,6 +2983,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5218",
       "month": 9,
       "cat": "sea"
+    },
+    {
+      "title": "xwater cup-Depth Freediving Challenge",
+      "type": "Mixed Competition",
+      "venue": "Xwater",
+      "cityCountry": "Jiande, China",
+      "startDate": "2026-09-19",
+      "endDate": "2026-09-19",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5250",
+      "month": 9,
+      "cat": "pool"
     },
     {
       "title": "2026 AIDA AUTUMN SEASON CUP - DNF",
