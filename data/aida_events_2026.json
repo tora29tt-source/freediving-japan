@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-09-24T01:06:10Z",
+  "updatedAt": "2026-09-25T01:09:26Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -3150,17 +3150,6 @@
       "cat": "pool"
     },
     {
-      "title": "Breath of Saigon",
-      "type": "Pool Competition",
-      "venue": "Rumblefish Vietnam",
-      "cityCountry": "Ho Chi Minh, Vietnam",
-      "startDate": "2026-10-03",
-      "endDate": "2026-10-03",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5264",
-      "month": 10,
-      "cat": "pool"
-    },
-    {
       "title": "The Oban Underwater Games",
       "type": "Pool Competition",
       "venue": "Atlantis Leisure, Oban",
@@ -3168,6 +3157,17 @@
       "startDate": "2026-10-03",
       "endDate": "2026-10-03",
       "link": "https://www.aidainternational.org/Events/EventDetails-5204",
+      "month": 10,
+      "cat": "pool"
+    },
+    {
+      "title": "Breath of Saigon",
+      "type": "Pool Competition",
+      "venue": "Rumblefish Vietnam",
+      "cityCountry": "Ho Chi Minh, Vietnam",
+      "startDate": "2026-10-03",
+      "endDate": "2026-10-03",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5264",
       "month": 10,
       "cat": "pool"
     },
@@ -3260,13 +3260,13 @@
       "cat": "sea"
     },
     {
-      "title": "nOxyGAIN Challenge",
+      "title": "AIDA OT Challenge!!! 2026",
       "type": "Pool Competition",
-      "venue": "Alfred Hajos National Aquatics Complex",
-      "cityCountry": "Budapest, Hungary",
+      "venue": "Gbk Aquatic Stadium",
+      "cityCountry": "Jakarta, Indonesia",
       "startDate": "2026-10-11",
       "endDate": "2026-10-11",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5255",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5261",
       "month": 10,
       "cat": "pool"
     },
@@ -3278,6 +3278,17 @@
       "startDate": "2026-10-11",
       "endDate": "2026-10-11",
       "link": "https://www.aidainternational.org/EventPage/4969",
+      "month": 10,
+      "cat": "pool"
+    },
+    {
+      "title": "nOxyGAIN Challenge",
+      "type": "Pool Competition",
+      "venue": "Alfred Hajos National Aquatics Complex",
+      "cityCountry": "Budapest, Hungary",
+      "startDate": "2026-10-11",
+      "endDate": "2026-10-11",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5255",
       "month": 10,
       "cat": "pool"
     },
@@ -3337,17 +3348,6 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA UAE FIM Performance Night 2026 | Autumn Round",
-      "type": "Depth Competition",
-      "venue": "Deep Dive Dubai",
-      "cityCountry": "Dubai, United Arab Emirates",
-      "startDate": "2026-10-17",
-      "endDate": "2026-10-18",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5220",
-      "month": 10,
-      "cat": "sea"
-    },
-    {
       "title": "AIDA HAYAMA FREEDIVING CHALLENGE 2026",
       "type": "Depth Competition",
       "venue": "Shinnase Fishing Port",
@@ -3368,6 +3368,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-4885",
       "month": 10,
       "cat": "pool"
+    },
+    {
+      "title": "AIDA UAE FIM Performance Night 2026 | Autumn Round",
+      "type": "Depth Competition",
+      "venue": "Deep Dive Dubai",
+      "cityCountry": "Dubai, United Arab Emirates",
+      "startDate": "2026-10-17",
+      "endDate": "2026-10-18",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5220",
+      "month": 10,
+      "cat": "sea"
     },
     {
       "title": "3rd NTF CUP AIDA INDOOR FESTIVAL",
@@ -3414,13 +3425,13 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA Malaysia Apnea Warrior Meet Challenge 5.0",
+      "title": "YMCA NTC AIDA Freediving Trials",
       "type": "Pool Competition",
-      "venue": "Arena Sukan Kuala Lumpur",
-      "cityCountry": "Kuala Lumpur, Malaysia",
+      "venue": "Ymca New Territories Center",
+      "cityCountry": "Hong Kong, Hong Kong, China",
       "startDate": "2026-10-18",
       "endDate": "2026-10-18",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5152",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5275",
       "month": 10,
       "cat": "pool"
     },
@@ -3436,6 +3447,17 @@
       "cat": "pool"
     },
     {
+      "title": "AIDA Malaysia Apnea Warrior Meet Challenge 5.0",
+      "type": "Pool Competition",
+      "venue": "Arena Sukan Kuala Lumpur",
+      "cityCountry": "Kuala Lumpur, Malaysia",
+      "startDate": "2026-10-18",
+      "endDate": "2026-10-18",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5152",
+      "month": 10,
+      "cat": "pool"
+    },
+    {
       "title": "AIDA Philippines National Depth Championship 2026",
       "type": "Depth Competition",
       "venue": "Lawom Pool Center",
@@ -3445,6 +3467,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5148",
       "month": 10,
       "cat": "sea"
+    },
+    {
+      "title": "2026 AIDA Freediving Series in the Guangdong-Hong Kong-Macau Greater Bay Area  (Hong Kong Stop)",
+      "type": "Pool Competition",
+      "venue": "Chinese Ymca Of Hong Kong - Lions - Ymca Junk Bay Youth Camp",
+      "cityCountry": "Hong Kong, Hong Kong, China",
+      "startDate": "2026-10-25",
+      "endDate": "2026-10-25",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5268",
+      "month": 10,
+      "cat": "pool"
     },
     {
       "title": "AIDA Eilat FreeDeep 5",
@@ -3544,6 +3577,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5128",
       "month": 11,
       "cat": "sea"
+    },
+    {
+      "title": "AIDA Jakarta Freediving Games Series Part 3",
+      "type": "Pool Competition",
+      "venue": "Soemantri Brojonegoro Pool",
+      "cityCountry": "South Jakarta, Indonesia",
+      "startDate": "2026-11-08",
+      "endDate": "2026-11-08",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5221",
+      "month": 11,
+      "cat": "pool"
     },
     {
       "title": "Made in Egypt Deep Blue Sharm World Apnea V.2",
