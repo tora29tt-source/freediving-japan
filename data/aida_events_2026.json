@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-09-25T01:09:26Z",
+  "updatedAt": "2026-09-26T01:12:20Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -3172,17 +3172,6 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA VWT Cyprus NR I",
-      "type": "Worldrecord attempt",
-      "venue": "Limassol",
-      "cityCountry": "Limassol, Cyprus",
-      "startDate": "2026-10-07",
-      "endDate": "2026-10-15",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5236",
-      "month": 10,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA VWT Cyprus WR V",
       "type": "Worldrecord attempt",
       "venue": "Limassol",
@@ -3190,6 +3179,17 @@
       "startDate": "2026-10-07",
       "endDate": "2026-10-15",
       "link": "https://www.aidainternational.org/Events/EventDetails-5235",
+      "month": 10,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA VWT Cyprus NR I",
+      "type": "Worldrecord attempt",
+      "venue": "Limassol",
+      "cityCountry": "Limassol, Cyprus",
+      "startDate": "2026-10-07",
+      "endDate": "2026-10-15",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5236",
       "month": 10,
       "cat": "pool"
     },
@@ -3260,17 +3260,6 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA OT Challenge!!! 2026",
-      "type": "Pool Competition",
-      "venue": "Gbk Aquatic Stadium",
-      "cityCountry": "Jakarta, Indonesia",
-      "startDate": "2026-10-11",
-      "endDate": "2026-10-11",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5261",
-      "month": 10,
-      "cat": "pool"
-    },
-    {
       "title": "BB CUP Ep.13 | PFI BREATHLESS | WORLD APNEA 2026",
       "type": "Pool Competition",
       "venue": "라움enc수영장 (Raum Swimming Pool)",
@@ -3278,6 +3267,17 @@
       "startDate": "2026-10-11",
       "endDate": "2026-10-11",
       "link": "https://www.aidainternational.org/EventPage/4969",
+      "month": 10,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA OT Challenge!!! 2026",
+      "type": "Pool Competition",
+      "venue": "Gbk Aquatic Stadium",
+      "cityCountry": "Jakarta, Indonesia",
+      "startDate": "2026-10-11",
+      "endDate": "2026-10-11",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5261",
       "month": 10,
       "cat": "pool"
     },
@@ -3524,6 +3524,17 @@
       "cat": "sea"
     },
     {
+      "title": "AIDA Apoyo Abyss Open",
+      "type": "Depth Competition",
+      "venue": "Freediving Nicaragua",
+      "cityCountry": "Catarina, Nicaragua",
+      "startDate": "2026-11-01",
+      "endDate": "2026-11-08",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5277",
+      "month": 11,
+      "cat": "sea"
+    },
+    {
       "title": "AIDA OKINAWA FREEDIVING CUP 2026 MIYAKO",
       "type": "Depth Competition",
       "venue": "Togichi Port",
@@ -3597,6 +3608,17 @@
       "startDate": "2026-11-12",
       "endDate": "2026-11-18",
       "link": "https://www.aidainternational.org/Events/EventDetails-5269",
+      "month": 11,
+      "cat": "sea"
+    },
+    {
+      "title": "AIDA Mabini Depth Quest • Invitational Series",
+      "type": "Depth Competition",
+      "venue": "Lawom Pool Center",
+      "cityCountry": "Mabini, Batangas, Philippines",
+      "startDate": "2026-11-12",
+      "endDate": "2026-11-16",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5107",
       "month": 11,
       "cat": "sea"
     },
@@ -3775,6 +3797,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5210",
       "month": 12,
       "cat": "sea"
+    },
+    {
+      "title": "AIDA Slovakia Open 2026",
+      "type": "Pool Competition",
+      "venue": "Mestská Plaváreň Pasienky",
+      "cityCountry": "Bratislava, Slovakia",
+      "startDate": "2026-12-12",
+      "endDate": "2026-12-12",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5278",
+      "month": 12,
+      "cat": "pool"
     },
     {
       "title": "BB CUP Ep.15 | PFI BREATHLESS | WORLD APNEA 2026",
