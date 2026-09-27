@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-09-26T01:12:20Z",
+  "updatedAt": "2026-09-27T01:05:58Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -2853,17 +2853,6 @@
       "cat": "sea"
     },
     {
-      "title": "BB CUP Ep.12 | PFI BREATHLESS | WORLD APNEA 2026",
-      "type": "Pool Competition",
-      "venue": "라움enc수영장 (Raum Swimming Pool)",
-      "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
-      "startDate": "2026-09-13",
-      "endDate": "2026-09-13",
-      "link": "https://www.aidainternational.org/EventPage/4968",
-      "month": 9,
-      "cat": "pool"
-    },
-    {
       "title": "2026 Tamera AIDA Depth Festival",
       "type": "Depth Competition",
       "venue": "28, Sillijebang 2-Gil",
@@ -2873,6 +2862,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5234",
       "month": 9,
       "cat": "sea"
+    },
+    {
+      "title": "BB CUP Ep.12 | PFI BREATHLESS | WORLD APNEA 2026",
+      "type": "Pool Competition",
+      "venue": "라움enc수영장 (Raum Swimming Pool)",
+      "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
+      "startDate": "2026-09-13",
+      "endDate": "2026-09-13",
+      "link": "https://www.aidainternational.org/EventPage/4968",
+      "month": 9,
+      "cat": "pool"
     },
     {
       "title": "AIDA UAE DYN Performance Night 2026 | Summer Heats",
@@ -2974,17 +2974,6 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA UAE CWT Performance Night 2026 | Summer Heats",
-      "type": "Depth Competition",
-      "venue": "Deep Dive Dubai",
-      "cityCountry": "Dubai, United Arab Emirates",
-      "startDate": "2026-09-19",
-      "endDate": "2026-09-19",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5218",
-      "month": 9,
-      "cat": "sea"
-    },
-    {
       "title": "xwater cup-Depth Freediving Challenge",
       "type": "Mixed Competition",
       "venue": "Xwater",
@@ -2994,6 +2983,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5250",
       "month": 9,
       "cat": "pool"
+    },
+    {
+      "title": "AIDA UAE CWT Performance Night 2026 | Summer Heats",
+      "type": "Depth Competition",
+      "venue": "Deep Dive Dubai",
+      "cityCountry": "Dubai, United Arab Emirates",
+      "startDate": "2026-09-19",
+      "endDate": "2026-09-19",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5218",
+      "month": 9,
+      "cat": "sea"
     },
     {
       "title": "2026 AIDA AUTUMN SEASON CUP - DNF",
@@ -3080,17 +3080,6 @@
       "startDate": "2026-09-27",
       "endDate": "2026-09-27",
       "link": "https://www.aidainternational.org/Events/EventDetails-5081",
-      "month": 9,
-      "cat": "pool"
-    },
-    {
-      "title": "AIDA MALAYSIA APNEA WARRIOR MEET CHALLENGE 4.0",
-      "type": "Pool Competition",
-      "venue": "Arena Sukan Kuala Lumpur",
-      "cityCountry": "Kuala Lumpur, Malaysia",
-      "startDate": "2026-09-27",
-      "endDate": "2026-09-27",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5145",
       "month": 9,
       "cat": "pool"
     },
@@ -3260,6 +3249,17 @@
       "cat": "sea"
     },
     {
+      "title": "nOxyGAIN Challenge",
+      "type": "Pool Competition",
+      "venue": "Alfred Hajos National Aquatics Complex",
+      "cityCountry": "Budapest, Hungary",
+      "startDate": "2026-10-11",
+      "endDate": "2026-10-11",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5255",
+      "month": 10,
+      "cat": "pool"
+    },
+    {
       "title": "BB CUP Ep.13 | PFI BREATHLESS | WORLD APNEA 2026",
       "type": "Pool Competition",
       "venue": "라움enc수영장 (Raum Swimming Pool)",
@@ -3278,17 +3278,6 @@
       "startDate": "2026-10-11",
       "endDate": "2026-10-11",
       "link": "https://www.aidainternational.org/Events/EventDetails-5261",
-      "month": 10,
-      "cat": "pool"
-    },
-    {
-      "title": "nOxyGAIN Challenge",
-      "type": "Pool Competition",
-      "venue": "Alfred Hajos National Aquatics Complex",
-      "cityCountry": "Budapest, Hungary",
-      "startDate": "2026-10-11",
-      "endDate": "2026-10-11",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5255",
       "month": 10,
       "cat": "pool"
     },
@@ -3359,17 +3348,6 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA Hydro Dynamic 2026",
-      "type": "Pool Competition",
-      "venue": "Bsfz Südstadt",
-      "cityCountry": "Maria Enzersdorf, Austria",
-      "startDate": "2026-10-17",
-      "endDate": "2026-10-18",
-      "link": "https://www.aidainternational.org/Events/EventDetails-4885",
-      "month": 10,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA UAE FIM Performance Night 2026 | Autumn Round",
       "type": "Depth Competition",
       "venue": "Deep Dive Dubai",
@@ -3379,6 +3357,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5220",
       "month": 10,
       "cat": "sea"
+    },
+    {
+      "title": "AIDA Hydro Dynamic 2026",
+      "type": "Pool Competition",
+      "venue": "Bsfz Südstadt",
+      "cityCountry": "Maria Enzersdorf, Austria",
+      "startDate": "2026-10-17",
+      "endDate": "2026-10-18",
+      "link": "https://www.aidainternational.org/Events/EventDetails-4885",
+      "month": 10,
+      "cat": "pool"
     },
     {
       "title": "3rd NTF CUP AIDA INDOOR FESTIVAL",
