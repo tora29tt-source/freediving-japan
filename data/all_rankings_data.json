@@ -1,5 +1,5 @@
 {
- "updated": "2026-09-29",
+ "updated": "2026-09-30",
  "years_fetched": [
   "2000",
   "2001",
@@ -47820,10 +47820,10 @@
    "gender": "Female",
    "rank": 1,
    "name": "Naomi Iwazawa",
-   "result": "76 m",
-   "points": 76.0,
-   "date": "2026-08-30",
-   "event": "AIDA Volcano Cup Staff Edition 2026"
+   "result": "83 m",
+   "points": 83.0,
+   "date": "2026-09-24",
+   "event": "World Apnea Championships Precompetition Limassol 2026"
   },
   {
    "year": "2026",
@@ -47951,6 +47951,17 @@
    "discipline": "CNF",
    "gender": "Female",
    "rank": 3,
+   "name": "Naomi Iwazawa",
+   "result": "61 m",
+   "points": 61.0,
+   "date": "2026-09-20",
+   "event": "World Apnea Championships Precompetition Limassol 2026"
+  },
+  {
+   "year": "2026",
+   "discipline": "CNF",
+   "gender": "Female",
+   "rank": 4,
    "name": "Shoko Kobayashi",
    "result": "48 m",
    "points": 48.0,
@@ -47961,7 +47972,7 @@
    "year": "2026",
    "discipline": "CNF",
    "gender": "Female",
-   "rank": 4,
+   "rank": 5,
    "name": "Kayo Oda",
    "result": "40 m",
    "points": 40.0,
@@ -72973,6 +72984,21 @@
    "year": "2026",
    "gender": "Female",
    "rank": 2,
+   "name": "Naomi Iwazawa",
+   "total": "485.5",
+   "disc_STA": null,
+   "disc_DYN": null,
+   "disc_DYNB": 95.5,
+   "disc_DNF": 89.0,
+   "disc_CWT": 85.0,
+   "disc_CWTB": 83.0,
+   "disc_CNF": 61.0,
+   "disc_FIM": 72.0
+  },
+  {
+   "year": "2026",
+   "gender": "Female",
+   "rank": 3,
    "name": "Celina Jinguji",
    "total": "432.2",
    "disc_STA": 62.2,
@@ -72987,7 +73013,7 @@
   {
    "year": "2026",
    "gender": "Female",
-   "rank": 3,
+   "rank": 4,
    "name": "Shoko Kobayashi",
    "total": "419.1",
    "disc_STA": 62.6,
@@ -72998,21 +73024,6 @@
    "disc_CWTB": 68.0,
    "disc_CNF": 48.0,
    "disc_FIM": null
-  },
-  {
-   "year": "2026",
-   "gender": "Female",
-   "rank": 4,
-   "name": "Naomi Iwazawa",
-   "total": "417.5",
-   "disc_STA": null,
-   "disc_DYN": null,
-   "disc_DYNB": 95.5,
-   "disc_DNF": 89.0,
-   "disc_CWT": 85.0,
-   "disc_CWTB": 76.0,
-   "disc_CNF": null,
-   "disc_FIM": 72.0
   },
   {
    "year": "2026",
