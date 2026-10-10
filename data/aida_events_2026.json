@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-10-09T02:48:16Z",
+  "updatedAt": "2026-10-10T02:05:47Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -3183,17 +3183,6 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA NakedBlue2026-Master Cup",
-      "type": "Depth Competition",
-      "venue": "Moonseom",
-      "cityCountry": "Jeju, Republic of Korea",
-      "startDate": "2026-10-09",
-      "endDate": "2026-10-11",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5116",
-      "month": 10,
-      "cat": "sea"
-    },
-    {
       "title": "AIDA Bajau 50 Apnea Competition 2026",
       "type": "Pool Competition",
       "venue": "Parque Olímpico Roca",
@@ -3203,6 +3192,17 @@
       "link": "https://www.aidainternational.org/EventPage/5074",
       "month": 10,
       "cat": "pool"
+    },
+    {
+      "title": "AIDA NakedBlue2026-Master Cup",
+      "type": "Depth Competition",
+      "venue": "Moonseom",
+      "cityCountry": "Jeju, Republic of Korea",
+      "startDate": "2026-10-09",
+      "endDate": "2026-10-11",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5116",
+      "month": 10,
+      "cat": "sea"
     },
     {
       "title": "5th AIDA BAJA SUR CHALLENGE - POOL PHASE",
@@ -3216,17 +3216,6 @@
       "cat": "pool"
     },
     {
-      "title": "Atlantic Cup 2026",
-      "type": "Depth Competition",
-      "venue": "Radazul",
-      "cityCountry": "El Rosario, Spain",
-      "startDate": "2026-10-10",
-      "endDate": "2026-10-11",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5241",
-      "month": 10,
-      "cat": "sea"
-    },
-    {
       "title": "CARACAS FREEDIVING CUP",
       "type": "Pool Competition",
       "venue": "Ymca Caracas",
@@ -3236,6 +3225,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5263",
       "month": 10,
       "cat": "pool"
+    },
+    {
+      "title": "Atlantic Cup 2026",
+      "type": "Depth Competition",
+      "venue": "Radazul",
+      "cityCountry": "El Rosario, Spain",
+      "startDate": "2026-10-10",
+      "endDate": "2026-10-11",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5241",
+      "month": 10,
+      "cat": "sea"
     },
     {
       "title": "Breath of Saigon",
@@ -3267,17 +3267,6 @@
       "startDate": "2026-10-11",
       "endDate": "2026-10-11",
       "link": "https://www.aidainternational.org/EventPage/4969",
-      "month": 10,
-      "cat": "pool"
-    },
-    {
-      "title": "nOxyGAIN Challenge",
-      "type": "Pool Competition",
-      "venue": "Alfred Hajos National Aquatics Complex",
-      "cityCountry": "Budapest, Hungary",
-      "startDate": "2026-10-11",
-      "endDate": "2026-10-11",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5255",
       "month": 10,
       "cat": "pool"
     },
@@ -3348,6 +3337,17 @@
       "cat": "sea"
     },
     {
+      "title": "AIDA HAYAMA FREEDIVING CHALLENGE 2026",
+      "type": "Depth Competition",
+      "venue": "Shinnase Fishing Port",
+      "cityCountry": "Hayama, Japan",
+      "startDate": "2026-10-17",
+      "endDate": "2026-10-18",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5150",
+      "month": 10,
+      "cat": "sea"
+    },
+    {
       "title": "AIDA Hydro Dynamic 2026",
       "type": "Pool Competition",
       "venue": "Bsfz Südstadt",
@@ -3370,17 +3370,6 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA HAYAMA FREEDIVING CHALLENGE 2026",
-      "type": "Depth Competition",
-      "venue": "Shinnase Fishing Port",
-      "cityCountry": "Hayama, Japan",
-      "startDate": "2026-10-17",
-      "endDate": "2026-10-18",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5150",
-      "month": 10,
-      "cat": "sea"
-    },
-    {
       "title": "3rd NTF CUP AIDA INDOOR FESTIVAL",
       "type": "Pool Competition",
       "venue": "National Team Swimming Pool",
@@ -3388,17 +3377,6 @@
       "startDate": "2026-10-17",
       "endDate": "2026-10-17",
       "link": "https://www.aidainternational.org/Events/EventDetails-5253",
-      "month": 10,
-      "cat": "pool"
-    },
-    {
-      "title": "AIDA Freediving Dynamic Challenge 2026 Suzuka #5",
-      "type": "Pool Competition",
-      "venue": "Miekotsu Group Sports No Mori Suzuka",
-      "cityCountry": "Suzuka, Japan",
-      "startDate": "2026-10-17",
-      "endDate": "2026-10-17",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5082",
       "month": 10,
       "cat": "pool"
     },
@@ -3425,13 +3403,13 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA BE National Cup CETMA - Round 3",
+      "title": "AIDA Malaysia Apnea Warrior Meet Challenge 5.0",
       "type": "Pool Competition",
-      "venue": "De Sportdoze",
-      "cityCountry": "Blankenberge, Belgium",
+      "venue": "Arena Sukan Kuala Lumpur",
+      "cityCountry": "Kuala Lumpur, Malaysia",
       "startDate": "2026-10-18",
       "endDate": "2026-10-18",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5230",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5152",
       "month": 10,
       "cat": "pool"
     },
@@ -3447,13 +3425,13 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA Malaysia Apnea Warrior Meet Challenge 5.0",
+      "title": "AIDA BE National Cup CETMA - Round 3",
       "type": "Pool Competition",
-      "venue": "Arena Sukan Kuala Lumpur",
-      "cityCountry": "Kuala Lumpur, Malaysia",
+      "venue": "De Sportdoze",
+      "cityCountry": "Blankenberge, Belgium",
       "startDate": "2026-10-18",
       "endDate": "2026-10-18",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5152",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5230",
       "month": 10,
       "cat": "pool"
     },
@@ -3546,17 +3524,6 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA Emerald City Apnea Challenge - NOV Pool Competition",
-      "type": "Pool Competition",
-      "venue": "Snohomish Aquatic Center",
-      "cityCountry": "Snohomish, United States",
-      "startDate": "2026-11-01",
-      "endDate": "2026-11-01",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5237",
-      "month": 11,
-      "cat": "pool"
-    },
-    {
       "title": "Saigon Breathless",
       "type": "Pool Competition",
       "venue": "Rumblefish Vietnam",
@@ -3564,6 +3531,17 @@
       "startDate": "2026-11-01",
       "endDate": "2026-11-01",
       "link": "https://www.aidainternational.org/Events/EventDetails-5292",
+      "month": 11,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA Emerald City Apnea Challenge - NOV Pool Competition",
+      "type": "Pool Competition",
+      "venue": "Snohomish Aquatic Center",
+      "cityCountry": "Snohomish, United States",
+      "startDate": "2026-11-01",
+      "endDate": "2026-11-01",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5237",
       "month": 11,
       "cat": "pool"
     },
@@ -3610,17 +3588,6 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5128",
       "month": 11,
       "cat": "sea"
-    },
-    {
-      "title": "AIDA Jakarta Freediving Games Series Part 3",
-      "type": "Pool Competition",
-      "venue": "Soemantri Brojonegoro Pool",
-      "cityCountry": "South Jakarta, Indonesia",
-      "startDate": "2026-11-08",
-      "endDate": "2026-11-08",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5221",
-      "month": 11,
-      "cat": "pool"
     },
     {
       "title": "Made in Egypt Deep Blue Sharm World Apnea V.2",
@@ -3722,17 +3689,6 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA Philippines National Pool Championship 2026",
-      "type": "Pool Competition",
-      "venue": "Lipa City Community Park",
-      "cityCountry": "Lipa City, Philippines",
-      "startDate": "2026-11-27",
-      "endDate": "2026-11-29",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5149",
-      "month": 11,
-      "cat": "pool"
-    },
-    {
       "title": "Höstapneaden 2026, AIDA Rules",
       "type": "Pool Competition",
       "venue": "Valhallabadet",
@@ -3744,24 +3700,13 @@
       "cat": "pool"
     },
     {
-      "title": "Vertical Green AIDA Auckland Depth 2026",
-      "type": "Depth Competition",
-      "venue": "Lake Pupuke",
-      "cityCountry": "Auckland, New Zealand",
-      "startDate": "2026-11-28",
-      "endDate": "2026-11-29",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5272",
-      "month": 11,
-      "cat": "sea"
-    },
-    {
-      "title": "World Apnea Montevideo Indoor Cup - 5ta edición",
+      "title": "AIDA Philippines National Pool Championship 2026",
       "type": "Pool Competition",
-      "venue": "Complejo Deportivo Naval",
-      "cityCountry": "Montevideo, Uruguay",
-      "startDate": "2026-11-28",
+      "venue": "Lipa City Community Park",
+      "cityCountry": "Lipa City, Philippines",
+      "startDate": "2026-11-27",
       "endDate": "2026-11-29",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5290",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5149",
       "month": 11,
       "cat": "pool"
     },
@@ -3775,6 +3720,28 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5224",
       "month": 11,
       "cat": "pool"
+    },
+    {
+      "title": "World Apnea Montevideo Indoor Cup - 5ta edición",
+      "type": "Pool Competition",
+      "venue": "Complejo Deportivo Naval",
+      "cityCountry": "Montevideo, Uruguay",
+      "startDate": "2026-11-28",
+      "endDate": "2026-11-29",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5290",
+      "month": 11,
+      "cat": "pool"
+    },
+    {
+      "title": "Vertical Green AIDA Auckland Depth 2026",
+      "type": "Depth Competition",
+      "venue": "Lake Pupuke",
+      "cityCountry": "Auckland, New Zealand",
+      "startDate": "2026-11-28",
+      "endDate": "2026-11-29",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5272",
+      "month": 11,
+      "cat": "sea"
     },
     {
       "title": "AIDA Freediving Dynamic Challenge 2026 Suzuka #6",
@@ -3799,17 +3766,6 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA 3rd 마지막 승부 : The Final Showdown",
-      "type": "Pool Competition",
-      "venue": "Hanyang Sports Center Swimming Pool",
-      "cityCountry": "Anyang-Si, Republic of Korea",
-      "startDate": "2026-11-29",
-      "endDate": "2026-11-29",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5273",
-      "month": 11,
-      "cat": "pool"
-    },
-    {
       "title": "5th AIDA Painushima Ishigakijima Pool Freediving Cup",
       "type": "Pool Competition",
       "venue": "Kaifo Sports Club",
@@ -3817,6 +3773,17 @@
       "startDate": "2026-11-29",
       "endDate": "2026-11-29",
       "link": "https://www.aidainternational.org/Events/EventDetails-5213",
+      "month": 11,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA 3rd 마지막 승부 : The Final Showdown",
+      "type": "Pool Competition",
+      "venue": "Hanyang Sports Center Swimming Pool",
+      "cityCountry": "Anyang-Si, Republic of Korea",
+      "startDate": "2026-11-29",
+      "endDate": "2026-11-29",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5273",
       "month": 11,
       "cat": "pool"
     },
