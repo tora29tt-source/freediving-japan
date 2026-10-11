@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-10-10T02:05:47Z",
+  "updatedAt": "2026-10-11T01:34:15Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -3436,7 +3436,7 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA Philippines National Depth Championship 2026",
+      "title": "World Apnea Philippines National Depth Championship 2026",
       "type": "Depth Competition",
       "venue": "Lawom Pool Center",
       "cityCountry": "Batangas, Philippines",
@@ -3700,7 +3700,7 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA Philippines National Pool Championship 2026",
+      "title": "World Apnea Philippines National Pool Championship 2026",
       "type": "Pool Competition",
       "venue": "Lipa City Community Park",
       "cityCountry": "Lipa City, Philippines",
