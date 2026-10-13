@@ -1,6 +1,6 @@
 {
  "year": 2026,
- "updatedAt": "2026-10-12",
+ "updatedAt": "2026-10-13",
  "records": [
   {
    "year": "2026",
@@ -821,6 +821,17 @@
    "discipline": "FIM",
    "gender": "Male",
    "rank": 2,
+   "name": "Noriyuki Yabe",
+   "result": "76 m",
+   "points": 76.0,
+   "date": "2026-10-10",
+   "event": "3rd WORLD APNEA DREAM CUP DEPTH COMPETITION"
+  },
+  {
+   "year": "2026",
+   "discipline": "FIM",
+   "gender": "Male",
+   "rank": 3,
    "name": "Takuya Terajima",
    "result": "71 m",
    "points": 63.0,
@@ -831,7 +842,7 @@
    "year": "2026",
    "discipline": "FIM",
    "gender": "Male",
-   "rank": 3,
+   "rank": 4,
    "name": "Koh Tanimura",
    "result": "55 m",
    "points": 55.0,
@@ -842,7 +853,7 @@
    "year": "2026",
    "discipline": "FIM",
    "gender": "Male",
-   "rank": 4,
+   "rank": 5,
    "name": "Yasumasa Muraoka",
    "result": "50 m",
    "points": 50.0,
@@ -853,7 +864,7 @@
    "year": "2026",
    "discipline": "FIM",
    "gender": "Male",
-   "rank": 5,
+   "rank": 6,
    "name": "Kazuyoshi Kakizawa",
    "result": "45 m",
    "points": 45.0,
@@ -864,7 +875,7 @@
    "year": "2026",
    "discipline": "FIM",
    "gender": "Male",
-   "rank": 6,
+   "rank": 7,
    "name": "Takanori Kumazawa",
    "result": "44 m",
    "points": 44.0,
@@ -875,7 +886,7 @@
    "year": "2026",
    "discipline": "FIM",
    "gender": "Male",
-   "rank": 7,
+   "rank": 8,
    "name": "Heima Fujimoto",
    "result": "33 m",
    "points": 33.0,
@@ -2286,7 +2297,7 @@
    "gender": "Male",
    "rank": 1,
    "name": "Noriyuki Yabe",
-   "total": "508.2",
+   "total": "584.2",
    "disc_STA": 81.2,
    "disc_DYN": 93.0,
    "disc_DYNB": 92.5,
@@ -2294,7 +2305,7 @@
    "disc_CWT": 87.0,
    "disc_CWTB": 89.0,
    "disc_CNF": null,
-   "disc_FIM": null
+   "disc_FIM": 76.0
   },
   {
    "year": "2026",
