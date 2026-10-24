@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-10-23T01:13:14Z",
+  "updatedAt": "2026-10-24T01:22:50Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -4028,17 +4028,6 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5113",
       "month": 12,
       "cat": "sea"
-    },
-    {
-      "title": "AIDA Have yourself a Merry Little White Card",
-      "type": "Pool Competition",
-      "venue": "Sydney Olympic Park Aquatic Center",
-      "cityCountry": "Olympic Park, Australia",
-      "startDate": "2026-12-05",
-      "endDate": "2026-12-06",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5305",
-      "month": 12,
-      "cat": "pool"
     },
     {
       "title": "AIDA Freediving Pool Games Japan 26-27 Suzuka",
