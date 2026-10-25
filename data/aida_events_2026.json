@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-10-24T01:22:50Z",
+  "updatedAt": "2026-10-25T00:50:06Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -3458,17 +3458,6 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA KOREA STA Continental Record Attempt – October 2026",
-      "type": "Pool Competition",
-      "venue": "Hanyang Sports Center Swimming Pool",
-      "cityCountry": "Anyang-Si, Republic of Korea",
-      "startDate": "2026-10-18",
-      "endDate": "2026-10-18",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5285",
-      "month": 10,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA Malaysia Apnea Warrior Meet Challenge 5.0",
       "type": "Pool Competition",
       "venue": "Arena Sukan Kuala Lumpur",
@@ -3476,6 +3465,17 @@
       "startDate": "2026-10-18",
       "endDate": "2026-10-18",
       "link": "https://www.aidainternational.org/Events/EventDetails-5152",
+      "month": 10,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA KOREA STA Continental Record Attempt – October 2026",
+      "type": "Pool Competition",
+      "venue": "Hanyang Sports Center Swimming Pool",
+      "cityCountry": "Anyang-Si, Republic of Korea",
+      "startDate": "2026-10-18",
+      "endDate": "2026-10-18",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5285",
       "month": 10,
       "cat": "pool"
     },
