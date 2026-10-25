@@ -1,6 +1,6 @@
 {
  "year": 2026,
- "updatedAt": "2026-10-24",
+ "updatedAt": "2026-10-25",
  "records": [
   {
    "year": "2026",
@@ -1998,22 +1998,22 @@
    "discipline": "CWT",
    "gender": "Female",
    "rank": 5,
-   "name": "Shoko Kobayashi",
-   "result": "73 m",
-   "points": 73.0,
-   "date": "2026-10-06",
-   "event": "AIDA Panglao HUG Cup 2026. FINAL"
+   "name": "Kayo Oda",
+   "result": "74 m",
+   "points": 74.0,
+   "date": "2026-10-17",
+   "event": "FREEDOM DEPTH GAMES AIDA 2026"
   },
   {
    "year": "2026",
    "discipline": "CWT",
    "gender": "Female",
    "rank": 6,
-   "name": "Kayo Oda",
-   "result": "70 m",
-   "points": 70.0,
-   "date": "2026-10-07",
-   "event": "WORLD APNEA 2026 Depth Championships-Limassol Cyprus"
+   "name": "Shoko Kobayashi",
+   "result": "73 m",
+   "points": 73.0,
+   "date": "2026-10-06",
+   "event": "AIDA Panglao HUG Cup 2026. FINAL"
   },
   {
    "year": "2026",
@@ -2141,6 +2141,17 @@
    "discipline": "CWTB",
    "gender": "Female",
    "rank": 3,
+   "name": "Sanae Kabakura",
+   "result": "70 m",
+   "points": 70.0,
+   "date": "2026-10-18",
+   "event": "AIDA DOUBLE K IDA 26th DEPTH CHALLENGE"
+  },
+  {
+   "year": "2026",
+   "discipline": "CWTB",
+   "gender": "Female",
+   "rank": 4,
    "name": "Yukine Toshinaga",
    "result": "65 m",
    "points": 65.0,
@@ -2151,23 +2162,12 @@
    "year": "2026",
    "discipline": "CWTB",
    "gender": "Female",
-   "rank": 4,
+   "rank": 5,
    "name": "Miho Hikosaka",
    "result": "65 m",
    "points": 65.0,
    "date": "2026-10-06",
    "event": "AIDA Panglao HUG Cup 2026. FINAL"
-  },
-  {
-   "year": "2026",
-   "discipline": "CWTB",
-   "gender": "Female",
-   "rank": 5,
-   "name": "Sanae Kabakura",
-   "result": "57 m",
-   "points": 57.0,
-   "date": "2026-10-02",
-   "event": "WORLD APNEA 2026 Depth Championships-Limassol Cyprus"
   },
   {
    "year": "2026",
@@ -2449,6 +2449,17 @@
    "discipline": "FIM",
    "gender": "Female",
    "rank": 5,
+   "name": "Sanae Kabakura",
+   "result": "63 m",
+   "points": 63.0,
+   "date": "2026-10-16",
+   "event": "AIDA DOUBLE K IDA 26th DEPTH CHALLENGE"
+  },
+  {
+   "year": "2026",
+   "discipline": "FIM",
+   "gender": "Female",
+   "rank": 6,
    "name": "Yukine Toshinaga",
    "result": "62 m",
    "points": 62.0,
@@ -2459,23 +2470,12 @@
    "year": "2026",
    "discipline": "FIM",
    "gender": "Female",
-   "rank": 6,
+   "rank": 7,
    "name": "Kayo Oda",
    "result": "60 m",
    "points": 60.0,
    "date": "2026-09-18",
    "event": "AIDA Volcano Cup 2026"
-  },
-  {
-   "year": "2026",
-   "discipline": "FIM",
-   "gender": "Female",
-   "rank": 7,
-   "name": "Sanae Kabakura",
-   "result": "60 m",
-   "points": 60.0,
-   "date": "2026-10-05",
-   "event": "WORLD APNEA 2026 Depth Championships-Limassol Cyprus"
   },
   {
    "year": "2026",
@@ -2760,12 +2760,12 @@
    "gender": "Female",
    "rank": 5,
    "name": "Kayo Oda",
-   "total": "390.4",
+   "total": "394.4",
    "disc_STA": 53.4,
    "disc_DYN": 70.0,
    "disc_DYNB": null,
    "disc_DNF": 42.0,
-   "disc_CWT": 70.0,
+   "disc_CWT": 74.0,
    "disc_CWTB": 55.0,
    "disc_CNF": 40.0,
    "disc_FIM": 60.0
@@ -2789,6 +2789,21 @@
    "year": "2026",
    "gender": "Female",
    "rank": 7,
+   "name": "Sanae Kabakura",
+   "total": "329.3",
+   "disc_STA": 61.8,
+   "disc_DYN": null,
+   "disc_DYNB": null,
+   "disc_DNF": 39.5,
+   "disc_CWT": 65.0,
+   "disc_CWTB": 70.0,
+   "disc_CNF": 30.0,
+   "disc_FIM": 63.0
+  },
+  {
+   "year": "2026",
+   "gender": "Female",
+   "rank": 8,
    "name": "Yasuko Ozeki",
    "total": "316.5",
    "disc_STA": null,
@@ -2799,21 +2814,6 @@
    "disc_CWTB": null,
    "disc_CNF": null,
    "disc_FIM": null
-  },
-  {
-   "year": "2026",
-   "gender": "Female",
-   "rank": 8,
-   "name": "Sanae Kabakura",
-   "total": "313.3",
-   "disc_STA": 61.8,
-   "disc_DYN": null,
-   "disc_DYNB": null,
-   "disc_DNF": 39.5,
-   "disc_CWT": 65.0,
-   "disc_CWTB": 57.0,
-   "disc_CNF": 30.0,
-   "disc_FIM": 60.0
   },
   {
    "year": "2026",
