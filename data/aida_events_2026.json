@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-10-28T02:02:25Z",
+  "updatedAt": "2026-10-29T02:06:11Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -3887,17 +3887,6 @@
       "cat": "pool"
     },
     {
-      "title": "BB CUP Ep.14 | PFI BREATHLESS | WORLD APNEA 2026",
-      "type": "Pool Competition",
-      "venue": "라움enc수영장 (Raum Swimming Pool)",
-      "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
-      "startDate": "2026-11-22",
-      "endDate": "2026-11-22",
-      "link": "https://www.aidainternational.org/EventPage/4970",
-      "month": 11,
-      "cat": "pool"
-    },
-    {
       "title": "World Apnea Montevideo Indoor Cup - Pre comp",
       "type": "Pool Competition",
       "venue": "Complejo Deportivo Naval",
@@ -3931,17 +3920,6 @@
       "cat": "pool"
     },
     {
-      "title": "Höstapneaden 2026, AIDA Rules",
-      "type": "Pool Competition",
-      "venue": "Valhallabadet",
-      "cityCountry": "Gothenburg, Sweden",
-      "startDate": "2026-11-27",
-      "endDate": "2026-11-29",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5232",
-      "month": 11,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA International Championship Moldova 2026",
       "type": "Pool Competition",
       "venue": "Aqua Center Arena Chisinau",
@@ -3953,24 +3931,13 @@
       "cat": "pool"
     },
     {
-      "title": "World Apnea Montevideo Indoor Cup - 5ta edición",
+      "title": "Höstapneaden 2026, AIDA Rules",
       "type": "Pool Competition",
-      "venue": "Complejo Deportivo Naval",
-      "cityCountry": "Montevideo, Uruguay",
-      "startDate": "2026-11-28",
+      "venue": "Valhallabadet",
+      "cityCountry": "Gothenburg, Sweden",
+      "startDate": "2026-11-27",
       "endDate": "2026-11-29",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5290",
-      "month": 11,
-      "cat": "pool"
-    },
-    {
-      "title": "Namaste World Apnea India - Inaugural Edition",
-      "type": "Pool Competition",
-      "venue": "The School Of Raya",
-      "cityCountry": "Bengaluru, India",
-      "startDate": "2026-11-28",
-      "endDate": "2026-11-29",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5224",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5232",
       "month": 11,
       "cat": "pool"
     },
@@ -3984,6 +3951,28 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5272",
       "month": 11,
       "cat": "sea"
+    },
+    {
+      "title": "Namaste World Apnea India - Inaugural Edition",
+      "type": "Pool Competition",
+      "venue": "The School Of Raya",
+      "cityCountry": "Bengaluru, India",
+      "startDate": "2026-11-28",
+      "endDate": "2026-11-29",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5224",
+      "month": 11,
+      "cat": "pool"
+    },
+    {
+      "title": "World Apnea Montevideo Indoor Cup - 5ta edición",
+      "type": "Pool Competition",
+      "venue": "Complejo Deportivo Naval",
+      "cityCountry": "Montevideo, Uruguay",
+      "startDate": "2026-11-28",
+      "endDate": "2026-11-29",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5290",
+      "month": 11,
+      "cat": "pool"
     },
     {
       "title": "AIDA Seanomad Mini Comp V",
@@ -4008,17 +3997,6 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA 3rd 마지막 승부 : The Final Showdown",
-      "type": "Pool Competition",
-      "venue": "Hanyang Sports Center Swimming Pool",
-      "cityCountry": "Anyang-Si, Republic of Korea",
-      "startDate": "2026-11-29",
-      "endDate": "2026-11-29",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5273",
-      "month": 11,
-      "cat": "pool"
-    },
-    {
       "title": "5th AIDA Painushima Ishigakijima Pool Freediving Cup",
       "type": "Pool Competition",
       "venue": "Kaifo Sports Club",
@@ -4037,6 +4015,28 @@
       "startDate": "2026-11-29",
       "endDate": "2026-11-29",
       "link": "https://www.aidainternational.org/Events/EventDetails-5299",
+      "month": 11,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA 3rd 마지막 승부 : The Final Showdown",
+      "type": "Pool Competition",
+      "venue": "Hanyang Sports Center Swimming Pool",
+      "cityCountry": "Anyang-Si, Republic of Korea",
+      "startDate": "2026-11-29",
+      "endDate": "2026-11-29",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5273",
+      "month": 11,
+      "cat": "pool"
+    },
+    {
+      "title": "BB CUP Ep.14 | PFI BREATHLESS | WORLD APNEA 2026",
+      "type": "Pool Competition",
+      "venue": "라움enc수영장 (Raum Swimming Pool)",
+      "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
+      "startDate": "2026-11-29",
+      "endDate": "2026-11-29",
+      "link": "https://www.aidainternational.org/EventPage/4970",
       "month": 11,
       "cat": "pool"
     },
