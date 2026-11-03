@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-11-02T02:06:37Z",
+  "updatedAt": "2026-11-03T03:50:44Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -3161,17 +3161,6 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA VWT Cyprus NR I",
-      "type": "Worldrecord attempt",
-      "venue": "Limassol",
-      "cityCountry": "Limassol, Cyprus",
-      "startDate": "2026-10-07",
-      "endDate": "2026-10-15",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5236",
-      "month": 10,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA VWT Cyprus WR V",
       "type": "Worldrecord attempt",
       "venue": "Limassol",
@@ -3183,13 +3172,13 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA Bajau 50 Apnea Competition 2026",
-      "type": "Pool Competition",
-      "venue": "Parque Olímpico Roca",
-      "cityCountry": "Ciudad Autónoma De Buenos Aires, Argentina",
-      "startDate": "2026-10-09",
-      "endDate": "2026-10-11",
-      "link": "https://www.aidainternational.org/EventPage/5074",
+      "title": "AIDA VWT Cyprus NR I",
+      "type": "Worldrecord attempt",
+      "venue": "Limassol",
+      "cityCountry": "Limassol, Cyprus",
+      "startDate": "2026-10-07",
+      "endDate": "2026-10-15",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5236",
       "month": 10,
       "cat": "pool"
     },
@@ -3216,6 +3205,17 @@
       "cat": "pool"
     },
     {
+      "title": "AIDA Bajau 50 Apnea Competition 2026",
+      "type": "Pool Competition",
+      "venue": "Parque Olímpico Roca",
+      "cityCountry": "Ciudad Autónoma De Buenos Aires, Argentina",
+      "startDate": "2026-10-09",
+      "endDate": "2026-10-11",
+      "link": "https://www.aidainternational.org/EventPage/5074",
+      "month": 10,
+      "cat": "pool"
+    },
+    {
       "title": "3rd WORLD APNEA DREAM CUP DEPTH COMPETITION",
       "type": "Depth Competition",
       "venue": "Napaling Point",
@@ -3223,17 +3223,6 @@
       "startDate": "2026-10-09",
       "endDate": "2026-10-10",
       "link": "https://www.aidainternational.org/Events/EventDetails-5209",
-      "month": 10,
-      "cat": "sea"
-    },
-    {
-      "title": "Atlantic Cup 2026",
-      "type": "Depth Competition",
-      "venue": "Radazul",
-      "cityCountry": "El Rosario, Spain",
-      "startDate": "2026-10-10",
-      "endDate": "2026-10-11",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5241",
       "month": 10,
       "cat": "sea"
     },
@@ -3247,6 +3236,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5263",
       "month": 10,
       "cat": "pool"
+    },
+    {
+      "title": "Atlantic Cup 2026",
+      "type": "Depth Competition",
+      "venue": "Radazul",
+      "cityCountry": "El Rosario, Spain",
+      "startDate": "2026-10-10",
+      "endDate": "2026-10-11",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5241",
+      "month": 10,
+      "cat": "sea"
     },
     {
       "title": "Breath of Saigon",
@@ -3359,17 +3359,6 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA HAYAMA FREEDIVING CHALLENGE 2026",
-      "type": "Depth Competition",
-      "venue": "Shinnase Fishing Port",
-      "cityCountry": "Hayama, Japan",
-      "startDate": "2026-10-17",
-      "endDate": "2026-10-18",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5150",
-      "month": 10,
-      "cat": "sea"
-    },
-    {
       "title": "AIDA UAE FIM Performance Night 2026 | Autumn Round",
       "type": "Depth Competition",
       "venue": "Deep Dive Dubai",
@@ -3390,6 +3379,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-4885",
       "month": 10,
       "cat": "pool"
+    },
+    {
+      "title": "AIDA HAYAMA FREEDIVING CHALLENGE 2026",
+      "type": "Depth Competition",
+      "venue": "Shinnase Fishing Port",
+      "cityCountry": "Hayama, Japan",
+      "startDate": "2026-10-17",
+      "endDate": "2026-10-18",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5150",
+      "month": 10,
+      "cat": "sea"
     },
     {
       "title": "3rd NTF CUP AIDA INDOOR FESTIVAL",
@@ -3524,17 +3524,6 @@
       "cat": "pool"
     },
     {
-      "title": "BB CUP Ep.13-0 | PFI BREATHLESS | WORLD APNEA 2026",
-      "type": "Pool Competition",
-      "venue": "라움enc수영장 (Raum Swimming Pool)",
-      "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
-      "startDate": "2026-10-25",
-      "endDate": "2026-10-25",
-      "link": "https://www.aidainternational.org/EventPage/5319",
-      "month": 10,
-      "cat": "pool"
-    },
-    {
       "title": "2026 AIDA Freediving Series in the Guangdong-Hong Kong-Macau Greater Bay Area  (Hong Kong Stop)",
       "type": "Pool Competition",
       "venue": "Chinese Ymca Of Hong Kong - Lions - Ymca Junk Bay Youth Camp",
@@ -3542,6 +3531,17 @@
       "startDate": "2026-10-25",
       "endDate": "2026-10-25",
       "link": "https://www.aidainternational.org/Events/EventDetails-5268",
+      "month": 10,
+      "cat": "pool"
+    },
+    {
+      "title": "BB CUP Ep.13-0 | PFI BREATHLESS | WORLD APNEA 2026",
+      "type": "Pool Competition",
+      "venue": "라움enc수영장 (Raum Swimming Pool)",
+      "cityCountry": "Hwaseong-Si, Gyeonggi-Do, Republic of Korea",
+      "startDate": "2026-10-25",
+      "endDate": "2026-10-25",
+      "link": "https://www.aidainternational.org/EventPage/5319",
       "month": 10,
       "cat": "pool"
     },
