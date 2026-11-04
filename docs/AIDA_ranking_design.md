@@ -419,7 +419,9 @@ national_team.json → 日本代表バッジ表示
 
 [WC（ワイルドカード）更新]
     │ 自動: update_rankings.yml（毎日JST 6:00）で fetch_wildcards.py を xvfb-run 実行
-    │ ※ requests直叩きはbot対策で403 → 実ブラウザでセッション確立しページ内fetchでPOST
+    │ ※ ①実ブラウザでWildCardsページを取得 → GitHub ActionsのIPは403で弾かれる
+    │ ※ ②403時は世界ランキング(/Ranking/index.php)上位10位＋10位同記録で代替（2026-11-04検証で全16種目性別がWildCardsページと完全一致）
+    │ ※ JSONの source に取得元（wildcards_page / ranking_top10）を記録
     │ ※ 0件取得時は上書きせず失敗終了（既存データ保持）
     ▼
 代表選考シミュレーターに反映（選考4名固定 + WC保有者は別枠・人数制限なし）

@@ -17,9 +17,13 @@ requests 直叩きは bot 対策で 403 になるため、fetch_aida_events.py �
 GitHub Actions:
   xvfb-run --auto-servernum python3 scripts/fetch_wildcards.py
 
-取得が0件（ブロック・HTML構造変更など）のときは既存ファイルを上書きせず exit 1。
+WildCards ページが 403（GitHub Actions の IP はブロックされる）のときは、
+世界ランキング（/Ranking/index.php・requests で取得可）の上位10位＋同記録で代替する。
+強制的に代替方式を使う: WC_SOURCE=ranking python3 scripts/fetch_wildcards.py
+取得が0件のときは既存ファイルを上書きせず exit 1。
 """
 import re, json, datetime, time, os, sys
+import requests
 
 try:
     from playwright.sync_api import sync_playwright
@@ -124,12 +128,67 @@ def open_wc_page(page):
     print(f"❌ フォームが見つかりません（bot対策の可能性）。title={title!r} body={body!r}", file=sys.stderr)
     return False
 
-def main():
+# ---------------------------------------------------------------------------
+# フォールバック：WildCards ページが 403 のとき（GitHub Actions の IP は弾かれる）
+# 世界ランキング（/Ranking/index.php・国籍指定なし・今年）の上位10位＋10位と同記録を
+# ワイルドカードとして組み立てる。WildCards ページと同じ定義・同じ列構成。
+# ---------------------------------------------------------------------------
+RANK_POST = f"{BASE}/Ranking/index.php"
+RANK_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (compatible; FreedivingJapan/1.0)",
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Referer": f"{BASE}/Ranking/",
+}
+MARK_RE = re.compile(r"\s*\b(NR|WR|CR|AR|PEN)\b", re.I)
+
+def _clean_result(r):
+    return MARK_RE.sub("", r).strip()
+
+def fetch_from_ranking(session, disc_id, gender_id, year):
+    r = session.post(RANK_POST, data={
+        "discipline": disc_id, "nationality": "", "continent": "",
+        "gender": gender_id, "year": year, "apply": "",
+    }, headers=RANK_HEADERS, timeout=30)
+    r.raise_for_status()
+    rows = parse_wc_table(r.text)
+    # 10位と同記録の選手が次ページにいる場合は追加で取得
+    page = 2
+    while len(rows) >= 10 and page <= 3:
+        tenth = rows[9]["points"]
+        if rows[-1]["points"] != tenth:
+            break
+        rp = session.get(f"{RANK_POST}?page={page}", headers=RANK_HEADERS, timeout=30)
+        more = [x for x in parse_wc_table(rp.text) if x["points"] == tenth]
+        if not more:
+            break
+        rows.extend(more)
+        if len(more) < 10:
+            break
+        page += 1
+        time.sleep(0.3)
+    out = [x for x in rows if x["rank"] <= 10 or (len(rows) >= 10 and x["points"] == rows[9]["points"])]
+    for x in out:
+        x["result"] = _clean_result(x["result"])
+    return out
+
+def collect_from_ranking():
+    session = requests.Session()
+    session.get(f"{BASE}/Ranking", headers={"User-Agent": RANK_HEADERS["User-Agent"]}, timeout=30)
+    all_wc = {}
+    for disc_label, disc_id in DISCIPLINES:
+        for gender_label, gender_id in GENDERS:
+            key = f"{disc_label}|{gender_label}"
+            try:
+                all_wc[key] = fetch_from_ranking(session, disc_id, gender_id, YEAR)
+            except Exception as e:
+                print(f"  {key}: ! ランキング取得失敗 {e}", file=sys.stderr)
+            time.sleep(0.5)
+    return all_wc
+
+def collect_from_wc_page():
+    """WildCards ページを実ブラウザで取得。ページが開けなければ None。"""
     headless = os.environ.get("AIDA_HEADLESS", "0") == "1"
-    print(f"=== AIDA WildCards {YEAR} 取得開始（{'headless' if headless else 'headful'}）===")
-
-    japan_wc, all_wc = {}, {}
-
+    all_wc = {}
     with sync_playwright() as p:
         browser = p.chromium.launch(
             headless=headless,
@@ -145,11 +204,9 @@ def main():
         )
         context.add_init_script(_STEALTH_JS)
         page = context.new_page()
-
         if not open_wc_page(page):
             browser.close()
-            sys.exit(1)
-
+            return None
         for disc_label, disc_id in DISCIPLINES:
             for gender_label, gender_id in GENDERS:
                 key = f"{disc_label}|{gender_label}"
@@ -159,20 +216,33 @@ def main():
                     })
                     if res["status"] != 200:
                         raise RuntimeError(f"HTTP {res['status']}")
-                    rows = parse_wc_table(res["html"])
-                    all_wc[key] = rows
-                    jp = [r for r in rows if is_japan(r["nationality"])]
-                    if jp:
-                        japan_wc[key] = jp
-                        for r in jp:
-                            print(f"  {key}: 🇯🇵 #{r['rank']} {r['name']} {r['result']}")
-                    else:
-                        print(f"  {key}: 日本人なし（top {len(rows)}）")
+                    all_wc[key] = parse_wc_table(res["html"])
                 except Exception as e:
                     print(f"  {key}: ! 取得失敗 {e}", file=sys.stderr)
                 time.sleep(0.8)
-
         browser.close()
+    return all_wc
+
+def main():
+    print(f"=== AIDA WildCards {YEAR} 取得開始 ===")
+    source = "wildcards_page"
+    all_wc = None
+    if os.environ.get("WC_SOURCE") != "ranking":
+        all_wc = collect_from_wc_page()
+    if not all_wc or sum(len(v) for v in all_wc.values()) == 0:
+        print("↪ WildCards ページが使えないため、世界ランキング上位10位から組み立てます")
+        source = "ranking_top10"
+        all_wc = collect_from_ranking()
+
+    japan_wc = {}
+    for key, rows in all_wc.items():
+        jp = [r for r in rows if is_japan(r["nationality"])]
+        if jp:
+            japan_wc[key] = jp
+            for r in jp:
+                print(f"  {key}: 🇯🇵 #{r['rank']} {r['name']} {r['result']}")
+        else:
+            print(f"  {key}: 日本人なし（top {len(rows)}）")
 
     total = sum(len(v) for v in all_wc.values())
     if total == 0:
@@ -182,6 +252,7 @@ def main():
     out = {
         "updated": datetime.date.today().isoformat(),
         "year":    int(YEAR),
+        "source":  source,
         "japan":   japan_wc,
         "all":     all_wc,
     }
@@ -190,7 +261,7 @@ def main():
         json.dump(out, f, ensure_ascii=False, indent=1)
 
     jp_count = sum(len(v) for v in japan_wc.values())
-    print(f"\nWrote data/wildcard_data.json（全{total}行 / 日本人 {jp_count}件・{len(japan_wc)}種目性別）")
+    print(f"\nWrote data/wildcard_data.json（source={source} / 全{total}行 / 日本人 {jp_count}件・{len(japan_wc)}種目性別）")
 
 if __name__ == "__main__":
     main()
