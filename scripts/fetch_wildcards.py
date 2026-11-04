@@ -173,7 +173,8 @@ def fetch_from_ranking(session, disc_id, gender_id, year):
 
 def collect_from_ranking():
     session = requests.Session()
-    session.get(f"{BASE}/Ranking", headers={"User-Agent": RANK_HEADERS["User-Agent"]}, timeout=30)
+    # fetch_all_rankings.py と同じ手順でセッション確立（Actions でも通る実績のある方法）
+    session.get(f"{BASE}/Ranking/", headers=RANK_HEADERS, timeout=30)
     all_wc = {}
     for disc_label, disc_id in DISCIPLINES:
         for gender_label, gender_id in GENDERS:

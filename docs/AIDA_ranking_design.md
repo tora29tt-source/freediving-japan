@@ -33,7 +33,7 @@ AIDA International (aidainternational.org)
 | `data/jp_official_records.json` | `fetch_jp_records.py` | 毎日 | 種目×性別の全年度1位（日本記録） |
 | `data/national_team.json` | 手動 or `update_national_team.py` | 大会後 | AIDA世界選手権に出場した日本代表選手の記録 |
 | `data/athlete_photos.json` | `fetch_jp_records.py`（副産物） | 毎週月曜 | 選手名→プロフィール写真URL（ページロード時に動的fetch） |
-| `data/wildcard_data.json` | 自動（`fetch_wildcards.py`・Playwright headful+xvfb） | 毎日 | AIDA WildCards上位10位（`all`）と日本人選手（`japan`＝WC保有者） |
+| `data/wildcard_data.json` | 自動（`fetch_wildcards.py`・Actionsでは世界ランキング上位10位から組み立て） | 毎日 | AIDA WildCards上位10位（`all`）と日本人選手（`japan`＝WC保有者） |
 
 ### 2-1. `all_rankings_data.json` スキーマ
 
@@ -418,8 +418,9 @@ Object.assign(PHOTOS, photosJson);  // photosJson = athlete_photos.json の内�
 national_team.json → 日本代表バッジ表示
 
 [WC（ワイルドカード）更新]
-    │ 自動: update_rankings.yml（毎日JST 6:00）で fetch_wildcards.py を xvfb-run 実行
-    │ ※ ①実ブラウザでWildCardsページを取得 → GitHub ActionsのIPは403で弾かれる
+    │ 自動: update_rankings.yml（毎日JST 6:00）で WC_SOURCE=ranking python3 scripts/fetch_wildcards.py
+    │ ※ GitHub ActionsのIPはWildCardsページが実ブラウザでも403。403を踏むと後続のランキング取得も403になるため、Actionsではランキング方式のみ
+    │ ※ ローカル実行時（WC_SOURCE未指定）は①WildCardsページ→失敗時②ランキング方式
     │ ※ ②403時は世界ランキング(/Ranking/index.php)上位10位＋10位同記録で代替（2026-11-04検証で全16種目性別がWildCardsページと完全一致）
     │ ※ JSONの source に取得元（wildcards_page / ranking_top10）を記録
     │ ※ 0件取得時は上書きせず失敗終了（既存データ保持）
