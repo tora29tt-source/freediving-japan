@@ -183,6 +183,18 @@ def collect_from_ranking():
                 all_wc[key] = fetch_from_ranking(session, disc_id, gender_id, YEAR)
             except Exception as e:
                 print(f"  {key}: ! ランキング取得失敗 {e}", file=sys.stderr)
+                if not all_wc:
+                    # 診断：IPごと締め出されているのか、国籍なし（世界）検索だけ弾かれるのかを切り分け
+                    try:
+                        rj = session.post(RANK_POST, data={
+                            "discipline": disc_id, "nationality": "108", "continent": "",
+                            "gender": gender_id, "year": YEAR, "apply": "",
+                        }, headers=RANK_HEADERS, timeout=30)
+                        print(f"  [診断] 同条件・国籍Japan指定 → HTTP {rj.status_code}", file=sys.stderr)
+                    except Exception as e2:
+                        print(f"  [診断] 国籍Japan指定も失敗: {e2}", file=sys.stderr)
+                    print("  最初の取得で失敗したため残りはスキップします", file=sys.stderr)
+                    return all_wc
             time.sleep(0.5)
     return all_wc
 
