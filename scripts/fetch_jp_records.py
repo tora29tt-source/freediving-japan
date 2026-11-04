@@ -4,7 +4,7 @@ AIDA Japan National Records fetcher
 -----------------------------------
 Pulls the current Japanese national record (rank #1, all years) for each
 discipline x gender from the AIDA International ranking page, plus each
-record holder's profile photo, and writes jp_official_records.json.
+record holder's profile photo, and writes data/jp_official_records.json.
 
 Run weekly (e.g. cron). No external deps beyond `requests`:
     pip install requests
@@ -13,10 +13,12 @@ Run weekly (e.g. cron). No external deps beyond `requests`:
 Cron example (every Monday 06:00):
     0 6 * * 1  cd /path/to/app && /usr/bin/python3 fetch_jp_records.py >> fetch.log 2>&1
 """
-import re, json, sys, time, datetime
+import re, json, sys, time, datetime, os
 import requests
 
 BASE = "https://www.aidainternational.org"
+# 出力先（リポジトリ直下から実行しても scripts/ から実行しても data/ に書く）
+DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data")
 RANK_PAGE = f"{BASE}/Ranking"
 RANK_POST = f"{BASE}/Ranking/index.php"
 S3 = "https://s3.eu-central-1.amazonaws.com/aida-international/"
@@ -115,12 +117,18 @@ def main():
             print(f"  + {disc}/{gender}: {name} {rec['result']}")
             time.sleep(0.4)
 
+    if not records:
+        # 取得0件（ブロック等）のときは既存データを守るため上書きしない
+        print("❌ 日本記録を1件も取得できませんでした。data/jp_official_records.json は更新しません。", file=sys.stderr)
+        sys.exit(1)
+
     out = {
         "updated": datetime.date.today().isoformat(),
         "source": "AIDA International Ranking (nationality=Japan, all years)",
         "records": records,
     }
-    with open("jp_official_records.json", "w", encoding="utf-8") as f:
+    os.makedirs(DATA_DIR, exist_ok=True)
+    with open(os.path.join(DATA_DIR, "jp_official_records.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=1)
     print(f"Wrote jp_official_records.json with {len(records)} records.")
 
@@ -163,7 +171,16 @@ def main():
         if url and DEFAULT_AVATAR not in url:
             athlete_photos[nm] = url
         time.sleep(0.2)
-    with open("athlete_photos.json", "w", encoding="utf-8") as f:
+    # 既存ファイル（国籍Japan以外の手動追加分を含む）とマージ：取得できた分だけ上書き
+    photos_path = os.path.join(DATA_DIR, "athlete_photos.json")
+    try:
+        with open(photos_path, encoding="utf-8") as f:
+            merged = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        merged = {}
+    merged.update(athlete_photos)
+    athlete_photos = merged
+    with open(photos_path, "w", encoding="utf-8") as f:
         json.dump(athlete_photos, f, ensure_ascii=False, indent=1)
     print(f"Wrote athlete_photos.json with {len(athlete_photos)} photos "
           f"(of {len(name_to_profile)} athletes).")

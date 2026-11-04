@@ -500,7 +500,7 @@ function renderPage(owner, listing, otherListings, reviews = []) {
     listing?.has_shuttle ? { i18n: 'label_shuttle', label: '送迎', value: 'あり' } : null,
     listing?.booking_deadline ? { i18n: 'label_booking_deadline', label: '予約締切', value: listing.booking_deadline } : null,
     { label: 'エリア', value: listing?.area || inst.prefecture || '—' },
-    { label: '指導歴', value: inst.experience_years ? `${inst.experience_years}年` : '—' },
+    isShopOwner ? null : { label: '指導歴', value: inst.experience_years ? `${inst.experience_years}年` : '—' },
   ].filter(Boolean);
 
   // timeline

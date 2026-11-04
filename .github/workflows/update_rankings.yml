@@ -23,18 +23,25 @@ jobs:
         run: |
           pip install requests playwright beautifulsoup4
           python3 -m playwright install chromium --with-deps
+          sudo apt-get install -y xvfb
 
       - name: 今年のランキングを更新
         run: python3 scripts/fetch_all_rankings.py
 
       - name: 日本記録を更新
+        # 失敗しても既存データは上書きされない。他の更新は続行する
+        continue-on-error: true
         run: python3 scripts/fetch_jp_records.py
 
       - name: all_rankings_data.json を再生成
         run: python3 scripts/merge_rankings.py
 
-      - name: ワイルドカードを更新
-        run: python3 scripts/fetch_wildcards.py
+      - name: ワイルドカードを更新（headful + xvfb：bot対策のため実ブラウザで取得）
+        # 0件なら既存データを上書きせず失敗終了する。他の更新は続行する
+        continue-on-error: true
+        run: |
+          xvfb-run --auto-servernum --server-args="-screen 0 1280x900x24" \
+            python3 scripts/fetch_wildcards.py
 
       # 大会カレンダー(AIDA)取得は専用ワークフロー update_aida_events.yml が担当するため
       # ここでは実行しない（重複 & bot対策のためheadful+xvfbが必要なため）。
@@ -43,7 +50,7 @@ jobs:
         run: |
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
-          git add data/rankings_*.json data/jp_official_records.json data/national_team.json data/all_rankings_data.json data/wildcard_data.json
+          git add data/rankings_*.json data/jp_official_records.json data/national_team.json data/all_rankings_data.json data/wildcard_data.json data/athlete_photos.json
           if git diff --staged --quiet; then
             echo "変更なし。コミットをスキップします。"
             exit 0
