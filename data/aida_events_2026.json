@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-11-03T03:50:44Z",
+  "updatedAt": "2026-11-04T02:55:39Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -3667,6 +3667,17 @@
       "cat": "pool"
     },
     {
+      "title": "AIDA Emerald City Apnea Challenge - NOV Pool Competition",
+      "type": "Pool Competition",
+      "venue": "Snohomish Aquatic Center",
+      "cityCountry": "Snohomish, United States",
+      "startDate": "2026-11-01",
+      "endDate": "2026-11-01",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5237",
+      "month": 11,
+      "cat": "pool"
+    },
+    {
       "title": "Queenstown Freediving Club 2026 AIDA Competition Series 4A",
       "type": "Pool Competition",
       "venue": "Alpine Aqualand",
@@ -3685,17 +3696,6 @@
       "startDate": "2026-11-01",
       "endDate": "2026-11-01",
       "link": "https://www.aidainternational.org/Events/EventDetails-5312",
-      "month": 11,
-      "cat": "pool"
-    },
-    {
-      "title": "AIDA Emerald City Apnea Challenge - NOV Pool Competition",
-      "type": "Pool Competition",
-      "venue": "Snohomish Aquatic Center",
-      "cityCountry": "Snohomish, United States",
-      "startDate": "2026-11-01",
-      "endDate": "2026-11-01",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5237",
       "month": 11,
       "cat": "pool"
     },
@@ -4019,13 +4019,13 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA 3rd 마지막 승부 : The Final Showdown",
+      "title": "AIDA A42 Series 1: Static Mini",
       "type": "Pool Competition",
-      "venue": "Hanyang Sports Center Swimming Pool",
-      "cityCountry": "Anyang-Si, Republic of Korea",
+      "venue": "Medical Alumni Association",
+      "cityCountry": "Singapore, Singapore",
       "startDate": "2026-11-29",
       "endDate": "2026-11-29",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5273",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5297",
       "month": 11,
       "cat": "pool"
     },
@@ -4052,13 +4052,13 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA A42 Series 1: Static Mini",
+      "title": "AIDA 3rd 마지막 승부 : The Final Showdown",
       "type": "Pool Competition",
-      "venue": "Medical Alumni Association",
-      "cityCountry": "Singapore, Singapore",
+      "venue": "Hanyang Sports Center Swimming Pool",
+      "cityCountry": "Anyang-Si, Republic of Korea",
       "startDate": "2026-11-29",
       "endDate": "2026-11-29",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5297",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5273",
       "month": 11,
       "cat": "pool"
     },
