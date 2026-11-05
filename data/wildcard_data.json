@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-04",
+ "updated": "2026-11-05",
  "year": 2026,
  "source": "ranking_top10",
  "japan": {
@@ -359,6 +359,15 @@
    },
    {
     "rank": 4,
+    "name": "Vitomir Maričić",
+    "nationality": "Croatia",
+    "result": "261 m",
+    "points": 130.5,
+    "date": "2026-10-29",
+    "event": "AIDA Fiume Autumn Comp"
+   },
+   {
+    "rank": 5,
     "name": "Mikhail Briantsev",
     "nationality": "International",
     "result": "255 m",
@@ -367,7 +376,7 @@
     "event": "WORLD APNEA 2026 Pool Championships, Budapest - Hungary"
    },
    {
-    "rank": 5,
+    "rank": 6,
     "name": "Brady Bradshaw",
     "nationality": "United States",
     "result": "253 m",
@@ -376,7 +385,7 @@
     "event": "WORLD APNEA 2026 Pool Championships, Budapest - Hungary"
    },
    {
-    "rank": 6,
+    "rank": 7,
     "name": "Carl-Oscar Nymo",
     "nationality": "Sweden",
     "result": "253 m",
@@ -385,7 +394,7 @@
     "event": "WORLD APNEA 2026 Pool Championships, Budapest - Hungary"
    },
    {
-    "rank": 7,
+    "rank": 8,
     "name": "Martin Sung Jensen",
     "nationality": "Denmark",
     "result": "252 m",
@@ -394,7 +403,7 @@
     "event": "Swedish National Pool Freediving Championships & AIDA Stockholm Apnea Open"
    },
    {
-    "rank": 8,
+    "rank": 9,
     "name": "Aliaksei Kaltsou",
     "nationality": "International",
     "result": "251 m",
@@ -403,29 +412,11 @@
     "event": "WORLD APNEA 2026 Pool Championships, Budapest - Hungary"
    },
    {
-    "rank": 9,
+    "rank": 10,
     "name": "Karlo Grbin",
     "nationality": "Sweden",
     "result": "251 m",
     "points": 125.5,
-    "date": "2026-06-06",
-    "event": "WORLD APNEA 2026 Pool Championships, Budapest - Hungary"
-   },
-   {
-    "rank": 10,
-    "name": "Jarrod Briffa",
-    "nationality": "Australia",
-    "result": "250 m",
-    "points": 125.0,
-    "date": "2026-05-09",
-    "event": "Melbourne Freedivers AIDA Winter Games 2026"
-   },
-   {
-    "rank": 11,
-    "name": "Adam Bryant",
-    "nationality": "Australia",
-    "result": "250 m",
-    "points": 125.0,
     "date": "2026-06-06",
     "event": "WORLD APNEA 2026 Pool Championships, Budapest - Hungary"
    }
@@ -552,6 +543,15 @@
    },
    {
     "rank": 3,
+    "name": "Vitomir Maričić",
+    "nationality": "Croatia",
+    "result": "273 m",
+    "points": 136.5,
+    "date": "2026-10-28",
+    "event": "AIDA Fiume Autumn Comp"
+   },
+   {
+    "rank": 4,
     "name": "Ming (William Joy) Jin",
     "nationality": "China",
     "result": "264 m",
@@ -560,7 +560,7 @@
     "event": "AIDA MFPG Penang Mini Competition (May 2026 Edition)"
    },
    {
-    "rank": 4,
+    "rank": 5,
     "name": "Aleksandr Maksimov",
     "nationality": "International",
     "result": "259 m",
@@ -569,7 +569,7 @@
     "event": "WORLD APNEA 2026 Pool Championships, Budapest - Hungary"
    },
    {
-    "rank": 5,
+    "rank": 6,
     "name": "Martin Sung Jensen",
     "nationality": "Denmark",
     "result": "254 m",
@@ -578,7 +578,7 @@
     "event": "Eindhoven International AIDA Pool Competition 2026"
    },
    {
-    "rank": 6,
+    "rank": 7,
     "name": "Adam Bryant",
     "nationality": "Australia",
     "result": "244 m",
@@ -587,7 +587,7 @@
     "event": "WORLD APNEA 2026 Pool Championships, Budapest - Hungary"
    },
    {
-    "rank": 7,
+    "rank": 8,
     "name": "Pan Ming-Chou",
     "nationality": "Chinese Taipei",
     "result": "238 m",
@@ -596,7 +596,7 @@
     "event": "AIDA 2026 Floral Spring Cup"
    },
    {
-    "rank": 8,
+    "rank": 9,
     "name": "Philipp Heinzelmann",
     "nationality": "Germany",
     "result": "237 m",
@@ -605,22 +605,13 @@
     "event": "WORLD APNEA 2026 Pool Championships, Budapest - Hungary"
    },
    {
-    "rank": 9,
+    "rank": 10,
     "name": "Adam Jerzy Rodewald",
     "nationality": "Germany",
     "result": "237 m",
     "points": 118.5,
     "date": "2026-05-09",
     "event": "Eindhoven International AIDA Pool Competition 2026"
-   },
-   {
-    "rank": 10,
-    "name": "Aliaksandr Zaikin",
-    "nationality": "International",
-    "result": "236 m",
-    "points": 118.0,
-    "date": "2026-06-02",
-    "event": "WORLD APNEA 2026 Pool Championships, Budapest - Hungary"
    }
   ],
   "DYNB|Female": [
