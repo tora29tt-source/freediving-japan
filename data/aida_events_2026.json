@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-11-05T03:09:26Z",
+  "updatedAt": "2026-11-06T03:10:55Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -4085,17 +4085,6 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA Have yourself a Merry Little White Card",
-      "type": "Pool Competition",
-      "venue": "Sydney Olympic Park Aquatic Center",
-      "cityCountry": "Olympic Park, Australia",
-      "startDate": "2026-12-05",
-      "endDate": "2026-12-06",
-      "link": "https://www.aidainternational.org/EventPage/5305",
-      "month": 12,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA Ukrainian Pool Freediving Championship 2026",
       "type": "Pool Competition",
       "venue": "Planeta Sport",
@@ -4103,6 +4092,17 @@
       "startDate": "2026-12-05",
       "endDate": "2026-12-06",
       "link": "https://www.aidainternational.org/Events/EventDetails-5258",
+      "month": 12,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA Have yourself a Merry Little White Card",
+      "type": "Pool Competition",
+      "venue": "Sydney Olympic Park Aquatic Center",
+      "cityCountry": "Olympic Park, Australia",
+      "startDate": "2026-12-05",
+      "endDate": "2026-12-06",
+      "link": "https://www.aidainternational.org/EventPage/5305",
       "month": 12,
       "cat": "pool"
     },
@@ -4224,17 +4224,6 @@
       "startDate": "2026-12-17",
       "endDate": "2026-12-20",
       "link": "https://www.aidainternational.org/Events/EventDetails-5304",
-      "month": 12,
-      "cat": "pool"
-    },
-    {
-      "title": "Competition Czech Republic",
-      "type": "Mixed Competition",
-      "venue": "Jezero Most",
-      "cityCountry": "Most, Czech Republic",
-      "startDate": "2026-12-17",
-      "endDate": "2026-12-19",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5331",
       "month": 12,
       "cat": "pool"
     },
