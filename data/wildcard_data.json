@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-08",
+ "updated": "2026-11-09",
  "year": 2026,
  "source": "ranking_top10",
  "japan": {
@@ -1416,21 +1416,21 @@
   "CNF|Female": [
    {
     "rank": 1,
+    "name": "Lauren Matevish",
+    "nationality": "United States",
+    "result": "79 m",
+    "points": 79.0,
+    "date": "2026-11-07",
+    "event": "AIDA Apoyo Abyss Open 2026"
+   },
+   {
+    "rank": 2,
     "name": "Zsófia Törőcsik",
     "nationality": "Hungary",
     "result": "78 m",
     "points": 78.0,
     "date": "2026-09-30",
     "event": "WORLD APNEA 2026 Depth Championships-Limassol Cyprus"
-   },
-   {
-    "rank": 2,
-    "name": "Lauren Matevish",
-    "nationality": "United States",
-    "result": "77 m",
-    "points": 77.0,
-    "date": "2026-04-15",
-    "event": "AIDA Xibalba 2026"
    },
    {
     "rank": 3,
