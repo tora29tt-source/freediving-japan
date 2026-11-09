@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-11-08T02:03:44Z",
+  "updatedAt": "2026-11-09T02:22:24Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -3667,17 +3667,6 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA Emerald City Apnea Challenge - NOV Pool Competition",
-      "type": "Pool Competition",
-      "venue": "Snohomish Aquatic Center",
-      "cityCountry": "Snohomish, United States",
-      "startDate": "2026-11-01",
-      "endDate": "2026-11-01",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5237",
-      "month": 11,
-      "cat": "pool"
-    },
-    {
       "title": "Saigon Breathless",
       "type": "Pool Competition",
       "venue": "Rumblefish Vietnam",
@@ -3685,6 +3674,17 @@
       "startDate": "2026-11-01",
       "endDate": "2026-11-01",
       "link": "https://www.aidainternational.org/Events/EventDetails-5292",
+      "month": 11,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA Emerald City Apnea Challenge - NOV Pool Competition",
+      "type": "Pool Competition",
+      "venue": "Snohomish Aquatic Center",
+      "cityCountry": "Snohomish, United States",
+      "startDate": "2026-11-01",
+      "endDate": "2026-11-01",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5237",
       "month": 11,
       "cat": "pool"
     },
@@ -3821,17 +3821,6 @@
       "cat": "sea"
     },
     {
-      "title": "8th White Balance Pool Competition AIDA",
-      "type": "Pool Competition",
-      "venue": "Balance Swimming Pool",
-      "cityCountry": "Anyang, Republic of Korea",
-      "startDate": "2026-11-15",
-      "endDate": "2026-11-15",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5313",
-      "month": 11,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA SYNERGIC - TiCoLa edition",
       "type": "Pool Competition",
       "venue": "Private Pool At Pulo Mas , Jakarta, Indonesia",
@@ -3839,6 +3828,17 @@
       "startDate": "2026-11-15",
       "endDate": "2026-11-15",
       "link": "https://www.aidainternational.org/Events/EventDetails-5309",
+      "month": 11,
+      "cat": "pool"
+    },
+    {
+      "title": "8th White Balance Pool Competition AIDA",
+      "type": "Pool Competition",
+      "venue": "Balance Swimming Pool",
+      "cityCountry": "Anyang, Republic of Korea",
+      "startDate": "2026-11-15",
+      "endDate": "2026-11-15",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5313",
       "month": 11,
       "cat": "pool"
     },
@@ -3863,17 +3863,6 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5112",
       "month": 11,
       "cat": "sea"
-    },
-    {
-      "title": "AIDA RIGA AUTUMN - POOL PERFORMANCES 2026",
-      "type": "Pool Competition",
-      "venue": "Rtu Kipsala Swimming Pool",
-      "cityCountry": "Riga, Latvia",
-      "startDate": "2026-11-21",
-      "endDate": "2026-11-21",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5282",
-      "month": 11,
-      "cat": "pool"
     },
     {
       "title": "World Apnea Montevideo Indoor Cup - Pre comp",
@@ -4008,17 +3997,6 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA 3rd 마지막 승부 : The Final Showdown",
-      "type": "Pool Competition",
-      "venue": "Hanyang Sports Center Swimming Pool",
-      "cityCountry": "Anyang-Si, Republic of Korea",
-      "startDate": "2026-11-29",
-      "endDate": "2026-11-29",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5273",
-      "month": 11,
-      "cat": "pool"
-    },
-    {
       "title": "BB CUP Ep.14 | PFI BREATHLESS | WORLD APNEA 2026",
       "type": "Pool Competition",
       "venue": "라움enc수영장 (Raum Swimming Pool)",
@@ -4026,6 +4004,17 @@
       "startDate": "2026-11-29",
       "endDate": "2026-11-29",
       "link": "https://www.aidainternational.org/EventPage/4970",
+      "month": 11,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA 3rd 마지막 승부 : The Final Showdown",
+      "type": "Pool Competition",
+      "venue": "Hanyang Sports Center Swimming Pool",
+      "cityCountry": "Anyang-Si, Republic of Korea",
+      "startDate": "2026-11-29",
+      "endDate": "2026-11-29",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5273",
       "month": 11,
       "cat": "pool"
     },
