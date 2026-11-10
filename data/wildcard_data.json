@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-09",
+ "updated": "2026-11-10",
  "year": 2026,
  "source": "ranking_top10",
  "japan": {
@@ -134,7 +134,7 @@
   ],
   "FIM|Female": [
    {
-    "rank": 11,
+    "rank": 12,
     "name": "Mariko Kaji",
     "nationality": "Japan",
     "result": "90 m",
@@ -1708,8 +1708,8 @@
    },
    {
     "rank": 11,
-    "name": "Mariko Kaji",
-    "nationality": "Japan",
+    "name": "Tongtong Xu",
+    "nationality": "China",
     "result": "90 m",
     "points": 90.0,
     "date": "2026-07-19",
@@ -1717,8 +1717,8 @@
    },
    {
     "rank": 12,
-    "name": "Tongtong Xu",
-    "nationality": "China",
+    "name": "Mariko Kaji",
+    "nationality": "Japan",
     "result": "90 m",
     "points": 90.0,
     "date": "2026-07-19",
