@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-11",
+ "updated": "2026-11-12",
  "year": 2026,
  "source": "ranking_top10",
  "japan": {
@@ -612,6 +612,15 @@
     "points": 118.5,
     "date": "2026-05-09",
     "event": "Eindhoven International AIDA Pool Competition 2026"
+   },
+   {
+    "rank": 11,
+    "name": "Kun-Ching Ho",
+    "nationality": "Chinese Taipei",
+    "result": "237 m",
+    "points": 118.5,
+    "date": "2026-11-07",
+    "event": "AIDA Pacific Rim Cup 2026"
    }
   ],
   "DYNB|Female": [
