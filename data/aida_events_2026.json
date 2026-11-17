@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-11-16T02:34:34Z",
+  "updatedAt": "2026-11-17T04:58:21Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -3645,6 +3645,17 @@
       "cat": "sea"
     },
     {
+      "title": "Queenstown Freediving Club 2026 AIDA Competition Series 4B",
+      "type": "Pool Competition",
+      "venue": "Alpine Aqualand",
+      "cityCountry": "Queenstown, New Zealand",
+      "startDate": "2026-11-01",
+      "endDate": "2026-11-01",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5312",
+      "month": 11,
+      "cat": "pool"
+    },
+    {
       "title": "Saigon Breathless",
       "type": "Pool Competition",
       "venue": "Rumblefish Vietnam",
@@ -3663,17 +3674,6 @@
       "startDate": "2026-11-01",
       "endDate": "2026-11-01",
       "link": "https://www.aidainternational.org/Events/EventDetails-5237",
-      "month": 11,
-      "cat": "pool"
-    },
-    {
-      "title": "Queenstown Freediving Club 2026 AIDA Competition Series 4B",
-      "type": "Pool Competition",
-      "venue": "Alpine Aqualand",
-      "cityCountry": "Queenstown, New Zealand",
-      "startDate": "2026-11-01",
-      "endDate": "2026-11-01",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5312",
       "month": 11,
       "cat": "pool"
     },
@@ -3711,17 +3711,6 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA Pacific Rim Cup 2026",
-      "type": "Pool Competition",
-      "venue": "Taichung North District Swimming Pool",
-      "cityCountry": "Taoyuan City, Chinese Taipei",
-      "startDate": "2026-11-07",
-      "endDate": "2026-11-08",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5288",
-      "month": 11,
-      "cat": "pool"
-    },
-    {
       "title": "VII Festival MAKOS Apnea y IV Campeonato Nacional AIDA de Apnea Indoor",
       "type": "Pool Competition",
       "venue": "Complejo Acuático Unidad Deportiva Atanasio Girardot",
@@ -3729,6 +3718,17 @@
       "startDate": "2026-11-07",
       "endDate": "2026-11-08",
       "link": "https://www.aidainternational.org/Events/EventDetails-5214",
+      "month": 11,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA Pacific Rim Cup 2026",
+      "type": "Pool Competition",
+      "venue": "Taichung North District Swimming Pool",
+      "cityCountry": "Taoyuan City, Chinese Taipei",
+      "startDate": "2026-11-07",
+      "endDate": "2026-11-08",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5288",
       "month": 11,
       "cat": "pool"
     },
@@ -3799,6 +3799,17 @@
       "cat": "sea"
     },
     {
+      "title": "CEBU IDA OFFICIAL WEEKEND 6th",
+      "type": "Depth Competition",
+      "venue": "Double K International Academy",
+      "cityCountry": "Cebu Mactan, Philippines",
+      "startDate": "2026-11-14",
+      "endDate": "2026-11-15",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5112",
+      "month": 11,
+      "cat": "sea"
+    },
+    {
       "title": "nOxyCup 2026 - Hungarian Open Indoor Freediving Championship - AIDA",
       "type": "Pool Competition",
       "venue": "Duna Arena",
@@ -3821,17 +3832,6 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA SYNERGIC - TiCoLa edition",
-      "type": "Pool Competition",
-      "venue": "Private Pool At Pulo Mas , Jakarta, Indonesia",
-      "cityCountry": "Jakarta, Indonesia",
-      "startDate": "2026-11-15",
-      "endDate": "2026-11-15",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5309",
-      "month": 11,
-      "cat": "pool"
-    },
-    {
       "title": "8th White Balance Pool Competition AIDA",
       "type": "Pool Competition",
       "venue": "Balance Swimming Pool",
@@ -3839,6 +3839,17 @@
       "startDate": "2026-11-15",
       "endDate": "2026-11-15",
       "link": "https://www.aidainternational.org/Events/EventDetails-5313",
+      "month": 11,
+      "cat": "pool"
+    },
+    {
+      "title": "AIDA SYNERGIC - TiCoLa edition",
+      "type": "Pool Competition",
+      "venue": "Private Pool At Pulo Mas , Jakarta, Indonesia",
+      "cityCountry": "Jakarta, Indonesia",
+      "startDate": "2026-11-15",
+      "endDate": "2026-11-15",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5309",
       "month": 11,
       "cat": "pool"
     },
@@ -3854,17 +3865,6 @@
       "cat": "sea"
     },
     {
-      "title": "CEBU IDA OFFICIAL WEEKEND 6th",
-      "type": "Depth Competition",
-      "venue": "Double K International Academy",
-      "cityCountry": "Cebu Mactan, Philippines",
-      "startDate": "2026-11-21",
-      "endDate": "2026-11-22",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5112",
-      "month": 11,
-      "cat": "sea"
-    },
-    {
       "title": "AIDA RIGA AUTUMN - POOL PERFORMANCES 2026",
       "type": "Pool Competition",
       "venue": "Rtu Kipsala Swimming Pool",
@@ -3872,17 +3872,6 @@
       "startDate": "2026-11-21",
       "endDate": "2026-11-21",
       "link": "https://www.aidainternational.org/Events/EventDetails-5282",
-      "month": 11,
-      "cat": "pool"
-    },
-    {
-      "title": "AIDA SYNERGIC STATICNOVA - BEYOND BREATH 2026 (INVITATIONAL)",
-      "type": "Pool Competition",
-      "venue": "Private Pool At Pulo Mas , Jakarta, Indonesia",
-      "cityCountry": "Jakarta, Indonesia",
-      "startDate": "2026-11-22",
-      "endDate": "2026-11-22",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5310",
       "month": 11,
       "cat": "pool"
     },
@@ -4003,7 +3992,7 @@
       "cityCountry": "Québec, Canada",
       "startDate": "2026-11-28",
       "endDate": "2026-11-28",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5361",
+      "link": "https://www.aidainternational.org/EventPage/5361",
       "month": 11,
       "cat": "pool"
     },
@@ -4041,13 +4030,13 @@
       "cat": "pool"
     },
     {
-      "title": "Aida Deep Kick Challenge 2026",
+      "title": "AIDA A42 Series 1: Static Mini",
       "type": "Pool Competition",
-      "venue": "Piscine De Saint-Maurice",
-      "cityCountry": "Saint-Maurice, Switzerland",
+      "venue": "Medical Alumni Association",
+      "cityCountry": "Singapore, Singapore",
       "startDate": "2026-11-29",
       "endDate": "2026-11-29",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5299",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5297",
       "month": 11,
       "cat": "pool"
     },
@@ -4063,13 +4052,13 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA A42 Series 1: Static Mini",
+      "title": "Aida Deep Kick Challenge 2026",
       "type": "Pool Competition",
-      "venue": "Medical Alumni Association",
-      "cityCountry": "Singapore, Singapore",
+      "venue": "Piscine De Saint-Maurice",
+      "cityCountry": "Saint-Maurice, Switzerland",
       "startDate": "2026-11-29",
       "endDate": "2026-11-29",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5297",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5299",
       "month": 11,
       "cat": "pool"
     },
@@ -4105,17 +4094,6 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5301",
       "month": 12,
       "cat": "pool"
-    },
-    {
-      "title": "CEBU IDA OFFICIAL WEEKEND 7th",
-      "type": "Depth Competition",
-      "venue": "Double K International Academy",
-      "cityCountry": "Cebu Mactan, Philippines",
-      "startDate": "2026-12-05",
-      "endDate": "2026-12-06",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5113",
-      "month": 12,
-      "cat": "sea"
     },
     {
       "title": "AIDA Ukrainian Pool Freediving Championship 2026",
@@ -4158,6 +4136,17 @@
       "startDate": "2026-12-05",
       "endDate": "2026-12-06",
       "link": "https://www.aidainternational.org/Events/EventDetails-5327",
+      "month": 12,
+      "cat": "sea"
+    },
+    {
+      "title": "CEBU IDA OFFICIAL WEEKEND 7th",
+      "type": "Depth Competition",
+      "venue": "Double K International Academy",
+      "cityCountry": "Cebu Mactan, Philippines",
+      "startDate": "2026-12-05",
+      "endDate": "2026-12-06",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5113",
       "month": 12,
       "cat": "sea"
     },
@@ -4272,17 +4261,6 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA Malaysia Apnea Warrior Meet Challenge 6.0",
-      "type": "Pool Competition",
-      "venue": "Arena Sukan Kuala Lumpur",
-      "cityCountry": "Kuala Lumpur, Malaysia",
-      "startDate": "2026-12-13",
-      "endDate": "2026-12-13",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5271",
-      "month": 12,
-      "cat": "pool"
-    },
-    {
       "title": "Samanon Freediving winter dives | AIDA",
       "type": "Pool Competition",
       "venue": "Country Dekel",
@@ -4301,17 +4279,6 @@
       "startDate": "2026-12-18",
       "endDate": "2026-12-18",
       "link": "https://www.aidainternational.org/Events/EventDetails-5349",
-      "month": 12,
-      "cat": "pool"
-    },
-    {
-      "title": "AIDA Malaysia Freediving Pool Games (MFPG) Penang 2026",
-      "type": "Pool Competition",
-      "venue": "Penang Golf Club",
-      "cityCountry": "Bayan Lepas, Malaysia",
-      "startDate": "2026-12-19",
-      "endDate": "2026-12-20",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5266",
       "month": 12,
       "cat": "pool"
     },
