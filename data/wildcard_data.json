@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-17",
+ "updated": "2026-11-18",
  "year": 2026,
  "source": "ranking_top10",
  "japan": {
@@ -1396,15 +1396,6 @@
    },
    {
     "rank": 8,
-    "name": "Brad Stephens",
-    "nationality": "United States",
-    "result": "75 m",
-    "points": 75.0,
-    "date": "2026-10-01",
-    "event": "WORLD APNEA 2026 Depth Championships-Limassol Cyprus"
-   },
-   {
-    "rank": 9,
     "name": "Omar Al Ghailani",
     "nationality": "Oman",
     "result": "75 m",
@@ -1413,13 +1404,22 @@
     "event": "WORLD APNEA 2026 Depth Championships-Limassol Cyprus"
    },
    {
+    "rank": 9,
+    "name": "Brad Stephens",
+    "nationality": "United States",
+    "result": "75 m",
+    "points": 75.0,
+    "date": "2026-10-01",
+    "event": "WORLD APNEA 2026 Depth Championships-Limassol Cyprus"
+   },
+   {
     "rank": 10,
-    "name": "Stefan Randig",
-    "nationality": "Germany",
-    "result": "74 m",
-    "points": 74.0,
-    "date": "2026-09-16",
-    "event": "Aida Freediving World Cup September Competition"
+    "name": "Hakyong Kim",
+    "nationality": "Republic of Korea",
+    "result": "75 m",
+    "points": 75.0,
+    "date": "2026-11-13",
+    "event": "1st PSA CUP WORLD APNEA 2026"
    }
   ],
   "CNF|Female": [
