@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-21",
+ "updated": "2026-11-22",
  "year": 2026,
  "source": "ranking_top10",
  "japan": {
@@ -123,7 +123,7 @@
     "event": "AIDA Mabini Depth Quest - Season 4"
    },
    {
-    "rank": 11,
+    "rank": 10,
     "name": "Naomi Iwazawa",
     "nationality": "Japan",
     "result": "63 m",
@@ -1506,8 +1506,8 @@
    },
    {
     "rank": 10,
-    "name": "Enchante Gallardo",
-    "nationality": "United States",
+    "name": "Naomi Iwazawa",
+    "nationality": "Japan",
     "result": "63 m",
     "points": 63.0,
     "date": "2026-09-30",
@@ -1515,8 +1515,8 @@
    },
    {
     "rank": 11,
-    "name": "Naomi Iwazawa",
-    "nationality": "Japan",
+    "name": "Enchante Gallardo",
+    "nationality": "United States",
     "result": "63 m",
     "points": 63.0,
     "date": "2026-09-30",
