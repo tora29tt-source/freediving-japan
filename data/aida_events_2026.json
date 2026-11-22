@@ -1,6 +1,6 @@
 {
   "year": 2026,
-  "updatedAt": "2026-11-21T03:45:28Z",
+  "updatedAt": "2026-11-22T02:49:46Z",
   "source": "aida_playwright_scrape",
   "events": [
     {
@@ -3645,13 +3645,13 @@
       "cat": "sea"
     },
     {
-      "title": "AIDA Emerald City Apnea Challenge - NOV Pool Competition",
+      "title": "Saigon Breathless",
       "type": "Pool Competition",
-      "venue": "Snohomish Aquatic Center",
-      "cityCountry": "Snohomish, United States",
+      "venue": "Rumblefish Vietnam",
+      "cityCountry": "Ho Chi Minh City, Vietnam",
       "startDate": "2026-11-01",
       "endDate": "2026-11-01",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5237",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5292",
       "month": 11,
       "cat": "pool"
     },
@@ -3667,13 +3667,13 @@
       "cat": "pool"
     },
     {
-      "title": "Saigon Breathless",
+      "title": "AIDA Emerald City Apnea Challenge - NOV Pool Competition",
       "type": "Pool Competition",
-      "venue": "Rumblefish Vietnam",
-      "cityCountry": "Ho Chi Minh City, Vietnam",
+      "venue": "Snohomish Aquatic Center",
+      "cityCountry": "Snohomish, United States",
       "startDate": "2026-11-01",
       "endDate": "2026-11-01",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5292",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5237",
       "month": 11,
       "cat": "pool"
     },
@@ -3799,17 +3799,6 @@
       "cat": "sea"
     },
     {
-      "title": "nOxyCup 2026 - Hungarian Open Indoor Freediving Championship - AIDA",
-      "type": "Pool Competition",
-      "venue": "Duna Arena",
-      "cityCountry": "Budapest, Hungary",
-      "startDate": "2026-11-14",
-      "endDate": "2026-11-15",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5087",
-      "month": 11,
-      "cat": "pool"
-    },
-    {
       "title": "CEBU IDA OFFICIAL WEEKEND 6th",
       "type": "Depth Competition",
       "venue": "Double K International Academy",
@@ -3819,6 +3808,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5112",
       "month": 11,
       "cat": "sea"
+    },
+    {
+      "title": "nOxyCup 2026 - Hungarian Open Indoor Freediving Championship - AIDA",
+      "type": "Pool Competition",
+      "venue": "Duna Arena",
+      "cityCountry": "Budapest, Hungary",
+      "startDate": "2026-11-14",
+      "endDate": "2026-11-15",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5087",
+      "month": 11,
+      "cat": "pool"
     },
     {
       "title": "AIDA UAE CNF Performance Night 2026 | Autumn Round",
@@ -4239,17 +4239,6 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA Jakarta Freediving Games Series Part 3",
-      "type": "Pool Competition",
-      "venue": "Soemantri Brojonegoro Pool",
-      "cityCountry": "South Jakarta, Indonesia",
-      "startDate": "2026-12-06",
-      "endDate": "2026-12-06",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5221",
-      "month": 12,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA UAE DYN Performance Night 2026 | Autumn Round",
       "type": "Pool Competition",
       "venue": "Al Furjan Club",
@@ -4283,17 +4272,6 @@
       "cat": "sea"
     },
     {
-      "title": "UNU Freediving Challenge 2026",
-      "type": "Pool Competition",
-      "venue": "Apollo Beach Racquet & Fitness Club",
-      "cityCountry": "Apollo Beach, United States",
-      "startDate": "2026-12-12",
-      "endDate": "2026-12-13",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5348",
-      "month": 12,
-      "cat": "pool"
-    },
-    {
       "title": "AIDA MANADO FREEDIVING POOL CHALLENGE serie1",
       "type": "Pool Competition",
       "venue": "Manado Freediving Pool Challenge 2026",
@@ -4305,13 +4283,13 @@
       "cat": "pool"
     },
     {
-      "title": "AIDA Slovakia Open 2026",
+      "title": "UNU Freediving Challenge 2026",
       "type": "Pool Competition",
-      "venue": "Mestská Plaváreň Pasienky",
-      "cityCountry": "Bratislava, Slovakia",
+      "venue": "Apollo Beach Racquet & Fitness Club",
+      "cityCountry": "Apollo Beach, United States",
       "startDate": "2026-12-12",
-      "endDate": "2026-12-12",
-      "link": "https://www.aidainternational.org/Events/EventDetails-5278",
+      "endDate": "2026-12-13",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5348",
       "month": 12,
       "cat": "pool"
     },
@@ -4325,6 +4303,17 @@
       "link": "https://www.aidainternational.org/Events/EventDetails-5325",
       "month": 12,
       "cat": "sea"
+    },
+    {
+      "title": "AIDA Slovakia Open 2026",
+      "type": "Pool Competition",
+      "venue": "Mestská Plaváreň Pasienky",
+      "cityCountry": "Bratislava, Slovakia",
+      "startDate": "2026-12-12",
+      "endDate": "2026-12-12",
+      "link": "https://www.aidainternational.org/Events/EventDetails-5278",
+      "month": 12,
+      "cat": "pool"
     },
     {
       "title": "2026 AIDA Freediving Series in the Guangdong-Hong Kong-Macau Greater Bay Area (Macau Stop)",
