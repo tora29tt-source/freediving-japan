@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-24",
+ "updated": "2026-11-25",
  "year": 2026,
  "source": "ranking_top10",
  "japan": {
@@ -105,7 +105,7 @@
   ],
   "CNF|Female": [
    {
-    "rank": 4,
+    "rank": 5,
     "name": "Mariko Kaji",
     "nationality": "Japan",
     "result": "73 m",
@@ -114,27 +114,18 @@
     "event": "AIDA Panglao HUG Cup #4"
    },
    {
-    "rank": 8,
+    "rank": 9,
     "name": "Celina Jinguji",
     "nationality": "Japan",
     "result": "65 m",
     "points": 65.0,
     "date": "2026-04-22",
     "event": "AIDA Mabini Depth Quest - Season 4"
-   },
-   {
-    "rank": 10,
-    "name": "Naomi Iwazawa",
-    "nationality": "Japan",
-    "result": "63 m",
-    "points": 63.0,
-    "date": "2026-09-30",
-    "event": "WORLD APNEA 2026 Depth Championships-Limassol Cyprus"
    }
   ],
   "FIM|Female": [
    {
-    "rank": 11,
+    "rank": 12,
     "name": "Mariko Kaji",
     "nationality": "Japan",
     "result": "90 m",
@@ -967,13 +958,31 @@
     "rank": 4,
     "name": "Brad Stephens",
     "nationality": "United States",
-    "result": "115 m",
-    "points": 115.0,
-    "date": "2026-10-08",
-    "event": "WORLD APNEA 2026 Depth Championships-Limassol Cyprus"
+    "result": "123 m",
+    "points": 123.0,
+    "date": "2026-11-16",
+    "event": "AIDA Blue Element November 2026 with DIVEYE WR Status"
    },
    {
     "rank": 5,
+    "name": "Pedro Tapia",
+    "nationality": "Mexico",
+    "result": "122 m",
+    "points": 122.0,
+    "date": "2026-11-13",
+    "event": "AIDA Blue Element November 2026 with DIVEYE WR Status"
+   },
+   {
+    "rank": 6,
+    "name": "Jack Webb",
+    "nationality": "Australia",
+    "result": "116 m",
+    "points": 116.0,
+    "date": "2026-11-17",
+    "event": "AIDA Blue Element November 2026 with DIVEYE WR Status"
+   },
+   {
+    "rank": 7,
     "name": "Vitomir Maričić",
     "nationality": "Croatia",
     "result": "114 m",
@@ -982,7 +991,7 @@
     "event": "AIDA Lastovo Super Deep week 2"
    },
    {
-    "rank": 6,
+    "rank": 8,
     "name": "Matthew Hill",
     "nationality": "United Kingdom",
     "result": "113 m",
@@ -991,7 +1000,7 @@
     "event": "Aida Freediving World Cup September Competition"
    },
    {
-    "rank": 7,
+    "rank": 9,
     "name": "Martin Ruman",
     "nationality": "Slovakia",
     "result": "113 m",
@@ -1000,7 +1009,7 @@
     "event": "World Apnea Championships Precompetition Limassol 2026"
    },
    {
-    "rank": 8,
+    "rank": 10,
     "name": "Alexander Vinogradov",
     "nationality": "International",
     "result": "111 m",
@@ -1009,40 +1018,13 @@
     "event": "Only One Aida Event"
    },
    {
-    "rank": 9,
+    "rank": 11,
     "name": "Omar Al Ghailani",
     "nationality": "Oman",
     "result": "111 m",
     "points": 111.0,
     "date": "2026-10-08",
     "event": "WORLD APNEA 2026 Depth Championships-Limassol Cyprus"
-   },
-   {
-    "rank": 10,
-    "name": "Pedro Tapia",
-    "nationality": "Mexico",
-    "result": "110 m",
-    "points": 110.0,
-    "date": "2026-07-31",
-    "event": "Deep Dominica Depth Competition AIDA"
-   },
-   {
-    "rank": 11,
-    "name": "Mohamed Siddiq",
-    "nationality": "Egypt",
-    "result": "110 m",
-    "points": 110.0,
-    "date": "2026-09-13",
-    "event": "Aida Freediving World Cup September Competition"
-   },
-   {
-    "rank": 12,
-    "name": "Artem Stasko",
-    "nationality": "International",
-    "result": "110 m",
-    "points": 110.0,
-    "date": "2026-10-06",
-    "event": "AIDA Panglao HUG Cup 2026. FINAL"
    }
   ],
   "CWT|Female": [
@@ -1050,10 +1032,10 @@
     "rank": 1,
     "name": "Natalia Zharkova",
     "nationality": "Ukraine",
-    "result": "117 m",
-    "points": 117.0,
-    "date": "2026-05-24",
-    "event": "Only One Aida Event"
+    "result": "124 m",
+    "points": 124.0,
+    "date": "2026-11-14",
+    "event": "AIDA Blue Element November 2026 with DIVEYE WR Status"
    },
    {
     "rank": 2,
@@ -1212,21 +1194,21 @@
    },
    {
     "rank": 9,
-    "name": "Zhou Xiaofeng",
-    "nationality": "China",
-    "result": "102 m",
-    "points": 102.0,
-    "date": "2026-07-18",
-    "event": "AIDA Asian Freediving Cup 2026"
+    "name": "Brad Stephens",
+    "nationality": "United States",
+    "result": "103 m",
+    "points": 103.0,
+    "date": "2026-11-17",
+    "event": "AIDA Blue Element November 2026 with DIVEYE WR Status"
    },
    {
     "rank": 10,
-    "name": "Mohamed Siddiq",
-    "nationality": "Egypt",
-    "result": "102 m",
-    "points": 102.0,
-    "date": "2026-09-10",
-    "event": "Aida Freediving World Cup September Competition"
+    "name": "Kim Dahlgren",
+    "nationality": "Sweden",
+    "result": "103 m",
+    "points": 103.0,
+    "date": "2026-11-17",
+    "event": "AIDA Blue Element November 2026 with DIVEYE WR Status"
    }
   ],
   "CWTB|Female": [
@@ -1380,13 +1362,31 @@
     "rank": 6,
     "name": "Mitch Ayres",
     "nationality": "Australia",
-    "result": "82 m",
-    "points": 82.0,
-    "date": "2026-07-20",
-    "event": "AIDA Asian Freediving Cup 2026"
+    "result": "84 m",
+    "points": 84.0,
+    "date": "2026-11-17",
+    "event": "AIDA Blue Element November 2026 with DIVEYE WR Status"
    },
    {
     "rank": 7,
+    "name": "Lance Davis",
+    "nationality": "United States",
+    "result": "79 m",
+    "points": 79.0,
+    "date": "2026-11-16",
+    "event": "AIDA Blue Element November 2026 with DIVEYE WR Status"
+   },
+   {
+    "rank": 8,
+    "name": "Roberto Guzman",
+    "nationality": "Mexico",
+    "result": "77 m",
+    "points": 77.0,
+    "date": "2026-11-11",
+    "event": "AIDA Blue Element November 2026 with DIVEYE WR Status"
+   },
+   {
+    "rank": 9,
     "name": "Yi(Zy) Zhang",
     "nationality": "China",
     "result": "76 m",
@@ -1395,16 +1395,7 @@
     "event": "AIDA Asian Freediving Cup 2026"
    },
    {
-    "rank": 8,
-    "name": "Omar Al Ghailani",
-    "nationality": "Oman",
-    "result": "75 m",
-    "points": 75.0,
-    "date": "2026-10-01",
-    "event": "WORLD APNEA 2026 Depth Championships-Limassol Cyprus"
-   },
-   {
-    "rank": 9,
+    "rank": 10,
     "name": "Brad Stephens",
     "nationality": "United States",
     "result": "75 m",
@@ -1413,18 +1404,45 @@
     "event": "WORLD APNEA 2026 Depth Championships-Limassol Cyprus"
    },
    {
-    "rank": 10,
+    "rank": 11,
+    "name": "Omar Al Ghailani",
+    "nationality": "Oman",
+    "result": "75 m",
+    "points": 75.0,
+    "date": "2026-10-01",
+    "event": "WORLD APNEA 2026 Depth Championships-Limassol Cyprus"
+   },
+   {
+    "rank": 12,
     "name": "Hakyong Kim",
     "nationality": "Republic of Korea",
     "result": "75 m",
     "points": 75.0,
     "date": "2026-11-13",
     "event": "1st PSA CUP WORLD APNEA 2026"
+   },
+   {
+    "rank": 13,
+    "name": "Harry McCahill",
+    "nationality": "United Kingdom",
+    "result": "75 m",
+    "points": 75.0,
+    "date": "2026-11-14",
+    "event": "AIDA Blue Element November 2026 with DIVEYE WR Status"
    }
   ],
   "CNF|Female": [
    {
     "rank": 1,
+    "name": "Kateryna Sadurska",
+    "nationality": "Ukraine",
+    "result": "90 m",
+    "points": 90.0,
+    "date": "2026-11-11",
+    "event": "AIDA Blue Element November 2026 with DIVEYE WR Status"
+   },
+   {
+    "rank": 2,
     "name": "Lauren Matevish",
     "nationality": "United States",
     "result": "79 m",
@@ -1433,7 +1451,7 @@
     "event": "AIDA Apoyo Abyss Open 2026"
    },
    {
-    "rank": 2,
+    "rank": 3,
     "name": "Zsófia Törőcsik",
     "nationality": "Hungary",
     "result": "78 m",
@@ -1442,7 +1460,7 @@
     "event": "WORLD APNEA 2026 Depth Championships-Limassol Cyprus"
    },
    {
-    "rank": 3,
+    "rank": 4,
     "name": "Sanda Delija",
     "nationality": "Croatia",
     "result": "75 m",
@@ -1451,7 +1469,7 @@
     "event": "WORLD APNEA 2026 Depth Championships-Limassol Cyprus"
    },
    {
-    "rank": 4,
+    "rank": 5,
     "name": "Mariko Kaji",
     "nationality": "Japan",
     "result": "73 m",
@@ -1460,7 +1478,7 @@
     "event": "AIDA Panglao HUG Cup #4"
    },
    {
-    "rank": 5,
+    "rank": 6,
     "name": "Jade MacDonald-Razvi",
     "nationality": "Australia",
     "result": "71 m",
@@ -1469,7 +1487,7 @@
     "event": "AIDA Mabini Depth Quest - Season 4"
    },
    {
-    "rank": 6,
+    "rank": 7,
     "name": "Tongtong Xu",
     "nationality": "China",
     "result": "70 m",
@@ -1478,7 +1496,7 @@
     "event": "AIDA Asian Freediving Cup 2026"
    },
    {
-    "rank": 7,
+    "rank": 8,
     "name": "Natalia Zharkova",
     "nationality": "Ukraine",
     "result": "68 m",
@@ -1487,7 +1505,7 @@
     "event": "WORLD APNEA 2026 Depth Championships-Limassol Cyprus"
    },
    {
-    "rank": 8,
+    "rank": 9,
     "name": "Celina Jinguji",
     "nationality": "Japan",
     "result": "65 m",
@@ -1496,31 +1514,13 @@
     "event": "AIDA Mabini Depth Quest - Season 4"
    },
    {
-    "rank": 9,
+    "rank": 10,
     "name": "Alice Ellialtioglu",
     "nationality": "Turkiye",
     "result": "64 m",
     "points": 64.0,
     "date": "2026-08-29",
     "event": "2ND WORLD APNEA DREAM CUP DEPTH COMPETITION"
-   },
-   {
-    "rank": 10,
-    "name": "Naomi Iwazawa",
-    "nationality": "Japan",
-    "result": "63 m",
-    "points": 63.0,
-    "date": "2026-09-30",
-    "event": "WORLD APNEA 2026 Depth Championships-Limassol Cyprus"
-   },
-   {
-    "rank": 11,
-    "name": "Enchante Gallardo",
-    "nationality": "United States",
-    "result": "63 m",
-    "points": 63.0,
-    "date": "2026-09-30",
-    "event": "WORLD APNEA 2026 Depth Championships-Limassol Cyprus"
    }
   ],
   "FIM|Male": [
@@ -1589,6 +1589,15 @@
    },
    {
     "rank": 8,
+    "name": "William Trubridge",
+    "nationality": "New Zealand",
+    "result": "112 m",
+    "points": 111.0,
+    "date": "2026-11-11",
+    "event": "AIDA Blue Element November 2026 with DIVEYE WR Status"
+   },
+   {
+    "rank": 9,
     "name": "Jan Knutzen",
     "nationality": "Germany",
     "result": "111 m",
@@ -1597,31 +1606,13 @@
     "event": "WORLD APNEA 2026 Depth Championships-Limassol Cyprus"
    },
    {
-    "rank": 9,
+    "rank": 10,
     "name": "Sergey Zykov",
     "nationality": "International",
     "result": "110 m",
     "points": 110.0,
     "date": "2026-09-10",
     "event": "Aida Freediving World Cup September Competition"
-   },
-   {
-    "rank": 10,
-    "name": "Mingxin Zhang",
-    "nationality": "China",
-    "result": "108 m",
-    "points": 108.0,
-    "date": "2026-07-22",
-    "event": "AIDA Asian Freediving Cup 2026"
-   },
-   {
-    "rank": 11,
-    "name": "Brad Stephens",
-    "nationality": "United States",
-    "result": "108 m",
-    "points": 108.0,
-    "date": "2026-10-06",
-    "event": "WORLD APNEA 2026 Depth Championships-Limassol Cyprus"
    }
   ],
   "FIM|Female": [
@@ -1717,8 +1708,8 @@
    },
    {
     "rank": 11,
-    "name": "Mariko Kaji",
-    "nationality": "Japan",
+    "name": "Tongtong Xu",
+    "nationality": "China",
     "result": "90 m",
     "points": 90.0,
     "date": "2026-07-19",
@@ -1726,8 +1717,8 @@
    },
    {
     "rank": 12,
-    "name": "Tongtong Xu",
-    "nationality": "China",
+    "name": "Mariko Kaji",
+    "nationality": "Japan",
     "result": "90 m",
     "points": 90.0,
     "date": "2026-07-19",
